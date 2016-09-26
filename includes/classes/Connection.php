@@ -36,12 +36,11 @@ abstract class Connection {
 	public abstract function remote_get( $args );
 
 	/**
-	 * Log statuses for sync items
+	 * Log a sync
 	 *
-	 * @param  array|int $item_ids
-	 * @param  string $status
+	 * @param  array $item_id_mappings
 	 * @since  1.0
 	 */
-	public abstract function log_sync_statuses( $item_ids, $status );
+	public abstract function log_sync( array $item_id_mappings );
 
 }

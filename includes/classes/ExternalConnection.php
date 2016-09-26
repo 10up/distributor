@@ -38,34 +38,29 @@ abstract class ExternalConnection extends Connection {
 	}
 
 	/**
-	 * Log statuses for sync posts
+	 * Log a sync
 	 *
-	 * @param  array|int $item_ids
-	 * @param  string $status
+	 * @param  array $item_id_mappings
 	 * @since  1.0
 	 */
-	public function log_sync_statuses( $item_ids, $status ) {
-		if ( ! is_array( $item_ids ) ) {
-			$item_ids = array( $item_ids );
+	public function log_sync( array $item_id_mappings ) {
+		$sync_log = get_post_meta( $this->id, 'sy_sync_log', true );
+
+		if ( empty( $sync_log ) ) {
+			$sync_log = array();
 		}
 
-		$pull_statuses = get_post_meta( $this->id, 'sy_pull_statuses', true );
-
-		if ( empty( $pull_statuses ) ) {
-			$pull_statuses = array();
-		}
-
-		foreach ( $item_ids as $item_id ) {
-			if ( ! $status ) {
-				unset( $pull_statuses[ $item_id ] );
+		foreach ( $item_id_mappings as $old_item_id => $new_item_id ) {
+			if ( empty( $new_item_id ) ) {
+				$sync_log[ $old_item_id ] = false;
 			} else {
-				$pull_statuses[ $item_id ] = $status;
+				$sync_log[ $old_item_id ] = (int) $new_item_id;
 			}
 		}
 
-		update_post_meta( $this->id, 'sy_pull_statuses', $pull_statuses );
+		update_post_meta( $this->id, 'sy_sync_log', $sync_log );
 
-		do_action( 'sy_log_sync_statuses', $item_ids, $status, $pull_statuses, $this );
+		do_action( 'sy_log_sync', $item_id_mappings, $sync_log, $this );
 	}
 
 	/**

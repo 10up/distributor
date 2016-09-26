@@ -156,16 +156,20 @@ function process_actions() {
 
 			if ( 'external' === $_GET['connection_type'] ) {
 				$connection = \Syndicate\ExternalConnections::factory()->instantiate( $_GET['connection_id'] );
-				$connection->pull( $posts );
+				$new_posts = $connection->pull( $posts );
 			} else {
 				$site = get_site( $_GET['connection_id'] );
 				$connection = new \Syndicate\InternalConnections\NetworkSiteConnection( $site );
-				$connection->pull( $posts );
+				$new_posts = $connection->pull( $posts );
 			}
 
-			foreach ( $posts as $post ) {
-				$connection->log_sync_statuses( $post, 'sync' );
+			$post_id_mappings = array();
+
+			foreach ( $posts as $key => $old_post_id ) {
+				$post_id_mappings[ $old_post_id ] = $new_posts[ $key ];
 			}
+
+			$connection->log_sync( $post_id_mappings );
 
 			wp_redirect( $_GET['_wp_http_referer'] );
 			exit;
@@ -201,49 +205,16 @@ function process_actions() {
 				$posts = [ $posts ];
 			}
 
-			foreach ( $posts as $post ) {
-				$connection->log_sync_statuses( $post, 'skip' );
+			$post_mapping = array();
+
+			foreach ( $posts as $post_id ) {
+				$post_mapping[ $post_id ] = false;
 			}
+
+			$connection->log_sync( $post_mapping );
 
 			wp_redirect( $_GET['_wp_http_referer'] );
 			exit;
-
-			break;
-		case 'bulk-mark-new':
-		case 'mark-new':
-			if ( ! wp_verify_nonce( $_GET['_wpnonce'], 'sy_mark_new' ) && ! wp_verify_nonce( $_GET['_wpnonce'], 'bulk-syndicate_page_pull' ) ) {
-				exit;
-			}
-
-			if ( ! current_user_can( 'manage_options' ) ) {
-				wp_die(
-					'<h1>' . __( 'Cheatin&#8217; uh?' ) . '</h1>' .
-					'<p>' . __( 'Sorry, you are not allowed to add this item.' ) . '</p>',
-					403
-				);
-			}
-
-			if ( empty( $_GET['connection_type'] ) || empty( $_GET['connection_id'] ) || empty( $_GET['post'] ) ) {
-				break;
-			}
-
-			if ( 'external' === $_GET['connection_type'] ) {
-				$connection = \Syndicate\ExternalConnections::factory()->instantiate( $_GET['connection_id'] );
-			} else {
-				$site = get_site( $_GET['connection_id'] );
-				$connection = new \Syndicate\InternalConnections\NetworkSiteConnection( $site );
-			}
-
-			$posts = $_GET['post'];
-			if ( ! is_array( $posts ) ) {
-				$posts = [ $posts ];
-			}
-
-			foreach ( $posts as $post ) {
-				$connection->log_sync_statuses( $post, false );
-			}
-
-			wp_redirect( $_GET['_wp_http_referer'] );
 
 			break;
 	}

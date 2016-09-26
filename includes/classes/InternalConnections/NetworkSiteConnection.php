@@ -95,32 +95,26 @@ class NetworkSiteConnection extends Connection {
 	}
 
 	/**
-	 * Log statuses for sync posts
+	 * Log a sync. Unfortunately have to use options
 	 *
-	 * @param  array|int $item_ids
-	 * @param  string $status
+	 * @param  array $item_id_mappings
+	 * @param  string|bool $status
 	 * @since  1.0
 	 */
-	public function log_sync_statuses( $item_ids, $status ) {
-		if ( ! is_array( $item_ids ) ) {
-			$item_ids = array( $item_ids );
+	public function log_sync( array $item_id_mappings ) {
+		$sync_log = get_site_option( 'sy_sync_log_' . $this->site->blog_id, array() );
+
+		foreach ( $item_id_mappings as $old_item_id => $new_item_id ) {
+			if ( empty( $new_item_id ) ) {
+				$sync_log[ $old_item_id ] = false;
+			} else {
+				$sync_log[ $old_item_id ] = (int) $new_item_id;
+			}
 		}
 
-		switch_to_blog( $this->site->blog_id );
+		update_site_option( 'sy_sync_log_' .  $this->site->blog_id, $sync_log );
 
-		if ( $status ) {
-			$status = array( $status );
-		} else {
-			$status = array();
-		}
-
-		foreach ( $item_ids as $item_id ) {
-			wp_set_post_terms( $item_id, $status, 'sy-sync-status' );
-		}
-
-		restore_current_blog();
-
-		do_action( 'sy_log_sync_statuses', $item_ids, $status, $this );
+		do_action( 'sy_log_sync', $item_id_mappings,  $sync_log, $this );
 	}
 
 	/**
@@ -136,19 +130,26 @@ class NetworkSiteConnection extends Connection {
 		switch_to_blog( $this->site->blog_id );
 
 		if ( empty( $id ) ) {
-			$post_type = ( empty( $args['post_type'] ) ) ? 'post' : $args['post_type'];
-			$post_status = ( empty( $args['post_status'] ) ) ? 'any' : $args['post_status'];
-			$posts_per_page = ( empty( $args['posts_per_page'] ) ) ? get_option( 'posts_per_page' ) : $args['posts_per_page'];
-			$paged = ( empty( $args['paged'] ) ) ? 1 : $args['paged'];
-			$tax_query = ( empty( $args['tax_query'] ) ) ? [] : $args['tax_query'];
+			$query_args['post_type'] = ( empty( $args['post_type'] ) ) ? 'post' : $args['post_type'];
+			$query_args['post_status'] = ( empty( $args['post_status'] ) ) ? 'any' : $args['post_status'];
+			$query_args['posts_per_page'] = ( empty( $args['posts_per_page'] ) ) ? get_option( 'posts_per_page' ) : $args['posts_per_page'];
+			$query_args['paged'] = ( empty( $args['paged'] ) ) ? 1 : $args['paged'];
 
-			$posts_query = new \WP_Query( [
-				'post_type'      => $post_type,
-				'posts_per_page' => $posts_per_page,
-				'paged'          => $paged,
-				'post_status'    => $post_status,
-				'tax_query'      => $tax_query,
-			] );
+			if ( isset( $args['post__in'] ) ) {
+				if ( empty( $args['post__in'] ) ) {
+					// If post__in is empty, we can just stop right here
+					return apply_filters( 'sy_remote_get', [
+						'items'       => array(),
+						'total_items' => 0,
+					], $args, $this );
+				}
+
+				$query_args['post__in'] = $args['post__in'];
+			} elseif ( isset( $args['post__not_in'] ) ) {
+				$query_args['post__not_in'] = $args['post__not_in'];
+			}
+
+			$posts_query = new \WP_Query( $query_args );
 
 			$posts = $posts_query->posts;
 

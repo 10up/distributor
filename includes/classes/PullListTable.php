@@ -182,10 +182,18 @@ class PullListTable extends \WP_List_Table {
 		if ( is_a( $connection_now, '\Syndicate\ExternalConnection' ) ) {
 			$connection_type = 'external';
 			$connection_id = $connection_now->id;
+			$sync_log = get_post_meta( $connection_now->id, 'sy_sync_log', true );
 		} else {
 			$connection_type = 'internal';
 			$connection_id = $connection_now->site->blog_id;
+			$sync_log = get_site_option( 'sy_sync_log_' . $connection_now->site->blog_id, array() );
 		}
+
+		if ( empty( $sync_map ) ) {
+			$sync_map = array();
+		}
+
+		$actions = [];
 
 		if ( empty( $_GET['status'] ) || 'new' === $_GET['status'] ) {
 			$actions = [
@@ -199,9 +207,16 @@ class PullListTable extends \WP_List_Table {
 				'syndicate' => sprintf( '<a href="%s">%s</a>', esc_url( wp_nonce_url( admin_url( 'admin.php?page=pull&_wp_http_referer=' . urlencode( $_SERVER['REQUEST_URI'] ) . '&action=syndicate&post=' . $item->ID . '&connection_type=' . $connection_type . '&connection_id=' . $connection_id ), 'sy_syndicate' ) ), esc_html__( 'Syndicate (as draft)', 'syndicate' ) ),
 			];
 		} elseif ( 'sync' === $_GET['status'] ) {
-			$actions = [
-				'mark-new' => sprintf( '<a href="%s">%s</a>', esc_url( wp_nonce_url( admin_url( 'admin.php?page=pull&_wp_http_referer=' . urlencode( $_SERVER['REQUEST_URI'] ) . '&action=mark-new&post=' . $item->ID . '&connection_type=' . $connection_type . '&connection_id=' . $connection_id ), 'sy_mark_new' ) ), esc_html__( 'Mark as New', 'syndicate' ) ),
-			];
+
+			$new_post_id = ( ! empty( $sync_log[ (int) $item->ID ] ) ) ? $sync_log[ (int) $item->ID ] : 0;
+			$new_post = get_post( $new_post_id );
+
+			if ( ! empty( $new_post ) ) {
+				$actions = [
+					'view' => '<a href="' . esc_url( get_permalink( $new_post_id ) ) . '">' . esc_html__( 'View', 'syndicate' ) . '</a>',
+					'edit' => '<a href="' . esc_url( get_edit_post_link( $new_post_id ) ) . '">' . esc_html__( 'Edit', 'syndicate' ) . '</a>',
+				];
+			}
 		}
 
 		echo $title;
@@ -240,57 +255,32 @@ class PullListTable extends \WP_List_Table {
 		}
 
 		if ( is_a( $connection_now, '\Syndicate\ExternalConnection' ) ) {
-			$pull_statuses = get_post_meta( $connection_now->id, 'sy_pull_statuses', true );
-
-			if ( empty( $pull_statuses ) ) {
-				$pull_statuses = array();
-			}
-
-			$skipped = array();
-			$syndicated = array();
-
-			foreach ( $pull_statuses as $post_id => $pull_status ) {
-				if ( 'skip' === $pull_status ) {
-					$skipped[] = (int) $post_id;
-				} elseif ( 'sync' === $pull_status ) {
-					$syndicated[] = (int) $post_id;
-				}
-			}
-
-			if ( empty( $_GET['status'] ) || 'new' === $_GET['status'] ) {
-				$remote_get_args['post__not_in'] = array_merge( $skipped, $syndicated );
-			} elseif ( 'skip' === $_GET['status'] ) {
-				$remote_get_args['post__in'] = $skipped;
-			} else {
-				$remote_get_args['post__in'] = $syndicated;
-			}
+			$sync_log = get_post_meta( $connection_now->id, 'sy_sync_log', true );
 		} else {
-			if ( empty( $_GET['status'] ) || 'new' === $_GET['status'] ) {
-				$remote_get_args['tax_query'] = [
-					[
-						'taxonomy' => 'sy-sync-status',
-						'field'    => 'slug',
-						'terms'    => [ 'sync', 'skip' ],
-						'operator' => 'NOT IN',
-					]
-				];
-			} elseif ( 'skip' === $_GET['status'] ) {
-				$remote_get_args['tax_query'] = [
-					[
-						'taxonomy' => 'sy-sync-status',
-						'field'    => 'slug',
-						'terms'    => [ 'skip' ],
-					]
-				];
+			$sync_log = get_site_option( 'sy_sync_log_' . $connection_now->site->blog_id, array() );
+		}
+
+		if ( empty( $sync_log ) ) {
+			$sync_log = array();
+		}
+
+		$skipped = array();
+		$syndicated = array();
+
+		foreach ( $sync_log as $old_post_id => $new_post_id ) {
+			if ( false === $new_post_id ) {
+				$skipped[] = (int) $old_post_id;
 			} else {
-				$remote_get_args['tax_query'] = [
-					[
-						'taxonomy' => 'sy-sync-status',
-						'field'    => 'slug',
-						'terms'    => [ 'sync' ],
-					]
-				];
+				$syndicated[] = (int) $old_post_id;
 			}
+		}
+
+		if ( empty( $_GET['status'] ) || 'new' === $_GET['status'] ) {
+			$remote_get_args['post__not_in'] = array_merge( $skipped, $syndicated );
+		} elseif ( 'skip' === $_GET['status'] ) {
+			$remote_get_args['post__in'] = $skipped;
+		} else {
+			$remote_get_args['post__in'] = $syndicated;
 		}
 
 		$remote_get = $connection_now->remote_get( $remote_get_args );
@@ -340,9 +330,7 @@ class PullListTable extends \WP_List_Table {
 				'bulk-syndicate' => esc_html__( 'Syndicate', 'syndicate' ),
 			];
 		} else {
-			$actions = [
-				'bulk-mark-new' => esc_html__( 'Mark as New', 'syndicate' ),
-			];
+			$actions = [];
 		}
 
 		return $actions;
