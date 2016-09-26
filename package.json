@@ -1,0 +1,16 @@
+{
+  "name": "syndicate",
+  "version": "1.0.0",
+  "description": "",
+  "author": "10up",
+  "devDependencies": {
+    "grunt": "^1.0.1",
+    "grunt-contrib-uglify": "^2.0.0",
+	"grunt-contrib-watch":  "*",
+	"grunt-sass":           "*",
+	"grunt-contrib-cssmin": "*",
+	"load-grunt-tasks":     "*",
+	"grunt-autoprefixer":   "*",
+	"grunt-wp-i18n":        "^0.5.3"
+  }
+}
