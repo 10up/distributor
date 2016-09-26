@@ -175,7 +175,7 @@ class PullListTable extends \WP_List_Table {
 	 */
 	public function column_name( $item ) {
 
-		$title = '<a href="' . esc_url( $item->link ) . '"><strong>' . esc_html( $item->post_title ) . '</strong></a>';
+		$title = '<strong>' . esc_html( $item->post_title ) . '</strong>';
 
 		global $connection_now;
 
@@ -197,7 +197,9 @@ class PullListTable extends \WP_List_Table {
 				'syndicate' => sprintf( '<a href="%s">%s</a>', esc_url( wp_nonce_url( admin_url( 'admin.php?page=pull&_wp_http_referer=' . urlencode( $_SERVER['REQUEST_URI'] ) . '&action=syndicate&post=' . $item->ID . '&connection_type=' . $connection_type . '&connection_id=' . $connection_id ), 'sy_syndicate' ) ), esc_html__( 'Syndicate (as draft)', 'syndicate' ) ),
 			];
 		} elseif ( 'sync' === $_GET['status'] ) {
-			$actions = [];
+			$actions = [
+				'mark-new' => sprintf( '<a href="%s">%s</a>', esc_url( wp_nonce_url( admin_url( 'admin.php?page=pull&_wp_http_referer=' . urlencode( $_SERVER['REQUEST_URI'] ) . '&action=mark-new&post=' . $item->ID . '&connection_type=' . $connection_type . '&connection_id=' . $connection_id ), 'sy_mark_new' ) ), esc_html__( 'Mark as New', 'syndicate' ) ),
+			];
 		}
 
 		echo $title;
@@ -336,7 +338,9 @@ class PullListTable extends \WP_List_Table {
 				'bulk-syndicate' => esc_html__( 'Syndicate', 'syndicate' ),
 			];
 		} else {
-			$actions = [];
+			$actions = [
+				'bulk-mark-new' => esc_html__( 'Mark as New', 'syndicate' ),
+			];
 		}
 
 		return $actions;

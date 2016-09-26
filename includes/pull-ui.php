@@ -168,6 +168,7 @@ function process_actions() {
 			}
 
 			wp_redirect( $_GET['_wp_http_referer'] );
+			exit;
 
 			break;
 		case 'bulk-skip':
@@ -202,6 +203,44 @@ function process_actions() {
 
 			foreach ( $posts as $post ) {
 				$connection->log_sync_statuses( $post, 'skip' );
+			}
+
+			wp_redirect( $_GET['_wp_http_referer'] );
+			exit;
+
+			break;
+		case 'bulk-mark-new':
+		case 'mark-new':
+			if ( ! wp_verify_nonce( $_GET['_wpnonce'], 'sy_mark_new' ) && ! wp_verify_nonce( $_GET['_wpnonce'], 'bulk-syndicate_page_pull' ) ) {
+				exit;
+			}
+
+			if ( ! current_user_can( 'manage_options' ) ) {
+				wp_die(
+					'<h1>' . __( 'Cheatin&#8217; uh?' ) . '</h1>' .
+					'<p>' . __( 'Sorry, you are not allowed to add this item.' ) . '</p>',
+					403
+				);
+			}
+
+			if ( empty( $_GET['connection_type'] ) || empty( $_GET['connection_id'] ) || empty( $_GET['post'] ) ) {
+				break;
+			}
+
+			if ( 'external' === $_GET['connection_type'] ) {
+				$connection = \Syndicate\ExternalConnections::factory()->instantiate( $_GET['connection_id'] );
+			} else {
+				$site = get_site( $_GET['connection_id'] );
+				$connection = new \Syndicate\InternalConnections\NetworkSiteConnection( $site );
+			}
+
+			$posts = $_GET['post'];
+			if ( ! is_array( $posts ) ) {
+				$posts = [ $posts ];
+			}
+
+			foreach ( $posts as $post ) {
+				$connection->log_sync_statuses( $post, false );
 			}
 
 			wp_redirect( $_GET['_wp_http_referer'] );

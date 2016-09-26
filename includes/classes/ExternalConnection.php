@@ -56,7 +56,11 @@ abstract class ExternalConnection extends Connection {
 		}
 
 		foreach ( $item_ids as $item_id ) {
-			$pull_statuses[ $item_id ] = $status;
+			if ( ! $status ) {
+				unset( $pull_statuses[ $item_id ] );
+			} else {
+				$pull_statuses[ $item_id ] = $status;
+			}
 		}
 
 		update_post_meta( $this->id, 'sy_pull_statuses', $pull_statuses );

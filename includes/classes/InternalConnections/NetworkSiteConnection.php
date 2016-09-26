@@ -108,8 +108,14 @@ class NetworkSiteConnection extends Connection {
 
 		switch_to_blog( $this->site->blog_id );
 
+		if ( $status ) {
+			$status = array( $status );
+		} else {
+			$status = array();
+		}
+
 		foreach ( $item_ids as $item_id ) {
-			wp_set_post_terms( $item_id, array( $status ), 'sy-sync-status' );
+			wp_set_post_terms( $item_id, $status, 'sy-sync-status' );
 		}
 
 		restore_current_blog();
