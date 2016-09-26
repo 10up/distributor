@@ -42,6 +42,6 @@ abstract class Connection {
 	 * @param  string $status
 	 * @since  1.0
 	 */
-	public abstract function log_sync_statuses( $item_ids, string $status );
+	public abstract function log_sync_statuses( $item_ids, $status );
 
 }

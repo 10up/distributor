@@ -29,7 +29,7 @@ abstract class ExternalConnection extends Connection {
 	 * @param Mapping        $mapping_handler
 	 * @since  1.0
 	 */
-	public function __construct( string $name, string $base_url, int $id, Authentication $auth_handler, Mapping $mapping_handler ) {
+	public function __construct( $name, $base_url, $id, Authentication $auth_handler, Mapping $mapping_handler ) {
 		$this->name = $name;
 		$this->id = $id;
 		$this->base_url = $base_url;
@@ -44,7 +44,7 @@ abstract class ExternalConnection extends Connection {
 	 * @param  string $status
 	 * @since  1.0
 	 */
-	public function log_sync_statuses( $item_ids, string $status ) {
+	public function log_sync_statuses( $item_ids, $status ) {
 		if ( ! is_array( $item_ids ) ) {
 			$item_ids = array( $item_ids );
 		}

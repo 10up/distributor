@@ -189,11 +189,13 @@ class PullListTable extends \WP_List_Table {
 
 		if ( empty( $_GET['status'] ) || 'new' === $_GET['status'] ) {
 			$actions = [
+				'view' => '<a href="' . esc_url( $item->link ) . '">' . esc_html__( 'View', 'syndicate' ) . '</a>',
 				'syndicate' => sprintf( '<a href="%s">%s</a>', esc_url( wp_nonce_url( admin_url( 'admin.php?page=pull&_wp_http_referer=' . urlencode( $_SERVER['REQUEST_URI'] ) . '&action=syndicate&post=' . $item->ID . '&connection_type=' . $connection_type . '&connection_id=' . $connection_id ), 'sy_syndicate' ) ), esc_html__( 'Syndicate (as draft)', 'syndicate' ) ),
 				'skip' => sprintf( '<a href="%s">%s</a>', esc_url( wp_nonce_url( admin_url( 'admin.php?page=pull&action=skip&_wp_http_referer=' . urlencode( $_SERVER['REQUEST_URI'] ) . '&post=' . $item->ID . '&connection_type=' . $connection_type . '&connection_id=' . $connection_id ), 'sy_skip' ) ), esc_html__( 'Skip', 'syndicate' ) ),
 			];
 		} elseif ( 'skip' === $_GET['status'] ) {
 			$actions = [
+				'view' => '<a href="' . esc_url( $item->link ) . '">' . esc_html__( 'View', 'syndicate' ) . '</a>',
 				'syndicate' => sprintf( '<a href="%s">%s</a>', esc_url( wp_nonce_url( admin_url( 'admin.php?page=pull&_wp_http_referer=' . urlencode( $_SERVER['REQUEST_URI'] ) . '&action=syndicate&post=' . $item->ID . '&connection_type=' . $connection_type . '&connection_id=' . $connection_id ), 'sy_syndicate' ) ), esc_html__( 'Syndicate (as draft)', 'syndicate' ) ),
 			];
 		} elseif ( 'sync' === $_GET['status'] ) {
