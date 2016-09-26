@@ -34,8 +34,8 @@ class NetworkSiteConnection extends Connection {
 		$post = get_post( $post_id );
 
 		$new_post_args = array(
-			'post_title' => get_the_title( $post_id ),
-			'post_content' => get_the_content( $post_id ),
+			'post_title'   => get_the_title( $post_id ),
+			'post_content' => apply_filters( 'the_content', $post->post_content ),
 			'post_excerpt' => $post->post_excerpt,
 			'post_type'    => $post->post_type,
 			'post_author'  => get_current_user_id(),
