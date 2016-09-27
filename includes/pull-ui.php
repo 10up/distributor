@@ -48,6 +48,17 @@ function setup_list_table() {
 
 	global $connection_now;
 
+	$sites = \Syndicate\NetworkSiteConnections::factory()->get_available_authorized_sites();
+
+	foreach ( $sites as $site_array ) {
+		$internal_connection = new \Syndicate\InternalConnections\NetworkSiteConnection( $site_array['site'] );
+		$connection_list_table->connection_objects[] = $internal_connection;
+
+		if ( ! empty( $_GET['connection_id'] ) && ! empty( $_GET['connection_type'] ) && 'internal' === $_GET['connection_type'] && (int) $internal_connection->site->blog_id === (int) $_GET['connection_id'] ) {
+			$connection_now = $internal_connection;
+		}
+	}
+
 	foreach ( $external_connections->posts as $external_connection_id ) {
 		$external_connection = \Syndicate\ExternalConnections::factory()->instantiate( $external_connection_id );
 
@@ -57,17 +68,6 @@ function setup_list_table() {
 			if ( ! empty( $_GET['connection_id'] ) && ! empty( $_GET['connection_type'] ) && 'external' === $_GET['connection_type'] && (int) $external_connection_id === (int) $_GET['connection_id'] ) {
 				$connection_now = $external_connection;
 			}
-		}
-	}
-
-	$sites = \Syndicate\NetworkSiteConnections::factory()->get_available_authorized_sites();
-
-	foreach ( $sites as $site_array ) {
-		$internal_connection = new \Syndicate\InternalConnections\NetworkSiteConnection( $site_array['site'] );
-		$connection_list_table->connection_objects[] = $internal_connection;
-
-		if ( ! empty( $_GET['connection_id'] ) && ! empty( $_GET['connection_type'] ) && 'internal' === $_GET['connection_type'] && (int) $internal_connection->site->blog_id === (int) $_GET['connection_id'] ) {
-			$connection_now = $internal_connection;
 		}
 	}
 
@@ -256,6 +256,17 @@ function dashboard() {
 		$connection_type = 'internal';
 		$connection_id = $connection_now->site->blog_id;
 	}
+
+	$internal_connection_group = array();
+	$external_connection_group = array();
+
+	foreach ( $connection_list_table->connection_objects as $connection ) {
+		if ( is_a( $connection, '\Syndicate\ExternalConnection' ) ) {
+			$external_connection_group[] = $connection;
+		} else {
+			$internal_connection_group[] = $connection;
+		}
+	}
 	?>
 	<div class="wrap nosubsub">
 		<h1>
@@ -264,30 +275,39 @@ function dashboard() {
 			<?php else : ?>
 				<?php esc_html_e( 'Pull Content from', 'syndicate' ); ?>
 				<select id="pull_connections" name="connection" method="get">
-					<?php foreach ( $connection_list_table->connection_objects as $connection ) :
-						$type = 'external';
+					<?php if ( ! empty( $internal_connection_group ) ) : ?>
+						<optgroup label="<?php esc_html_e( 'Network Connections', 'syndicate' ); ?>">
+							<?php foreach ( $internal_connection_group as $connection ) :
+								$selected = false;
+								$type = 'internal';
+								$name = untrailingslashit( $connection->site->domain . $connection->site->path );
+								$id = $connection->site->blog_id;
 
-						$selected = false;
+								if ( (int) $connection_now->site->blog_id === (int) $id ) {
+									$selected = true;
+								}
+								?>
+								<option <?php selected( true, $selected ); ?> data-pull-url="<?php echo esc_url( admin_url( 'admin.php?page=pull&connection_type=' . $type .'&connection_id=' . $id ) ); ?>"><?php echo esc_html( $name ); ?></option>
+							<?php endforeach; ?>
+						</optgroup>
+					<?php endif; ?>
 
-						if ( ! is_a( $connection, '\Syndicate\ExternalConnection' ) ) {
-							$type = 'internal';
-							$name = untrailingslashit( $connection->site->domain . $connection->site->path );
-							$id = $connection->site->blog_id;
+					<?php if ( ! empty( $external_connection_group ) ) : ?>
+						<optgroup label="<?php esc_html_e( 'External Connections', 'syndicate' ); ?>">
+							<?php foreach ( $external_connection_group as $connection ) :
+								$type = 'external';
+								$selected = false;
+								$name = $connection->name;
+								$id = $connection->id;
 
-							if ( (int) $connection_now->site->blog_id === (int) $id ) {
-								$selected = true;
-							}
-						} else {
-							$name = $connection->name;
-							$id = $connection->id;
-
-							if ( (int) $connection_now->id === (int) $id ) {
-								$selected = true;
-							}
-						}
-						?>
-						<option <?php selected( true, $selected ); ?> data-pull-url="<?php echo esc_url( admin_url( 'admin.php?page=pull&connection_type=' . $type .'&connection_id=' . $id ) ); ?>"><?php echo esc_html( $name ); ?></option>
-					<?php endforeach; ?>
+								if ( (int) $connection_now->id === (int) $id ) {
+									$selected = true;
+								}
+								?>
+								<option <?php selected( true, $selected ); ?> data-pull-url="<?php echo esc_url( admin_url( 'admin.php?page=pull&connection_type=' . $type .'&connection_id=' . $id ) ); ?>"><?php echo esc_html( $name ); ?></option>
+							<?php endforeach; ?>
+						</optgroup>
+					<?php endif; ?>
 				</select>
 			<?php endif; ?>
 		</h1>
