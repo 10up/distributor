@@ -81,7 +81,8 @@ function ajax_verify_external_connection() {
 	$auth_handler = new $external_connection_class::$auth_handler_class( $auth );
 	$mapping_handler = new $external_connection_class::$mapping_handler_class();
 
-	$external_connection = new $external_connection_class( $_POST['url'], $auth_handler, $mapping_handler );
+	// Init with placeholders since we haven't created yet
+	$external_connection = new $external_connection_class( 'connection-test', $_POST['url'], 0, $auth_handler, $mapping_handler );
 
 	$external_connections = $external_connection->check_connections();
 
