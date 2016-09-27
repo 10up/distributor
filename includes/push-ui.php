@@ -60,7 +60,7 @@ function ajax_push() {
 				$auth_handler = new $external_connection_class::$auth_handler_class( $external_connection_auth );
 				$mapping_handler = new $external_connection_class::$mapping_handler_class();
 
-				$external_connection = new $external_connection_class( $external_connection_url, $auth_handler, $mapping_handler );
+				$external_connection = new $external_connection_class( get_the_title( $external_connection_id ), $external_connection_url, $external_connection_id, $auth_handler, $mapping_handler );
 
 				$push_args = array();
 

@@ -193,7 +193,7 @@ class WordPressExternalConnection extends ExternalConnection {
 
 		$post_type = get_post_type( $post_id );
 
-		$path = self::namespace;
+		$path = self::$namespace;
 
 		/**
 		 * First let's get the actual route. We don't know the "plural" of our post type
@@ -223,7 +223,7 @@ class WordPressExternalConnection extends ExternalConnection {
 		 */
 		$post_body = array(
 			'title'   => get_the_title( $post_id ),
-			'content' => get_the_content( $post_id ),
+			'content' => apply_filters( 'the_content', $post->post_content ),
 			'type'    => $post->post_type,
 			'status'  => 'draft',
 			'excerpt' => $post->post_excerpt,
