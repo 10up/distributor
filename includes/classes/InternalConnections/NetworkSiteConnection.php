@@ -32,6 +32,7 @@ class NetworkSiteConnection extends Connection {
 	 */
 	public function push( $post_id, $args = array() ) {
 		$post = get_post( $post_id );
+		$original_blog_id = get_current_blog_id();
 
 		$new_post_args = array(
 			'post_title'   => get_the_title( $post_id ),
@@ -49,6 +50,11 @@ class NetworkSiteConnection extends Connection {
 		}
 
 		$new_post = wp_insert_post( $new_post_args );
+
+		if ( ! is_wp_error( $new_post ) ) {
+			update_post_meta( $new_post, 'sy_original_post_id', (int) $post_id );
+			update_post_meta( $new_post, 'sy_original_blog_id', (int) $original_blog_id );
+		}
 
 		do_action( 'sy_push_post', $new_post, $post_id, $args, $this );
 
