@@ -179,7 +179,7 @@ function save_post( $post_id ) {
 		$auth_handler = new $external_connection_class::$auth_handler_class( $_POST['sy_external_connection_auth'] );
 		$mapping_handler = new $external_connection_class::$mapping_handler_class();
 
-		$external_connection = new $external_connection_class( $_POST['sy_external_connection_url'], $auth_handler, $mapping_handler );
+		$external_connection = new $external_connection_class( get_the_title( $post_id ), $_POST['sy_external_connection_url'], $post_id, $auth_handler, $mapping_handler );
 
 		$external_connections = $external_connection->check_connections();
 
@@ -220,7 +220,7 @@ function meta_box_external_connection( $post ) {
     	'can_get'      => esc_html__( 'Can pull:', 'syndicate' ),
 	);
 
-	if ( ! empty( $connections ) ) : ?>
+	if ( ! empty( $external_connections ) ) : ?>
 		<div class="external-connection-verification">
 			<ul class="errors">
 				<?php foreach ( $external_connections['errors'] as $error ) : ?>
