@@ -21,6 +21,17 @@ add_action( 'plugins_loaded', function() {
 function setup_list_table() {
 	global $connection_list_table;
 	global $connection_now;
+	global $sy_pull_messages;
+
+	if ( ! empty( $_COOKIE['sy-skipped'] ) ) {
+		$sy_pull_messages['skipped'] = 1;
+
+		setcookie( 'sy-skipped', 1, time() - 60, ADMIN_COOKIE_PATH, COOKIE_DOMAIN, is_ssl() );
+	} elseif ( ! empty( $_COOKIE['sy-syndicated'] ) ) {
+		$sy_pull_messages['syndicated'] = 1;
+
+		setcookie( 'sy-syndicated', 1, time() - 60, ADMIN_COOKIE_PATH, COOKIE_DOMAIN, is_ssl() );
+	}
 
 	$external_connections = new \WP_Query( array(
 		'post_type'      => 'sy_ext_connection',
@@ -171,7 +182,9 @@ function process_actions() {
 
 			$connection->log_sync( $post_id_mappings );
 
-			wp_redirect( $_GET['_wp_http_referer'] );
+			setcookie( 'sy-syndicated', 1, time() + DAY_IN_SECONDS, ADMIN_COOKIE_PATH, COOKIE_DOMAIN, is_ssl() );
+
+			wp_redirect( wp_get_referer() );
 			exit;
 
 			break;
@@ -213,7 +226,9 @@ function process_actions() {
 
 			$connection->log_sync( $post_mapping );
 
-			wp_redirect( $_GET['_wp_http_referer'] );
+			setcookie( 'sy-skipped', 1, time() + DAY_IN_SECONDS, ADMIN_COOKIE_PATH, COOKIE_DOMAIN, is_ssl() );
+
+			wp_redirect( wp_get_referer() );
 			exit;
 
 			break;
@@ -228,6 +243,7 @@ function process_actions() {
 function dashboard() {
 	global $connection_list_table;
 	global $connection_now;
+	global $sy_pull_messages;
 
 	$connection_list_table->prepare_items();
 
@@ -275,6 +291,18 @@ function dashboard() {
 				</select>
 			<?php endif; ?>
 		</h1>
+
+		<?php if ( ! empty( $sy_pull_messages ) && ! empty( $sy_pull_messages['skipped'] ) ) : ?>
+			<div id="message" class="updated notice is-dismissible">
+				<p><?php esc_html_e( 'Post(s) have been marked as skipped.', 'syndicate' ); ?></p>
+			</div>
+		<?php endif; ?>
+
+		<?php if ( ! empty( $sy_pull_messages ) && ! empty( $sy_pull_messages['syndicated'] ) ) : ?>
+			<div id="message" class="updated notice is-dismissible">
+				<p><?php esc_html_e( 'Post(s) have been syndicated.', 'syndicate' ); ?></p>
+			</div>
+		<?php endif; ?>
 
 		<?php $connection_list_table->views(); ?>
 
