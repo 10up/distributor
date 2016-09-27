@@ -24,7 +24,7 @@
 	var $apiVerify = false;
 	var verificationTemplate = processTemplate('sy-external-connection-verification');
 
-	$(externalConnectionMetaBox).on('keyup', '.auth-field, .external-connection-url-field', _.debounce(function() {
+	$(externalConnectionMetaBox).on('keyup change input', '.auth-field, .external-connection-url-field', _.debounce(function() {
 		if ($apiVerify !== false) {
 			$apiVerify.abort();
 		}
