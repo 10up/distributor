@@ -166,7 +166,13 @@ class WordPressExternalConnection extends ExternalConnection {
 
 			unset( $post_array['ID'] );
 
-			$new_post = wp_insert_post( $post_array );
+			// Remove date stuff
+			unset( $post_array['post_date'] );
+			unset( $post_array['post_date_gmt'] );
+			unset( $post_array['post_modified'] );
+			unset( $post_array['post_modified_gmt'] );
+
+			$new_post = wp_insert_post( apply_filters( 'sy_pull_post_args', $post_array, $item_id, $post, $this ) );
 
 			do_action( 'sy_pull_post', $new_post, $this );
 
