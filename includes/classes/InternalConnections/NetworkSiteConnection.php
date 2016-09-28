@@ -49,7 +49,7 @@ class NetworkSiteConnection extends Connection {
 			$new_post_args['ID'] = $args['remote_post_id'];
 		}
 
-		$new_post = wp_insert_post( $new_post_args );
+		$new_post = wp_insert_post( apply_filters( 'sy_push_post_args', $new_post_args, $post, $args, $this ) );
 
 		if ( ! is_wp_error( $new_post ) ) {
 			update_post_meta( $new_post, 'sy_original_post_id', (int) $post_id );
