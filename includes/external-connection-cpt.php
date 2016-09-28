@@ -366,7 +366,8 @@ function action_admin_menu() {
 		'Syndicate',
 		'manage_options',
 		'syndicate',
-		__NAMESPACE__  . '\dashboard'
+		__NAMESPACE__  . '\dashboard',
+		'dashicons-share-alt2'
 	);
 
 	add_action( "load-$hook", __NAMESPACE__  . '\screen_option' );
