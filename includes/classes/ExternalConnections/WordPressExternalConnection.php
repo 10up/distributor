@@ -251,7 +251,7 @@ class WordPressExternalConnection extends ExternalConnection {
 			}
 		}
 
-		$response = wp_remote_post( $type_url, $this->auth_handler->format_post_args( array( 'body' =>  apply_filters( 'sy_push_post_args', $post_body, $post, $this ) ) );
+		$response = wp_remote_post( $type_url, $this->auth_handler->format_post_args( array( 'body' =>  apply_filters( 'sy_push_post_args', $post_body, $post, $this ) ) ) );
 
 		do_action( 'sy_push_post', $response, $post_body, $type_url, $post_id, $args, $this );
 
