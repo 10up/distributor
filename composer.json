@@ -7,12 +7,14 @@
   	}
   ],
   "require": {
-  	"php": ">=5.5",
-    "wp-api/discovery": "dev-master"
+  	"php": ">=5.5"
   },
   "autoload": {
   	"psr-4": {
   		"Syndicate\\": "includes/classes/"
   	}
+  },
+  "require-dev": {
+    "10up/wp_mock": "dev-master"
   }
 }

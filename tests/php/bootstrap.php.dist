@@ -1,0 +1,12 @@
+<?php
+
+/**
+ * Set up PHPUnit test library with WP Mock
+ */
+
+require_once __DIR__ . '/../../vendor/autoload.php';
+require_once __DIR__ . '/includes/TestCase.php';
+
+WP_Mock::setUsePatchwork( true );
+WP_Mock::setUsePatchwork( true );
+WP_Mock::bootstrap();
