@@ -38,7 +38,7 @@ class ExternalConnections {
 	/**
 	 * This is a factory method for initializing an external connection
 	 * 
-	 * @param  int|ExternalConnection $external_connection
+	 * @param  int|WP_Post $external_connection
 	 * @since  1.0
 	 * @return Connection
 	 */
