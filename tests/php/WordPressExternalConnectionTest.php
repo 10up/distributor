@@ -19,13 +19,6 @@ class WordPressExternalConnectionTest extends \TestCase {
 			$this->assertTrue( true );
 		}
 
-		try {
-			$connection = new WordPressExternalConnection( 'name', 'url', 1, new \stdClass(), new \stdClass() );
-		} catch ( \TypeError $e ) {
-			// Improper auth and mapping objects pass
-			$this->assertTrue( true );
-		}
-
 		// Now test a successful creation
 		$auth = new WordPressBasicAuth( array() );
 		$mapping = new WordPressRestPost();

@@ -62,10 +62,12 @@ class ExternalConnections {
 			return new \WP_Error( 'no_external_connection_type', esc_html__( 'External connection type is not registered.', 'syndicate' ) );
 		}
 
-		$auth_handler = new $this->external_connections[$type]::$auth_handler_class( $auth );
-		$mapping_handler = new $this->external_connections[$type]::$mapping_handler_class();
+		$connection_class = $this->external_connections[$type];
 
-		return new $this->external_connections[$type]( $name, $url, $external_connection_id, $auth_handler, $mapping_handler );
+		$auth_handler = new $connection_class::$auth_handler_class( $auth );
+		$mapping_handler = new $connection_class::$mapping_handler_class();
+
+		return new $connection_class( $name, $url, $external_connection_id, $auth_handler, $mapping_handler );
 	}
 
 	/**

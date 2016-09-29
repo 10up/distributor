@@ -13,3 +13,6 @@ Syndicate is a WordPress plugin allowing you to push and pull content to and fro
 * [WordPress](http://wordpress.org) 4.6+
 * [WP REST API 2.0 beta 12](http://v2.wp-api.org/) (if pushing to external websites)
 
+## Testing
+
+The plugin contains a standard test suite compatible with PHPUnit. If you want to test across multiple PHP versions, a [Dockunit](https://github.com/dockunit/dockunit) file is include.
