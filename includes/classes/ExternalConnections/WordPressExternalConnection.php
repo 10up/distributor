@@ -283,9 +283,10 @@ class WordPressExternalConnection extends ExternalConnection {
 	 */
 	public function check_connections() {
 		$output = array(
-			'errors'    => array(),
-			'can_post'  => array(),
-			'can_get'   => array(),
+			'errors'              => array(),
+			'can_post'            => array(),
+			'can_get'             => array(),
+			'endpoint_suggestion' => false,
 		);
 
 		$response = wp_remote_get( untrailingslashit( $this->base_url ), $this->auth_handler->format_get_args( array() ) );
@@ -293,6 +294,27 @@ class WordPressExternalConnection extends ExternalConnection {
 
 		if ( is_wp_error( $response ) || is_wp_error( $body ) ) {
 			$output['errors']['no_external_connection']  = 'no_external_connection';
+			return $output;
+		}
+
+		$response_headers = wp_remote_retrieve_headers( $response );
+		$link_headers = (array) $response_headers['Link'];
+		$correct_endpoint = false;
+
+		foreach ( $link_headers as $link_header ) {
+			if ( strpos( $link_header, 'rel="https://api.w.org/"' ) !== false ) {
+				$correct_endpoint = preg_replace( '#.*<([^>]+)>.*#', '$1', $link_header );
+			}
+		}
+
+		if ( empty( $correct_endpoint ) ) {
+			$output['errors']['no_external_connection'] = 'no_external_connection';
+			return $output;
+		}
+
+		if ( ! empty( $correct_endpoint ) && untrailingslashit( $this->base_url ) !== untrailingslashit( $correct_endpoint ) ) {
+			$output['errors']['no_external_connection'] = 'no_external_connection';
+			$output['endpoint_suggestion'] = untrailingslashit( $correct_endpoint );
 			return $output;
 		}
 

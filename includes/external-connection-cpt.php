@@ -14,6 +14,7 @@ add_action( 'plugins_loaded', function() {
 	add_action( 'save_post', __NAMESPACE__  . '\save_post' );
 	add_action( 'admin_enqueue_scripts', __NAMESPACE__  . '\admin_enqueue_scripts' );
 	add_action( 'wp_ajax_sy_verify_external_connection', __NAMESPACE__  . '\ajax_verify_external_connection' );
+	add_action( 'wp_ajax_sy_verify_external_connection_endpoint', __NAMESPACE__  . '\ajax_verify_external_connection_endpoint' );
 	add_action( 'admin_footer', __NAMESPACE__  . '\js_templates' );
 	add_filter( 'manage_sy_ext_connection_posts_columns', __NAMESPACE__  . '\filter_columns' );
 	add_action( 'manage_sy_ext_connection_posts_custom_column', __NAMESPACE__  . '\action_custom_columns', 10, 2 );
@@ -113,8 +114,12 @@ function admin_enqueue_scripts( $hook ) {
 	    wp_localize_script( 'sy-admin-external-connection', 'sy', array(
 	    	'nonce' => wp_create_nonce( 'sy-verify-ext-conn' ),
 	    	'no_external_connection' => esc_html__( "Can't connect to API.", 'syndicate' ),
+	    	'invalid_endpoint' => esc_html__( "This doesn't seem to be a valid WordPress API endpoint.", 'syndicate' ),
+	    	'valid_endpoint' => esc_html__( "This is a valid API endpoint.", 'syndicate' ),
+	    	'endpoint_suggestion' => esc_html__( 'How about: ', 'syndicate' ),
 	    	'can_post' => esc_html__( 'Can push:', 'syndicate' ),
 	    	'can_get' => esc_html__( 'Can pull:', 'syndicate' ),
+	    	'endpoint_checking_message' => esc_html__( 'Checking endpoint...', 'syndicate' ),
 	    ) );
 	}
 
@@ -295,7 +300,7 @@ function meta_box_external_connection_details( $post ) {
 		<span class="external-connection-url-field-wrapper">
 			<input value="<?php echo esc_url( $external_connection_url ); ?>" type="text" name="sy_external_connection_url" id="sy_external_connection_url" class="widefat external-connection-url-field">
 		</span>
-		<span class="description"><?php esc_html_e( 'We will confirm the API endpoint works.', 'syndicate' ); ?></span>
+		<span class="description endpoint-result"><?php esc_html_e( 'We will confirm the API endpoint works.', 'syndicate' ); ?></span>
 	</p>
 	<?php
 }
