@@ -114,7 +114,7 @@ function admin_enqueue_scripts( $hook ) {
 	    wp_localize_script( 'sy-admin-external-connection', 'sy', array(
 	    	'nonce' => wp_create_nonce( 'sy-verify-ext-conn' ),
 	    	'no_external_connection' => esc_html__( "Can't connect to API.", 'syndicate' ),
-	    	'invalid_endpoint' => esc_html__( "This doesn't seem to be a valid WordPress API endpoint.", 'syndicate' ),
+	    	'invalid_endpoint' => esc_html__( "This doesn't seem to be a valid API endpoint.", 'syndicate' ),
 	    	'will_confirm_endpoint' => esc_html__( 'We will confirm the API endpoint works.', 'syndicate' ),
 	    	'valid_endpoint' => esc_html__( "This is a valid API endpoint.", 'syndicate' ),
 	    	'endpoint_suggestion' => esc_html__( 'How about: ', 'syndicate' ),
@@ -280,6 +280,8 @@ function meta_box_external_connection_details( $post ) {
 	if ( empty( $external_connection_url ) ) {
 		$external_connection_url = '';
 	}
+
+	$external_connections = get_post_meta( $post->ID, 'sy_external_connections', true );
 	?>
 	<p>
 		<label for="sy_external_connection_type"><?php esc_html_e( 'External Connection Type', 'syndicate' ); ?></label><br>
@@ -302,7 +304,19 @@ function meta_box_external_connection_details( $post ) {
 		<span class="external-connection-url-field-wrapper">
 			<input value="<?php echo esc_url( $external_connection_url ); ?>" type="text" name="sy_external_connection_url" id="sy_external_connection_url" class="widefat external-connection-url-field">
 		</span>
-		<span class="description endpoint-result"><?php esc_html_e( 'We will confirm the API endpoint works.', 'syndicate' ); ?></span>
+		<span class="description endpoint-result">
+			<?php if ( empty( $external_connections ) ) : ?>
+				<?php esc_html_e( 'We will confirm the API endpoint works.', 'syndicate' ); ?>
+			<?php elseif ( empty( $external_connections['errors'] ) ) : ?>
+				<span class="dashicons dashicons-yes"></span><?php esc_html_e( "This is a valid API endpoint.", 'syndicate' ); ?>
+			<?php else : ?>
+
+				<span class="dashicons dashicons-warning"></span><?php esc_html_e( "This doesn't seem to be a valid API endpoint.", 'syndicate' ); ?>
+				<?php if ( ! empty( $external_connections['endpoint_suggestion'] ) ) : ?>
+					<?php esc_html_e( 'How about:', 'syndicate' ); ?> <strong><?php echo esc_html( $external_connections['endpoint_suggestion'] ); ?></strong>
+				<?php endif; ?>
+			<?php endif; ?>
+		</span>
 	</p>
 	<?php
 }

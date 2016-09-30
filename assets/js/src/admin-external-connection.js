@@ -22,10 +22,11 @@
 	var authFields = document.getElementsByClassName('auth-field');
 	var externalConnectionVerificationWrapper = document.querySelectorAll('#sy_external_connection_connection .inside')[0];
 	var endpointResult = document.querySelector('.endpoint-result');
+	var postIdField = document.getElementById('post_ID');
 	var $apiVerify = false;
 	var verificationTemplate = processTemplate('sy-external-connection-verification');
 
-	$(externalConnectionMetaBox).on('keyup change input', '.auth-field, .external-connection-url-field', _.debounce(function(event) {
+	function checkConnections(event) {
 		if ($apiVerify !== false) {
 			$apiVerify.abort();
 		}
@@ -36,7 +37,7 @@
 			return;
 		}
 
-		if (event.currentTarget.classList.contains('external-connection-url-field')) {
+		if (!event || event.currentTarget.classList.contains('external-connection-url-field')) {
 			endpointResult.classList.add('loading');
 			endpointResult.innerHTML = sy.endpoint_checking_message;
 		}
@@ -53,6 +54,11 @@
 			}
 		});
 
+		var postId = 0;
+		if (postIdField && postIdField.value) {
+			postId = postIdField.value;
+		}
+
 		$apiVerify = $.ajax({
 			url: ajaxurl,
 			method: 'post',
@@ -61,11 +67,12 @@
 				action: 'sy_verify_external_connection',
 				auth: auth,
 				url: externalConnectionUrlField.value,
-				type: externalConnectionTypeField.value
+				type: externalConnectionTypeField.value,
+				endpoint_id: postId
 			}
 		}).done(function(response) {
 			if (!response.success) {
-				if (event.currentTarget.classList.contains('external-connection-url-field')) {
+				if (!event || event.currentTarget.classList.contains('external-connection-url-field')) {
 					endpointResult.innerHTML = '<span class="dashicons dashicons-warning"></span>';
 					endpointResult.innerHTML += sy.invalid_endpoint;
 				}
@@ -76,7 +83,7 @@
 					can_get: []
 				});
 			} else {
-				if (event.currentTarget.classList.contains('external-connection-url-field')) {
+				if (!event || event.currentTarget.classList.contains('external-connection-url-field')) {
 					if (response.data.errors.no_external_connection) {
 						endpointResult.innerHTML = '<span class="dashicons dashicons-warning"></span>';
 						endpointResult.innerHTML += sy.invalid_endpoint;
@@ -87,7 +94,7 @@
 					}
 
 					if (!Object.keys(response.data.errors).length) {
-						endpointResult.innerHTML = '<span class="dashicons dashicons-warning"></span>';
+						endpointResult.innerHTML = '<span class="dashicons dashicons-yes"></span>';
 						endpointResult.innerHTML += sy.valid_endpoint;
 					}
 				}
@@ -102,5 +109,11 @@
 			externalConnectionVerificationMetaBox.classList.remove('loading');
 			endpointResult.classList.remove('loading');
 		});
-	}, 250));
+	}
+
+	setTimeout(function() {
+		checkConnections();
+	}, 300)
+
+	$(externalConnectionMetaBox).on('keyup change input', '.auth-field, .external-connection-url-field', _.debounce(checkConnections, 250));
 })(jQuery);
