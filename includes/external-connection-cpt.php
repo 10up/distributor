@@ -115,11 +115,13 @@ function admin_enqueue_scripts( $hook ) {
 	    	'nonce' => wp_create_nonce( 'sy-verify-ext-conn' ),
 	    	'no_external_connection' => esc_html__( "Can't connect to API.", 'syndicate' ),
 	    	'invalid_endpoint' => esc_html__( "This doesn't seem to be a valid WordPress API endpoint.", 'syndicate' ),
+	    	'will_confirm_endpoint' => esc_html__( 'We will confirm the API endpoint works.', 'syndicate' ),
 	    	'valid_endpoint' => esc_html__( "This is a valid API endpoint.", 'syndicate' ),
 	    	'endpoint_suggestion' => esc_html__( 'How about: ', 'syndicate' ),
 	    	'can_post' => esc_html__( 'Can push:', 'syndicate' ),
 	    	'can_get' => esc_html__( 'Can pull:', 'syndicate' ),
 	    	'endpoint_checking_message' => esc_html__( 'Checking endpoint...', 'syndicate' ),
+	    	'no_connection_check' => esc_html__( 'No external connection has been checked.', 'syndicate' ),
 	    ) );
 	}
 

@@ -30,6 +30,12 @@
 			$apiVerify.abort();
 		}
 
+		if ('' == externalConnectionUrlField.value) {
+			externalConnectionVerificationWrapper.innerHTML = '<p>' + sy.no_connection_check + '</p>';
+			endpointResult.innerText = sy.will_confirm_endpoint;
+			return;
+		}
+
 		if (event.currentTarget.classList.contains('external-connection-url-field')) {
 			endpointResult.classList.add('loading');
 			endpointResult.innerHTML = sy.endpoint_checking_message;

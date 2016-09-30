@@ -28,12 +28,12 @@ class WordPressBasicAuth extends Authentication {
 		?>
 		<p>
 			<label for="sy_username"><?php esc_html_e( 'Username', 'syndicate' ); ?></label><br>
-			<input autocomplete="off" type="text" name="sy_external_connection_auth[username]" data-auth-field="username" value="<?php echo esc_attr( $args['username'] ); ?>" class="auth-field" id="sy_username">
+			<input type="text" name="sy_external_connection_auth[username]" data-auth-field="username" value="<?php echo esc_attr( $args['username'] ); ?>" class="auth-field" id="sy_username">
 			<span class="description"><?php esc_html_e( 'We need a username (preferrably with an Administrator role) to the WordPress site with the API.', 'syndicate' ); ?>
 		</p>
 		<p>
 			<label for="sy_username"><?php esc_html_e( 'Password', 'syndicate' ); ?></label><br>
-			<input autocomplete="off" type="password" name="sy_external_connection_auth[password]" value="<?php echo esc_attr( $args['password'] ); ?>" data-auth-field="password" class="auth-field" id="sy_password">
+			<input type="password" name="sy_external_connection_auth[password]" value="<?php echo esc_attr( $args['password'] ); ?>" data-auth-field="password" class="auth-field" id="sy_password">
 		</p>
 		<?php
 	}

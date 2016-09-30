@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Syndicate 1.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/syndicate\n"
-"POT-Creation-Date: 2016-09-30 04:36:08+00:00\n"
+"POT-Creation-Date: 2016-09-30 05:08:41+00:00\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -143,7 +143,7 @@ msgid "URL"
 msgstr ""
 
 #: includes/external-connection-cpt.php:116
-#: includes/external-connection-cpt.php:223
+#: includes/external-connection-cpt.php:225
 msgid "Can't connect to API."
 msgstr ""
 
@@ -152,174 +152,176 @@ msgid "This doesn't seem to be a valid WordPress API endpoint."
 msgstr ""
 
 #: includes/external-connection-cpt.php:118
-msgid "This is a valid API endpoint."
-msgstr ""
-
-#: includes/external-connection-cpt.php:119
-msgid "How about: "
-msgstr ""
-
-#: includes/external-connection-cpt.php:120
-#: includes/external-connection-cpt.php:224
-msgid "Can push:"
-msgstr ""
-
-#: includes/external-connection-cpt.php:121
-#: includes/external-connection-cpt.php:225
-msgid "Can pull:"
-msgstr ""
-
-#: includes/external-connection-cpt.php:122
-msgid "Checking endpoint..."
-msgstr ""
-
-#: includes/external-connection-cpt.php:150
-msgid "Enter external connection name"
-msgstr ""
-
-#: includes/external-connection-cpt.php:208
-msgid "External Connection Details"
-msgstr ""
-
-#: includes/external-connection-cpt.php:209
-msgid "External Connection Status"
-msgstr ""
-
-#: includes/external-connection-cpt.php:237
-#: includes/external-connection-cpt.php:472
-msgid "Can not pull any content types."
-msgstr ""
-
-#: includes/external-connection-cpt.php:241
-#: includes/external-connection-cpt.php:476
-msgid "Can not push any content types."
-msgstr ""
-
-#: includes/external-connection-cpt.php:256
-msgid "No external connection has been checked."
-msgstr ""
-
-#: includes/external-connection-cpt.php:283
-msgid "External Connection Type"
-msgstr ""
-
-#: includes/external-connection-cpt.php:289
-msgid "We need to know what type of API we are communicating with."
-msgstr ""
-
-#: includes/external-connection-cpt.php:299
-msgid "External Connection URL"
-msgstr ""
-
-#: includes/external-connection-cpt.php:303
+#: includes/external-connection-cpt.php:305
 msgid "We will confirm the API endpoint works."
 msgstr ""
 
-#: includes/external-connection-cpt.php:326
-#: includes/external-connection-cpt.php:396 includes/pull-ui.php:296
+#: includes/external-connection-cpt.php:119
+msgid "This is a valid API endpoint."
+msgstr ""
+
+#: includes/external-connection-cpt.php:120
+msgid "How about: "
+msgstr ""
+
+#: includes/external-connection-cpt.php:121
+#: includes/external-connection-cpt.php:226
+msgid "Can push:"
+msgstr ""
+
+#: includes/external-connection-cpt.php:122
+#: includes/external-connection-cpt.php:227
+msgid "Can pull:"
+msgstr ""
+
+#: includes/external-connection-cpt.php:123
+msgid "Checking endpoint..."
+msgstr ""
+
+#: includes/external-connection-cpt.php:124
+#: includes/external-connection-cpt.php:258
+msgid "No external connection has been checked."
+msgstr ""
+
+#: includes/external-connection-cpt.php:152
+msgid "Enter external connection name"
+msgstr ""
+
+#: includes/external-connection-cpt.php:210
+msgid "External Connection Details"
+msgstr ""
+
+#: includes/external-connection-cpt.php:211
+msgid "External Connection Status"
+msgstr ""
+
+#: includes/external-connection-cpt.php:239
+#: includes/external-connection-cpt.php:474
+msgid "Can not pull any content types."
+msgstr ""
+
+#: includes/external-connection-cpt.php:243
+#: includes/external-connection-cpt.php:478
+msgid "Can not push any content types."
+msgstr ""
+
+#: includes/external-connection-cpt.php:285
+msgid "External Connection Type"
+msgstr ""
+
+#: includes/external-connection-cpt.php:291
+msgid "We need to know what type of API we are communicating with."
+msgstr ""
+
+#: includes/external-connection-cpt.php:301
+msgid "External Connection URL"
+msgstr ""
+
+#: includes/external-connection-cpt.php:328
+#: includes/external-connection-cpt.php:398 includes/pull-ui.php:296
 #: includes/push-ui.php:272
 msgid "External Connections"
 msgstr ""
 
-#: includes/external-connection-cpt.php:326
-#: includes/external-connection-cpt.php:398
+#: includes/external-connection-cpt.php:328
+#: includes/external-connection-cpt.php:400
 msgid "Add New"
 msgstr ""
 
-#: includes/external-connection-cpt.php:328
+#: includes/external-connection-cpt.php:330
 msgid "Network sites are automatically available and do not need to be configured."
 msgstr ""
 
-#: includes/external-connection-cpt.php:355
+#: includes/external-connection-cpt.php:357
 msgid "External connections per page: "
 msgstr ""
 
-#: includes/external-connection-cpt.php:380
+#: includes/external-connection-cpt.php:382
 msgid "Add External Source"
 msgstr ""
 
-#: includes/external-connection-cpt.php:384
-#: includes/external-connection-cpt.php:402
+#: includes/external-connection-cpt.php:386
+#: includes/external-connection-cpt.php:404
 msgid "All External Connections"
 msgstr ""
 
-#: includes/external-connection-cpt.php:397
+#: includes/external-connection-cpt.php:399
 msgid "External Connection"
 msgstr ""
 
-#: includes/external-connection-cpt.php:399
+#: includes/external-connection-cpt.php:401
 msgid "Add New External Connection"
 msgstr ""
 
-#: includes/external-connection-cpt.php:400
+#: includes/external-connection-cpt.php:402
 msgid "Edit External Connection"
 msgstr ""
 
-#: includes/external-connection-cpt.php:401
+#: includes/external-connection-cpt.php:403
 msgid "New External Connection"
 msgstr ""
 
-#: includes/external-connection-cpt.php:403
+#: includes/external-connection-cpt.php:405
 msgid "View External Connection"
 msgstr ""
 
-#: includes/external-connection-cpt.php:404
+#: includes/external-connection-cpt.php:406
 msgid "Search External Connections"
 msgstr ""
 
-#: includes/external-connection-cpt.php:405
+#: includes/external-connection-cpt.php:407
 msgid "No external connections found."
 msgstr ""
 
-#: includes/external-connection-cpt.php:406
+#: includes/external-connection-cpt.php:408
 msgid "No external connections found in trash."
 msgstr ""
 
-#: includes/external-connection-cpt.php:440
+#: includes/external-connection-cpt.php:442
 msgid "External connection updated. <a href=\"%s\">View external connection</a>"
 msgstr ""
 
-#: includes/external-connection-cpt.php:441
+#: includes/external-connection-cpt.php:443
 msgid "Custom field updated."
 msgstr ""
 
-#: includes/external-connection-cpt.php:442
+#: includes/external-connection-cpt.php:444
 msgid "Custom field deleted."
 msgstr ""
 
-#: includes/external-connection-cpt.php:443
+#: includes/external-connection-cpt.php:445
 msgid "External connection updated."
 msgstr ""
 
-#: includes/external-connection-cpt.php:444
+#: includes/external-connection-cpt.php:446
 msgid " External connection restored to revision from %s"
 msgstr ""
 
-#: includes/external-connection-cpt.php:445
+#: includes/external-connection-cpt.php:447
 msgid "External connection published. <a href=\"%s\">View external connection</a>"
 msgstr ""
 
-#: includes/external-connection-cpt.php:446
+#: includes/external-connection-cpt.php:448
 msgid "External connection saved."
 msgstr ""
 
-#: includes/external-connection-cpt.php:447
+#: includes/external-connection-cpt.php:449
 msgid ""
 "External connection submitted. <a target=\"_blank\" href=\"%s\">Preview "
 "external connection</a>"
 msgstr ""
 
-#: includes/external-connection-cpt.php:448
+#: includes/external-connection-cpt.php:450
 msgid ""
 "External connection scheduled for: <strong>%1$s</strong>. <a "
 "target=\"_blank\" href=\"%2$s\">Preview external connection</a>"
 msgstr ""
 
-#: includes/external-connection-cpt.php:449
+#: includes/external-connection-cpt.php:451
 msgid "M j, Y @ G:i"
 msgstr ""
 
-#: includes/external-connection-cpt.php:450
+#: includes/external-connection-cpt.php:452
 msgid ""
 "External connection draft updated. <a target=\"_blank\" href=\"%s\">Preview "
 "external connection</a>"
