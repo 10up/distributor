@@ -62,7 +62,11 @@ class WordPressExternalConnection extends ExternalConnection {
 			$types_response = wp_remote_get( untrailingslashit( $this->base_url ) . '/' . $path . '/types' );
 
 			if ( is_wp_error( $types_response ) ) {
-				return $response;
+				return $types_response;
+			}
+
+			if ( 404 === wp_remote_retrieve_response_code( $types_response ) ) {
+				return new \WP_Error( 'bad-endpoint', esc_html__( 'Could not connect to API endpoint.', 'syndicate' ) );
 			}
 
 			$types_body = wp_remote_retrieve_body( $types_response );
@@ -73,9 +77,10 @@ class WordPressExternalConnection extends ExternalConnection {
 
 			try {
 				$types_body_array = json_decode( $types_body, true );
+
 				$types_urls[ $query_args['post_type'] ] = $types_body_array[ $query_args['post_type'] ]['_links']['wp:items'][0]['href'];
 			} catch ( \Exception $e ) {
-				return new WP_Error( 'no-pull-post-type', esc_html__( 'Could not determine remote post type endpoint', 'syndicate' ) );
+				return new \WP_Error( 'no-pull-post-type', esc_html__( 'Could not determine remote post type endpoint', 'syndicate' ) );
 			}
 		}
 
@@ -192,7 +197,7 @@ class WordPressExternalConnection extends ExternalConnection {
 	 */
 	public function push( $post_id, $args = array() ) {
 		if ( empty( $post_id ) ) {
-			return new WP_Error( 'no-push-post-id' , esc_html__( 'Post id required to push', 'syndicate' ) );
+			return new \WP_Error( 'no-push-post-id' , esc_html__( 'Post id required to push', 'syndicate' ) );
 		}
 
 		$post = get_post( $post_id );
@@ -221,7 +226,7 @@ class WordPressExternalConnection extends ExternalConnection {
 			$body_array = json_decode( $body, true );
 			$type_url = $body_array[ $post_type ]['_links']['wp:items'][0]['href'];
 		} catch ( \Exception $e ) {
-			return new WP_Error( 'no-push-post-type', esc_html__( 'Could not determine remote post type endpoint', 'syndicate' ) );
+			return new \WP_Error( 'no-push-post-type', esc_html__( 'Could not determine remote post type endpoint', 'syndicate' ) );
 		}
 
 		/**
@@ -269,7 +274,7 @@ class WordPressExternalConnection extends ExternalConnection {
 			$body_array = json_decode( $body, true );
 			$remote_id = $body_array['id'];
 		} catch ( \Exception $e ) {
-			return new WP_Error( 'no-push-post-remote-id', esc_html__( 'Could not determine remote post id.', 'syndicate' ) );
+			return new \WP_Error( 'no-push-post-remote-id', esc_html__( 'Could not determine remote post id.', 'syndicate' ) );
 		}
 
 		return $remote_id;
