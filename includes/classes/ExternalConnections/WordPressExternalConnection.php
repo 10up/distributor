@@ -293,8 +293,14 @@ class WordPressExternalConnection extends ExternalConnection {
 		$body = wp_remote_retrieve_body( $response );
 
 		if ( is_wp_error( $response ) || is_wp_error( $body ) ) {
-			$output['errors']['no_external_connection']  = 'no_external_connection';
+			$output['errors']['no_external_connection'] = 'no_external_connection';
 			return $output;
+		}
+
+		$data = json_decode( $body, true );
+
+		if ( empty( $data ) ) {
+			$output['errors']['no_external_connection'] = 'no_external_connection';
 		}
 
 		$response_headers = wp_remote_retrieve_headers( $response );
@@ -310,8 +316,18 @@ class WordPressExternalConnection extends ExternalConnection {
 		if ( ! empty( $correct_endpoint ) && untrailingslashit( $this->base_url ) !== untrailingslashit( $correct_endpoint ) ) {
 			$output['errors']['no_external_connection'] = 'no_external_connection';
 			$output['endpoint_suggestion'] = untrailingslashit( $correct_endpoint );
+		}
+
+		if ( empty( $data['routes'] ) && empty( $output['errors']['no_external_connection'] ) ) {
+			$output['errors']['no_types']  = 'no_types';
+		}
+
+
+		if ( ! empty( $output['errors'] ) ) {
 			return $output;
 		}
+
+		$routes = $data['routes'];
 
 		$types_response = wp_remote_get( untrailingslashit( $this->base_url ) . '/' . self::$namespace . '/types', $this->auth_handler->format_get_args( array() ) );
 		$types_body = wp_remote_retrieve_body( $types_response );
@@ -319,27 +335,23 @@ class WordPressExternalConnection extends ExternalConnection {
 		if ( is_wp_error( $types_response ) || is_wp_error( $types_body ) ) {
 			$output['errors']['no_types']  = 'no_types';
 		} else {
-			try {
-				$types = json_decode( $types_body, true );
-			} catch ( \Exception $e ) {
-				$types = false;
-			}
+			$types = json_decode( $types_body, true );
 
 			if ( 200 !== wp_remote_retrieve_response_code( $types_response ) || empty( $types ) ) {
 				$output['errors']['no_types']  = 'no_types';
 			} else {
-				try {
-					$data = json_decode( $body, true );
-					$routes = $data['routes'];
-				} catch ( \Exception $e ) {
-					$routes = array();
-				}
-
 				$can_get = array();
 				$can_post = array();
 
 				foreach ( $types as $type_key => $type ) {
-					$link = $type['_links']['wp:items'][0]['href'];
+					if ( ! empty( $type['_links']['wp:items'] ) ) {
+						$link = $type['_links']['wp:items'][0]['href'];
+					} elseif ( ! empty( $type['_links']['https://api.w.org/items'] ) ) {
+						$link = $type['_links']['https://api.w.org/items'][0]['href'];
+					} else {
+						continue;
+					}
+
 					$route = str_replace( untrailingslashit( $this->base_url ), '', $link );
 
 					if ( ! empty( $routes[ $route ] ) ) {

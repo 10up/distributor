@@ -37,10 +37,8 @@
 			return;
 		}
 
-		if (!event || event.currentTarget.classList.contains('external-connection-url-field')) {
-			endpointResult.classList.add('loading');
-			endpointResult.innerHTML = sy.endpoint_checking_message;
-		}
+		endpointResult.classList.add('loading');
+		endpointResult.innerHTML = sy.endpoint_checking_message;
 
 		externalConnectionVerificationMetaBox.classList.add('loading');
 
@@ -83,20 +81,16 @@
 					can_get: []
 				});
 			} else {
-				if (!event || event.currentTarget.classList.contains('external-connection-url-field')) {
-					if (response.data.errors.no_external_connection) {
-						endpointResult.innerHTML = '<span class="dashicons dashicons-warning"></span>';
-						endpointResult.innerHTML += sy.invalid_endpoint;
+				if (response.data.errors.no_external_connection) {
+					endpointResult.innerHTML = '<span class="dashicons dashicons-warning"></span>';
+					endpointResult.innerHTML += sy.invalid_endpoint;
 
-						if (response.data.endpoint_suggestion) {
-							endpointResult.innerHTML += ' ' + sy.endpoint_suggestion + ' <strong>' + response.data.endpoint_suggestion + '</strong>'; 
-						}
+					if (response.data.endpoint_suggestion) {
+						endpointResult.innerHTML += ' ' + sy.endpoint_suggestion + ' <strong>' + response.data.endpoint_suggestion + '</strong>'; 
 					}
-
-					if (!Object.keys(response.data.errors).length || (1 === Object.keys(response.data.errors).length && response.data.errors.no_types)) {
-						endpointResult.innerHTML = '<span class="dashicons dashicons-yes"></span>';
-						endpointResult.innerHTML += sy.valid_endpoint;
-					}
+				} else if (!Object.keys(response.data.errors).length || (1 === Object.keys(response.data.errors).length && response.data.errors.no_types)) {
+					endpointResult.innerHTML = '<span class="dashicons dashicons-yes"></span>';
+					endpointResult.innerHTML += sy.valid_endpoint;
 				}
 
 				externalConnectionVerificationWrapper.innerHTML = verificationTemplate({

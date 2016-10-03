@@ -309,7 +309,7 @@ function meta_box_external_connection_details( $post ) {
 		<span class="description endpoint-result">
 			<?php if ( empty( $external_connections ) ) : ?>
 				<?php esc_html_e( 'We will confirm the API endpoint works.', 'syndicate' ); ?>
-			<?php elseif ( empty( $external_connections['errors'] ) ) : ?>
+			<?php elseif ( empty( $external_connections['errors'] ) || ( 1 === count( $external_connections['errors'] ) && ! empty( $external_connections['errors']['no_types'] ) ) ) : ?>
 				<span class="dashicons dashicons-yes"></span><?php esc_html_e( "This is a valid API endpoint.", 'syndicate' ); ?>
 			<?php else : ?>
 
