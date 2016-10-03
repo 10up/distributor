@@ -60,6 +60,12 @@ function setup_list_table() {
 	}
 
 	foreach ( $external_connections->posts as $external_connection_id ) {
+		$external_connection_status = get_post_meta( $external_connection_id, 'sy_external_connections', true );
+
+		if ( empty( $external_connection_status ) || empty( $external_connection_status['can_post'] ) ) {
+			continue;
+		}
+
 		$external_connection = \Syndicate\ExternalConnections::factory()->instantiate( $external_connection_id );
 
 		if ( ! is_wp_error( $external_connection ) ) {
