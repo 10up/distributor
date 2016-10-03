@@ -28,6 +28,7 @@ class WordPressRestPost extends Mapping {
 		$obj->post_modified_gmt = $post['modified_gmt'];
 		$obj->post_type = $post['type'];
 		$obj->link = $post['link'];
+		$obj->post_author = get_current_user_id();
 		
 		return apply_filters( 'sy_item_mapping', new \WP_Post( $obj ), $post, $this );
 	}
