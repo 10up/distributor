@@ -12,6 +12,35 @@ class WordPressExternalConnection extends ExternalConnection {
 	static $namespace = 'wp/v2';
 
 	/**
+	 * This is a utility function for parsing annoying API link headers returned by the types endpoint
+	 * 
+	 * @param  array $type
+	 * @since  1.0
+	 * @return string|bool
+	 */
+	private function parse_type_items_link( $type ) {
+		try {
+			if ( isset( $type['_links']['wp:items'][0]['href'] ) ) {
+				$link = $type['_links']['wp:items'][0]['href'];
+				return $link;
+			}
+		} catch ( \Exception $e ) {
+			// Bummer
+		}
+
+		try {
+			if ( isset( $type['_links']['https://api.w.org/items'][0]['href'] ) ) {
+				$link = $type['_links']['https://api.w.org/items'][0]['href'];
+				return $link;
+			}
+		}  catch ( \Exception $e ) {
+			// Even bigger bummer
+		}
+
+		return false;
+	}
+
+	/**
 	 * Remotely get posts
 	 * 
 	 * @param  array  $args
@@ -75,11 +104,11 @@ class WordPressExternalConnection extends ExternalConnection {
 				return $types_body;
 			}
 
-			try {
-				$types_body_array = json_decode( $types_body, true );
+			$types_body_array = json_decode( $types_body, true );
 
-				$types_urls[ $query_args['post_type'] ] = $types_body_array[ $query_args['post_type'] ]['_links']['wp:items'][0]['href'];
-			} catch ( \Exception $e ) {
+			$types_urls[ $query_args['post_type'] ] = $this->parse_type_items_link( $types_body_array[ $query_args['post_type'] ] );
+
+			if ( empty( $types_urls[ $query_args['post_type'] ] ) ) {
 				return new \WP_Error( 'no-pull-post-type', esc_html__( 'Could not determine remote post type endpoint', 'syndicate' ) );
 			}
 		}
@@ -222,10 +251,12 @@ class WordPressExternalConnection extends ExternalConnection {
 			return $body;
 		}
 
-		try {
-			$body_array = json_decode( $body, true );
-			$type_url = $body_array[ $post_type ]['_links']['wp:items'][0]['href'];
-		} catch ( \Exception $e ) {
+		$body_array = json_decode( $body, true );
+
+
+		$type_url = $this->parse_type_items_link( $body_array[ $post_type ] );
+
+		if ( empty( $type_url ) ) {
 			return new \WP_Error( 'no-push-post-type', esc_html__( 'Could not determine remote post type endpoint', 'syndicate' ) );
 		}
 
@@ -270,8 +301,9 @@ class WordPressExternalConnection extends ExternalConnection {
 			return $body;
 		}
 
+		$body_array = json_decode( $body, true );
+
 		try {
-			$body_array = json_decode( $body, true );
 			$remote_id = $body_array['id'];
 		} catch ( \Exception $e ) {
 			return new \WP_Error( 'no-push-post-remote-id', esc_html__( 'Could not determine remote post id.', 'syndicate' ) );
@@ -349,11 +381,9 @@ class WordPressExternalConnection extends ExternalConnection {
 				$can_post = array();
 
 				foreach ( $types as $type_key => $type ) {
-					if ( ! empty( $type['_links']['wp:items'] ) ) {
-						$link = $type['_links']['wp:items'][0]['href'];
-					} elseif ( ! empty( $type['_links']['https://api.w.org/items'] ) ) {
-						$link = $type['_links']['https://api.w.org/items'][0]['href'];
-					} else {
+
+					$link = $this->parse_type_items_link( $type );
+					if ( empty( $link ) ) {
 						continue;
 					}
 
