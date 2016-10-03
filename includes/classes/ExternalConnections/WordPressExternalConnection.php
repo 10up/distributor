@@ -307,11 +307,6 @@ class WordPressExternalConnection extends ExternalConnection {
 			}
 		}
 
-		if ( empty( $correct_endpoint ) ) {
-			$output['errors']['no_external_connection'] = 'no_external_connection';
-			return $output;
-		}
-
 		if ( ! empty( $correct_endpoint ) && untrailingslashit( $this->base_url ) !== untrailingslashit( $correct_endpoint ) ) {
 			$output['errors']['no_external_connection'] = 'no_external_connection';
 			$output['endpoint_suggestion'] = untrailingslashit( $correct_endpoint );
@@ -322,15 +317,23 @@ class WordPressExternalConnection extends ExternalConnection {
 		$types_body = wp_remote_retrieve_body( $types_response );
 
 		if ( is_wp_error( $types_response ) || is_wp_error( $types_body ) ) {
-			$output['errors']['no_external_connection']  = 'no_external_connection';
+			$output['errors']['no_types']  = 'no_types';
 		} else {
-			$types = json_decode( $types_body, true );
+			try {
+				$types = json_decode( $types_body, true );
+			} catch ( \Exception $e ) {
+				$types = false;
+			}
 
-			if ( empty( $types ) ) {
-				$output['errors']['no_external_connection']  = 'no_external_connection';
+			if ( 200 !== wp_remote_retrieve_response_code( $types_response ) || empty( $types ) ) {
+				$output['errors']['no_types']  = 'no_types';
 			} else {
-				$data = json_decode( $body, true );
-				$routes = $data['routes'];
+				try {
+					$data = json_decode( $body, true );
+					$routes = $data['routes'];
+				} catch ( \Exception $e ) {
+					$routes = array();
+				}
 
 				$can_get = array();
 				$can_post = array();

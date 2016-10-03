@@ -27,6 +27,7 @@
 	var verificationTemplate = processTemplate('sy-external-connection-verification');
 
 	function checkConnections(event) {
+		console.log(event);
 		if ($apiVerify !== false) {
 			$apiVerify.abort();
 		}
@@ -93,7 +94,7 @@
 						}
 					}
 
-					if (!Object.keys(response.data.errors).length) {
+					if (!Object.keys(response.data.errors).length || (1 === Object.keys(response.data.errors).length && response.data.errors.no_types)) {
 						endpointResult.innerHTML = '<span class="dashicons dashicons-yes"></span>';
 						endpointResult.innerHTML += sy.valid_endpoint;
 					}
@@ -115,5 +116,5 @@
 		checkConnections();
 	}, 300)
 
-	$(externalConnectionMetaBox).on('keyup change input', '.auth-field, .external-connection-url-field', _.debounce(checkConnections, 250));
+	$(externalConnectionMetaBox).on('keyup input', '.auth-field, .external-connection-url-field', _.debounce(checkConnections, 250));
 })(jQuery);

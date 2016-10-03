@@ -120,6 +120,10 @@
     margin-right: 7px;
 }
 
+.external-connection-verification {
+	line-height: 1.7;
+}
+
 .external-connection-verification .errors li:before {
 	content: "\f335";
 	color: #ff0000;

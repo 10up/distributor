@@ -114,6 +114,7 @@ function admin_enqueue_scripts( $hook ) {
 	    wp_localize_script( 'sy-admin-external-connection', 'sy', array(
 	    	'nonce' => wp_create_nonce( 'sy-verify-ext-conn' ),
 	    	'no_external_connection' => esc_html__( "Can't connect to API.", 'syndicate' ),
+	    	'no_types' => esc_html__( "No content types found to pull or push. This probably means the WordPress API is available but V2 of the JSON REST API hasn't been installed to provide any routes.", 'syndicate' ),
 	    	'invalid_endpoint' => esc_html__( "This doesn't seem to be a valid API endpoint.", 'syndicate' ),
 	    	'will_confirm_endpoint' => esc_html__( 'We will confirm the API endpoint works.', 'syndicate' ),
 	    	'valid_endpoint' => esc_html__( "This is a valid API endpoint.", 'syndicate' ),
@@ -223,8 +224,9 @@ function meta_box_external_connection( $post ) {
 
 	$lang = array(
 		'no_external_connection' => esc_html__( "Can't connect to API.", 'syndicate' ),
-    	'can_post'      => esc_html__( 'Can push:', 'syndicate' ),
-    	'can_get'      => esc_html__( 'Can pull:', 'syndicate' ),
+    	'can_post'               => esc_html__( 'Can push:', 'syndicate' ),
+    	'can_get'                => esc_html__( 'Can pull:', 'syndicate' ),
+    	'no_types'               => esc_html__( "No content types found to pull or push. This probably means the WordPress API is available but V2 of the JSON REST API hasn't been installed to provide any routes", 'syndicate' ),
 	);
 
 	if ( ! empty( $external_connections ) ) : ?>
