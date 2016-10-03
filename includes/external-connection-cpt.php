@@ -315,7 +315,7 @@ function meta_box_external_connection_details( $post ) {
 
 				<span class="dashicons dashicons-warning"></span><?php esc_html_e( "This doesn't seem to be a valid API endpoint.", 'syndicate' ); ?>
 				<?php if ( ! empty( $external_connections['endpoint_suggestion'] ) ) : ?>
-					<?php esc_html_e( 'How about:', 'syndicate' ); ?> <strong><?php echo esc_html( $external_connections['endpoint_suggestion'] ); ?></strong>
+					<?php esc_html_e( 'How about:', 'syndicate' ); ?> <a class="suggest"><?php echo esc_html( $external_connections['endpoint_suggestion'] ); ?></a>
 				<?php endif; ?>
 			<?php endif; ?>
 		</span>

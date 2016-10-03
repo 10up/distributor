@@ -86,7 +86,7 @@
 					endpointResult.innerHTML += sy.invalid_endpoint;
 
 					if (response.data.endpoint_suggestion) {
-						endpointResult.innerHTML += ' ' + sy.endpoint_suggestion + ' <strong>' + response.data.endpoint_suggestion + '</strong>'; 
+						endpointResult.innerHTML += ' ' + sy.endpoint_suggestion + ' <a class="suggest">' + response.data.endpoint_suggestion + '</a>'; 
 					}
 				} else if (!Object.keys(response.data.errors).length || (1 === Object.keys(response.data.errors).length && response.data.errors.no_types)) {
 					endpointResult.innerHTML = '<span class="dashicons dashicons-yes"></span>';
@@ -107,7 +107,12 @@
 
 	setTimeout(function() {
 		checkConnections();
-	}, 300)
+	}, 300);
+
+	$(externalConnectionMetaBox).on('click', '.suggest', function(event) {
+		externalConnectionUrlField.value = event.currentTarget.innerText;
+		$(externalConnectionUrlField).trigger('input');
+	});
 
 	$(externalConnectionMetaBox).on('keyup input', '.auth-field, .external-connection-url-field', _.debounce(checkConnections, 250));
 })(jQuery);
