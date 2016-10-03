@@ -30,9 +30,8 @@ add_action( 'plugins_loaded', function() {
  */
 function filter_columns( $columns ) {
 	$columns['sy_external_connection_url'] = esc_html__( 'URL', 'syndicate' );
-	// Move date column to the back
+
 	unset($columns['date']);
-	$columns['date'] = __( 'Date', 'syndicate' );
 	return $columns;
 }
 
