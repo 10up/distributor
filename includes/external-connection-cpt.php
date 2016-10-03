@@ -395,7 +395,7 @@ function action_admin_menu() {
 
 	add_action( "load-$hook", __NAMESPACE__  . '\screen_option' );
 
-	add_submenu_page( 'syndicate', esc_html__( 'Add External Connection', 'syndicate' ), esc_html__( 'Add External Source', 'syndicate' ), 'manage_options', 'temp-slug' );
+	add_submenu_page( 'syndicate', esc_html__( 'Add External Connection', 'syndicate' ), esc_html__( 'Add External Connection', 'syndicate' ), 'manage_options', 'temp-slug' );
 
 	global $submenu;
 
