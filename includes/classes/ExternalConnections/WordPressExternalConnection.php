@@ -402,7 +402,7 @@ class WordPressExternalConnection extends ExternalConnection {
 						}
 
 						if ( in_array( 'POST',  $routes[ $route ]['methods'] ) ) {
-							$type_response = wp_remote_post( $link, $this->auth_handler->format_post_args( array() ) );
+							$type_response = wp_remote_post( $link, $this->auth_handler->format_post_args( array( 'body' => array( 'test' => 1 ), ) ) );
 							
 							if ( ! is_wp_error( $type_response ) ) {
 								$code = (int) wp_remote_retrieve_response_code( $type_response );
