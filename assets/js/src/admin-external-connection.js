@@ -27,7 +27,6 @@
 	var verificationTemplate = processTemplate('sy-external-connection-verification');
 
 	function checkConnections(event) {
-		console.log(event);
 		if ($apiVerify !== false) {
 			$apiVerify.abort();
 		}
