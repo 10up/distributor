@@ -455,17 +455,17 @@ function filter_post_updated_messages( $messages ) {
 
 	$messages['sy_ext_connection'] = array(
 		0 => '',
-		1 => sprintf( __( 'External connection updated. <a href="%s">View external connection</a>', 'syndicate' ), esc_url( get_permalink( $post_ID ) ) ),
-		2 => __( 'Custom field updated.', 'syndicate' ),
-		3 => __( 'Custom field deleted.', 'syndicate' ),
-		4 => __( 'External connection updated.', 'syndicate' ),
+		1 => esc_html__( 'External connection updated.', 'syndicate' ),
+		2 => esc_html__( 'Custom field updated.', 'syndicate' ),
+		3 => esc_html__( 'Custom field deleted.', 'syndicate' ),
+		4 => esc_html__( 'External connection updated.', 'syndicate' ),
 		5 => isset( $_GET['revision']) ? sprintf( __(' External connection restored to revision from %s', 'syndicate' ), wp_post_revision_title( (int) $_GET['revision'], false ) ) : false,
-		6 => sprintf( __( 'External connection published. <a href="%s">View external connection</a>', 'syndicate' ), esc_url( get_permalink( $post_ID) ) ),
-		7 => __( 'External connection saved.', 'syndicate' ),
-		8 => sprintf( __( 'External connection submitted. <a target="_blank" href="%s">Preview external connection</a>', 'syndicate' ), esc_url( add_query_arg( 'preview', 'true', get_permalink( $post_ID ) ) ) ),
-		9 => sprintf( __( 'External connection scheduled for: <strong>%1$s</strong>. <a target="_blank" href="%2$s">Preview external connection</a>', 'syndicate' ),
-			date_i18n( __( 'M j, Y @ G:i' ), strtotime( $post->post_date ) ), esc_url( get_permalink( $post_ID ) ) ),
-		10 => sprintf( __( 'External connection draft updated. <a target="_blank" href="%s">Preview external connection</a>', 'syndicate' ), esc_url( add_query_arg( 'preview', 'true', get_permalink( $post_ID ) ) ) ),
+		6 => esc_html__( 'External connection published.', 'syndicate' ),
+		7 => esc_html__( 'External connection saved.', 'syndicate' ),
+		8 => esc_html__( 'External connection submitted.', 'syndicate' ),
+		9 => sprintf( __( 'External connection scheduled for: <strong>%1$s</strong>.', 'syndicate' ),
+			date_i18n( __( 'M j, Y @ G:i' ), strtotime( $post->post_date ) ) ),
+		10 => esc_html__( 'External connection draft updated.', 'syndicate' ),
 	);
 
 	return $messages;
