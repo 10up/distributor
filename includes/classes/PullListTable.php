@@ -2,8 +2,6 @@
 
 namespace Syndicate;
 
-require_once( ABSPATH . '/wp-admin/includes/class-wp-posts-list-table.php' );
-
 class PullListTable extends \WP_List_Table {
 
 	/**

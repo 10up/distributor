@@ -34,6 +34,14 @@ class ExternalConnectionListTable extends \WP_Posts_List_Table {
 	}
 
 	/**
+	 * We don't want to show extra table actions
+	 * 
+	 * @param string $which
+	 * @since 1.0
+	 */
+	public function extra_tablenav( $which ) { }
+
+	/**
 	 * Generates and displays row action links.
 	 *
 	 * @param object $post        Post being acted upon.
