@@ -2,7 +2,7 @@
 
 /**
  * Plugin Name: Syndicate
- * Description: Push and pull content from external websites or multisite blogs.
+ * Description: Push and pull content from external websites and multisite blogs.
  * Version:     1.0
  * Author:      Taylor Lovett, 10up
  * Author URI:  http://10up.com
