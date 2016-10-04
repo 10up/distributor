@@ -56,7 +56,7 @@ class WordPressExternalConnection extends ExternalConnection {
 
 		if ( empty( $id ) ) {
 			$query_args['post_status'] = ( empty( $args['post_status'] ) ) ? 'any' : $args['post_status'];
-			$query_args['posts_per_page'] = ( empty( $args['posts_per_page'] ) ) ? get_option( 'posts_per_page' ) : $args['posts_per_page'];
+			$posts_per_page = ( empty( $args['posts_per_page'] ) ) ? get_option( 'posts_per_page' ) : $args['posts_per_page'];
 			$query_args['paged'] = ( empty( $args['paged'] ) ) ? 1 : $args['paged'];
 			
 			if ( isset( $args['post__in'] ) ) {
@@ -114,6 +114,10 @@ class WordPressExternalConnection extends ExternalConnection {
 		}
 
 		$args_str = '';
+
+		if ( ! empty( $posts_per_page ) ) {
+			$args_str .= 'per_page=' . (int) $posts_per_page;
+		}
 
 		foreach ( $query_args as $arg_key => $arg_value) {
 			if ( is_array( $arg_value ) ) {
