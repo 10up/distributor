@@ -52,7 +52,7 @@ class WordPressExternalConnection extends ExternalConnection {
 
 		$query_args = array();
 
-		$query_args['post_type'] = ( empty( $args['post_type'] ) ) ? 'post' : $args['post_type'];
+		$post_type = ( empty( $args['post_type'] ) ) ? 'post' : $args['post_type'];
 
 		if ( empty( $id ) ) {
 			$query_args['post_status'] = ( empty( $args['post_status'] ) ) ? 'any' : $args['post_status'];
@@ -81,7 +81,7 @@ class WordPressExternalConnection extends ExternalConnection {
 		static $types_urls;
 		$types_urls = array();
 
-		if ( empty( $types_urls[ $query_args['post_type'] ] ) ) {
+		if ( empty( $types_urls[ $post_type ] ) ) {
 			/**
 			 * First let's get the actual route if not cached. We don't know the "plural" of our post type
 			 */
@@ -106,9 +106,9 @@ class WordPressExternalConnection extends ExternalConnection {
 
 			$types_body_array = json_decode( $types_body, true );
 
-			$types_urls[ $query_args['post_type'] ] = $this->parse_type_items_link( $types_body_array[ $query_args['post_type'] ] );
+			$types_urls[ $post_type ] = $this->parse_type_items_link( $types_body_array[ $post_type ] );
 
-			if ( empty( $types_urls[ $query_args['post_type'] ] ) ) {
+			if ( empty( $types_urls[ $post_type ] ) ) {
 				return new \WP_Error( 'no-pull-post-type', esc_html__( 'Could not determine remote post type endpoint', 'syndicate' ) );
 			}
 		}
@@ -118,6 +118,8 @@ class WordPressExternalConnection extends ExternalConnection {
 		if ( ! empty( $posts_per_page ) ) {
 			$args_str .= 'per_page=' . (int) $posts_per_page;
 		}
+
+		$query_args = apply_filters( 'sy_remote_get_query_args', $query_args, $args, $this );
 
 		foreach ( $query_args as $arg_key => $arg_value) {
 			if ( is_array( $arg_value ) ) {
@@ -138,12 +140,12 @@ class WordPressExternalConnection extends ExternalConnection {
 		}
 
 		if ( ! empty( $id ) ) {
-			$posts_url = untrailingslashit( $types_urls[ $query_args['post_type'] ] ) . '/' . $id;
+			$posts_url = untrailingslashit( $types_urls[ $post_type ] ) . '/' . $id;
 		} else {
-			$posts_url = untrailingslashit( $types_urls[ $query_args['post_type'] ] ) . '/?' . $args_str;
+			$posts_url = untrailingslashit( $types_urls[ $post_type ] ) . '/?' . $args_str;
 		}
 
-		$posts_response = wp_remote_get( $posts_url, $this->auth_handler->format_get_args( array() ) );
+		$posts_response = wp_remote_get( apply_filters( 'sy_remote_get_url', $posts_url, $args, $this ), $this->auth_handler->format_get_args( array() ) );
 		
 		if ( is_wp_error( $posts_response ) ) {
 			return $posts_response;

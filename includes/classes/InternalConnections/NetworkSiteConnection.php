@@ -161,7 +161,7 @@ class NetworkSiteConnection extends Connection {
 				$query_args['post__not_in'] = $args['post__not_in'];
 			}
 
-			$posts_query = new \WP_Query( $query_args );
+			$posts_query = new \WP_Query( apply_filters( 'sy_remote_get_query_args', $query_args, $args, $this ) );
 
 			$posts = $posts_query->posts;
 

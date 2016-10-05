@@ -133,7 +133,12 @@ class PullListTable extends \WP_List_Table {
 				return $item['post_title'];
 				break;
 			case 'content_type':
-				return $item->post_type;
+				$post_type_object = get_post_type_object( $item->post_type );
+				if ( empty( $post_type_object ) ) {
+					return $item->post_type;
+				}
+
+				return $post_type_object->labels->singular_name;
 				break;
 			case 'url':
 				$url = get_post_meta( $item->ID, 'sy_external_connection_url', true );
