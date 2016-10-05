@@ -260,9 +260,23 @@ function meta_box( $post ) {
 
 		foreach ( $external_connections_query->posts as $external_connection ) {
 			$external_connection_status = get_post_meta( $external_connection->ID, 'sy_external_connections', true );
+			$allowed_roles = get_post_meta( $external_connection->ID, 'sy_external_connection_allowed_roles', true );
+
+			if ( empty( $allowed_roles ) ) {
+				$allowed_roles = array( 'administrator', 'editor' );
+			}
 
 			if ( empty( $external_connection_status ) || ! in_array( $current_post_type, $external_connection_status['can_post'] ) ) {
 				continue;
+			}
+
+			// If not admin lets make sure the current user can push to this connection
+			if ( ! current_user_can( 'manage_options' ) ) {
+				$current_user_roles = (array) wp_get_current_user()->roles;
+				
+				if ( count( array_intersect( $current_user_roles, $allowed_roles ) ) < 1 ) {
+					continue;
+				}
 			}
 
 			$external_connections[] = $external_connection;
