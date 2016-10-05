@@ -11,6 +11,19 @@ class WordPressBasicAuth extends Authentication {
 	static $requires_credentials = true;
 	static $label = 'Username/Password';
 
+	public function __construct( $args ) {
+		parent::__construct( $args );
+
+
+		if ( ! empty( $this->password ) && ! empty( $this->username ) ) {
+			$this->base64_encoded = base64_encode( $this->username . ':' . $this->password );
+		}
+
+		if ( empty( $this->base64_encoded ) ) {
+			$this->base64_encoded = false;
+		}
+	}
+
 	/**
 	 * Output credentials form for this auth type
 	 * 
@@ -21,19 +34,22 @@ class WordPressBasicAuth extends Authentication {
 		if ( empty( $args['username'] ) ) {
 			$args['username'] = '';
 		}
-
-		if ( empty( $args['password'] ) ) {
-			$args['password'] = '';
-		}
 		?>
 		<p>
 			<label for="sy_username"><?php esc_html_e( 'Username', 'syndicate' ); ?></label><br>
 			<input type="text" name="sy_external_connection_auth[username]" data-auth-field="username" value="<?php echo esc_attr( $args['username'] ); ?>" class="auth-field" id="sy_username">
+			
 			<span class="description"><?php esc_html_e( 'We need a username (preferrably with an Administrator role) to the WordPress site with the API.', 'syndicate' ); ?>
 		</p>
+
 		<p>
-			<label for="sy_username"><?php esc_html_e( 'Password', 'syndicate' ); ?></label><br>
-			<input type="password" name="sy_external_connection_auth[password]" value="<?php echo esc_attr( $args['password'] ); ?>" data-auth-field="password" class="auth-field" id="sy_password">
+			<label for="sy_username"><?php esc_html_e( 'Password', 'syndicate' ); ?> <?php if ( ! empty( $args['base64_encoded'] ) ) : ?><a class="change-password" href="#"><?php esc_html_e( '(Change)', 'syndicate' ); ?></a><?php endif; ?></label><br>
+
+			<?php if ( ! empty( $args['base64_encoded'] ) ) : ?>
+			<input disabled type="password" name="sy_external_connection_auth[password]" value="ertdfweewefewwe" data-auth-field="password" class="auth-field" id="sy_password">
+			<?php else : ?>
+				<input type="password" name="sy_external_connection_auth[password]" value="<?php echo esc_attr( $args['password'] ); ?>" data-auth-field="password" class="auth-field" id="sy_password">
+			<?php endif; ?>
 		</p>
 		<?php
 	}
@@ -52,11 +68,15 @@ class WordPressBasicAuth extends Authentication {
 			$auth['username'] = sanitize_text_field( $args['username'] );
 		}
 
-		if ( ! empty( $args['password'] ) ) {
-			$auth['password'] = sanitize_text_field( $args['password'] );
+		if ( ! empty( $args['base64_encoded'] ) ) {
+			$auth['base64_encoded'] = sanitize_text_field( $args['base64_encoded'] );
 		}
 
-		return apply_filters( 'sy_auth_prepare_credentials', $args, $this );
+		if ( ! empty( $args['password'] ) ) {
+			$auth['base64_encoded'] = base64_encode( $args['username'] . ':' . $args['password'] );
+		}
+
+		return apply_filters( 'sy_auth_prepare_credentials', $auth, $this );
 	}
 
 	/**
@@ -73,7 +93,9 @@ class WordPressBasicAuth extends Authentication {
 				$args['headers'] = array();
 			}
 			
-			$args['headers']['Authorization'] = 'Basic ' . base64_encode( $this->username . ':' . $this->password );
+			if ( ! empty( $this->base64_encoded ) ) {
+				$args['headers']['Authorization'] = 'Basic ' . $this->base64_encoded;
+			}
 		}
 
 		return parent::format_get_args( $args, $context );
@@ -93,7 +115,9 @@ class WordPressBasicAuth extends Authentication {
 				$args['headers'] = array();
 			}
 
-			$args['headers']['Authorization'] = 'Basic ' . base64_encode( $this->username . ':' . $this->password );
+			if ( ! empty( $this->base64_encoded ) ) {
+				$args['headers']['Authorization'] = 'Basic ' . $this->base64_encoded;
+			}
 		}
 
 		return parent::format_post_args( $args, $context );

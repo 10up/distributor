@@ -45,6 +45,10 @@
 		var auth = {};
 
 		_.each(authFields, function(authField) {
+			if (authField.disabled) {
+				return;
+			}
+
 			var key = authField.getAttribute('data-auth-field');
 
 			if (key) {
@@ -115,4 +119,32 @@
 	});
 
 	$(externalConnectionMetaBox).on('keyup input', '.auth-field, .external-connection-url-field', _.debounce(checkConnections, 250));
+
+	/**
+	 * JS for basic auth
+	 *
+	 * @todo  separate
+	 */
+	var passwordField = document.getElementById('sy_password');
+	var usernameField = document.getElementById('sy_username');
+	var changePassword = document.querySelector('.change-password');
+
+	$(usernameField).on('keyup change', _.debounce(function() {
+		passwordField.disabled = false;
+		passwordField.value = '';
+		changePassword.style.display = 'none';
+	}, 250));
+
+	$(changePassword).on('click', function(event) {
+		event.preventDefault();
+
+		if (passwordField.disabled) {
+			passwordField.disabled = false;
+			passwordField.value = '';
+			event.currentTarget.innerText = sy.cancel;
+		} else {
+			passwordField.disabled = true;
+			event.currentTarget.innerText = sy.change;
+		}
+	});
 })(jQuery);

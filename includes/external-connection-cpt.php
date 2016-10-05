@@ -76,6 +76,12 @@ function ajax_verify_external_connection() {
 		$auth = $_POST['auth'];
 	}
 
+	$current_auth = get_post_meta( $_POST['endpoint_id'], 'sy_external_connection_auth', true );
+
+	if ( ! empty( $current_auth ) ) {
+		$auth = array_merge( $auth, (array) $current_auth );
+	}
+
 	// Create an instance of the connection to test connections
 	$external_connection_class = \Syndicate\ExternalConnections::factory()->get_registered()[ $_POST['type'] ];
 
@@ -123,6 +129,8 @@ function admin_enqueue_scripts( $hook ) {
 	    	'can_get' => esc_html__( 'Can pull:', 'syndicate' ),
 	    	'endpoint_checking_message' => esc_html__( 'Checking endpoint...', 'syndicate' ),
 	    	'no_connection_check' => esc_html__( 'No external connection has been checked.', 'syndicate' ),
+	    	'change' => esc_html__( 'Change', 'syndicate' ),
+	    	'cancel' => esc_html__( 'Cancel', 'syndicate' ),
 	    ) );
 	}
 
@@ -202,7 +210,12 @@ function save_post( $post_id ) {
 	}
 
 	if ( ! empty( $_POST['sy_external_connection_auth'] ) ) {
-		$auth_creds = \Syndicate\ExternalConnections::factory()->get_registered()[ $_POST['sy_external_connection_type'] ]::$auth_handler_class::prepare_credentials( $_POST['sy_external_connection_auth'] );
+		$current_auth = get_post_meta( $post_id, 'sy_external_connection_auth', true );
+		if ( empty( $current_auth ) ) {
+			$current_auth = array();
+		}
+
+		$auth_creds = \Syndicate\ExternalConnections::factory()->get_registered()[ $_POST['sy_external_connection_type'] ]::$auth_handler_class::prepare_credentials( array_merge( $_POST['sy_external_connection_auth'], (array) $current_auth ) );
 		
 		\Syndicate\ExternalConnections::factory()->get_registered()[ $_POST['sy_external_connection_type'] ]::$auth_handler_class::store_credentials( $post_id, $auth_creds );
 	}
