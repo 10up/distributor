@@ -27,6 +27,10 @@
 	height: 1.7em;
 }
 
+#sy_external_connection_details select[multiple="multiple"] {
+	height: auto;
+}
+
 #sy_external_connection_details .suggest {
 	font-weight: bold;
 	cursor: pointer;

@@ -18,7 +18,8 @@ add_action( 'plugins_loaded', function() {
 	add_action( 'admin_footer', __NAMESPACE__  . '\js_templates' );
 	add_filter( 'manage_sy_ext_connection_posts_columns', __NAMESPACE__  . '\filter_columns' );
 	add_action( 'manage_sy_ext_connection_posts_custom_column', __NAMESPACE__  . '\action_custom_columns', 10, 2 );
-	add_action( 'admin_menu', __NAMESPACE__  . '\action_admin_menu' );
+	add_action( 'admin_menu', __NAMESPACE__  . '\add_menu_item' );
+	add_action( 'admin_menu', __NAMESPACE__  . '\add_submenu_item', 11 );
 } );
 
 /**
@@ -173,6 +174,12 @@ function save_post( $post_id ) {
 		update_post_meta( $post_id, 'sy_external_connection_type', sanitize_text_field( $_POST['sy_external_connection_type'] ) );
 	}
 
+	if ( empty( $_POST['sy_external_connection_allowed_roles'] ) ) {
+		delete_post_meta( $post_id, 'sy_external_connection_allowed_roles' );
+	} else {
+		update_post_meta( $post_id, 'sy_external_connection_allowed_roles', array_map( 'sanitize_text_field', $_POST['sy_external_connection_allowed_roles'] ) );
+	}
+
 	if ( empty( $_POST['sy_external_connection_url'] ) ) {
 		delete_post_meta( $post_id, 'sy_external_connection_url' );
 		delete_post_meta( $post_id, 'sy_external_connections' );
@@ -285,6 +292,14 @@ function meta_box_external_connection_details( $post ) {
 	$external_connections = get_post_meta( $post->ID, 'sy_external_connections', true );
 
 	$registered_connection_types = \Syndicate\ExternalConnections::factory()->get_registered();
+
+	$allowed_roles = get_post_meta( $post->ID, 'sy_external_connection_allowed_roles', true );
+
+	if ( empty( $allowed_roles ) ) {
+		$allowed_roles = array( 'administrator', 'editor' );
+	} else {
+		$allowed_roles[] = 'administrator';
+	}
 	?>
 
 	<?php if ( 1 === count( $registered_connection_types ) ) : $registered_connection_types_keys = array_keys( $registered_connection_types ); ?>
@@ -307,6 +322,23 @@ function meta_box_external_connection_details( $post ) {
 		</div>
 	<?php endforeach; ?>
 
+	<p>
+		<label for="sy_external_connection_allowed_roles"><?php esc_html_e( 'Roles Allowed to Push', 'syndicate' ); ?></label><br>
+
+		<select name="sy_external_connection_allowed_roles[]" id="sy_external_connection_allowed_roles" multiple="multiple">
+			<?php
+			$editable_roles = get_editable_roles();
+			foreach ( $editable_roles as $role => $details ) {
+				$name = translate_user_role( $details['name'] );
+				if ( in_array( $role, $allowed_roles ) ) {
+					echo "<option selected='selected' value='" . esc_attr( $role ) . "'>$name</option>";
+				} else {
+					echo "<option value='" . esc_attr( $role ) . "'>$name</option>";
+				}
+			}
+			?>
+		</select>
+	</p>
 	<p>
 		<label for="sy_external_connection_url"><?php esc_html_e( 'External Connection URL', 'syndicate' ); ?></label><br>
 		<span class="external-connection-url-field-wrapper">
@@ -385,11 +417,11 @@ function screen_option() {
 }
 
 /**
- * Set up admin menu
+ * Set up top menu item
  *
  * @since 1.0
  */
-function action_admin_menu() {
+function add_menu_item() {
 	$hook = add_menu_page(
 		'Syndicate',
 		'Syndicate',
@@ -400,13 +432,17 @@ function action_admin_menu() {
 	);
 
 	add_action( "load-$hook", __NAMESPACE__  . '\screen_option' );
+}
 
-	add_submenu_page( 'syndicate', esc_html__( 'Add External Connection', 'syndicate' ), esc_html__( 'Add External Connection', 'syndicate' ), 'manage_options', 'temp-slug' );
-
+/**
+ * Set up sub menu item to be last
+ *
+ * @since 1.0
+ */
+function add_submenu_item() {
 	global $submenu;
-
-	$submenu['syndicate'][0][0] = esc_html__( 'All External Connections', 'syndicate' );
-	$submenu['syndicate'][1][2] = esc_url( admin_url( 'post-new.php?post_type=sy_ext_connection' ) );
+	unset( $submenu['syndicate'][0] );
+	add_submenu_page( 'syndicate', esc_html__( 'External Connections', 'syndicate' ), esc_html__( 'External Connections', 'syndicate' ), 'manage_options', 'syndicate' );
 }
 
 /**
