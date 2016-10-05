@@ -198,7 +198,18 @@ function save_post( $post_id ) {
 		// Create an instance of the connection to test connections
 		$external_connection_class = \Syndicate\ExternalConnections::factory()->get_registered()[ $_POST['sy_external_connection_type'] ];
 
-		$auth_handler = new $external_connection_class::$auth_handler_class( $_POST['sy_external_connection_auth'] );
+		$auth = array();
+		if ( ! empty( $_POST['sy_external_connection_auth'] ) ) {
+			$auth = $_POST['sy_external_connection_auth'];
+		}
+
+		$current_auth = get_post_meta( $post_id, 'sy_external_connection_auth', true );
+
+		if ( ! empty( $current_auth ) ) {
+			$auth = array_merge( $auth, (array) $current_auth );
+		}
+
+		$auth_handler = new $external_connection_class::$auth_handler_class( $auth );
 		$mapping_handler = new $external_connection_class::$mapping_handler_class();
 
 		$external_connection = new $external_connection_class( get_the_title( $post_id ), $_POST['sy_external_connection_url'], $post_id, $auth_handler, $mapping_handler );

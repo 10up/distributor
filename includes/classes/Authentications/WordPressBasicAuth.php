@@ -15,7 +15,7 @@ class WordPressBasicAuth extends Authentication {
 		parent::__construct( $args );
 
 
-		if ( ! empty( $this->password ) && ! empty( $this->username ) ) {
+		if ( isset( $this->password ) && isset( $this->username ) ) {
 			$this->base64_encoded = base64_encode( $this->username . ':' . $this->password );
 		}
 
@@ -48,7 +48,7 @@ class WordPressBasicAuth extends Authentication {
 			<?php if ( ! empty( $args['base64_encoded'] ) ) : ?>
 			<input disabled type="password" name="sy_external_connection_auth[password]" value="ertdfweewefewwe" data-auth-field="password" class="auth-field" id="sy_password">
 			<?php else : ?>
-				<input type="password" name="sy_external_connection_auth[password]" value="<?php echo esc_attr( $args['password'] ); ?>" data-auth-field="password" class="auth-field" id="sy_password">
+				<input type="password" name="sy_external_connection_auth[password]" data-auth-field="password" class="auth-field" id="sy_password">
 			<?php endif; ?>
 		</p>
 		<?php
@@ -76,7 +76,7 @@ class WordPressBasicAuth extends Authentication {
 			$auth['base64_encoded'] = base64_encode( $args['username'] . ':' . $args['password'] );
 		}
 
-		return apply_filters( 'sy_auth_prepare_credentials', $auth, $this );
+		return apply_filters( 'sy_auth_prepare_credentials', $auth, $args );
 	}
 
 	/**
@@ -88,14 +88,12 @@ class WordPressBasicAuth extends Authentication {
 	 * @return array
 	 */
 	public function format_get_args( $args, $context = array() ) {
-		if ( ! empty( $this->username ) && ! empty( $this->password ) ) {
+		if ( ! empty( $this->username ) && ! empty( $this->base64_encoded ) ) {
 			if ( empty( $args['headers'] ) ) {
 				$args['headers'] = array();
 			}
-			
-			if ( ! empty( $this->base64_encoded ) ) {
-				$args['headers']['Authorization'] = 'Basic ' . $this->base64_encoded;
-			}
+
+			$args['headers']['Authorization'] = 'Basic ' . $this->base64_encoded;
 		}
 
 		return parent::format_get_args( $args, $context );
@@ -110,14 +108,12 @@ class WordPressBasicAuth extends Authentication {
 	 * @return array
 	 */
 	public function format_post_args( $args, $context = array() ) {
-		if ( ! empty( $this->username ) && ! empty( $this->password ) ) {
+		if ( ! empty( $this->username ) && ! empty( $this->base64_encoded ) ) {
 			if ( empty( $args['headers'] ) ) {
 				$args['headers'] = array();
 			}
 
-			if ( ! empty( $this->base64_encoded ) ) {
-				$args['headers']['Authorization'] = 'Basic ' . $this->base64_encoded;
-			}
+			$args['headers']['Authorization'] = 'Basic ' . $this->base64_encoded;
 		}
 
 		return parent::format_post_args( $args, $context );

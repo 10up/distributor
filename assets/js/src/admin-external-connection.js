@@ -138,9 +138,11 @@
 	var changePassword = document.querySelector('.change-password');
 
 	$(usernameField).on('keyup change', _.debounce(function() {
-		passwordField.disabled = false;
-		passwordField.value = '';
-		changePassword.style.display = 'none';
+		if (changePassword) {
+			passwordField.disabled = false;
+			passwordField.value = '';
+			changePassword.style.display = 'none';
+		}
 	}, 250));
 
 	$(changePassword).on('click', function(event) {
@@ -152,7 +154,10 @@
 			event.currentTarget.innerText = sy.cancel;
 		} else {
 			passwordField.disabled = true;
+			passwordField.value = 'sdfdsfsdfdsfdsfsd'; // filler password
 			event.currentTarget.innerText = sy.change;
 		}
+
+		checkConnections();
 	});
 })(jQuery);
