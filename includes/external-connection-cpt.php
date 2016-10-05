@@ -283,16 +283,23 @@ function meta_box_external_connection_details( $post ) {
 	}
 
 	$external_connections = get_post_meta( $post->ID, 'sy_external_connections', true );
+
+	$registered_connection_types = \Syndicate\ExternalConnections::factory()->get_registered();
 	?>
-	<p>
-		<label for="sy_external_connection_type"><?php esc_html_e( 'External Connection Type', 'syndicate' ); ?></label><br>
-		<select name="sy_external_connection_type" class="external-connection-type-field" id="sy_external_connection_type">
-			<?php foreach ( \Syndicate\ExternalConnections::factory()->get_registered() as $slug => $external_connection_class ) : ?>
-				<option <?php selected( $slug, $external_connection_type ); ?> value="<?php echo esc_attr( $slug ); ?>"><?php echo esc_attr( $external_connection_class::$label ); ?></option>
-			<?php endforeach; ?>
-		</select>
-		<span class="description"><?php esc_html_e( 'We need to know what type of API we are communicating with.', 'syndicate' ); ?></span>
-	</p>
+
+	<?php if ( 1 === count( $registered_connection_types ) ) : $registered_connection_types_keys = array_keys( $registered_connection_types ); ?>
+		<input id="sy_external_connection_type" class="external-connection-type-field" type="hidden" name="sy_external_connection_type" value="<?php echo esc_attr( $registered_connection_types_keys[0] ); ?>">
+	<?php else : ?>
+		<p>
+			<label for="sy_external_connection_type"><?php esc_html_e( 'External Connection Type', 'syndicate' ); ?></label><br>
+			<select name="sy_external_connection_type" class="external-connection-type-field" id="sy_external_connection_type">
+				<?php foreach ( $registered_connection_types as $slug => $external_connection_class ) : ?>
+					<option <?php selected( $slug, $external_connection_type ); ?> value="<?php echo esc_attr( $slug ); ?>"><?php echo esc_attr( $external_connection_class::$label ); ?></option>
+				<?php endforeach; ?>
+			</select>
+			<span class="description"><?php esc_html_e( 'We need to know what type of API we are communicating with.', 'syndicate' ); ?></span>
+		</p>
+	<?php endif; ?>
 
 	<?php foreach ( \Syndicate\ExternalConnections::factory()->get_registered() as $external_connection_class ) : if ( ! $external_connection_class::$auth_handler_class::$requires_credentials ) { continue; } ?>
 		<div class="auth-credentials <?php echo esc_attr( $external_connection_class::$auth_handler_class::$slug ); ?>">
