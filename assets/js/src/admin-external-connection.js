@@ -20,6 +20,7 @@
 	var externalConnectionVerificationMetaBox = document.getElementById('sy_external_connection_connection');
 	var externalConnectionTypeField = document.getElementsByClassName('external-connection-type-field')[0];
 	var authFields = document.getElementsByClassName('auth-field');
+	var titleField = document.getElementById('title');
 	var externalConnectionVerificationWrapper = document.querySelectorAll('#sy_external_connection_connection .inside')[0];
 	var endpointResult = document.querySelector('.endpoint-result');
 	var postIdField = document.getElementById('post_ID');
@@ -120,6 +121,13 @@
 
 	$(externalConnectionMetaBox).on('keyup input', '.auth-field, .external-connection-url-field', _.debounce(checkConnections, 250));
 
+	$(externalConnectionUrlField).on('blur', function(event) {
+		if ('' === titleField.value && '' !== event.currentTarget.value) {
+			titleField.value = event.currentTarget.value.replace(/https?:\/\//i, '');
+			titleField.focus();
+			titleField.blur();
+		}
+	});
 	/**
 	 * JS for basic auth
 	 *
