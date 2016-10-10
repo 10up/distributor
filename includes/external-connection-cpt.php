@@ -427,10 +427,15 @@ function meta_box_external_connection_details( $post ) {
 
 	<p>
 		<input type="hidden" name="post_status" value="publish">
-		<input name="save" type="submit" class="button button-primary button-large" id="publish" value="<?php if ( 0 < strtotime( $post->post_date_gmt . ' +0000' ) ) : ?><?php esc_attr_e( 'Update Connection', 'syndicate' ) ?><?php else : ?><?php esc_attr_e( 'Create Connection', 'syndicate' ) ?><?php endif; ?>" />
-		
+		<input type="hidden" name="original_post_status" value="<?php echo esc_attr( $post->post_status ); ?>">
+
 		<?php if ( 0 < strtotime( $post->post_date_gmt . ' +0000' ) ) : ?>
+
+			<input name="save" type="submit" class="button button-primary button-large" id="publish" value="<?php esc_attr_e( 'Update Connection', 'syndicate' ) ?>">
+		
 			<a class="delete-link" href="<?php echo esc_url( get_delete_post_link( $post->ID ) ); ?> "><?php esc_html_e( 'Move to Trash', 'syndicate'); ?></a>
+		<?php else : ?>
+			<input name="publish" type="submit" class="button button-primary button-large" id="publish" value="<?php esc_attr_e( 'Create Connection', 'syndicate' ) ?>">
 		<?php endif; ?>
 	</p>
 	<?php
@@ -576,7 +581,7 @@ function filter_post_updated_messages( $messages ) {
 		3 => esc_html__( 'Custom field deleted.', 'syndicate' ),
 		4 => esc_html__( 'External connection updated.', 'syndicate' ),
 		5 => isset( $_GET['revision']) ? sprintf( __(' External connection restored to revision from %s', 'syndicate' ), wp_post_revision_title( (int) $_GET['revision'], false ) ) : false,
-		6 => esc_html__( 'External connection published.', 'syndicate' ),
+		6 => esc_html__( 'External connection created.', 'syndicate' ),
 		7 => esc_html__( 'External connection saved.', 'syndicate' ),
 		8 => esc_html__( 'External connection submitted.', 'syndicate' ),
 		9 => sprintf( __( 'External connection scheduled for: <strong>%1$s</strong>.', 'syndicate' ),
