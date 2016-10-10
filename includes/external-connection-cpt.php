@@ -20,7 +20,47 @@ add_action( 'plugins_loaded', function() {
 	add_action( 'manage_sy_ext_connection_posts_custom_column', __NAMESPACE__  . '\action_custom_columns', 10, 2 );
 	add_action( 'admin_menu', __NAMESPACE__  . '\add_menu_item' );
 	add_action( 'admin_menu', __NAMESPACE__  . '\add_submenu_item', 11 );
+	add_action( 'load-toplevel_page_syndicate', __NAMESPACE__ . '\setup_list_table' );
 } );
+
+/**
+ * Setup list table and process actions
+ *
+ * @since  1.0
+ */
+function setup_list_table() {
+	global $connection_list_table;
+
+	$connection_list_table = new \Syndicate\ExternalConnectionListTable();
+
+	$pagenum = $connection_list_table->get_pagenum();
+
+	$doaction = $connection_list_table->current_action();
+
+	if ( ! empty( $doaction ) ) {
+		check_admin_referer( 'bulk-posts' );
+
+		if ( 'bulk-delete' === $doaction ) {
+			$sendback = remove_query_arg( array('trashed', 'untrashed', 'deleted', 'locked', 'ids'), wp_get_referer() );
+
+			$deleted = 0;
+			$post_ids = array_map( 'intval', $_REQUEST['post'] );
+
+			foreach ( (array) $post_ids as $post_id ) {
+				wp_delete_post( $post_id );
+
+				$deleted++;
+			}
+			$sendback = add_query_arg( 'deleted', $deleted, $sendback );
+
+			$sendback = remove_query_arg( array( 'action', 'action2', 'tags_input', 'post_author', 'comment_status', 'ping_status', '_status', 'post', 'bulk_edit', 'post_view' ), $sendback );
+
+			wp_redirect( $sendback );
+		}
+
+		exit;
+	}
+}
 
 /**
  * Add url column to posts table
@@ -132,6 +172,8 @@ function admin_enqueue_scripts( $hook ) {
 	    	'change' => esc_html__( 'Change', 'syndicate' ),
 	    	'cancel' => esc_html__( 'Cancel', 'syndicate' ),
 	    ) );
+
+		wp_dequeue_script( 'autosave' );
 	}
 
 	if ( ! empty( $_GET['page'] ) && 'syndicate' === $_GET['page'] ) {
@@ -382,6 +424,11 @@ function meta_box_external_connection_details( $post ) {
 			<?php endif; ?>
 		</span>
 	</p>
+
+	<p>
+		<input type="hidden" name="post_status" value="publish">
+		<input name="save" type="submit" class="button button-primary button-large" id="publish" value="<?php if ( 0 < strtotime( $post->post_date_gmt . ' +0000' ) ) : ?><?php esc_attr_e( 'Update Connection', 'syndicate' ) ?><?php else : ?><?php esc_attr_e( 'Create Connection', 'syndicate' ) ?><?php endif; ?>" />
+	</p>
 	<?php
 }
 
@@ -391,15 +438,13 @@ function meta_box_external_connection_details( $post ) {
  * @since 1.0
  */
 function dashboard() {
+	global $connection_list_table;
+
 	$_GET['post_type'] = 'sy_ext_connection';
 
 	$post_type_object = get_post_type_object( 'sy_ext_connection' );
 
-	$wp_list_table = new \Syndicate\ExternalConnectionListTable();
-
-	$wp_list_table->prepare_items();
-
-	$pagenum = $wp_list_table->get_pagenum();
+	$connection_list_table->prepare_items();
 	?>
 
 	<div class="wrap">
@@ -409,14 +454,15 @@ function dashboard() {
 		</div>
 
 
-		<?php $wp_list_table->views(); ?>
+		<?php $connection_list_table->views(); ?>
 
 		<form id="posts-filter" method="get">
 
-		<input type="hidden" name="post_status" class="post_status_page" value="<?php echo ! empty($_REQUEST['post_status']) ? esc_attr( $_REQUEST['post_status'] ) : 'all'; ?>">
+		<input type="hidden" name="post_status" class="post_status_page" value="<?php echo ! empty( $_REQUEST['post_status'] ) ? esc_attr( $_REQUEST['post_status'] ) : 'all'; ?>">
 		<input type="hidden" name="post_type" class="post_type_page" value="sy_ext_connection">
+		<input type="hidden" name="page" value="syndicate">
 
-		<?php $wp_list_table->display(); ?>
+		<?php $connection_list_table->display(); ?>
 
 		</form>
 	</div>
