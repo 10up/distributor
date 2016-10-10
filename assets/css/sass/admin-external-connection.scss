@@ -146,3 +146,14 @@
 #submitdiv {
 	display: none;
 }
+
+.delete-link {
+	color: #a00;
+	margin-left: 1em;
+	text-decoration: none;
+
+	&:hover {
+		color: #f00;
+		text-decoration: none;
+	}
+}

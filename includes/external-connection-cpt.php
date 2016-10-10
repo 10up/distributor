@@ -428,6 +428,10 @@ function meta_box_external_connection_details( $post ) {
 	<p>
 		<input type="hidden" name="post_status" value="publish">
 		<input name="save" type="submit" class="button button-primary button-large" id="publish" value="<?php if ( 0 < strtotime( $post->post_date_gmt . ' +0000' ) ) : ?><?php esc_attr_e( 'Update Connection', 'syndicate' ) ?><?php else : ?><?php esc_attr_e( 'Create Connection', 'syndicate' ) ?><?php endif; ?>" />
+		
+		<?php if ( 0 < strtotime( $post->post_date_gmt . ' +0000' ) ) : ?>
+			<a class="delete-link" href="<?php echo esc_url( get_delete_post_link( $post->ID ) ); ?> "><?php esc_html_e( 'Move to Trash', 'syndicate'); ?></a>
+		<?php endif; ?>
 	</p>
 	<?php
 }
