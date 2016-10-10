@@ -61,6 +61,10 @@ class NetworkSiteConnections {
 	 * @return array
 	 */
 	public function get_available_authorized_sites() {
+		if ( ! is_multisite() ) {
+			return array();
+		}
+		
 		$sites = get_sites();
 		$authorized_sites = array();
 

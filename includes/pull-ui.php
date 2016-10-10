@@ -42,10 +42,6 @@ function setup_list_table() {
 
 	$connection_list_table = new \Syndicate\PullListTable();
 
-	if ( is_multisite() ) {
-		$sites = get_sites();
-	}
-
 	global $connection_now;
 
 	$sites = \Syndicate\NetworkSiteConnections::factory()->get_available_authorized_sites();
@@ -255,12 +251,14 @@ function dashboard() {
 
 	$pagenum = $connection_list_table->get_pagenum();
 
-	if ( is_a( $connection_now, '\Syndicate\ExternalConnection' ) ) {
-		$connection_type = 'external';
-		$connection_id = $connection_now->id;
-	} else {
-		$connection_type = 'internal';
-		$connection_id = $connection_now->site->blog_id;
+	if ( ! empty( $connection_now ) ) {
+		if ( is_a( $connection_now, '\Syndicate\ExternalConnection' ) ) {
+			$connection_type = 'external';
+			$connection_id = $connection_now->id;
+		} else {
+			$connection_type = 'internal';
+			$connection_id = $connection_now->site->blog_id;
+		}
 	}
 
 	$internal_connection_group = array();

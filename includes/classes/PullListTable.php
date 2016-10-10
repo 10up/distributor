@@ -234,6 +234,10 @@ class PullListTable extends \WP_List_Table {
 	public function prepare_items() {
 		global $connection_now;
 
+		if ( empty( $connection_now ) ) {
+			return;
+		}
+
 		$columns = $this->get_columns();
 		$hidden = array();
 		$sortable = $this->get_sortable_columns();
