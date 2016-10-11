@@ -8,10 +8,116 @@ namespace Syndicate\PushUI;
  * @since 1.0
  */
 add_action( 'plugins_loaded', function() {
-	add_action( 'add_meta_boxes', __NAMESPACE__ . '\add_meta_boxes' );
-	add_action( 'admin_enqueue_scripts', __NAMESPACE__  . '\admin_enqueue_scripts' );
+	add_action( 'admin_enqueue_scripts', __NAMESPACE__  . '\enqueue_scripts' );
+	add_action( 'wp_enqueue_scripts', __NAMESPACE__  . '\enqueue_scripts' );
 	add_action( 'wp_ajax_sy_push', __NAMESPACE__  . '\ajax_push' );
+	add_action( 'admin_bar_menu', __NAMESPACE__ . '\menu_button', 999 );
+	add_action( 'wp_footer', __NAMESPACE__ . '\menu_content', 10, 1 );
 } );
+
+/**
+ * Let's setup our syndicate menu in the toolbar
+ *
+ * @param object $wp_admin_bar
+ * @since  1.0
+ */
+function menu_button( $wp_admin_bar ) {
+	if ( ! is_user_logged_in() || ! current_user_can( 'edit_posts' ) ) {
+		return;
+	}
+
+	if ( ! is_single() ) {
+		return;
+	}
+
+	$wp_admin_bar->add_node( array(
+		'id' => 'syndicate',
+		'title' => esc_html__( 'Syndicate', 'syndicate' ),
+		'href' => '#',
+	) );
+}
+
+function menu_content() {
+	global $post;
+
+	$sites = \Syndicate\NetworkSiteConnections::factory()->get_available_authorized_sites();
+	foreach ( $sites as $key => $site_array ) {
+		if ( in_array( $post->post_type, $site_array['post_types'] ) ) {
+			$connections[] = new \Syndicate\InternalConnections\NetworkSiteConnection( $site_array['site'] );
+		}
+	}
+
+	$external_connections_query = new \WP_Query( array(
+		'post_type' => 'sy_ext_connection',
+		'posts_per_page' => 200,
+		'no_found_rows' => true,
+		'post_status' => 'publish',
+	) );
+
+	foreach ( $external_connections_query->posts as $external_connection ) {
+		$external_connection_status = get_post_meta( $external_connection->ID, 'sy_external_connections', true );
+		$allowed_roles = get_post_meta( $external_connection->ID, 'sy_external_connection_allowed_roles', true );
+		if ( empty( $allowed_roles ) ) {
+			$allowed_roles = array( 'administrator', 'editor' );
+		}
+
+		/*if ( empty( $external_connection_status ) || ! in_array( $current_post_type, $external_connection_status['can_post'] ) ) {
+			continue;
+		}
+
+		// If not admin lets make sure the current user can push to this connection
+		if ( ! current_user_can( 'manage_options' ) ) {
+			$current_user_roles = (array) wp_get_current_user()->roles;
+			
+			if ( count( array_intersect( $current_user_roles, $allowed_roles ) ) < 1 ) {
+				continue;
+			}
+		}*/
+
+		$connection = \Syndicate\ExternalConnections::factory()->instantiate( $external_connection->ID );
+
+		if ( ! is_wp_error( $connection ) ) {
+			$connections[] = $connection;
+		}
+	}
+	?>
+	<div class="syndicate-push-wrapper">
+		<div class="inner">
+			<p><?php echo sprintf( __( 'Post &quot;%s&quot; to other connections.', 'syndicate' ), get_the_title( $post->ID ) ); ?></p>
+
+			<?php if ( 1 < count( $connections ) ) : ?>
+				<div class="connections-selector">
+					<?php if ( 5 < count( $connections ) ) : ?>
+						<input type="text" id="sy-connection-search" placeholder="<?php esc_html_e( 'Search available connections', 'syndicate' ); ?>">
+					<?php endif; ?>
+
+					<div class="new-connections-list">
+						<?php $i = 0; foreach ( $connections as $connection ) : if ( $i >= 5 ) break; ?>
+							<?php if ( is_a( $connection, '\Syndicate\ExternalConnection' ) ) : ?>
+								<a class="add-connection" data-connection-type="external" data-connection-id="<?php echo (int) $connection->ID; ?>"><?php echo get_the_title( $connection->id ); ?></a>
+							<?php else : ?>
+								<a class="add-connection" data-connection-type="internal" data-connection-id="<?php echo (int) $connection->site->blog_id; ?>"><?php echo untrailingslashit( $connection->site->domain . $connection->site->path ); ?></a>
+							<?php endif; ?>
+						<?php $i++; endforeach; ?>
+					</div>
+				</div>
+				<div class="connections-selected">
+					<header><?php esc_html_e( 'Selected sites', 'syndicate' ); ?></header>
+
+					<div class="selected-connections-list"></div>
+
+					<div class="action-wrapper">
+						<button><?php esc_html_e( 'Syndicate', 'syndicate' ); ?></button>
+						<label for="syndicate-as-draft" class="as-draft"><input type="checkbox" id="syndicate-as-draft"> <?php esc_html_e( 'As draft', 'syndicate' ); ?></label>
+					</div>
+				</div>
+			<?php else : ?>
+
+			<?php endif; ?>
+		</div>
+	</div>
+	<?php
+}
 
 /**
  * Handle ajax pushing
@@ -147,175 +253,38 @@ function ajax_push() {
 }
 
 /**
- * Enqueue admin scripts for push
+ * Enqueue scripts/styles for push
  * 
  * @param  string $hook
  * @since  1.0
  */
-function admin_enqueue_scripts( $hook ) {
-    if ( 'post.php' !== $hook && 'post-new.php' !== $hook ) {
-    	return;
-    }
+function enqueue_scripts( $hook ) {
+    if ( is_admin() ) {
+	    if ( 'post.php' !== $hook && 'post-new.php' !== $hook ) {
+	    	return;
+	    }
 
-    if ( 'sy_ext_connection' === get_post_type() || ( ! empty( $_GET['post_type'] ) && 'sy_ext_connection' === $_GET['post_type'] ) ) {
-    	return;
-    }
-
-    if ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) {
-		$js_path = '/assets/js/src/admin-push.js';
-		$css_path = '/assets/css/admin-push.css';
+	    if ( 'sy_ext_connection' === get_post_type() || ( ! empty( $_GET['post_type'] ) && 'sy_ext_connection' === $_GET['post_type'] ) ) {
+	    	return;
+	    }
 	} else {
-		$js_path = '/assets/js/admin-push.min.js';
-		$css_path = '/assets/css/admin-push.min.css';
+		if ( ! is_single() ) {
+			return;
+		}
 	}
 
-	wp_enqueue_style( 'sy-admin-push', plugins_url( $css_path, __DIR__ ), array(), SY_VERSION );
-    wp_enqueue_script( 'sy-admin-push', plugins_url( $js_path, __DIR__ ), array( 'jquery' ), SY_VERSION, true );
-    wp_localize_script( 'sy-admin-push', 'sy', array(
+    if ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) {
+		$js_path = '/assets/js/src/push.js';
+		$css_path = '/assets/css/push.css';
+	} else {
+		$js_path = '/assets/js/push.min.js';
+		$css_path = '/assets/css/push.min.css';
+	}
+
+	wp_enqueue_style( 'sy-push', plugins_url( $css_path, __DIR__ ), array(), SY_VERSION );
+    wp_enqueue_script( 'sy-push', plugins_url( $js_path, __DIR__ ), array( 'jquery' ), SY_VERSION, true );
+    wp_localize_script( 'sy-push', 'sy', array(
 		'nonce' => wp_create_nonce( 'sy-push' ),
-		'successful_syndication' => esc_html__( 'Post successfully syndicated to all connections.', 'syndicate' ),
-		'failed_syndication' => esc_html__( 'Post failed to syndicate to all connections.', 'syndicate' ),
-		'half_successful_syndication' => esc_html__( 'Post syndicated successfully to some connections and unsuccessfully to others.', 'syndicate' ),
 	) );
 }
 
-
-/**
- * Register meta boxes
- *
- * @since 1.0
- */
-function add_meta_boxes() {
-	$post_types = get_post_types( array(), 'object' );
-
-	foreach ( $post_types as $post_type ) {
-		if ( 'sy_ext_connection' === $post_type->name ) {
-			continue;
-		}
-
-		add_meta_box( 'sy_push', esc_html__( 'Syndicate', 'syndicate' ), __NAMESPACE__ . '\meta_box', $post_type->name );
-	}
-}
-
-/**
- * Output connection options meta box
- *
- * @since 1.0
- * @param WP_Post $post
- */
-function meta_box( $post ) {
-	wp_nonce_field( 'sy_external_connection_details_action', 'sy_external_connection_details' );
-
-	$sites = \Syndicate\NetworkSiteConnections::factory()->get_available_authorized_sites();
-
-	foreach ( $sites as $key => $site_array ) {
-		if ( ! in_array( $post->post_type, $site_array['post_types'] ) ) {
-			unset( $sites[ $key ] );
-		}
-	}
-
-	$connection_map = get_post_meta( $post->ID, 'sy_connection_map', true );
-	?>
-
-	<div class="table-wrapper">
-		<header><?php esc_html_e( 'Network Sites', 'syndicate' ); ?></header>
-
-		<?php if ( ! empty( $sites ) ) : ?>
-			<div class="table internal-connections-table">
-				<div class="row header">
-					<div class="checks"><a href="#" data-check="all" class="check"><?php esc_html_e( 'Check All', 'syndicate' ); ?></a> | <a data-check="none" class="check" href="#"><?php esc_html_e( 'Check None', 'syndicate' ); ?></a></div>
-					<div><?php esc_html_e( 'Last Syndication', 'syndicate' ); ?></div>
-				</div>
-				<?php foreach ( $sites as $site_array ) : $site = $site_array['site']; ?>
-					<div class="connection row" data-connection-id="<?php echo (int) $site->blog_id; ?>">
-						<div><input id="int_check_<?php echo (int) $site->blog_id; ?>" type="checkbox" class="js-connection-checkbox" data-blog-id="<?php echo (int) $site->blog_id; ?>"> <label for="int_check_<?php echo (int) $site->blog_id; ?>"><?php echo esc_html( untrailingslashit( $site->domain . $site->path ) ); ?></label></div>
-						<div class="last-syndicated">
-							<?php if ( ! empty( $connection_map['internal'][ $site->blog_id ] ) ) : ?>
-								<?php echo esc_html( date( 'F j, Y g:i a', $connection_map['internal'][ $site->blog_id ]['time'] ) ); ?>
-							<?php else : ?>
-								-
-							<?php endif; ?>
-						</div>
-					</div>
-				<?php endforeach; ?>
-			</div>
-		<?php else : ?>
-			<p>
-				<?php esc_html_e( 'There are no available sites.', 'syndicate' ); ?>
-			</p>
-		<?php endif; ?>
-
-		<?php
-
-		$external_connections_query = new \WP_Query( array(
-			'post_type' => 'sy_ext_connection',
-			'posts_per_page' => 200,
-			'no_found_rows' => true,
-			'post_status' => 'publish',
-		) );
-
-		$current_post_type = $post->post_type;
-		$showing = 0;
-		$external_connections = array();
-
-		foreach ( $external_connections_query->posts as $external_connection ) {
-			$external_connection_status = get_post_meta( $external_connection->ID, 'sy_external_connections', true );
-			$allowed_roles = get_post_meta( $external_connection->ID, 'sy_external_connection_allowed_roles', true );
-
-			if ( empty( $allowed_roles ) ) {
-				$allowed_roles = array( 'administrator', 'editor' );
-			}
-
-			if ( empty( $external_connection_status ) || ! in_array( $current_post_type, $external_connection_status['can_post'] ) ) {
-				continue;
-			}
-
-			// If not admin lets make sure the current user can push to this connection
-			if ( ! current_user_can( 'manage_options' ) ) {
-				$current_user_roles = (array) wp_get_current_user()->roles;
-				
-				if ( count( array_intersect( $current_user_roles, $allowed_roles ) ) < 1 ) {
-					continue;
-				}
-			}
-
-			$external_connections[] = $external_connection;
-		}
-		?>
-
-		<header><?php esc_html_e( 'External Connections', 'syndicate' ); ?></header>
-
-		<?php if ( ! empty( $external_connections ) ) : ?>
-			<div class="table external-connections-table">
-				<div class="row header">
-					<div class="checks"><a href="#" data-check="all" class="check"><?php esc_html_e( 'Check All', 'syndicate' ); ?></a> | <a data-check="none" class="check" href="#"><?php esc_html_e( 'Check None', 'syndicate' ); ?></a></div>
-					<div><?php esc_html_e( 'Last Syndication', 'syndicate' ); ?></div>
-				</div>
-				<?php foreach ( $external_connections as $external_connection ) : ?>
-					<div class="connection row" data-connection-id="<?php echo (int) $external_connection->ID; ?>">
-						<div><input type="checkbox" id="ext_check_<?php echo (int) $external_connection->ID; ?>" class="js-connection-checkbox" data-external-connection-id="<?php echo (int) $external_connection->ID; ?>"> <label for="ext_check_<?php echo (int) $external_connection->ID; ?>"><?php echo get_the_title( $external_connection->ID ); ?></label></div>
-						<div class="last-syndicated">
-							<?php if ( ! empty( $connection_map['external'][ $external_connection->ID ] ) && ! empty( $connection_map['external'][ $external_connection->ID ]['time'] ) ) : ?>
-								<?php echo esc_html( date( 'F j, Y g:i a', $connection_map['external'][ $external_connection->ID ]['time'] ) ); ?>
-							<?php else : ?>
-								-
-							<?php endif; ?>
-						</div>
-					</div>
-				<?php endforeach; ?>
-			</div>
-		<?php else : ?>
-			<p>
-				<?php printf( __( 'There are no available external connections. <a href="%s">Create one?</a>', 'syndicate' ), esc_url( admin_url( 'post-new.php?post_type=sy_ext_connection' ) ) ); ?>
-			</p>
-		<?php endif; ?>
-	</div>
-
-	<div class="push-button-wrapper">
-		<button disabled class="button button-primary js-syndicate"><?php esc_html_e( 'Push Post', 'syndicate' ); ?></button>
-	</div>
-	<div class="message"></div>
-	<p class="draft-message"><?php esc_html_e( 'All content is pushed in draft status.', 'syndicate' ); ?></p>
-
-	<?php
-}

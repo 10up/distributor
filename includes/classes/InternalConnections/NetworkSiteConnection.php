@@ -40,7 +40,7 @@ class NetworkSiteConnection extends Connection {
 			'post_excerpt' => $post->post_excerpt,
 			'post_type'    => $post->post_type,
 			'post_author'  => get_current_user_id(),
-			'post_status'  => 'draft',
+			'post_status'  => 'publish',
 		);
 
 		switch_to_blog( $this->site->blog_id );

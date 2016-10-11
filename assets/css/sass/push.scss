@@ -1,0 +1,128 @@
+$medium-screen: 768px;
+$small-screen: 480px;
+$border-color: #a0a5aa;
+$font-color: #eee;
+$background-color: #32373c;
+
+.syndicate-push-wrapper {
+	display: none;
+	font-size: 13px;
+    font-weight: 400;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+	position: fixed;
+	top: 32px;
+	left: 0;
+	right: 0;
+	padding: 2em 0;
+	height: auto;
+	background-color: $background-color;
+	align-items: center;
+	color: $font-color;
+	justify-content: center;
+}
+
+.syndicate-show {
+	.syndicate-push-wrapper {
+		display: flex;
+	}
+
+	#wp-admin-bar-syndicate a {
+		background: #32373c;
+	    color: #00b9eb;
+	}
+}
+
+.syndicate-push-wrapper .inner {
+	width: 100%;
+	max-width: $medium-screen;
+	margin: 0 auto;
+}
+
+.syndicate-push-wrapper input {
+	font-size: inherit;
+	background-color: $background-color;
+	border: 2px solid $border-color;
+	color: $font-color;
+
+	&::placeholder {
+		color: darken($font-color, 50%);
+	}
+
+	&:focus {
+		color: $font-color;
+		background-color: $background-color;
+		border: 2px solid $border-color;
+	}
+}
+
+.syndicate-push-wrapper button {
+	background: #0085ba;
+	border-color: #0073aa #006799 #006799;
+	box-shadow: 0 1px 0 #006799;
+	color: #fff;
+	text-decoration: none;
+	text-shadow: 0 -1px 1px #006799, 1px 0 1px #006799, 0 1px 1px #006799, -1px 0 1px #006799;
+	height: 30px;
+	line-height: 28px;
+	padding: 0 12px 2px;
+	border-radius: 3px;
+	text-transform: none;
+
+	&:hover {
+		background-color: #0085ba;
+	}
+}
+
+.syndicate-push-wrapper .new-connections-list {
+	overflow: scroll;
+	border: 1px solid $border-color;
+	margin-top: .5em;
+	margin-bottom: 2em;
+}
+
+.syndicate-push-wrapper .selected-connections-list {
+	margin-bottom: 1em;
+}
+
+.syndicate-push-wrapper .new-connections-list a:nth-child(odd) {
+	background-color: $border-color;
+}
+
+.syndicate-push-wrapper .add-connection,
+.syndicate-push-wrapper .added-connection {
+	display: block;
+	width: 100%;
+	padding: .5em;
+	color: inherit;
+	cursor: pointer;
+}
+
+.syndicate-push-wrapper .added-connection {
+	background-color: $border-color;
+	margin-bottom: .5em;
+	cursor: normal;
+	position: relative;
+
+	.remove-connection {
+		cursor: pointer;
+		position: absolute;
+		right: 5px;
+		font-size: 20px;
+		top: 2px;
+	}
+
+	.remove-connection:after {
+		content: "\f335";
+		font-family: dashicons;
+	}
+}
+
+.syndicate-push-wrapper p,
+.syndicate-push-wrapper header, {
+	margin: 0 0 1em 0;
+	padding: 0;
+}
+
+.syndicate-push-wrapper .as-draft {
+	margin-left: 1em;
+}
