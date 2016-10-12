@@ -13,6 +13,7 @@ add_action( 'plugins_loaded', function() {
 	add_action( 'wp_ajax_sy_push', __NAMESPACE__  . '\ajax_push' );
 	add_action( 'admin_bar_menu', __NAMESPACE__ . '\menu_button', 999 );
 	add_action( 'wp_footer', __NAMESPACE__ . '\menu_content', 10, 1 );
+	add_action( 'admin_footer', __NAMESPACE__ . '\menu_content', 10, 1 );
 } );
 
 /**
@@ -22,12 +23,24 @@ add_action( 'plugins_loaded', function() {
  * @since  0.8
  */
 function menu_button( $wp_admin_bar ) {
+	global $pagenow;
+
 	if ( ! is_user_logged_in() || ! current_user_can( 'edit_posts' ) ) {
 		return;
 	}
 
-	if ( ! is_single() ) {
-		return;
+	if ( is_admin() ) {
+		if ( 'post.php' !== $pagenow && 'post-new.php' !== $pagenow ) {
+	    	return;
+	    }
+
+	    if ( 'sy_ext_connection' === get_post_type() || ( ! empty( $_GET['post_type'] ) && 'sy_ext_connection' === $_GET['post_type'] ) ) {
+	    	return;	
+	    }
+	} else {
+		if ( ! is_single() ) {
+			return;
+		}
 	}
 
 	$wp_admin_bar->add_node( array(
@@ -149,10 +162,10 @@ function menu_content() {
 				</div>
 
 				<div class="messages">
-					<div class="success">
+					<div class="sy-success">
 						<?php esc_html_e( 'Post successfully syndicated.', 'syndicate' ); ?>
 					</div>
-					<div class="error">
+					<div class="sy-error">
 						<?php esc_html_e( 'There was an issue syndicating the post.', 'syndicate' ); ?>
 					</div>
 				</div>
