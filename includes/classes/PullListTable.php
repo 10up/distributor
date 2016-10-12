@@ -31,6 +31,7 @@ class PullListTable extends \WP_List_Table {
 			'cb'      => '<input type="checkbox" />',
 			'name'    => esc_html__( 'Name', 'syndicate' ),
 			'content_type' => esc_html__( 'Content Type', 'syndicate' ),
+			'status' => esc_html__( 'Status', 'syndicate' ),
 			'date' => esc_html__( 'Date', 'syndicate' ),
 		];
 
@@ -148,6 +149,9 @@ class PullListTable extends \WP_List_Table {
 				}
 
 				return $url;
+				break;
+			case 'status':
+				return $item->post_status;
 				break;
 		}
 	}
