@@ -224,6 +224,10 @@ function ajax_push() {
 					$push_args['remote_post_id'] = (int) $connection_map['external'][ (int) $connection['id'] ]['post_id'];
 				}
 
+				if ( ! empty( $_POST['draft' ] ) ) {
+					$push_args['post_status'] = 'draft';
+				}
+
 				$remote_id = $external_connection->push( $_POST['post_id'], $push_args );
 
 				/**
@@ -255,6 +259,10 @@ function ajax_push() {
 
 			if ( ! empty( $connection_map['internal'][ (int) $connection['id'] ] ) && ! empty( $connection_map['internal'][ (int) $connection['id'] ]['post_id'] ) ) {
 				$push_args['remote_post_id'] = (int) $connection_map['internal'][ (int) $connection['id'] ]['post_id'];
+			}
+
+			if ( ! empty( $_POST['draft' ] ) ) {
+				$push_args['post_status'] = 'draft';
 			}
 
 			$remote_id = $internal_connection->push( $_POST['post_id'], $push_args );

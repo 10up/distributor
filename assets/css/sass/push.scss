@@ -39,6 +39,24 @@ $background-color-dark: #23282d;
 	margin: 0 auto;
 }
 
+.syndicate-push-wrapper {
+	@media only screen and (min-width: $small-screen) {
+		.connections-selector {
+			width: 50%;
+			float: left;
+			padding-right: 2.5em;
+			box-sizing: border-box;
+		}
+
+		.connections-selected {
+			width: 50%;
+			float: right;
+			padding-left: 2.5em;
+			box-sizing: border-box;
+		}
+	}
+}
+
 .syndicate-push-wrapper input {
 	font-size: inherit;
 	background-color: $background-color;
