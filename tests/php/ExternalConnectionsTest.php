@@ -23,7 +23,7 @@ class ExternalConnectionsTest extends \TestCase {
 	/**
 	 * Test External Connection registration
 	 * 
-	 * @since 1.0
+	 * @since 0.8
 	 * @group ExternalConnections
 	 */
 	public function test_register() {
@@ -35,7 +35,7 @@ class ExternalConnectionsTest extends \TestCase {
 	/**
 	 * Text External Connection instantiation failure on no type
 	 *
-	 * @since  1.0
+	 * @since  0.8
 	 * @group ExternalConnections
 	 */
 	public function test_instantiate_fail_type() {
@@ -72,7 +72,7 @@ class ExternalConnectionsTest extends \TestCase {
 	/**
 	 * Text External Connection instantiation failure on not registered
 	 *
-	 * @since  1.0
+	 * @since  0.8
 	 * @group ExternalConnections
 	 */
 	public function test_instantiate_fail_not_registered() {
@@ -109,7 +109,7 @@ class ExternalConnectionsTest extends \TestCase {
 	/**
 	 * Text External Connection instantiation success
 	 *
-	 * @since  1.0
+	 * @since  0.8
 	 * @group ExternalConnections
 	 */
 	public function test_instantiate_success() {

@@ -12,7 +12,7 @@ class PullListTable extends \WP_List_Table {
 	/**
 	 * Initialize pull table
 	 *
-	 * @since  1.0
+	 * @since  0.8
 	 */
 	public function __construct() {
 		parent::__construct( array(
@@ -23,7 +23,7 @@ class PullListTable extends \WP_List_Table {
 	/**
 	 * Get pull tables columns
 	 *
-	 * @since  1.0
+	 * @since  0.8
 	 * @return array
 	 */
 	public function get_columns() {
@@ -40,7 +40,7 @@ class PullListTable extends \WP_List_Table {
 	/**
 	 * Get sortable table columns
 	 *
-	 * @since  1.0
+	 * @since  0.8
 	 * @return array
 	 */
 	public function get_sortable_columns() {
@@ -55,7 +55,7 @@ class PullListTable extends \WP_List_Table {
 	/**
 	 * Get table views
 	 *
-	 * @since  1.0
+	 * @since  0.8
 	 * @return array
 	 */
 	protected function get_views() {
@@ -125,7 +125,7 @@ class PullListTable extends \WP_List_Table {
 	 * 
 	 * @param  array $item 
 	 * @param  string $column_name
-	 * @since  1.0
+	 * @since  0.8
 	 */
 	public function column_default( $item, $column_name ) {
 		switch ( $column_name ) {
@@ -174,7 +174,7 @@ class PullListTable extends \WP_List_Table {
 	 * Output inner name column with actions
 	 * 
 	 * @param  WP_Post $item
-	 * @since  1.0
+	 * @since  0.8
 	 */
 	public function column_name( $item ) {
 
@@ -229,7 +229,7 @@ class PullListTable extends \WP_List_Table {
 	/**
 	 * Remotely get items for display in table
 	 *
-	 * @since  1.0
+	 * @since  0.8
 	 */
 	public function prepare_items() {
 		global $connection_now;
@@ -323,7 +323,7 @@ class PullListTable extends \WP_List_Table {
 	/**
 	 * Get available bulk actions
 	 *
-	 * @since  1.0
+	 * @since  0.8
 	 * @return array
 	 */
 	public function get_bulk_actions() {

@@ -8,7 +8,7 @@ class WordPressExternalConnectionTest extends \TestCase {
 	/**
 	 * Test creating a WordPressExternalConnection object
 	 *
-	 * @since  1.0
+	 * @since  0.8
 	 * @group WordPressExternalConnection
 	 */
 	public function test_construct() {

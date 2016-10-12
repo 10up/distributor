@@ -5,7 +5,7 @@ namespace Syndicate\PullUI;
 /**
  * Setup actions and filters
  *
- * @since 1.0
+ * @since 0.8
  */
 add_action( 'plugins_loaded', function() {
 	add_action( 'admin_menu', __NAMESPACE__  . '\action_admin_menu' );
@@ -16,7 +16,7 @@ add_action( 'plugins_loaded', function() {
 /**
  * Create list table
  * 
- * @since 1.0
+ * @since 0.8
  */
 function setup_list_table() {
 	global $connection_list_table;
@@ -84,7 +84,7 @@ function setup_list_table() {
  * Enqueue admin scripts for pull
  * 
  * @param  string $hook
- * @since  1.0
+ * @since  0.8
  */
 function admin_enqueue_scripts( $hook ) {
     if ( 'syndicate_page_pull' !== $hook || empty( $_GET['page'] ) || 'pull' !== $_GET['page'] ) {
@@ -103,7 +103,7 @@ function admin_enqueue_scripts( $hook ) {
 /**
  * Set up admin menu
  *
- * @since 1.0
+ * @since 0.8
  */
 function action_admin_menu() {
 	$hook = add_submenu_page(
@@ -121,7 +121,7 @@ function action_admin_menu() {
 /**
  * Set up screen options
  * 
- * @since 1.0
+ * @since 0.8
  */
 function screen_option() {
 
@@ -138,7 +138,7 @@ function screen_option() {
 /**
  * Process content changing actions
  * 
- * @since  1.0
+ * @since  0.8
  */
 function process_actions() {
 	global $connection_list_table;
@@ -240,7 +240,7 @@ function process_actions() {
 /**
  * Output pull dashboard with custom list table
  *
- * @since 1.0
+ * @since 0.8
  */
 function dashboard() {
 	global $connection_list_table;

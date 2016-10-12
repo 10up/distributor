@@ -11,7 +11,7 @@ class ExternalConnections {
 	/**
 	 * This will act as a singleton
 	 *
-	 * @since  1.0
+	 * @since  0.8
 	 */
 	public function __construct() { }
 
@@ -19,7 +19,7 @@ class ExternalConnections {
 	 * Register a external connection class for use
 	 * 
 	 * @param  string $class_name
-	 * @since  1.0
+	 * @since  0.8
 	 */
 	public function register( $class_name ) {
 		$this->external_connections[$class_name::$slug] = $class_name;
@@ -28,7 +28,7 @@ class ExternalConnections {
 	/**
 	 * Get registered external connections. Note that this are classes not objects
 	 *
-	 * @since  1.0
+	 * @since  0.8
 	 * @return array
 	 */
 	public function get_registered() {
@@ -39,7 +39,7 @@ class ExternalConnections {
 	 * This is a factory method for initializing an external connection
 	 * 
 	 * @param  int|WP_Post $external_connection
-	 * @since  1.0
+	 * @since  0.8
 	 * @return Connection
 	 */
 	public function instantiate( $external_connection ) {
@@ -65,15 +65,14 @@ class ExternalConnections {
 		$connection_class = $this->external_connections[$type];
 
 		$auth_handler = new $connection_class::$auth_handler_class( $auth );
-		$mapping_handler = new $connection_class::$mapping_handler_class();
 
-		return new $connection_class( $name, $url, $external_connection_id, $auth_handler, $mapping_handler );
+		return new $connection_class( $name, $url, $external_connection_id, $auth_handler );
 	}
 
 	/**
 	 * Singleton-ish class
 	 *
-	 * @since  1.0
+	 * @since  0.8
 	 * @return object
 	 */
 	public static function factory() {

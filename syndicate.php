@@ -2,8 +2,8 @@
 
 /**
  * Plugin Name: Syndicate
- * Description: Push and pull content from external websites and multisite blogs.
- * Version:     1.0
+ * Description: Syndicate content to and from external websites and multisite blogs.
+ * Version:     0.8
  * Author:      Taylor Lovett, 10up
  * Author URI:  http://10up.com
  * License:     GPLv2 or later
@@ -15,7 +15,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly.
 }
 
-define( 'SY_VERSION', '1.0' );
+define( 'SY_VERSION', '0.8' );
 
 /**
  * PSR-4 autoloading
@@ -53,3 +53,4 @@ require_once( __DIR__ . '/includes/external-connection-cpt.php' );
 require_once( __DIR__ . '/includes/push-ui.php' );
 require_once( __DIR__ . '/includes/pull-ui.php' );
 require_once( __DIR__ . '/includes/syndicated-post-ui.php' );
+require_once( __DIR__ . '/includes/canonicalize-setup.php' );

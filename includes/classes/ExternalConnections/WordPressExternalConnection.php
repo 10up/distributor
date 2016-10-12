@@ -8,14 +8,13 @@ class WordPressExternalConnection extends ExternalConnection {
 	static $slug = 'wp';
 	static $label = 'WordPress REST API';
 	static $auth_handler_class = '\Syndicate\Authentications\WordPressBasicAuth';
-	static $mapping_handler_class = '\Syndicate\Mappings\WordPressRestPost';
 	static $namespace = 'wp/v2';
 
 	/**
 	 * This is a utility function for parsing annoying API link headers returned by the types endpoint
 	 * 
 	 * @param  array $type
-	 * @since  1.0
+	 * @since  0.8
 	 * @return string|bool
 	 */
 	private function parse_type_items_link( $type ) {
@@ -44,7 +43,7 @@ class WordPressExternalConnection extends ExternalConnection {
 	 * Remotely get posts
 	 * 
 	 * @param  array  $args
-	 * @since  1.0
+	 * @since  0.8
 	 * @return array|WP_Post
 	 */
 	public function remote_get( $args = array() ) {
@@ -162,7 +161,7 @@ class WordPressExternalConnection extends ExternalConnection {
 
 		if ( empty( $id ) ) {
 			foreach ( $posts as $post ) {
-				$formatted_posts[] = $this->mapping_handler->to_wp_post( $post );
+				$formatted_posts[] = $this->to_wp_post( $post );
 			}
 
 			$total_posts = wp_remote_retrieve_header( $posts_response, 'X-WP-Total' );
@@ -175,7 +174,7 @@ class WordPressExternalConnection extends ExternalConnection {
 				'total_items' => $total_posts,
 			], $args, $this );
 		} else {
-			return apply_filters( 'sy_remote_get', $this->mapping_handler->to_wp_post( $posts ), $args, $this );
+			return apply_filters( 'sy_remote_get', $this->to_wp_post( $posts ), $args, $this );
 		}
 	}
 
@@ -183,7 +182,7 @@ class WordPressExternalConnection extends ExternalConnection {
 	 * Pull items
 	 * 
 	 * @param  array $items
-	 * @since  1.0
+	 * @since  0.8
 	 * @return array
 	 */
 	public function pull( $items ) {
@@ -227,7 +226,7 @@ class WordPressExternalConnection extends ExternalConnection {
 	 * 
 	 * @param  int $post_id
 	 * @param  array $args
-	 * @since  1.0
+	 * @since  0.8
 	 * @return bool|WP_Error
 	 */
 	public function push( $post_id, $args = array() ) {
@@ -321,7 +320,7 @@ class WordPressExternalConnection extends ExternalConnection {
 	/**
 	 * Check what we can do with a given external connection (push or pull)
 	 *
-	 * @since  1.0
+	 * @since  0.8
 	 * @return array
 	 */
 	public function check_connections() {
@@ -427,5 +426,30 @@ class WordPressExternalConnection extends ExternalConnection {
 		}
 
 		return $output;
+	}
+
+	/**
+	 * Convert object to WP_Post
+	 * 
+	 * @param  array
+	 * @since  0.8
+	 * @return WP_Post
+	 */
+	private function to_wp_post( $post ) {
+		$obj = new \stdClass();
+
+		$obj->ID = $post['id'];
+		$obj->post_title = $post['title']['rendered'];
+		$obj->post_content = $post['content']['rendered'];
+		$obj->post_date = $post['date'];
+		$obj->post_date_gmt = $post['date_gmt'];
+		$obj->guid = $post['guid']['rendered'];
+		$obj->post_modified = $post['modified'];
+		$obj->post_modified_gmt = $post['modified_gmt'];
+		$obj->post_type = $post['type'];
+		$obj->link = $post['link'];
+		$obj->post_author = get_current_user_id();
+		
+		return apply_filters( 'sy_item_mapping', new \WP_Post( $obj ), $post, $this );
 	}
 }

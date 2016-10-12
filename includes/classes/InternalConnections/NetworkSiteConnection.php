@@ -9,17 +9,20 @@ use \Syndicate\Connection as Connection;
 class NetworkSiteConnection extends Connection {
 
 	public $site;
-	static $mapping_handler_class = '\Syndicate\Mappings\NetworkSitePost';
+
+	public $canonicalizer_handler;
+
+	static $canonicalizer_handler_class = '\Syndicate\Canonicalizers\NetworkSitePost';
 
 	/**
 	 * Set up network site connection
 	 *
 	 * @param WP_Site $site
-	 * @since  1.0
+	 * @since  0.8
 	 */
 	public function __construct( \WP_Site $site ) {
-		$this->mapping_handler = new self::$mapping_handler_class;
 		$this->site = $site;
+		$this->canonicalizer_handler = new self::$canonicalizer_handler_class;
 	}
 
 	/**
@@ -27,7 +30,7 @@ class NetworkSiteConnection extends Connection {
 	 * 
 	 * @param  int $post_id
 	 * @param  array  $args
-	 * @since  1.0
+	 * @since  0.8
 	 * @return int|WP_Error
 	 */
 	public function push( $post_id, $args = array() ) {
@@ -67,7 +70,7 @@ class NetworkSiteConnection extends Connection {
 	 * Pull items
 	 * 
 	 * @param  array $items
-	 * @since  1.0
+	 * @since  0.8
 	 * @return array
 	 */
 	public function pull( $items ) {
@@ -111,7 +114,7 @@ class NetworkSiteConnection extends Connection {
 	 *
 	 * @param  array $item_id_mappings
 	 * @param  string|bool $status
-	 * @since  1.0
+	 * @since  0.8
 	 */
 	public function log_sync( array $item_id_mappings ) {
 		$sync_log = get_site_option( 'sy_sync_log_' . $this->site->blog_id, array() );
@@ -133,7 +136,7 @@ class NetworkSiteConnection extends Connection {
 	 * Remotely get posts so we can list them for pulling
 	 * 
 	 * @param  array  $args
-	 * @since  1.0
+	 * @since  0.8
 	 * @return array|WP_Post|bool
 	 */
 	public function remote_get( $args = array() ) {
@@ -168,7 +171,7 @@ class NetworkSiteConnection extends Connection {
 			$formatted_posts = [];
 
 			foreach ( $posts as $post ) {
-				$formatted_posts[] = $this->mapping_handler->to_wp_post( $post );
+				$formatted_posts[] = $this->to_wp_post( $post );
 			}
 
 			restore_current_blog();
@@ -184,7 +187,7 @@ class NetworkSiteConnection extends Connection {
 				return false;
 			}
 
-			$formatted_post = $this->mapping_handler->to_wp_post( $post );
+			$formatted_post = $this->to_wp_post( $post );
 
 			restore_current_blog();
 
@@ -192,4 +195,20 @@ class NetworkSiteConnection extends Connection {
 		}
 	}
 
+	/**
+	 * Convert object to WP_Post
+	 * 
+	 * @param  object $post_array
+	 * @since  0.8
+	 * @return WP_Post
+	 */
+	private function to_wp_post( $post ) {
+		$obj = new \stdClass();
+		$vars = get_object_vars( $post );
+		foreach ( $vars as $key => $value ) {
+			$obj->$key = $value;
+		}
+		$obj->link = get_permalink( $post->ID );
+		return apply_filters( 'sy_item_mapping', new \WP_Post( $obj ), $post, $this );
+	}
 }

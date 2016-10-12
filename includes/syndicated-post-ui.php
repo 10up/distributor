@@ -5,7 +5,7 @@ namespace Syndicate\SyndicatedPostUI;
 /**
  * Setup actions and filters
  *
- * @since 1.0
+ * @since 0.8
  */
 add_action( 'plugins_loaded', function() {
 	add_action( 'edit_form_top', __NAMESPACE__ . '\syndicated_message', 10, 1 );

@@ -28,7 +28,7 @@ class WordPressBasicAuth extends Authentication {
 	 * Output credentials form for this auth type
 	 * 
 	 * @param  array  $args
-	 * @since  1.0
+	 * @since  0.8
 	 */
 	static function credentials_form( $args = array() ) {
 		if ( empty( $args['username'] ) ) {
@@ -58,7 +58,7 @@ class WordPressBasicAuth extends Authentication {
 	 * Prepare credentials for this auth type
 	 * 
 	 * @param  array $args
-	 * @since  1.0
+	 * @since  0.8
 	 * @return array
 	 */
 	static function prepare_credentials( $args ) {
@@ -84,7 +84,7 @@ class WordPressBasicAuth extends Authentication {
 	 * 
 	 * @param  array $args
 	 * @param  array  $context
-	 * @since  1.0
+	 * @since  0.8
 	 * @return array
 	 */
 	public function format_get_args( $args, $context = array() ) {
@@ -104,7 +104,7 @@ class WordPressBasicAuth extends Authentication {
 	 * 
 	 * @param  array $args
 	 * @param  array  $context
-	 * @since  1.0
+	 * @since  0.8
 	 * @return array
 	 */
 	public function format_post_args( $args, $context = array() ) {

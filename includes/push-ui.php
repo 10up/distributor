@@ -5,7 +5,7 @@ namespace Syndicate\PushUI;
 /**
  * Setup actions and filters
  *
- * @since 1.0
+ * @since 0.8
  */
 add_action( 'plugins_loaded', function() {
 	add_action( 'admin_enqueue_scripts', __NAMESPACE__  . '\enqueue_scripts' );
@@ -19,7 +19,7 @@ add_action( 'plugins_loaded', function() {
  * Let's setup our syndicate menu in the toolbar
  *
  * @param object $wp_admin_bar
- * @since  1.0
+ * @since  0.8
  */
 function menu_button( $wp_admin_bar ) {
 	if ( ! is_user_logged_in() || ! current_user_can( 'edit_posts' ) ) {
@@ -37,13 +37,38 @@ function menu_button( $wp_admin_bar ) {
 	) );
 }
 
+/**
+ * Build syndicate push menu dropdown HTML
+ * 
+ * @since 0.8
+ */
 function menu_content() {
 	global $post;
+
+	$connection_map = get_post_meta( $post->ID, 'sy_connection_map', true );
+
+	$dom_connections = [];
+
+	if ( empty( $connection_map['external'] ) ) {
+		$connection_map['external'] = [];
+	}
+
+	if ( empty( $connection_map['internal'] ) ) {
+		$connection_map['internal'] = [];
+	}
 
 	$sites = \Syndicate\NetworkSiteConnections::factory()->get_available_authorized_sites();
 	foreach ( $sites as $key => $site_array ) {
 		if ( in_array( $post->post_type, $site_array['post_types'] ) ) {
-			$connections[] = new \Syndicate\InternalConnections\NetworkSiteConnection( $site_array['site'] );
+			$connection = new \Syndicate\InternalConnections\NetworkSiteConnection( $site_array['site'] );
+
+			$dom_connections['internal' . $connection->site->blog_id] = [
+				'type'       => 'internal',
+				'id'         => $connection->site->blog_id,
+				'url'        => untrailingslashit( preg_replace( '#(https?:\/\/|www\.)#i', '', get_site_url( $connection->site->blog_id ) ) ),
+				'name'       => $connection->site->blogname,
+				'syndicated' => ( ! empty( $connection_map['internal'][ (int) $connection->site->blog_id ] ) ) ? true : false,
+			];
 		}
 	}
 
@@ -61,7 +86,7 @@ function menu_content() {
 			$allowed_roles = array( 'administrator', 'editor' );
 		}
 
-		/*if ( empty( $external_connection_status ) || ! in_array( $current_post_type, $external_connection_status['can_post'] ) ) {
+		if ( empty( $external_connection_status ) || ! in_array( $current_post_type, $external_connection_status['can_post'] ) ) {
 			continue;
 		}
 
@@ -72,43 +97,63 @@ function menu_content() {
 			if ( count( array_intersect( $current_user_roles, $allowed_roles ) ) < 1 ) {
 				continue;
 			}
-		}*/
+		}
 
 		$connection = \Syndicate\ExternalConnections::factory()->instantiate( $external_connection->ID );
 
 		if ( ! is_wp_error( $connection ) ) {
-			$connections[] = $connection;
+			$dom_connections['external' . $connection->id] = [
+				'type'       => 'external',
+				'id'         => $connection->id,
+				'url'        => $connection->base_url,
+				'name'       => $connection->name,
+				'syndicated' => ( ! empty( $connection_map['external'][ (int) $external_connection->ID ]) ) ? true : false,
+			];
 		}
 	}
 	?>
+	<script type="text/javascript">
+	var sy_connections = <?php echo json_encode( $dom_connections ); ?>;
+	</script>
+
 	<div class="syndicate-push-wrapper">
 		<div class="inner">
 			<p><?php echo sprintf( __( 'Post &quot;%s&quot; to other connections.', 'syndicate' ), get_the_title( $post->ID ) ); ?></p>
 
-			<?php if ( 1 < count( $connections ) ) : ?>
+			<?php if ( 1 < count( $dom_connections ) ) : ?>
 				<div class="connections-selector">
-					<?php if ( 5 < count( $connections ) ) : ?>
+					<?php if ( 5 < count( $dom_connections ) ) : ?>
 						<input type="text" id="sy-connection-search" placeholder="<?php esc_html_e( 'Search available connections', 'syndicate' ); ?>">
 					<?php endif; ?>
 
 					<div class="new-connections-list">
-						<?php $i = 0; foreach ( $connections as $connection ) : if ( $i >= 5 ) break; ?>
-							<?php if ( is_a( $connection, '\Syndicate\ExternalConnection' ) ) : ?>
-								<a class="add-connection" data-connection-type="external" data-connection-id="<?php echo (int) $connection->ID; ?>"><?php echo get_the_title( $connection->id ); ?></a>
+						<?php foreach ( $dom_connections as $connection ) : ?>
+							<?php if ( 'external' === $connection['type'] ) : ?>
+								<a class="add-connection <?php if ( ! empty( $connection['syndicated'] ) ) : ?>syndicated<?php endif; ?>" data-connection-type="external" data-connection-id="<?php echo (int) $connection['id']; ?>"><?php echo esc_html( get_the_title( $connection['id'] ) ); ?></a>
 							<?php else : ?>
-								<a class="add-connection" data-connection-type="internal" data-connection-id="<?php echo (int) $connection->site->blog_id; ?>"><?php echo untrailingslashit( $connection->site->domain . $connection->site->path ); ?></a>
+								<a class="add-connection <?php if ( ! empty( $connection['syndicated'] ) ) : ?>syndicated<?php endif; ?>" data-connection-type="internal" data-connection-id="<?php echo (int) $connection['id']; ?>"><?php echo esc_html( $connection['url'] ); ?></a>
 							<?php endif; ?>
-						<?php $i++; endforeach; ?>
+						<?php endforeach; ?>
 					</div>
 				</div>
-				<div class="connections-selected">
-					<header><?php esc_html_e( 'Selected sites', 'syndicate' ); ?></header>
+				<div class="connections-selected empty">
+					<header class="with-selected"><?php esc_html_e( 'Selected sites', 'syndicate' ); ?></header>
+					<header class="no-selected"><?php esc_html_e( 'No sites selected', 'syndicate' ); ?></header>
 
 					<div class="selected-connections-list"></div>
 
 					<div class="action-wrapper">
-						<button><?php esc_html_e( 'Syndicate', 'syndicate' ); ?></button>
+						<button class="syndicate-button"><?php esc_html_e( 'Syndicate', 'syndicate' ); ?></button>
 						<label for="syndicate-as-draft" class="as-draft"><input type="checkbox" id="syndicate-as-draft"> <?php esc_html_e( 'As draft', 'syndicate' ); ?></label>
+					</div>
+				</div>
+
+				<div class="messages">
+					<div class="success">
+						<?php esc_html_e( 'Post successfully syndicated.', 'syndicate' ); ?>
+					</div>
+					<div class="error">
+						<?php esc_html_e( 'There was an issue syndicating the post.', 'syndicate' ); ?>
 					</div>
 				</div>
 			<?php else : ?>
@@ -122,7 +167,7 @@ function menu_content() {
 /**
  * Handle ajax pushing
  *
- * @since  1.0
+ * @since  0.8
  */
 function ajax_push() {
 	if ( ! check_ajax_referer( 'sy-push', 'nonce', false ) ) {
@@ -132,6 +177,11 @@ function ajax_push() {
 
 	if ( empty( $_POST['post_id'] ) ) {
 		wp_send_json_error();
+		exit;
+	}
+
+	if ( empty( $_POST['connections'] ) ) {
+		wp_send_json_success();
 		exit;
 	}
 
@@ -149,12 +199,13 @@ function ajax_push() {
 	}
 
 	$external_push_results = array();
+	$internal_push_results = array();
 
-	if ( ! empty( $_POST['external_connections'] ) ) {
-		foreach ( $_POST['external_connections'] as $external_connection_id ) {
-			$external_connection_type = get_post_meta( $external_connection_id, 'sy_external_connection_type', true );
-			$external_connection_url = get_post_meta( $external_connection_id, 'sy_external_connection_url', true );
-			$external_connection_auth = get_post_meta( $external_connection_id, 'sy_external_connection_auth', true );
+	foreach ( $_POST['connections'] as $connection ) {
+		if ( 'external' === $connection['type'] ) {
+			$external_connection_type = get_post_meta( $connection['id'], 'sy_external_connection_type', true );
+			$external_connection_url = get_post_meta( $connection['id'], 'sy_external_connection_url', true );
+			$external_connection_auth = get_post_meta( $connection['id'], 'sy_external_connection_auth', true );
 
 			if ( empty( $external_connection_auth ) ) {
 				$external_connection_auth = array();
@@ -164,14 +215,13 @@ function ajax_push() {
 				$external_connection_class = \Syndicate\ExternalConnections::factory()->get_registered()[ $external_connection_type ];
 
 				$auth_handler = new $external_connection_class::$auth_handler_class( $external_connection_auth );
-				$mapping_handler = new $external_connection_class::$mapping_handler_class();
 
-				$external_connection = new $external_connection_class( get_the_title( $external_connection_id ), $external_connection_url, $external_connection_id, $auth_handler, $mapping_handler );
+				$external_connection = new $external_connection_class( get_the_title( $connection['id'] ), $external_connection_url, $connection['id'], $auth_handler );
 
 				$push_args = array();
 
-				if ( ! empty( $connection_map['external'][ (int) $external_connection_id ] ) && ! empty( $connection_map['external'][ (int) $external_connection_id ]['post_id'] ) ) {
-					$push_args['remote_post_id'] = (int) $connection_map['external'][ (int) $external_connection_id ]['post_id'];
+				if ( ! empty( $connection_map['external'][ (int) $connection['id'] ] ) && ! empty( $connection_map['external'][ (int) $connection['id'] ]['post_id'] ) ) {
+					$push_args['remote_post_id'] = (int) $connection_map['external'][ (int) $connection['id'] ]['post_id'];
 				}
 
 				$remote_id = $external_connection->push( $_POST['post_id'], $push_args );
@@ -181,36 +231,30 @@ function ajax_push() {
 				 */
 
 				if ( ! is_wp_error( $remote_id ) ) {
-					$connection_map['external'][ (int) $external_connection_id ] = array(
+					$connection_map['external'][ (int) $connection['id'] ] = array(
 						'post_id' => (int) $remote_id,
 						'time'    => time(),
 					);
 
-					$external_push_results[ (int) $external_connection_id ] = array(
-						'post_id' => (int) $remote_id,
-						'date'    => date( 'F j, Y g:i a' ),
-						'status'  => 'success',
+					$external_push_results[ (int) $connection['id'] ] = array(
+						'post_id'       => (int) $remote_id,
+						'date'          => date( 'F j, Y g:i a' ),
+						'status'        => 'success',
 					);
 				} else {
 					$external_push_results[ (int) $external_connection_id ] = array(
-						'post_id' => (int) $remote_id,
-						'date'    => date( 'F j, Y g:i a' ),
-						'status'  => 'fail',
+						'post_id'       => (int) $remote_id,
+						'date'          => date( 'F j, Y g:i a' ),
+						'status'        => 'fail',
 					);
 				}
 			}
-		}
-	}
-
-	$internal_push_results = array();
-
-	if ( ! empty( $_POST['internal_connections'] ) ) {
-		foreach ( $_POST['internal_connections'] as $blog_id ) {
-			$internal_connection = new \Syndicate\InternalConnections\NetworkSiteConnection( get_site( $blog_id ) );
+		} else {
+			$internal_connection = new \Syndicate\InternalConnections\NetworkSiteConnection( get_site( $connection['id'] ) );
 			$push_args = array();
 
-			if ( ! empty( $connection_map['internal'][ (int) $blog_id ] ) && ! empty( $connection_map['internal'][ (int) $blog_id ]['post_id'] ) ) {
-				$push_args['remote_post_id'] = (int) $connection_map['internal'][ (int) $blog_id ]['post_id'];
+			if ( ! empty( $connection_map['internal'][ (int) $connection['id'] ] ) && ! empty( $connection_map['internal'][ (int) $connection['id'] ]['post_id'] ) ) {
+				$push_args['remote_post_id'] = (int) $connection_map['internal'][ (int) $connection['id'] ]['post_id'];
 			}
 
 			$remote_id = $internal_connection->push( $_POST['post_id'], $push_args );
@@ -219,18 +263,18 @@ function ajax_push() {
 			 * Record the internal connection id's remote post id for this local post
 			 */
 			if ( ! is_wp_error( $remote_id ) ) {
-				$connection_map['internal'][ (int) $blog_id ] = array(
+				$connection_map['internal'][ (int) $connection['id'] ] = array(
 					'post_id' => (int) $remote_id,
 					'time'    => time(),
 				);
 
-				$internal_push_results[ (int) $blog_id ] = array(
+				$internal_push_results[ (int) $connection['id']  ] = array(
 					'post_id' => (int) $remote_id,
 					'date'    => date( 'F j, Y g:i a' ),
 					'status'  => 'success',
 				);
 			} else {
-				$internal_push_results[ (int) $blog_id ] = array(
+				$internal_push_results[ (int) $connection['id'] ] = array(
 					'post_id' => (int) $remote_id,
 					'date'    => date( 'F j, Y g:i a' ),
 					'status'  => 'fail',
@@ -256,7 +300,7 @@ function ajax_push() {
  * Enqueue scripts/styles for push
  * 
  * @param  string $hook
- * @since  1.0
+ * @since  0.8
  */
 function enqueue_scripts( $hook ) {
     if ( is_admin() ) {
@@ -282,9 +326,10 @@ function enqueue_scripts( $hook ) {
 	}
 
 	wp_enqueue_style( 'sy-push', plugins_url( $css_path, __DIR__ ), array(), SY_VERSION );
-    wp_enqueue_script( 'sy-push', plugins_url( $js_path, __DIR__ ), array( 'jquery' ), SY_VERSION, true );
+    wp_enqueue_script( 'sy-push', plugins_url( $js_path, __DIR__ ), array( 'jquery', 'underscore' ), SY_VERSION, true );
     wp_localize_script( 'sy-push', 'sy', array(
-		'nonce' => wp_create_nonce( 'sy-push' ),
+		'nonce'   => wp_create_nonce( 'sy-push' ),
+		'post_id' => (int) get_the_ID(),
+		'ajaxurl' => esc_url( admin_url( 'admin-ajax.php' ) ),
 	) );
 }
-

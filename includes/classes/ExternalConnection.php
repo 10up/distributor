@@ -18,8 +18,6 @@ abstract class ExternalConnection extends Connection {
 
 	public $auth_handler;
 
-	public $mapping_handler;
-
 	/**
 	 * Initialize an external connection given a name, url, auth handler, and mapping handler
 	 *
@@ -27,21 +25,20 @@ abstract class ExternalConnection extends Connection {
 	 * @param string         $base_url
 	 * @param Authentication $auth_handler
 	 * @param Mapping        $mapping_handler
-	 * @since  1.0
+	 * @since  0.8
 	 */
-	public function __construct( $name, $base_url, $id, Authentication $auth_handler, Mapping $mapping_handler ) {
+	public function __construct( $name, $base_url, $id, Authentication $auth_handler ) {
 		$this->name = $name;
 		$this->id = $id;
 		$this->base_url = $base_url;
 		$this->auth_handler = $auth_handler;
-		$this->mapping_handler = $mapping_handler;
 	}
 
 	/**
 	 * Log a sync
 	 *
 	 * @param  array $item_id_mappings
-	 * @since  1.0
+	 * @since  0.8
 	 */
 	public function log_sync( array $item_id_mappings ) {
 		$sync_log = get_post_meta( $this->id, 'sy_sync_log', true );
@@ -66,7 +63,7 @@ abstract class ExternalConnection extends Connection {
 	/**
 	 * Check push/pull connections for the external connection
 	 *
-	 * @since  1.0
+	 * @since  0.8
 	 * @return array
 	 */
 	public abstract function check_connections();

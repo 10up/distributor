@@ -7,7 +7,7 @@
 /**
  * Hollowed out WP_Error class for mocking
  *
- * @since  1.0
+ * @since  0.8
  */
 class WP_Error {
 	public function __construct( $code = '', $message = '' ) {
@@ -20,7 +20,7 @@ class WP_Error {
  * Check if object is WP_Error
  * 
  * @param  Object  $thing
- * @since  1.0
+ * @since  0.8
  * @return boolean
  */
 function is_wp_error( $thing ) {

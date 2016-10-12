@@ -5,7 +5,7 @@ namespace Syndicate\ExternalConnectionCPT;
 /**
  * Setup actions and filters
  *
- * @since 1.0
+ * @since 0.8
  */
 add_action( 'plugins_loaded', function() {
     add_action( 'init', __NAMESPACE__ . '\setup_cpt' );
@@ -26,7 +26,7 @@ add_action( 'plugins_loaded', function() {
 /**
  * Setup list table and process actions
  *
- * @since  1.0
+ * @since  0.8
  */
 function setup_list_table() {
 	global $connection_list_table;
@@ -66,7 +66,7 @@ function setup_list_table() {
  * Add url column to posts table
  * 
  * @param  array $columns
- * @since  1.0
+ * @since  0.8
  * @return array
  */
 function filter_columns( $columns ) {
@@ -81,7 +81,7 @@ function filter_columns( $columns ) {
  * 
  * @param  string $column
  * @param  int $post_id
- * @since  1.0
+ * @since  0.8
  */
 function action_custom_columns( $column, $post_id ) {
 	if ( 'sy_external_connection_url' == $column ) {
@@ -98,7 +98,7 @@ function action_custom_columns( $column, $post_id ) {
 /**
  * Check push and pull connections via AJAX
  *
- * @since  1.0
+ * @since  0.8
  */
 function ajax_verify_external_connection() {
 	if ( ! check_ajax_referer( 'sy-verify-ext-conn', 'nonce', false ) ) {
@@ -126,10 +126,9 @@ function ajax_verify_external_connection() {
 	$external_connection_class = \Syndicate\ExternalConnections::factory()->get_registered()[ $_POST['type'] ];
 
 	$auth_handler = new $external_connection_class::$auth_handler_class( $auth );
-	$mapping_handler = new $external_connection_class::$mapping_handler_class();
 
 	// Init with placeholders since we haven't created yet
-	$external_connection = new $external_connection_class( 'connection-test', $_POST['url'], 0, $auth_handler, $mapping_handler );
+	$external_connection = new $external_connection_class( 'connection-test', $_POST['url'], 0, $auth_handler );
 
 	$external_connections = $external_connection->check_connections();
 
@@ -141,7 +140,7 @@ function ajax_verify_external_connection() {
  * Enqueue admin scripts for external connection editor
  * 
  * @param  string $hook
- * @since  1.0
+ * @since  0.8
  */
 function admin_enqueue_scripts( $hook ) {
     if ( ( 'post.php' === $hook && 'sy_ext_connection' === get_post_type() ) || ( 'post-new.php' === $hook && ! empty( $_GET['post_type'] ) && 'sy_ext_connection' === $_GET['post_type'] ) ) {
@@ -192,7 +191,7 @@ function admin_enqueue_scripts( $hook ) {
  *
  * @param  string $label
  * @param  int $post
- * @since  1.0
+ * @since  0.8
  * @return string
  */
 function filter_enter_title_here( $label, $post = 0 ) {
@@ -207,7 +206,7 @@ function filter_enter_title_here( $label, $post = 0 ) {
  * Save external connection stuff 
  * 
  * @param int $post_id
- * @since 1.0 
+ * @since 0.8 
  */
 function save_post( $post_id ) {
 	if ( ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) || ! current_user_can( 'edit_post', $post_id ) || 'revision' == get_post_type( $post_id ) ) {
@@ -252,9 +251,8 @@ function save_post( $post_id ) {
 		}
 
 		$auth_handler = new $external_connection_class::$auth_handler_class( $auth );
-		$mapping_handler = new $external_connection_class::$mapping_handler_class();
 
-		$external_connection = new $external_connection_class( get_the_title( $post_id ), $_POST['sy_external_connection_url'], $post_id, $auth_handler, $mapping_handler );
+		$external_connection = new $external_connection_class( get_the_title( $post_id ), $_POST['sy_external_connection_url'], $post_id, $auth_handler );
 
 		$external_connections = $external_connection->check_connections();
 
@@ -277,7 +275,7 @@ function save_post( $post_id ) {
 /**
  * Register meta boxes
  *
- * @since 1.0
+ * @since 0.8
  */
 function add_meta_boxes() {
 	add_meta_box( 'sy_external_connection_details', esc_html__( 'External Connection Details', 'syndicate' ), __NAMESPACE__ . '\meta_box_external_connection_details', 'sy_ext_connection', 'normal', 'core' );
@@ -288,7 +286,7 @@ function add_meta_boxes() {
  * Output connection meta box to show status of API
  * 
  * @param  WP_Post $post
- * @since  1.0
+ * @since  0.8
  */
 function meta_box_external_connection( $post ) {
 	$external_connections = get_post_meta( $post->ID, 'sy_external_connections', true );
@@ -337,7 +335,7 @@ function meta_box_external_connection( $post ) {
 /**
  * Output connection options meta box
  *
- * @since 1.0
+ * @since 0.8
  * @param $post
  */
 function meta_box_external_connection_details( $post ) {
@@ -444,7 +442,7 @@ function meta_box_external_connection_details( $post ) {
 /**
  * Output pull dashboard with custom list table
  *
- * @since 1.0
+ * @since 0.8
  */
 function dashboard() {
 	global $connection_list_table;
@@ -481,7 +479,7 @@ function dashboard() {
 /**
  * Add a screen option for posts per page
  *
- * @since  1.0
+ * @since  0.8
  */
 function screen_option() {
 
@@ -498,7 +496,7 @@ function screen_option() {
 /**
  * Set up top menu item
  *
- * @since 1.0
+ * @since 0.8
  */
 function add_menu_item() {
 	$hook = add_menu_page(
@@ -516,7 +514,7 @@ function add_menu_item() {
 /**
  * Set up sub menu item to be last
  *
- * @since 1.0
+ * @since 0.8
  */
 function add_submenu_item() {
 	global $submenu;
@@ -527,7 +525,7 @@ function add_submenu_item() {
 /**
  * Register connection post type
  *
- * @since 1.0
+ * @since 0.8
  */
 function setup_cpt() {
 
@@ -568,7 +566,7 @@ function setup_cpt() {
  * Filter CPT messages
  *
  * @param  array $messages
- * @since  1.0
+ * @since  0.8
  * @return array
  */
 function filter_post_updated_messages( $messages ) {
@@ -595,7 +593,7 @@ function filter_post_updated_messages( $messages ) {
 /**
  * Output templates for working with external connections
  *
- * @since  1.0
+ * @since  0.8
  */
 function js_templates() {
 	?>

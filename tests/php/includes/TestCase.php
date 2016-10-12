@@ -7,7 +7,7 @@ class TestCase extends \PHPUnit_Framework_TestCase {
 	/**
 	 * Set up with WP_Mock
 	 *
-	 * @since  1.0
+	 * @since  0.8
 	 */
 	public function setUp() {
 		\WP_Mock::setUp();
@@ -17,7 +17,7 @@ class TestCase extends \PHPUnit_Framework_TestCase {
 	/**
 	 * Tear down with WP_Mock
 	 *
-	 * @since  1.0
+	 * @since  0.8
 	 */
 	public function tearDown() {
 		\WP_Mock::tearDown();
@@ -26,7 +26,7 @@ class TestCase extends \PHPUnit_Framework_TestCase {
 	/**
 	 * Mock common functions
 	 * 
-	 * @since 1.0
+	 * @since 0.8
 	 */
 	public function setup_common() {
 		\WP_Mock::userFunction( '__', array(

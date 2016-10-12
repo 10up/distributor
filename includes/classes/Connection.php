@@ -12,7 +12,7 @@ abstract class Connection {
 	 * 
 	 * @param  int $item_id
 	 * @param  array $args
-	 * @since  1.0
+	 * @since  0.8
 	 * @return bool|WP_Error
 	 */
 	public abstract function push( $item_id, $args = array() );
@@ -21,7 +21,7 @@ abstract class Connection {
 	 * Pull items
 	 * 
 	 * @param  array $items
-	 * @since  1.0
+	 * @since  0.8
 	 * @return bool|WP_Error
 	 */
 	public abstract function pull( $items );
@@ -30,7 +30,7 @@ abstract class Connection {
 	 * Get content from a connection
 	 * 
 	 * @param  array $args
-	 * @since  1.0
+	 * @since  0.8
 	 * @return array|WP_Error
 	 */
 	public abstract function remote_get( $args );
@@ -39,8 +39,7 @@ abstract class Connection {
 	 * Log a sync
 	 *
 	 * @param  array $item_id_mappings
-	 * @since  1.0
+	 * @since  0.8
 	 */
 	public abstract function log_sync( array $item_id_mappings );
-
 }

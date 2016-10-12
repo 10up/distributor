@@ -15,7 +15,7 @@ abstract class Authentication {
 	 * Set associative arguments as instance variables
 	 * 
 	 * @param array $args
-	 * @since 1.0
+	 * @since       0.8
 	 */
 	public function __construct( $args ) {
 		if ( ! empty( $args ) ) {
@@ -30,7 +30,7 @@ abstract class Authentication {
 	 * 
 	 * @param  array $args
 	 * @param  array $context optional array of information about the request
-	 * @since  1.0
+	 * @since  .8
 	 * @return array
 	 */
 	public function format_get_args( $args, $context = array() ) {
@@ -42,7 +42,7 @@ abstract class Authentication {
 	 * 
 	 * @param  array $args
 	 * @param  array $context optional array of information about the request
-	 * @since  1.0
+	 * @since  0.8
 	 * @return array
 	 */
 	public function format_post_args( $args, $context = array() ) {
@@ -52,7 +52,7 @@ abstract class Authentication {
 	/**
 	 * Output a credentials form in the external connection management screen.
 	 *
-	 * @since  1.0
+	 * @since  0.8
 	 */
 	public abstract static function credentials_form();
 
@@ -60,7 +60,7 @@ abstract class Authentication {
 	 * Store an associate array as credentials for use with an external connection.
 	 * 
 	 * @param  array $args
-	 * @since  1.0
+	 * @since  0.8
 	 */
 	public abstract static function prepare_credentials( $args );
 
@@ -69,7 +69,7 @@ abstract class Authentication {
 	 * 
 	 * @param int $external_connection_id
 	 * @param array $args
-	 * @since 1.0
+	 * @since 0.8
 	 */
 	public static function store_credentials( $external_connection_id, $args ) {
 		update_post_meta( $external_connection_id, 'sy_external_connection_auth', $args );

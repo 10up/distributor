@@ -9,14 +9,14 @@ class NetworkSiteConnections {
 	/**
 	 * This will act as a singleton
 	 *
-	 * @since  1.0
+	 * @since  0.8
 	 */
 	public function __construct() { }
 
 	/**
 	 * Setup hooks
 	 *
-	 * @since  1.0
+	 * @since  0.8
 	 */
 	public function setup() {
 		add_action( 'wp_ajax_sy_auth_check', array( $this, 'auth_check' ) );
@@ -25,7 +25,7 @@ class NetworkSiteConnections {
 	/**
 	 * Check if current user can create a post type with ajax
 	 *
-	 * @since  1.0
+	 * @since  0.8
 	 */
 	public function auth_check() {
 		if ( ! check_ajax_referer( 'sy-auth-check', 'nonce', false ) ) {
@@ -57,7 +57,7 @@ class NetworkSiteConnections {
 	/**
 	 * Find out which sites user can create post type on
 	 * 
-	 * @since  1.0
+	 * @since  0.8
 	 * @return array
 	 */
 	public function get_available_authorized_sites() {
@@ -122,7 +122,7 @@ class NetworkSiteConnections {
 	/**
 	 * Singleton-ish class
 	 *
-	 * @since  1.0
+	 * @since  0.8
 	 * @return object
 	 */
 	public static function factory() {
