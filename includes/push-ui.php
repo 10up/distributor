@@ -92,6 +92,16 @@ function menu_content() {
 		'post_status' => 'publish',
 	) );
 
+	$current_post_type = get_post_type();
+	if ( ! empty( $_GET['post_type'] ) ) {
+		$current_post_type = $post_type;
+	}
+
+	if ( empty( $current_post_type ) ) {
+		// Serious problem
+		return;
+	}
+
 	foreach ( $external_connections_query->posts as $external_connection ) {
 		$external_connection_status = get_post_meta( $external_connection->ID, 'sy_external_connections', true );
 		$allowed_roles = get_post_meta( $external_connection->ID, 'sy_external_connection_allowed_roles', true );
