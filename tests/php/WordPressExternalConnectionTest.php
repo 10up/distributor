@@ -1,7 +1,6 @@
 <?php
 namespace Syndicate\ExternalConnections;
 use \Syndicate\Authentications\WordPressBasicAuth as WordPressBasicAuth;
-use \Syndicate\Mappings\WordPressRestPost as WordPressRestPost;
 
 class WordPressExternalConnectionTest extends \TestCase {
 
@@ -21,9 +20,8 @@ class WordPressExternalConnectionTest extends \TestCase {
 
 		// Now test a successful creation
 		$auth = new WordPressBasicAuth( array() );
-		$mapping = new WordPressRestPost();
 
-		$connection = new WordPressExternalConnection( 'name', 'url', 1, $auth, $mapping );
+		$connection = new WordPressExternalConnection( 'name', 'url', 1, $auth );
 
 		$this->assertTrue( is_a( $connection, '\Syndicate\ExternalConnection' ) );
 
@@ -32,7 +30,6 @@ class WordPressExternalConnectionTest extends \TestCase {
 		$this->assertTrue( ! empty( $connection->base_url ) );
 		$this->assertTrue( ! empty( $connection->id ) );
 		$this->assertTrue( ! empty( $connection->auth_handler ) );
-		$this->assertTrue( ! empty( $connection->mapping_handler ) );
 	}
 
 }
