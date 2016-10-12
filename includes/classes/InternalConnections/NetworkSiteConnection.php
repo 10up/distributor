@@ -46,6 +46,8 @@ class NetworkSiteConnection extends Connection {
 			'post_status'  => ( ! empty( $args['post_status'] ) ) ? $args['post_status'] : 'publish',
 		);
 
+		$meta = get_post_meta( $post_id );
+
 		switch_to_blog( $this->site->blog_id );
 
 		if ( ! empty( $args['remote_post_id'] ) && get_post( $args['remote_post_id'] ) ) {
@@ -57,6 +59,13 @@ class NetworkSiteConnection extends Connection {
 		if ( ! is_wp_error( $new_post ) ) {
 			update_post_meta( $new_post, 'sy_original_post_id', (int) $post_id );
 			update_post_meta( $new_post, 'sy_original_blog_id', (int) $original_blog_id );
+
+			// Transfer all meta
+			foreach ( $meta as $meta_key => $meta_array ) {
+				foreach ( $meta_array as $meta ) {
+					update_post_meta( $new_post, $meta_key, $meta );
+				}
+			}
 		}
 
 		do_action( 'sy_push_post', $new_post, $post_id, $args, $this );
@@ -100,6 +109,14 @@ class NetworkSiteConnection extends Connection {
 			unset( $post_array['post_modified_gmt'] );
 
 			$new_post = wp_insert_post( apply_filters( 'sy_pull_post_args', $post_array, $item_id, $post, $this ) );
+
+			if ( ! is_wp_error( $new_post ) ) {
+				foreach ( $post->meta as $meta_key => $meta_array ) {
+					foreach ( $meta_array as $meta ) {
+						update_post_meta( $new_post, $meta_key, $meta );
+					}
+				}
+			}
 
 			do_action( 'sy_pull_post', $new_post, $this );
 
@@ -171,7 +188,9 @@ class NetworkSiteConnection extends Connection {
 			$formatted_posts = [];
 
 			foreach ( $posts as $post ) {
-				$formatted_posts[] = $this->to_wp_post( $post );
+				$post->link  = get_permalink( $post->ID );
+				$post->meta = get_post_meta( $post->ID );
+				$formatted_posts[] = $post;
 			}
 
 			restore_current_blog();
@@ -187,28 +206,13 @@ class NetworkSiteConnection extends Connection {
 				return false;
 			}
 
-			$formatted_post = $this->to_wp_post( $post );
+			$post->link  = get_permalink( $id );
+			$post->meta = get_post_meta( $id );
+			$formatted_post = $post;
 
 			restore_current_blog();
 
 			return apply_filters( 'sy_remote_get', $formatted_post, $args, $this );
 		}
-	}
-
-	/**
-	 * Convert object to WP_Post
-	 * 
-	 * @param  object $post_array
-	 * @since  0.8
-	 * @return WP_Post
-	 */
-	private function to_wp_post( $post ) {
-		$obj = new \stdClass();
-		$vars = get_object_vars( $post );
-		foreach ( $vars as $key => $value ) {
-			$obj->$key = $value;
-		}
-		$obj->link = get_permalink( $post->ID );
-		return apply_filters( 'sy_item_mapping', new \WP_Post( $obj ), $post, $this );
 	}
 }
