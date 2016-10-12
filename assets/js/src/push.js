@@ -144,6 +144,12 @@
 		$(syndicateMenuItem).on('click', function(event) {
 			event.preventDefault();
 
+			if (document.body.classList.contains('syndicate-show')) {
+				syndicateMenuItem.blur();
+			} else {
+				syndicateMenuItem.focus();
+			}
+			
 			document.body.classList.toggle('syndicate-show');
 		});
 
