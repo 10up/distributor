@@ -7,7 +7,7 @@ namespace Syndicate;
  */
 class Connections {
 
-	protected $connections = array();
+	public $connections = array();
 
 	/**
 	 * This will act as a singleton

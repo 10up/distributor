@@ -26,3 +26,31 @@ class WP_Error {
 function is_wp_error( $thing ) {
 	return ( $thing instanceof WP_Error );
 }
+
+/**
+ * Classes for testing connections
+ */
+class TestExternalConnection extends \Syndicate\ExternalConnection {
+	static $slug = 'test-external-connection';
+	static $auth_handler_class = '\Syndicate\Authentications\WordPressBasicAuth';
+
+	public function push( $item_id, $args = array() ) { }
+
+	public function pull( $items ) { }
+
+	public function check_connections() { }
+
+	public function remote_get( $args ) { }
+}
+
+class TestInternalConnection extends \Syndicate\Connection {
+	static $slug = 'test-internal-connection';
+
+	public function push( $item_id, $args = array() ) { }
+
+	public function pull( $items ) { }
+
+	public function remote_get( $args ) { }
+
+	public function log_sync( array $item_id_mappings ) { }
+}

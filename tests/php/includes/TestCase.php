@@ -12,6 +12,9 @@ class TestCase extends \PHPUnit_Framework_TestCase {
 	public function setUp() {
 		\WP_Mock::setUp();
 		$this->setup_common();
+
+		// Reset registered connections
+		\Syndicate\Connections::factory()->connections = array();
 	}
 
 	/**
