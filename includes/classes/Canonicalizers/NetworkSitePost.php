@@ -16,7 +16,6 @@ class NetworkSitePost extends \Syndicate\Canonicalizer {
 		add_filter( 'the_title', array( $this, 'the_title' ), 10, 2 );
 		add_filter( 'the_content', array( $this, 'the_content' ), 10, 1 );
 		add_filter( 'the_date', array( $this, 'the_date' ), 10, 1 );
-		add_filter( 'the_category', array( $this, 'the_category' ), 10, 2 );
 		add_filter( 'get_the_excerpt', array( $this, 'get_the_excerpt' ), 10, 1 );
 		add_filter( 'get_canonical_url', array( $this, 'canonical_url' ), 10, 2 );
 	}
