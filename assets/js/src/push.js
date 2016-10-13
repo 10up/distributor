@@ -115,7 +115,7 @@
 				method: 'post',
 				data: {
 					action: 'sy_push',
-					draft: asDraftInput.checked,
+					draft: (asDraftInput.checked) ? 1 : 0,
 					nonce: sy.nonce,
 					connections: selectedConnections,
 					post_id: sy.post_id
