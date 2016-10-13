@@ -1,0 +1,13 @@
+input,
+select,
+button,
+textarea,
+#content_ifr,
+.button {
+  opacity: .5;
+  pointer-events: none; }
+
+#set-post-thumbnail {
+  display: none; }
+
+/*# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbImFkbWluLXN5bmRpY2F0ZWQtcG9zdC5jc3MiXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6IkFBQUE7Ozs7OztFQU1FLFlBQVk7RUFDWixxQkFBcUIsRUFBRTs7QUFFekI7RUFDRSxjQUFjLEVBQUUiLCJmaWxlIjoiYWRtaW4tc3luZGljYXRlZC1wb3N0LmNzcyIsInNvdXJjZXNDb250ZW50IjpbImlucHV0LFxuc2VsZWN0LFxuYnV0dG9uLFxudGV4dGFyZWEsXG4jY29udGVudF9pZnIsXG4uYnV0dG9uIHtcbiAgb3BhY2l0eTogLjU7XG4gIHBvaW50ZXItZXZlbnRzOiBub25lOyB9XG5cbiNzZXQtcG9zdC10aHVtYm5haWwge1xuICBkaXNwbGF5OiBub25lOyB9XG4iXX0= */

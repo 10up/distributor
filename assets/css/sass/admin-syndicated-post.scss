@@ -1,0 +1,13 @@
+input,
+select,
+button,
+textarea,
+#content_ifr,
+.button {
+	opacity: .5;
+	pointer-events: none;
+}
+
+#set-post-thumbnail {
+	display: none;
+}

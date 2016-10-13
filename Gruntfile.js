@@ -36,7 +36,7 @@ module.exports = function (grunt) {
 			files : {
 				expand  : true,
 				flatten : true,
-				src     : ['assets/css/admin-external-connection.css', 'assets/css/admin-external-connections.css', 'assets/css/push.css'],
+				src     : ['assets/css/admin-external-connection.css', 'assets/css/admin-syndicated-post.css', 'assets/css/admin-external-connections.css', 'assets/css/push.css'],
 				dest    : 'assets/css'
 			}
 
@@ -47,7 +47,7 @@ module.exports = function (grunt) {
 				files : [{
 					expand : true,
 					cwd    : 'assets/css',
-					src    : ['admin-external-connection.css', 'admin-external-connections.css', 'push.css'],
+					src    : ['admin-external-connection.css', 'admin-external-connections.css', 'admin-syndicated-post.css', 'push.css'],
 					dest   : 'assets/css',
 					ext    : '.min.css'
 				}]
@@ -65,6 +65,7 @@ module.exports = function (grunt) {
 				files : {
 					'assets/css/admin-external-connection.css' : 'assets/css/sass/admin-external-connection.scss',
 					'assets/css/admin-external-connections.css' : 'assets/css/sass/admin-external-connections.scss',
+					'assets/css/admin-syndicated-post.css' : 'assets/css/sass/admin-syndicated-post.scss',
 					'assets/css/push.css' : 'assets/css/sass/push.scss'
 				}
 			}
