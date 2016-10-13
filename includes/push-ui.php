@@ -78,7 +78,7 @@ function menu_content() {
 
 	global $post;
 
-	$connection_map = get_post_meta( $post->ID, 'sy_connection_map', true );
+	$connection_map = (array) get_post_meta( $post->ID, 'sy_connection_map', true );
 
 	$dom_connections = [];
 
