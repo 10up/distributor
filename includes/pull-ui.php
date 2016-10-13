@@ -62,7 +62,7 @@ function setup_list_table() {
 			continue;
 		}
 
-		$external_connection = \Syndicate\ExternalConnections::factory()->instantiate( $external_connection_id );
+		$external_connection = \Syndicate\ExternalConnection::instantiate( $external_connection_id );
 
 		if ( ! is_wp_error( $external_connection ) ) {
 			$connection_list_table->connection_objects[] = $external_connection;
@@ -168,7 +168,7 @@ function process_actions() {
 			}
 
 			if ( 'external' === $_GET['connection_type'] ) {
-				$connection = \Syndicate\ExternalConnections::factory()->instantiate( $_GET['connection_id'] );
+				$connection = \Syndicate\ExternalConnection::instantiate( $_GET['connection_id'] );
 				$new_posts = $connection->pull( $posts );
 			} else {
 				$site = get_site( $_GET['connection_id'] );
@@ -209,7 +209,7 @@ function process_actions() {
 			}
 
 			if ( 'external' === $_GET['connection_type'] ) {
-				$connection = \Syndicate\ExternalConnections::factory()->instantiate( $_GET['connection_id'] );
+				$connection = \Syndicate\ExternalConnection::instantiate( $_GET['connection_id'] );
 			} else {
 				$site = get_site( $_GET['connection_id'] );
 				$connection = new \Syndicate\InternalConnections\NetworkSiteConnection( $site );

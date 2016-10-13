@@ -10,9 +10,7 @@ class NetworkSiteConnection extends Connection {
 
 	public $site;
 
-	public $canonicalizer_handler;
-
-	static $canonicalizer_handler_class = '\Syndicate\Canonicalizers\NetworkSitePost';
+	static $slug = 'networkblog';
 
 	/**
 	 * Set up network site connection
@@ -22,7 +20,6 @@ class NetworkSiteConnection extends Connection {
 	 */
 	public function __construct( \WP_Site $site ) {
 		$this->site = $site;
-		$this->canonicalizer_handler = new self::$canonicalizer_handler_class;
 	}
 
 	/**
@@ -214,5 +211,283 @@ class NetworkSiteConnection extends Connection {
 
 			return apply_filters( 'sy_remote_get', $formatted_post, $args, $this );
 		}
+	}
+
+	/**
+	 * Setup actions and filters that are need on every page load
+	 * 
+	 * @since 0.8
+	 */
+	public static function bootstrap() {
+		add_action( 'template_redirect', array( '\Syndicate\InternalConnections\NetworkSiteConnection', 'canonicalize_front_end' ) );
+		add_action( 'wp_ajax_sy_auth_check', array( '\Syndicate\InternalConnections\NetworkSiteConnection', 'auth_check' ) );
+		add_action( 'edit_form_top', array( '\Syndicate\InternalConnections\NetworkSiteConnection', 'canonical_admin_post' ) );
+	}
+
+	/**
+	 * Setup canonicalization on front end
+	 *
+	 * @since  0.8
+	 */
+	public static function canonicalize_front_end() {
+		if ( is_single() ) {
+			global $post;
+
+			$original_blog_id = get_post_meta( $post->ID, 'sy_original_blog_id', true );
+			$original_post_id = get_post_meta( $post->ID, 'sy_original_post_id', true );
+
+			if ( empty( $original_post_id ) || empty( $original_blog_id ) ) {
+				return;
+			}
+
+			add_filter( 'the_title', array( '\Syndicate\InternalConnections\NetworkSiteConnection', 'the_title' ), 10, 2 );
+			add_filter( 'the_content', array( '\Syndicate\InternalConnections\NetworkSiteConnection', 'the_content' ), 10, 1 );
+			add_filter( 'the_date', array( '\Syndicate\InternalConnections\NetworkSiteConnection', 'the_date' ), 10, 1 );
+			add_filter( 'get_the_excerpt', array( '\Syndicate\InternalConnections\NetworkSiteConnection', 'get_the_excerpt' ), 10, 1 );
+			add_filter( 'get_canonical_url', array( '\Syndicate\InternalConnections\NetworkSiteConnection', 'canonical_url' ), 10, 2 );
+		}
+	}
+
+	/**
+	 * Setup canonicalization on back end
+	 *
+	 * @since  0.8
+	 */
+	public static function canonical_admin_post() {
+		global $post, $pagenow;
+
+		if ( 'post.php' !== $pagenow && 'post-new.php' !== $pagenow ) {
+	    	return;
+	    }
+
+	    $original_blog_id = get_post_meta( $post->ID, 'sy_original_blog_id', true );
+		$original_post_id = get_post_meta( $post->ID, 'sy_original_post_id', true );
+
+		if ( empty( $original_post_id ) || empty( $original_blog_id ) ) {
+			return;
+		}
+
+		$unlinked = (bool) get_post_meta( $post->ID, 'sy_unlinked', true );
+
+		if ( $unlinked ) {
+			return;
+		}
+
+		switch_to_blog( $original_blog_id );
+		$post = get_post( $original_post_id );
+		restore_current_blog();
+	}
+
+	/**
+	 * Check if current user can create a post type with ajax
+	 *
+	 * @since  0.8
+	 */
+	public static function auth_check() {
+		if ( ! check_ajax_referer( 'sy-auth-check', 'nonce', false ) ) {
+			wp_send_json_error();
+			exit;
+		}
+
+		if ( empty( $_POST['username'] ) ) {
+			wp_send_json_error();
+			exit;
+		}
+
+		$post_types = get_post_types();
+		$authorized_post_types = array();
+
+		foreach ( $post_types as $post_type ) {
+			$post_type_object = get_post_type_object( $post_type );
+
+			if ( current_user_can( $post_type_object->cap->create_posts ) ) {
+				$authorized_post_types[] = $post_type;
+			}
+		}
+
+
+		wp_send_json_success( $authorized_post_types );
+		exit;
+	}
+
+	/**
+	 * Find out which sites user can create post type on
+	 * 
+	 * @since  0.8
+	 * @return array
+	 */
+	public static function get_available_authorized_sites() {
+		if ( ! is_multisite() ) {
+			return array();
+		}
+		
+		$sites = get_sites();
+		$authorized_sites = array();
+
+		$current_blog_id = get_current_blog_id();
+
+		foreach ( $sites as $site ) {
+			$blog_id = $site->blog_id;
+
+			if ( $blog_id == $current_blog_id ) {
+				continue;
+			}
+
+			$base_url = get_site_url( $blog_id );
+
+			if ( empty( $base_url ) ) {
+				continue;
+			}
+
+			global $current_user;
+			get_currentuserinfo();
+
+			$response = wp_remote_post( untrailingslashit( $base_url ) . '/wp-admin/admin-ajax.php', array(
+				'body' => array(
+					'nonce'     => wp_create_nonce( 'sy-auth-check' ),
+					'username'  => $current_user->user_login,
+					'action'    => 'sy_auth_check',
+				),
+				'cookies' => $_COOKIE
+			) );
+
+			if ( ! is_wp_error( $response ) ) {
+
+				$body = wp_remote_retrieve_body( $response );
+
+				if ( ! is_wp_error( $body ) ) {
+					try {
+						$body_array = json_decode( $body, true );
+						
+						if ( ! empty( $body_array['success'] ) ) {
+							$authorized_sites[] = array(
+								'site'       => $site,
+								'post_types' => $body_array['data'],
+							);
+						}
+					} catch ( \Exception $e ) {
+						continue;
+					}
+				}
+			}
+		}
+
+		return $authorized_sites;
+	}
+
+	/**
+	 * Make sure canonical url header is outputted
+	 * 
+	 * @param  string $canonical_url
+	 * @param  object $post
+	 * @since  0.8
+	 * @return string
+	 */
+	public static function canonical_url( $canonical_url, $post ) {
+		$original_blog_id = get_post_meta( $post->ID, 'sy_original_blog_id', true );
+		$original_post_id = get_post_meta( $post->ID, 'sy_original_post_id', true );
+
+		switch_to_blog( $original_blog_id );
+		$canonical_url = get_permalink( $original_post_id );
+		restore_current_blog();
+
+		return $canonical_url;
+	}
+
+	/**
+	 * Use canonical title
+	 * 
+	 * @param  string $title
+	 * @param  int $id
+	 * @since  0.8
+	 * @return string
+	 */
+	public static function the_title( $title, $id ) {
+		$original_blog_id = get_post_meta( $id, 'sy_original_blog_id', true );
+		$original_post_id = get_post_meta( $id, 'sy_original_post_id', true );
+
+		if ( empty( $original_blog_id ) || empty( $original_post_id ) ) {
+			return $title;
+		}
+
+		switch_to_blog( $original_blog_id );
+		$title = get_the_title( $original_post_id );
+		restore_current_blog();
+
+		return $title;
+	}
+
+	/**
+	 * Use canonical content
+	 * 
+	 * @param  string $content
+	 * @since  0.8
+	 * @return string
+	 */
+	public static function the_content( $content ) {
+		global $post;
+
+		$original_blog_id = get_post_meta( $post->ID, 'sy_original_blog_id', true );
+		$original_post_id = get_post_meta( $post->ID, 'sy_original_post_id', true );
+
+		if ( empty( $original_blog_id ) || empty( $original_post_id ) ) {
+			return $content;
+		}
+
+		switch_to_blog( $original_blog_id );
+		$original_post = get_post( $original_post_id );
+		$content = apply_filters( 'the_content', $original_post->post_content );
+		restore_current_blog();
+
+		return $content;
+	}
+
+	/**
+	 * Use canonical date
+	 * 
+	 * @param  string $date
+	 * @since  0.8
+	 * @return string
+	 */
+	public static function the_date( $date ) {
+		global $post;
+
+		$original_blog_id = get_post_meta( $post->ID, 'sy_original_blog_id', true );
+		$original_post_id = get_post_meta( $post->ID, 'sy_original_post_id', true );
+
+		if ( empty( $original_blog_id ) || empty( $original_post_id ) ) {
+			return $date;
+		}
+
+		switch_to_blog( $original_blog_id );
+
+		$date = get_the_date( get_option( 'date_format' ), $original_post_id);
+
+		restore_current_blog();
+
+		return $date;
+	}
+
+	/**
+	 * Use canonical excerpt
+	 * 
+	 * @param  string $excerpt
+	 * @since  0.8
+	 * @return string
+	 */
+	public static function get_the_excerpt( $excerpt ) {
+		$original_blog_id = get_post_meta( $id, 'sy_original_blog_id', true );
+		$original_post_id = get_post_meta( $id, 'sy_original_post_id', true );
+
+		if ( empty( $original_blog_id ) || empty( $original_post_id ) ) {
+			return $excerpt;
+		}
+
+		switch_to_blog( $original_blog_id );
+		$original_post = get_post( $original_post_id );
+		$excerpt = $original_post->post_excerpt;
+		restore_current_blog();
+
+		return $excerpt;
 	}
 }

@@ -68,4 +68,40 @@ abstract class ExternalConnection extends Connection {
 	 */
 	public abstract function check_connections();
 
+	/**
+	 * This is a static factory method for initializing an external connection
+	 * 
+	 * @param  int|WP_Post $external_connection
+	 * @since  0.8
+	 * @return Connection
+	 */
+	public static function instantiate( $external_connection ) {
+		$external_connection_id = $external_connection;
+
+		if ( is_object( $external_connection_id ) && ! empty( $external_connection_id->ID ) ) {
+			$external_connection_id = $external_connection_id->ID;
+		}
+
+		$type = get_post_meta( $external_connection_id, 'sy_external_connection_type', true );
+		$url = get_post_meta( $external_connection_id, 'sy_external_connection_url', true );
+		$auth = get_post_meta( $external_connection_id, 'sy_external_connection_auth', true );
+		$name = get_the_title( $external_connection_id );
+
+		if ( empty( $type ) || empty( $url ) ) {
+			return new \WP_Error( 'external_connection_not_found', esc_html__( 'External connection not found.', 'syndicate' ) );
+		}
+
+		$connections = \Syndicate\Connections::factory()->get_registered( 'external' );
+
+		if ( empty( $connections[ $type ] ) ) {
+			return new \WP_Error( 'no_external_connection_type', esc_html__( 'External connection type is not registered.', 'syndicate' ) );
+		}
+
+		$connection_class = $connections[ $type ];
+
+		$auth_handler = new $connection_class::$auth_handler_class( $auth );
+
+		return new $connection_class( $name, $url, $external_connection_id, $auth_handler );
+	}
+
 }

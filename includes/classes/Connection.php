@@ -42,4 +42,13 @@ abstract class Connection {
 	 * @since  0.8
 	 */
 	public abstract function log_sync( array $item_id_mappings );
+
+	/**
+	 * This method is called on every page load. It's helpful for canonicalization
+	 * 
+	 * @since  0.8
+	 */
+	static function bootstrap() {
+		// Extend me?
+	}
 }

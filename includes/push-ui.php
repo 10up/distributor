@@ -90,7 +90,7 @@ function menu_content() {
 		$connection_map['internal'] = [];
 	}
 
-	$sites = \Syndicate\NetworkSiteConnections::factory()->get_available_authorized_sites();
+	$sites = \Syndicate\InternalConnections\NetworkSiteConnection::get_available_authorized_sites();
 	foreach ( $sites as $key => $site_array ) {
 		if ( in_array( $post->post_type, $site_array['post_types'] ) ) {
 			$connection = new \Syndicate\InternalConnections\NetworkSiteConnection( $site_array['site'] );
@@ -142,7 +142,7 @@ function menu_content() {
 			}
 		}
 
-		$connection = \Syndicate\ExternalConnections::factory()->instantiate( $external_connection->ID );
+		$connection = \Syndicate\ExternalConnection::instantiate( $external_connection->ID );
 
 		if ( ! is_wp_error( $connection ) ) {
 			$dom_connections['external' . $connection->id] = [

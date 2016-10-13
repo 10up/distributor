@@ -44,13 +44,12 @@ spl_autoload_register( function( $class ) {
 	}
 } );
 
-\Syndicate\ExternalConnections::factory();
-\Syndicate\NetworkSiteConnections::factory();
+\Syndicate\Connections::factory();
 
-\Syndicate\ExternalConnections::factory()->register( '\Syndicate\ExternalConnections\WordPressExternalConnection' );
+\Syndicate\Connections::factory()->register( '\Syndicate\ExternalConnections\WordPressExternalConnection' );
+\Syndicate\Connections::factory()->register( '\Syndicate\InternalConnections\NetworkSiteConnection', 'internal' );
 
 require_once( __DIR__ . '/includes/external-connection-cpt.php' );
 require_once( __DIR__ . '/includes/push-ui.php' );
 require_once( __DIR__ . '/includes/pull-ui.php' );
 require_once( __DIR__ . '/includes/syndicated-post-ui.php' );
-require_once( __DIR__ . '/includes/canonicalize-setup.php' );

@@ -123,7 +123,7 @@ function ajax_verify_external_connection() {
 	}
 
 	// Create an instance of the connection to test connections
-	$external_connection_class = \Syndicate\ExternalConnections::factory()->get_registered()[ $_POST['type'] ];
+	$external_connection_class = \Syndicate\Connections::factory()->get_registered( 'external' )[ $_POST['type'] ];
 
 	$auth_handler = new $external_connection_class::$auth_handler_class( $auth );
 
@@ -237,7 +237,7 @@ function save_post( $post_id ) {
 		update_post_meta( $post_id, 'sy_external_connection_url', sanitize_text_field( $_POST['sy_external_connection_url'] ) );
 
 		// Create an instance of the connection to test connections
-		$external_connection_class = \Syndicate\ExternalConnections::factory()->get_registered()[ $_POST['sy_external_connection_type'] ];
+		$external_connection_class = \Syndicate\Connections::factory()->get_registered( 'external' )[ $_POST['sy_external_connection_type'] ];
 
 		$auth = array();
 		if ( ! empty( $_POST['sy_external_connection_auth'] ) ) {
@@ -266,9 +266,9 @@ function save_post( $post_id ) {
 			$current_auth = array();
 		}
 
-		$auth_creds = \Syndicate\ExternalConnections::factory()->get_registered()[ $_POST['sy_external_connection_type'] ]::$auth_handler_class::prepare_credentials( array_merge( $_POST['sy_external_connection_auth'], (array) $current_auth ) );
+		$auth_creds = \Syndicate\Connections::factory()->get_registered()[ $_POST['sy_external_connection_type'] ]::$auth_handler_class::prepare_credentials( array_merge( $_POST['sy_external_connection_auth'], (array) $current_auth ) );
 		
-		\Syndicate\ExternalConnections::factory()->get_registered()[ $_POST['sy_external_connection_type'] ]::$auth_handler_class::store_credentials( $post_id, $auth_creds );
+		\Syndicate\Connections::factory()->get_registered()[ $_POST['sy_external_connection_type'] ]::$auth_handler_class::store_credentials( $post_id, $auth_creds );
 	}
 }
 
@@ -355,7 +355,7 @@ function meta_box_external_connection_details( $post ) {
 
 	$external_connections = get_post_meta( $post->ID, 'sy_external_connections', true );
 
-	$registered_connection_types = \Syndicate\ExternalConnections::factory()->get_registered();
+	$registered_connection_types = \Syndicate\Connections::factory()->get_registered( 'external' );
 
 	$allowed_roles = get_post_meta( $post->ID, 'sy_external_connection_allowed_roles', true );
 
@@ -380,7 +380,7 @@ function meta_box_external_connection_details( $post ) {
 		</p>
 	<?php endif; ?>
 
-	<?php foreach ( \Syndicate\ExternalConnections::factory()->get_registered() as $external_connection_class ) : if ( ! $external_connection_class::$auth_handler_class::$requires_credentials ) { continue; } ?>
+	<?php foreach ( \Syndicate\Connections::factory()->get_registered( 'external' ) as $external_connection_class ) : if ( ! $external_connection_class::$auth_handler_class::$requires_credentials ) { continue; } ?>
 		<div class="auth-credentials <?php echo esc_attr( $external_connection_class::$auth_handler_class::$slug ); ?>">
 			<?php $external_connection_class::$auth_handler_class::credentials_form( $auth ); ?>
 		</div>
