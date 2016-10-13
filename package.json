@@ -3,13 +3,15 @@
   "description": "",
   "author": "10up",
   "devDependencies": {
+    "autoprefixer": "^6.5.1",
+    "cssmin": "^0.4.3",
     "grunt": "^1.0.1",
+    "grunt-contrib-cssmin": "^1.0.2",
     "grunt-contrib-uglify": "^2.0.0",
-	"grunt-contrib-watch":  "*",
-	"grunt-sass":           "*",
-	"grunt-contrib-cssmin": "*",
-	"load-grunt-tasks":     "*",
-	"grunt-autoprefixer":   "*",
-	"grunt-wp-i18n":        "^0.5.3"
+    "grunt-contrib-watch": "*",
+    "grunt-postcss": "^0.8.0",
+    "grunt-sass": "*",
+    "grunt-wp-i18n": "^0.5.3",
+    "load-grunt-tasks": "*"
   }
 }

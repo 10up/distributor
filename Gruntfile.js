@@ -27,19 +27,15 @@ module.exports = function (grunt) {
 			}
 		},
 
-		autoprefixer : {
-			options : {
-				browsers : ['last 5 versions'],
-				map      : true
-			},
-
-			files : {
-				expand  : true,
-				flatten : true,
-				src     : ['assets/css/admin-external-connection.css', 'assets/css/admin-syndicated-post.css', 'assets/css/admin-external-connections.css', 'assets/css/push.css'],
-				dest    : 'assets/css'
+		sass : {
+			dist : {
+				files : {
+					'assets/css/admin-external-connection.css' : 'assets/css/sass/admin-external-connection.scss',
+					'assets/css/admin-external-connections.css' : 'assets/css/sass/admin-external-connections.scss',
+					'assets/css/admin-syndicated-post.css' : 'assets/css/sass/admin-syndicated-post.scss',
+					'assets/css/push.css' : 'assets/css/sass/push.scss'
+				}
 			}
-
 		},
 
 		cssmin : {
@@ -52,24 +48,19 @@ module.exports = function (grunt) {
 					ext    : '.min.css'
 				}]
 			}
-
 		},
 
-		sass : {
-			dist : {
-				options : {
-					style     : 'expanded',
-					connectionMap : true,
-					noCache   : true
-				},
-				files : {
-					'assets/css/admin-external-connection.css' : 'assets/css/sass/admin-external-connection.scss',
-					'assets/css/admin-external-connections.css' : 'assets/css/sass/admin-external-connections.scss',
-					'assets/css/admin-syndicated-post.css' : 'assets/css/sass/admin-syndicated-post.scss',
-					'assets/css/push.css' : 'assets/css/sass/push.scss'
-				}
-			}
+		postcss: {
+			options: {
+				map: true,
 
+				processors: [
+					require('autoprefixer')({browsers: 'last 6 versions'})
+				]
+			},
+			dist: {
+				src: 'assets/css/*.css'
+			}
 		},
 
 		makepot: {
@@ -100,12 +91,12 @@ module.exports = function (grunt) {
 				files : [
 					'assets/css/sass/*.scss'
 				],
-				tasks : ['sass', 'autoprefixer', 'cssmin']
+				tasks : ['sass', 'postcss', 'cssmin']
 			}
 
 		}
 	} );
 
-	grunt.registerTask ('default', ['uglify:production', 'sass', 'autoprefixer', 'cssmin']);
+	grunt.registerTask ('default', ['uglify:production', 'sass', 'postcss', 'cssmin']);
 
 };
