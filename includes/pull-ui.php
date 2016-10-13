@@ -44,7 +44,7 @@ function setup_list_table() {
 
 	global $connection_now;
 
-	$sites = \Syndicate\NetworkSiteConnections::factory()->get_available_authorized_sites();
+	$sites = \Syndicate\InternalConnections\NetworkSiteConnection::get_available_authorized_sites();
 
 	foreach ( $sites as $site_array ) {
 		$internal_connection = new \Syndicate\InternalConnections\NetworkSiteConnection( $site_array['site'] );
