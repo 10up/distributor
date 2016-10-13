@@ -441,6 +441,7 @@ class WordPressExternalConnection extends ExternalConnection {
 		$obj->ID = $post['id'];
 		$obj->post_title = $post['title']['rendered'];
 		$obj->post_content = $post['content']['rendered'];
+		$obj->post_status = 'draft';
 		$obj->post_date = $post['date'];
 		$obj->post_date_gmt = $post['date_gmt'];
 		$obj->guid = $post['guid']['rendered'];

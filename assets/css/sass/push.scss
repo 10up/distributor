@@ -152,6 +152,7 @@ $background-color-dark: #23282d;
 	display: block;
 	width: 100%;
 	padding: .5em;
+	box-sizing: border-box;
 	color: inherit;
 	cursor: pointer;
 }

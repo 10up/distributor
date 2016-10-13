@@ -31,7 +31,6 @@ class PullListTable extends \WP_List_Table {
 			'cb'      => '<input type="checkbox" />',
 			'name'    => esc_html__( 'Name', 'syndicate' ),
 			'content_type' => esc_html__( 'Content Type', 'syndicate' ),
-			'status' => esc_html__( 'Status', 'syndicate' ),
 			'date' => esc_html__( 'Date', 'syndicate' ),
 		];
 
@@ -150,9 +149,6 @@ class PullListTable extends \WP_List_Table {
 
 				return $url;
 				break;
-			case 'status':
-				return $item->post_status;
-				break;
 		}
 	}
 
@@ -202,16 +198,21 @@ class PullListTable extends \WP_List_Table {
 
 		$actions = [];
 
+		$as_draft = '';
+		if ( is_a( $connection_now, '\Syndicate\ExternalConnection' ) ) {
+			$as_draft = ' ' . esc_html__( '(as draft)', 'syndicate' );
+		}
+
 		if ( empty( $_GET['status'] ) || 'new' === $_GET['status'] ) {
 			$actions = [
 				'view' => '<a href="' . esc_url( $item->link ) . '">' . esc_html__( 'View', 'syndicate' ) . '</a>',
-				'syndicate' => sprintf( '<a href="%s">%s</a>', esc_url( wp_nonce_url( admin_url( 'admin.php?page=pull&_wp_http_referer=' . urlencode( $_SERVER['REQUEST_URI'] ) . '&action=syndicate&post=' . $item->ID . '&connection_type=' . $connection_type . '&connection_id=' . $connection_id ), 'sy_syndicate' ) ), esc_html__( 'Syndicate (as draft)', 'syndicate' ) ),
+				'syndicate' => sprintf( '<a href="%s">%s</a>', esc_url( wp_nonce_url( admin_url( 'admin.php?page=pull&_wp_http_referer=' . urlencode( $_SERVER['REQUEST_URI'] ) . '&action=syndicate&post=' . $item->ID . '&connection_type=' . $connection_type . '&connection_id=' . $connection_id ), 'sy_syndicate' ) ), esc_html__( 'Syndicate', 'syndicate' ) . $as_draft ),
 				'skip' => sprintf( '<a href="%s">%s</a>', esc_url( wp_nonce_url( admin_url( 'admin.php?page=pull&action=skip&_wp_http_referer=' . urlencode( $_SERVER['REQUEST_URI'] ) . '&post=' . $item->ID . '&connection_type=' . $connection_type . '&connection_id=' . $connection_id ), 'sy_skip' ) ), esc_html__( 'Skip', 'syndicate' ) ),
 			];
 		} elseif ( 'skip' === $_GET['status'] ) {
 			$actions = [
 				'view' => '<a href="' . esc_url( $item->link ) . '">' . esc_html__( 'View', 'syndicate' ) . '</a>',
-				'syndicate' => sprintf( '<a href="%s">%s</a>', esc_url( wp_nonce_url( admin_url( 'admin.php?page=pull&_wp_http_referer=' . urlencode( $_SERVER['REQUEST_URI'] ) . '&action=syndicate&post=' . $item->ID . '&connection_type=' . $connection_type . '&connection_id=' . $connection_id ), 'sy_syndicate' ) ), esc_html__( 'Syndicate (as draft)', 'syndicate' ) ),
+				'syndicate' => sprintf( '<a href="%s">%s</a>', esc_url( wp_nonce_url( admin_url( 'admin.php?page=pull&_wp_http_referer=' . urlencode( $_SERVER['REQUEST_URI'] ) . '&action=syndicate&post=' . $item->ID . '&connection_type=' . $connection_type . '&connection_id=' . $connection_id ), 'sy_syndicate' ) ), esc_html__( 'Syndicate', 'syndicate' ) . $as_draft ),
 			];
 		} elseif ( 'sync' === $_GET['status'] ) {
 

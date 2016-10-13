@@ -56,6 +56,26 @@ function menu_button( $wp_admin_bar ) {
  * @since 0.8
  */
 function menu_content() {
+	if ( ! is_user_logged_in() || ! current_user_can( 'edit_posts' ) ) {
+		return;
+	}
+
+	global $pagenow;
+
+	if ( is_admin() ) {
+		if ( 'post.php' !== $pagenow && 'post-new.php' !== $pagenow ) {
+	    	return;
+	    }
+
+	    if ( 'sy_ext_connection' === get_post_type() || ( ! empty( $_GET['post_type'] ) && 'sy_ext_connection' === $_GET['post_type'] ) ) {
+	    	return;	
+	    }
+	} else {
+		if ( ! is_single() ) {
+			return;
+		}
+	}
+
 	global $post;
 
 	$connection_map = get_post_meta( $post->ID, 'sy_connection_map', true );
