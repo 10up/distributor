@@ -2,7 +2,7 @@
 
 /**
  * Plugin Name: Syndicate
- * Description: Syndicate content to and from external websites and multisite blogs.
+ * Description: Syndicate content to and from external websites and within multisite blogs.
  * Version:     0.8
  * Author:      Taylor Lovett, 10up
  * Author URI:  http://10up.com
