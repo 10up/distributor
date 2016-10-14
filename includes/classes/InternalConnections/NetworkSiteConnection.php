@@ -108,6 +108,10 @@ class NetworkSiteConnection extends Connection {
 			$new_post = wp_insert_post( apply_filters( 'sy_pull_post_args', $post_array, $item_id, $post, $this ) );
 
 			if ( ! is_wp_error( $new_post ) ) {
+				update_post_meta( $new_post, 'sy_original_post_id', (int) $item_id );
+				update_post_meta( $new_post, 'sy_original_blog_id', (int) $this->site->blog_id );
+
+				// Transfer meta
 				foreach ( $post->meta as $meta_key => $meta_array ) {
 					foreach ( $meta_array as $meta ) {
 						update_post_meta( $new_post, $meta_key, $meta );
