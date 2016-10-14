@@ -168,6 +168,10 @@
 			var type = event.currentTarget.getAttribute('data-connection-type');
 			var id = event.currentTarget.getAttribute('data-connection-id');
 
+			if (selectedConnections[type + id]) {
+				return;
+			}
+
 			selectedConnections[type + id] = sy_connections[type + id];
 
 			connectionsSelected.classList.remove('empty');
