@@ -39,7 +39,7 @@
 				}
 			});
 
-			_.each(results.external, function(result) {
+			_.each(results.external, function(result, connectionId) {
 				if ('fail' === result.status) {
 					error = true;
 				} else {
@@ -52,12 +52,6 @@
 			} else {
 				syndicatePushWrapper.classList.add('message-success');
 
-				_.each(selectedConnections, function(connection, connectionId) {
-					sy_connections[connectionId].syndicated = true;
-				});
-
-				selectedConnections = {};
-
 				connectionsSelected.classList.add('empty');
 				connectionsSelectedList.innerHTML = '';
 
@@ -65,6 +59,8 @@
 					syndicatePushWrapper.classList.remove('message-success');
 				}, 6000);
 			}
+
+			selectedConnections = {};
 
 			showConnections();
 		}
