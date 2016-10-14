@@ -52,6 +52,12 @@
 			} else {
 				syndicatePushWrapper.classList.add('message-success');
 
+				_.each(selectedConnections, function(connection, connectionId) {
+					sy_connections[connectionId].syndicated = true;
+				});
+
+				selectedConnections = {};
+
 				connectionsSelected.classList.add('empty');
 				connectionsSelectedList.innerHTML = '';
 
