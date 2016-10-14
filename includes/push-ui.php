@@ -270,7 +270,7 @@ function ajax_push() {
 			}
 
 			if ( ! empty( $external_connection_type ) && ! empty( $external_connection_url ) ) {
-				$external_connection_class = \Syndicate\ExternalConnections::factory()->get_registered()[ $external_connection_type ];
+				$external_connection_class = \Syndicate\Connections::factory()->get_registered()[ $external_connection_type ];
 
 				$auth_handler = new $external_connection_class::$auth_handler_class( $external_connection_auth );
 

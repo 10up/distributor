@@ -90,6 +90,10 @@
 				showConnection.setAttribute('data-connection-type', connection.type);
 				showConnection.setAttribute('data-connection-id', connection.id);
 
+				if (selectedConnections[connection.type + connection.id]) {
+					showConnection.classList.add('added');
+				}
+
 				showConnection.classList.add('add-connection');
 
 				if (connection.syndicated) {
@@ -165,12 +169,12 @@
 				return;
 			}
 
-			var type = event.currentTarget.getAttribute('data-connection-type');
-			var id = event.currentTarget.getAttribute('data-connection-id');
-
-			if (selectedConnections[type + id]) {
+			if (event.currentTarget.classList.contains('added')) {
 				return;
 			}
+
+			var type = event.currentTarget.getAttribute('data-connection-type');
+			var id = event.currentTarget.getAttribute('data-connection-id');
 
 			selectedConnections[type + id] = sy_connections[type + id];
 
@@ -182,6 +186,8 @@
 			element.classList = 'added-connection';
 
 			connectionsSelectedList.appendChild(element);
+
+			showConnections();
 		});
 
 		/**
@@ -197,6 +203,8 @@
 			if (!Object.keys(selectedConnections).length) {
 				connectionsSelected.classList.add('empty');
 			}
+
+			showConnections();
 		});
 
 		/**

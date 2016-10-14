@@ -184,6 +184,10 @@ $background-color-dark: #23282d;
 	cursor: pointer;
 }
 
+.syndicate-push-wrapper .new-connections-list .add-connection.added {
+	background-color: lighten($background-color, 25%);
+}
+
 .syndicate-push-wrapper .add-connection.syndicated {
 	text-decoration: line-through;
 	color: $border-color;
@@ -206,6 +210,7 @@ $background-color-dark: #23282d;
 
 	.remove-connection {
 		cursor: pointer;
+		top: 1px;
 		display: inline-block;
 		float: right;
 		font-size: 20px;
