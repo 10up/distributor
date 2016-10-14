@@ -4,6 +4,13 @@ use \Syndicate\Authentications\WordPressBasicAuth as WordPressBasicAuth;
 
 class WordPressExternalConnectionTest extends \TestCase {
 
+	public function setUp(){
+
+		$this->auth       = new WordPressBasicAuth( array() );
+		$this->connection = new WordPressExternalConnection( 'name', 'url', 1, $this->auth );
+
+	}
+
 	/**
 	 * Test creating a WordPressExternalConnection object
 	 *
@@ -45,9 +52,7 @@ class WordPressExternalConnectionTest extends \TestCase {
 	 */
     public function test_push() {
 
-		$auth       = new WordPressBasicAuth( array() );
-		$connection = new WordPressExternalConnection( 'name', 'url', 1, $auth );
-		$post_type  = 'foo';
+		$post_type = 'foo';
 
         $body = json_encode( [
     		'id' => 123,
@@ -103,8 +108,21 @@ class WordPressExternalConnectionTest extends \TestCase {
         	\WP_Mock::userFunction( $value['function'], $params );
         }
 
-    	$this->assertInstanceOf( \WP_Error::class, $connection->push(0));
-        $this->assertTrue( is_int( $connection->push(1) ) );
+    	$this->assertInstanceOf( \WP_Error::class, $this->connection->push(0));
+        $this->assertTrue( is_int( $this->connection->push(1) ) );
+
+    }
+
+    /**
+     * Test if the pull method returns an array.
+     *
+     * @return void
+     */
+    public function test_pull() {
+
+    	\WP_Mock::userFunction('wp_remote_retrieve_response_code');
+
+    	$this->assertTrue( is_array( $this->connection->pull( [] ) ) );
 
     }
 
