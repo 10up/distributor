@@ -10,11 +10,11 @@ $background-color-dark: #23282d;
 	font-size: 13px;
     font-weight: 400;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
-	position: fixed;
+	position: absolute;
 	top: 32px;
 	left: 0;
 	right: 0;
-	padding: 2em 0;
+	padding: 2em 1em;
 	height: auto;
 	background-color: $background-color;
 	align-items: center;
@@ -22,6 +22,10 @@ $background-color-dark: #23282d;
 	justify-content: center;
 	z-index: 9999;
 	box-shadow: 0px 2px 1px 0px rgba(0,0,0,1);
+
+	@media only screen and (min-width: $small-screen) {
+		padding: 2em 0;
+	}
 }
 
 .syndicate-show {
@@ -41,19 +45,82 @@ $background-color-dark: #23282d;
 	margin: 0 auto;
 }
 
+.syndicate-push-wrapper .new-connections-list {
+	overflow: auto;
+	border: 1px solid $border-color;
+	margin-top: .5em;
+	max-height: 200px;
+}
+
+.syndicate-push-wrapper .selected-connections-list {
+	margin-bottom: 1em;
+}
+
+.syndicate-push-wrapper .connections-selected {
+	margin-top: 2em;
+	position: relative;
+}
+
+.syndicate-push-wrapper .connections-selected .no-selected {
+	display: none;
+}
+
+.syndicate-push-wrapper .connections-selected.empty {
+	opacity: .5;
+
+	.no-selected {
+		display: block;
+	}
+
+	.with-selected {
+		display: none;
+	}
+}
+
+.syndicate-push-wrapper .connections-selected.empty:after {
+	content: ' ';
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background-color: transparent;
+}
+
 .syndicate-push-wrapper {
 	@media only screen and (min-width: $small-screen) {
+		position: fixed;
+
 		.connections-selector {
-			width: 50%;
+			width: 60%;
+			position: relative;
 			float: left;
-			padding-right: 2.5em;
+			padding-right: 0;
 			box-sizing: border-box;
+			display: flex;
+			align-items: center;
+  			justify-content: center;
+		}
+
+		.connections-selector div {
+			width: 100%;
+		}
+
+		.connections-selector:after {
+			transform : scale(1, 1.8);
+			content: "\f345";
+			font-family: dashicons;
+			font-size: 60px;
+			color: darken($font-color, 50%);
+			position: relative;
+			right: -.4em;
 		}
 
 		.connections-selected {
-			width: 50%;
+			width: 40%;
 			float: right;
-			padding-left: 2.5em;
+			margin-top: 0;
+			padding-left: 3em;
 			box-sizing: border-box;
 		}
 	}
@@ -101,47 +168,6 @@ $background-color-dark: #23282d;
 		background-color: #0085ba;
 		outline: none;
 	}
-}
-
-.syndicate-push-wrapper .new-connections-list {
-	overflow: auto;
-	border: 1px solid $border-color;
-	margin-top: .5em;
-	max-height: 200px;
-}
-
-.syndicate-push-wrapper .selected-connections-list {
-	margin-bottom: 1em;
-}
-
-.syndicate-push-wrapper .connections-selected {
-	position: relative;
-}
-
-.syndicate-push-wrapper .connections-selected .no-selected {
-	display: none;
-}
-
-.syndicate-push-wrapper .connections-selected.empty {
-	opacity: .5;
-
-	.no-selected {
-		display: block;
-	}
-
-	.with-selected {
-		display: none;
-	}
-}
-
-.syndicate-push-wrapper .connections-selected.empty:after {
-	content: ' ';
-	position: absolute;
-	top: 0;
-	left: 0;
-	right: 0;
-	bottom: 0;
-	background-color: transparent;
 }
 
 .syndicate-push-wrapper .new-connections-list a:nth-child(odd) {
@@ -232,10 +258,13 @@ $background-color-dark: #23282d;
 
 .syndicate-push-wrapper .messages {
 	margin-top: 1em;
-	width: 50%;
-	float: right;
-	padding-left: 2.5em;
 	box-sizing: border-box;
+
+	@media only screen and (min-width: $small-screen) {
+		width: 40%;
+		float: right;
+		padding-left: 3em;
+	}
 }
 
 .syndicate-push-wrapper .messages * {

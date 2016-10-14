@@ -178,18 +178,20 @@ function menu_content() {
 
 			<?php if ( 1 < count( $dom_connections ) ) : ?>
 				<div class="connections-selector">
-					<?php if ( 5 < count( $dom_connections ) ) : ?>
-						<input type="text" id="sy-connection-search" placeholder="<?php esc_html_e( 'Search available connections', 'syndicate' ); ?>">
-					<?php endif; ?>
+					<div>
+						<?php if ( 5 < count( $dom_connections ) ) : ?>
+							<input type="text" id="sy-connection-search" placeholder="<?php esc_html_e( 'Search available connections', 'syndicate' ); ?>">
+						<?php endif; ?>
 
-					<div class="new-connections-list">
-						<?php foreach ( $dom_connections as $connection ) : ?>
-							<?php if ( 'external' === $connection['type'] ) : ?>
-								<a class="add-connection <?php if ( ! empty( $connection['syndicated'] ) ) : ?>syndicated<?php endif; ?>" data-connection-type="external" data-connection-id="<?php echo (int) $connection['id']; ?>"><?php echo esc_html( get_the_title( $connection['id'] ) ); ?></a>
-							<?php else : ?>
-								<a class="add-connection <?php if ( ! empty( $connection['syndicated'] ) ) : ?>syndicated<?php endif; ?>" data-connection-type="internal" data-connection-id="<?php echo (int) $connection['id']; ?>"><?php echo esc_html( $connection['url'] ); ?></a>
-							<?php endif; ?>
-						<?php endforeach; ?>
+						<div class="new-connections-list">
+							<?php foreach ( $dom_connections as $connection ) : ?>
+								<?php if ( 'external' === $connection['type'] ) : ?>
+									<a class="add-connection <?php if ( ! empty( $connection['syndicated'] ) ) : ?>syndicated<?php endif; ?>" data-connection-type="external" data-connection-id="<?php echo (int) $connection['id']; ?>"><?php echo esc_html( get_the_title( $connection['id'] ) ); ?></a>
+								<?php else : ?>
+									<a class="add-connection <?php if ( ! empty( $connection['syndicated'] ) ) : ?>syndicated<?php endif; ?>" data-connection-type="internal" data-connection-id="<?php echo (int) $connection['id']; ?>"><?php echo esc_html( $connection['url'] ); ?></a>
+								<?php endif; ?>
+							<?php endforeach; ?>
+						</div>
 					</div>
 				</div>
 				<div class="connections-selected empty">
