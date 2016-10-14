@@ -215,7 +215,7 @@ $background-color-dark: #23282d;
 	margin-left: 8px;
 	height: .8em;
 	display: inline-block;
-	font-size: 8px;
+	font-size: 9px;
 	text-indent: -9999em;
 	border-top: .5em solid #cfcfcf;
 	border-right: .5em solid #cfcfcf;
@@ -232,6 +232,10 @@ $background-color-dark: #23282d;
 
 .syndicate-push-wrapper .messages {
 	margin-top: 1em;
+	width: 50%;
+	float: right;
+	padding-left: 2.5em;
+	box-sizing: border-box;
 }
 
 .syndicate-push-wrapper .messages * {

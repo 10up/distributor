@@ -22,7 +22,7 @@
 
 			setTimeout(function() {
 				syndicatePushWrapper.classList.remove('message-error');
-			}, 3000);
+			}, 6000);
 		}
 
 		/**
@@ -57,7 +57,7 @@
 
 				setTimeout(function() {
 					syndicatePushWrapper.classList.remove('message-success');
-				}, 3000);
+				}, 6000);
 			}
 
 			showConnections();
