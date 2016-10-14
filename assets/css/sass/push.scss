@@ -104,7 +104,7 @@ $background-color-dark: #23282d;
 }
 
 .syndicate-push-wrapper .new-connections-list {
-	overflow: scroll;
+	overflow: auto;
 	border: 1px solid $border-color;
 	margin-top: .5em;
 	max-height: 200px;

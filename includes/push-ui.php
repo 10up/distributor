@@ -16,6 +16,51 @@ add_action( 'plugins_loaded', function() {
 	add_action( 'admin_footer', __NAMESPACE__ . '\menu_content', 10, 1 );
 } );
 
+
+/**
+ * Check if post is syndicatable
+ *
+ * @since   0.8
+ * @return  bool
+ */
+function syndicatable() {
+	if ( ! is_user_logged_in() || ! current_user_can( 'edit_posts' ) ) {
+		return false;
+	}
+
+	if ( is_admin() ) {
+		global $pagenow;
+
+		if ( 'post.php' !== $pagenow && 'post-new.php' !== $pagenow ) {
+	    	return false;
+	    }
+
+	    if ( 'sy_ext_connection' === get_post_type() || ( ! empty( $_GET['post_type'] ) && 'sy_ext_connection' === $_GET['post_type'] ) ) {
+	    	return false;
+	    }
+	} else {
+		if ( ! is_single() ) {
+			return false;
+		}
+	}
+
+	global $post;
+
+    $unlinked = (bool) get_post_meta( $post->ID, 'sy_unlinked', true );
+
+    if ( ! $unlinked ) {
+
+	    $original_blog_id = get_post_meta( $post->ID, 'sy_original_blog_id', true );
+		$original_post_id = get_post_meta( $post->ID, 'sy_original_post_id', true );
+
+		if ( ! empty( $original_post_id ) || ! empty( $original_blog_id ) ) {
+			return false;
+		}
+	}
+
+	return true;
+}
+
 /**
  * Let's setup our syndicate menu in the toolbar
  *
@@ -23,24 +68,8 @@ add_action( 'plugins_loaded', function() {
  * @since  0.8
  */
 function menu_button( $wp_admin_bar ) {
-	global $pagenow;
-
-	if ( ! is_user_logged_in() || ! current_user_can( 'edit_posts' ) ) {
+	if ( ! syndicatable() ) {
 		return;
-	}
-
-	if ( is_admin() ) {
-		if ( 'post.php' !== $pagenow && 'post-new.php' !== $pagenow ) {
-	    	return;
-	    }
-
-	    if ( 'sy_ext_connection' === get_post_type() || ( ! empty( $_GET['post_type'] ) && 'sy_ext_connection' === $_GET['post_type'] ) ) {
-	    	return;
-	    }
-	} else {
-		if ( ! is_single() ) {
-			return;
-		}
 	}
 
 	$wp_admin_bar->add_node( array(
@@ -56,27 +85,11 @@ function menu_button( $wp_admin_bar ) {
  * @since 0.8
  */
 function menu_content() {
-	if ( ! is_user_logged_in() || ! current_user_can( 'edit_posts' ) ) {
+	global $post;
+
+	if ( ! syndicatable() ) {
 		return;
 	}
-
-	global $pagenow;
-
-	if ( is_admin() ) {
-		if ( 'post.php' !== $pagenow && 'post-new.php' !== $pagenow ) {
-	    	return;
-	    }
-
-	    if ( 'sy_ext_connection' === get_post_type() || ( ! empty( $_GET['post_type'] ) && 'sy_ext_connection' === $_GET['post_type'] ) ) {
-	    	return;
-	    }
-	} else {
-		if ( ! is_single() ) {
-			return;
-		}
-	}
-
-	global $post;
 
 	$connection_map = (array) get_post_meta( $post->ID, 'sy_connection_map', true );
 
@@ -353,18 +366,8 @@ function ajax_push() {
  * @since  0.8
  */
 function enqueue_scripts( $hook ) {
-	if ( is_admin() ) {
-	    if ( 'post.php' !== $hook && 'post-new.php' !== $hook ) {
-	    	return;
-	    }
-
-	    if ( 'sy_ext_connection' === get_post_type() || ( ! empty( $_GET['post_type'] ) && 'sy_ext_connection' === $_GET['post_type'] ) ) {
-	    	return;
-	    }
-	} else {
-		if ( ! is_single() ) {
-			return;
-		}
+	if ( ! syndicatable() ) {
+		return;
 	}
 
 	if ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) {
