@@ -35,7 +35,7 @@ function unlink() {
 
 /**
  * Show syndicated post message
- * 
+ *
  * @param  WP_Post $post
  * @since  0.8
  */
@@ -64,7 +64,7 @@ function syndicated_message( $post ) {
 	}
 
 	$post_type_object = get_post_type_object( $post->post_type );
-	
+
 	?>
 	<div class="updated syndicate-status">
 		<p>
@@ -77,18 +77,18 @@ function syndicated_message( $post ) {
 
 /**
  * Enqueue admin scripts for external connection editor
- * 
+ *
  * @param  string $hook
  * @since  0.8
  */
 function admin_enqueue_scripts( $hook ) {
-    if ( 'post-new.php' !== $hook && 'post.php' !== $hook ) {
-    	return;
-    }
+	if ( 'post-new.php' !== $hook && 'post.php' !== $hook ) {
+		return;
+	}
 
-    global $post;
+	global $post;
 
-    $original_blog_id = get_post_meta( $post->ID, 'sy_original_blog_id', true );
+	$original_blog_id = get_post_meta( $post->ID, 'sy_original_blog_id', true );
 	$original_post_id = get_post_meta( $post->ID, 'sy_original_post_id', true );
 
 	if ( empty( $original_post_id ) || empty( $original_blog_id ) ) {

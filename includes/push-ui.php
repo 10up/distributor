@@ -35,7 +35,7 @@ function menu_button( $wp_admin_bar ) {
 	    }
 
 	    if ( 'sy_ext_connection' === get_post_type() || ( ! empty( $_GET['post_type'] ) && 'sy_ext_connection' === $_GET['post_type'] ) ) {
-	    	return;	
+	    	return;
 	    }
 	} else {
 		if ( ! is_single() ) {
@@ -52,7 +52,7 @@ function menu_button( $wp_admin_bar ) {
 
 /**
  * Build syndicate push menu dropdown HTML
- * 
+ *
  * @since 0.8
  */
 function menu_content() {
@@ -68,7 +68,7 @@ function menu_content() {
 	    }
 
 	    if ( 'sy_ext_connection' === get_post_type() || ( ! empty( $_GET['post_type'] ) && 'sy_ext_connection' === $_GET['post_type'] ) ) {
-	    	return;	
+	    	return;
 	    }
 	} else {
 		if ( ! is_single() ) {
@@ -95,7 +95,7 @@ function menu_content() {
 		if ( in_array( $post->post_type, $site_array['post_types'] ) ) {
 			$connection = new \Syndicate\InternalConnections\NetworkSiteConnection( $site_array['site'] );
 
-			$dom_connections['internal' . $connection->site->blog_id] = [
+			$dom_connections[ 'internal' . $connection->site->blog_id ] = [
 				'type'       => 'internal',
 				'id'         => $connection->site->blog_id,
 				'url'        => untrailingslashit( preg_replace( '#(https?:\/\/|www\.)#i', '', get_site_url( $connection->site->blog_id ) ) ),
@@ -136,7 +136,7 @@ function menu_content() {
 		// If not admin lets make sure the current user can push to this connection
 		if ( ! current_user_can( 'manage_options' ) ) {
 			$current_user_roles = (array) wp_get_current_user()->roles;
-			
+
 			if ( count( array_intersect( $current_user_roles, $allowed_roles ) ) < 1 ) {
 				continue;
 			}
@@ -145,12 +145,12 @@ function menu_content() {
 		$connection = \Syndicate\ExternalConnection::instantiate( $external_connection->ID );
 
 		if ( ! is_wp_error( $connection ) ) {
-			$dom_connections['external' . $connection->id] = [
+			$dom_connections[ 'external' . $connection->id ] = [
 				'type'       => 'external',
 				'id'         => $connection->id,
 				'url'        => $connection->base_url,
 				'name'       => $connection->name,
-				'syndicated' => ( ! empty( $connection_map['external'][ (int) $external_connection->ID ]) ) ? true : false,
+				'syndicated' => ( ! empty( $connection_map['external'][ (int) $external_connection->ID ] ) ) ? true : false,
 			];
 		}
 	}
@@ -267,7 +267,7 @@ function ajax_push() {
 					$push_args['remote_post_id'] = (int) $connection_map['external'][ (int) $connection['id'] ]['post_id'];
 				}
 
-				if ( ! empty( $_POST['draft' ] ) && '1' === $_POST['draft'] ) {
+				if ( ! empty( $_POST['draft'] ) && '1' === $_POST['draft'] ) {
 					$push_args['post_status'] = 'draft';
 				}
 
@@ -304,7 +304,7 @@ function ajax_push() {
 				$push_args['remote_post_id'] = (int) $connection_map['internal'][ (int) $connection['id'] ]['post_id'];
 			}
 
-			if ( ! empty( $_POST['draft' ] ) && '1' === $_POST['draft'] ) {
+			if ( ! empty( $_POST['draft'] ) && '1' === $_POST['draft'] ) {
 				$push_args['post_status'] = 'draft';
 			}
 
@@ -336,7 +336,6 @@ function ajax_push() {
 
 	update_post_meta( $_POST['post_id'], 'sy_connection_map', $connection_map );
 
-
 	wp_send_json_success( array(
 		'results' => array(
 			'internal' => $internal_push_results,
@@ -349,12 +348,12 @@ function ajax_push() {
 
 /**
  * Enqueue scripts/styles for push
- * 
+ *
  * @param  string $hook
  * @since  0.8
  */
 function enqueue_scripts( $hook ) {
-    if ( is_admin() ) {
+	if ( is_admin() ) {
 	    if ( 'post.php' !== $hook && 'post-new.php' !== $hook ) {
 	    	return;
 	    }
@@ -368,7 +367,7 @@ function enqueue_scripts( $hook ) {
 		}
 	}
 
-    if ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) {
+	if ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) {
 		$js_path = '/assets/js/src/push.js';
 		$css_path = '/assets/css/push.css';
 	} else {
@@ -377,8 +376,8 @@ function enqueue_scripts( $hook ) {
 	}
 
 	wp_enqueue_style( 'sy-push', plugins_url( $css_path, __DIR__ ), array(), SY_VERSION );
-    wp_enqueue_script( 'sy-push', plugins_url( $js_path, __DIR__ ), array( 'jquery', 'underscore' ), SY_VERSION, true );
-    wp_localize_script( 'sy-push', 'sy', array(
+	wp_enqueue_script( 'sy-push', plugins_url( $js_path, __DIR__ ), array( 'jquery', 'underscore' ), SY_VERSION, true );
+	wp_localize_script( 'sy-push', 'sy', array(
 		'nonce'   => wp_create_nonce( 'sy-push' ),
 		'post_id' => (int) get_the_ID(),
 		'ajaxurl' => esc_url( admin_url( 'admin-ajax.php' ) ),

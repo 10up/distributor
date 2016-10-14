@@ -18,12 +18,12 @@ class Connections {
 
 	/**
 	 * Register a connection class for use
-	 * 
+	 *
 	 * @param  string $class_name
 	 * @since  0.8
 	 */
 	public function register( $class_name ) {
-		$this->connections[$class_name::$slug] = $class_name;
+		$this->connections[ $class_name::$slug ] = $class_name;
 
 		$class_name::bootstrap();
 	}

@@ -12,7 +12,7 @@ class WordPressExternalConnection extends ExternalConnection {
 
 	/**
 	 * This is a utility function for parsing annoying API link headers returned by the types endpoint
-	 * 
+	 *
 	 * @param  array $type
 	 * @since  0.8
 	 * @return string|bool
@@ -32,7 +32,7 @@ class WordPressExternalConnection extends ExternalConnection {
 				$link = $type['_links']['https://api.w.org/items'][0]['href'];
 				return $link;
 			}
-		}  catch ( \Exception $e ) {
+		} catch ( \Exception $e ) {
 			// Even bigger bummer
 		}
 
@@ -41,8 +41,8 @@ class WordPressExternalConnection extends ExternalConnection {
 
 	/**
 	 * Remotely get posts
-	 * 
-	 * @param  array  $args
+	 *
+	 * @param  array $args
 	 * @since  0.8
 	 * @return array|WP_Post
 	 */
@@ -57,7 +57,7 @@ class WordPressExternalConnection extends ExternalConnection {
 			$query_args['post_status'] = ( empty( $args['post_status'] ) ) ? 'any' : $args['post_status'];
 			$posts_per_page = ( empty( $args['posts_per_page'] ) ) ? get_option( 'posts_per_page' ) : $args['posts_per_page'];
 			$query_args['paged'] = ( empty( $args['paged'] ) ) ? 1 : $args['paged'];
-			
+
 			if ( isset( $args['post__in'] ) ) {
 				if ( empty( $args['post__in'] ) ) {
 					// If post__in is empty, we can just stop right here
@@ -84,7 +84,7 @@ class WordPressExternalConnection extends ExternalConnection {
 			/**
 			 * First let's get the actual route if not cached. We don't know the "plural" of our post type
 			 */
-			
+
 			$path = self::$namespace;
 
 			$types_response = wp_remote_get( untrailingslashit( $this->base_url ) . '/' . $path . '/types' );
@@ -120,7 +120,7 @@ class WordPressExternalConnection extends ExternalConnection {
 
 		$query_args = apply_filters( 'sy_remote_get_query_args', $query_args, $args, $this );
 
-		foreach ( $query_args as $arg_key => $arg_value) {
+		foreach ( $query_args as $arg_key => $arg_value ) {
 			if ( is_array( $arg_value ) ) {
 				foreach ( $arg_value as $arg_value_value ) {
 					if ( ! empty( $args_str ) ) {
@@ -145,7 +145,7 @@ class WordPressExternalConnection extends ExternalConnection {
 		}
 
 		$posts_response = wp_remote_get( apply_filters( 'sy_remote_get_url', $posts_url, $args, $this ), $this->auth_handler->format_get_args( array() ) );
-		
+
 		if ( is_wp_error( $posts_response ) ) {
 			return $posts_response;
 		}
@@ -180,7 +180,7 @@ class WordPressExternalConnection extends ExternalConnection {
 
 	/**
 	 * Pull items
-	 * 
+	 *
 	 * @param  array $items
 	 * @since  0.8
 	 * @return array
@@ -223,8 +223,8 @@ class WordPressExternalConnection extends ExternalConnection {
 
 	/**
 	 * Push a post to an external connection
-	 * 
-	 * @param  int $post_id
+	 *
+	 * @param  int   $post_id
 	 * @param  array $args
 	 * @since  0.8
 	 * @return bool|WP_Error
@@ -257,7 +257,6 @@ class WordPressExternalConnection extends ExternalConnection {
 		}
 
 		$body_array = json_decode( $body, true );
-
 
 		$type_url = $this->parse_type_items_link( $body_array[ $post_type ] );
 
@@ -292,7 +291,7 @@ class WordPressExternalConnection extends ExternalConnection {
 			}
 		}
 
-		$response = wp_remote_post( $type_url, $this->auth_handler->format_post_args( array( 'body' =>  apply_filters( 'sy_push_post_args', $post_body, $post, $this ) ) ) );
+		$response = wp_remote_post( $type_url, $this->auth_handler->format_post_args( array( 'body' => apply_filters( 'sy_push_post_args', $post_body, $post, $this ) ) ) );
 
 		do_action( 'sy_push_post', $response, $post_body, $type_url, $post_id, $args, $this );
 
@@ -364,7 +363,6 @@ class WordPressExternalConnection extends ExternalConnection {
 			$output['errors']['no_types']  = 'no_types';
 		}
 
-
 		if ( ! empty( $output['errors'] ) ) {
 			return $output;
 		}
@@ -407,8 +405,8 @@ class WordPressExternalConnection extends ExternalConnection {
 						}
 
 						if ( in_array( 'POST',  $routes[ $route ]['methods'] ) ) {
-							$type_response = wp_remote_post( $link, $this->auth_handler->format_post_args( array( 'body' => array( 'test' => 1 ), ) ) );
-							
+							$type_response = wp_remote_post( $link, $this->auth_handler->format_post_args( array( 'body' => array( 'test' => 1 ) ) ) );
+
 							if ( ! is_wp_error( $type_response ) ) {
 								$code = (int) wp_remote_retrieve_response_code( $type_response );
 
@@ -430,7 +428,7 @@ class WordPressExternalConnection extends ExternalConnection {
 
 	/**
 	 * Convert object to WP_Post
-	 * 
+	 *
 	 * @param  array
 	 * @since  0.8
 	 * @return WP_Post
@@ -450,7 +448,7 @@ class WordPressExternalConnection extends ExternalConnection {
 		$obj->post_type = $post['type'];
 		$obj->link = $post['link'];
 		$obj->post_author = get_current_user_id();
-		
+
 		return apply_filters( 'sy_item_mapping', new \WP_Post( $obj ), $post, $this );
 	}
 }

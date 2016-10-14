@@ -24,9 +24,9 @@ class NetworkSiteConnection extends Connection {
 
 	/**
 	 * Push post to another internal site
-	 * 
-	 * @param  int $post_id
-	 * @param  array  $args
+	 *
+	 * @param  int   $post_id
+	 * @param  array $args
 	 * @since  0.8
 	 * @return int|WP_Error
 	 */
@@ -74,7 +74,7 @@ class NetworkSiteConnection extends Connection {
 
 	/**
 	 * Pull items
-	 * 
+	 *
 	 * @param  array $items
 	 * @since  0.8
 	 * @return array
@@ -130,7 +130,7 @@ class NetworkSiteConnection extends Connection {
 	/**
 	 * Log a sync. Unfortunately have to use options
 	 *
-	 * @param  array $item_id_mappings
+	 * @param  array       $item_id_mappings
 	 * @param  string|bool $status
 	 * @since  0.8
 	 */
@@ -152,8 +152,8 @@ class NetworkSiteConnection extends Connection {
 
 	/**
 	 * Remotely get posts so we can list them for pulling
-	 * 
-	 * @param  array  $args
+	 *
+	 * @param  array $args
 	 * @since  0.8
 	 * @return array|WP_Post|bool
 	 */
@@ -202,7 +202,7 @@ class NetworkSiteConnection extends Connection {
 			], $args, $this );
 		} else {
 			$post = get_post( $id );
-			
+
 			if ( empty( $post ) ) {
 				return false;
 			}
@@ -219,7 +219,7 @@ class NetworkSiteConnection extends Connection {
 
 	/**
 	 * Setup actions and filters that are need on every page load
-	 * 
+	 *
 	 * @since 0.8
 	 */
 	public static function bootstrap() {
@@ -309,14 +309,13 @@ class NetworkSiteConnection extends Connection {
 			}
 		}
 
-
 		wp_send_json_success( $authorized_post_types );
 		exit;
 	}
 
 	/**
 	 * Find out which sites user can create post type on
-	 * 
+	 *
 	 * @since  0.8
 	 * @return array
 	 */
@@ -324,7 +323,7 @@ class NetworkSiteConnection extends Connection {
 		if ( ! is_multisite() ) {
 			return array();
 		}
-		
+
 		$sites = get_sites();
 		$authorized_sites = array();
 
@@ -352,7 +351,7 @@ class NetworkSiteConnection extends Connection {
 					'username'  => $current_user->user_login,
 					'action'    => 'sy_auth_check',
 				),
-				'cookies' => $_COOKIE
+				'cookies' => $_COOKIE,
 			) );
 
 			if ( ! is_wp_error( $response ) ) {
@@ -362,7 +361,7 @@ class NetworkSiteConnection extends Connection {
 				if ( ! is_wp_error( $body ) ) {
 					try {
 						$body_array = json_decode( $body, true );
-						
+
 						if ( ! empty( $body_array['success'] ) ) {
 							$authorized_sites[] = array(
 								'site'       => $site,
@@ -381,7 +380,7 @@ class NetworkSiteConnection extends Connection {
 
 	/**
 	 * Make sure canonical url header is outputted
-	 * 
+	 *
 	 * @param  string $canonical_url
 	 * @param  object $post
 	 * @since  0.8
@@ -400,9 +399,9 @@ class NetworkSiteConnection extends Connection {
 
 	/**
 	 * Use canonical title
-	 * 
+	 *
 	 * @param  string $title
-	 * @param  int $id
+	 * @param  int    $id
 	 * @since  0.8
 	 * @return string
 	 */
@@ -423,7 +422,7 @@ class NetworkSiteConnection extends Connection {
 
 	/**
 	 * Use canonical content
-	 * 
+	 *
 	 * @param  string $content
 	 * @since  0.8
 	 * @return string
@@ -448,7 +447,7 @@ class NetworkSiteConnection extends Connection {
 
 	/**
 	 * Use canonical date
-	 * 
+	 *
 	 * @param  string $date
 	 * @since  0.8
 	 * @return string
@@ -465,7 +464,7 @@ class NetworkSiteConnection extends Connection {
 
 		switch_to_blog( $original_blog_id );
 
-		$date = get_the_date( get_option( 'date_format' ), $original_post_id);
+		$date = get_the_date( get_option( 'date_format' ), $original_post_id );
 
 		restore_current_blog();
 
@@ -474,7 +473,7 @@ class NetworkSiteConnection extends Connection {
 
 	/**
 	 * Use canonical excerpt
-	 * 
+	 *
 	 * @param  string $excerpt
 	 * @since  0.8
 	 * @return string

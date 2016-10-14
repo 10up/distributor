@@ -15,7 +15,7 @@ add_action( 'plugins_loaded', function() {
 
 /**
  * Create list table
- * 
+ *
  * @since 0.8
  */
 function setup_list_table() {
@@ -82,22 +82,22 @@ function setup_list_table() {
 
 /**
  * Enqueue admin scripts for pull
- * 
+ *
  * @param  string $hook
  * @since  0.8
  */
 function admin_enqueue_scripts( $hook ) {
-    if ( 'syndicate_page_pull' !== $hook || empty( $_GET['page'] ) || 'pull' !== $_GET['page'] ) {
-    	return;
-    }
+	if ( 'syndicate_page_pull' !== $hook || empty( $_GET['page'] ) || 'pull' !== $_GET['page'] ) {
+		return;
+	}
 
-    if ( defined( SCRIPT_DEBUG ) && SCRIPT_DEBUG ) {
+	if ( defined( SCRIPT_DEBUG ) && SCRIPT_DEBUG ) {
 		$js_path = '/assets/js/src/admin-pull.js';
 	} else {
 		$js_path = '/assets/js/admin-pull.min.js';
 	}
 
-    wp_enqueue_script( 'sy-admin-pull', plugins_url( $js_path, __DIR__ ), array( 'jquery' ), SY_VERSION, true );
+	wp_enqueue_script( 'sy-admin-pull', plugins_url( $js_path, __DIR__ ), array( 'jquery' ), SY_VERSION, true );
 }
 
 /**
@@ -120,7 +120,7 @@ function action_admin_menu() {
 
 /**
  * Set up screen options
- * 
+ *
  * @since 0.8
  */
 function screen_option() {
@@ -129,7 +129,7 @@ function screen_option() {
 	$args   = [
 		'label'   => 'Connections',
 		'default' => get_option( 'posts_per_page', 10 ),
-		'option'  => 'connections_per_page'
+		'option'  => 'connections_per_page',
 	];
 
 	add_screen_option( $option, $args );
@@ -137,7 +137,7 @@ function screen_option() {
 
 /**
  * Process content changing actions
- * 
+ *
  * @since  0.8
  */
 function process_actions() {

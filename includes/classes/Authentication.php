@@ -13,7 +13,7 @@ abstract class Authentication {
 
 	/**
 	 * Set associative arguments as instance variables
-	 * 
+	 *
 	 * @param array $args
 	 * @since       0.8
 	 */
@@ -27,7 +27,7 @@ abstract class Authentication {
 
 	/**
 	 * Format request args for a GET request so auth occurs
-	 * 
+	 *
 	 * @param  array $args
 	 * @param  array $context optional array of information about the request
 	 * @since  .8
@@ -39,7 +39,7 @@ abstract class Authentication {
 
 	/**
 	 * Format request args for a POST request so auth occurs
-	 * 
+	 *
 	 * @param  array $args
 	 * @param  array $context optional array of information about the request
 	 * @since  0.8
@@ -58,7 +58,7 @@ abstract class Authentication {
 
 	/**
 	 * Store an associate array as credentials for use with an external connection.
-	 * 
+	 *
 	 * @param  array $args
 	 * @since  0.8
 	 */
@@ -66,8 +66,8 @@ abstract class Authentication {
 
 	/**
 	 * Store pre-sanizited auth credentials in DB
-	 * 
-	 * @param int $external_connection_id
+	 *
+	 * @param int   $external_connection_id
 	 * @param array $args
 	 * @since 0.8
 	 */

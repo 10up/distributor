@@ -4,8 +4,8 @@ namespace Syndicate;
 use \Syndicate\Connection as Connection;
 
 /**
- * External connections extend this base abstract class. External onnections are used to push and pull content. 
- * Note that static methods are used for interacting with the type whereas class instances 
+ * External connections extend this base abstract class. External onnections are used to push and pull content.
+ * Note that static methods are used for interacting with the type whereas class instances
  * deal with an actual connection.
  */
 abstract class ExternalConnection extends Connection {
@@ -70,7 +70,7 @@ abstract class ExternalConnection extends Connection {
 
 	/**
 	 * This is a static factory method for initializing an external connection
-	 * 
+	 *
 	 * @param  int|WP_Post $external_connection
 	 * @since  0.8
 	 * @return Connection
@@ -103,5 +103,4 @@ abstract class ExternalConnection extends Connection {
 
 		return new $connection_class( $name, $url, $external_connection_id, $auth_handler );
 	}
-
 }

@@ -18,8 +18,8 @@ class WP_Error {
 
 /**
  * Check if object is WP_Error
- * 
- * @param  Object  $thing
+ *
+ * @param  Object $thing
  * @since  0.8
  * @return boolean
  */

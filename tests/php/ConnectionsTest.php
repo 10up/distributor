@@ -5,7 +5,7 @@ namespace Syndicate;
 class ConnectionsTest extends \TestCase {
 	/**
 	 * Test connection registration
-	 * 
+	 *
 	 * @since 0.8
 	 * @group Connections
 	 */

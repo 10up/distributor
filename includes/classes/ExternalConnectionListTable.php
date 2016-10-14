@@ -27,7 +27,7 @@ class ExternalConnectionListTable extends \WP_Posts_List_Table {
 	 */
 	public function get_bulk_actions() {
 		$actions = [
-			'bulk-delete' => 'Delete'
+			'bulk-delete' => 'Delete',
 		];
 
 		return $actions;
@@ -35,7 +35,7 @@ class ExternalConnectionListTable extends \WP_Posts_List_Table {
 
 	/**
 	 * We don't want to show extra table actions
-	 * 
+	 *
 	 * @param string $which
 	 * @since 0.8
 	 */

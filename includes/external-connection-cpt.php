@@ -8,8 +8,8 @@ namespace Syndicate\ExternalConnectionCPT;
  * @since 0.8
  */
 add_action( 'plugins_loaded', function() {
-    add_action( 'init', __NAMESPACE__ . '\setup_cpt' );
-    add_filter( 'enter_title_here', __NAMESPACE__ . '\filter_enter_title_here', 10, 2 );
+	add_action( 'init', __NAMESPACE__ . '\setup_cpt' );
+	add_filter( 'enter_title_here', __NAMESPACE__ . '\filter_enter_title_here', 10, 2 );
 	add_filter( 'post_updated_messages', __NAMESPACE__ . '\filter_post_updated_messages' );
 	add_action( 'save_post', __NAMESPACE__  . '\save_post' );
 	add_action( 'admin_enqueue_scripts', __NAMESPACE__  . '\admin_enqueue_scripts' );
@@ -41,7 +41,7 @@ function setup_list_table() {
 		check_admin_referer( 'bulk-posts' );
 
 		if ( 'bulk-delete' === $doaction ) {
-			$sendback = remove_query_arg( array('trashed', 'untrashed', 'deleted', 'locked', 'ids'), wp_get_referer() );
+			$sendback = remove_query_arg( array( 'trashed', 'untrashed', 'deleted', 'locked', 'ids' ), wp_get_referer() );
 
 			$deleted = 0;
 			$post_ids = array_map( 'intval', $_REQUEST['post'] );
@@ -64,7 +64,7 @@ function setup_list_table() {
 
 /**
  * Add url column to posts table
- * 
+ *
  * @param  array $columns
  * @since  0.8
  * @return array
@@ -72,15 +72,15 @@ function setup_list_table() {
 function filter_columns( $columns ) {
 	$columns['sy_external_connection_url'] = esc_html__( 'URL', 'syndicate' );
 
-	unset($columns['date']);
+	unset( $columns['date'] );
 	return $columns;
 }
 
 /**
  * Output url column
- * 
+ *
  * @param  string $column
- * @param  int $post_id
+ * @param  int    $post_id
  * @since  0.8
  */
 function action_custom_columns( $column, $post_id ) {
@@ -138,12 +138,12 @@ function ajax_verify_external_connection() {
 
 /**
  * Enqueue admin scripts for external connection editor
- * 
+ *
  * @param  string $hook
  * @since  0.8
  */
 function admin_enqueue_scripts( $hook ) {
-    if ( ( 'post.php' === $hook && 'sy_ext_connection' === get_post_type() ) || ( 'post-new.php' === $hook && ! empty( $_GET['post_type'] ) && 'sy_ext_connection' === $_GET['post_type'] ) ) {
+	if ( ( 'post.php' === $hook && 'sy_ext_connection' === get_post_type() ) || ( 'post-new.php' === $hook && ! empty( $_GET['post_type'] ) && 'sy_ext_connection' === $_GET['post_type'] ) ) {
 
 	    if ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) {
 			$js_path = '/assets/js/src/admin-external-connection.js';
@@ -162,7 +162,7 @@ function admin_enqueue_scripts( $hook ) {
 	    	'no_types' => esc_html__( "No content types found to pull or push. This probably means the WordPress API is available but V2 of the JSON REST API hasn't been installed to provide any routes.", 'syndicate' ),
 	    	'invalid_endpoint' => esc_html__( "This doesn't seem to be a valid API endpoint.", 'syndicate' ),
 	    	'will_confirm_endpoint' => esc_html__( 'We will confirm the API endpoint works.', 'syndicate' ),
-	    	'valid_endpoint' => esc_html__( "This is a valid API endpoint.", 'syndicate' ),
+	    	'valid_endpoint' => esc_html__( 'This is a valid API endpoint.', 'syndicate' ),
 	    	'endpoint_suggestion' => esc_html__( 'How about: ', 'syndicate' ),
 	    	'can_post' => esc_html__( 'Can push:', 'syndicate' ),
 	    	'can_get' => esc_html__( 'Can pull:', 'syndicate' ),
@@ -190,7 +190,7 @@ function admin_enqueue_scripts( $hook ) {
  * Change title text box label
  *
  * @param  string $label
- * @param  int $post
+ * @param  int    $post
  * @since  0.8
  * @return string
  */
@@ -203,10 +203,10 @@ function filter_enter_title_here( $label, $post = 0 ) {
 }
 
 /**
- * Save external connection stuff 
- * 
+ * Save external connection stuff
+ *
  * @param int $post_id
- * @since 0.8 
+ * @since 0.8
  */
 function save_post( $post_id ) {
 	if ( ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) || ! current_user_can( 'edit_post', $post_id ) || 'revision' == get_post_type( $post_id ) ) {
@@ -267,7 +267,7 @@ function save_post( $post_id ) {
 		}
 
 		$auth_creds = \Syndicate\Connections::factory()->get_registered()[ $_POST['sy_external_connection_type'] ]::$auth_handler_class::prepare_credentials( array_merge( $_POST['sy_external_connection_auth'], (array) $current_auth ) );
-		
+
 		\Syndicate\Connections::factory()->get_registered()[ $_POST['sy_external_connection_type'] ]::$auth_handler_class::store_credentials( $post_id, $auth_creds );
 	}
 }
@@ -284,7 +284,7 @@ function add_meta_boxes() {
 
 /**
  * Output connection meta box to show status of API
- * 
+ *
  * @param  WP_Post $post
  * @since  0.8
  */
@@ -294,16 +294,16 @@ function meta_box_external_connection( $post ) {
 
 	$lang = array(
 		'no_external_connection' => esc_html__( "Can't connect to API.", 'syndicate' ),
-    	'can_post'               => esc_html__( 'Can push:', 'syndicate' ),
-    	'can_get'                => esc_html__( 'Can pull:', 'syndicate' ),
-    	'no_types'               => esc_html__( "No content types found to pull or push. This probably means the WordPress API is available but V2 of the JSON REST API hasn't been installed to provide any routes", 'syndicate' ),
+		'can_post'               => esc_html__( 'Can push:', 'syndicate' ),
+		'can_get'                => esc_html__( 'Can pull:', 'syndicate' ),
+		'no_types'               => esc_html__( "No content types found to pull or push. This probably means the WordPress API is available but V2 of the JSON REST API hasn't been installed to provide any routes", 'syndicate' ),
 	);
 
 	if ( ! empty( $external_connections ) ) : ?>
 		<div class="external-connection-verification">
 			<ul class="errors">
 				<?php foreach ( $external_connections['errors'] as $error ) : ?>
-					<li><?php echo esc_html( $lang[$error] ); ?></li>
+					<li><?php echo esc_html( $lang[ $error ] ); ?></li>
 				<?php endforeach; ?>
 
 				<?php if ( empty( $external_connections['errors'] ) ) : ?>
@@ -319,10 +319,10 @@ function meta_box_external_connection( $post ) {
 
 			<ul class="successes">
 				<?php if ( ! empty( $external_connections['can_get'] ) ) : ?>
-					<li><?php echo esc_html( $lang['can_get'] . ' ' . implode( ', ', $external_connections['can_get']) ); ?></li>
+					<li><?php echo esc_html( $lang['can_get'] . ' ' . implode( ', ', $external_connections['can_get'] ) ); ?></li>
 				<?php endif; ?>
 				<?php if ( ! empty( $external_connections['can_post'] ) ) : ?>
-					<li><?php echo esc_html( $lang['can_post'] . ' ' . implode( ', ', $external_connections['can_post']) ); ?></li>
+					<li><?php echo esc_html( $lang['can_post'] . ' ' . implode( ', ', $external_connections['can_post'] ) ); ?></li>
 				<?php endif; ?>
 			</ul>
 		</div>
@@ -420,7 +420,7 @@ function meta_box_external_connection_details( $post ) {
 			<?php if ( empty( $external_connections ) ) : ?>
 				<?php esc_html_e( 'We will confirm the API endpoint works.', 'syndicate' ); ?>
 			<?php elseif ( empty( $external_connections['errors'] ) || ( 1 === count( $external_connections['errors'] ) && ! empty( $external_connections['errors']['no_types'] ) ) ) : ?>
-				<span class="dashicons dashicons-yes"></span><?php esc_html_e( "This is a valid API endpoint.", 'syndicate' ); ?>
+				<span class="dashicons dashicons-yes"></span><?php esc_html_e( 'This is a valid API endpoint.', 'syndicate' ); ?>
 			<?php else : ?>
 
 				<span class="dashicons dashicons-warning"></span><?php esc_html_e( "This doesn't seem to be a valid API endpoint.", 'syndicate' ); ?>
@@ -439,7 +439,7 @@ function meta_box_external_connection_details( $post ) {
 
 			<input name="save" type="submit" class="button button-primary button-large" id="publish" value="<?php esc_attr_e( 'Update Connection', 'syndicate' ) ?>">
 		
-			<a class="delete-link" href="<?php echo esc_url( get_delete_post_link( $post->ID ) ); ?> "><?php esc_html_e( 'Move to Trash', 'syndicate'); ?></a>
+			<a class="delete-link" href="<?php echo esc_url( get_delete_post_link( $post->ID ) ); ?> "><?php esc_html_e( 'Move to Trash', 'syndicate' ); ?></a>
 		<?php else : ?>
 			<input name="publish" type="submit" class="button button-primary button-large" id="publish" value="<?php esc_attr_e( 'Create Connection', 'syndicate' ) ?>">
 		<?php endif; ?>
@@ -495,7 +495,7 @@ function screen_option() {
 	$args   = [
 		'label'   => esc_html__( 'External connections per page: ', 'syndicate' ),
 		'default' => 5,
-		'option'  => 'connections_per_page'
+		'option'  => 'connections_per_page',
 	];
 
 	add_screen_option( $option, $args );
@@ -586,12 +586,12 @@ function filter_post_updated_messages( $messages ) {
 		2 => esc_html__( 'Custom field updated.', 'syndicate' ),
 		3 => esc_html__( 'Custom field deleted.', 'syndicate' ),
 		4 => esc_html__( 'External connection updated.', 'syndicate' ),
-		5 => isset( $_GET['revision']) ? sprintf( __(' External connection restored to revision from %s', 'syndicate' ), wp_post_revision_title( (int) $_GET['revision'], false ) ) : false,
+		5 => isset( $_GET['revision'] ) ? sprintf( __( ' External connection restored to revision from %s', 'syndicate' ), wp_post_revision_title( (int) $_GET['revision'], false ) ) : false,
 		6 => esc_html__( 'External connection created.', 'syndicate' ),
 		7 => esc_html__( 'External connection saved.', 'syndicate' ),
 		8 => esc_html__( 'External connection submitted.', 'syndicate' ),
 		9 => sprintf( __( 'External connection scheduled for: <strong>%1$s</strong>.', 'syndicate' ),
-			date_i18n( __( 'M j, Y @ G:i' ), strtotime( $post->post_date ) ) ),
+		date_i18n( __( 'M j, Y @ G:i' ), strtotime( $post->post_date ) ) ),
 		10 => esc_html__( 'External connection draft updated.', 'syndicate' ),
 	);
 

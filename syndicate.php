@@ -30,7 +30,7 @@ spl_autoload_register( function( $class ) {
 	// does the class use the namespace prefix?
 	$len = strlen( $prefix );
 
-	if (strncmp( $prefix, $class, $len) !== 0 ) {
+	if ( strncmp( $prefix, $class, $len ) !== 0 ) {
 		return;
 	}
 

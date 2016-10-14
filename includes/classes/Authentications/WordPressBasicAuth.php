@@ -14,7 +14,6 @@ class WordPressBasicAuth extends Authentication {
 	public function __construct( $args ) {
 		parent::__construct( $args );
 
-
 		if ( isset( $this->password ) && isset( $this->username ) ) {
 			$this->base64_encoded = base64_encode( $this->username . ':' . $this->password );
 		}
@@ -26,8 +25,8 @@ class WordPressBasicAuth extends Authentication {
 
 	/**
 	 * Output credentials form for this auth type
-	 * 
-	 * @param  array  $args
+	 *
+	 * @param  array $args
 	 * @since  0.8
 	 */
 	static function credentials_form( $args = array() ) {
@@ -56,7 +55,7 @@ class WordPressBasicAuth extends Authentication {
 
 	/**
 	 * Prepare credentials for this auth type
-	 * 
+	 *
 	 * @param  array $args
 	 * @since  0.8
 	 * @return array
@@ -81,9 +80,9 @@ class WordPressBasicAuth extends Authentication {
 
 	/**
 	 * Add basic auth headers to get args
-	 * 
+	 *
 	 * @param  array $args
-	 * @param  array  $context
+	 * @param  array $context
 	 * @since  0.8
 	 * @return array
 	 */
@@ -101,9 +100,9 @@ class WordPressBasicAuth extends Authentication {
 
 	/**
 	 * Add basic auth headers to post args
-	 * 
+	 *
 	 * @param  array $args
-	 * @param  array  $context
+	 * @param  array $context
 	 * @since  0.8
 	 * @return array
 	 */

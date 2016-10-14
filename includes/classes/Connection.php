@@ -9,8 +9,8 @@ abstract class Connection {
 
 	/**
 	 * Push an item to a external connection
-	 * 
-	 * @param  int $item_id
+	 *
+	 * @param  int   $item_id
 	 * @param  array $args
 	 * @since  0.8
 	 * @return bool|WP_Error
@@ -19,7 +19,7 @@ abstract class Connection {
 
 	/**
 	 * Pull items
-	 * 
+	 *
 	 * @param  array $items
 	 * @since  0.8
 	 * @return bool|WP_Error
@@ -28,7 +28,7 @@ abstract class Connection {
 
 	/**
 	 * Get content from a connection
-	 * 
+	 *
 	 * @param  array $args
 	 * @since  0.8
 	 * @return array|WP_Error
@@ -45,7 +45,7 @@ abstract class Connection {
 
 	/**
 	 * This method is called on every page load. It's helpful for canonicalization
-	 * 
+	 *
 	 * @since  0.8
 	 */
 	static function bootstrap() {

@@ -122,8 +122,8 @@ class PullListTable extends \WP_List_Table {
 
 	/**
 	 * Output standard table columns (not name)
-	 * 
-	 * @param  array $item 
+	 *
+	 * @param  array  $item
 	 * @param  string $column_name
 	 * @since  0.8
 	 */
@@ -154,7 +154,7 @@ class PullListTable extends \WP_List_Table {
 
 	/**
 	 * Output name column wrapper
-	 * 
+	 *
 	 * @since 4.3.0
 	 * @access protected
 	 *
@@ -172,7 +172,7 @@ class PullListTable extends \WP_List_Table {
 
 	/**
 	 * Output inner name column with actions
-	 * 
+	 *
 	 * @param  WP_Post $item
 	 * @since  0.8
 	 */
@@ -347,5 +347,4 @@ class PullListTable extends \WP_List_Table {
 
 		return $actions;
 	}
-
 }
