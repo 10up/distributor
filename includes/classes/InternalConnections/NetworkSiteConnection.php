@@ -226,6 +226,25 @@ class NetworkSiteConnection extends Connection {
 		add_action( 'template_redirect', array( '\Syndicate\InternalConnections\NetworkSiteConnection', 'canonicalize_front_end' ) );
 		add_action( 'wp_ajax_sy_auth_check', array( '\Syndicate\InternalConnections\NetworkSiteConnection', 'auth_check' ) );
 		add_action( 'edit_form_top', array( '\Syndicate\InternalConnections\NetworkSiteConnection', 'canonical_admin_post' ) );
+		add_action( 'in_admin_footer', array( '\Syndicate\InternalConnections\NetworkSiteConnection', 'end_canonical_admin_post' ) );
+		add_filter( 'get_sample_permalink_html', array( '\Syndicate\InternalConnections\NetworkSiteConnection', 'fix_sample_permalink_html' ), 10, 1 );
+	}
+
+	/**
+	 * Fix permalink HTML to be for the correct blog
+	 * 
+	 * @param  string $permalink_html
+	 * @since  0.8
+	 * @return string
+	 */
+	public static function fix_sample_permalink_html( $permalink_html ) {
+		global $sy_original_post;
+
+		if ( ! empty( $sy_original_post ) && ! empty( $sy_original_post->permalink ) ) {
+			return sprintf( __( '<strong>Permalink:</strong> <a href="%s">%s</a>', 'syndicate' ), esc_url( $sy_original_post->permalink ), esc_url( $sy_original_post->permalink ) );
+		}
+
+		return $permalink_html;
 	}
 
 	/**
@@ -253,12 +272,26 @@ class NetworkSiteConnection extends Connection {
 	}
 
 	/**
+	 * Restore current blog and post after canonicalization in the admin
+	 *
+	 * @since 0.8
+	 */
+	public static function end_canonical_admin_post() {
+		global $sy_original_post, $post;
+
+		if ( ! empty( $sy_original_post ) ) {
+			restore_current_blog();
+			$post = $sy_original_post;
+		}
+	}
+
+	/**
 	 * Setup canonicalization on back end
 	 *
 	 * @since  0.8
 	 */
 	public static function canonical_admin_post() {
-		global $post, $pagenow;
+		global $post, $pagenow, $sy_original_post;
 
 		if ( 'post.php' !== $pagenow && 'post-new.php' !== $pagenow ) {
 	    	return;
@@ -277,9 +310,11 @@ class NetworkSiteConnection extends Connection {
 			return;
 		}
 
+		$sy_original_post = $post;
+		$sy_original_post->permalink = get_permalink( $post->ID );
+
 		switch_to_blog( $original_blog_id );
 		$post = get_post( $original_post_id );
-		restore_current_blog();
 	}
 
 	/**

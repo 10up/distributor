@@ -8,7 +8,7 @@ namespace Syndicate\SyndicatedPostUI;
  * @since 0.8
  */
 add_action( 'plugins_loaded', function() {
-	add_action( 'edit_form_top', __NAMESPACE__ . '\syndicated_message', 10, 1 );
+	add_action( 'edit_form_top', __NAMESPACE__ . '\syndicated_message', 9, 1 );
 	add_action( 'admin_enqueue_scripts', __NAMESPACE__  . '\admin_enqueue_scripts' );
 	add_action( 'admin_init', __NAMESPACE__  . '\unlink' );
 } );
