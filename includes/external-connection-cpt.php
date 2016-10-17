@@ -184,6 +184,14 @@ function admin_enqueue_scripts( $hook ) {
 
 		wp_enqueue_style( 'sy-admin-external-connections', plugins_url( $css_path, __DIR__ ), array(), SY_VERSION );
 	}
+
+	if ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) {
+		$css_path = '/assets/css/admin.css';
+	} else {
+		$css_path = '/assets/css/admin.min.css';
+	}
+
+	wp_enqueue_style( 'sy-admin', plugins_url( $css_path, __DIR__ ), array(), SY_VERSION );
 }
 
 /**
@@ -463,9 +471,9 @@ function dashboard() {
 	?>
 
 	<div class="wrap">
-		<h1><?php esc_html_e( 'External Connections', 'syndicate' ); ?> <a href="<?php echo esc_url( admin_url( 'post-new.php?post_type=sy_ext_connection' ) ); ?>" class="page-title-action"><?php esc_html_e( 'Add New', 'syndicate' ); ?></a></h1>
+		<h1><span class="beta"><?php esc_html_e( 'beta', 'syndicate' ); ?></span> <?php esc_html_e( 'External Connections', 'syndicate' ); ?> <a href="<?php echo esc_url( admin_url( 'post-new.php?post_type=sy_ext_connection' ) ); ?>" class="page-title-action"><?php esc_html_e( 'Add New', 'syndicate' ); ?></a></h1>
 		<div class="network-connections-notice">
-			<?php esc_html_e( 'Network sites are automatically available and do not need to be configured.', 'syndicate' ); ?>
+			<strong><?php esc_html_e( 'This feature is in beta and subject to change.', 'syndicate' ); ?></strong>
 		</div>
 
 
@@ -527,7 +535,7 @@ function add_menu_item() {
 function add_submenu_item() {
 	global $submenu;
 	unset( $submenu['syndicate'][0] );
-	add_submenu_page( 'syndicate', esc_html__( 'External Connections', 'syndicate' ), esc_html__( 'External Connections', 'syndicate' ), 'manage_options', 'syndicate' );
+	add_submenu_page( 'syndicate', esc_html__( 'External Connections', 'syndicate' ), '<span class="beta">' . esc_html__( 'beta', 'syndicate' ) . '</span>' . esc_html__( 'External Connections', 'syndicate' ), 'manage_options', 'syndicate' );
 }
 
 /**

@@ -280,7 +280,9 @@ function dashboard() {
 				<?php esc_html_e( 'Pull Content from', 'syndicate' ); ?>
 				<select id="pull_connections" name="connection" method="get">
 					<?php if ( ! empty( $internal_connection_group ) ) : ?>
-						<optgroup label="<?php esc_html_e( 'Network Connections', 'syndicate' ); ?>">
+						<?php if ( ! empty( $external_connection_group ) ) : ?>
+							<optgroup label="<?php esc_html_e( 'Network Connections', 'syndicate' ); ?>">
+						<?php endif; ?>
 							<?php foreach ( $internal_connection_group as $connection ) :
 								$selected = false;
 								$type = 'internal';
@@ -293,11 +295,15 @@ function dashboard() {
 								?>
 								<option <?php selected( true, $selected ); ?> data-pull-url="<?php echo esc_url( admin_url( 'admin.php?page=pull&connection_type=' . $type .'&connection_id=' . $id ) ); ?>"><?php echo esc_html( $name ); ?></option>
 							<?php endforeach; ?>
-						</optgroup>
+						<?php if ( ! empty( $external_connection_group ) ) : ?>
+							</optgroup>
+						<?php endif; ?>
 					<?php endif; ?>
 
 					<?php if ( ! empty( $external_connection_group ) ) : ?>
-						<optgroup label="<?php esc_html_e( 'External Connections', 'syndicate' ); ?>">
+						<?php if ( ! empty( $internal_connection_group ) ) : ?>
+							<optgroup label="<?php esc_html_e( 'External Connections (beta)', 'syndicate' ); ?>">
+						<?php endif; ?>
 							<?php foreach ( $external_connection_group as $connection ) :
 								$type = 'external';
 								$selected = false;
@@ -310,7 +316,9 @@ function dashboard() {
 								?>
 								<option <?php selected( true, $selected ); ?> data-pull-url="<?php echo esc_url( admin_url( 'admin.php?page=pull&connection_type=' . $type .'&connection_id=' . $id ) ); ?>"><?php echo esc_html( $name ); ?></option>
 							<?php endforeach; ?>
-						</optgroup>
+						<?php if ( ! empty( $internal_connection_group ) ) : ?>
+							</optgroup>
+						<?php endif; ?>
 					<?php endif; ?>
 				</select>
 			<?php endif; ?>
