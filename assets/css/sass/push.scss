@@ -126,7 +126,7 @@ $background-color-dark: #23282d;
 	}
 }
 
-.syndicate-push-wrapper input {
+.syndicate-push-wrapper input[type=text] {
 	font-size: inherit;
 	padding: 0.5278em;
     width: 100%;
@@ -244,16 +244,16 @@ $background-color-dark: #23282d;
 	content: ' ';
 	vertical-align: middle;
 	border-radius: 50%;
-	width: .8em;
+	width: 6px;
 	margin-left: 8px;
-	height: .8em;
+	height: 6px;
 	display: inline-block;
 	font-size: 9px;
 	text-indent: -9999em;
-	border-top: .5em solid #cfcfcf;
-	border-right: .5em solid #cfcfcf;
-	border-bottom: .5em solid #cfcfcf;
-	border-left: .5em solid darken(#0085ba, 5%);
+	border-top: 3px solid #cfcfcf;
+	border-right: 3px solid #cfcfcf;
+	border-bottom: 3px solid #cfcfcf;
+	border-left: 3px solid darken(#0085ba, 5%);
 	-webkit-transform: translateZ(0);
 	-ms-transform: translateZ(0);
 	transform: translateZ(0);
