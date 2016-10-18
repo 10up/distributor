@@ -153,3 +153,19 @@
 		text-decoration: none;
 	}
 }
+
+.post-type-sy_ext_connection h1:before {
+	background-color: #0073aa;
+	border-radius: 6px;
+	color: #fff;
+	display: inline-block;
+	font-family: Arial, sans-serif;
+	font-size: 13px;
+	line-height: 13px;
+	padding: 5px 10px;
+	text-transform: uppercase;
+	margin-right: 8px;
+	vertical-align: middle;
+	margin-bottom: 2px;
+	content: 'beta';
+}
