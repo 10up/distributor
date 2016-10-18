@@ -327,6 +327,12 @@ function dashboard() {
 			<?php endif; ?>
 		</h1>
 
+		<?php if ( ! empty( $connection_now ) && is_a( $connection_now, '\Syndicate\ExternalConnection' ) ) : ?>
+			<div class="network-connections-notice">
+				<strong><?php esc_html_e( "External connections are in beta. We can't push or pull meta data or images from external websites.", 'syndicate' ); ?></strong>
+			</div>
+		<?php endif; ?>
+
 		<?php if ( ! empty( $sy_pull_messages ) && ! empty( $sy_pull_messages['skipped'] ) ) : ?>
 			<div id="message" class="updated notice is-dismissible">
 				<p><?php esc_html_e( 'Post(s) have been marked as skipped.', 'syndicate' ); ?></p>

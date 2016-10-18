@@ -9,6 +9,8 @@ class PullListTable extends \WP_List_Table {
 	 */
 	public $connection_objects = array();
 
+	public $sync_log = [];
+
 	/**
 	 * Initialize pull table
 	 *
@@ -64,8 +66,8 @@ class PullListTable extends \WP_List_Table {
 
 		$status_links = [
 			'new' => sprintf( __( '<a href="%s" class="%s">New</a>', 'syndicate' ), esc_url( $_SERVER['REQUEST_URI'] . '&status=new' ), ( 'new' === $current_status ) ? 'current' : '' ),
-			'syndicated' => sprintf( __( '<a href="%s" class="%s">Pulled</a>', 'syndicate' ), esc_url( $_SERVER['REQUEST_URI'] . '&status=sync' ), ( 'sync' === $current_status ) ? 'current' : '' ),
-			'skipped' => sprintf( __( '<a href="%s" class="%s">Skipped</a>', 'syndicate' ), esc_url( $_SERVER['REQUEST_URI'] . '&status=skip' ), ( 'skip' === $current_status ) ? 'current' : '' ),
+			'pulled' => sprintf( __( '<a href="%s" class="%s">Pulled</a>', 'syndicate' ), esc_url( $_SERVER['REQUEST_URI'] . '&status=pulled' ), ( 'pulled' === $current_status ) ? 'current' : '' ),
+			'skipped' => sprintf( __( '<a href="%s" class="%s">Skipped</a>', 'syndicate' ), esc_url( $_SERVER['REQUEST_URI'] . '&status=skipped' ), ( 'skipped' === $current_status ) ? 'current' : '' ),
 		];
 
 		return $status_links;
@@ -133,39 +135,62 @@ class PullListTable extends \WP_List_Table {
 	public function column_date( $post ) {
 		global $mode;
 
-		if ( '0000-00-00 00:00:00' === $post->post_date ) {
-			$t_time = $h_time = __( 'Unpublished' );
-			$time_diff = 0;
-		} else {
-			$t_time = get_the_time( __( 'Y/m/d g:i:s a' ) );
-			$m_time = $post->post_date;
-			$time = get_post_time( 'G', true, $post );
+		if ( ! empty( $_GET['status'] ) && 'pulled' === $_GET['status'] ) {
+			if ( ! empty( $this->sync_log[ $post->ID ] ) ) {
+				$syndicated_at = get_post_meta( $this->sync_log[ $post->ID ], 'sy_syndicate_time', true );
+				
+				if ( empty( $syndicated_at ) ) {
+					esc_html_e( 'Post deleted.', 'syndicate' );
+				} else {
+					$t_time = get_the_time( __( 'Y/m/d g:i:s a' ) );
 
-			$time_diff = time() - $time;
+					$time_diff = time() - $syndicated_at;
 
-			if ( $time_diff > 0 && $time_diff < DAY_IN_SECONDS ) {
-				$h_time = sprintf( __( '%s ago' ), human_time_diff( $time ) );
-			} else {
-				$h_time = mysql2date( __( 'Y/m/d' ), $m_time );
-			}
-		}
+					if ( $time_diff > 0 && $time_diff < DAY_IN_SECONDS ) {
+						$h_time = sprintf( __( '%s ago' ), human_time_diff( $syndicated_at ) );
+					} else {
+						$h_time = date( 'F j, Y', $syndicated_at );
+					}
 
-		if ( 'publish' === $post->post_status ) {
-			_e( 'Published' );
-		} elseif ( 'future' === $post->post_status ) {
-			if ( $time_diff > 0 ) {
-				echo '<strong class="error-message">' . __( 'Missed schedule' ) . '</strong>';
-			} else {
-				_e( 'Scheduled' );
+					echo sprintf( __( 'Pulled %s', 'syndicate' ), esc_html( $h_time ) );
+				}
 			}
 		} else {
-			_e( 'Last Modified' );
-		}
-		echo '<br />';
-		if ( 'excerpt' === $mode ) {
-			echo apply_filters( 'post_date_column_time', $t_time, $post, 'date', $mode );
-		} else {
-			echo '<abbr title="' . $t_time . '">' . apply_filters( 'post_date_column_time', $h_time, $post, 'date', $mode ) . '</abbr>';
+			if ( '0000-00-00 00:00:00' === $post->post_date ) {
+				$t_time = $h_time = __( 'Unpublished' );
+				$time_diff = 0;
+			} else {
+				$t_time = get_the_time( __( 'Y/m/d g:i:s a' ) );
+				$m_time = $post->post_date;
+				$time = get_post_time( 'G', true, $post );
+
+				$time_diff = time() - $time;
+
+				if ( $time_diff > 0 && $time_diff < DAY_IN_SECONDS ) {
+					$h_time = sprintf( __( '%s ago' ), human_time_diff( $time ) );
+				} else {
+					$h_time = mysql2date( __( 'Y/m/d' ), $m_time );
+				}
+			}
+
+
+			if ( 'publish' === $post->post_status ) {
+				_e( 'Published' );
+			} elseif ( 'future' === $post->post_status ) {
+				if ( $time_diff > 0 ) {
+					echo '<strong class="error-message">' . __( 'Missed schedule' ) . '</strong>';
+				} else {
+					_e( 'Scheduled' );
+				}
+			} else {
+				_e( 'Last Modified' );
+			}
+			echo '<br />';
+			if ( 'excerpt' === $mode ) {
+				echo apply_filters( 'post_date_column_time', $t_time, $post, 'date', $mode );
+			} else {
+				echo '<abbr title="' . $t_time . '">' . apply_filters( 'post_date_column_time', $h_time, $post, 'date', $mode ) . '</abbr>';
+			}
 		}
 	}
 
@@ -234,11 +259,9 @@ class PullListTable extends \WP_List_Table {
 		if ( is_a( $connection_now, '\Syndicate\ExternalConnection' ) ) {
 			$connection_type = 'external';
 			$connection_id = $connection_now->id;
-			$sync_log = get_post_meta( $connection_now->id, 'sy_sync_log', true );
 		} else {
 			$connection_type = 'internal';
 			$connection_id = $connection_now->site->blog_id;
-			$sync_log = get_site_option( 'sy_sync_log_' . $connection_now->site->blog_id, array() );
 		}
 
 		if ( empty( $sync_map ) ) {
@@ -257,13 +280,13 @@ class PullListTable extends \WP_List_Table {
 				'view' => '<a href="' . esc_url( $item->link ) . '">' . esc_html__( 'View', 'syndicate' ) . '</a>',
 				'skip' => sprintf( '<a href="%s">%s</a>', esc_url( wp_nonce_url( admin_url( 'admin.php?page=pull&action=skip&_wp_http_referer=' . urlencode( $_SERVER['REQUEST_URI'] ) . '&post=' . $item->ID . '&connection_type=' . $connection_type . '&connection_id=' . $connection_id ), 'sy_skip' ) ), esc_html__( 'Skip', 'syndicate' ) ),
 			];
-		} elseif ( 'skip' === $_GET['status'] ) {
+		} elseif ( 'skipped' === $_GET['status'] ) {
 			$actions = [
 				'view' => '<a href="' . esc_url( $item->link ) . '">' . esc_html__( 'View', 'syndicate' ) . '</a>',
 			];
-		} elseif ( 'sync' === $_GET['status'] ) {
+		} elseif ( 'pulled' === $_GET['status'] ) {
 
-			$new_post_id = ( ! empty( $sync_log[ (int) $item->ID ] ) ) ? $sync_log[ (int) $item->ID ] : 0;
+			$new_post_id = ( ! empty( $this->sync_log[ (int) $item->ID ] ) ) ? $this->sync_log[ (int) $item->ID ] : 0;
 			$new_post = get_post( $new_post_id );
 
 			if ( ! empty( $new_post ) ) {
@@ -314,19 +337,19 @@ class PullListTable extends \WP_List_Table {
 		}
 
 		if ( is_a( $connection_now, '\Syndicate\ExternalConnection' ) ) {
-			$sync_log = get_post_meta( $connection_now->id, 'sy_sync_log', true );
+			$this->sync_log = get_post_meta( $connection_now->id, 'sy_sync_log', true );
 		} else {
-			$sync_log = get_site_option( 'sy_sync_log_' . $connection_now->site->blog_id, array() );
+			$this->sync_log = get_site_option( 'sy_sync_log_' . $connection_now->site->blog_id, array() );
 		}
 
-		if ( empty( $sync_log ) ) {
-			$sync_log = array();
+		if ( empty( $this->sync_log ) ) {
+			$this->sync_log = [];
 		}
 
 		$skipped = array();
 		$syndicated = array();
 
-		foreach ( $sync_log as $old_post_id => $new_post_id ) {
+		foreach ( $this->sync_log as $old_post_id => $new_post_id ) {
 			if ( false === $new_post_id ) {
 				$skipped[] = (int) $old_post_id;
 			} else {
@@ -336,7 +359,7 @@ class PullListTable extends \WP_List_Table {
 
 		if ( empty( $_GET['status'] ) || 'new' === $_GET['status'] ) {
 			$remote_get_args['post__not_in'] = array_merge( $skipped, $syndicated );
-		} elseif ( 'skip' === $_GET['status'] ) {
+		} elseif ( 'skipped' === $_GET['status'] ) {
 			$remote_get_args['post__in'] = $skipped;
 		} else {
 			$remote_get_args['post__in'] = $syndicated;
@@ -384,7 +407,7 @@ class PullListTable extends \WP_List_Table {
 				'bulk-syndicate' => esc_html__( 'Syndicate', 'syndicate' ),
 				'bulk-skip' => esc_html__( 'Skip', 'syndicate' ),
 			];
-		} elseif ( 'skip' === $_GET['status'] ) {
+		} elseif ( 'skipped' === $_GET['status'] ) {
 			$actions = [
 				'bulk-syndicate' => esc_html__( 'Syndicate', 'syndicate' ),
 			];
