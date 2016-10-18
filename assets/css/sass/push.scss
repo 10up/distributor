@@ -36,7 +36,26 @@ $background-color-dark: #23282d;
 	#wp-admin-bar-syndicate a {
 		background: #32373c;
 	    color: #00b9eb;
+
+	    &:before {
+			display: inline-block;
+			width: 20px;
+			height: 20px;
+			font-size: 20px;
+			line-height: 1;
+			font-family: dashicons;
+			text-decoration: inherit;
+			font-weight: normal;
+			content: "\f242";
+	    }
 	}
+}
+
+#wp-admin-bar-syndicate a:before {
+	display: inline-block;
+	top: 2px;
+	font-family: dashicons;
+	content: "\f242";
 }
 
 .syndicate-push-wrapper .inner {
