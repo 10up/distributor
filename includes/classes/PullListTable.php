@@ -64,7 +64,7 @@ class PullListTable extends \WP_List_Table {
 
 		$status_links = [
 			'new' => sprintf( __( '<a href="%s" class="%s">New</a>', 'syndicate' ), esc_url( $_SERVER['REQUEST_URI'] . '&status=new' ), ( 'new' === $current_status ) ? 'current' : '' ),
-			'syndicated' => sprintf( __( '<a href="%s" class="%s">Syndicated</a>', 'syndicate' ), esc_url( $_SERVER['REQUEST_URI'] . '&status=sync' ), ( 'sync' === $current_status ) ? 'current' : '' ),
+			'syndicated' => sprintf( __( '<a href="%s" class="%s">Pulled</a>', 'syndicate' ), esc_url( $_SERVER['REQUEST_URI'] . '&status=sync' ), ( 'sync' === $current_status ) ? 'current' : '' ),
 			'skipped' => sprintf( __( '<a href="%s" class="%s">Skipped</a>', 'syndicate' ), esc_url( $_SERVER['REQUEST_URI'] . '&status=skip' ), ( 'skip' === $current_status ) ? 'current' : '' ),
 		];
 
