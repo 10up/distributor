@@ -72,6 +72,55 @@ class PullListTable extends \WP_List_Table {
 	}
 
 	/**
+	 * Display the bulk actions dropdown.
+	 *
+	 * @since 3.1.0
+	 * @access protected
+	 *
+	 * @param string $which The location of the bulk actions: 'top' or 'bottom'.
+	 *                      This is designated as optional for backward compatibility.
+	 */
+	protected function bulk_actions( $which = '' ) {
+		if ( is_null( $this->_actions ) ) {
+			$no_new_actions = $this->_actions = $this->get_bulk_actions();
+			/**
+			 * Filters the list table Bulk Actions drop-down.
+			 *
+			 * The dynamic portion of the hook name, `$this->screen->id`, refers
+			 * to the ID of the current screen, usually a string.
+			 *
+			 * This filter can currently only be used to remove bulk actions.
+			 *
+			 * @since 3.5.0
+			 *
+			 * @param array $actions An array of the available bulk actions.
+			 */
+			$this->_actions = apply_filters( "bulk_actions-{$this->screen->id}", $this->_actions );
+			$this->_actions = array_intersect_assoc( $this->_actions, $no_new_actions );
+			$two = '';
+		} else {
+			$two = '2';
+		}
+
+		if ( empty( $this->_actions ) )
+			return;
+
+		echo '<label for="bulk-action-selector-' . esc_attr( $which ) . '" class="screen-reader-text">' . __( 'Select bulk action' ) . '</label>';
+		echo '<select name="action' . $two . '" id="bulk-action-selector-' . esc_attr( $which ) . "\">\n";
+		
+		foreach ( $this->_actions as $name => $title ) {
+			$class = 'edit' === $name ? ' class="hide-if-no-js"' : '';
+
+			echo "\t" . '<option value="' . $name . '"' . $class . '>' . $title . "</option>\n";
+		}
+
+		echo "</select>\n";
+
+		submit_button( __( 'Apply' ), 'action', '', false, array( 'id' => "doaction$two" ) );
+		echo "\n";
+	}
+
+	/**
 	 * Handles the post date column output.
 	 *
 	 * @since 4.3.0
@@ -206,13 +255,11 @@ class PullListTable extends \WP_List_Table {
 		if ( empty( $_GET['status'] ) || 'new' === $_GET['status'] ) {
 			$actions = [
 				'view' => '<a href="' . esc_url( $item->link ) . '">' . esc_html__( 'View', 'syndicate' ) . '</a>',
-				'syndicate' => sprintf( '<a href="%s">%s</a>', esc_url( wp_nonce_url( admin_url( 'admin.php?page=pull&_wp_http_referer=' . urlencode( $_SERVER['REQUEST_URI'] ) . '&action=syndicate&post=' . $item->ID . '&connection_type=' . $connection_type . '&connection_id=' . $connection_id ), 'sy_syndicate' ) ), esc_html__( 'Syndicate', 'syndicate' ) . $as_draft ),
 				'skip' => sprintf( '<a href="%s">%s</a>', esc_url( wp_nonce_url( admin_url( 'admin.php?page=pull&action=skip&_wp_http_referer=' . urlencode( $_SERVER['REQUEST_URI'] ) . '&post=' . $item->ID . '&connection_type=' . $connection_type . '&connection_id=' . $connection_id ), 'sy_skip' ) ), esc_html__( 'Skip', 'syndicate' ) ),
 			];
 		} elseif ( 'skip' === $_GET['status'] ) {
 			$actions = [
 				'view' => '<a href="' . esc_url( $item->link ) . '">' . esc_html__( 'View', 'syndicate' ) . '</a>',
-				'syndicate' => sprintf( '<a href="%s">%s</a>', esc_url( wp_nonce_url( admin_url( 'admin.php?page=pull&_wp_http_referer=' . urlencode( $_SERVER['REQUEST_URI'] ) . '&action=syndicate&post=' . $item->ID . '&connection_type=' . $connection_type . '&connection_id=' . $connection_id ), 'sy_syndicate' ) ), esc_html__( 'Syndicate', 'syndicate' ) . $as_draft ),
 			];
 		} elseif ( 'sync' === $_GET['status'] ) {
 

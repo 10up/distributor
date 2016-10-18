@@ -473,7 +473,7 @@ function dashboard() {
 	<div class="wrap">
 		<h1><span class="beta"><?php esc_html_e( 'beta', 'syndicate' ); ?></span> <?php esc_html_e( 'External Connections', 'syndicate' ); ?> <a href="<?php echo esc_url( admin_url( 'post-new.php?post_type=sy_ext_connection' ) ); ?>" class="page-title-action"><?php esc_html_e( 'Add New', 'syndicate' ); ?></a></h1>
 		<div class="network-connections-notice">
-			<strong><?php esc_html_e( 'This feature is in beta and subject to change.', 'syndicate' ); ?></strong>
+			<strong><?php esc_html_e( "This feature is in beta. We can't push or pull meta data.", 'syndicate' ); ?></strong>
 		</div>
 
 
