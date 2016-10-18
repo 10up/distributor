@@ -68,7 +68,7 @@ function syndicated_message( $post ) {
 	?>
 	<div class="updated syndicate-status">
 		<p>
-			<?php echo sprintf( __( 'Reposted from <a href="%s">%s</a>.', 'syndicate' ), esc_url( $post_url ), esc_html( $blog_name ) ); ?> 
+			<?php echo sprintf( __( 'Syndicated from <a href="%s">%s</a>.', 'syndicate' ), esc_url( $post_url ), esc_html( $blog_name ) ); ?> 
 			<span><?php echo sprintf( __( 'The original post will update this version unless you <a href="%s">unlink from the original.</a>', 'syndicate' ), wp_nonce_url( add_query_arg( 'action', 'unlink', admin_url( sprintf( $post_type_object->_edit_link, $post->ID ) ) ), "unlink-post_{$post->ID}" ) ); ?></span>
 		</p>
 	</div>

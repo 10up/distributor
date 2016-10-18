@@ -115,11 +115,15 @@ class NetworkSiteConnection extends Connection {
 			if ( ! is_wp_error( $new_post ) ) {
 				update_post_meta( $new_post, 'sy_original_post_id', (int) $item_id );
 				update_post_meta( $new_post, 'sy_original_blog_id', (int) $this->site->blog_id );
+				update_post_meta( $new_post, 'sy_syndicate_time', time() );
+				$blacklisted_meta = [ 'sy_unlinked', 'sy_original_post_id', 'sy_original_blog_id', 'sy_syndicate_time' ];
 
 				// Transfer meta
 				foreach ( $post->meta as $meta_key => $meta_array ) {
 					foreach ( $meta_array as $meta ) {
-						update_post_meta( $new_post, $meta_key, $meta );
+						if ( ! in_array( $meta_key, $blacklisted_meta ) ) {
+							update_post_meta( $new_post, $meta_key, $meta );
+						}
 					}
 				}
 			}
