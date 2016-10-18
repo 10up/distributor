@@ -260,7 +260,8 @@ $background-color-dark: #23282d;
 	-webkit-animation: load8 1.1s infinite linear;
 	animation: load8 1.1s infinite linear;
 	position: relative;
-	top: -1px
+	top: -1px;
+	box-sizing: initial;
 }
 
 .syndicate-push-wrapper .messages {
