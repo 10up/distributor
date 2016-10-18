@@ -93,11 +93,14 @@ function admin_enqueue_scripts( $hook ) {
 
 	if ( defined( SCRIPT_DEBUG ) && SCRIPT_DEBUG ) {
 		$js_path = '/assets/js/src/admin-pull.js';
+		$css_path = '/assets/css/admin-pull-table.css';
 	} else {
 		$js_path = '/assets/js/admin-pull.min.js';
+		$css_path = '/assets/css/admin-pull-table.min.css';
 	}
 
 	wp_enqueue_script( 'sy-admin-pull', plugins_url( $js_path, __DIR__ ), array( 'jquery' ), SY_VERSION, true );
+	wp_enqueue_style( 'sy-admin-pull', plugins_url( $css_path, __DIR__ ), array(), SY_VERSION );
 }
 
 /**
@@ -338,7 +341,7 @@ function dashboard() {
 
 		<?php $connection_list_table->views(); ?>
 
-		<form id="posts-filter" method="get">
+		<form id="posts-filter" class="status-<?php echo ( ! empty( $_GET['status'] ) ) ? esc_attr( $_GET['status'] ) : 'new'; ?>" method="get">
 			<input type="hidden" name="connection_type" value="<?php echo esc_attr( $connection_type ); ?>">
 			<input type="hidden" name="connection_id" value="<?php echo esc_attr( $connection_id ); ?>">
 			<input type="hidden" name="page" value="pull">
