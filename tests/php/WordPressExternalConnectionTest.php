@@ -123,6 +123,53 @@ class WordPressExternalConnectionTest extends \TestCase {
 		\WP_Mock::userFunction( 'wp_remote_retrieve_response_code' );
 
 		$this->assertTrue( is_array( $this->connection->pull( [] ) ) );
+	/**
+	 * Handles mocking the correct remote request to receive a WP_Post instance.
+	 *
+	 * @since  0.8
+	 * @group ExternalConnection
+	 */
+	public function test_remote_get(){
+
+		\WP_Mock::userFunction( 'get_option' );
+
+		$post_type = 'some_post_type';
+		$links = [
+			'_links' => [
+				'wp:items' => [
+					0 => [
+						'href' => 'http://url.com',
+					],
+				],
+			]
+		];
+
+		\WP_Mock::userFunction( 'wp_remote_get', [
+			'return' => json_encode( [
+				$post_type => $links,
+			] )
+        ] );
+
+        \WP_Mock::userFunction( 'wp_remote_retrieve_body', [
+        	'return' => json_encode( [
+				'id'           => 123,
+				'title'        => ['rendered' => 'My post title'],
+				'content'      => ['rendered' => '',],
+				'date'         => '',
+				'date_gmt'     => '',
+				'guid'         => ['rendered' => '',],
+				'modified'     => '',
+				'modified_gmt' => '',
+				'type'         => '',
+				'link'         => '',
+				$post_type     => $links,
+			] )
+        ] );
+
+        $this->assertInstanceOf( \WP_Post::class, $this->connection->remote_get([
+			'id'        => 111,
+			'post_type' => $post_type
+		] ) );
 
 	}
 }
