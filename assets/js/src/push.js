@@ -1,7 +1,25 @@
 (function($) {
 
+	'use strict';
+
 	var selectedConnections = {},
 		searchString = '';
+
+	var processTemplate = _.memoize( function( id ) {
+		var element = document.getElementById( id );
+		if (!element) {
+			return false;
+		}
+
+		// Use WordPress style Backbone template syntax
+		var options = {
+			evaluate:    /<#([\s\S]+?)#>/g,
+			interpolate: /\{\{\{([\s\S]+?)\}\}\}/g,
+			escape:      /\{\{([^\}]+?)\}\}(?!\})/g
+		};
+
+		return _.template( element.innerHTML, null, options );
+	});
 
 	$(window).load(function() {
 		var syndicateMenuItem = document.querySelector('#wp-admin-bar-syndicate a');
@@ -81,28 +99,12 @@
 					}
 				}
 
-				var showConnection = document.createElement('a');
+				var showConnection = processTemplate('sy-add-connection')({
+					connection: connection,
+					selected: selectedConnections[connection.type + connection.id]
+				});
 
-				if ('external' === sy_connections[id].type) {
-					showConnection.innerText = connection.name;
-				} else {
-					showConnection.innerText = connection.url;
-				}
-
-				showConnection.setAttribute('data-connection-type', connection.type);
-				showConnection.setAttribute('data-connection-id', connection.id);
-
-				if (selectedConnections[connection.type + connection.id]) {
-					showConnection.classList.add('added');
-				}
-
-				showConnection.classList.add('add-connection');
-
-				if (connection.syndicated) {
-					showConnection.classList.add('syndicated');
-				}
-
-				connectionsNewList.appendChild(showConnection);
+				connectionsNewList.innerHTML += showConnection;
 			});
 		}
 
@@ -165,6 +167,10 @@
 		 * Add a connection to selected connections for ajax and to the UI list.
 		 */
 		$(syndicatePushWrapper).on('click', '.add-connection', function(event) {
+			if ('A' === event.target.nodeName) {
+				return;
+			}
+			
 			event.preventDefault();
 
 			if (event.currentTarget.classList.contains('syndicated')) {

@@ -191,7 +191,7 @@ $background-color-dark: #23282d;
 	}
 }
 
-.syndicate-push-wrapper .new-connections-list a:nth-child(odd) {
+.syndicate-push-wrapper .new-connections-list > div:nth-child(odd) {
 	background-color: $background-color-dark;
 }
 
@@ -210,9 +210,18 @@ $background-color-dark: #23282d;
 }
 
 .syndicate-push-wrapper .add-connection.syndicated {
+	cursor: default;
+}
+
+.syndicate-push-wrapper .add-connection.syndicated span {
 	text-decoration: line-through;
 	color: $border-color;
-	cursor: default;
+}
+
+.syndicate-push-wrapper .add-connection.syndicated a {
+	color: inherit;
+	text-decoration: underline;
+	float: right;
 }
 
 .syndicate-push-wrapper .add-connection[data-connection-type="external"]:after,
