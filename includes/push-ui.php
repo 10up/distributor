@@ -121,10 +121,6 @@ function ajax_push() {
 					$push_args['remote_post_id'] = (int) $connection_map['external'][ (int) $connection['id'] ]['post_id'];
 				}
 
-				if ( ! empty( $_POST['draft'] ) && '1' === $_POST['draft'] ) {
-					$push_args['post_status'] = 'draft';
-				}
-
 				$remote_id = $external_connection->push( $_POST['post_id'], $push_args );
 
 				/**
@@ -156,10 +152,6 @@ function ajax_push() {
 
 			if ( ! empty( $connection_map['internal'][ (int) $connection['id'] ] ) && ! empty( $connection_map['internal'][ (int) $connection['id'] ]['post_id'] ) ) {
 				$push_args['remote_post_id'] = (int) $connection_map['internal'][ (int) $connection['id'] ]['post_id'];
-			}
-
-			if ( ! empty( $_POST['draft'] ) && '1' === $_POST['draft'] ) {
-				$push_args['post_status'] = 'draft';
 			}
 
 			$remote_id = $internal_connection->push( $_POST['post_id'], $push_args );
@@ -405,7 +397,6 @@ function menu_content() {
 
 					<div class="action-wrapper">
 						<button class="syndicate-button"><?php esc_html_e( 'Syndicate', 'syndicate' ); ?></button>
-						<label for="syndicate-as-draft" class="as-draft"><input type="checkbox" id="syndicate-as-draft"> <?php esc_html_e( 'As draft', 'syndicate' ); ?></label>
 					</div>
 				</div>
 

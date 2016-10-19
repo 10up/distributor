@@ -28,7 +28,6 @@
 		var connectionsSelectedList = connectionsSelected.querySelector('.selected-connections-list');
 		var connectionsNewList = syndicatePushWrapper.querySelector('.new-connections-list');
 		var connectionsSearchInput = document.getElementById('sy-connection-search');
-		var asDraftInput = document.getElementById('syndicate-as-draft');
 		var syndicateButton = syndicatePushWrapper.querySelector('.syndicate-button');
 		var actionWrapper = syndicatePushWrapper.querySelector('.action-wrapper');
 
@@ -123,7 +122,6 @@
 				method: 'post',
 				data: {
 					action: 'sy_push',
-					draft: (asDraftInput.checked) ? 1 : 0,
 					nonce: sy.nonce,
 					connections: selectedConnections,
 					post_id: sy.post_id
@@ -170,7 +168,7 @@
 			if ('A' === event.target.nodeName) {
 				return;
 			}
-			
+
 			event.preventDefault();
 
 			if (event.currentTarget.classList.contains('syndicated')) {
