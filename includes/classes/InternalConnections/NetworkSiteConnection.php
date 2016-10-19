@@ -308,6 +308,7 @@ class NetworkSiteConnection extends Connection {
 
 	    $original_blog_id = get_post_meta( $post->ID, 'sy_original_blog_id', true );
 		$original_post_id = get_post_meta( $post->ID, 'sy_original_post_id', true );
+		$syndicate_time = get_post_meta( $post->ID, 'sy_syndicate_time', true );
 
 		if ( empty( $original_post_id ) || empty( $original_blog_id ) ) {
 			return;
@@ -321,6 +322,7 @@ class NetworkSiteConnection extends Connection {
 
 		$sy_original_post = $post;
 		$sy_original_post->permalink = get_permalink( $post->ID );
+		$sy_original_post->syndicate_time = $syndicate_time;
 
 		switch_to_blog( $original_blog_id );
 		$post = get_post( $original_post_id );

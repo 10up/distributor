@@ -1,1 +1,1 @@
-#content_ifr,.button,button,input,select,textarea{opacity:.5;pointer-events:none;cursor:default}#set-post-thumbnail{display:none}
+.linked-post #content_ifr,.linked-post .button,.linked-post button,.linked-post input,.linked-post select,.linked-post textarea{opacity:.5;pointer-events:none;cursor:default}.linked-post #set-post-thumbnail{display:none}#syndicate-time:before{content:"\f242";font:400 20px/1 dashicons;speak:none;display:inline-block;padding:0 4px 0 0;left:-1px;position:relative;vertical-align:top;-webkit-font-smoothing:antialiased;top:-1px;color:#82878c}

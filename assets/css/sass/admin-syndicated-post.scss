@@ -1,14 +1,32 @@
-input,
-select,
-button,
-textarea,
-#content_ifr,
-.button {
-	opacity: .5;
-	pointer-events: none;
-	cursor: default;
+.linked-post {
+	input,
+	select,
+	button,
+	textarea,
+	#content_ifr,
+	.button {
+		opacity: .5;
+		pointer-events: none;
+		cursor: default;
+	}
+
+	#set-post-thumbnail {
+		display: none;
+	}
 }
 
-#set-post-thumbnail {
-	display: none;
+#syndicate-time:before {
+	content: "\f242";
+	font-family: dashicons;
+	font: normal 20px/1 dashicons;
+	speak: none;
+	display: inline-block;
+	padding: 0 4px 0 0;
+	top: 0;
+	left: -1px;
+	position: relative;
+	vertical-align: top;
+	-webkit-font-smoothing: antialiased;
+	top: -1px;
+	color: #82878c;
 }
