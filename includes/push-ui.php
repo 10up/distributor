@@ -347,7 +347,7 @@ function menu_content() {
 	</script>
 
 	<script id="sy-add-connection" type="text/html">
-		<div class="add-connection <# if (connection.syndicated) { #>syndicated<# } #>" data-connection-type="{{ connection.type }}" data-connection-id="{{ connection.id }}">
+		<div class="<# if (selectedConnections[connection.type + connection.id]) { #>added<# }#> add-connection <# if (connection.syndicated) { #>syndicated<# } #>" data-connection-type="{{ connection.type }}" data-connection-id="{{ connection.id }}">
 			<# if ('internal' === connection.type) { #>
 				<span>{{ connection.url }}</span>
 			<# } else { #>

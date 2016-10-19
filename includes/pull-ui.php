@@ -341,7 +341,7 @@ function dashboard() {
 
 		<?php if ( ! empty( $sy_pull_messages ) && ! empty( $sy_pull_messages['syndicated'] ) ) : ?>
 			<div id="message" class="updated notice is-dismissible">
-				<p><?php esc_html_e( 'Post(s) have been syndicated.', 'syndicate' ); ?></p>
+				<p><?php esc_html_e( 'Post(s) have been pulled.', 'syndicate' ); ?></p>
 			</div>
 		<?php endif; ?>
 

@@ -100,7 +100,7 @@
 
 				var showConnection = processTemplate('sy-add-connection')({
 					connection: connection,
-					selected: selectedConnections[connection.type + connection.id]
+					selectedConnections: selectedConnections
 				});
 
 				connectionsNewList.innerHTML += showConnection;

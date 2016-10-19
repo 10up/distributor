@@ -80,6 +80,28 @@ function syndication_date( $post ) {
 }
 
 /**
+ * Repush an already pushed post
+ * 
+ * @param  int $post_id
+ * @since  0.8
+ */
+function repush( $post_id ) {
+	$original_blog_id = get_post_meta( $post_id, 'sy_original_blog_id', true );
+	$original_post_id = get_post_meta( $post_id, 'sy_original_post_id', true );
+
+	$current_blog = get_current_blog_id();
+
+	switch_to_blog( $original_blog_id );
+
+	$connection = new \Syndicate\InternalConnections\NetworkSiteConnection( get_site( $current_blog ) );
+	$connection->push( $original_post_id, [
+		'remote_post_id' => $post_id,
+	] );
+
+	restore_current_blog();
+}
+
+/**
  * Unlink post
  *
  * @since  0.8
@@ -94,6 +116,8 @@ function unlink() {
 	}
 
 	update_post_meta( $_GET['post'], 'sy_unlinked', true );
+
+	repush( $_GET['post'] );
 
 	wp_redirect( admin_url( 'post.php?action=edit&post=' . $_GET['post'] ) );
 	exit;
@@ -114,6 +138,8 @@ function link() {
 	}
 
 	update_post_meta( $_GET['post'], 'sy_unlinked', false );
+
+	repush( $_GET['post'] );
 
 	wp_redirect( admin_url( 'post.php?action=edit&post=' . $_GET['post'] ) );
 	exit;
