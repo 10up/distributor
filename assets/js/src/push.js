@@ -52,7 +52,7 @@
 				if ('fail' === result.status) {
 					error = true;
 				} else {
-					sy_connections['internal' + connectionId].syndicated = true;
+					sy_connections['internal' + connectionId].syndicated = result.url;
 				}
 			});
 
