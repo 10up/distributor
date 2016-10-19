@@ -52,6 +52,11 @@ class WordPressExternalConnectionTest extends \TestCase {
 	 */
 	public function test_push() {
 
+		\WP_Mock::userFunction( 'untrailingslashit' );
+		\WP_Mock::userFunction( 'get_the_title' );
+		\WP_Mock::userFunction( 'wp_remote_post' );
+		\WP_Mock::userFunction( 'esc_html__' );
+
 		$post_type = 'foo';
 
 		$body = json_encode( [
@@ -67,46 +72,26 @@ class WordPressExternalConnectionTest extends \TestCase {
 			],
 		] );
 
-		$this->user_functions = [
-	        [ 'function' => 'untrailingslashit' ],
-			[ 'function' => 'get_the_title' ],
-			[ 'function' => 'wp_remote_post' ],
-			[ 'function' => 'esc_html__' ],
-			[
-				'function'   => 'get_post',
-				'params' => [
-					'args'   => 1,
-					'return' => ( object ) [
-		                'post_content' => 'my post content',
-		                'post_type'    => $post_type,
-		                'post_excerpt' => 'post excerpt',
-		            ],
-		        ],
-			],
-			[
-				'function'   => 'get_post_type',
-				'params' => [ 'return' => $post_type ],
-			],
-			[
-				'function'   => 'wp_remote_get',
-				'params' => [ 'return' => $body ],
-			],
-			[
-				'function'   => 'wp_remote_retrieve_body',
-				'params' => [ 'return' => $body ],
-			],
-		];
+		\WP_Mock::userFunction( 'get_post', [
+			'args'   => 1,
+			'return' => ( object ) [
+                'post_content' => 'my post content',
+                'post_type'    => $post_type,
+                'post_excerpt' => 'post excerpt',
+            	],
+		] );
 
-		foreach ( $this->user_functions as $key => $value ) {
+		\WP_Mock::userFunction( 'get_post_type', [
+			'return' => $post_type
+		] );
 
-			if ( isset( $value['params'] ) ) {
-				$params = $value['params'];
-			} else {
-				$params = [];
-			}
+		\WP_Mock::userFunction( 'wp_remote_get', [
+			'return' => $body
+		] );
 
-			\WP_Mock::userFunction( $value['function'], $params );
-		}
+		\WP_Mock::userFunction( 'wp_remote_retrieve_body', [
+			'return' => $body
+		] );
 
 		$this->assertInstanceOf( \WP_Error::class, $this->connection->push( 0 ) );
 		$this->assertTrue( is_int( $this->connection->push( 1 ) ) );
