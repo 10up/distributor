@@ -116,13 +116,29 @@ class WordPressExternalConnectionTest extends \TestCase {
 	/**
 	 * Test if the pull method returns an array.
 	 *
+	 * @since  0.8
 	 * @return void
 	 */
 	public function test_pull() {
 
 		\WP_Mock::userFunction( 'wp_remote_retrieve_response_code' );
 
-		$this->assertTrue( is_array( $this->connection->pull( [] ) ) );
+		remote_get_setup();
+
+		\WP_Mock::userFunction( 'get_current_user_id' );
+
+		\Mockery::mock( 'WP_Post' );
+
+		\WP_Mock::userFunction( 'wp_insert_post', [
+			'return' => []
+		] );
+
+		$this->assertTrue( is_array( $this->connection->pull( [
+			123
+		] ) ) );
+
+	}
+
 	/**
 	 * Handles mocking the correct remote request to receive a WP_Post instance.
 	 *
