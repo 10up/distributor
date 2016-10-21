@@ -28,6 +28,48 @@ function is_wp_error( $thing ) {
 }
 
 /**
+ * Sets up a valid remote get request.
+ *
+ * @since  0.8
+ * @return void
+ */
+function remote_get_setup(){
+
+	\WP_Mock::userFunction( 'get_option' );
+
+	$post_type = 'post';
+	$links = [
+		'_links' => [
+			'wp:items' => [
+				['href' => 'http://url.com'],
+			],
+		]
+	];
+
+	\WP_Mock::userFunction( 'wp_remote_get', [
+		'return' => json_encode( [
+			$post_type => $links,
+		] )
+    ] );
+
+    \WP_Mock::userFunction( 'wp_remote_retrieve_body', [
+    	'return' => json_encode( [
+			'id'           => 123,
+			'title'        => ['rendered' => 'My post title'],
+			'content'      => ['rendered' => '',],
+			'date'         => '',
+			'date_gmt'     => '',
+			'guid'         => ['rendered' => '',],
+			'modified'     => '',
+			'modified_gmt' => '',
+			'type'         => '',
+			'link'         => '',
+			$post_type     => $links,
+		] )
+    ] );
+}
+
+/**
  * Classes for testing connections
  */
 class TestExternalConnection extends \Syndicate\ExternalConnection {

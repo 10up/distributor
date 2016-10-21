@@ -52,6 +52,11 @@ class WordPressExternalConnectionTest extends \TestCase {
 	 */
 	public function test_push() {
 
+		\WP_Mock::userFunction( 'untrailingslashit' );
+		\WP_Mock::userFunction( 'get_the_title' );
+		\WP_Mock::userFunction( 'wp_remote_post' );
+		\WP_Mock::userFunction( 'esc_html__' );
+
 		$post_type = 'foo';
 
 		$body = json_encode( [
@@ -67,46 +72,26 @@ class WordPressExternalConnectionTest extends \TestCase {
 			],
 		] );
 
-		$this->user_functions = [
-	        [ 'function' => 'untrailingslashit' ],
-			[ 'function' => 'get_the_title' ],
-			[ 'function' => 'wp_remote_post' ],
-			[ 'function' => 'esc_html__' ],
-			[
-				'function'   => 'get_post',
-				'params' => [
-					'args'   => 1,
-					'return' => ( object ) [
-		                'post_content' => 'my post content',
-		                'post_type'    => $post_type,
-		                'post_excerpt' => 'post excerpt',
-		            ],
-		        ],
-			],
-			[
-				'function'   => 'get_post_type',
-				'params' => [ 'return' => $post_type ],
-			],
-			[
-				'function'   => 'wp_remote_get',
-				'params' => [ 'return' => $body ],
-			],
-			[
-				'function'   => 'wp_remote_retrieve_body',
-				'params' => [ 'return' => $body ],
-			],
-		];
+		\WP_Mock::userFunction( 'get_post', [
+			'args'   => 1,
+			'return' => ( object ) [
+                'post_content' => 'my post content',
+                'post_type'    => $post_type,
+                'post_excerpt' => 'post excerpt',
+            	],
+		] );
 
-		foreach ( $this->user_functions as $key => $value ) {
+		\WP_Mock::userFunction( 'get_post_type', [
+			'return' => $post_type
+		] );
 
-			if ( isset( $value['params'] ) ) {
-				$params = $value['params'];
-			} else {
-				$params = [];
-			}
+		\WP_Mock::userFunction( 'wp_remote_get', [
+			'return' => $body
+		] );
 
-			\WP_Mock::userFunction( $value['function'], $params );
-		}
+		\WP_Mock::userFunction( 'wp_remote_retrieve_body', [
+			'return' => $body
+		] );
 
 		$this->assertInstanceOf( \WP_Error::class, $this->connection->push( 0 ) );
 		$this->assertTrue( is_int( $this->connection->push( 1 ) ) );
@@ -116,13 +101,29 @@ class WordPressExternalConnectionTest extends \TestCase {
 	/**
 	 * Test if the pull method returns an array.
 	 *
+	 * @since  0.8
 	 * @return void
 	 */
 	public function test_pull() {
 
 		\WP_Mock::userFunction( 'wp_remote_retrieve_response_code' );
 
-		$this->assertTrue( is_array( $this->connection->pull( [] ) ) );
+		remote_get_setup();
+
+		\WP_Mock::userFunction( 'get_current_user_id' );
+
+		\Mockery::mock( 'WP_Post' );
+
+		\WP_Mock::userFunction( 'wp_insert_post', [
+			'return' => []
+		] );
+
+		$this->assertTrue( is_array( $this->connection->pull( [
+			123
+		] ) ) );
+
+	}
+
 	/**
 	 * Handles mocking the correct remote request to receive a WP_Post instance.
 	 *
@@ -131,45 +132,40 @@ class WordPressExternalConnectionTest extends \TestCase {
 	 */
 	public function test_remote_get(){
 
-		\WP_Mock::userFunction( 'get_option' );
+		remote_get_setup();
 
-		$post_type = 'some_post_type';
-		$links = [
-			'_links' => [
-				'wp:items' => [
-					0 => [
-						'href' => 'http://url.com',
-					],
-				],
-			]
-		];
-
-		\WP_Mock::userFunction( 'wp_remote_get', [
-			'return' => json_encode( [
-				$post_type => $links,
-			] )
-        ] );
-
-        \WP_Mock::userFunction( 'wp_remote_retrieve_body', [
-        	'return' => json_encode( [
-				'id'           => 123,
-				'title'        => ['rendered' => 'My post title'],
-				'content'      => ['rendered' => '',],
-				'date'         => '',
-				'date_gmt'     => '',
-				'guid'         => ['rendered' => '',],
-				'modified'     => '',
-				'modified_gmt' => '',
-				'type'         => '',
-				'link'         => '',
-				$post_type     => $links,
-			] )
-        ] );
-
-        $this->assertInstanceOf( \WP_Post::class, $this->connection->remote_get([
+        $this->assertInstanceOf( \WP_Post::class, $this->connection->remote_get( [
 			'id'        => 111,
-			'post_type' => $post_type
+			'post_type' => 'post',
 		] ) );
+
+	}
+
+	/**
+	 * Check that the connection does not return an error
+	 *
+	 * @since 0.8
+	 * @return void
+	 */
+	public function test_check_connections(){
+
+		\WP_Mock::userFunction( 'wp_remote_retrieve_body', [
+			'return' => json_encode( [
+				'routes' => 'my routes'
+			] )
+		] );
+
+		\WP_Mock::userFunction( 'wp_remote_retrieve_headers', [
+			'return' => [
+				'Link' => null
+			]
+		] );
+
+		\WP_Mock::userFunction( 'wp_remote_retrieve_response_code', [
+			'return' => 200
+		] );
+
+		$this->assertTrue( empty( $this->connection->check_connections()['errors'] ) );
 
 	}
 }
