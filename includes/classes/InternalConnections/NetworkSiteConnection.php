@@ -277,7 +277,31 @@ class NetworkSiteConnection extends Connection {
 			add_filter( 'the_date', array( '\Syndicate\InternalConnections\NetworkSiteConnection', 'the_date' ), 10, 1 );
 			add_filter( 'get_the_excerpt', array( '\Syndicate\InternalConnections\NetworkSiteConnection', 'get_the_excerpt' ), 10, 1 );
 			add_filter( 'get_canonical_url', array( '\Syndicate\InternalConnections\NetworkSiteConnection', 'canonical_url' ), 10, 2 );
+			add_filter( 'post_thumbnail_html', array( '\Syndicate\InternalConnections\NetworkSiteConnection', 'post_thumbnail' ), 10, 2 );
 		}
+	}
+
+	/**
+	 * Return canonical post thumbnail URL
+	 * 
+	 * @param  string $html
+	 * @param  int $id
+	 * @since  0.8
+	 * @return string
+	 */
+	public static function post_thumbnail( $html, $id ) {
+		$original_blog_id = get_post_meta( $id, 'sy_original_blog_id', true );
+		$original_post_id = get_post_meta( $id, 'sy_original_post_id', true );
+
+		if ( empty( $original_blog_id ) || empty( $original_post_id ) ) {
+			return $html;
+		}
+
+		switch_to_blog( $original_blog_id );
+		$html = get_the_post_thumbnail( $original_post_id );
+		restore_current_blog();
+
+		return $html;
 	}
 
 	/**
