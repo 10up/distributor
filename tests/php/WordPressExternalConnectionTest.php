@@ -140,4 +140,32 @@ class WordPressExternalConnectionTest extends \TestCase {
 		] ) );
 
 	}
+
+	/**
+	 * Check that the connection does not return an error
+	 *
+	 * @since 0.8
+	 * @return void
+	 */
+	public function test_check_connections(){
+
+		\WP_Mock::userFunction( 'wp_remote_retrieve_body', [
+			'return' => json_encode( [
+				'routes' => 'my routes'
+			] )
+		] );
+
+		\WP_Mock::userFunction( 'wp_remote_retrieve_headers', [
+			'return' => [
+				'Link' => null
+			]
+		] );
+
+		\WP_Mock::userFunction( 'wp_remote_retrieve_response_code', [
+			'return' => 200
+		] );
+
+		$this->assertTrue( empty( $this->connection->check_connections()['errors'] ) );
+
+	}
 }
