@@ -4,19 +4,21 @@ namespace Syndicate\InternalConnections;
 
 class NetworkSiteConnectionsTest extends \TestCase {
 
+    public function setUp(){
+        $this->site_obj = \Mockery::mock( '\WP_Site', [
+            'args' => 1,
+            'return' => ''
+        ] );
+
+        $this->connection_obj = new NetworkSiteConnection( $this->site_obj );
+    }
+
     /**
      * Push returns an post ID on success instance of WP Error on failure.
      *
      * @since  0.8
      */
     public function test_push(){
-
-        $site_obj = \Mockery::mock( '\WP_Site', [
-            'args' => 1,
-            'return' => ''
-        ] );
-
-        $connection_obj = new NetworkSiteConnection( $site_obj );
 
         \WP_Mock::userFunction( 'get_post', [
             'return' => (object) [
@@ -30,7 +32,7 @@ class NetworkSiteConnectionsTest extends \TestCase {
         \WP_Mock::userFunction( 'get_current_user_id' );
         \WP_Mock::userFunction( 'switch_to_blog' );
 
-        $connection_obj->site->blog_id = 2;
+        $this->connection_obj->site->blog_id = 2;
 
         \WP_Mock::userFunction( 'wp_insert_post', [
             'return' => 123
@@ -43,7 +45,7 @@ class NetworkSiteConnectionsTest extends \TestCase {
 
         \WP_Mock::userFunction( 'restore_current_blog' );
 
-        $this->assertTrue( is_int( $connection_obj->push( 1 ) ) );
+        $this->assertTrue( is_int( $this->connection_obj->push( 1 ) ) );
 
     }
 
