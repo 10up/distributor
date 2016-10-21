@@ -102,6 +102,119 @@ function repush( $post_id ) {
 }
 
 /**
+ * Simple function for sideloading media and returning the media id
+ * 
+ * @param  string $url
+ * @param  int $post_id
+ * @since  0.8
+ * @return int|bool
+ */
+function process_media( $url, $post_id ) {
+	preg_match( '/[^\?]+\.(jpe?g|jpe|gif|png)\b/i', $url, $matches );
+	if ( ! $matches ) {
+		return false;
+	}
+
+	$file_array = array();
+	$file_array['name'] = basename( $matches[0] );
+
+	// Download file to temp location.
+	$file_array['tmp_name'] = download_url( $url );
+
+	// If error storing temporarily, return the error.
+	if ( is_wp_error( $file_array['tmp_name'] ) ) {
+		return false;
+	}
+
+	// Do the validation and storage stuff.
+	return media_handle_sideload( $file_array, $post_id );
+}
+
+
+/**
+ * Bring media files over to syndicated post. We copy all the images and update the featured image
+ * to use the new one. We leave image urls in the post content intact as we can't guarentee the post 
+ * image size in each inserted image exists.
+ * 
+ * @param  int $post_id
+ * @since  0.8
+ */
+function clone_media( $post_id ) {
+	$original_blog_id = get_post_meta( $post_id, 'sy_original_blog_id', true );
+	$original_post_id = get_post_meta( $post_id, 'sy_original_post_id', true );
+	$post = get_post( $post_id );
+
+	$current_media_posts = get_attached_media( 'image', $post_id );
+	$current_media = [];
+
+	// Create mapping so we don't create duplicates
+	foreach ( $current_media_posts as $media_post ) {
+		$original = get_post_meta( $media_post->ID, 'sy_original_media_url', true );
+		$current_media[ $original ] = $media_post->ID;
+	}
+
+	$current_blog = get_current_blog_id();
+
+	// Get media of original post
+	switch_to_blog( $original_blog_id );
+
+	$original_media_posts = get_attached_media( 'image', $original_post_id );
+	$original_media = [];
+
+	foreach ( $original_media_posts as $original_media_post ) {
+		$src = wp_get_attachment_image_src( $original_media_post->ID, 'full' );
+
+		$original_media[] = $src[0];
+	}
+
+	$featured_image_url = false;
+	$found_featured_image = false;
+
+	$thumb_id = get_post_meta( $original_post_id, '_thumbnail_id', true );
+
+	if ( ! empty( $thumb_id ) ) {
+	    $thumb = wp_get_attachment_image_src( $thumb_id, 'full' );
+
+	    if ( ! empty( $thumb ) ) {
+			$featured_image_url = $thumb[0];
+		}
+	}
+
+	restore_current_blog();
+
+	foreach ( $original_media as $url ) {
+
+		// Delete duplicate if it exists
+		if ( ! empty( $current_media[ $url ] ) ) {
+			wp_delete_attachment( $current_media[ $url ], true );
+		}
+
+		$image_id = process_media( $url, $post_id );
+
+		// If error storing permanently, unlink.
+		if ( ! $image_id ) {
+			@unlink( $file_array['tmp_name'] );
+			continue;
+		}
+
+		update_post_meta( $image_id, 'sy_original_media_url', $url );
+
+		if ( $featured_image_url === $url ) {
+			$found_featured_image = true;
+			update_post_meta( $post_id, '_thumbnail_id', $image_id );
+		}
+	}
+
+	if ( ! $found_featured_image && ! empty( $featured_image_url ) ) {
+		$image_id = process_media( $featured_image_url, $post_id );
+
+		if ( ! empty( $image_id ) ) {
+			update_post_meta( $post_id, '_thumbnail_id', $image_id );
+		}
+	}
+}
+
+/**
  * Unlink post
  *
  * @since  0.8
@@ -118,6 +231,8 @@ function unlink() {
 	update_post_meta( $_GET['post'], 'sy_unlinked', true );
 
 	repush( $_GET['post'] );
+
+	clone_media( $_GET['post'] );
 
 	wp_redirect( admin_url( 'post.php?action=edit&post=' . $_GET['post'] ) );
 	exit;
