@@ -16,3 +16,6 @@ Syndicate is a WordPress plugin allowing you to syndicate content to and from ex
 ## Testing
 
 The plugin contains a standard test suite compatible with PHPUnit. If you want to test across multiple PHP versions, a [Dockunit](https://github.com/dockunit/dockunit) file is included.
+
+## Plugin Usage and Extensive Documentation
+This lives in the [internal docs site](https://internal.10up.com/docs/syndicate-plugin) for now.
