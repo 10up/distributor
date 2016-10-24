@@ -17,6 +17,46 @@ class WP_Error {
 }
 
 /**
+ * Hollowed out WP_Query class for mocking
+ *
+ * @since  0.8
+ */
+class WP_Query {
+	public function __construct( $args = array() ){
+
+		$items = [
+            [
+                'ID' => 2,
+                'title' => 'my title a',
+                'content' => 'my content a',
+            ],
+            [
+                'ID' => 188,
+                'title' => 'my title b',
+                'content' => 'my content b',
+            ],
+            [
+                'ID' => 198,
+                'title' => 'my title c',
+                'content' => 'my content c',
+            ]
+        ];
+
+		foreach( $items as $item ){
+			foreach( $item as $key => $value ){
+				$tmp[ $key ] = $value;
+			}
+			$posts[] = (object) $tmp;
+		}
+
+		$this->found_posts = count( $items );
+		$this->posts = $posts;
+
+	}
+
+}
+
+/**
  * Check if object is WP_Error
  *
  * @param  Object $thing

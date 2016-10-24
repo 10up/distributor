@@ -84,4 +84,39 @@ class NetworkSiteConnectionsTest extends \TestCase {
 
     }
 
+    /**
+     * Verifies that when passed no id the request can still return items
+     * @since 0.8
+     */
+    public function test_remote_get_empty_id(){
+
+        $this->connection_obj->site->blog_id = 321;
+
+        \WP_Mock::userFunction( 'get_option' );
+
+        $this->assertArrayHasKey( 'total_items', $this->connection_obj->remote_get() );
+
+    }
+
+    /**
+     * Verifies that the remote_get method returns an array containing the post title.
+     *
+     * @since 0.8
+     */
+    public function test_remote_get(){
+
+        $this->connection_obj->site->blog_id = 321;
+
+        \WP_Mock::userFunction( 'get_post', [
+            'return' => (object) [
+                'post_title' => 'my title',
+            ]
+        ] );
+
+        $this->assertArrayHasKey( 'post_title', (array) $this->connection_obj->remote_get( [
+            'id' => 123
+        ] ) );
+
+    }
+
 }
