@@ -1,7 +1,7 @@
 <?php
 
-namespace Syndicate;
-use \Syndicate\ExternalConnection as ExternalConnection;
+namespace Distributor;
+use \Distributor\ExternalConnection as ExternalConnection;
 
 /**
  * Authentication types extend this base abstract class. Authentication types

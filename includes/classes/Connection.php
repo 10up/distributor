@@ -1,6 +1,6 @@
 <?php
 
-namespace Syndicate;
+namespace Distributor;
 
 /**
  * Connections let us push and pull content from other areas

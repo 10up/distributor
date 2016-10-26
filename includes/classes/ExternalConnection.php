@@ -1,7 +1,7 @@
 <?php
 
-namespace Syndicate;
-use \Syndicate\Connection as Connection;
+namespace Distributor;
+use \Distributor\Connection as Connection;
 
 /**
  * External connections extend this base abstract class. External onnections are used to push and pull content.
@@ -88,13 +88,13 @@ abstract class ExternalConnection extends Connection {
 		$name = get_the_title( $external_connection_id );
 
 		if ( empty( $type ) || empty( $url ) ) {
-			return new \WP_Error( 'external_connection_not_found', esc_html__( 'External connection not found.', 'syndicate' ) );
+			return new \WP_Error( 'external_connection_not_found', esc_html__( 'External connection not found.', 'distributor' ) );
 		}
 
-		$connections = \Syndicate\Connections::factory()->get_registered( 'external' );
+		$connections = \Distributor\Connections::factory()->get_registered( 'external' );
 
 		if ( empty( $connections[ $type ] ) ) {
-			return new \WP_Error( 'no_external_connection_type', esc_html__( 'External connection type is not registered.', 'syndicate' ) );
+			return new \WP_Error( 'no_external_connection_type', esc_html__( 'External connection type is not registered.', 'distributor' ) );
 		}
 
 		$connection_class = $connections[ $type ];

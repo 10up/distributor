@@ -1,7 +1,7 @@
 {
-  "name": "syndicate",
+  "name": "distributor",
   "description": "",
-  "author": "10up",
+  "author": "Taylor Lovett, 10up",
   "devDependencies": {
     "autoprefixer": "^6.5.1",
     "cssmin": "^0.4.3",

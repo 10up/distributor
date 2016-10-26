@@ -1,5 +1,5 @@
 {
-  "name": "10up/syndicate",
+  "name": "10up/distributor",
   "authors": [
   	{
   		"name": "Taylor Lovett",
@@ -11,7 +11,7 @@
   },
   "autoload": {
   	"psr-4": {
-  		"Syndicate\\": "includes/classes/"
+  		"Distributor\\": "includes/classes/"
   	}
   },
   "require-dev": {

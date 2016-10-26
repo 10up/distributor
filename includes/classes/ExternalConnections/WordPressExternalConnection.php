@@ -1,13 +1,13 @@
 <?php
 
-namespace Syndicate\ExternalConnections;
-use \Syndicate\ExternalConnection as ExternalConnection;
+namespace Distributor\ExternalConnections;
+use \Distributor\ExternalConnection as ExternalConnection;
 
 class WordPressExternalConnection extends ExternalConnection {
 
 	static $slug = 'wp';
 	static $label = 'WordPress REST API';
-	static $auth_handler_class = '\Syndicate\Authentications\WordPressBasicAuth';
+	static $auth_handler_class = '\Distributor\Authentications\WordPressBasicAuth';
 	static $namespace = 'wp/v2';
 
 	/**
@@ -96,7 +96,7 @@ class WordPressExternalConnection extends ExternalConnection {
 			}
 
 			if ( 404 === wp_remote_retrieve_response_code( $types_response ) ) {
-				return new \WP_Error( 'bad-endpoint', esc_html__( 'Could not connect to API endpoint.', 'syndicate' ) );
+				return new \WP_Error( 'bad-endpoint', esc_html__( 'Could not connect to API endpoint.', 'distributor' ) );
 			}
 
 			$types_body = wp_remote_retrieve_body( $types_response );
@@ -110,7 +110,7 @@ class WordPressExternalConnection extends ExternalConnection {
 			$types_urls[ $post_type ] = $this->parse_type_items_link( $types_body_array[ $post_type ] );
 
 			if ( empty( $types_urls[ $post_type ] ) ) {
-				return new \WP_Error( 'no-pull-post-type', esc_html__( 'Could not determine remote post type endpoint', 'syndicate' ) );
+				return new \WP_Error( 'no-pull-post-type', esc_html__( 'Could not determine remote post type endpoint', 'distributor' ) );
 			}
 		}
 
@@ -233,7 +233,7 @@ class WordPressExternalConnection extends ExternalConnection {
 	 */
 	public function push( $post_id, $args = array() ) {
 		if ( empty( $post_id ) ) {
-			return new \WP_Error( 'no-push-post-id' , esc_html__( 'Post id required to push', 'syndicate' ) );
+			return new \WP_Error( 'no-push-post-id' , esc_html__( 'Post id required to push', 'distributor' ) );
 		}
 
 		$post = get_post( $post_id );
@@ -265,7 +265,7 @@ class WordPressExternalConnection extends ExternalConnection {
 		$type_url = $this->parse_type_items_link( $body_array[ $post_type ] );
 
 		if ( empty( $type_url ) ) {
-			return new \WP_Error( 'no-push-post-type', esc_html__( 'Could not determine remote post type endpoint', 'syndicate' ) );
+			return new \WP_Error( 'no-push-post-type', esc_html__( 'Could not determine remote post type endpoint', 'distributor' ) );
 		}
 
 		/**
@@ -314,7 +314,7 @@ class WordPressExternalConnection extends ExternalConnection {
 		try {
 			$remote_id = $body_array['id'];
 		} catch ( \Exception $e ) {
-			return new \WP_Error( 'no-push-post-remote-id', esc_html__( 'Could not determine remote post id.', 'syndicate' ) );
+			return new \WP_Error( 'no-push-post-remote-id', esc_html__( 'Could not determine remote post id.', 'distributor' ) );
 		}
 
 		return $remote_id;

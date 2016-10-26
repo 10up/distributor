@@ -1,6 +1,6 @@
 <?php
 
-namespace Syndicate;
+namespace Distributor;
 
 require_once( ABSPATH . '/wp-admin/includes/class-wp-posts-list-table.php' );
 

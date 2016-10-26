@@ -1,6 +1,6 @@
 <?php
 
-namespace Syndicate\PushUI;
+namespace Distributor\PushUI;
 
 /**
  * Setup actions and filters
@@ -109,7 +109,7 @@ function ajax_push() {
 			}
 
 			if ( ! empty( $external_connection_type ) && ! empty( $external_connection_url ) ) {
-				$external_connection_class = \Syndicate\Connections::factory()->get_registered()[ $external_connection_type ];
+				$external_connection_class = \Distributor\Connections::factory()->get_registered()[ $external_connection_type ];
 
 				$auth_handler = new $external_connection_class::$auth_handler_class( $external_connection_auth );
 
@@ -147,7 +147,7 @@ function ajax_push() {
 				}
 			}
 		} else {
-			$internal_connection = new \Syndicate\InternalConnections\NetworkSiteConnection( get_site( $connection['id'] ) );
+			$internal_connection = new \Distributor\InternalConnections\NetworkSiteConnection( get_site( $connection['id'] ) );
 			$push_args = array();
 
 			if ( ! empty( $connection_map['internal'][ (int) $connection['id'] ] ) && ! empty( $connection_map['internal'][ (int) $connection['id'] ]['post_id'] ) ) {
@@ -237,7 +237,7 @@ function menu_button( $wp_admin_bar ) {
 
 	$wp_admin_bar->add_node( array(
 		'id' => 'syndicate',
-		'title' => esc_html__( 'Syndicate', 'syndicate' ),
+		'title' => esc_html__( 'Distributor', 'distributor' ),
 		'href' => '#',
 	) );
 }
@@ -266,10 +266,10 @@ function menu_content() {
 		$connection_map['internal'] = [];
 	}
 
-	$sites = \Syndicate\InternalConnections\NetworkSiteConnection::get_available_authorized_sites();
+	$sites = \Distributor\InternalConnections\NetworkSiteConnection::get_available_authorized_sites();
 	foreach ( $sites as $key => $site_array ) {
 		if ( in_array( $post->post_type, $site_array['post_types'] ) ) {
-			$connection = new \Syndicate\InternalConnections\NetworkSiteConnection( $site_array['site'] );
+			$connection = new \Distributor\InternalConnections\NetworkSiteConnection( $site_array['site'] );
 
 			$syndicated = false;
 			if ( ! empty( $connection_map['internal'][ (int) $connection->site->blog_id ] ) ) {
@@ -329,7 +329,7 @@ function menu_content() {
 			}
 		}
 
-		$connection = \Syndicate\ExternalConnection::instantiate( $external_connection->ID );
+		$connection = \Distributor\ExternalConnection::instantiate( $external_connection->ID );
 
 		if ( ! is_wp_error( $connection ) ) {
 			$dom_connections[ 'external' . $connection->id ] = [
@@ -355,19 +355,19 @@ function menu_content() {
 			<# } #>
 
 			<# if ('internal' === connection.type && connection.syndicated) { #>
-				<a href="{{ connection.syndicated }}"><?php esc_html_e( 'View', 'syndicate' ); ?></a>
+				<a href="{{ connection.syndicated }}"><?php esc_html_e( 'View', 'distributor' ); ?></a>
 			<# } #>
 		</div>
 	</script>
 
 	<div class="syndicate-push-wrapper">
 		<div class="inner">
-			<p><?php echo sprintf( __( 'Post &quot;%s&quot; to other connections.', 'syndicate' ), get_the_title( $post->ID ) ); ?></p>
+			<p><?php echo sprintf( __( 'Post &quot;%s&quot; to other connections.', 'distributor' ), get_the_title( $post->ID ) ); ?></p>
 
 			<div class="connections-selector">
 				<div>
 					<?php if ( 5 < count( $dom_connections ) ) : ?>
-						<input type="text" id="sy-connection-search" placeholder="<?php esc_html_e( 'Search available connections', 'syndicate' ); ?>">
+						<input type="text" id="sy-connection-search" placeholder="<?php esc_html_e( 'Search available connections', 'distributor' ); ?>">
 					<?php endif; ?>
 
 					<div class="new-connections-list">
@@ -380,7 +380,7 @@ function menu_content() {
 								<div class="add-connection <?php if ( ! empty( $connection['syndicated'] ) ) : ?>syndicated<?php endif; ?>" data-connection-type="internal" data-connection-id="<?php echo (int) $connection['id']; ?>">
 									<span><?php echo esc_html( $connection['url'] ); ?></span>
 									<?php if ( ! empty( $connection['syndicated'] ) ) : ?>
-										<a href="<?php echo esc_url( $connection['syndicated'] ); ?>"><?php esc_html_e( 'View', 'syndicate' ); ?></a>
+										<a href="<?php echo esc_url( $connection['syndicated'] ); ?>"><?php esc_html_e( 'View', 'distributor' ); ?></a>
 									<?php endif; ?>
 								</div>
 							<?php endif; ?>
@@ -389,22 +389,22 @@ function menu_content() {
 				</div>
 			</div>
 			<div class="connections-selected empty">
-				<header class="with-selected"><?php esc_html_e( 'Selected sites', 'syndicate' ); ?></header>
-				<header class="no-selected"><?php esc_html_e( 'No sites selected', 'syndicate' ); ?></header>
+				<header class="with-selected"><?php esc_html_e( 'Selected sites', 'distributor' ); ?></header>
+				<header class="no-selected"><?php esc_html_e( 'No sites selected', 'distributor' ); ?></header>
 
 				<div class="selected-connections-list"></div>
 
 				<div class="action-wrapper">
-					<button class="syndicate-button"><?php esc_html_e( 'Syndicate', 'syndicate' ); ?></button>
+					<button class="syndicate-button"><?php esc_html_e( 'Syndicate', 'distributor' ); ?></button>
 				</div>
 			</div>
 
 			<div class="messages">
 				<div class="sy-success">
-					<?php esc_html_e( 'Post successfully syndicated.', 'syndicate' ); ?>
+					<?php esc_html_e( 'Post successfully syndicated.', 'distributor' ); ?>
 				</div>
 				<div class="sy-error">
-					<?php esc_html_e( 'There was an issue syndicating the post.', 'syndicate' ); ?>
+					<?php esc_html_e( 'There was an issue syndicating the post.', 'distributor' ); ?>
 				</div>
 			</div>
 		</div>

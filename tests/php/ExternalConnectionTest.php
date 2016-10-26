@@ -1,6 +1,6 @@
 <?php
 
-namespace Syndicate;
+namespace Distributor;
 
 class ExternalConnectionTest extends \TestCase {
 
@@ -118,6 +118,6 @@ class ExternalConnectionTest extends \TestCase {
 		// Test non-existent connection ID
 		$external_connection = ExternalConnection::instantiate( 1 );
 
-		$this->assertTrue( is_a( $external_connection, '\Syndicate\ExternalConnection' ) );
+		$this->assertTrue( is_a( $external_connection, '\Distributor\ExternalConnection' ) );
 	}
 }

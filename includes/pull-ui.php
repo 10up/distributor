@@ -1,6 +1,6 @@
 <?php
 
-namespace Syndicate\PullUI;
+namespace Distributor\PullUI;
 
 /**
  * Setup actions and filters
@@ -40,14 +40,14 @@ function setup_list_table() {
 		'posts_per_page' => 100,
 	) );
 
-	$connection_list_table = new \Syndicate\PullListTable();
+	$connection_list_table = new \Distributor\PullListTable();
 
 	global $connection_now;
 
-	$sites = \Syndicate\InternalConnections\NetworkSiteConnection::get_available_authorized_sites();
+	$sites = \Distributor\InternalConnections\NetworkSiteConnection::get_available_authorized_sites();
 
 	foreach ( $sites as $site_array ) {
-		$internal_connection = new \Syndicate\InternalConnections\NetworkSiteConnection( $site_array['site'] );
+		$internal_connection = new \Distributor\InternalConnections\NetworkSiteConnection( $site_array['site'] );
 		$connection_list_table->connection_objects[] = $internal_connection;
 
 		if ( ! empty( $_GET['connection_id'] ) && ! empty( $_GET['connection_type'] ) && 'internal' === $_GET['connection_type'] && (int) $internal_connection->site->blog_id === (int) $_GET['connection_id'] ) {
@@ -62,7 +62,7 @@ function setup_list_table() {
 			continue;
 		}
 
-		$external_connection = \Syndicate\ExternalConnection::instantiate( $external_connection_id );
+		$external_connection = \Distributor\ExternalConnection::instantiate( $external_connection_id );
 
 		if ( ! is_wp_error( $external_connection ) ) {
 			$connection_list_table->connection_objects[] = $external_connection;
@@ -111,8 +111,8 @@ function admin_enqueue_scripts( $hook ) {
 function action_admin_menu() {
 	$hook = add_submenu_page(
 		'syndicate',
-		esc_html__( 'Pull Content', 'syndicate' ),
-		esc_html__( 'Pull Content', 'syndicate' ),
+		esc_html__( 'Pull Content', 'distributor' ),
+		esc_html__( 'Pull Content', 'distributor' ),
 		'manage_options',
 		'pull',
 		__NAMESPACE__  . '\dashboard'
@@ -171,11 +171,11 @@ function process_actions() {
 			}
 
 			if ( 'external' === $_GET['connection_type'] ) {
-				$connection = \Syndicate\ExternalConnection::instantiate( $_GET['connection_id'] );
+				$connection = \Distributor\ExternalConnection::instantiate( $_GET['connection_id'] );
 				$new_posts = $connection->pull( $posts );
 			} else {
 				$site = get_site( $_GET['connection_id'] );
-				$connection = new \Syndicate\InternalConnections\NetworkSiteConnection( $site );
+				$connection = new \Distributor\InternalConnections\NetworkSiteConnection( $site );
 				$new_posts = $connection->pull( $posts );
 			}
 
@@ -212,10 +212,10 @@ function process_actions() {
 			}
 
 			if ( 'external' === $_GET['connection_type'] ) {
-				$connection = \Syndicate\ExternalConnection::instantiate( $_GET['connection_id'] );
+				$connection = \Distributor\ExternalConnection::instantiate( $_GET['connection_id'] );
 			} else {
 				$site = get_site( $_GET['connection_id'] );
-				$connection = new \Syndicate\InternalConnections\NetworkSiteConnection( $site );
+				$connection = new \Distributor\InternalConnections\NetworkSiteConnection( $site );
 			}
 
 			$posts = $_GET['post'];
@@ -255,7 +255,7 @@ function dashboard() {
 	$pagenum = $connection_list_table->get_pagenum();
 
 	if ( ! empty( $connection_now ) ) {
-		if ( is_a( $connection_now, '\Syndicate\ExternalConnection' ) ) {
+		if ( is_a( $connection_now, '\Distributor\ExternalConnection' ) ) {
 			$connection_type = 'external';
 			$connection_id = $connection_now->id;
 		} else {
@@ -268,7 +268,7 @@ function dashboard() {
 	$external_connection_group = array();
 
 	foreach ( $connection_list_table->connection_objects as $connection ) {
-		if ( is_a( $connection, '\Syndicate\ExternalConnection' ) ) {
+		if ( is_a( $connection, '\Distributor\ExternalConnection' ) ) {
 			$external_connection_group[] = $connection;
 		} else {
 			$internal_connection_group[] = $connection;
@@ -278,13 +278,13 @@ function dashboard() {
 	<div class="wrap nosubsub">
 		<h1>
 			<?php if ( empty( $connection_list_table->connection_objects ) ) : $connection_now = 0; ?>
-				<?php printf( __( 'No Connections to Pull from, <a href="%s">Create One</a>?', 'syndicate' ), esc_url( admin_url( 'post-new.php?post_type=sy_ext_connection' ) ) ); ?>
+				<?php printf( __( 'No Connections to Pull from, <a href="%s">Create One</a>?', 'distributor' ), esc_url( admin_url( 'post-new.php?post_type=sy_ext_connection' ) ) ); ?>
 			<?php else : ?>
-				<?php esc_html_e( 'Pull Content from', 'syndicate' ); ?>
+				<?php esc_html_e( 'Pull Content from', 'distributor' ); ?>
 				<select id="pull_connections" name="connection" method="get">
 					<?php if ( ! empty( $internal_connection_group ) ) : ?>
 						<?php if ( ! empty( $external_connection_group ) ) : ?>
-							<optgroup label="<?php esc_html_e( 'Network Connections', 'syndicate' ); ?>">
+							<optgroup label="<?php esc_html_e( 'Network Connections', 'distributor' ); ?>">
 						<?php endif; ?>
 							<?php foreach ( $internal_connection_group as $connection ) :
 								$selected = false;
@@ -305,7 +305,7 @@ function dashboard() {
 
 					<?php if ( ! empty( $external_connection_group ) ) : ?>
 						<?php if ( ! empty( $internal_connection_group ) ) : ?>
-							<optgroup label="<?php esc_html_e( 'External Connections (beta)', 'syndicate' ); ?>">
+							<optgroup label="<?php esc_html_e( 'External Connections (beta)', 'distributor' ); ?>">
 						<?php endif; ?>
 							<?php foreach ( $external_connection_group as $connection ) :
 								$type = 'external';
@@ -327,21 +327,21 @@ function dashboard() {
 			<?php endif; ?>
 		</h1>
 
-		<?php if ( ! empty( $connection_now ) && is_a( $connection_now, '\Syndicate\ExternalConnection' ) ) : ?>
+		<?php if ( ! empty( $connection_now ) && is_a( $connection_now, '\Distributor\ExternalConnection' ) ) : ?>
 			<div class="network-connections-notice">
-				<strong><?php esc_html_e( "External connections are in beta. We can't push or pull meta data or images from external websites.", 'syndicate' ); ?></strong>
+				<strong><?php esc_html_e( "External connections are in beta. We can't push or pull meta data or images from external websites.", 'distributor' ); ?></strong>
 			</div>
 		<?php endif; ?>
 
 		<?php if ( ! empty( $sy_pull_messages ) && ! empty( $sy_pull_messages['skipped'] ) ) : ?>
 			<div id="message" class="updated notice is-dismissible">
-				<p><?php esc_html_e( 'Post(s) have been marked as skipped.', 'syndicate' ); ?></p>
+				<p><?php esc_html_e( 'Post(s) have been marked as skipped.', 'distributor' ); ?></p>
 			</div>
 		<?php endif; ?>
 
 		<?php if ( ! empty( $sy_pull_messages ) && ! empty( $sy_pull_messages['syndicated'] ) ) : ?>
 			<div id="message" class="updated notice is-dismissible">
-				<p><?php esc_html_e( 'Post(s) have been pulled.', 'syndicate' ); ?></p>
+				<p><?php esc_html_e( 'Post(s) have been pulled.', 'distributor' ); ?></p>
 			</div>
 		<?php endif; ?>
 
@@ -352,7 +352,7 @@ function dashboard() {
 			<input type="hidden" name="connection_id" value="<?php echo esc_attr( $connection_id ); ?>">
 			<input type="hidden" name="page" value="pull">
 
-			<?php $connection_list_table->search_box( esc_html__( 'Search', 'syndicate' ), 'post' ); ?>
+			<?php $connection_list_table->search_box( esc_html__( 'Search', 'distributor' ), 'post' ); ?>
 
 			<?php $connection_list_table->display(); ?>
 		</form>

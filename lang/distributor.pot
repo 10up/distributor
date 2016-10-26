@@ -1,10 +1,10 @@
-# Copyright (C) 2016 
-# This file is distributed under the same license as the  package.
+# Copyright (C) 2016 Taylor Lovett, 10up
+# This file is distributed under the GPLv2 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: \n"
-"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/syndicate\n"
-"POT-Creation-Date: 2016-10-26 20:33:26+00:00\n"
+"Project-Id-Version: Distrbutor 0.8\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/distributor\n"
+"POT-Creation-Date: 2016-10-26 20:33:56+00:00\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -523,6 +523,22 @@ msgstr ""
 msgid ""
 "This post has been forked from it's original. However, you can always <a "
 "href='%s'>restore it.</a>"
+msgstr ""
+
+#. Plugin Name of the plugin/theme
+msgid "Distrbutor"
+msgstr ""
+
+#. Description of the plugin/theme
+msgid "Syndicate content to and from external websites and within multisite blogs."
+msgstr ""
+
+#. Author of the plugin/theme
+msgid "Taylor Lovett, 10up"
+msgstr ""
+
+#. Author URI of the plugin/theme
+msgid "http://10up.com"
 msgstr ""
 
 #: includes/classes/ExternalConnectionListTable.php:86

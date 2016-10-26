@@ -72,9 +72,9 @@ function remote_get_setup(){
 /**
  * Classes for testing connections
  */
-class TestExternalConnection extends \Syndicate\ExternalConnection {
+class TestExternalConnection extends \Distributor\ExternalConnection {
 	static $slug = 'test-external-connection';
-	static $auth_handler_class = '\Syndicate\Authentications\WordPressBasicAuth';
+	static $auth_handler_class = '\Distributor\Authentications\WordPressBasicAuth';
 
 	public function push( $item_id, $args = array() ) { }
 
@@ -85,7 +85,7 @@ class TestExternalConnection extends \Syndicate\ExternalConnection {
 	public function remote_get( $args ) { }
 }
 
-class TestInternalConnection extends \Syndicate\Connection {
+class TestInternalConnection extends \Distributor\Connection {
 	static $slug = 'test-internal-connection';
 
 	public function push( $item_id, $args = array() ) { }

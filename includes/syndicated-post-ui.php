@@ -1,6 +1,6 @@
 <?php
 
-namespace Syndicate\SyndicatedPostUI;
+namespace Distributor\DistributordPostUI;
 
 /**
  * Setup actions and filters
@@ -8,7 +8,7 @@ namespace Syndicate\SyndicatedPostUI;
  * @since 0.8
  */
 add_action( 'plugins_loaded', function() {
-	add_action( 'edit_form_top', __NAMESPACE__ . '\syndicated_message', 9, 1 );
+	add_action( 'edit_form_top', __NAMESPACE__ . '\Distributord_message', 9, 1 );
 	add_action( 'admin_enqueue_scripts', __NAMESPACE__  . '\admin_enqueue_scripts' );
 	add_action( 'admin_init', __NAMESPACE__  . '\unlink' );
 	add_action( 'admin_init', __NAMESPACE__  . '\link' );
@@ -93,7 +93,7 @@ function repush( $post_id ) {
 
 	switch_to_blog( $original_blog_id );
 
-	$connection = new \Syndicate\InternalConnections\NetworkSiteConnection( get_site( $current_blog ) );
+	$connection = new \Distributor\InternalConnections\NetworkSiteConnection( get_site( $current_blog ) );
 	$connection->push( $original_post_id, [
 		'remote_post_id' => $post_id,
 	] );
@@ -283,7 +283,7 @@ function syndicated_message( $post ) {
 	restore_current_blog();
 
 	if ( empty( $blog_name ) ) {
-		$blog_name = sprintf( esc_html__( 'Blog #%d', 'syndicate' ), $original_blog_id );
+		$blog_name = sprintf( esc_html__( 'Blog #%d', 'distributor' ), $original_blog_id );
 	}
 
 	$post_type_object = get_post_type_object( $post->post_type );
@@ -292,13 +292,13 @@ function syndicated_message( $post ) {
 	<div class="updated syndicate-status">
 		<?php if ( ! $unlinked ) : ?>
 			<p>
-				<?php echo sprintf( __( 'Syndicated from <a href="%s">%s</a>.', 'syndicate' ), esc_url( $post_url ), esc_html( $blog_name ) ); ?> 
-				<span><?php echo sprintf( __( 'The original post will update this version unless you <a href="%s">unlink from the original.</a>', 'syndicate' ), wp_nonce_url( add_query_arg( 'action', 'unlink', admin_url( sprintf( $post_type_object->_edit_link, $post->ID ) ) ), "unlink-post_{$post->ID}" ) ); ?></span>
+				<?php echo sprintf( __( 'Syndicated from <a href="%s">%s</a>.', 'distributor' ), esc_url( $post_url ), esc_html( $blog_name ) ); ?> 
+				<span><?php echo sprintf( __( 'The original post will update this version unless you <a href="%s">unlink from the original.</a>', 'distributor' ), wp_nonce_url( add_query_arg( 'action', 'unlink', admin_url( sprintf( $post_type_object->_edit_link, $post->ID ) ) ), "unlink-post_{$post->ID}" ) ); ?></span>
 			</p>
 		<?php else : ?>
 			<p>
-				<?php echo sprintf( __( 'Originally syndicated from <a href="%s">%s</a>.', 'syndicate' ), esc_url( $post_url ), esc_html( $blog_name ) ); ?> 
-				<span><?php echo sprintf( __( "This post has been forked from it's original. However, you can always <a href='%s'>restore it.</a>", 'syndicate' ), wp_nonce_url( add_query_arg( 'action', 'link', admin_url( sprintf( $post_type_object->_edit_link, $post->ID ) ) ), "link-post_{$post->ID}" ) ); ?></span>
+				<?php echo sprintf( __( 'Originally syndicated from <a href="%s">%s</a>.', 'distributor' ), esc_url( $post_url ), esc_html( $blog_name ) ); ?> 
+				<span><?php echo sprintf( __( "This post has been forked from it's original. However, you can always <a href='%s'>restore it.</a>", 'distributor' ), wp_nonce_url( add_query_arg( 'action', 'link', admin_url( sprintf( $post_type_object->_edit_link, $post->ID ) ) ), "link-post_{$post->ID}" ) ); ?></span>
 			</p>
 		<?php endif; ?>
 	</div>

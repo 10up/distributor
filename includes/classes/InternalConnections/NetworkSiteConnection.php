@@ -1,7 +1,7 @@
 <?php
 
-namespace Syndicate\InternalConnections;
-use \Syndicate\Connection as Connection;
+namespace Distributor\InternalConnections;
+use \Distributor\Connection as Connection;
 
 /**
  * A network site connection let's you push and pull content within your blog
@@ -232,11 +232,11 @@ class NetworkSiteConnection extends Connection {
 	 * @since 0.8
 	 */
 	public static function bootstrap() {
-		add_action( 'template_redirect', array( '\Syndicate\InternalConnections\NetworkSiteConnection', 'canonicalize_front_end' ) );
-		add_action( 'wp_ajax_sy_auth_check', array( '\Syndicate\InternalConnections\NetworkSiteConnection', 'auth_check' ) );
-		add_action( 'edit_form_top', array( '\Syndicate\InternalConnections\NetworkSiteConnection', 'canonical_admin_post' ) );
-		add_action( 'in_admin_footer', array( '\Syndicate\InternalConnections\NetworkSiteConnection', 'end_canonical_admin_post' ) );
-		add_filter( 'get_sample_permalink_html', array( '\Syndicate\InternalConnections\NetworkSiteConnection', 'fix_sample_permalink_html' ), 10, 1 );
+		add_action( 'template_redirect', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'canonicalize_front_end' ) );
+		add_action( 'wp_ajax_sy_auth_check', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'auth_check' ) );
+		add_action( 'edit_form_top', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'canonical_admin_post' ) );
+		add_action( 'in_admin_footer', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'end_canonical_admin_post' ) );
+		add_filter( 'get_sample_permalink_html', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'fix_sample_permalink_html' ), 10, 1 );
 	}
 
 	/**
@@ -250,7 +250,7 @@ class NetworkSiteConnection extends Connection {
 		global $sy_original_post;
 
 		if ( ! empty( $sy_original_post ) && ! empty( $sy_original_post->permalink ) ) {
-			return sprintf( __( '<strong>Permalink:</strong> <a href="%s">%s</a>', 'syndicate' ), esc_url( $sy_original_post->permalink ), esc_url( $sy_original_post->permalink ) );
+			return sprintf( __( '<strong>Permalink:</strong> <a href="%s">%s</a>', 'distributor' ), esc_url( $sy_original_post->permalink ), esc_url( $sy_original_post->permalink ) );
 		}
 
 		return $permalink_html;
@@ -272,12 +272,12 @@ class NetworkSiteConnection extends Connection {
 				return;
 			}
 
-			add_filter( 'the_title', array( '\Syndicate\InternalConnections\NetworkSiteConnection', 'the_title' ), 10, 2 );
-			add_filter( 'the_content', array( '\Syndicate\InternalConnections\NetworkSiteConnection', 'the_content' ), 10, 1 );
-			add_filter( 'the_date', array( '\Syndicate\InternalConnections\NetworkSiteConnection', 'the_date' ), 10, 1 );
-			add_filter( 'get_the_excerpt', array( '\Syndicate\InternalConnections\NetworkSiteConnection', 'get_the_excerpt' ), 10, 1 );
-			add_filter( 'get_canonical_url', array( '\Syndicate\InternalConnections\NetworkSiteConnection', 'canonical_url' ), 10, 2 );
-			add_filter( 'post_thumbnail_html', array( '\Syndicate\InternalConnections\NetworkSiteConnection', 'post_thumbnail' ), 10, 2 );
+			add_filter( 'the_title', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'the_title' ), 10, 2 );
+			add_filter( 'the_content', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'the_content' ), 10, 1 );
+			add_filter( 'the_date', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'the_date' ), 10, 1 );
+			add_filter( 'get_the_excerpt', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'get_the_excerpt' ), 10, 1 );
+			add_filter( 'get_canonical_url', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'canonical_url' ), 10, 2 );
+			add_filter( 'post_thumbnail_html', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'post_thumbnail' ), 10, 2 );
 		}
 	}
 
