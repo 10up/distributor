@@ -364,53 +364,49 @@ function menu_content() {
 		<div class="inner">
 			<p><?php echo sprintf( __( 'Post &quot;%s&quot; to other connections.', 'syndicate' ), get_the_title( $post->ID ) ); ?></p>
 
-			<?php if ( 1 < count( $dom_connections ) ) : ?>
-				<div class="connections-selector">
-					<div>
-						<?php if ( 5 < count( $dom_connections ) ) : ?>
-							<input type="text" id="sy-connection-search" placeholder="<?php esc_html_e( 'Search available connections', 'syndicate' ); ?>">
-						<?php endif; ?>
+			<div class="connections-selector">
+				<div>
+					<?php if ( 5 < count( $dom_connections ) ) : ?>
+						<input type="text" id="sy-connection-search" placeholder="<?php esc_html_e( 'Search available connections', 'syndicate' ); ?>">
+					<?php endif; ?>
 
-						<div class="new-connections-list">
-							<?php foreach ( $dom_connections as $connection ) : ?>
-								<?php if ( 'external' === $connection['type'] ) : ?>
-									<div class="add-connection <?php if ( ! empty( $connection['syndicated'] ) ) : ?>syndicated<?php endif; ?>" data-connection-type="external" data-connection-id="<?php echo (int) $connection['id']; ?>">
-										<span><?php echo esc_html( get_the_title( $connection['id'] ) ); ?></span>
-									</div>
-								<?php else : ?>
-									<div class="add-connection <?php if ( ! empty( $connection['syndicated'] ) ) : ?>syndicated<?php endif; ?>" data-connection-type="internal" data-connection-id="<?php echo (int) $connection['id']; ?>">
-										<span><?php echo esc_html( $connection['url'] ); ?></span>
-										<?php if ( ! empty( $connection['syndicated'] ) ) : ?>
-											<a href="<?php echo esc_url( $connection['syndicated'] ); ?>"><?php esc_html_e( 'View', 'syndicate' ); ?></a>
-										<?php endif; ?>
-									</div>
-								<?php endif; ?>
-							<?php endforeach; ?>
-						</div>
+					<div class="new-connections-list">
+						<?php foreach ( $dom_connections as $connection ) : ?>
+							<?php if ( 'external' === $connection['type'] ) : ?>
+								<div class="add-connection <?php if ( ! empty( $connection['syndicated'] ) ) : ?>syndicated<?php endif; ?>" data-connection-type="external" data-connection-id="<?php echo (int) $connection['id']; ?>">
+									<span><?php echo esc_html( get_the_title( $connection['id'] ) ); ?></span>
+								</div>
+							<?php else : ?>
+								<div class="add-connection <?php if ( ! empty( $connection['syndicated'] ) ) : ?>syndicated<?php endif; ?>" data-connection-type="internal" data-connection-id="<?php echo (int) $connection['id']; ?>">
+									<span><?php echo esc_html( $connection['url'] ); ?></span>
+									<?php if ( ! empty( $connection['syndicated'] ) ) : ?>
+										<a href="<?php echo esc_url( $connection['syndicated'] ); ?>"><?php esc_html_e( 'View', 'syndicate' ); ?></a>
+									<?php endif; ?>
+								</div>
+							<?php endif; ?>
+						<?php endforeach; ?>
 					</div>
 				</div>
-				<div class="connections-selected empty">
-					<header class="with-selected"><?php esc_html_e( 'Selected sites', 'syndicate' ); ?></header>
-					<header class="no-selected"><?php esc_html_e( 'No sites selected', 'syndicate' ); ?></header>
+			</div>
+			<div class="connections-selected empty">
+				<header class="with-selected"><?php esc_html_e( 'Selected sites', 'syndicate' ); ?></header>
+				<header class="no-selected"><?php esc_html_e( 'No sites selected', 'syndicate' ); ?></header>
 
-					<div class="selected-connections-list"></div>
+				<div class="selected-connections-list"></div>
 
-					<div class="action-wrapper">
-						<button class="syndicate-button"><?php esc_html_e( 'Syndicate', 'syndicate' ); ?></button>
-					</div>
+				<div class="action-wrapper">
+					<button class="syndicate-button"><?php esc_html_e( 'Syndicate', 'syndicate' ); ?></button>
 				</div>
+			</div>
 
-				<div class="messages">
-					<div class="sy-success">
-						<?php esc_html_e( 'Post successfully syndicated.', 'syndicate' ); ?>
-					</div>
-					<div class="sy-error">
-						<?php esc_html_e( 'There was an issue syndicating the post.', 'syndicate' ); ?>
-					</div>
+			<div class="messages">
+				<div class="sy-success">
+					<?php esc_html_e( 'Post successfully syndicated.', 'syndicate' ); ?>
 				</div>
-			<?php else : ?>
-
-			<?php endif; ?>
+				<div class="sy-error">
+					<?php esc_html_e( 'There was an issue syndicating the post.', 'syndicate' ); ?>
+				</div>
+			</div>
 		</div>
 	</div>
 	<?php
