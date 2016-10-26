@@ -61,7 +61,7 @@ class WordPressExternalConnection extends ExternalConnection {
 			if ( isset( $args['post__in'] ) ) {
 				if ( empty( $args['post__in'] ) ) {
 					// If post__in is empty, we can just stop right here
-					return apply_filters( 'sy_remote_get', [
+					return apply_filters( 'dt_remote_get', [
 						'items'       => array(),
 						'total_items' => 0,
 					], $args, $this );
@@ -120,7 +120,7 @@ class WordPressExternalConnection extends ExternalConnection {
 			$args_str .= 'per_page=' . (int) $posts_per_page;
 		}
 
-		$query_args = apply_filters( 'sy_remote_get_query_args', $query_args, $args, $this );
+		$query_args = apply_filters( 'dt_remote_get_query_args', $query_args, $args, $this );
 
 		foreach ( $query_args as $arg_key => $arg_value ) {
 			if ( is_array( $arg_value ) ) {
@@ -146,7 +146,7 @@ class WordPressExternalConnection extends ExternalConnection {
 			$posts_url = untrailingslashit( $types_urls[ $post_type ] ) . '/?' . $args_str;
 		}
 
-		$posts_response = wp_remote_get( apply_filters( 'sy_remote_get_url', $posts_url, $args, $this ), $this->auth_handler->format_get_args( array( 'timeout' => 10, ) ) );
+		$posts_response = wp_remote_get( apply_filters( 'dt_remote_get_url', $posts_url, $args, $this ), $this->auth_handler->format_get_args( array( 'timeout' => 10, ) ) );
 
 		if ( is_wp_error( $posts_response ) ) {
 			return $posts_response;
@@ -171,12 +171,12 @@ class WordPressExternalConnection extends ExternalConnection {
 				$total_posts = count( $formatted_posts );
 			}
 
-			return apply_filters( 'sy_remote_get', [
+			return apply_filters( 'dt_remote_get', [
 				'items'       => $formatted_posts,
 				'total_items' => $total_posts,
 			], $args, $this );
 		} else {
-			return apply_filters( 'sy_remote_get', $this->to_wp_post( $posts ), $args, $this );
+			return apply_filters( 'dt_remote_get', $this->to_wp_post( $posts ), $args, $this );
 		}
 	}
 
@@ -213,9 +213,9 @@ class WordPressExternalConnection extends ExternalConnection {
 			unset( $post_array['post_modified'] );
 			unset( $post_array['post_modified_gmt'] );
 
-			$new_post = wp_insert_post( apply_filters( 'sy_pull_post_args', $post_array, $item_id, $post, $this ) );
+			$new_post = wp_insert_post( apply_filters( 'dt_pull_post_args', $post_array, $item_id, $post, $this ) );
 
-			do_action( 'sy_pull_post', $new_post, $this );
+			do_action( 'dt_pull_post', $new_post, $this );
 
 			$created_posts[] = $new_post;
 		}
@@ -295,9 +295,9 @@ class WordPressExternalConnection extends ExternalConnection {
 			}
 		}
 
-		$response = wp_remote_post( $type_url, $this->auth_handler->format_post_args( array( 'timeout' => 10, 'body' => apply_filters( 'sy_push_post_args', $post_body, $post, $this ) ) ) );
+		$response = wp_remote_post( $type_url, $this->auth_handler->format_post_args( array( 'timeout' => 10, 'body' => apply_filters( 'dt_push_post_args', $post_body, $post, $this ) ) ) );
 
-		do_action( 'sy_push_post', $response, $post_body, $type_url, $post_id, $args, $this );
+		do_action( 'dt_push_post', $response, $post_body, $type_url, $post_id, $args, $this );
 
 		if ( is_wp_error( $response ) ) {
 			return $response;
@@ -453,6 +453,6 @@ class WordPressExternalConnection extends ExternalConnection {
 		$obj->link = $post['link'];
 		$obj->post_author = get_current_user_id();
 
-		return apply_filters( 'sy_item_mapping', new \WP_Post( $obj ), $post, $this );
+		return apply_filters( 'dt_item_mapping', new \WP_Post( $obj ), $post, $this );
 	}
 }

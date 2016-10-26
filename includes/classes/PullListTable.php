@@ -137,7 +137,7 @@ class PullListTable extends \WP_List_Table {
 
 		if ( ! empty( $_GET['status'] ) && 'pulled' === $_GET['status'] ) {
 			if ( ! empty( $this->sync_log[ $post->ID ] ) ) {
-				$syndicated_at = get_post_meta( $this->sync_log[ $post->ID ], 'sy_syndicate_time', true );
+				$syndicated_at = get_post_meta( $this->sync_log[ $post->ID ], 'dt_syndicate_time', true );
 				
 				if ( empty( $syndicated_at ) ) {
 					esc_html_e( 'Post deleted.', 'distributor' );
@@ -215,7 +215,7 @@ class PullListTable extends \WP_List_Table {
 				return $post_type_object->labels->singular_name;
 				break;
 			case 'url':
-				$url = get_post_meta( $item->ID, 'sy_external_connection_url', true );
+				$url = get_post_meta( $item->ID, 'dt_external_connection_url', true );
 
 				if ( empty( $url ) ) {
 					$url = esc_html__( 'None', 'distributor' );
@@ -278,7 +278,7 @@ class PullListTable extends \WP_List_Table {
 		if ( empty( $_GET['status'] ) || 'new' === $_GET['status'] ) {
 			$actions = [
 				'view' => '<a href="' . esc_url( $item->link ) . '">' . esc_html__( 'View', 'distributor' ) . '</a>',
-				'skip' => sprintf( '<a href="%s">%s</a>', esc_url( wp_nonce_url( admin_url( 'admin.php?page=pull&action=skip&_wp_http_referer=' . urlencode( $_SERVER['REQUEST_URI'] ) . '&post=' . $item->ID . '&connection_type=' . $connection_type . '&connection_id=' . $connection_id ), 'sy_skip' ) ), esc_html__( 'Skip', 'distributor' ) ),
+				'skip' => sprintf( '<a href="%s">%s</a>', esc_url( wp_nonce_url( admin_url( 'admin.php?page=pull&action=skip&_wp_http_referer=' . urlencode( $_SERVER['REQUEST_URI'] ) . '&post=' . $item->ID . '&connection_type=' . $connection_type . '&connection_id=' . $connection_id ), 'dt_skip' ) ), esc_html__( 'Skip', 'distributor' ) ),
 			];
 		} elseif ( 'skipped' === $_GET['status'] ) {
 			$actions = [
@@ -337,9 +337,9 @@ class PullListTable extends \WP_List_Table {
 		}
 
 		if ( is_a( $connection_now, '\Distributor\ExternalConnection' ) ) {
-			$this->sync_log = get_post_meta( $connection_now->id, 'sy_sync_log', true );
+			$this->sync_log = get_post_meta( $connection_now->id, 'dt_sync_log', true );
 		} else {
-			$this->sync_log = get_site_option( 'sy_sync_log_' . $connection_now->site->blog_id, array() );
+			$this->sync_log = get_site_option( 'dt_sync_log_' . $connection_now->site->blog_id, array() );
 		}
 
 		if ( empty( $this->sync_log ) ) {

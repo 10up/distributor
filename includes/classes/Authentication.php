@@ -34,7 +34,7 @@ abstract class Authentication {
 	 * @return array
 	 */
 	public function format_get_args( $args, $context = array() ) {
-		return apply_filters( 'sy_auth_format_get_args', $args, $context, $this );
+		return apply_filters( 'dt_auth_format_get_args', $args, $context, $this );
 	}
 
 	/**
@@ -46,7 +46,7 @@ abstract class Authentication {
 	 * @return array
 	 */
 	public function format_post_args( $args, $context = array() ) {
-		return apply_filters( 'sy_auth_format_post_args', $args, $context, $this );
+		return apply_filters( 'dt_auth_format_post_args', $args, $context, $this );
 	}
 
 	/**
@@ -72,6 +72,6 @@ abstract class Authentication {
 	 * @since 0.8
 	 */
 	public static function store_credentials( $external_connection_id, $args ) {
-		update_post_meta( $external_connection_id, 'sy_external_connection_auth', $args );
+		update_post_meta( $external_connection_id, 'dt_external_connection_auth', $args );
 	}
 }

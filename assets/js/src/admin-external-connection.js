@@ -16,16 +16,16 @@
 	});
 
 	var externalConnectionUrlField = document.getElementsByClassName('external-connection-url-field')[0];
-	var externalConnectionMetaBox = document.getElementById('sy_external_connection_details');
-	var externalConnectionVerificationMetaBox = document.getElementById('sy_external_connection_connection');
+	var externalConnectionMetaBox = document.getElementById('dt_external_connection_details');
+	var externalConnectionVerificationMetaBox = document.getElementById('dt_external_connection_connection');
 	var externalConnectionTypeField = document.getElementsByClassName('external-connection-type-field')[0];
 	var authFields = document.getElementsByClassName('auth-field');
 	var titleField = document.getElementById('title');
-	var externalConnectionVerificationWrapper = document.querySelectorAll('#sy_external_connection_connection .inside')[0];
+	var externalConnectionVerificationWrapper = document.querySelectorAll('#dt_external_connection_connection .inside')[0];
 	var endpointResult = document.querySelector('.endpoint-result');
 	var postIdField = document.getElementById('post_ID');
 	var $apiVerify = false;
-	var verificationTemplate = processTemplate('sy-external-connection-verification');
+	var verificationTemplate = processTemplate('dt-external-connection-verification');
 
 	function checkConnections(event) {
 		if ($apiVerify !== false) {
@@ -67,7 +67,7 @@
 			method: 'post',
 			data: {
 				nonce: sy.nonce,
-				action: 'sy_verify_external_connection',
+				action: 'dt_verify_external_connection',
 				auth: auth,
 				url: externalConnectionUrlField.value,
 				type: externalConnectionTypeField.value,
@@ -133,8 +133,8 @@
 	 *
 	 * @todo  separate
 	 */
-	var passwordField = document.getElementById('sy_password');
-	var usernameField = document.getElementById('sy_username');
+	var passwordField = document.getElementById('dt_password');
+	var usernameField = document.getElementById('dt_username');
 	var changePassword = document.querySelector('.change-password');
 
 	$(usernameField).on('keyup change', _.debounce(function() {

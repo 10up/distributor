@@ -10,7 +10,7 @@ namespace Distributor\PullUI;
 add_action( 'plugins_loaded', function() {
 	add_action( 'admin_menu', __NAMESPACE__  . '\action_admin_menu' );
 	add_action( 'admin_enqueue_scripts', __NAMESPACE__  . '\admin_enqueue_scripts' );
-	add_action( 'load-syndicate_page_pull', __NAMESPACE__ . '\setup_list_table' );
+	add_action( 'load-distributor_page_pull', __NAMESPACE__ . '\setup_list_table' );
 } );
 
 /**
@@ -21,20 +21,20 @@ add_action( 'plugins_loaded', function() {
 function setup_list_table() {
 	global $connection_list_table;
 	global $connection_now;
-	global $sy_pull_messages;
+	global $dt_pull_messages;
 
-	if ( ! empty( $_COOKIE['sy-skipped'] ) ) {
-		$sy_pull_messages['skipped'] = 1;
+	if ( ! empty( $_COOKIE['dt-skipped'] ) ) {
+		$dt_pull_messages['skipped'] = 1;
 
-		setcookie( 'sy-skipped', 1, time() - 60, ADMIN_COOKIE_PATH, COOKIE_DOMAIN, is_ssl() );
-	} elseif ( ! empty( $_COOKIE['sy-syndicated'] ) ) {
-		$sy_pull_messages['syndicated'] = 1;
+		setcookie( 'dt-skipped', 1, time() - 60, ADMIN_COOKIE_PATH, COOKIE_DOMAIN, is_ssl() );
+	} elseif ( ! empty( $_COOKIE['dt-syndicated'] ) ) {
+		$dt_pull_messages['syndicated'] = 1;
 
-		setcookie( 'sy-syndicated', 1, time() - 60, ADMIN_COOKIE_PATH, COOKIE_DOMAIN, is_ssl() );
+		setcookie( 'dt-syndicated', 1, time() - 60, ADMIN_COOKIE_PATH, COOKIE_DOMAIN, is_ssl() );
 	}
 
 	$external_connections = new \WP_Query( array(
-		'post_type'      => 'sy_ext_connection',
+		'post_type'      => 'dt_ext_connection',
 		'fields'         => 'ids',
 		'no_found_rows'  => true,
 		'posts_per_page' => 100,
@@ -56,7 +56,7 @@ function setup_list_table() {
 	}
 
 	foreach ( $external_connections->posts as $external_connection_id ) {
-		$external_connection_status = get_post_meta( $external_connection_id, 'sy_external_connections', true );
+		$external_connection_status = get_post_meta( $external_connection_id, 'dt_external_connections', true );
 
 		if ( empty( $external_connection_status ) || empty( $external_connection_status['can_get'] ) ) {
 			continue;
@@ -87,7 +87,7 @@ function setup_list_table() {
  * @since  0.8
  */
 function admin_enqueue_scripts( $hook ) {
-	if ( 'syndicate_page_pull' !== $hook || empty( $_GET['page'] ) || 'pull' !== $_GET['page'] ) {
+	if ( 'distributor_page_pull' !== $hook || empty( $_GET['page'] ) || 'pull' !== $_GET['page'] ) {
 		return;
 	}
 
@@ -99,8 +99,8 @@ function admin_enqueue_scripts( $hook ) {
 		$css_path = '/assets/css/admin-pull-table.min.css';
 	}
 
-	wp_enqueue_script( 'sy-admin-pull', plugins_url( $js_path, __DIR__ ), array( 'jquery' ), SY_VERSION, true );
-	wp_enqueue_style( 'sy-admin-pull', plugins_url( $css_path, __DIR__ ), array(), SY_VERSION );
+	wp_enqueue_script( 'dt-admin-pull', plugins_url( $js_path, __DIR__ ), array( 'jquery' ), SY_VERSION, true );
+	wp_enqueue_style( 'dt-admin-pull', plugins_url( $css_path, __DIR__ ), array(), SY_VERSION );
 }
 
 /**
@@ -110,7 +110,7 @@ function admin_enqueue_scripts( $hook ) {
  */
 function action_admin_menu() {
 	$hook = add_submenu_page(
-		'syndicate',
+		'distributor',
 		esc_html__( 'Pull Content', 'distributor' ),
 		esc_html__( 'Pull Content', 'distributor' ),
 		'manage_options',
@@ -149,7 +149,7 @@ function process_actions() {
 	switch ( $connection_list_table->current_action() ) {
 		case 'syndicate':
 		case 'bulk-syndicate':
-			if ( ! wp_verify_nonce( $_GET['_wpnonce'], 'sy_syndicate' ) && ! wp_verify_nonce( $_GET['_wpnonce'], 'bulk-syndicate_page_pull' ) ) {
+			if ( ! wp_verify_nonce( $_GET['_wpnonce'], 'dt_syndicate' ) && ! wp_verify_nonce( $_GET['_wpnonce'], 'bulk-syndicate_page_pull' ) ) {
 				exit;
 			}
 
@@ -187,7 +187,7 @@ function process_actions() {
 
 			$connection->log_sync( $post_id_mappings );
 
-			setcookie( 'sy-syndicated', 1, time() + DAY_IN_SECONDS, ADMIN_COOKIE_PATH, COOKIE_DOMAIN, is_ssl() );
+			setcookie( 'dt-syndicated', 1, time() + DAY_IN_SECONDS, ADMIN_COOKIE_PATH, COOKIE_DOMAIN, is_ssl() );
 
 			wp_redirect( wp_get_referer() );
 			exit;
@@ -195,7 +195,7 @@ function process_actions() {
 			break;
 		case 'bulk-skip':
 		case 'skip':
-			if ( ! wp_verify_nonce( $_GET['_wpnonce'], 'sy_skip' ) && ! wp_verify_nonce( $_GET['_wpnonce'], 'bulk-syndicate_page_pull' ) ) {
+			if ( ! wp_verify_nonce( $_GET['_wpnonce'], 'dt_skip' ) && ! wp_verify_nonce( $_GET['_wpnonce'], 'bulk-syndicate_page_pull' ) ) {
 				exit;
 			}
 
@@ -231,7 +231,7 @@ function process_actions() {
 
 			$connection->log_sync( $post_mapping );
 
-			setcookie( 'sy-skipped', 1, time() + DAY_IN_SECONDS, ADMIN_COOKIE_PATH, COOKIE_DOMAIN, is_ssl() );
+			setcookie( 'dt-skipped', 1, time() + DAY_IN_SECONDS, ADMIN_COOKIE_PATH, COOKIE_DOMAIN, is_ssl() );
 
 			wp_redirect( wp_get_referer() );
 			exit;
@@ -248,7 +248,7 @@ function process_actions() {
 function dashboard() {
 	global $connection_list_table;
 	global $connection_now;
-	global $sy_pull_messages;
+	global $dt_pull_messages;
 
 	$connection_list_table->prepare_items();
 
@@ -278,7 +278,7 @@ function dashboard() {
 	<div class="wrap nosubsub">
 		<h1>
 			<?php if ( empty( $connection_list_table->connection_objects ) ) : $connection_now = 0; ?>
-				<?php printf( __( 'No Connections to Pull from, <a href="%s">Create One</a>?', 'distributor' ), esc_url( admin_url( 'post-new.php?post_type=sy_ext_connection' ) ) ); ?>
+				<?php printf( __( 'No Connections to Pull from, <a href="%s">Create One</a>?', 'distributor' ), esc_url( admin_url( 'post-new.php?post_type=dt_ext_connection' ) ) ); ?>
 			<?php else : ?>
 				<?php esc_html_e( 'Pull Content from', 'distributor' ); ?>
 				<select id="pull_connections" name="connection" method="get">
@@ -333,13 +333,13 @@ function dashboard() {
 			</div>
 		<?php endif; ?>
 
-		<?php if ( ! empty( $sy_pull_messages ) && ! empty( $sy_pull_messages['skipped'] ) ) : ?>
+		<?php if ( ! empty( $dt_pull_messages ) && ! empty( $dt_pull_messages['skipped'] ) ) : ?>
 			<div id="message" class="updated notice is-dismissible">
 				<p><?php esc_html_e( 'Post(s) have been marked as skipped.', 'distributor' ); ?></p>
 			</div>
 		<?php endif; ?>
 
-		<?php if ( ! empty( $sy_pull_messages ) && ! empty( $sy_pull_messages['syndicated'] ) ) : ?>
+		<?php if ( ! empty( $dt_pull_messages ) && ! empty( $dt_pull_messages['syndicated'] ) ) : ?>
 			<div id="message" class="updated notice is-dismissible">
 				<p><?php esc_html_e( 'Post(s) have been pulled.', 'distributor' ); ?></p>
 			</div>

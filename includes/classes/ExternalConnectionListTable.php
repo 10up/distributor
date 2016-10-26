@@ -16,7 +16,7 @@ class ExternalConnectionListTable extends \WP_Posts_List_Table {
 	public function __construct() {
 		parent::__construct( array(
 			'ajax' => false,
-			'screen' => \WP_Screen::get( 'sy_ext_connection' ),
+			'screen' => \WP_Screen::get( 'dt_ext_connection' ),
 		) );
 	}
 

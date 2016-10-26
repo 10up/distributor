@@ -22,23 +22,23 @@
 	});
 
 	$(window).load(function() {
-		var syndicateMenuItem = document.querySelector('#wp-admin-bar-syndicate a');
-		var syndicatePushWrapper = document.querySelector('.syndicate-push-wrapper');
-		var connectionsSelected = syndicatePushWrapper.querySelector('.connections-selected');
+		var distributorMenuItem = document.querySelector('#wp-admin-bar-distributor a');
+		var distributorPushWrapper = document.querySelector('.distributor-push-wrapper');
+		var connectionsSelected = distributorPushWrapper.querySelector('.connections-selected');
 		var connectionsSelectedList = connectionsSelected.querySelector('.selected-connections-list');
-		var connectionsNewList = syndicatePushWrapper.querySelector('.new-connections-list');
-		var connectionsSearchInput = document.getElementById('sy-connection-search');
-		var syndicateButton = syndicatePushWrapper.querySelector('.syndicate-button');
-		var actionWrapper = syndicatePushWrapper.querySelector('.action-wrapper');
+		var connectionsNewList = distributorPushWrapper.querySelector('.new-connections-list');
+		var connectionsSearchInput = document.getElementById('dt-connection-search');
+		var syndicateButton = distributorPushWrapper.querySelector('.syndicate-button');
+		var actionWrapper = distributorPushWrapper.querySelector('.action-wrapper');
 
 		/**
 		 * Handle UI error changes
 		 */
 		function doError() {
-			syndicatePushWrapper.classList.add('message-error');
+			distributorPushWrapper.classList.add('message-error');
 
 			setTimeout(function() {
-				syndicatePushWrapper.classList.remove('message-error');
+				distributorPushWrapper.classList.remove('message-error');
 			}, 6000);
 		}
 
@@ -52,7 +52,7 @@
 				if ('fail' === result.status) {
 					error = true;
 				} else {
-					sy_connections['internal' + connectionId].syndicated = result.url;
+					dt_connections['internal' + connectionId].syndicated = result.url;
 				}
 			});
 
@@ -60,20 +60,20 @@
 				if ('fail' === result.status) {
 					error = true;
 				} else {
-					sy_connections['external' + connectionId].syndicated = true;
+					dt_connections['external' + connectionId].syndicated = true;
 				}
 			});
 
 			if (error) {
 				doError();
 			} else {
-				syndicatePushWrapper.classList.add('message-success');
+				distributorPushWrapper.classList.add('message-success');
 
 				connectionsSelected.classList.add('empty');
 				connectionsSelectedList.innerHTML = '';
 
 				setTimeout(function() {
-					syndicatePushWrapper.classList.remove('message-success');
+					distributorPushWrapper.classList.remove('message-success');
 				}, 6000);
 			}
 
@@ -88,7 +88,7 @@
 		function showConnections() {
 			connectionsNewList.innerHTML = '';
 
-			_.each(sy_connections, function(connection, id) {
+			_.each(dt_connections, function(connection, id) {
 				if ('' !== searchString) {
 					var nameMatch = connection.name.replace(/[^0-9a-zA-Z ]+/, '').match(searchString);
 					var urlMatch = connection.url.replace(/https?:\/\//i, '').replace(/www/i, '').replace(/[^0-9a-zA-Z ]+/, '').match(searchString);
@@ -98,7 +98,7 @@
 					}
 				}
 
-				var showConnection = processTemplate('sy-add-connection')({
+				var showConnection = processTemplate('dt-add-connection')({
 					connection: connection,
 					selectedConnections: selectedConnections
 				});
@@ -121,7 +121,7 @@
 				url: sy.ajaxurl,
 				method: 'post',
 				data: {
-					action: 'sy_push',
+					action: 'dt_push',
 					nonce: sy.nonce,
 					connections: selectedConnections,
 					post_id: sy.post_id
@@ -149,22 +149,22 @@
 		/**
 		 * Show syndication dropdown
 		 */
-		$(syndicateMenuItem).on('click', function(event) {
+		$(distributorMenuItem).on('click', function(event) {
 			event.preventDefault();
 
-			if (document.body.classList.contains('syndicate-show')) {
+			if (document.body.classList.contains('distributor-show')) {
 				syndicateMenuItem.blur();
 			} else {
 				syndicateMenuItem.focus();
 			}
 
-			document.body.classList.toggle('syndicate-show');
+			document.body.classList.toggle('distributor-show');
 		});
 
 		/**
 		 * Add a connection to selected connections for ajax and to the UI list.
 		 */
-		$(syndicatePushWrapper).on('click', '.add-connection', function(event) {
+		$(distributorPushWrapper).on('click', '.add-connection', function(event) {
 			if ('A' === event.target.nodeName) {
 				return;
 			}
@@ -182,7 +182,7 @@
 			var type = event.currentTarget.getAttribute('data-connection-type');
 			var id = event.currentTarget.getAttribute('data-connection-id');
 
-			selectedConnections[type + id] = sy_connections[type + id];
+			selectedConnections[type + id] = dt_connections[type + id];
 
 			connectionsSelected.classList.remove('empty');
 
@@ -199,7 +199,7 @@
 		/**
 		 * Remove a connection from selected connections and the UI list
 		 */
-		$(syndicatePushWrapper).on('click', '.remove-connection', function(event) {
+		$(distributorPushWrapper).on('click', '.remove-connection', function(event) {
 			event.currentTarget.parentNode.parentNode.removeChild(event.currentTarget.parentNode);
 			var type = event.currentTarget.parentNode.getAttribute('data-connection-type');
 			var id = event.currentTarget.parentNode.getAttribute('data-connection-id');
@@ -218,7 +218,7 @@
 		 */
 		$(connectionsSearchInput).on('keyup change', _.debounce(function(event) {
 			if('' === event.currentTarget.value) {
-				showConnections(sy_connections);
+				showConnections(dt_connections);
 			}
 
 			searchString = event.currentTarget.value.replace(/https?:\/\//i, '').replace(/www/i, '').replace(/[^0-9a-zA-Z ]+/, '');

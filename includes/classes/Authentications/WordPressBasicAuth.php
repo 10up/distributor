@@ -35,19 +35,19 @@ class WordPressBasicAuth extends Authentication {
 		}
 		?>
 		<p>
-			<label for="sy_username"><?php esc_html_e( 'Username', 'distributor' ); ?></label><br>
-			<input type="text" name="sy_external_connection_auth[username]" data-auth-field="username" value="<?php echo esc_attr( $args['username'] ); ?>" class="auth-field" id="sy_username">
+			<label for="dt_username"><?php esc_html_e( 'Username', 'distributor' ); ?></label><br>
+			<input type="text" name="dt_external_connection_auth[username]" data-auth-field="username" value="<?php echo esc_attr( $args['username'] ); ?>" class="auth-field" id="dt_username">
 			
 			<span class="description"><?php esc_html_e( 'We need a username (preferrably with an Administrator role) to the WordPress site with the API.', 'distributor' ); ?>
 		</p>
 
 		<p>
-			<label for="sy_username"><?php esc_html_e( 'Password', 'distributor' ); ?> <?php if ( ! empty( $args['base64_encoded'] ) ) : ?><a class="change-password" href="#"><?php esc_html_e( '(Change)', 'distributor' ); ?></a><?php endif; ?></label><br>
+			<label for="dt_username"><?php esc_html_e( 'Password', 'distributor' ); ?> <?php if ( ! empty( $args['base64_encoded'] ) ) : ?><a class="change-password" href="#"><?php esc_html_e( '(Change)', 'distributor' ); ?></a><?php endif; ?></label><br>
 
 			<?php if ( ! empty( $args['base64_encoded'] ) ) : ?>
-			<input disabled type="password" name="sy_external_connection_auth[password]" value="ertdfweewefewwe" data-auth-field="password" class="auth-field" id="sy_password">
+			<input disabled type="password" name="dt_external_connection_auth[password]" value="ertdfweewefewwe" data-auth-field="password" class="auth-field" id="dt_password">
 			<?php else : ?>
-				<input type="password" name="sy_external_connection_auth[password]" data-auth-field="password" class="auth-field" id="sy_password">
+				<input type="password" name="dt_external_connection_auth[password]" data-auth-field="password" class="auth-field" id="dt_password">
 			<?php endif; ?>
 		</p>
 		<?php
@@ -75,7 +75,7 @@ class WordPressBasicAuth extends Authentication {
 			$auth['base64_encoded'] = base64_encode( $args['username'] . ':' . $args['password'] );
 		}
 
-		return apply_filters( 'sy_auth_prepare_credentials', $auth, $args );
+		return apply_filters( 'dt_auth_prepare_credentials', $auth, $args );
 	}
 
 	/**

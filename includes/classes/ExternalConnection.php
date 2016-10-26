@@ -41,7 +41,7 @@ abstract class ExternalConnection extends Connection {
 	 * @since  0.8
 	 */
 	public function log_sync( array $item_id_mappings ) {
-		$sync_log = get_post_meta( $this->id, 'sy_sync_log', true );
+		$sync_log = get_post_meta( $this->id, 'dt_sync_log', true );
 
 		if ( empty( $sync_log ) ) {
 			$sync_log = array();
@@ -55,9 +55,9 @@ abstract class ExternalConnection extends Connection {
 			}
 		}
 
-		update_post_meta( $this->id, 'sy_sync_log', $sync_log );
+		update_post_meta( $this->id, 'dt_sync_log', $sync_log );
 
-		do_action( 'sy_log_sync', $item_id_mappings, $sync_log, $this );
+		do_action( 'dt_log_sync', $item_id_mappings, $sync_log, $this );
 	}
 
 	/**
@@ -82,9 +82,9 @@ abstract class ExternalConnection extends Connection {
 			$external_connection_id = $external_connection_id->ID;
 		}
 
-		$type = get_post_meta( $external_connection_id, 'sy_external_connection_type', true );
-		$url = get_post_meta( $external_connection_id, 'sy_external_connection_url', true );
-		$auth = get_post_meta( $external_connection_id, 'sy_external_connection_auth', true );
+		$type = get_post_meta( $external_connection_id, 'dt_external_connection_type', true );
+		$url = get_post_meta( $external_connection_id, 'dt_external_connection_url', true );
+		$auth = get_post_meta( $external_connection_id, 'dt_external_connection_auth', true );
 		$name = get_the_title( $external_connection_id );
 
 		if ( empty( $type ) || empty( $url ) ) {
