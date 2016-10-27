@@ -147,15 +147,15 @@
 		});
 
 		/**
-		 * Show syndication dropdown
+		 * Show distributor dropdown
 		 */
 		$(distributorMenuItem).on('click', function(event) {
 			event.preventDefault();
 
 			if (document.body.classList.contains('distributor-show')) {
-				syndicateMenuItem.blur();
+				distributorMenuItem.blur();
 			} else {
-				syndicateMenuItem.focus();
+				distributorMenuItem.focus();
 			}
 
 			document.body.classList.toggle('distributor-show');

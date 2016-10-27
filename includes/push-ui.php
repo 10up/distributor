@@ -216,14 +216,15 @@ function enqueue_scripts( $hook ) {
 		$css_path = '/assets/css/push.min.css';
 	}
 
-	wp_enqueue_style( 'dt-push', plugins_url( $css_path, __DIR__ ), array(), SY_VERSION );
-	wp_enqueue_script( 'dt-push', plugins_url( $js_path, __DIR__ ), array( 'jquery', 'underscore' ), SY_VERSION, true );
+	wp_enqueue_style( 'dt-push', plugins_url( $css_path, __DIR__ ), array(), DT_VERSION );
+	wp_enqueue_script( 'dt-push', plugins_url( $js_path, __DIR__ ), array( 'jquery', 'underscore' ), DT_VERSION, true );
 	wp_localize_script( 'dt-push', 'sy', array(
 		'nonce'   => wp_create_nonce( 'dt-push' ),
 		'post_id' => (int) get_the_ID(),
 		'ajaxurl' => esc_url( admin_url( 'admin-ajax.php' ) ),
 	) );
 }
+
 /**
  * Let's setup our distributor menu in the toolbar
  *

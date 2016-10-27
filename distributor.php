@@ -15,7 +15,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly.
 }
 
-define( 'SY_VERSION', '0.8' );
+define( 'DT_VERSION', '0.8' );
 
 /**
  * PSR-4 autoloading

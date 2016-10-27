@@ -99,8 +99,8 @@ function admin_enqueue_scripts( $hook ) {
 		$css_path = '/assets/css/admin-pull-table.min.css';
 	}
 
-	wp_enqueue_script( 'dt-admin-pull', plugins_url( $js_path, __DIR__ ), array( 'jquery' ), SY_VERSION, true );
-	wp_enqueue_style( 'dt-admin-pull', plugins_url( $css_path, __DIR__ ), array(), SY_VERSION );
+	wp_enqueue_script( 'dt-admin-pull', plugins_url( $js_path, __DIR__ ), array( 'jquery' ), DT_VERSION, true );
+	wp_enqueue_style( 'dt-admin-pull', plugins_url( $css_path, __DIR__ ), array(), DT_VERSION );
 }
 
 /**

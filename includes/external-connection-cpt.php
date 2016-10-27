@@ -153,8 +153,8 @@ function admin_enqueue_scripts( $hook ) {
 			$css_path = '/assets/css/admin-external-connection.min.css';
 		}
 
-		wp_enqueue_style( 'dt-admin-external-connection', plugins_url( $css_path, __DIR__ ), array(), SY_VERSION );
-	    wp_enqueue_script( 'dt-admin-external-connection', plugins_url( $js_path, __DIR__ ), array( 'jquery', 'underscore' ), SY_VERSION, true );
+		wp_enqueue_style( 'dt-admin-external-connection', plugins_url( $css_path, __DIR__ ), array(), DT_VERSION );
+	    wp_enqueue_script( 'dt-admin-external-connection', plugins_url( $js_path, __DIR__ ), array( 'jquery', 'underscore' ), DT_VERSION, true );
 
 	    wp_localize_script( 'dt-admin-external-connection', 'sy', array(
 	    	'nonce' => wp_create_nonce( 'dt-verify-ext-conn' ),
@@ -182,7 +182,7 @@ function admin_enqueue_scripts( $hook ) {
 			$css_path = '/assets/css/admin-external-connections.min.css';
 		}
 
-		wp_enqueue_style( 'dt-admin-external-connections', plugins_url( $css_path, __DIR__ ), array(), SY_VERSION );
+		wp_enqueue_style( 'dt-admin-external-connections', plugins_url( $css_path, __DIR__ ), array(), DT_VERSION );
 	}
 
 	if ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) {
@@ -191,7 +191,7 @@ function admin_enqueue_scripts( $hook ) {
 		$css_path = '/assets/css/admin.min.css';
 	}
 
-	wp_enqueue_style( 'dt-admin', plugins_url( $css_path, __DIR__ ), array(), SY_VERSION );
+	wp_enqueue_style( 'dt-admin', plugins_url( $css_path, __DIR__ ), array(), DT_VERSION );
 }
 
 /**
@@ -274,7 +274,7 @@ function save_post( $post_id ) {
 			$current_auth = array();
 		}
 
-		$auth_creds = \Distributor\Connections::factory()->get_registered()[ $_POST['dt_external_connection_type'] ]::$auth_handler_class::prepare_credentials( array_merge( $_POST['dt_external_connection_auth'], (array) $current_auth ) );
+		$auth_creds = \Distributor\Connections::factory()->get_registered()[ $_POST['dt_external_connection_type'] ]::$auth_handler_class::prepare_credentials( array_merge( (array) $current_auth, $_POST['dt_external_connection_auth'] ) );
 
 		\Distributor\Connections::factory()->get_registered()[ $_POST['dt_external_connection_type'] ]::$auth_handler_class::store_credentials( $post_id, $auth_creds );
 	}

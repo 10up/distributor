@@ -1,6 +1,6 @@
 <?php
 
-namespace Distributor\DistributordPostUI;
+namespace Distributor\SyndicatedPostUI;
 
 /**
  * Setup actions and filters
@@ -8,7 +8,7 @@ namespace Distributor\DistributordPostUI;
  * @since 0.8
  */
 add_action( 'plugins_loaded', function() {
-	add_action( 'edit_form_top', __NAMESPACE__ . '\Distributord_message', 9, 1 );
+	add_action( 'edit_form_top', __NAMESPACE__ . '\syndicated_message', 9, 1 );
 	add_action( 'admin_enqueue_scripts', __NAMESPACE__  . '\admin_enqueue_scripts' );
 	add_action( 'admin_init', __NAMESPACE__  . '\unlink' );
 	add_action( 'admin_init', __NAMESPACE__  . '\link' );
@@ -331,7 +331,7 @@ function admin_enqueue_scripts( $hook ) {
 		$css_path = '/assets/css/admin-syndicated-post.min.css';
 	}
 
-	wp_enqueue_style( 'dt-admin-syndicated-post', plugins_url( $css_path, __DIR__ ), array(), SY_VERSION );
+	wp_enqueue_style( 'dt-admin-syndicated-post', plugins_url( $css_path, __DIR__ ), array(), DT_VERSION );
 
 	$unlinked = (bool) get_post_meta( $post->ID, 'dt_unlinked', true );
 
