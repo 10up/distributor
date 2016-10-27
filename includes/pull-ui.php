@@ -149,7 +149,7 @@ function process_actions() {
 	switch ( $connection_list_table->current_action() ) {
 		case 'syndicate':
 		case 'bulk-syndicate':
-			if ( ! wp_verify_nonce( $_GET['_wpnonce'], 'dt_syndicate' ) && ! wp_verify_nonce( $_GET['_wpnonce'], 'bulk-syndicate_page_pull' ) ) {
+			if ( ! wp_verify_nonce( $_GET['_wpnonce'], 'bulk-distributor_page_pull' ) ) {
 				exit;
 			}
 
