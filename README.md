@@ -4,7 +4,7 @@ Distributor
 Distributor is a WordPress plugin allowing you to syndicate content to and from external websites and within multisite blogs.
 
 <p align="center">
-<a href="http://10up.com/contact/"><img src="https://10updotcom-wpengine.s3.amazonaws.com/uploads/2016/08/10up_github_banner-2.png" width="850"></a>
+<a href="http://10up.com/contact/"><img src="https://10updotcom-wpengine.s3.amazonaws.com/uploads/2016/10/10up-Github-Banner.png" width="850"></a>
 </p>
 
 ## Requirements
