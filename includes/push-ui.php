@@ -31,7 +31,7 @@ function syndicatable() {
 	if ( is_admin() ) {
 		global $pagenow;
 
-		if ( 'post.php' !== $pagenow && 'post-new.php' !== $pagenow ) {
+		if ( 'post.php' !== $pagenow ) {
 	    	return false;
 	    }
 
