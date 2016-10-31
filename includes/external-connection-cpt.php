@@ -274,9 +274,12 @@ function save_post( $post_id ) {
 			$current_auth = array();
 		}
 
-		$auth_creds = \Distributor\Connections::factory()->get_registered()[ $_POST['dt_external_connection_type'] ]::$auth_handler_class::prepare_credentials( array_merge( (array) $current_auth, $_POST['dt_external_connection_auth'] ) );
+		$connection_class = \Distributor\Connections::factory()->get_registered()[ $_POST['dt_external_connection_type'] ];
+		$auth_handler_class_again = $connection_class::$auth_handler_class;
 
-		\Distributor\Connections::factory()->get_registered()[ $_POST['dt_external_connection_type'] ]::$auth_handler_class::store_credentials( $post_id, $auth_creds );
+		$auth_creds = $auth_handler_class_again::prepare_credentials( array_merge( (array) $current_auth, $_POST['dt_external_connection_auth'] ) );
+
+		$auth_handler_class_again::store_credentials( $post_id, $auth_creds );
 	}
 }
 
@@ -396,9 +399,9 @@ function meta_box_external_connection_details( $post ) {
 		</p>
 	<?php endif; ?>
 
-	<?php foreach ( $registered_external_connection_types as $external_connection_class ) : if ( ! $external_connection_class::$auth_handler_class::$requires_credentials ) { continue; } ?>
-		<div class="auth-credentials <?php echo esc_attr( $external_connection_class::$auth_handler_class::$slug ); ?>">
-			<?php $external_connection_class::$auth_handler_class::credentials_form( $auth ); ?>
+	<?php foreach ( $registered_external_connection_types as $external_connection_class ) : $auth_handler_class_again = $external_connection_class::$auth_handler_class; if ( ! $auth_handler_class_again::$requires_credentials ) { continue; } ?>
+		<div class="auth-credentials <?php echo esc_attr( $auth_handler_class_again::$slug ); ?>">
+			<?php $auth_handler_class_again::credentials_form( $auth ); ?>
 		</div>
 	<?php endforeach; ?>
 

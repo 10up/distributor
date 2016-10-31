@@ -14,7 +14,35 @@ add_action( 'plugins_loaded', function() {
 	add_action( 'admin_init', __NAMESPACE__  . '\link' );
 	add_action( 'post_submitbox_misc_actions', __NAMESPACE__ . '\syndication_date' );
 	add_filter( 'admin_body_class', __NAMESPACE__ . '\add_linked_class' );
+	add_filter( 'post_row_actions', __NAMESPACE__ . '\remove_quick_edit', 10, 2 );
 } );
+
+/**
+ * Remove quick edit for linked posts
+ * 
+ * @param  array $actions
+ * @param  WP_Post $post
+ * @since  0.8
+ * @return array
+ */
+function remove_quick_edit( $actions, $post ) {
+	$original_blog_id = get_post_meta( $post->ID, 'dt_original_blog_id', true );
+	$original_post_id = get_post_meta( $post->ID, 'dt_original_post_id', true );
+
+	if ( empty( $original_post_id ) || empty( $original_blog_id ) ) {
+		return $actions;
+	}
+
+	$unlinked = (bool) get_post_meta( $post->ID, 'dt_unlinked', true );
+
+	if ( $unlinked ) {
+		return $actions;
+	}
+
+	unset( $actions['inline hide-if-no-js'] );
+
+	return $actions;
+}
 
 /**
  * Add linked class to body

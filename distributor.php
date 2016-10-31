@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Plugin Name: Distrbutor
+ * Plugin Name: Distributor
  * Description: Syndicate content to and from external websites and within multisite blogs.
  * Version:     0.8
  * Author:      Taylor Lovett, 10up
