@@ -1,6 +1,6 @@
 <?php
 
-namespace Syndicate\InternalConnections;
+namespace Distributor\InternalConnections;
 
 class NetworkSiteConnectionsTest extends \TestCase {
 
