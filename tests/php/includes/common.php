@@ -17,6 +17,15 @@ class WP_Error {
 }
 
 /**
+ * Hollowed out WP_List_Table class for mocking
+ *
+ * @since  0.8
+ */
+class WP_List_Table {
+	public function __construct(){}
+}
+
+/**
  * Check if object is WP_Error
  *
  * @param  Object $thing
