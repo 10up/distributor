@@ -125,16 +125,6 @@ $background-color-dark: #23282d;
 			width: 100%;
 		}
 
-		.connections-selector:after {
-			transform : scale(1, 1.8);
-			content: "\f345";
-			font-family: dashicons;
-			font-size: 60px;
-			color: darken($font-color, 50%);
-			position: relative;
-			right: -.4em;
-		}
-
 		.connections-selected {
 			width: 40%;
 			float: right;
