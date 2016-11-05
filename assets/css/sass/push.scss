@@ -135,6 +135,16 @@ $background-color-dark: #23282d;
 	}
 }
 
+.distributor-push-wrapper .syndicated-notice {
+	text-align: center;
+	margin: 0;
+
+	a {
+		color: inherit;
+		text-decoration: underline;
+	}
+}
+
 .distributor-push-wrapper input[type=text] {
 	font-size: inherit;
 	padding: 0.5278em;

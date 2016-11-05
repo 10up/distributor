@@ -25,7 +25,7 @@
 		var distributorMenuItem = document.querySelector('#wp-admin-bar-distributor a');
 		var distributorPushWrapper = document.querySelector('.distributor-push-wrapper');
 		var connectionsSelected = distributorPushWrapper.querySelector('.connections-selected');
-		var connectionsSelectedList = connectionsSelected.querySelector('.selected-connections-list');
+		var connectionsSelectedList = distributorPushWrapper.querySelector('.selected-connections-list');
 		var connectionsNewList = distributorPushWrapper.querySelector('.new-connections-list');
 		var connectionsSearchInput = document.getElementById('dt-connection-search');
 		var syndicateButton = distributorPushWrapper.querySelector('.syndicate-button');
