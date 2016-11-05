@@ -107,6 +107,10 @@ function ajax_push() {
 					$push_args['remote_post_id'] = (int) $connection_map['external'][ (int) $connection['id'] ]['post_id'];
 				}
 
+				if ( ! empty( $_POST['draft' ] ) ) {
+					$push_args['post_status'] = 'draft';
+				}
+
 				$remote_id = $external_connection->push( $_POST['post_id'], $push_args );
 
 				/**
@@ -138,6 +142,10 @@ function ajax_push() {
 
 			if ( ! empty( $connection_map['internal'][ (int) $connection['id'] ] ) && ! empty( $connection_map['internal'][ (int) $connection['id'] ]['post_id'] ) ) {
 				$push_args['remote_post_id'] = (int) $connection_map['internal'][ (int) $connection['id'] ]['post_id'];
+			}
+
+			if ( ! empty( $_POST['draft' ] ) ) {
+				$push_args['post_status'] = 'draft';
 			}
 
 			$remote_id = $internal_connection->push( $_POST['post_id'], $push_args );
@@ -405,7 +413,7 @@ function menu_content() {
 					<div class="selected-connections-list"></div>
 
 					<div class="action-wrapper">
-						<button class="syndicate-button"><?php esc_html_e( 'Syndicate', 'distributor' ); ?></button>
+						<button class="syndicate-button"><?php esc_html_e( 'Syndicate', 'distributor' ); ?></button> <label class="as-draft" for="dt-as-draft"><input type="checkbox" id="dt-as-draft" checked> <?php esc_html_e( 'As draft', 'distributor' ); ?></label>
 					</div>
 				</div>
 

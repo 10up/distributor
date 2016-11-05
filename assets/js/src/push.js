@@ -30,6 +30,7 @@
 		var connectionsSearchInput = document.getElementById('dt-connection-search');
 		var syndicateButton = distributorPushWrapper.querySelector('.syndicate-button');
 		var actionWrapper = distributorPushWrapper.querySelector('.action-wrapper');
+		var asDraftInput = document.getElementById('dt-as-draft');
 
 		/**
 		 * Handle UI error changes
@@ -117,15 +118,21 @@
 
 			actionWrapper.classList.add('loading');
 
+			var data = {
+				action: 'dt_push',
+				nonce: sy.nonce,
+				connections: selectedConnections,
+				post_id: sy.post_id
+			};
+
+			if (asDraftInput.checked) {
+				data.draft = true;
+			}
+
 			$.ajax({
 				url: sy.ajaxurl,
 				method: 'post',
-				data: {
-					action: 'dt_push',
-					nonce: sy.nonce,
-					connections: selectedConnections,
-					post_id: sy.post_id
-				}
+				data: data
 			}).done(function(response) {
 				setTimeout(function() {
 					actionWrapper.classList.remove('loading');

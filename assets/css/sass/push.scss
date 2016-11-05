@@ -263,9 +263,12 @@ $background-color-dark: #23282d;
 }
 
 .distributor-push-wrapper .as-draft {
-	margin-left: 1em;height: 30px;
+	margin-left: .5em;
+    height: 30px;
     line-height: 28px;
-    padding: 0 12px 2px;
+    padding: 2px 12px 2px;
+    display: inline-block;
+    box-sizing: border-box;
 }
 
 .distributor-push-wrapper .action-wrapper.loading .syndicate-button:after {

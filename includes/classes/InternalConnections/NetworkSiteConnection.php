@@ -345,11 +345,12 @@ class NetworkSiteConnection extends Connection {
 		}
 
 		$dt_original_post = $post;
-		$dt_original_post->permalink = get_permalink( $post->ID );
+		$dt_original_post->permalink = ( 'publish' === $post->post_status ) ? get_permalink( $post->ID ) : get_preview_post_link( $post );
 		$dt_original_post->syndicate_time = $syndicate_time;
 
 		switch_to_blog( $original_blog_id );
 		$post = get_post( $original_post_id );
+		$post->post_status = $dt_original_post->post_status;
 	}
 
 	/**
