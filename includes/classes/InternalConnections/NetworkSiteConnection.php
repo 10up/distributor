@@ -237,6 +237,37 @@ class NetworkSiteConnection extends Connection {
 		add_action( 'edit_form_top', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'canonical_admin_post' ) );
 		add_action( 'in_admin_footer', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'end_canonical_admin_post' ) );
 		add_filter( 'get_sample_permalink_html', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'fix_sample_permalink_html' ), 10, 1 );
+		add_filter( 'get_delete_post_link', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'fix_delete_link' ), 10, 3 );
+	}
+
+	/**
+	 * Make sure delete link works for correct post
+	 * 
+	 * @param  string $url
+	 * @param  int $id
+	 * @param  bool $force_delete
+	 * @since  0.8
+	 * @return string
+	 */
+	public static function fix_delete_link( $url, $id, $force_delete ) {
+		global $dt_original_post, $dt_blog_id;
+
+		if ( empty( $dt_original_post ) ) {
+			return $url;
+		}
+
+		$post = $dt_original_post;
+
+		$post_type_object = get_post_type_object( $post->post_type );
+		if ( ! $post_type_object ) {
+			return;
+		}
+
+		$action = ( $force_delete || ! EMPTY_TRASH_DAYS ) ? 'delete' : 'trash';
+
+		$delete_link = add_query_arg( 'action', $action, get_admin_url( $dt_blog_id ) . sprintf( $post_type_object->_edit_link, $post->ID ) );
+
+		return wp_nonce_url( $delete_link, "$action-post_{$post->ID}" );
 	}
 
 	/**
@@ -324,7 +355,7 @@ class NetworkSiteConnection extends Connection {
 	 * @since  0.8
 	 */
 	public static function canonical_admin_post() {
-		global $post, $pagenow, $dt_original_post;
+		global $post, $pagenow, $dt_original_post, $dt_blog_id;
 
 		if ( 'post.php' !== $pagenow && 'post-new.php' !== $pagenow ) {
 	    	return;
@@ -344,6 +375,7 @@ class NetworkSiteConnection extends Connection {
 			return;
 		}
 
+		$dt_blog_id = get_current_blog_id();
 		$dt_original_post = $post;
 		$dt_original_post->permalink = ( 'publish' === $post->post_status ) ? get_permalink( $post->ID ) : get_preview_post_link( $post );
 		$dt_original_post->syndicate_time = $syndicate_time;
