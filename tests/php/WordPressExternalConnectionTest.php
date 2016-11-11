@@ -206,6 +206,101 @@ class WordPressExternalConnectionTest extends \TestCase {
 	}
 
 	/**
+	 * Test for an empty post ID
+	 *
+	 * @since  0.8
+	 */
+	public function test_remote_get_empty_post_id(){
+
+		$items = $this->connection->remote_get( [
+			'id'       => false,
+			'post__in' => false,
+		] );
+
+		$this->assertArrayHasKey( 'items', $items );
+		$this->assertArrayHasKey( 'total_items', $items );
+
+	}
+
+	/**
+	 * Test when the remote get is a WP error
+	 *
+	 * @since 0.8
+	 */
+	public function test_remote_get_types_response_error(){
+
+		\WP_Mock::userFunction( 'wp_remote_get', [
+			'return' => new \WP_Error('','')
+		] );
+
+		$this->assertEquals( $this->connection->remote_get( [
+			'id'       => 123,
+			'post__in' => false,
+		] ), new \WP_Error( '', '' ) );
+
+	}
+
+	/**
+	 * Test when the response code is a 404
+	 *
+	 * @since 0.8
+	 */
+	public function test_remote_get_bad_endpoint(){
+
+		\WP_Mock::userFunction( 'wp_remote_retrieve_response_code', [
+			'return' => 404
+		] );
+
+		$this->assertEquals( $this->connection->remote_get( [
+			'id'       => 123,
+			'post__in' => false,
+		] ), new \WP_Error( 'bad-endpoint', '' ) );
+
+	}
+
+	/**
+	 * Test when the body of the remote request is a WP error
+	 * @since 0.8
+	 */
+	public function test_remote_get_types_body_is_wp_error(){
+
+		\WP_Mock::userFunction( 'wp_remote_retrieve_body', [
+			'return' => new \WP_Error( '', '' )
+		] );
+
+		$this->assertEquals( $this->connection->remote_get( [
+			'id' => 123,
+			'post__in' => false,
+		] ), new \WP_Error( '', '' ) );
+
+	}
+
+	/**
+	 * Test when there is no pull post type set
+	 * @since 0.8
+	 */
+	public function test_remote_get_no_pull_post_type(){
+
+		$this->assertEquals( $this->connection->remote_get( [
+			'id'       => 123,
+			'post__in' => false,
+		] ), new \WP_Error( 'no-pull-post-type', '' ) );
+
+	}
+
+	// // posts_response is_wp_error
+	// public function test_remote_get_posts_response_is_wp_error(){}
+
+	// // posts_body is_wp_error
+	// public function test_remote_get_post_body_is_wp_error(){}
+
+	// // empty id
+	// public function test_remote_get_empty_id(){}
+
+	// // Success
+	// public function test_remote_get_sucecss(){}
+
+	/**
 	 * Check that the connection does not return an error
 	 *
 	 * @since 0.8
