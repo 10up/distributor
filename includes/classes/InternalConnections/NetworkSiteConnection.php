@@ -1,7 +1,7 @@
 <?php
 
-namespace Syndicate\InternalConnections;
-use \Syndicate\Connection as Connection;
+namespace Distributor\InternalConnections;
+use \Distributor\Connection as Connection;
 
 /**
  * A network site connection let's you push and pull content within your blog
@@ -51,14 +51,14 @@ class NetworkSiteConnection extends Connection {
 			$new_post_args['ID'] = $args['remote_post_id'];
 		}
 
-		$new_post = wp_insert_post( apply_filters( 'sy_push_post_args', $new_post_args, $post, $args, $this ) );
+		$new_post = wp_insert_post( apply_filters( 'dt_push_post_args', $new_post_args, $post, $args, $this ) );
 
 		if ( ! is_wp_error( $new_post ) ) {
-			update_post_meta( $new_post, 'sy_original_post_id', (int) $post_id );
-			update_post_meta( $new_post, 'sy_original_blog_id', (int) $original_blog_id );
-			update_post_meta( $new_post, 'sy_syndicate_time', time() );
+			update_post_meta( $new_post, 'dt_original_post_id', (int) $post_id );
+			update_post_meta( $new_post, 'dt_original_blog_id', (int) $original_blog_id );
+			update_post_meta( $new_post, 'dt_syndicate_time', time() );
 
-			$blacklisted_meta = [ 'sy_unlinked', 'sy_original_post_id', 'sy_original_blog_id', 'sy_syndicate_time' ];
+			$blacklisted_meta = [ 'dt_unlinked', 'dt_original_post_id', 'dt_original_blog_id', 'dt_syndicate_time' ];
 
 			// Transfer all meta
 			foreach ( $meta as $meta_key => $meta_array ) {
@@ -70,7 +70,7 @@ class NetworkSiteConnection extends Connection {
 			}
 		}
 
-		do_action( 'sy_push_post', $new_post, $post_id, $args, $this );
+		do_action( 'dt_push_post', $new_post, $post_id, $args, $this );
 
 		restore_current_blog();
 
@@ -110,13 +110,13 @@ class NetworkSiteConnection extends Connection {
 			unset( $post_array['post_modified'] );
 			unset( $post_array['post_modified_gmt'] );
 
-			$new_post = wp_insert_post( apply_filters( 'sy_pull_post_args', $post_array, $item_id, $post, $this ) );
+			$new_post = wp_insert_post( apply_filters( 'dt_pull_post_args', $post_array, $item_id, $post, $this ) );
 
 			if ( ! is_wp_error( $new_post ) ) {
-				update_post_meta( $new_post, 'sy_original_post_id', (int) $item_id );
-				update_post_meta( $new_post, 'sy_original_blog_id', (int) $this->site->blog_id );
-				update_post_meta( $new_post, 'sy_syndicate_time', time() );
-				$blacklisted_meta = [ 'sy_unlinked', 'sy_original_post_id', 'sy_original_blog_id', 'sy_syndicate_time' ];
+				update_post_meta( $new_post, 'dt_original_post_id', (int) $item_id );
+				update_post_meta( $new_post, 'dt_original_blog_id', (int) $this->site->blog_id );
+				update_post_meta( $new_post, 'dt_syndicate_time', time() );
+				$blacklisted_meta = [ 'dt_unlinked', 'dt_original_post_id', 'dt_original_blog_id', 'dt_syndicate_time' ];
 
 				// Transfer meta
 				foreach ( $post->meta as $meta_key => $meta_array ) {
@@ -128,7 +128,7 @@ class NetworkSiteConnection extends Connection {
 				}
 			}
 
-			do_action( 'sy_pull_post', $new_post, $this );
+			do_action( 'dt_pull_post', $new_post, $this );
 
 			$created_posts[] = $new_post;
 		}
@@ -144,7 +144,7 @@ class NetworkSiteConnection extends Connection {
 	 * @since  0.8
 	 */
 	public function log_sync( array $item_id_mappings ) {
-		$sync_log = get_site_option( 'sy_sync_log_' . $this->site->blog_id, array() );
+		$sync_log = get_site_option( 'dt_sync_log_' . $this->site->blog_id, array() );
 
 		foreach ( $item_id_mappings as $old_item_id => $new_item_id ) {
 			if ( empty( $new_item_id ) ) {
@@ -154,9 +154,9 @@ class NetworkSiteConnection extends Connection {
 			}
 		}
 
-		update_site_option( 'sy_sync_log_' .  $this->site->blog_id, $sync_log );
+		update_site_option( 'dt_sync_log_' .  $this->site->blog_id, $sync_log );
 
-		do_action( 'sy_log_sync', $item_id_mappings,  $sync_log, $this );
+		do_action( 'dt_log_sync', $item_id_mappings,  $sync_log, $this );
 	}
 
 	/**
@@ -180,7 +180,7 @@ class NetworkSiteConnection extends Connection {
 			if ( isset( $args['post__in'] ) ) {
 				if ( empty( $args['post__in'] ) ) {
 					// If post__in is empty, we can just stop right here
-					return apply_filters( 'sy_remote_get', [
+					return apply_filters( 'dt_remote_get', [
 						'items'       => array(),
 						'total_items' => 0,
 					], $args, $this );
@@ -191,7 +191,7 @@ class NetworkSiteConnection extends Connection {
 				$query_args['post__not_in'] = $args['post__not_in'];
 			}
 
-			$posts_query = new \WP_Query( apply_filters( 'sy_remote_get_query_args', $query_args, $args, $this ) );
+			$posts_query = new \WP_Query( apply_filters( 'dt_remote_get_query_args', $query_args, $args, $this ) );
 
 			$posts = $posts_query->posts;
 
@@ -205,7 +205,7 @@ class NetworkSiteConnection extends Connection {
 
 			restore_current_blog();
 
-			return apply_filters( 'sy_remote_get', [
+			return apply_filters( 'dt_remote_get', [
 				'items'       => $formatted_posts,
 				'total_items' => $posts_query->found_posts,
 			], $args, $this );
@@ -222,7 +222,7 @@ class NetworkSiteConnection extends Connection {
 
 			restore_current_blog();
 
-			return apply_filters( 'sy_remote_get', $formatted_post, $args, $this );
+			return apply_filters( 'dt_remote_get', $formatted_post, $args, $this );
 		}
 	}
 
@@ -232,11 +232,42 @@ class NetworkSiteConnection extends Connection {
 	 * @since 0.8
 	 */
 	public static function bootstrap() {
-		add_action( 'template_redirect', array( '\Syndicate\InternalConnections\NetworkSiteConnection', 'canonicalize_front_end' ) );
-		add_action( 'wp_ajax_sy_auth_check', array( '\Syndicate\InternalConnections\NetworkSiteConnection', 'auth_check' ) );
-		add_action( 'edit_form_top', array( '\Syndicate\InternalConnections\NetworkSiteConnection', 'canonical_admin_post' ) );
-		add_action( 'in_admin_footer', array( '\Syndicate\InternalConnections\NetworkSiteConnection', 'end_canonical_admin_post' ) );
-		add_filter( 'get_sample_permalink_html', array( '\Syndicate\InternalConnections\NetworkSiteConnection', 'fix_sample_permalink_html' ), 10, 1 );
+		add_action( 'template_redirect', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'canonicalize_front_end' ) );
+		add_action( 'wp_ajax_dt_auth_check', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'auth_check' ) );
+		add_action( 'edit_form_top', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'canonical_admin_post' ) );
+		add_action( 'in_admin_footer', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'end_canonical_admin_post' ) );
+		add_filter( 'get_sample_permalink_html', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'fix_sample_permalink_html' ), 10, 1 );
+		add_filter( 'get_delete_post_link', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'fix_delete_link' ), 10, 3 );
+	}
+
+	/**
+	 * Make sure delete link works for correct post
+	 * 
+	 * @param  string $url
+	 * @param  int $id
+	 * @param  bool $force_delete
+	 * @since  0.8
+	 * @return string
+	 */
+	public static function fix_delete_link( $url, $id, $force_delete ) {
+		global $dt_original_post, $dt_blog_id;
+
+		if ( empty( $dt_original_post ) ) {
+			return $url;
+		}
+
+		$post = $dt_original_post;
+
+		$post_type_object = get_post_type_object( $post->post_type );
+		if ( ! $post_type_object ) {
+			return;
+		}
+
+		$action = ( $force_delete || ! EMPTY_TRASH_DAYS ) ? 'delete' : 'trash';
+
+		$delete_link = add_query_arg( 'action', $action, get_admin_url( $dt_blog_id ) . sprintf( $post_type_object->_edit_link, $post->ID ) );
+
+		return wp_nonce_url( $delete_link, "$action-post_{$post->ID}" );
 	}
 
 	/**
@@ -247,10 +278,10 @@ class NetworkSiteConnection extends Connection {
 	 * @return string
 	 */
 	public static function fix_sample_permalink_html( $permalink_html ) {
-		global $sy_original_post;
+		global $dt_original_post;
 
-		if ( ! empty( $sy_original_post ) && ! empty( $sy_original_post->permalink ) ) {
-			return sprintf( __( '<strong>Permalink:</strong> <a href="%s">%s</a>', 'syndicate' ), esc_url( $sy_original_post->permalink ), esc_url( $sy_original_post->permalink ) );
+		if ( ! empty( $dt_original_post ) && ! empty( $dt_original_post->permalink ) ) {
+			return sprintf( __( '<strong>Permalink:</strong> <a href="%s">%s</a>', 'distributor' ), esc_url( $dt_original_post->permalink ), esc_url( $dt_original_post->permalink ) );
 		}
 
 		return $permalink_html;
@@ -265,19 +296,19 @@ class NetworkSiteConnection extends Connection {
 		if ( is_single() ) {
 			global $post;
 
-			$original_blog_id = get_post_meta( $post->ID, 'sy_original_blog_id', true );
-			$original_post_id = get_post_meta( $post->ID, 'sy_original_post_id', true );
+			$original_blog_id = get_post_meta( $post->ID, 'dt_original_blog_id', true );
+			$original_post_id = get_post_meta( $post->ID, 'dt_original_post_id', true );
 
 			if ( empty( $original_post_id ) || empty( $original_blog_id ) ) {
 				return;
 			}
 
-			add_filter( 'the_title', array( '\Syndicate\InternalConnections\NetworkSiteConnection', 'the_title' ), 10, 2 );
-			add_filter( 'the_content', array( '\Syndicate\InternalConnections\NetworkSiteConnection', 'the_content' ), 10, 1 );
-			add_filter( 'the_date', array( '\Syndicate\InternalConnections\NetworkSiteConnection', 'the_date' ), 10, 1 );
-			add_filter( 'get_the_excerpt', array( '\Syndicate\InternalConnections\NetworkSiteConnection', 'get_the_excerpt' ), 10, 1 );
-			add_filter( 'get_canonical_url', array( '\Syndicate\InternalConnections\NetworkSiteConnection', 'canonical_url' ), 10, 2 );
-			add_filter( 'post_thumbnail_html', array( '\Syndicate\InternalConnections\NetworkSiteConnection', 'post_thumbnail' ), 10, 2 );
+			add_filter( 'the_title', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'the_title' ), 10, 2 );
+			add_filter( 'the_content', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'the_content' ), 10, 1 );
+			add_filter( 'the_date', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'the_date' ), 10, 1 );
+			add_filter( 'get_the_excerpt', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'get_the_excerpt' ), 10, 1 );
+			add_filter( 'get_canonical_url', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'canonical_url' ), 10, 2 );
+			add_filter( 'post_thumbnail_html', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'post_thumbnail' ), 10, 2 );
 		}
 	}
 
@@ -290,8 +321,8 @@ class NetworkSiteConnection extends Connection {
 	 * @return string
 	 */
 	public static function post_thumbnail( $html, $id ) {
-		$original_blog_id = get_post_meta( $id, 'sy_original_blog_id', true );
-		$original_post_id = get_post_meta( $id, 'sy_original_post_id', true );
+		$original_blog_id = get_post_meta( $id, 'dt_original_blog_id', true );
+		$original_post_id = get_post_meta( $id, 'dt_original_post_id', true );
 
 		if ( empty( $original_blog_id ) || empty( $original_post_id ) ) {
 			return $html;
@@ -310,11 +341,11 @@ class NetworkSiteConnection extends Connection {
 	 * @since 0.8
 	 */
 	public static function end_canonical_admin_post() {
-		global $sy_original_post, $post;
+		global $dt_original_post, $post;
 
-		if ( ! empty( $sy_original_post ) ) {
+		if ( ! empty( $dt_original_post ) ) {
 			restore_current_blog();
-			$post = $sy_original_post;
+			$post = $dt_original_post;
 		}
 	}
 
@@ -324,32 +355,34 @@ class NetworkSiteConnection extends Connection {
 	 * @since  0.8
 	 */
 	public static function canonical_admin_post() {
-		global $post, $pagenow, $sy_original_post;
+		global $post, $pagenow, $dt_original_post, $dt_blog_id;
 
 		if ( 'post.php' !== $pagenow && 'post-new.php' !== $pagenow ) {
 	    	return;
 	    }
 
-	    $original_blog_id = get_post_meta( $post->ID, 'sy_original_blog_id', true );
-		$original_post_id = get_post_meta( $post->ID, 'sy_original_post_id', true );
-		$syndicate_time = get_post_meta( $post->ID, 'sy_syndicate_time', true );
+	    $original_blog_id = get_post_meta( $post->ID, 'dt_original_blog_id', true );
+		$original_post_id = get_post_meta( $post->ID, 'dt_original_post_id', true );
+		$syndicate_time = get_post_meta( $post->ID, 'dt_syndicate_time', true );
 
 		if ( empty( $original_post_id ) || empty( $original_blog_id ) ) {
 			return;
 		}
 
-		$unlinked = (bool) get_post_meta( $post->ID, 'sy_unlinked', true );
+		$unlinked = (bool) get_post_meta( $post->ID, 'dt_unlinked', true );
 
 		if ( $unlinked ) {
 			return;
 		}
 
-		$sy_original_post = $post;
-		$sy_original_post->permalink = get_permalink( $post->ID );
-		$sy_original_post->syndicate_time = $syndicate_time;
+		$dt_blog_id = get_current_blog_id();
+		$dt_original_post = $post;
+		$dt_original_post->permalink = ( 'publish' === $post->post_status ) ? get_permalink( $post->ID ) : get_preview_post_link( $post );
+		$dt_original_post->syndicate_time = $syndicate_time;
 
 		switch_to_blog( $original_blog_id );
 		$post = get_post( $original_post_id );
+		$post->post_status = $dt_original_post->post_status;
 	}
 
 	/**
@@ -358,7 +391,7 @@ class NetworkSiteConnection extends Connection {
 	 * @since  0.8
 	 */
 	public static function auth_check() {
-		if ( ! check_ajax_referer( 'sy-auth-check', 'nonce', false ) ) {
+		if ( ! check_ajax_referer( 'dt-auth-check', 'nonce', false ) ) {
 			wp_send_json_error();
 			exit;
 		}
@@ -417,9 +450,9 @@ class NetworkSiteConnection extends Connection {
 
 			$response = wp_remote_post( untrailingslashit( $base_url ) . '/wp-admin/admin-ajax.php', array(
 				'body' => array(
-					'nonce'     => wp_create_nonce( 'sy-auth-check' ),
+					'nonce'     => wp_create_nonce( 'dt-auth-check' ),
 					'username'  => $current_user->user_login,
-					'action'    => 'sy_auth_check',
+					'action'    => 'dt_auth_check',
 				),
 				'cookies' => $_COOKIE,
 			) );
@@ -457,8 +490,8 @@ class NetworkSiteConnection extends Connection {
 	 * @return string
 	 */
 	public static function canonical_url( $canonical_url, $post ) {
-		$original_blog_id = get_post_meta( $post->ID, 'sy_original_blog_id', true );
-		$original_post_id = get_post_meta( $post->ID, 'sy_original_post_id', true );
+		$original_blog_id = get_post_meta( $post->ID, 'dt_original_blog_id', true );
+		$original_post_id = get_post_meta( $post->ID, 'dt_original_post_id', true );
 
 		switch_to_blog( $original_blog_id );
 		$canonical_url = get_permalink( $original_post_id );
@@ -476,8 +509,8 @@ class NetworkSiteConnection extends Connection {
 	 * @return string
 	 */
 	public static function the_title( $title, $id ) {
-		$original_blog_id = get_post_meta( $id, 'sy_original_blog_id', true );
-		$original_post_id = get_post_meta( $id, 'sy_original_post_id', true );
+		$original_blog_id = get_post_meta( $id, 'dt_original_blog_id', true );
+		$original_post_id = get_post_meta( $id, 'dt_original_post_id', true );
 
 		if ( empty( $original_blog_id ) || empty( $original_post_id ) ) {
 			return $title;
@@ -500,8 +533,8 @@ class NetworkSiteConnection extends Connection {
 	public static function the_content( $content ) {
 		global $post;
 
-		$original_blog_id = get_post_meta( $post->ID, 'sy_original_blog_id', true );
-		$original_post_id = get_post_meta( $post->ID, 'sy_original_post_id', true );
+		$original_blog_id = get_post_meta( $post->ID, 'dt_original_blog_id', true );
+		$original_post_id = get_post_meta( $post->ID, 'dt_original_post_id', true );
 
 		if ( empty( $original_blog_id ) || empty( $original_post_id ) ) {
 			return $content;
@@ -525,8 +558,8 @@ class NetworkSiteConnection extends Connection {
 	public static function the_date( $date ) {
 		global $post;
 
-		$original_blog_id = get_post_meta( $post->ID, 'sy_original_blog_id', true );
-		$original_post_id = get_post_meta( $post->ID, 'sy_original_post_id', true );
+		$original_blog_id = get_post_meta( $post->ID, 'dt_original_blog_id', true );
+		$original_post_id = get_post_meta( $post->ID, 'dt_original_post_id', true );
 
 		if ( empty( $original_blog_id ) || empty( $original_post_id ) ) {
 			return $date;
@@ -549,8 +582,8 @@ class NetworkSiteConnection extends Connection {
 	 * @return string
 	 */
 	public static function get_the_excerpt( $excerpt ) {
-		$original_blog_id = get_post_meta( $id, 'sy_original_blog_id', true );
-		$original_post_id = get_post_meta( $id, 'sy_original_post_id', true );
+		$original_blog_id = get_post_meta( $id, 'dt_original_blog_id', true );
+		$original_post_id = get_post_meta( $id, 'dt_original_post_id', true );
 
 		if ( empty( $original_blog_id ) || empty( $original_post_id ) ) {
 			return $excerpt;

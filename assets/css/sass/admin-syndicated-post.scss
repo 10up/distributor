@@ -1,4 +1,4 @@
-body.sy-linked-post {
+body.dt-linked-post {
 	
 	input,
 	select,
@@ -9,6 +9,26 @@ body.sy-linked-post {
 		opacity: .5;
 		pointer-events: none;
 		cursor: default;
+	}
+
+	#publish,
+	#post_status,
+	.save_post_status,
+	#post-status-select .button,
+	#timestampdiv select,
+	#timestampdiv .button,
+	#timestampdiv input {
+		opacity: 1;
+		pointer-events: auto;
+		cursor: pointer;
+	}
+
+	.misc-pub-revisions {
+		display: none;
+	}
+
+	#visibility {
+		display: none;
 	}
 
 	#remove-post-thumbnail,

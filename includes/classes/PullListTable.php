@@ -1,6 +1,6 @@
 <?php
 
-namespace Syndicate;
+namespace Distributor;
 
 class PullListTable extends \WP_List_Table {
 
@@ -31,9 +31,9 @@ class PullListTable extends \WP_List_Table {
 	public function get_columns() {
 		$columns = [
 			'cb'      => '<input type="checkbox" />',
-			'name'    => esc_html__( 'Name', 'syndicate' ),
-			'content_type' => esc_html__( 'Content Type', 'syndicate' ),
-			'date' => esc_html__( 'Date', 'syndicate' ),
+			'name'    => esc_html__( 'Name', 'distributor' ),
+			'content_type' => esc_html__( 'Content Type', 'distributor' ),
+			'date' => esc_html__( 'Date', 'distributor' ),
 		];
 
 		return $columns;
@@ -65,9 +65,9 @@ class PullListTable extends \WP_List_Table {
 		$current_status = ( empty( $_GET['status'] ) ) ? 'new' : $_GET['status'];
 
 		$status_links = [
-			'new' => sprintf( __( '<a href="%s" class="%s">New</a>', 'syndicate' ), esc_url( $_SERVER['REQUEST_URI'] . '&status=new' ), ( 'new' === $current_status ) ? 'current' : '' ),
-			'pulled' => sprintf( __( '<a href="%s" class="%s">Pulled</a>', 'syndicate' ), esc_url( $_SERVER['REQUEST_URI'] . '&status=pulled' ), ( 'pulled' === $current_status ) ? 'current' : '' ),
-			'skipped' => sprintf( __( '<a href="%s" class="%s">Skipped</a>', 'syndicate' ), esc_url( $_SERVER['REQUEST_URI'] . '&status=skipped' ), ( 'skipped' === $current_status ) ? 'current' : '' ),
+			'new' => sprintf( __( '<a href="%s" class="%s">New</a>', 'distributor' ), esc_url( $_SERVER['REQUEST_URI'] . '&status=new' ), ( 'new' === $current_status ) ? 'current' : '' ),
+			'pulled' => sprintf( __( '<a href="%s" class="%s">Pulled</a>', 'distributor' ), esc_url( $_SERVER['REQUEST_URI'] . '&status=pulled' ), ( 'pulled' === $current_status ) ? 'current' : '' ),
+			'skipped' => sprintf( __( '<a href="%s" class="%s">Skipped</a>', 'distributor' ), esc_url( $_SERVER['REQUEST_URI'] . '&status=skipped' ), ( 'skipped' === $current_status ) ? 'current' : '' ),
 		];
 
 		return $status_links;
@@ -137,10 +137,10 @@ class PullListTable extends \WP_List_Table {
 
 		if ( ! empty( $_GET['status'] ) && 'pulled' === $_GET['status'] ) {
 			if ( ! empty( $this->sync_log[ $post->ID ] ) ) {
-				$syndicated_at = get_post_meta( $this->sync_log[ $post->ID ], 'sy_syndicate_time', true );
+				$syndicated_at = get_post_meta( $this->sync_log[ $post->ID ], 'dt_syndicate_time', true );
 				
 				if ( empty( $syndicated_at ) ) {
-					esc_html_e( 'Post deleted.', 'syndicate' );
+					esc_html_e( 'Post deleted.', 'distributor' );
 				} else {
 					$t_time = get_the_time( __( 'Y/m/d g:i:s a' ) );
 
@@ -152,7 +152,7 @@ class PullListTable extends \WP_List_Table {
 						$h_time = date( 'F j, Y', $syndicated_at );
 					}
 
-					echo sprintf( __( 'Pulled %s', 'syndicate' ), esc_html( $h_time ) );
+					echo sprintf( __( 'Pulled %s', 'distributor' ), esc_html( $h_time ) );
 				}
 			}
 		} else {
@@ -215,10 +215,10 @@ class PullListTable extends \WP_List_Table {
 				return $post_type_object->labels->singular_name;
 				break;
 			case 'url':
-				$url = get_post_meta( $item->ID, 'sy_external_connection_url', true );
+				$url = get_post_meta( $item->ID, 'dt_external_connection_url', true );
 
 				if ( empty( $url ) ) {
-					$url = esc_html__( 'None', 'syndicate' );
+					$url = esc_html__( 'None', 'distributor' );
 				}
 
 				return $url;
@@ -256,7 +256,7 @@ class PullListTable extends \WP_List_Table {
 
 		global $connection_now;
 
-		if ( is_a( $connection_now, '\Syndicate\ExternalConnection' ) ) {
+		if ( is_a( $connection_now, '\Distributor\ExternalConnection' ) ) {
 			$connection_type = 'external';
 			$connection_id = $connection_now->id;
 		} else {
@@ -271,18 +271,18 @@ class PullListTable extends \WP_List_Table {
 		$actions = [];
 
 		$as_draft = '';
-		if ( is_a( $connection_now, '\Syndicate\ExternalConnection' ) ) {
-			$as_draft = ' ' . esc_html__( '(as draft)', 'syndicate' );
+		if ( is_a( $connection_now, '\Distributor\ExternalConnection' ) ) {
+			$as_draft = ' ' . esc_html__( '(as draft)', 'distributor' );
 		}
 
 		if ( empty( $_GET['status'] ) || 'new' === $_GET['status'] ) {
 			$actions = [
-				'view' => '<a href="' . esc_url( $item->link ) . '">' . esc_html__( 'View', 'syndicate' ) . '</a>',
-				'skip' => sprintf( '<a href="%s">%s</a>', esc_url( wp_nonce_url( admin_url( 'admin.php?page=pull&action=skip&_wp_http_referer=' . urlencode( $_SERVER['REQUEST_URI'] ) . '&post=' . $item->ID . '&connection_type=' . $connection_type . '&connection_id=' . $connection_id ), 'sy_skip' ) ), esc_html__( 'Skip', 'syndicate' ) ),
+				'view' => '<a href="' . esc_url( $item->link ) . '">' . esc_html__( 'View', 'distributor' ) . '</a>',
+				'skip' => sprintf( '<a href="%s">%s</a>', esc_url( wp_nonce_url( admin_url( 'admin.php?page=pull&action=skip&_wp_http_referer=' . urlencode( $_SERVER['REQUEST_URI'] ) . '&post=' . $item->ID . '&connection_type=' . $connection_type . '&connection_id=' . $connection_id ), 'dt_skip' ) ), esc_html__( 'Skip', 'distributor' ) ),
 			];
 		} elseif ( 'skipped' === $_GET['status'] ) {
 			$actions = [
-				'view' => '<a href="' . esc_url( $item->link ) . '">' . esc_html__( 'View', 'syndicate' ) . '</a>',
+				'view' => '<a href="' . esc_url( $item->link ) . '">' . esc_html__( 'View', 'distributor' ) . '</a>',
 			];
 		} elseif ( 'pulled' === $_GET['status'] ) {
 
@@ -291,8 +291,8 @@ class PullListTable extends \WP_List_Table {
 
 			if ( ! empty( $new_post ) ) {
 				$actions = [
-					'view' => '<a href="' . esc_url( get_permalink( $new_post_id ) ) . '">' . esc_html__( 'View', 'syndicate' ) . '</a>',
-					'edit' => '<a href="' . esc_url( get_edit_post_link( $new_post_id ) ) . '">' . esc_html__( 'Edit', 'syndicate' ) . '</a>',
+					'view' => '<a href="' . esc_url( get_permalink( $new_post_id ) ) . '">' . esc_html__( 'View', 'distributor' ) . '</a>',
+					'edit' => '<a href="' . esc_url( get_edit_post_link( $new_post_id ) ) . '">' . esc_html__( 'Edit', 'distributor' ) . '</a>',
 				];
 			}
 		}
@@ -336,10 +336,10 @@ class PullListTable extends \WP_List_Table {
 			$remote_get_args['s'] = $_GET['s'];
 		}
 
-		if ( is_a( $connection_now, '\Syndicate\ExternalConnection' ) ) {
-			$this->sync_log = get_post_meta( $connection_now->id, 'sy_sync_log', true );
+		if ( is_a( $connection_now, '\Distributor\ExternalConnection' ) ) {
+			$this->sync_log = get_post_meta( $connection_now->id, 'dt_sync_log', true );
 		} else {
-			$this->sync_log = get_site_option( 'sy_sync_log_' . $connection_now->site->blog_id, array() );
+			$this->sync_log = get_site_option( 'dt_sync_log_' . $connection_now->site->blog_id, array() );
 		}
 
 		if ( empty( $this->sync_log ) ) {
@@ -404,12 +404,12 @@ class PullListTable extends \WP_List_Table {
 	public function get_bulk_actions() {
 		if ( empty( $_GET['status'] ) || 'new' === $_GET['status'] ) {
 			$actions = [
-				'bulk-syndicate' => esc_html__( 'Syndicate', 'syndicate' ),
-				'bulk-skip' => esc_html__( 'Skip', 'syndicate' ),
+				'bulk-syndicate' => esc_html__( 'Syndicate', 'distributor' ),
+				'bulk-skip' => esc_html__( 'Skip', 'distributor' ),
 			];
 		} elseif ( 'skipped' === $_GET['status'] ) {
 			$actions = [
-				'bulk-syndicate' => esc_html__( 'Syndicate', 'syndicate' ),
+				'bulk-syndicate' => esc_html__( 'Syndicate', 'distributor' ),
 			];
 		} else {
 			$actions = [];

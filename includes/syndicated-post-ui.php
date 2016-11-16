@@ -1,6 +1,6 @@
 <?php
 
-namespace Syndicate\SyndicatedPostUI;
+namespace Distributor\SyndicatedPostUI;
 
 /**
  * Setup actions and filters
@@ -14,7 +14,35 @@ add_action( 'plugins_loaded', function() {
 	add_action( 'admin_init', __NAMESPACE__  . '\link' );
 	add_action( 'post_submitbox_misc_actions', __NAMESPACE__ . '\syndication_date' );
 	add_filter( 'admin_body_class', __NAMESPACE__ . '\add_linked_class' );
+	add_filter( 'post_row_actions', __NAMESPACE__ . '\remove_quick_edit', 10, 2 );
 } );
+
+/**
+ * Remove quick edit for linked posts
+ * 
+ * @param  array $actions
+ * @param  WP_Post $post
+ * @since  0.8
+ * @return array
+ */
+function remove_quick_edit( $actions, $post ) {
+	$original_blog_id = get_post_meta( $post->ID, 'dt_original_blog_id', true );
+	$original_post_id = get_post_meta( $post->ID, 'dt_original_post_id', true );
+
+	if ( empty( $original_post_id ) || empty( $original_blog_id ) ) {
+		return $actions;
+	}
+
+	$unlinked = (bool) get_post_meta( $post->ID, 'dt_unlinked', true );
+
+	if ( $unlinked ) {
+		return $actions;
+	}
+
+	unset( $actions['inline hide-if-no-js'] );
+
+	return $actions;
+}
 
 /**
  * Add linked class to body
@@ -24,7 +52,7 @@ add_action( 'plugins_loaded', function() {
  * @return string
  */
 function add_linked_class( $classes ) {
-	global $post, $pagenow, $sy_original_post;
+	global $post, $pagenow, $dt_original_post;
 
 	if ( 'post.php' !== $pagenow && 'post-new.php' !== $pagenow ) {
     	return;
@@ -34,21 +62,21 @@ function add_linked_class( $classes ) {
     	return $classes;
     }
 
-    $original_blog_id = get_post_meta( $_GET['post'], 'sy_original_blog_id', true );
-	$original_post_id = get_post_meta( $_GET['post'], 'sy_original_post_id', true );
-	$syndicate_time = get_post_meta( $_GET['post'], 'sy_syndicate_time', true );
+    $original_blog_id = get_post_meta( $_GET['post'], 'dt_original_blog_id', true );
+	$original_post_id = get_post_meta( $_GET['post'], 'dt_original_post_id', true );
+	$syndicate_time = get_post_meta( $_GET['post'], 'dt_syndicate_time', true );
 
 	if ( empty( $original_post_id ) || empty( $original_blog_id ) ) {
 		return $classes;
 	}
 
-	$unlinked = (bool) get_post_meta( $post->ID, 'sy_unlinked', true );
+	$unlinked = (bool) get_post_meta( $post->ID, 'dt_unlinked', true );
 
 	if ( $unlinked ) {
 		return $classes;
 	}
 
-	return $classes . ' sy-linked-post';
+	return $classes . ' dt-linked-post';
 }
 
 /**
@@ -58,12 +86,12 @@ function add_linked_class( $classes ) {
  * @since  0.8
  */
 function syndication_date( $post ) {
-	global $sy_original_post;
+	global $dt_original_post;
 
-	if ( ! empty( $sy_original_post ) ) {
-		$syndicate_time = $sy_original_post->syndicate_time;
+	if ( ! empty( $dt_original_post ) ) {
+		$syndicate_time = $dt_original_post->syndicate_time;
 	} else {
-		$syndicate_time = get_post_meta( $post->ID, 'sy_syndicate_time', true );
+		$syndicate_time = get_post_meta( $post->ID, 'dt_syndicate_time', true );
 	}
 
 	if ( empty( $syndicate_time ) ) {
@@ -86,14 +114,14 @@ function syndication_date( $post ) {
  * @since  0.8
  */
 function repush( $post_id ) {
-	$original_blog_id = get_post_meta( $post_id, 'sy_original_blog_id', true );
-	$original_post_id = get_post_meta( $post_id, 'sy_original_post_id', true );
+	$original_blog_id = get_post_meta( $post_id, 'dt_original_blog_id', true );
+	$original_post_id = get_post_meta( $post_id, 'dt_original_post_id', true );
 
 	$current_blog = get_current_blog_id();
 
 	switch_to_blog( $original_blog_id );
 
-	$connection = new \Syndicate\InternalConnections\NetworkSiteConnection( get_site( $current_blog ) );
+	$connection = new \Distributor\InternalConnections\NetworkSiteConnection( get_site( $current_blog ) );
 	$connection->push( $original_post_id, [
 		'remote_post_id' => $post_id,
 	] );
@@ -140,8 +168,8 @@ function process_media( $url, $post_id ) {
  * @since  0.8
  */
 function clone_media( $post_id ) {
-	$original_blog_id = get_post_meta( $post_id, 'sy_original_blog_id', true );
-	$original_post_id = get_post_meta( $post_id, 'sy_original_post_id', true );
+	$original_blog_id = get_post_meta( $post_id, 'dt_original_blog_id', true );
+	$original_post_id = get_post_meta( $post_id, 'dt_original_post_id', true );
 	$post = get_post( $post_id );
 
 	$current_media_posts = get_attached_media( 'image', $post_id );
@@ -149,7 +177,7 @@ function clone_media( $post_id ) {
 
 	// Create mapping so we don't create duplicates
 	foreach ( $current_media_posts as $media_post ) {
-		$original = get_post_meta( $media_post->ID, 'sy_original_media_url', true );
+		$original = get_post_meta( $media_post->ID, 'dt_original_media_url', true );
 		$current_media[ $original ] = $media_post->ID;
 	}
 
@@ -197,7 +225,7 @@ function clone_media( $post_id ) {
 			continue;
 		}
 
-		update_post_meta( $image_id, 'sy_original_media_url', $url );
+		update_post_meta( $image_id, 'dt_original_media_url', $url );
 
 		if ( $featured_image_url === $url ) {
 			$found_featured_image = true;
@@ -228,7 +256,7 @@ function unlink() {
 		return;
 	}
 
-	update_post_meta( $_GET['post'], 'sy_unlinked', true );
+	update_post_meta( $_GET['post'], 'dt_unlinked', true );
 
 	repush( $_GET['post'] );
 
@@ -252,7 +280,7 @@ function link() {
 		return;
 	}
 
-	update_post_meta( $_GET['post'], 'sy_unlinked', false );
+	update_post_meta( $_GET['post'], 'dt_unlinked', false );
 
 	repush( $_GET['post'] );
 
@@ -268,14 +296,14 @@ function link() {
  */
 function syndicated_message( $post ) {
 
-	$original_blog_id = get_post_meta( $post->ID, 'sy_original_blog_id', true );
-	$original_post_id = get_post_meta( $post->ID, 'sy_original_post_id', true );
+	$original_blog_id = get_post_meta( $post->ID, 'dt_original_blog_id', true );
+	$original_post_id = get_post_meta( $post->ID, 'dt_original_post_id', true );
 
 	if ( empty( $original_post_id ) || empty( $original_blog_id ) ) {
 		return;
 	}
 
-	$unlinked = (bool) get_post_meta( $post->ID, 'sy_unlinked', true );
+	$unlinked = (bool) get_post_meta( $post->ID, 'dt_unlinked', true );
 
 	switch_to_blog( $original_blog_id );
 	$post_url = get_permalink( $original_post_id );
@@ -283,7 +311,7 @@ function syndicated_message( $post ) {
 	restore_current_blog();
 
 	if ( empty( $blog_name ) ) {
-		$blog_name = sprintf( esc_html__( 'Blog #%d', 'syndicate' ), $original_blog_id );
+		$blog_name = sprintf( esc_html__( 'Blog #%d', 'distributor' ), $original_blog_id );
 	}
 
 	$post_type_object = get_post_type_object( $post->post_type );
@@ -292,13 +320,13 @@ function syndicated_message( $post ) {
 	<div class="updated syndicate-status">
 		<?php if ( ! $unlinked ) : ?>
 			<p>
-				<?php echo sprintf( __( 'Syndicated from <a href="%s">%s</a>.', 'syndicate' ), esc_url( $post_url ), esc_html( $blog_name ) ); ?> 
-				<span><?php echo sprintf( __( 'The original post will update this version unless you <a href="%s">unlink from the original.</a>', 'syndicate' ), wp_nonce_url( add_query_arg( 'action', 'unlink', admin_url( sprintf( $post_type_object->_edit_link, $post->ID ) ) ), "unlink-post_{$post->ID}" ) ); ?></span>
+				<?php echo sprintf( __( 'Syndicated from <a href="%s">%s</a>.', 'distributor' ), esc_url( $post_url ), esc_html( $blog_name ) ); ?> 
+				<span><?php echo sprintf( __( 'The original post will update this version unless you <a href="%s">unlink from the original.</a>', 'distributor' ), wp_nonce_url( add_query_arg( 'action', 'unlink', admin_url( sprintf( $post_type_object->_edit_link, $post->ID ) ) ), "unlink-post_{$post->ID}" ) ); ?></span>
 			</p>
 		<?php else : ?>
 			<p>
-				<?php echo sprintf( __( 'Originally syndicated from <a href="%s">%s</a>.', 'syndicate' ), esc_url( $post_url ), esc_html( $blog_name ) ); ?> 
-				<span><?php echo sprintf( __( "This post has been forked from it's original. However, you can always <a href='%s'>restore it.</a>", 'syndicate' ), wp_nonce_url( add_query_arg( 'action', 'link', admin_url( sprintf( $post_type_object->_edit_link, $post->ID ) ) ), "link-post_{$post->ID}" ) ); ?></span>
+				<?php echo sprintf( __( 'Originally syndicated from <a href="%s">%s</a>.', 'distributor' ), esc_url( $post_url ), esc_html( $blog_name ) ); ?> 
+				<span><?php echo sprintf( __( "This post has been forked from it's original. However, you can always <a href='%s'>restore it.</a>", 'distributor' ), wp_nonce_url( add_query_arg( 'action', 'link', admin_url( sprintf( $post_type_object->_edit_link, $post->ID ) ) ), "link-post_{$post->ID}" ) ); ?></span>
 			</p>
 		<?php endif; ?>
 	</div>
@@ -318,8 +346,8 @@ function admin_enqueue_scripts( $hook ) {
 
 	global $post;
 
-	$original_blog_id = get_post_meta( $post->ID, 'sy_original_blog_id', true );
-	$original_post_id = get_post_meta( $post->ID, 'sy_original_post_id', true );
+	$original_blog_id = get_post_meta( $post->ID, 'dt_original_blog_id', true );
+	$original_post_id = get_post_meta( $post->ID, 'dt_original_post_id', true );
 
 	if ( empty( $original_post_id ) || empty( $original_blog_id ) ) {
 		return;
@@ -331,9 +359,9 @@ function admin_enqueue_scripts( $hook ) {
 		$css_path = '/assets/css/admin-syndicated-post.min.css';
 	}
 
-	wp_enqueue_style( 'sy-admin-syndicated-post', plugins_url( $css_path, __DIR__ ), array(), SY_VERSION );
+	wp_enqueue_style( 'dt-admin-syndicated-post', plugins_url( $css_path, __DIR__ ), array(), DT_VERSION );
 
-	$unlinked = (bool) get_post_meta( $post->ID, 'sy_unlinked', true );
+	$unlinked = (bool) get_post_meta( $post->ID, 'dt_unlinked', true );
 
 	if ( ! $unlinked ) {
 		wp_dequeue_script( 'autosave' );

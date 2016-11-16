@@ -1,6 +1,6 @@
 <?php
 
-namespace Syndicate;
+namespace Distributor;
 
 class ExternalConnectionTest extends \TestCase {
 
@@ -15,19 +15,19 @@ class ExternalConnectionTest extends \TestCase {
 
 		\WP_Mock::userFunction( 'get_post_meta', array(
 		    'times' => 1,
-		    'args' => array( \WP_Mock\Functions::type( 'int' ), 'sy_external_connection_type', true ),
+		    'args' => array( \WP_Mock\Functions::type( 'int' ), 'dt_external_connection_type', true ),
 		    'return' => false,
 		) );
 
 		\WP_Mock::userFunction( 'get_post_meta', array(
 		    'times' => 1,
-		    'args' => array( \WP_Mock\Functions::type( 'int' ), 'sy_external_connection_url', true ),
+		    'args' => array( \WP_Mock\Functions::type( 'int' ), 'dt_external_connection_url', true ),
 		    'return' => false,
 		) );
 
 		\WP_Mock::userFunction( 'get_post_meta', array(
 		    'times' => 1,
-		    'args' => array( \WP_Mock\Functions::type( 'int' ), 'sy_external_connection_auth', true ),
+		    'args' => array( \WP_Mock\Functions::type( 'int' ), 'dt_external_connection_auth', true ),
 		    'return' => false,
 		) );
 
@@ -54,19 +54,19 @@ class ExternalConnectionTest extends \TestCase {
 
 		\WP_Mock::userFunction( 'get_post_meta', array(
 		    'times' => 1,
-		    'args' => array( \WP_Mock\Functions::type( 'int' ), 'sy_external_connection_type', true ),
+		    'args' => array( \WP_Mock\Functions::type( 'int' ), 'dt_external_connection_type', true ),
 		    'return' => 'fake',
 		) );
 
 		\WP_Mock::userFunction( 'get_post_meta', array(
 		    'times' => 1,
-		    'args' => array( \WP_Mock\Functions::type( 'int' ), 'sy_external_connection_url', true ),
+		    'args' => array( \WP_Mock\Functions::type( 'int' ), 'dt_external_connection_url', true ),
 		    'return' => 'fake',
 		) );
 
 		\WP_Mock::userFunction( 'get_post_meta', array(
 		    'times' => 1,
-		    'args' => array( \WP_Mock\Functions::type( 'int' ), 'sy_external_connection_auth', true ),
+		    'args' => array( \WP_Mock\Functions::type( 'int' ), 'dt_external_connection_auth', true ),
 		    'return' => false,
 		) );
 
@@ -93,19 +93,19 @@ class ExternalConnectionTest extends \TestCase {
 
 		\WP_Mock::userFunction( 'get_post_meta', array(
 		    'times' => 1,
-		    'args' => array( \WP_Mock\Functions::type( 'int' ), 'sy_external_connection_type', true ),
+		    'args' => array( \WP_Mock\Functions::type( 'int' ), 'dt_external_connection_type', true ),
 		    'return' => 'test-external-connection',
 		) );
 
 		\WP_Mock::userFunction( 'get_post_meta', array(
 		    'times' => 1,
-		    'args' => array( \WP_Mock\Functions::type( 'int' ), 'sy_external_connection_url', true ),
+		    'args' => array( \WP_Mock\Functions::type( 'int' ), 'dt_external_connection_url', true ),
 		    'return' => 'fake',
 		) );
 
 		\WP_Mock::userFunction( 'get_post_meta', array(
 		    'times' => 1,
-		    'args' => array( \WP_Mock\Functions::type( 'int' ), 'sy_external_connection_auth', true ),
+		    'args' => array( \WP_Mock\Functions::type( 'int' ), 'dt_external_connection_auth', true ),
 		    'return' => array(),
 		) );
 
@@ -118,6 +118,6 @@ class ExternalConnectionTest extends \TestCase {
 		// Test non-existent connection ID
 		$external_connection = ExternalConnection::instantiate( 1 );
 
-		$this->assertTrue( is_a( $external_connection, '\Syndicate\ExternalConnection' ) );
+		$this->assertTrue( is_a( $external_connection, '\Distributor\ExternalConnection' ) );
 	}
 }

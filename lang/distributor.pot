@@ -1,10 +1,10 @@
-# Copyright (C) 2016 
-# This file is distributed under the same license as the  package.
+# Copyright (C) 2016 Taylor Lovett, 10up
+# This file is distributed under the GPLv2 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: \n"
-"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/syndicate\n"
-"POT-Creation-Date: 2016-10-26 20:33:26+00:00\n"
+"Project-Id-Version: Distributor 0.8\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/distributor\n"
+"POT-Creation-Date: 2016-11-08 20:31:19+00:00\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -89,7 +89,7 @@ msgstr ""
 msgid "Could not determine remote post id."
 msgstr ""
 
-#: includes/classes/InternalConnections/NetworkSiteConnection.php:253
+#: includes/classes/InternalConnections/NetworkSiteConnection.php:284
 msgid "<strong>Permalink:</strong> <a href=\"%s\">%s</a>"
 msgstr ""
 
@@ -178,8 +178,8 @@ msgstr ""
 
 #: includes/classes/PullListTable.php:280
 #: includes/classes/PullListTable.php:285
-#: includes/classes/PullListTable.php:294 includes/push-ui.php:358
-#: includes/push-ui.php:383
+#: includes/classes/PullListTable.php:294 includes/push-ui.php:376
+#: includes/push-ui.php:401
 msgid "View"
 msgstr ""
 
@@ -193,7 +193,7 @@ msgid "Select %s"
 msgstr ""
 
 #: includes/classes/PullListTable.php:407
-#: includes/classes/PullListTable.php:412 includes/push-ui.php:398
+#: includes/classes/PullListTable.php:412 includes/push-ui.php:416
 msgid "Syndicate"
 msgstr ""
 
@@ -202,7 +202,7 @@ msgid "URL"
 msgstr ""
 
 #: includes/external-connection-cpt.php:161
-#: includes/external-connection-cpt.php:304
+#: includes/external-connection-cpt.php:307
 msgid "Can't connect to API."
 msgstr ""
 
@@ -214,17 +214,17 @@ msgid ""
 msgstr ""
 
 #: includes/external-connection-cpt.php:163
-#: includes/external-connection-cpt.php:434
+#: includes/external-connection-cpt.php:437
 msgid "This doesn't seem to be a valid API endpoint."
 msgstr ""
 
 #: includes/external-connection-cpt.php:164
-#: includes/external-connection-cpt.php:429
+#: includes/external-connection-cpt.php:432
 msgid "We will confirm the API endpoint works."
 msgstr ""
 
 #: includes/external-connection-cpt.php:165
-#: includes/external-connection-cpt.php:431
+#: includes/external-connection-cpt.php:434
 msgid "This is a valid API endpoint."
 msgstr ""
 
@@ -233,12 +233,12 @@ msgid "How about: "
 msgstr ""
 
 #: includes/external-connection-cpt.php:167
-#: includes/external-connection-cpt.php:305
+#: includes/external-connection-cpt.php:308
 msgid "Can push:"
 msgstr ""
 
 #: includes/external-connection-cpt.php:168
-#: includes/external-connection-cpt.php:306
+#: includes/external-connection-cpt.php:309
 msgid "Can pull:"
 msgstr ""
 
@@ -247,7 +247,7 @@ msgid "Checking endpoint..."
 msgstr ""
 
 #: includes/external-connection-cpt.php:170
-#: includes/external-connection-cpt.php:338
+#: includes/external-connection-cpt.php:341
 msgid "No external connection has been checked."
 msgstr ""
 
@@ -263,167 +263,167 @@ msgstr ""
 msgid "Enter external connection name"
 msgstr ""
 
-#: includes/external-connection-cpt.php:289
+#: includes/external-connection-cpt.php:292
 msgid "External Connection Details"
 msgstr ""
 
-#: includes/external-connection-cpt.php:290
+#: includes/external-connection-cpt.php:293
 msgid "External Connection Status"
 msgstr ""
 
-#: includes/external-connection-cpt.php:307
+#: includes/external-connection-cpt.php:310
 msgid ""
 "No content types found to pull or push. This probably means the WordPress "
 "API is available but V2 of the JSON REST API hasn't been installed to "
 "provide any routes"
 msgstr ""
 
-#: includes/external-connection-cpt.php:319
-#: includes/external-connection-cpt.php:625
+#: includes/external-connection-cpt.php:322
+#: includes/external-connection-cpt.php:628
 msgid "Can not pull any content types."
 msgstr ""
 
-#: includes/external-connection-cpt.php:323
-#: includes/external-connection-cpt.php:629
+#: includes/external-connection-cpt.php:326
+#: includes/external-connection-cpt.php:632
 msgid "Can not push any content types."
 msgstr ""
 
-#: includes/external-connection-cpt.php:389
+#: includes/external-connection-cpt.php:392
 msgid "External Connection Type"
 msgstr ""
 
-#: includes/external-connection-cpt.php:395
+#: includes/external-connection-cpt.php:398
 msgid "We need to know what type of API we are communicating with."
 msgstr ""
 
-#: includes/external-connection-cpt.php:406
+#: includes/external-connection-cpt.php:409
 msgid "Roles Allowed to Push"
 msgstr ""
 
-#: includes/external-connection-cpt.php:423
+#: includes/external-connection-cpt.php:426
 msgid "External Connection URL"
 msgstr ""
 
-#: includes/external-connection-cpt.php:436
+#: includes/external-connection-cpt.php:439
 msgid "How about:"
 msgstr ""
 
-#: includes/external-connection-cpt.php:448
+#: includes/external-connection-cpt.php:451
 msgid "Update Connection"
 msgstr ""
 
-#: includes/external-connection-cpt.php:450
+#: includes/external-connection-cpt.php:453
 msgid "Move to Trash"
 msgstr ""
 
-#: includes/external-connection-cpt.php:452
+#: includes/external-connection-cpt.php:455
 msgid "Create Connection"
 msgstr ""
 
-#: includes/external-connection-cpt.php:474
-#: includes/external-connection-cpt.php:538
+#: includes/external-connection-cpt.php:477
+#: includes/external-connection-cpt.php:541
 msgid "beta"
 msgstr ""
 
-#: includes/external-connection-cpt.php:474
-#: includes/external-connection-cpt.php:538
-#: includes/external-connection-cpt.php:549
+#: includes/external-connection-cpt.php:477
+#: includes/external-connection-cpt.php:541
+#: includes/external-connection-cpt.php:552
 msgid "External Connections"
 msgstr ""
 
-#: includes/external-connection-cpt.php:474
-#: includes/external-connection-cpt.php:551
+#: includes/external-connection-cpt.php:477
+#: includes/external-connection-cpt.php:554
 msgid "Add New"
 msgstr ""
 
-#: includes/external-connection-cpt.php:476
+#: includes/external-connection-cpt.php:479
 msgid ""
 "This feature is in beta. We can't push or pull meta data or images from "
 "external websites."
 msgstr ""
 
-#: includes/external-connection-cpt.php:504
+#: includes/external-connection-cpt.php:507
 msgid "External connections per page: "
 msgstr ""
 
-#: includes/external-connection-cpt.php:550
+#: includes/external-connection-cpt.php:553
 msgid "External Connection"
 msgstr ""
 
-#: includes/external-connection-cpt.php:552
+#: includes/external-connection-cpt.php:555
 msgid "Add New External Connection"
 msgstr ""
 
-#: includes/external-connection-cpt.php:553
+#: includes/external-connection-cpt.php:556
 msgid "Edit External Connection"
 msgstr ""
 
-#: includes/external-connection-cpt.php:554
+#: includes/external-connection-cpt.php:557
 msgid "New External Connection"
 msgstr ""
 
-#: includes/external-connection-cpt.php:555
+#: includes/external-connection-cpt.php:558
 msgid "All External Connections"
 msgstr ""
 
-#: includes/external-connection-cpt.php:556
+#: includes/external-connection-cpt.php:559
 msgid "View External Connection"
 msgstr ""
 
-#: includes/external-connection-cpt.php:557
+#: includes/external-connection-cpt.php:560
 msgid "Search External Connections"
 msgstr ""
 
-#: includes/external-connection-cpt.php:558
+#: includes/external-connection-cpt.php:561
 msgid "No external connections found."
 msgstr ""
 
-#: includes/external-connection-cpt.php:559
+#: includes/external-connection-cpt.php:562
 msgid "No external connections found in trash."
 msgstr ""
 
-#: includes/external-connection-cpt.php:561 includes/push-ui.php:240
+#. Plugin Name of the plugin/theme
 msgid "Distributor"
 msgstr ""
 
-#: includes/external-connection-cpt.php:593
 #: includes/external-connection-cpt.php:596
+#: includes/external-connection-cpt.php:599
 msgid "External connection updated."
 msgstr ""
 
-#: includes/external-connection-cpt.php:594
+#: includes/external-connection-cpt.php:597
 msgid "Custom field updated."
 msgstr ""
 
-#: includes/external-connection-cpt.php:595
+#: includes/external-connection-cpt.php:598
 msgid "Custom field deleted."
 msgstr ""
 
-#: includes/external-connection-cpt.php:597
+#: includes/external-connection-cpt.php:600
 msgid " External connection restored to revision from %s"
 msgstr ""
 
-#: includes/external-connection-cpt.php:598
+#: includes/external-connection-cpt.php:601
 msgid "External connection created."
 msgstr ""
 
-#: includes/external-connection-cpt.php:599
+#: includes/external-connection-cpt.php:602
 msgid "External connection saved."
 msgstr ""
 
-#: includes/external-connection-cpt.php:600
+#: includes/external-connection-cpt.php:603
 msgid "External connection submitted."
 msgstr ""
 
-#: includes/external-connection-cpt.php:601
+#: includes/external-connection-cpt.php:604
 msgid "External connection scheduled for: <strong>%1$s</strong>."
 msgstr ""
 
-#: includes/external-connection-cpt.php:602
+#: includes/external-connection-cpt.php:605
 msgid "M j, Y @ G:i"
 msgstr ""
 
-#: includes/external-connection-cpt.php:603
+#: includes/external-connection-cpt.php:606
 msgid "External connection draft updated."
 msgstr ""
 
@@ -473,56 +473,80 @@ msgstr ""
 msgid "Search"
 msgstr ""
 
-#: includes/push-ui.php:365
+#: includes/push-ui.php:266
+msgid "This post has been syndicated from <a href=\"%s\">%s</a>."
+msgstr ""
+
+#: includes/push-ui.php:268
+msgid "You can <a href=\"\">view the original</a>."
+msgstr ""
+
+#: includes/push-ui.php:383
 msgid "Post &quot;%s&quot; to other connections."
 msgstr ""
 
-#: includes/push-ui.php:370
+#: includes/push-ui.php:388
 msgid "Search available connections"
 msgstr ""
 
-#: includes/push-ui.php:392
+#: includes/push-ui.php:410
 msgid "Selected sites"
 msgstr ""
 
-#: includes/push-ui.php:393
+#: includes/push-ui.php:411
 msgid "No sites selected"
 msgstr ""
 
-#: includes/push-ui.php:404
+#: includes/push-ui.php:416
+msgid "As draft"
+msgstr ""
+
+#: includes/push-ui.php:422
 msgid "Post successfully syndicated."
 msgstr ""
 
-#: includes/push-ui.php:407
+#: includes/push-ui.php:425
 msgid "There was an issue syndicating the post."
 msgstr ""
 
-#: includes/syndicated-post-ui.php:76
+#: includes/syndicated-post-ui.php:104
 msgid "Syndicated on: <strong>%s</strong>"
 msgstr ""
 
-#: includes/syndicated-post-ui.php:286
+#: includes/syndicated-post-ui.php:314
 msgid "Blog #%d"
 msgstr ""
 
-#: includes/syndicated-post-ui.php:295
+#: includes/syndicated-post-ui.php:323
 msgid "Syndicated from <a href=\"%s\">%s</a>."
 msgstr ""
 
-#: includes/syndicated-post-ui.php:296
+#: includes/syndicated-post-ui.php:324
 msgid ""
 "The original post will update this version unless you <a href=\"%s\">unlink "
 "from the original.</a>"
 msgstr ""
 
-#: includes/syndicated-post-ui.php:300
+#: includes/syndicated-post-ui.php:328
 msgid "Originally syndicated from <a href=\"%s\">%s</a>."
 msgstr ""
 
-#: includes/syndicated-post-ui.php:301
+#: includes/syndicated-post-ui.php:329
 msgid ""
 "This post has been forked from it's original. However, you can always <a "
 "href='%s'>restore it.</a>"
+msgstr ""
+
+#. Description of the plugin/theme
+msgid "Syndicate content to and from external websites and within multisite blogs."
+msgstr ""
+
+#. Author of the plugin/theme
+msgid "Taylor Lovett, 10up"
+msgstr ""
+
+#. Author URI of the plugin/theme
+msgid "http://10up.com"
 msgstr ""
 
 #: includes/classes/ExternalConnectionListTable.php:86

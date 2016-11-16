@@ -1,6 +1,6 @@
 <?php
 
-namespace Syndicate;
+namespace Distributor;
 
 /**
  * This is a factory class for creating/registering connections

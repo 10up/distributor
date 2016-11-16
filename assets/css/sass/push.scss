@@ -5,7 +5,7 @@ $background-color: #32373c;
 $border-color: darken($font-color, 50%);
 $background-color-dark: #23282d;
 
-.syndicate-push-wrapper {
+.distributor-push-wrapper {
 	display: none;
 	font-size: 13px;
     font-weight: 400;
@@ -28,12 +28,12 @@ $background-color-dark: #23282d;
 	}
 }
 
-.syndicate-show {
-	.syndicate-push-wrapper {
+.distributor-show {
+	.distributor-push-wrapper {
 		display: flex;
 	}
 
-	#wp-admin-bar-syndicate a {
+	#wp-admin-bar-distributor a {
 		background: #32373c;
 	    color: #00b9eb;
 
@@ -51,40 +51,40 @@ $background-color-dark: #23282d;
 	}
 }
 
-#wp-admin-bar-syndicate a:before {
+#wp-admin-bar-distributor a:before {
 	display: inline-block;
 	top: 2px;
 	font-family: dashicons;
 	content: "\f242";
 }
 
-.syndicate-push-wrapper .inner {
+.distributor-push-wrapper .inner {
 	width: 100%;
 	max-width: $medium-screen;
 	margin: 0 auto;
 }
 
-.syndicate-push-wrapper .new-connections-list {
+.distributor-push-wrapper .new-connections-list {
 	overflow: auto;
 	border: 1px solid $border-color;
 	margin-top: .5em;
 	max-height: 200px;
 }
 
-.syndicate-push-wrapper .selected-connections-list {
+.distributor-push-wrapper .selected-connections-list {
 	margin-bottom: 1em;
 }
 
-.syndicate-push-wrapper .connections-selected {
+.distributor-push-wrapper .connections-selected {
 	margin-top: 2em;
 	position: relative;
 }
 
-.syndicate-push-wrapper .connections-selected .no-selected {
+.distributor-push-wrapper .connections-selected .no-selected {
 	display: none;
 }
 
-.syndicate-push-wrapper .connections-selected.empty {
+.distributor-push-wrapper .connections-selected.empty {
 	opacity: .5;
 
 	.no-selected {
@@ -96,7 +96,7 @@ $background-color-dark: #23282d;
 	}
 }
 
-.syndicate-push-wrapper .connections-selected.empty:after {
+.distributor-push-wrapper .connections-selected.empty:after {
 	content: ' ';
 	position: absolute;
 	top: 0;
@@ -106,7 +106,7 @@ $background-color-dark: #23282d;
 	background-color: transparent;
 }
 
-.syndicate-push-wrapper {
+.distributor-push-wrapper {
 	@media only screen and (min-width: $small-screen) {
 		position: fixed;
 
@@ -125,16 +125,6 @@ $background-color-dark: #23282d;
 			width: 100%;
 		}
 
-		.connections-selector:after {
-			transform : scale(1, 1.8);
-			content: "\f345";
-			font-family: dashicons;
-			font-size: 60px;
-			color: darken($font-color, 50%);
-			position: relative;
-			right: -.4em;
-		}
-
 		.connections-selected {
 			width: 40%;
 			float: right;
@@ -145,7 +135,17 @@ $background-color-dark: #23282d;
 	}
 }
 
-.syndicate-push-wrapper input[type=text] {
+.distributor-push-wrapper .syndicated-notice {
+	text-align: center;
+	margin: 0;
+
+	a {
+		color: inherit;
+		text-decoration: underline;
+	}
+}
+
+.distributor-push-wrapper input[type=text] {
 	font-size: inherit;
 	padding: 0.5278em;
     width: 100%;
@@ -164,7 +164,7 @@ $background-color-dark: #23282d;
 	}
 }
 
-.syndicate-push-wrapper button {
+.distributor-push-wrapper button {
 	background: #0085ba;
 	border-color: #0073aa #006799 #006799;
 	border-width: 1px;
@@ -191,12 +191,12 @@ $background-color-dark: #23282d;
 	}
 }
 
-.syndicate-push-wrapper .new-connections-list > div:nth-child(odd) {
+.distributor-push-wrapper .new-connections-list > div:nth-child(odd) {
 	background-color: $background-color-dark;
 }
 
-.syndicate-push-wrapper .add-connection,
-.syndicate-push-wrapper .added-connection {
+.distributor-push-wrapper .add-connection,
+.distributor-push-wrapper .added-connection {
 	display: block;
 	width: 100%;
 	padding: .5em;
@@ -205,34 +205,34 @@ $background-color-dark: #23282d;
 	cursor: pointer;
 }
 
-.syndicate-push-wrapper .new-connections-list .add-connection.added {
+.distributor-push-wrapper .new-connections-list .add-connection.added {
 	background-color: lighten($background-color, 25%);
 }
 
-.syndicate-push-wrapper .add-connection.syndicated {
+.distributor-push-wrapper .add-connection.syndicated {
 	cursor: default;
 }
 
-.syndicate-push-wrapper .add-connection.syndicated span {
+.distributor-push-wrapper .add-connection.syndicated span {
 	text-decoration: line-through;
 	color: $border-color;
 }
 
-.syndicate-push-wrapper .add-connection.syndicated a {
+.distributor-push-wrapper .add-connection.syndicated a {
 	color: inherit;
 	text-decoration: underline;
 	float: right;
 }
 
-.syndicate-push-wrapper .add-connection[data-connection-type="external"]:after,
-.syndicate-push-wrapper .added-connection[data-connection-type="external"]:after {
+.distributor-push-wrapper .add-connection[data-connection-type="external"]:after,
+.distributor-push-wrapper .added-connection[data-connection-type="external"]:after {
 	float: right;
 	content: '\f319';
 	margin-right: 3px;
 	font-family: dashicons;
 }
 
-.syndicate-push-wrapper .added-connection {
+.distributor-push-wrapper .added-connection {
 	background-color: $border-color;
 	margin-bottom: .5em;
 	cursor: normal;
@@ -256,19 +256,22 @@ $background-color-dark: #23282d;
 	}
 }
 
-.syndicate-push-wrapper p,
-.syndicate-push-wrapper header, {
+.distributor-push-wrapper p,
+.distributor-push-wrapper header, {
 	margin: 0 0 1em 0;
 	padding: 0;
 }
 
-.syndicate-push-wrapper .as-draft {
-	margin-left: 1em;height: 30px;
+.distributor-push-wrapper .as-draft {
+	margin-left: .5em;
+    height: 30px;
     line-height: 28px;
-    padding: 0 12px 2px;
+    padding: 2px 12px 2px;
+    display: inline-block;
+    box-sizing: border-box;
 }
 
-.syndicate-push-wrapper .action-wrapper.loading .syndicate-button:after {
+.distributor-push-wrapper .action-wrapper.loading .syndicate-button:after {
 	content: ' ';
 	vertical-align: middle;
 	border-radius: 50%;
@@ -292,7 +295,7 @@ $background-color-dark: #23282d;
 	box-sizing: initial;
 }
 
-.syndicate-push-wrapper .messages {
+.distributor-push-wrapper .messages {
 	margin-top: 1em;
 	box-sizing: border-box;
 
@@ -303,15 +306,15 @@ $background-color-dark: #23282d;
 	}
 }
 
-.syndicate-push-wrapper .messages * {
+.distributor-push-wrapper .messages * {
 	display: none;
 }
 
-.syndicate-push-wrapper.message-error .messages .sy-error {
+.distributor-push-wrapper.message-error .messages .dt-error {
 	display: block;
 }
 
-.syndicate-push-wrapper.message-success .messages .sy-success {
+.distributor-push-wrapper.message-success .messages .dt-success {
 	display: block;
 }
 

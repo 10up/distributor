@@ -1,6 +1,6 @@
 <?php
 
-namespace Syndicate\ExternalConnectionCPT;
+namespace Distributor\ExternalConnectionCPT;
 
 /**
  * Setup actions and filters
@@ -13,14 +13,14 @@ add_action( 'plugins_loaded', function() {
 	add_filter( 'post_updated_messages', __NAMESPACE__ . '\filter_post_updated_messages' );
 	add_action( 'save_post', __NAMESPACE__  . '\save_post' );
 	add_action( 'admin_enqueue_scripts', __NAMESPACE__  . '\admin_enqueue_scripts' );
-	add_action( 'wp_ajax_sy_verify_external_connection', __NAMESPACE__  . '\ajax_verify_external_connection' );
-	add_action( 'wp_ajax_sy_verify_external_connection_endpoint', __NAMESPACE__  . '\ajax_verify_external_connection_endpoint' );
+	add_action( 'wp_ajax_dt_verify_external_connection', __NAMESPACE__  . '\ajax_verify_external_connection' );
+	add_action( 'wp_ajax_dt_verify_external_connection_endpoint', __NAMESPACE__  . '\ajax_verify_external_connection_endpoint' );
 	add_action( 'admin_footer', __NAMESPACE__  . '\js_templates' );
-	add_filter( 'manage_sy_ext_connection_posts_columns', __NAMESPACE__  . '\filter_columns' );
-	add_action( 'manage_sy_ext_connection_posts_custom_column', __NAMESPACE__  . '\action_custom_columns', 10, 2 );
+	add_filter( 'manage_dt_ext_connection_posts_columns', __NAMESPACE__  . '\filter_columns' );
+	add_action( 'manage_dt_ext_connection_posts_custom_column', __NAMESPACE__  . '\action_custom_columns', 10, 2 );
 	add_action( 'admin_menu', __NAMESPACE__  . '\add_menu_item' );
 	add_action( 'admin_menu', __NAMESPACE__  . '\add_submenu_item', 11 );
-	add_action( 'load-toplevel_page_syndicate', __NAMESPACE__ . '\setup_list_table' );
+	add_action( 'load-toplevel_page_distributor', __NAMESPACE__ . '\setup_list_table' );
 } );
 
 /**
@@ -31,7 +31,7 @@ add_action( 'plugins_loaded', function() {
 function setup_list_table() {
 	global $connection_list_table;
 
-	$connection_list_table = new \Syndicate\ExternalConnectionListTable();
+	$connection_list_table = new \Distributor\ExternalConnectionListTable();
 
 	$pagenum = $connection_list_table->get_pagenum();
 
@@ -70,7 +70,7 @@ function setup_list_table() {
  * @return array
  */
 function filter_columns( $columns ) {
-	$columns['sy_external_connection_url'] = esc_html__( 'URL', 'syndicate' );
+	$columns['dt_external_connection_url'] = esc_html__( 'URL', 'distributor' );
 
 	unset( $columns['date'] );
 	return $columns;
@@ -84,13 +84,13 @@ function filter_columns( $columns ) {
  * @since  0.8
  */
 function action_custom_columns( $column, $post_id ) {
-	if ( 'sy_external_connection_url' == $column ) {
-		$url = get_post_meta( $post_id, 'sy_external_connection_url', true );
+	if ( 'dt_external_connection_url' == $column ) {
+		$url = get_post_meta( $post_id, 'dt_external_connection_url', true );
 
 		if ( ! empty( $url ) ) {
 			echo esc_url( $url );
 		} else {
-			esc_html_e( 'None', 'syndicate' );
+			esc_html_e( 'None', 'distributor' );
 		}
 	}
 }
@@ -101,7 +101,7 @@ function action_custom_columns( $column, $post_id ) {
  * @since  0.8
  */
 function ajax_verify_external_connection() {
-	if ( ! check_ajax_referer( 'sy-verify-ext-conn', 'nonce', false ) ) {
+	if ( ! check_ajax_referer( 'dt-verify-ext-conn', 'nonce', false ) ) {
 		wp_send_json_error();
 		exit;
 	}
@@ -116,14 +116,14 @@ function ajax_verify_external_connection() {
 		$auth = $_POST['auth'];
 	}
 
-	$current_auth = get_post_meta( $_POST['endpoint_id'], 'sy_external_connection_auth', true );
+	$current_auth = get_post_meta( $_POST['endpoint_id'], 'dt_external_connection_auth', true );
 
 	if ( ! empty( $current_auth ) ) {
 		$auth = array_merge( $auth, (array) $current_auth );
 	}
 
 	// Create an instance of the connection to test connections
-	$external_connection_class = \Syndicate\Connections::factory()->get_registered()[ $_POST['type'] ];
+	$external_connection_class = \Distributor\Connections::factory()->get_registered()[ $_POST['type'] ];
 
 	$auth_handler = new $external_connection_class::$auth_handler_class( $auth );
 
@@ -143,7 +143,7 @@ function ajax_verify_external_connection() {
  * @since  0.8
  */
 function admin_enqueue_scripts( $hook ) {
-	if ( ( 'post.php' === $hook && 'sy_ext_connection' === get_post_type() ) || ( 'post-new.php' === $hook && ! empty( $_GET['post_type'] ) && 'sy_ext_connection' === $_GET['post_type'] ) ) {
+	if ( ( 'post.php' === $hook && 'dt_ext_connection' === get_post_type() ) || ( 'post-new.php' === $hook && ! empty( $_GET['post_type'] ) && 'dt_ext_connection' === $_GET['post_type'] ) ) {
 
 	    if ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) {
 			$js_path = '/assets/js/src/admin-external-connection.js';
@@ -153,36 +153,36 @@ function admin_enqueue_scripts( $hook ) {
 			$css_path = '/assets/css/admin-external-connection.min.css';
 		}
 
-		wp_enqueue_style( 'sy-admin-external-connection', plugins_url( $css_path, __DIR__ ), array(), SY_VERSION );
-	    wp_enqueue_script( 'sy-admin-external-connection', plugins_url( $js_path, __DIR__ ), array( 'jquery', 'underscore' ), SY_VERSION, true );
+		wp_enqueue_style( 'dt-admin-external-connection', plugins_url( $css_path, __DIR__ ), array(), DT_VERSION );
+	    wp_enqueue_script( 'dt-admin-external-connection', plugins_url( $js_path, __DIR__ ), array( 'jquery', 'underscore' ), DT_VERSION, true );
 
-	    wp_localize_script( 'sy-admin-external-connection', 'sy', array(
-	    	'nonce' => wp_create_nonce( 'sy-verify-ext-conn' ),
-	    	'no_external_connection' => esc_html__( "Can't connect to API.", 'syndicate' ),
-	    	'no_types' => esc_html__( "No content types found to pull or push. This probably means the WordPress API is available but V2 of the JSON REST API hasn't been installed to provide any routes.", 'syndicate' ),
-	    	'invalid_endpoint' => esc_html__( "This doesn't seem to be a valid API endpoint.", 'syndicate' ),
-	    	'will_confirm_endpoint' => esc_html__( 'We will confirm the API endpoint works.', 'syndicate' ),
-	    	'valid_endpoint' => esc_html__( 'This is a valid API endpoint.', 'syndicate' ),
-	    	'endpoint_suggestion' => esc_html__( 'How about: ', 'syndicate' ),
-	    	'can_post' => esc_html__( 'Can push:', 'syndicate' ),
-	    	'can_get' => esc_html__( 'Can pull:', 'syndicate' ),
-	    	'endpoint_checking_message' => esc_html__( 'Checking endpoint...', 'syndicate' ),
-	    	'no_connection_check' => esc_html__( 'No external connection has been checked.', 'syndicate' ),
-	    	'change' => esc_html__( 'Change', 'syndicate' ),
-	    	'cancel' => esc_html__( 'Cancel', 'syndicate' ),
+	    wp_localize_script( 'dt-admin-external-connection', 'sy', array(
+	    	'nonce' => wp_create_nonce( 'dt-verify-ext-conn' ),
+	    	'no_external_connection' => esc_html__( "Can't connect to API.", 'distributor' ),
+	    	'no_types' => esc_html__( "No content types found to pull or push. This probably means the WordPress API is available but V2 of the JSON REST API hasn't been installed to provide any routes.", 'distributor' ),
+	    	'invalid_endpoint' => esc_html__( "This doesn't seem to be a valid API endpoint.", 'distributor' ),
+	    	'will_confirm_endpoint' => esc_html__( 'We will confirm the API endpoint works.', 'distributor' ),
+	    	'valid_endpoint' => esc_html__( 'This is a valid API endpoint.', 'distributor' ),
+	    	'endpoint_suggestion' => esc_html__( 'How about: ', 'distributor' ),
+	    	'can_post' => esc_html__( 'Can push:', 'distributor' ),
+	    	'can_get' => esc_html__( 'Can pull:', 'distributor' ),
+	    	'endpoint_checking_message' => esc_html__( 'Checking endpoint...', 'distributor' ),
+	    	'no_connection_check' => esc_html__( 'No external connection has been checked.', 'distributor' ),
+	    	'change' => esc_html__( 'Change', 'distributor' ),
+	    	'cancel' => esc_html__( 'Cancel', 'distributor' ),
 	    ) );
 
 		wp_dequeue_script( 'autosave' );
 	}
 
-	if ( ! empty( $_GET['page'] ) && 'syndicate' === $_GET['page'] ) {
+	if ( ! empty( $_GET['page'] ) && 'distributor' === $_GET['page'] ) {
 		if ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) {
 			$css_path = '/assets/css/admin-external-connections.css';
 		} else {
 			$css_path = '/assets/css/admin-external-connections.min.css';
 		}
 
-		wp_enqueue_style( 'sy-admin-external-connections', plugins_url( $css_path, __DIR__ ), array(), SY_VERSION );
+		wp_enqueue_style( 'dt-admin-external-connections', plugins_url( $css_path, __DIR__ ), array(), DT_VERSION );
 	}
 
 	if ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) {
@@ -191,7 +191,7 @@ function admin_enqueue_scripts( $hook ) {
 		$css_path = '/assets/css/admin.min.css';
 	}
 
-	wp_enqueue_style( 'sy-admin', plugins_url( $css_path, __DIR__ ), array(), SY_VERSION );
+	wp_enqueue_style( 'dt-admin', plugins_url( $css_path, __DIR__ ), array(), DT_VERSION );
 }
 
 /**
@@ -203,11 +203,11 @@ function admin_enqueue_scripts( $hook ) {
  * @return string
  */
 function filter_enter_title_here( $label, $post = 0 ) {
-	if ( 'sy_ext_connection' !== get_post_type( $post->ID ) ) {
+	if ( 'dt_ext_connection' !== get_post_type( $post->ID ) ) {
 		return $label;
 	}
 
-	return esc_html__( 'Enter external connection name', 'syndicate' );
+	return esc_html__( 'Enter external connection name', 'distributor' );
 }
 
 /**
@@ -221,38 +221,38 @@ function save_post( $post_id ) {
 		return;
 	}
 
-	if ( empty( $_POST['sy_external_connection_details'] ) || ! wp_verify_nonce( $_POST['sy_external_connection_details'], 'sy_external_connection_details_action' ) ) {
+	if ( empty( $_POST['dt_external_connection_details'] ) || ! wp_verify_nonce( $_POST['dt_external_connection_details'], 'dt_external_connection_details_action' ) ) {
 		return;
 	}
 
-	if ( empty( $_POST['sy_external_connection_type'] ) ) {
-		delete_post_meta( $post_id, 'sy_external_connection_type' );
+	if ( empty( $_POST['dt_external_connection_type'] ) ) {
+		delete_post_meta( $post_id, 'dt_external_connection_type' );
 	} else {
-		update_post_meta( $post_id, 'sy_external_connection_type', sanitize_text_field( $_POST['sy_external_connection_type'] ) );
+		update_post_meta( $post_id, 'dt_external_connection_type', sanitize_text_field( $_POST['dt_external_connection_type'] ) );
 	}
 
-	if ( empty( $_POST['sy_external_connection_allowed_roles'] ) ) {
-		delete_post_meta( $post_id, 'sy_external_connection_allowed_roles' );
+	if ( empty( $_POST['dt_external_connection_allowed_roles'] ) ) {
+		delete_post_meta( $post_id, 'dt_external_connection_allowed_roles' );
 	} else {
-		update_post_meta( $post_id, 'sy_external_connection_allowed_roles', array_map( 'sanitize_text_field', $_POST['sy_external_connection_allowed_roles'] ) );
+		update_post_meta( $post_id, 'dt_external_connection_allowed_roles', array_map( 'sanitize_text_field', $_POST['dt_external_connection_allowed_roles'] ) );
 	}
 
-	if ( empty( $_POST['sy_external_connection_url'] ) ) {
-		delete_post_meta( $post_id, 'sy_external_connection_url' );
-		delete_post_meta( $post_id, 'sy_external_connections' );
-		delete_post_meta( $post_id, 'sy_external_connection_check_time' );
+	if ( empty( $_POST['dt_external_connection_url'] ) ) {
+		delete_post_meta( $post_id, 'dt_external_connection_url' );
+		delete_post_meta( $post_id, 'dt_external_connections' );
+		delete_post_meta( $post_id, 'dt_external_connection_check_time' );
 	} else {
-		update_post_meta( $post_id, 'sy_external_connection_url', sanitize_text_field( $_POST['sy_external_connection_url'] ) );
+		update_post_meta( $post_id, 'dt_external_connection_url', sanitize_text_field( $_POST['dt_external_connection_url'] ) );
 
 		// Create an instance of the connection to test connections
-		$external_connection_class = \Syndicate\Connections::factory()->get_registered()[ $_POST['sy_external_connection_type'] ];
+		$external_connection_class = \Distributor\Connections::factory()->get_registered()[ $_POST['dt_external_connection_type'] ];
 
 		$auth = array();
-		if ( ! empty( $_POST['sy_external_connection_auth'] ) ) {
-			$auth = $_POST['sy_external_connection_auth'];
+		if ( ! empty( $_POST['dt_external_connection_auth'] ) ) {
+			$auth = $_POST['dt_external_connection_auth'];
 		}
 
-		$current_auth = get_post_meta( $post_id, 'sy_external_connection_auth', true );
+		$current_auth = get_post_meta( $post_id, 'dt_external_connection_auth', true );
 
 		if ( ! empty( $current_auth ) ) {
 			$auth = array_merge( $auth, (array) $current_auth );
@@ -260,23 +260,26 @@ function save_post( $post_id ) {
 
 		$auth_handler = new $external_connection_class::$auth_handler_class( $auth );
 
-		$external_connection = new $external_connection_class( get_the_title( $post_id ), $_POST['sy_external_connection_url'], $post_id, $auth_handler );
+		$external_connection = new $external_connection_class( get_the_title( $post_id ), $_POST['dt_external_connection_url'], $post_id, $auth_handler );
 
 		$external_connections = $external_connection->check_connections();
 
-		update_post_meta( $post_id, 'sy_external_connections', $external_connections );
-		update_post_meta( $post_id, 'sy_external_connection_check_time', time() );
+		update_post_meta( $post_id, 'dt_external_connections', $external_connections );
+		update_post_meta( $post_id, 'dt_external_connection_check_time', time() );
 	}
 
-	if ( ! empty( $_POST['sy_external_connection_auth'] ) ) {
-		$current_auth = get_post_meta( $post_id, 'sy_external_connection_auth', true );
+	if ( ! empty( $_POST['dt_external_connection_auth'] ) ) {
+		$current_auth = get_post_meta( $post_id, 'dt_external_connection_auth', true );
 		if ( empty( $current_auth ) ) {
 			$current_auth = array();
 		}
 
-		$auth_creds = \Syndicate\Connections::factory()->get_registered()[ $_POST['sy_external_connection_type'] ]::$auth_handler_class::prepare_credentials( array_merge( $_POST['sy_external_connection_auth'], (array) $current_auth ) );
+		$connection_class = \Distributor\Connections::factory()->get_registered()[ $_POST['dt_external_connection_type'] ];
+		$auth_handler_class_again = $connection_class::$auth_handler_class;
 
-		\Syndicate\Connections::factory()->get_registered()[ $_POST['sy_external_connection_type'] ]::$auth_handler_class::store_credentials( $post_id, $auth_creds );
+		$auth_creds = $auth_handler_class_again::prepare_credentials( array_merge( (array) $current_auth, $_POST['dt_external_connection_auth'] ) );
+
+		$auth_handler_class_again::store_credentials( $post_id, $auth_creds );
 	}
 }
 
@@ -286,8 +289,8 @@ function save_post( $post_id ) {
  * @since 0.8
  */
 function add_meta_boxes() {
-	add_meta_box( 'sy_external_connection_details', esc_html__( 'External Connection Details', 'syndicate' ), __NAMESPACE__ . '\meta_box_external_connection_details', 'sy_ext_connection', 'normal', 'core' );
-	add_meta_box( 'sy_external_connection_connection', esc_html__( 'External Connection Status', 'syndicate' ), __NAMESPACE__ . '\meta_box_external_connection', 'sy_ext_connection', 'side', 'core' );
+	add_meta_box( 'dt_external_connection_details', esc_html__( 'External Connection Details', 'distributor' ), __NAMESPACE__ . '\meta_box_external_connection_details', 'dt_ext_connection', 'normal', 'core' );
+	add_meta_box( 'dt_external_connection_connection', esc_html__( 'External Connection Status', 'distributor' ), __NAMESPACE__ . '\meta_box_external_connection', 'dt_ext_connection', 'side', 'core' );
 }
 
 /**
@@ -297,14 +300,14 @@ function add_meta_boxes() {
  * @since  0.8
  */
 function meta_box_external_connection( $post ) {
-	$external_connections = get_post_meta( $post->ID, 'sy_external_connections', true );
-	$check_time = get_post_meta( $post->ID, 'sy_external_connection_check_time', true );
+	$external_connections = get_post_meta( $post->ID, 'dt_external_connections', true );
+	$check_time = get_post_meta( $post->ID, 'dt_external_connection_check_time', true );
 
 	$lang = array(
-		'no_external_connection' => esc_html__( "Can't connect to API.", 'syndicate' ),
-		'can_post'               => esc_html__( 'Can push:', 'syndicate' ),
-		'can_get'                => esc_html__( 'Can pull:', 'syndicate' ),
-		'no_types'               => esc_html__( "No content types found to pull or push. This probably means the WordPress API is available but V2 of the JSON REST API hasn't been installed to provide any routes", 'syndicate' ),
+		'no_external_connection' => esc_html__( "Can't connect to API.", 'distributor' ),
+		'can_post'               => esc_html__( 'Can push:', 'distributor' ),
+		'can_get'                => esc_html__( 'Can pull:', 'distributor' ),
+		'no_types'               => esc_html__( "No content types found to pull or push. This probably means the WordPress API is available but V2 of the JSON REST API hasn't been installed to provide any routes", 'distributor' ),
 	);
 
 	if ( ! empty( $external_connections ) ) : ?>
@@ -316,11 +319,11 @@ function meta_box_external_connection( $post ) {
 
 				<?php if ( empty( $external_connections['errors'] ) ) : ?>
 					<?php if ( empty( $external_connections['can_get'] ) ) : ?>
-						<li><?php esc_html_e( 'Can not pull any content types.', 'syndicate' ); ?></li>
+						<li><?php esc_html_e( 'Can not pull any content types.', 'distributor' ); ?></li>
 					<?php endif; ?>
 
 					<?php if ( empty( $external_connections['can_post'] ) ) : ?>
-						<li><?php esc_html_e( 'Can not push any content types.', 'syndicate' ); ?></li>
+						<li><?php esc_html_e( 'Can not push any content types.', 'distributor' ); ?></li>
 					<?php endif; ?>
 				<?php endif; ?>
 			</ul>
@@ -335,7 +338,7 @@ function meta_box_external_connection( $post ) {
 			</ul>
 		</div>
 	<?php else : ?>
-		<p><?php esc_html_e( 'No external connection has been checked.', 'syndicate' ); ?></p>
+		<p><?php esc_html_e( 'No external connection has been checked.', 'distributor' ); ?></p>
 	<?php
 	endif;
 }
@@ -347,33 +350,33 @@ function meta_box_external_connection( $post ) {
  * @param $post
  */
 function meta_box_external_connection_details( $post ) {
-	wp_nonce_field( 'sy_external_connection_details_action', 'sy_external_connection_details' );
+	wp_nonce_field( 'dt_external_connection_details_action', 'dt_external_connection_details' );
 
-	$external_connection_type = get_post_meta( $post->ID, 'sy_external_connection_type', true );
+	$external_connection_type = get_post_meta( $post->ID, 'dt_external_connection_type', true );
 
-	$auth = get_post_meta( $post->ID, 'sy_external_connection_auth', true );
+	$auth = get_post_meta( $post->ID, 'dt_external_connection_auth', true );
 	if ( empty( $auth ) ) {
 		$auth = array();
 	}
 
-	$external_connection_url = get_post_meta( $post->ID, 'sy_external_connection_url', true );
+	$external_connection_url = get_post_meta( $post->ID, 'dt_external_connection_url', true );
 	if ( empty( $external_connection_url ) ) {
 		$external_connection_url = '';
 	}
 
-	$external_connections = get_post_meta( $post->ID, 'sy_external_connections', true );
+	$external_connections = get_post_meta( $post->ID, 'dt_external_connections', true );
 
-	$registered_external_connection_types = \Syndicate\Connections::factory()->get_registered();
+	$registered_external_connection_types = \Distributor\Connections::factory()->get_registered();
 
 	foreach ( $registered_external_connection_types as $slug => $class ) {
 		$parent_class = get_parent_class( $class );
 
-		if ( 'Syndicate\ExternalConnection' !== get_parent_class( $class ) ) {
+		if ( 'Distributor\ExternalConnection' !== get_parent_class( $class ) ) {
 			unset( $registered_external_connection_types[ $slug ] );
 		}
 	}
 
-	$allowed_roles = get_post_meta( $post->ID, 'sy_external_connection_allowed_roles', true );
+	$allowed_roles = get_post_meta( $post->ID, 'dt_external_connection_allowed_roles', true );
 
 	if ( empty( $allowed_roles ) ) {
 		$allowed_roles = array( 'administrator', 'editor' );
@@ -383,29 +386,29 @@ function meta_box_external_connection_details( $post ) {
 	?>
 
 	<?php if ( 1 === count( $registered_external_connection_types ) ) : $registered_connection_types_keys = array_keys( $registered_external_connection_types ); ?>
-		<input id="sy_external_connection_type" class="external-connection-type-field" type="hidden" name="sy_external_connection_type" value="<?php echo esc_attr( $registered_connection_types_keys[0] ); ?>">
+		<input id="dt_external_connection_type" class="external-connection-type-field" type="hidden" name="dt_external_connection_type" value="<?php echo esc_attr( $registered_connection_types_keys[0] ); ?>">
 	<?php else : ?>
 		<p>
-			<label for="sy_external_connection_type"><?php esc_html_e( 'External Connection Type', 'syndicate' ); ?></label><br>
-			<select name="sy_external_connection_type" class="external-connection-type-field" id="sy_external_connection_type">
+			<label for="dt_external_connection_type"><?php esc_html_e( 'External Connection Type', 'distributor' ); ?></label><br>
+			<select name="dt_external_connection_type" class="external-connection-type-field" id="dt_external_connection_type">
 				<?php foreach ( $registered_connection_types as $slug => $external_connection_class ) : ?>
 					<option <?php selected( $slug, $external_connection_type ); ?> value="<?php echo esc_attr( $slug ); ?>"><?php echo esc_attr( $external_connection_class::$label ); ?></option>
 				<?php endforeach; ?>
 			</select>
-			<span class="description"><?php esc_html_e( 'We need to know what type of API we are communicating with.', 'syndicate' ); ?></span>
+			<span class="description"><?php esc_html_e( 'We need to know what type of API we are communicating with.', 'distributor' ); ?></span>
 		</p>
 	<?php endif; ?>
 
-	<?php foreach ( $registered_external_connection_types as $external_connection_class ) : if ( ! $external_connection_class::$auth_handler_class::$requires_credentials ) { continue; } ?>
-		<div class="auth-credentials <?php echo esc_attr( $external_connection_class::$auth_handler_class::$slug ); ?>">
-			<?php $external_connection_class::$auth_handler_class::credentials_form( $auth ); ?>
+	<?php foreach ( $registered_external_connection_types as $external_connection_class ) : $auth_handler_class_again = $external_connection_class::$auth_handler_class; if ( ! $auth_handler_class_again::$requires_credentials ) { continue; } ?>
+		<div class="auth-credentials <?php echo esc_attr( $auth_handler_class_again::$slug ); ?>">
+			<?php $auth_handler_class_again::credentials_form( $auth ); ?>
 		</div>
 	<?php endforeach; ?>
 
 	<p>
-		<label for="sy_external_connection_allowed_roles"><?php esc_html_e( 'Roles Allowed to Push', 'syndicate' ); ?></label><br>
+		<label for="dt_external_connection_allowed_roles"><?php esc_html_e( 'Roles Allowed to Push', 'distributor' ); ?></label><br>
 
-		<select name="sy_external_connection_allowed_roles[]" id="sy_external_connection_allowed_roles" multiple="multiple">
+		<select name="dt_external_connection_allowed_roles[]" id="dt_external_connection_allowed_roles" multiple="multiple">
 			<?php
 			$editable_roles = get_editable_roles();
 			foreach ( $editable_roles as $role => $details ) {
@@ -420,20 +423,20 @@ function meta_box_external_connection_details( $post ) {
 		</select>
 	</p>
 	<p>
-		<label for="sy_external_connection_url"><?php esc_html_e( 'External Connection URL', 'syndicate' ); ?></label><br>
+		<label for="dt_external_connection_url"><?php esc_html_e( 'External Connection URL', 'distributor' ); ?></label><br>
 		<span class="external-connection-url-field-wrapper">
-			<input value="<?php echo esc_url( $external_connection_url ); ?>" type="text" name="sy_external_connection_url" id="sy_external_connection_url" class="widefat external-connection-url-field">
+			<input value="<?php echo esc_url( $external_connection_url ); ?>" type="text" name="dt_external_connection_url" id="dt_external_connection_url" class="widefat external-connection-url-field">
 		</span>
 		<span class="description endpoint-result">
 			<?php if ( empty( $external_connections ) ) : ?>
-				<?php esc_html_e( 'We will confirm the API endpoint works.', 'syndicate' ); ?>
+				<?php esc_html_e( 'We will confirm the API endpoint works.', 'distributor' ); ?>
 			<?php elseif ( empty( $external_connections['errors'] ) || ( 1 === count( $external_connections['errors'] ) && ! empty( $external_connections['errors']['no_types'] ) ) ) : ?>
-				<span class="dashicons dashicons-yes"></span><?php esc_html_e( 'This is a valid API endpoint.', 'syndicate' ); ?>
+				<span class="dashicons dashicons-yes"></span><?php esc_html_e( 'This is a valid API endpoint.', 'distributor' ); ?>
 			<?php else : ?>
 
-				<span class="dashicons dashicons-warning"></span><?php esc_html_e( "This doesn't seem to be a valid API endpoint.", 'syndicate' ); ?>
+				<span class="dashicons dashicons-warning"></span><?php esc_html_e( "This doesn't seem to be a valid API endpoint.", 'distributor' ); ?>
 				<?php if ( ! empty( $external_connections['endpoint_suggestion'] ) ) : ?>
-					<?php esc_html_e( 'How about:', 'syndicate' ); ?> <a class="suggest"><?php echo esc_html( $external_connections['endpoint_suggestion'] ); ?></a>
+					<?php esc_html_e( 'How about:', 'distributor' ); ?> <a class="suggest"><?php echo esc_html( $external_connections['endpoint_suggestion'] ); ?></a>
 				<?php endif; ?>
 			<?php endif; ?>
 		</span>
@@ -445,11 +448,11 @@ function meta_box_external_connection_details( $post ) {
 
 		<?php if ( 0 < strtotime( $post->post_date_gmt . ' +0000' ) ) : ?>
 
-			<input name="save" type="submit" class="button button-primary button-large" id="publish" value="<?php esc_attr_e( 'Update Connection', 'syndicate' ) ?>">
+			<input name="save" type="submit" class="button button-primary button-large" id="publish" value="<?php esc_attr_e( 'Update Connection', 'distributor' ) ?>">
 		
-			<a class="delete-link" href="<?php echo esc_url( get_delete_post_link( $post->ID ) ); ?> "><?php esc_html_e( 'Move to Trash', 'syndicate' ); ?></a>
+			<a class="delete-link" href="<?php echo esc_url( get_delete_post_link( $post->ID ) ); ?> "><?php esc_html_e( 'Move to Trash', 'distributor' ); ?></a>
 		<?php else : ?>
-			<input name="publish" type="submit" class="button button-primary button-large" id="publish" value="<?php esc_attr_e( 'Create Connection', 'syndicate' ) ?>">
+			<input name="publish" type="submit" class="button button-primary button-large" id="publish" value="<?php esc_attr_e( 'Create Connection', 'distributor' ) ?>">
 		<?php endif; ?>
 	</p>
 	<?php
@@ -463,17 +466,17 @@ function meta_box_external_connection_details( $post ) {
 function dashboard() {
 	global $connection_list_table;
 
-	$_GET['post_type'] = 'sy_ext_connection';
+	$_GET['post_type'] = 'dt_ext_connection';
 
-	$post_type_object = get_post_type_object( 'sy_ext_connection' );
+	$post_type_object = get_post_type_object( 'dt_ext_connection' );
 
 	$connection_list_table->prepare_items();
 	?>
 
 	<div class="wrap">
-		<h1><span class="beta"><?php esc_html_e( 'beta', 'syndicate' ); ?></span> <?php esc_html_e( 'External Connections', 'syndicate' ); ?> <a href="<?php echo esc_url( admin_url( 'post-new.php?post_type=sy_ext_connection' ) ); ?>" class="page-title-action"><?php esc_html_e( 'Add New', 'syndicate' ); ?></a></h1>
+		<h1><span class="beta"><?php esc_html_e( 'beta', 'distributor' ); ?></span> <?php esc_html_e( 'External Connections', 'distributor' ); ?> <a href="<?php echo esc_url( admin_url( 'post-new.php?post_type=dt_ext_connection' ) ); ?>" class="page-title-action"><?php esc_html_e( 'Add New', 'distributor' ); ?></a></h1>
 		<div class="network-connections-notice">
-			<strong><?php esc_html_e( "This feature is in beta. We can't push or pull meta data or images from external websites.", 'syndicate' ); ?></strong>
+			<strong><?php esc_html_e( "This feature is in beta. We can't push or pull meta data or images from external websites.", 'distributor' ); ?></strong>
 		</div>
 
 
@@ -482,8 +485,8 @@ function dashboard() {
 		<form id="posts-filter" method="get">
 
 		<input type="hidden" name="post_status" class="post_status_page" value="<?php echo ! empty( $_REQUEST['post_status'] ) ? esc_attr( $_REQUEST['post_status'] ) : 'all'; ?>">
-		<input type="hidden" name="post_type" class="post_type_page" value="sy_ext_connection">
-		<input type="hidden" name="page" value="syndicate">
+		<input type="hidden" name="post_type" class="post_type_page" value="dt_ext_connection">
+		<input type="hidden" name="page" value="distributor">
 
 		<?php $connection_list_table->display(); ?>
 
@@ -501,7 +504,7 @@ function screen_option() {
 
 	$option = 'per_page';
 	$args   = [
-		'label'   => esc_html__( 'External connections per page: ', 'syndicate' ),
+		'label'   => esc_html__( 'External connections per page: ', 'distributor' ),
 		'default' => 5,
 		'option'  => 'connections_per_page',
 	];
@@ -516,10 +519,10 @@ function screen_option() {
  */
 function add_menu_item() {
 	$hook = add_menu_page(
-		'Syndicate',
-		'Syndicate',
+		'Distributor',
+		'Distributor',
 		'manage_options',
-		'syndicate',
+		'distributor',
 		__NAMESPACE__  . '\dashboard',
 		'dashicons-share-alt2'
 	);
@@ -534,8 +537,8 @@ function add_menu_item() {
  */
 function add_submenu_item() {
 	global $submenu;
-	unset( $submenu['syndicate'][0] );
-	add_submenu_page( 'syndicate', esc_html__( 'External Connections', 'syndicate' ), '<span class="beta">' . esc_html__( 'beta', 'syndicate' ) . '</span>' . esc_html__( 'External Connections', 'syndicate' ), 'manage_options', 'syndicate' );
+	unset( $submenu['distributor'][0] );
+	add_submenu_page( 'distributor', esc_html__( 'External Connections', 'distributor' ), '<span class="beta">' . esc_html__( 'beta', 'distributor' ) . '</span>' . esc_html__( 'External Connections', 'distributor' ), 'manage_options', 'distributor' );
 }
 
 /**
@@ -546,19 +549,19 @@ function add_submenu_item() {
 function setup_cpt() {
 
 	$labels = array(
-		'name'               => esc_html__( 'External Connections', 'syndicate' ),
-		'singular_name'      => esc_html__( 'External Connection', 'syndicate' ),
-		'add_new'            => esc_html__( 'Add New', 'syndicate' ),
-		'add_new_item'       => esc_html__( 'Add New External Connection', 'syndicate' ),
-		'edit_item'          => esc_html__( 'Edit External Connection', 'syndicate' ),
-		'new_item'           => esc_html__( 'New External Connection', 'syndicate' ),
-		'all_items'          => esc_html__( 'All External Connections', 'syndicate' ),
-		'view_item'          => esc_html__( 'View External Connection', 'syndicate' ),
-		'search_items'       => esc_html__( 'Search External Connections', 'syndicate' ),
-		'not_found'          => esc_html__( 'No external connections found.', 'syndicate' ),
-		'not_found_in_trash' => esc_html__( 'No external connections found in trash.', 'syndicate' ),
+		'name'               => esc_html__( 'External Connections', 'distributor' ),
+		'singular_name'      => esc_html__( 'External Connection', 'distributor' ),
+		'add_new'            => esc_html__( 'Add New', 'distributor' ),
+		'add_new_item'       => esc_html__( 'Add New External Connection', 'distributor' ),
+		'edit_item'          => esc_html__( 'Edit External Connection', 'distributor' ),
+		'new_item'           => esc_html__( 'New External Connection', 'distributor' ),
+		'all_items'          => esc_html__( 'All External Connections', 'distributor' ),
+		'view_item'          => esc_html__( 'View External Connection', 'distributor' ),
+		'search_items'       => esc_html__( 'Search External Connections', 'distributor' ),
+		'not_found'          => esc_html__( 'No external connections found.', 'distributor' ),
+		'not_found_in_trash' => esc_html__( 'No external connections found in trash.', 'distributor' ),
 		'parent_item_colon'  => '',
-		'menu_name'          => esc_html__( 'Syndicate', 'syndicate' ),
+		'menu_name'          => esc_html__( 'Distributor', 'distributor' ),
 	);
 
 	$args = array(
@@ -575,7 +578,7 @@ function setup_cpt() {
 		'register_meta_box_cb' => __NAMESPACE__ . '\add_meta_boxes',
 	);
 
-	register_post_type( 'sy_ext_connection', $args );
+	register_post_type( 'dt_ext_connection', $args );
 }
 
 /**
@@ -588,19 +591,19 @@ function setup_cpt() {
 function filter_post_updated_messages( $messages ) {
 	global $post, $post_ID;
 
-	$messages['sy_ext_connection'] = array(
+	$messages['dt_ext_connection'] = array(
 		0 => '',
-		1 => esc_html__( 'External connection updated.', 'syndicate' ),
-		2 => esc_html__( 'Custom field updated.', 'syndicate' ),
-		3 => esc_html__( 'Custom field deleted.', 'syndicate' ),
-		4 => esc_html__( 'External connection updated.', 'syndicate' ),
-		5 => isset( $_GET['revision'] ) ? sprintf( __( ' External connection restored to revision from %s', 'syndicate' ), wp_post_revision_title( (int) $_GET['revision'], false ) ) : false,
-		6 => esc_html__( 'External connection created.', 'syndicate' ),
-		7 => esc_html__( 'External connection saved.', 'syndicate' ),
-		8 => esc_html__( 'External connection submitted.', 'syndicate' ),
-		9 => sprintf( __( 'External connection scheduled for: <strong>%1$s</strong>.', 'syndicate' ),
+		1 => esc_html__( 'External connection updated.', 'distributor' ),
+		2 => esc_html__( 'Custom field updated.', 'distributor' ),
+		3 => esc_html__( 'Custom field deleted.', 'distributor' ),
+		4 => esc_html__( 'External connection updated.', 'distributor' ),
+		5 => isset( $_GET['revision'] ) ? sprintf( __( ' External connection restored to revision from %s', 'distributor' ), wp_post_revision_title( (int) $_GET['revision'], false ) ) : false,
+		6 => esc_html__( 'External connection created.', 'distributor' ),
+		7 => esc_html__( 'External connection saved.', 'distributor' ),
+		8 => esc_html__( 'External connection submitted.', 'distributor' ),
+		9 => sprintf( __( 'External connection scheduled for: <strong>%1$s</strong>.', 'distributor' ),
 		date_i18n( __( 'M j, Y @ G:i' ), strtotime( $post->post_date ) ) ),
-		10 => esc_html__( 'External connection draft updated.', 'syndicate' ),
+		10 => esc_html__( 'External connection draft updated.', 'distributor' ),
 	);
 
 	return $messages;
@@ -613,7 +616,7 @@ function filter_post_updated_messages( $messages ) {
  */
 function js_templates() {
 	?>
-	<script type="text/html" id="sy-external-connection-verification">
+	<script type="text/html" id="dt-external-connection-verification">
 		<div class="external-connection-verification">
 			<ul class="errors">
 				<# _.each(errors, function(error) {  #>
@@ -622,11 +625,11 @@ function js_templates() {
 
 				<# if (0 === Object.keys(errors).length) { #>
 					<# if (!can_get.length) { #>
-						<li><?php esc_html_e( 'Can not pull any content types.', 'syndicate' ); ?></li>
+						<li><?php esc_html_e( 'Can not pull any content types.', 'distributor' ); ?></li>
 					<# } #>
 
 					<# if (!can_post.length) { #>
-						<li><?php esc_html_e( 'Can not push any content types.', 'syndicate' ); ?></li>
+						<li><?php esc_html_e( 'Can not push any content types.', 'distributor' ); ?></li>
 					<# } #>
 				<# } #>
 			</ul>

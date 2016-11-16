@@ -1,6 +1,6 @@
 <?php
 
-namespace Syndicate;
+namespace Distributor;
 
 class ConnectionsTest extends \TestCase {
 	/**

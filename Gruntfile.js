@@ -69,8 +69,8 @@ module.exports = function (grunt) {
 			main: {
 				options: {
 					domainPath: 'lang',
-					mainFile: 'syndicate.php',
-					potFilename: 'syndicate.pot',
+					mainFile: 'distributor.php',
+					potFilename: 'distributor.pot',
 					type: 'wp-plugin',
 					potHeaders: true
 				}

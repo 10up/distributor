@@ -1,6 +1,6 @@
 <?php
-namespace Syndicate\ExternalConnections;
-use \Syndicate\Authentications\WordPressBasicAuth as WordPressBasicAuth;
+namespace Distributor\ExternalConnections;
+use \Distributor\Authentications\WordPressBasicAuth as WordPressBasicAuth;
 
 class WordPressExternalConnectionTest extends \TestCase {
 
@@ -30,7 +30,7 @@ class WordPressExternalConnectionTest extends \TestCase {
 
 		$connection = new WordPressExternalConnection( 'name', 'url', 1, $auth );
 
-		$this->assertTrue( is_a( $connection, '\Syndicate\ExternalConnection' ) );
+		$this->assertTrue( is_a( $connection, '\Distributor\ExternalConnection' ) );
 
 		// Check connection properties
 		$this->assertTrue( ! empty( $connection->name ) );
