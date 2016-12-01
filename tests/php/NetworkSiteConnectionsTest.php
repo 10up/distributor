@@ -113,8 +113,11 @@ class NetworkSiteConnectionsTest extends \TestCase {
         \WP_Mock::userFunction( 'get_permalink' );
 
         \WP_Mock::userFunction( 'get_post_meta', [
-            'return' => (object) [
-                'key' => []
+            'return' => [
+            	'no_dt_unlinked'         => [0],
+				'no_dt_original_post_id' => [0],
+				'no_dt_original_blog_id' => [0],
+				'no_dt_syndicate_time'   => [0],
             ]
         ] );
 
@@ -126,10 +129,52 @@ class NetworkSiteConnectionsTest extends \TestCase {
         ] );
 
         \WP_Mock::userFunction( 'wp_insert_post', [
-            'return' => [4, 3, 2]
+            'return' => 123
         ] );
 
-        $this->assertTrue( count( $this->connection_obj->pull( [ 2, 3, 4 ] ) ) === 3 );
+		\WP_Mock::userFunction( 'update_post_meta', [
+			'times'  => 1,
+			'args'   => [ \WP_Mock\Functions::type( 'int'), 'dt_original_post_id', 2 ],
+			'return' => []
+		] );
+
+		\WP_Mock::userFunction( 'update_post_meta', [
+			'times'  => 1,
+			'args'   => [ \WP_Mock\Functions::type( 'int'), 'dt_original_blog_id', 2 ],
+			'return' => []
+		] );
+
+		\WP_Mock::userFunction( 'update_post_meta', [
+			'times'  => 1,
+			'args'   => [ \WP_Mock\Functions::type( 'int'), 'dt_syndicate_time', time() ],
+			'return' => []
+		] );
+
+		\WP_Mock::userFunction( 'update_post_meta', [
+		    'times'  => 1,
+		    'args'   => [ \WP_Mock\Functions::type( 'int' ), 'no_dt_unlinked', 0 ],
+		    'return' => []
+		] );
+
+		\WP_Mock::userFunction( 'update_post_meta', [
+		    'times'  => 1,
+		    'args'   => [ \WP_Mock\Functions::type( 'int' ), 'no_dt_original_post_id', 0 ],
+		    'return' => []
+		] );
+
+		\WP_Mock::userFunction( 'update_post_meta', [
+		    'times'  => 1,
+		    'args'   => [ \WP_Mock\Functions::type( 'int' ), 'no_dt_original_blog_id', 0 ],
+		    'return' => []
+		] );
+
+		\WP_Mock::userFunction( 'update_post_meta', [
+		    'times'  => 1,
+		    'args'   => [ \WP_Mock\Functions::type( 'int' ), 'no_dt_syndicate_time', 0 ],
+		    'return' => []
+		] );
+
+        $this->assertTrue( count( $this->connection_obj->pull( [ 2 ] ) ) === 1 );
 
     }
 
