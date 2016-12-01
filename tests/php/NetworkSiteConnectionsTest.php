@@ -1,6 +1,6 @@
 <?php
 
-namespace Syndicate\InternalConnections;
+namespace Distributor\InternalConnections;
 
 class NetworkSiteConnectionsTest extends \TestCase {
 
@@ -28,7 +28,10 @@ class NetworkSiteConnectionsTest extends \TestCase {
             ]
         ] );
 
-        \WP_Mock::userFunction( 'get_current_blog_id' );
+        \WP_Mock::userFunction( 'get_current_blog_id', [
+			'return' => 925
+        ] );
+
         \WP_Mock::userFunction( 'get_current_user_id' );
         \WP_Mock::userFunction( 'switch_to_blog' );
 
@@ -38,10 +41,56 @@ class NetworkSiteConnectionsTest extends \TestCase {
             'return' => 123
         ] );
 
-        \WP_Mock::userFunction( 'update_post_meta' );
+        \WP_Mock::userFunction( 'update_post_meta', [
+		    'times'  => 1,
+		    'args'   => [ \WP_Mock\Functions::type( 'int' ), 'dt_original_post_id', true ],
+		    'return' => []
+		] );
+
+		\WP_Mock::userFunction( 'update_post_meta', [
+		    'times'  => 1,
+		    'args'   => [ \WP_Mock\Functions::type( 'int' ), 'dt_original_blog_id', 925 ],
+		    'return' => []
+		] );
+
+		\WP_Mock::userFunction( 'update_post_meta', [
+		    'times'  => 1,
+		    'args'   => [ \WP_Mock\Functions::type( 'int' ), 'dt_syndicate_time', time() ],
+		    'return' => []
+		] );
+
         \WP_Mock::userFunction( 'get_post_meta', [
-            'return' => []
+            'return' => [
+				'no_dt_unlinked'         => [0],
+				'no_dt_original_post_id' => [0],
+				'no_dt_original_blog_id' => [0],
+				'no_dt_syndicate_time'   => [0],
+            ]
         ] );
+
+        \WP_Mock::userFunction( 'update_post_meta', [
+		    'times'  => 1,
+		    'args'   => [ \WP_Mock\Functions::type( 'int' ), 'no_dt_unlinked', 0 ],
+		    'return' => []
+		] );
+
+		\WP_Mock::userFunction( 'update_post_meta', [
+		    'times'  => 1,
+		    'args'   => [ \WP_Mock\Functions::type( 'int' ), 'no_dt_original_post_id', 0 ],
+		    'return' => []
+		] );
+
+		\WP_Mock::userFunction( 'update_post_meta', [
+		    'times'  => 1,
+		    'args'   => [ \WP_Mock\Functions::type( 'int' ), 'no_dt_original_blog_id', 0 ],
+		    'return' => []
+		] );
+
+		\WP_Mock::userFunction( 'update_post_meta', [
+		    'times'  => 1,
+		    'args'   => [ \WP_Mock\Functions::type( 'int' ), 'no_dt_syndicate_time', 0 ],
+		    'return' => []
+		] );
 
         \WP_Mock::userFunction( 'restore_current_blog' );
 
