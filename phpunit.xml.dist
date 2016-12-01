@@ -8,4 +8,7 @@
 			<directory suffix="Test.php">./tests/php/</directory>
 		</testsuite>
 	</testsuites>
+	<php>
+		<const name="DAY_IN_SECONDS" value="1477947972" />
+	</php>
 </phpunit>
