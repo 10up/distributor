@@ -64,6 +64,7 @@ class NetworkSiteConnection extends Connection {
 			foreach ( $meta as $meta_key => $meta_array ) {
 				foreach ( $meta_array as $meta ) {
 					if ( ! in_array( $meta_key, $blacklisted_meta ) ) {
+						$meta = maybe_unserialize( $meta );
 						update_post_meta( $new_post, $meta_key, $meta );
 					}
 				}
