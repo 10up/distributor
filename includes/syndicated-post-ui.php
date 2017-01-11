@@ -192,10 +192,18 @@ function clone_media( $post_id ) {
 	foreach ( $original_media_posts as $original_media_post ) {
 		$src = wp_get_attachment_image_src( $original_media_post->ID, 'full' );
 
-		$original_media[] = $src[0];
+		$meta = get_post_meta( $original_media_post->ID );
+
+		$original_media[] = [
+			'src'          => $src[0],
+			'meta'         => get_post_meta( $original_media_post->ID ),
+			'post_title'   => $original_media_post->post_title,
+			'post_content' => $original_media_post->post_content,
+			'post_excerpt' => $original_media_post->post_excerpt,
+		];
 	}
 
-	$featured_image_url = false;
+	$featured_image = [];
 	$found_featured_image = false;
 
 	$thumb_id = get_post_meta( $original_post_id, '_thumbnail_id', true );
@@ -204,20 +212,30 @@ function clone_media( $post_id ) {
 	    $thumb = wp_get_attachment_image_src( $thumb_id, 'full' );
 
 	    if ( ! empty( $thumb ) ) {
-			$featured_image_url = $thumb[0];
+			$featured_image['src'] = $thumb[0];
+
+			$featured_image['meta'] = get_post_meta( $thumb_id );
+
+			$featured_image_post = get_post( $thumb_id );
+
+			$featured_image['post_title'] = $featured_image_post->post_title;
+			$featured_image['post_content'] = $featured_image_post->post_content;
+			$featured_image['post_excerpt'] = $featured_image_post->post_excerpt;
 		}
 	}
 
 	restore_current_blog();
 
-	foreach ( $original_media as $url ) {
+	$blacklisted_meta = [ '_wp_attached_file' ];
+
+	foreach ( $original_media as $media ) {
 
 		// Delete duplicate if it exists
-		if ( ! empty( $current_media[ $url ] ) ) {
-			wp_delete_attachment( $current_media[ $url ], true );
+		if ( ! empty( $current_media[ $media['src'] ] ) ) {
+			wp_delete_attachment( $current_media[ $media['src'] ], true );
 		}
 
-		$image_id = process_media( $url, $post_id );
+		$image_id = process_media( $media['src'], $post_id );
 
 		// If error storing permanently, unlink.
 		if ( ! $image_id ) {
@@ -225,19 +243,55 @@ function clone_media( $post_id ) {
 			continue;
 		}
 
-		update_post_meta( $image_id, 'dt_original_media_url', $url );
+		update_post_meta( $image_id, 'dt_original_media_url', $media['src'] );
 
-		if ( $featured_image_url === $url ) {
+		if ( $featured_image_url === $media['src'] ) {
 			$found_featured_image = true;
 			update_post_meta( $post_id, '_thumbnail_id', $image_id );
 		}
+		
+		// Transfer all meta
+		foreach ( $media['meta'] as $meta_key => $meta_array ) {
+			foreach ( $meta_array as $meta ) {
+				if ( ! in_array( $meta_key, $blacklisted_meta ) ) {
+					$meta = maybe_unserialize( $meta );
+					update_post_meta( $image_id, $meta_key, $meta );
+				}
+			}
+		}
+
+		// Transfer post properties
+		wp_update_post( [
+			'ID'           => $image_id,
+			'post_title'   => $media['post_title'],
+			'post_content' => $media['post_content'],
+			'post_excerpt' => $media['post_excerpt'],
+		] );
 	}
 
-	if ( ! $found_featured_image && ! empty( $featured_image_url ) ) {
-		$image_id = process_media( $featured_image_url, $post_id );
+	if ( ! $found_featured_image && ! empty( $featured_image ) ) {
+		$image_id = process_media( $featured_image['src'], $post_id );
 
 		if ( ! empty( $image_id ) ) {
 			update_post_meta( $post_id, '_thumbnail_id', $image_id );
+			
+			// Transfer all meta
+			foreach ( $featured_image['meta'] as $meta_key => $meta_array ) {
+				foreach ( $meta_array as $meta ) {
+					if ( ! in_array( $meta_key, $blacklisted_meta ) ) {
+						$meta = maybe_unserialize( $meta );
+						update_post_meta( $image_id, $meta_key, $meta );
+					}
+				}
+			}
+
+			// Transfer post properties
+			wp_update_post( [
+				'ID'           => $image_id,
+				'post_title'   => $featured_image['post_title'],
+				'post_content' => $featured_image['post_content'],
+				'post_excerpt' => $featured_image['post_excerpt'],
+			] );
 		}
 	}
 }
