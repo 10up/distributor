@@ -1,14 +1,14 @@
-# Copyright (C) 2016 Taylor Lovett, 10up
+# Copyright (C) 2017 Taylor Lovett, 10up
 # This file is distributed under the GPLv2 or later.
 msgid ""
 msgstr ""
 "Project-Id-Version: Distributor 0.8\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/distributor\n"
-"POT-Creation-Date: 2016-11-08 20:31:19+00:00\n"
+"POT-Creation-Date: 2017-01-11 04:25:35+00:00\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"PO-Revision-Date: 2016-MO-DA HO:MI+ZONE\n"
+"PO-Revision-Date: 2017-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "X-Generator: grunt-wp-i18n 0.5.4\n"
@@ -89,7 +89,7 @@ msgstr ""
 msgid "Could not determine remote post id."
 msgstr ""
 
-#: includes/classes/InternalConnections/NetworkSiteConnection.php:284
+#: includes/classes/InternalConnections/NetworkSiteConnection.php:286
 msgid "<strong>Permalink:</strong> <a href=\"%s\">%s</a>"
 msgstr ""
 
@@ -179,7 +179,7 @@ msgstr ""
 #: includes/classes/PullListTable.php:280
 #: includes/classes/PullListTable.php:285
 #: includes/classes/PullListTable.php:294 includes/push-ui.php:376
-#: includes/push-ui.php:401
+#: includes/push-ui.php:403
 msgid "View"
 msgstr ""
 
@@ -193,7 +193,7 @@ msgid "Select %s"
 msgstr ""
 
 #: includes/classes/PullListTable.php:407
-#: includes/classes/PullListTable.php:412 includes/push-ui.php:416
+#: includes/classes/PullListTable.php:412 includes/push-ui.php:418
 msgid "Syndicate"
 msgstr ""
 
@@ -481,32 +481,36 @@ msgstr ""
 msgid "You can <a href=\"\">view the original</a>."
 msgstr ""
 
-#: includes/push-ui.php:383
+#: includes/push-ui.php:385
 msgid "Post &quot;%s&quot; to other connections."
 msgstr ""
 
-#: includes/push-ui.php:388
+#: includes/push-ui.php:390
 msgid "Search available connections"
 msgstr ""
 
-#: includes/push-ui.php:410
+#: includes/push-ui.php:412
 msgid "Selected sites"
 msgstr ""
 
-#: includes/push-ui.php:411
+#: includes/push-ui.php:413
 msgid "No sites selected"
 msgstr ""
 
-#: includes/push-ui.php:416
+#: includes/push-ui.php:418
 msgid "As draft"
 msgstr ""
 
-#: includes/push-ui.php:422
+#: includes/push-ui.php:424
 msgid "Post successfully syndicated."
 msgstr ""
 
-#: includes/push-ui.php:425
+#: includes/push-ui.php:427
 msgid "There was an issue syndicating the post."
+msgstr ""
+
+#: includes/push-ui.php:433
+msgid "No connections available for syndication."
 msgstr ""
 
 #: includes/syndicated-post-ui.php:104
@@ -535,6 +539,15 @@ msgstr ""
 msgid ""
 "This post has been forked from it's original. However, you can always <a "
 "href='%s'>restore it.</a>"
+msgstr ""
+
+#: vendor/10up/wp_mock/tests/FunctionMocksTest.php:63
+msgid "Test"
+msgstr ""
+
+#: vendor/10up/wp_mock/tests/FunctionMocksTest.php:73
+#: vendor/10up/wp_mock/tests/FunctionMocksTest.php:75
+msgid "Input"
 msgstr ""
 
 #. Description of the plugin/theme

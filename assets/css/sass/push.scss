@@ -135,7 +135,8 @@ $background-color-dark: #23282d;
 	}
 }
 
-.distributor-push-wrapper .syndicated-notice {
+.distributor-push-wrapper .syndicated-notice,
+.distributor-push-wrapper .no-connections-notice {
 	text-align: center;
 	margin: 0;
 

@@ -380,51 +380,59 @@ function menu_content() {
 
 		<div class="distributor-push-wrapper">
 			<div class="inner">
-				<p><?php echo sprintf( __( 'Post &quot;%s&quot; to other connections.', 'distributor' ), get_the_title( $post->ID ) ); ?></p>
 
-				<div class="connections-selector">
-					<div>
-						<?php if ( 5 < count( $dom_connections ) ) : ?>
-							<input type="text" id="dt-connection-search" placeholder="<?php esc_html_e( 'Search available connections', 'distributor' ); ?>">
-						<?php endif; ?>
+				<?php if ( ! empty( $dom_connections ) ) : ?>
+					<p><?php echo sprintf( __( 'Post &quot;%s&quot; to other connections.', 'distributor' ), get_the_title( $post->ID ) ); ?></p>
 
-						<div class="new-connections-list">
-							<?php foreach ( $dom_connections as $connection ) : ?>
-								<?php if ( 'external' === $connection['type'] ) : ?>
-									<div class="add-connection <?php if ( ! empty( $connection['syndicated'] ) ) : ?>syndicated<?php endif; ?>" data-connection-type="external" data-connection-id="<?php echo (int) $connection['id']; ?>">
-										<span><?php echo esc_html( get_the_title( $connection['id'] ) ); ?></span>
-									</div>
-								<?php else : ?>
-									<div class="add-connection <?php if ( ! empty( $connection['syndicated'] ) ) : ?>syndicated<?php endif; ?>" data-connection-type="internal" data-connection-id="<?php echo (int) $connection['id']; ?>">
-										<span><?php echo esc_html( $connection['url'] ); ?></span>
-										<?php if ( ! empty( $connection['syndicated'] ) ) : ?>
-											<a href="<?php echo esc_url( $connection['syndicated'] ); ?>"><?php esc_html_e( 'View', 'distributor' ); ?></a>
-										<?php endif; ?>
-									</div>
-								<?php endif; ?>
-							<?php endforeach; ?>
+					<div class="connections-selector">
+						<div>
+							<?php if ( 0 < count( $dom_connections ) ) : ?>
+								<input type="text" id="dt-connection-search" placeholder="<?php esc_html_e( 'Search available connections', 'distributor' ); ?>">
+							<?php endif; ?>
+
+							<div class="new-connections-list">
+								<?php foreach ( $dom_connections as $connection ) : ?>
+									<?php if ( 'external' === $connection['type'] ) : ?>
+										<div class="add-connection <?php if ( ! empty( $connection['syndicated'] ) ) : ?>syndicated<?php endif; ?>" data-connection-type="external" data-connection-id="<?php echo (int) $connection['id']; ?>">
+											<span><?php echo esc_html( get_the_title( $connection['id'] ) ); ?></span>
+										</div>
+									<?php else : ?>
+										<div class="add-connection <?php if ( ! empty( $connection['syndicated'] ) ) : ?>syndicated<?php endif; ?>" data-connection-type="internal" data-connection-id="<?php echo (int) $connection['id']; ?>">
+											<span><?php echo esc_html( $connection['url'] ); ?></span>
+											<?php if ( ! empty( $connection['syndicated'] ) ) : ?>
+												<a href="<?php echo esc_url( $connection['syndicated'] ); ?>"><?php esc_html_e( 'View', 'distributor' ); ?></a>
+											<?php endif; ?>
+										</div>
+									<?php endif; ?>
+								<?php endforeach; ?>
+							</div>
 						</div>
 					</div>
-				</div>
-				<div class="connections-selected empty">
-					<header class="with-selected"><?php esc_html_e( 'Selected sites', 'distributor' ); ?></header>
-					<header class="no-selected"><?php esc_html_e( 'No sites selected', 'distributor' ); ?></header>
+					<div class="connections-selected empty">
+						<header class="with-selected"><?php esc_html_e( 'Selected sites', 'distributor' ); ?></header>
+						<header class="no-selected"><?php esc_html_e( 'No sites selected', 'distributor' ); ?></header>
 
-					<div class="selected-connections-list"></div>
+						<div class="selected-connections-list"></div>
 
-					<div class="action-wrapper">
-						<button class="syndicate-button"><?php esc_html_e( 'Syndicate', 'distributor' ); ?></button> <label class="as-draft" for="dt-as-draft"><input type="checkbox" id="dt-as-draft" checked> <?php esc_html_e( 'As draft', 'distributor' ); ?></label>
+						<div class="action-wrapper">
+							<button class="syndicate-button"><?php esc_html_e( 'Syndicate', 'distributor' ); ?></button> <label class="as-draft" for="dt-as-draft"><input type="checkbox" id="dt-as-draft" checked> <?php esc_html_e( 'As draft', 'distributor' ); ?></label>
+						</div>
 					</div>
-				</div>
 
-				<div class="messages">
-					<div class="dt-success">
-						<?php esc_html_e( 'Post successfully syndicated.', 'distributor' ); ?>
+					<div class="messages">
+						<div class="dt-success">
+							<?php esc_html_e( 'Post successfully syndicated.', 'distributor' ); ?>
+						</div>
+						<div class="dt-error">
+							<?php esc_html_e( 'There was an issue syndicating the post.', 'distributor' ); ?>
+						</div>
 					</div>
-					<div class="dt-error">
-						<?php esc_html_e( 'There was an issue syndicating the post.', 'distributor' ); ?>
-					</div>
-				</div>
+
+				<?php else : ?>
+					<p class="no-connections-notice">
+						<?php esc_html_e( 'No connections available for syndication.', 'distributor' ); ?>
+					</p>
+				<?php endif; ?>
 			</div>
 		</div>
 		<?php
