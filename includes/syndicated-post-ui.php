@@ -245,7 +245,7 @@ function clone_media( $post_id ) {
 
 		update_post_meta( $image_id, 'dt_original_media_url', $media['src'] );
 
-		if ( $featured_image_url === $media['src'] ) {
+		if ( ! empty( $featured_image['src'] ) && $featured_image['src'] === $media['src'] ) {
 			$found_featured_image = true;
 			update_post_meta( $post_id, '_thumbnail_id', $image_id );
 		}
