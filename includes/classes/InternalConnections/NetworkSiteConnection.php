@@ -447,8 +447,7 @@ class NetworkSiteConnection extends Connection {
 				continue;
 			}
 
-			global $current_user;
-			get_currentuserinfo();
+			$current_user = wp_get_current_user();
 
 			$response = wp_remote_post( untrailingslashit( $base_url ) . '/wp-admin/admin-ajax.php', array(
 				'body' => array(
