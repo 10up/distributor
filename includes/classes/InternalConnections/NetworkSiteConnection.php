@@ -332,6 +332,10 @@ class NetworkSiteConnection extends Connection {
 		$original_blog_id = get_post_meta( $id, 'dt_original_blog_id', true );
 		$original_post_id = get_post_meta( $id, 'dt_original_post_id', true );
 
+		if ( empty( $original_blog_id ) || empty( $original_post_id ) ) {
+			return $html;
+		}
+
 		switch_to_blog( $original_blog_id );
 		$html = get_the_post_thumbnail( $original_post_id );
 		restore_current_blog();
@@ -496,6 +500,10 @@ class NetworkSiteConnection extends Connection {
 		$original_blog_id = get_post_meta( $post->ID, 'dt_original_blog_id', true );
 		$original_post_id = get_post_meta( $post->ID, 'dt_original_post_id', true );
 
+		if ( empty( $original_blog_id ) || empty( $original_post_id ) ) {
+			return $canonical_url;
+		}
+
 		switch_to_blog( $original_blog_id );
 		$canonical_url = get_permalink( $original_post_id );
 		restore_current_blog();
@@ -514,6 +522,10 @@ class NetworkSiteConnection extends Connection {
 	public static function the_title( $title, $id ) {
 		$original_blog_id = get_post_meta( $id, 'dt_original_blog_id', true );
 		$original_post_id = get_post_meta( $id, 'dt_original_post_id', true );
+
+		if ( empty( $original_blog_id ) || empty( $original_post_id ) ) {
+			return $title;
+		}
 
 		switch_to_blog( $original_blog_id );
 		$title = get_the_title( $original_post_id );
@@ -534,6 +546,10 @@ class NetworkSiteConnection extends Connection {
 
 		$original_blog_id = get_post_meta( $post->ID, 'dt_original_blog_id', true );
 		$original_post_id = get_post_meta( $post->ID, 'dt_original_post_id', true );
+
+		if ( empty( $original_blog_id ) || empty( $original_post_id ) ) {
+			return $content;
+		}
 
 		switch_to_blog( $original_blog_id );
 		$original_post = get_post( $original_post_id );
@@ -556,6 +572,10 @@ class NetworkSiteConnection extends Connection {
 		$original_blog_id = get_post_meta( $post->ID, 'dt_original_blog_id', true );
 		$original_post_id = get_post_meta( $post->ID, 'dt_original_post_id', true );
 
+		if ( empty( $original_blog_id ) || empty( $original_post_id ) ) {
+			return $date;
+		}
+
 		switch_to_blog( $original_blog_id );
 
 		$date = get_the_date( get_option( 'date_format' ), $original_post_id );
@@ -573,8 +593,14 @@ class NetworkSiteConnection extends Connection {
 	 * @return string
 	 */
 	public static function get_the_excerpt( $excerpt ) {
-		$original_blog_id = get_post_meta( $id, 'dt_original_blog_id', true );
-		$original_post_id = get_post_meta( $id, 'dt_original_post_id', true );
+		global $post;
+
+		$original_blog_id = get_post_meta( $post->ID, 'dt_original_blog_id', true );
+		$original_post_id = get_post_meta( $post->ID, 'dt_original_post_id', true );
+
+		if ( empty( $original_blog_id ) || empty( $original_post_id ) ) {
+			return $excerpt;
+		}
 
 		switch_to_blog( $original_blog_id );
 		$original_post = get_post( $original_post_id );
