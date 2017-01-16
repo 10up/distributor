@@ -256,6 +256,7 @@ function menu_content() {
 	if ( ! empty( $original_blog_id ) && ! empty( $original_post_id ) && ! $unlinked ) {
 		switch_to_blog( $original_blog_id );
 		$post_url = get_permalink( $original_post_id );
+		$site_url = home_url();
 		$blog_name = get_bloginfo( 'name' );
 		restore_current_blog();
 
@@ -263,9 +264,9 @@ function menu_content() {
 		<div class="distributor-push-wrapper">
 			<div class="inner">
 				<p class="syndicated-notice">
-					<?php echo sprintf( __( 'This post has been syndicated from <a href="%s">%s</a>.', 'distributor' ), esc_url( site_url() ), esc_html( $blog_name ) ); ?>
+					<?php echo sprintf( __( 'This post has been syndicated from <a href="%s">%s</a>.', 'distributor' ), esc_url( $site_url ), esc_html( $blog_name ) ); ?>
 					<?php if ( ! empty( $post_url ) ) : ?>
-						<?php echo sprintf( __( 'You can <a href="">view the original</a>.', 'distributor' ), esc_url( $post_url ) ); ?>
+						<?php echo sprintf( __( 'You can <a href="%s">view the original</a>.', 'distributor' ), esc_url( $post_url ) ); ?>
 					<?php endif; ?>
 				</p>
 			</div>
