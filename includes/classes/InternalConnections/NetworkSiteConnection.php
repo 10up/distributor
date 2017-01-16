@@ -305,6 +305,12 @@ class NetworkSiteConnection extends Connection {
 				return;
 			}
 
+			$unlinked = (bool) get_post_meta( $post->ID, 'dt_unlinked', true );
+
+			if ( $unlinked ) {
+				return;
+			}
+
 			add_filter( 'the_title', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'the_title' ), 10, 2 );
 			add_filter( 'the_content', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'the_content' ), 10, 1 );
 			add_filter( 'the_date', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'the_date' ), 10, 1 );
@@ -325,10 +331,6 @@ class NetworkSiteConnection extends Connection {
 	public static function post_thumbnail( $html, $id ) {
 		$original_blog_id = get_post_meta( $id, 'dt_original_blog_id', true );
 		$original_post_id = get_post_meta( $id, 'dt_original_post_id', true );
-
-		if ( empty( $original_blog_id ) || empty( $original_post_id ) ) {
-			return $html;
-		}
 
 		switch_to_blog( $original_blog_id );
 		$html = get_the_post_thumbnail( $original_post_id );
@@ -514,10 +516,6 @@ class NetworkSiteConnection extends Connection {
 		$original_blog_id = get_post_meta( $id, 'dt_original_blog_id', true );
 		$original_post_id = get_post_meta( $id, 'dt_original_post_id', true );
 
-		if ( empty( $original_blog_id ) || empty( $original_post_id ) ) {
-			return $title;
-		}
-
 		switch_to_blog( $original_blog_id );
 		$title = get_the_title( $original_post_id );
 		restore_current_blog();
@@ -537,10 +535,6 @@ class NetworkSiteConnection extends Connection {
 
 		$original_blog_id = get_post_meta( $post->ID, 'dt_original_blog_id', true );
 		$original_post_id = get_post_meta( $post->ID, 'dt_original_post_id', true );
-
-		if ( empty( $original_blog_id ) || empty( $original_post_id ) ) {
-			return $content;
-		}
 
 		switch_to_blog( $original_blog_id );
 		$original_post = get_post( $original_post_id );
@@ -563,10 +557,6 @@ class NetworkSiteConnection extends Connection {
 		$original_blog_id = get_post_meta( $post->ID, 'dt_original_blog_id', true );
 		$original_post_id = get_post_meta( $post->ID, 'dt_original_post_id', true );
 
-		if ( empty( $original_blog_id ) || empty( $original_post_id ) ) {
-			return $date;
-		}
-
 		switch_to_blog( $original_blog_id );
 
 		$date = get_the_date( get_option( 'date_format' ), $original_post_id );
@@ -586,10 +576,6 @@ class NetworkSiteConnection extends Connection {
 	public static function get_the_excerpt( $excerpt ) {
 		$original_blog_id = get_post_meta( $id, 'dt_original_blog_id', true );
 		$original_post_id = get_post_meta( $id, 'dt_original_post_id', true );
-
-		if ( empty( $original_blog_id ) || empty( $original_post_id ) ) {
-			return $excerpt;
-		}
 
 		switch_to_blog( $original_blog_id );
 		$original_post = get_post( $original_post_id );
