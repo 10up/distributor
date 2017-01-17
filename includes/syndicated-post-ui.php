@@ -158,6 +158,72 @@ function process_media( $url, $post_id ) {
 	return media_handle_sideload( $file_array, $post_id );
 }
 
+/**
+ * Bring taxonomy terms over to cloned post. We only bring terms from taxonomies that exist on the 
+ * syndicated post site.
+ * 
+ * @param  int $post_id
+ * @since  0.9
+ */
+function clone_taxonomy_terms( $post_id ) {
+	$original_blog_id = get_post_meta( $post_id, 'dt_original_blog_id', true );
+	$original_post_id = get_post_meta( $post_id, 'dt_original_post_id', true );
+
+	$post = get_post( $post_id );
+
+	// Get taxonomy/terms of original post
+	switch_to_blog( $original_blog_id );
+
+	$original_post = get_post( $original_post_id );
+
+	$original_taxonomy_terms = [];
+	$original_taxonomies = get_object_taxonomies( $original_post );
+
+	foreach ( $original_taxonomies as $taxonomy ) {
+		$original_taxonomy_terms[ $taxonomy ] = wp_get_object_terms( $original_post_id, $taxonomy );
+	}
+
+	restore_current_blog();
+
+	// Now let's add the taxonomy/terms to syndicated post
+
+	foreach ( $original_taxonomy_terms as $taxonomy => $terms ) {
+		// Continue if taxonomy doesnt exist
+		if ( ! taxonomy_exists( $taxonomy ) ) {
+			continue;
+		}
+
+		$term_ids = [];
+		$term_id_mapping = [];
+
+		foreach ( $terms as $term_object ) {
+			$term = get_term_by( 'slug', $term_object->slug, $taxonomy );
+
+			if ( empty( $term ) ) {
+				$term = wp_insert_term( $term_object->name, $taxonomy );
+
+				if ( ! is_wp_error( $term ) ) {
+					$term_id_mapping[ $term_object->term_id ] = $term['term_id'];
+					$term_ids[] = $term['term_id'];
+				}
+			} else {
+				$term_id_mapping[ $term_object->term_id ] = $term->term_id;
+				$term_ids[] = $term->term_id;
+			}
+		}
+
+		// Handle hierarchical terms if they exist
+		foreach ( $terms as $term_object ) {
+			if ( ! empty( $term_object->parent ) ) {
+				wp_update_term( $term_id_mapping[ $term_object->term_id ], $taxonomy, [
+					'parent' => $term_id_mapping[ $term_object->parent ],
+				] );
+			}
+		}
+
+		wp_set_object_terms( $post_id, $term_ids, $taxonomy );
+	}
+}
 
 /**
  * Bring media files over to syndicated post. We copy all the images and update the featured image
@@ -315,6 +381,8 @@ function unlink() {
 	repush( $_GET['post'] );
 
 	clone_media( $_GET['post'] );
+
+	clone_taxonomy_terms( $_GET['post'] );
 
 	wp_redirect( admin_url( 'post.php?action=edit&post=' . $_GET['post'] ) );
 	exit;
