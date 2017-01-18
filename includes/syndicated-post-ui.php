@@ -163,7 +163,7 @@ function process_media( $url, $post_id ) {
  * syndicated post site.
  * 
  * @param  int $post_id
- * @since  0.9
+ * @since  0.8
  */
 function clone_taxonomy_terms( $post_id ) {
 	$original_blog_id = get_post_meta( $post_id, 'dt_original_blog_id', true );

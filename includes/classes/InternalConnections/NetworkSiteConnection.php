@@ -447,12 +447,48 @@ class NetworkSiteConnection extends Connection {
 		add_filter( 'get_canonical_url', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'canonical_url' ), 10, 2 );
 		add_filter( 'post_thumbnail_html', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'post_thumbnail' ), 10, 2 );
 		add_filter( 'get_the_terms', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'get_the_terms' ), 10, 3 );
+		add_filter( 'term_link', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'term_link' ), 10, 3 );
+	}
+
+	/**
+	 * [term_link description]
+	 * @param  string $termlink
+	 * @param  object $term
+	 * @param  string $taxonomy
+	 * @since  0.8
+	 * @return string
+	 */
+	public static function term_link( $termlink, $term, $taxonomy ) {
+		global $post;
+
+		if ( empty( $post ) ) {
+			return $termlink;
+		}
+
+		$original_blog_id = get_post_meta( $post->ID, 'dt_original_blog_id', true );
+		$original_post_id = get_post_meta( $post->ID, 'dt_original_post_id', true );
+
+		if ( empty( $original_post_id ) || empty( $original_blog_id ) ) {
+			return $termlink;
+		}
+
+		$unlinked = (bool) get_post_meta( $post->ID, 'dt_unlinked', true );
+
+		if ( $unlinked ) {
+			return $termlink;
+		}
+
+		switch_to_blog( $original_blog_id );
+		$termlink = get_term_link( $term, $taxonomy );
+		restore_current_blog();
+
+		return $termlink;
 	}
 
 	/**
 	 * Filter terms for linked posts
 	 *
-	 * @since  0.9
+	 * @since  0.8
 	 * @return array
 	 */
 	public static function get_the_terms( $terms, $post_id, $taxonomy ) {
