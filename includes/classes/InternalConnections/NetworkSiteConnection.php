@@ -290,60 +290,6 @@ class NetworkSiteConnection extends Connection {
 	}
 
 	/**
-	 * Setup canonicalization on front end
-	 *
-	 * @since  0.8
-	 */
-	public static function canonicalize_front_end() {
-		if ( is_single() ) {
-			global $post;
-
-			$original_blog_id = get_post_meta( $post->ID, 'dt_original_blog_id', true );
-			$original_post_id = get_post_meta( $post->ID, 'dt_original_post_id', true );
-
-			if ( empty( $original_post_id ) || empty( $original_blog_id ) ) {
-				return;
-			}
-
-			$unlinked = (bool) get_post_meta( $post->ID, 'dt_unlinked', true );
-
-			if ( $unlinked ) {
-				return;
-			}
-
-			add_filter( 'the_title', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'the_title' ), 10, 2 );
-			add_filter( 'the_content', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'the_content' ), 10, 1 );
-			add_filter( 'the_date', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'the_date' ), 10, 1 );
-			add_filter( 'get_the_excerpt', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'get_the_excerpt' ), 10, 1 );
-			add_filter( 'get_canonical_url', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'canonical_url' ), 10, 2 );
-			add_filter( 'post_thumbnail_html', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'post_thumbnail' ), 10, 2 );
-		}
-	}
-
-	/**
-	 * Return canonical post thumbnail URL
-	 * 
-	 * @param  string $html
-	 * @param  int $id
-	 * @since  0.8
-	 * @return string
-	 */
-	public static function post_thumbnail( $html, $id ) {
-		$original_blog_id = get_post_meta( $id, 'dt_original_blog_id', true );
-		$original_post_id = get_post_meta( $id, 'dt_original_post_id', true );
-
-		if ( empty( $original_blog_id ) || empty( $original_post_id ) ) {
-			return $html;
-		}
-
-		switch_to_blog( $original_blog_id );
-		$html = get_the_post_thumbnail( $original_post_id );
-		restore_current_blog();
-
-		return $html;
-	}
-
-	/**
 	 * Restore current blog and post after canonicalization in the admin
 	 *
 	 * @since 0.8
@@ -489,6 +435,77 @@ class NetworkSiteConnection extends Connection {
 	}
 
 	/**
+	 * Setup canonicalization on front end
+	 *
+	 * @since  0.8
+	 */
+	public static function canonicalize_front_end() {
+		add_filter( 'the_title', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'the_title' ), 10, 2 );
+		add_filter( 'the_content', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'the_content' ), 10, 1 );
+		add_filter( 'the_date', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'the_date' ), 10, 1 );
+		add_filter( 'get_the_excerpt', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'get_the_excerpt' ), 10, 1 );
+		add_filter( 'get_canonical_url', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'canonical_url' ), 10, 2 );
+		add_filter( 'post_thumbnail_html', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'post_thumbnail' ), 10, 2 );
+		add_filter( 'get_the_terms', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'get_the_terms' ), 10, 3 );
+	}
+
+	/**
+	 * Filter terms for linked posts
+	 *
+	 * @since  0.9
+	 * @return array
+	 */
+	public static function get_the_terms( $terms, $post_id, $taxonomy ) {
+		$original_blog_id = get_post_meta( $post_id, 'dt_original_blog_id', true );
+		$original_post_id = get_post_meta( $post_id, 'dt_original_post_id', true );
+
+		if ( empty( $original_post_id ) || empty( $original_blog_id ) ) {
+			return $terms;
+		}
+
+		$unlinked = (bool) get_post_meta( $post_id, 'dt_unlinked', true );
+
+		if ( $unlinked ) {
+			return $terms;
+		}
+
+		switch_to_blog( $original_blog_id );
+		$terms = wp_get_object_terms( $original_post_id, $taxonomy );
+		restore_current_blog();
+
+		return $terms;
+	}
+
+	/**
+	 * Return canonical post thumbnail URL
+	 * 
+	 * @param  string $html
+	 * @param  int $id
+	 * @since  0.8
+	 * @return string
+	 */
+	public static function post_thumbnail( $html, $id ) {
+		$original_blog_id = get_post_meta( $id, 'dt_original_blog_id', true );
+		$original_post_id = get_post_meta( $id, 'dt_original_post_id', true );
+
+		if ( empty( $original_blog_id ) || empty( $original_post_id ) ) {
+			return $html;
+		}
+
+		$unlinked = (bool) get_post_meta( $id, 'dt_unlinked', true );
+
+		if ( $unlinked ) {
+			return $html;
+		}
+
+		switch_to_blog( $original_blog_id );
+		$html = get_the_post_thumbnail( $original_post_id );
+		restore_current_blog();
+
+		return $html;
+	}
+
+	/**
 	 * Make sure canonical url header is outputted
 	 *
 	 * @param  string $canonical_url
@@ -527,6 +544,12 @@ class NetworkSiteConnection extends Connection {
 			return $title;
 		}
 
+		$unlinked = (bool) get_post_meta( $id, 'dt_unlinked', true );
+
+		if ( $unlinked ) {
+			return $title;
+		}
+
 		switch_to_blog( $original_blog_id );
 		$title = get_the_title( $original_post_id );
 		restore_current_blog();
@@ -548,6 +571,12 @@ class NetworkSiteConnection extends Connection {
 		$original_post_id = get_post_meta( $post->ID, 'dt_original_post_id', true );
 
 		if ( empty( $original_blog_id ) || empty( $original_post_id ) ) {
+			return $content;
+		}
+
+		$unlinked = (bool) get_post_meta( $post->ID, 'dt_unlinked', true );
+
+		if ( $unlinked ) {
 			return $content;
 		}
 
@@ -576,6 +605,12 @@ class NetworkSiteConnection extends Connection {
 			return $date;
 		}
 
+		$unlinked = (bool) get_post_meta( $post->ID, 'dt_unlinked', true );
+
+		if ( $unlinked ) {
+			return $date;
+		}
+
 		switch_to_blog( $original_blog_id );
 
 		$date = get_the_date( get_option( 'date_format' ), $original_post_id );
@@ -599,6 +634,12 @@ class NetworkSiteConnection extends Connection {
 		$original_post_id = get_post_meta( $post->ID, 'dt_original_post_id', true );
 
 		if ( empty( $original_blog_id ) || empty( $original_post_id ) ) {
+			return $excerpt;
+		}
+
+		$unlinked = (bool) get_post_meta( $post->ID, 'dt_unlinked', true );
+
+		if ( $unlinked ) {
 			return $excerpt;
 		}
 
