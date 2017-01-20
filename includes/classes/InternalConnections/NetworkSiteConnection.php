@@ -130,6 +130,23 @@ class NetworkSiteConnection extends Connection {
 				}
 			}
 
+			$current_blog_id = get_current_blog_id();
+
+			switch_to_blog( $this->site->blog_id );
+
+			$connection_map = [
+				'external' => [],
+				'internal' => [
+					$current_blog_id => [
+						'post_id'   => (int) $new_post,
+						'time'      => time()
+					]
+				]
+			];
+			update_post_meta( $item_id, 'dt_connection_map', $connection_map );
+
+			restore_current_blog();
+
 			do_action( 'dt_pull_post', $new_post, $this );
 
 			$created_posts[] = $new_post;
@@ -227,18 +244,6 @@ class NetworkSiteConnection extends Connection {
 			$post->link  = get_permalink( $id );
 			$post->meta = get_post_meta( $id );
 			$formatted_post = $post;
-
-			$connection_map = [
-				'external' => [],
-				'internal' => [
-					$current_blog_id => [
-						'post_id'   => (int) $id,
-						'time'      => time()
-					]
-				]
-			];
-
-			update_post_meta( $post->ID, 'dt_connection_map', $connection_map );
 
 			restore_current_blog();
 
