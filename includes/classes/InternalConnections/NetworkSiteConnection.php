@@ -171,6 +171,7 @@ class NetworkSiteConnection extends Connection {
 	public function remote_get( $args = array() ) {
 
 		$id = ( empty( $args['id'] ) ) ? false : $args['id'];
+		$current_blog_id =  get_current_blog_id();
 
 		switch_to_blog( $this->site->blog_id );
 
@@ -226,6 +227,18 @@ class NetworkSiteConnection extends Connection {
 			$post->link  = get_permalink( $id );
 			$post->meta = get_post_meta( $id );
 			$formatted_post = $post;
+
+			$connection_map = [
+				'external' => [],
+				'internal' => [
+					$current_blog_id => [
+						'post_id'   => (int) $id,
+						'time'      => time()
+					]
+				]
+			];
+
+			update_post_meta( $post->ID, 'dt_connection_map', $connection_map );
 
 			restore_current_blog();
 
