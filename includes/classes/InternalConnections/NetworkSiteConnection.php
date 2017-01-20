@@ -188,7 +188,6 @@ class NetworkSiteConnection extends Connection {
 	public function remote_get( $args = array() ) {
 
 		$id = ( empty( $args['id'] ) ) ? false : $args['id'];
-		$current_blog_id =  get_current_blog_id();
 
 		switch_to_blog( $this->site->blog_id );
 
