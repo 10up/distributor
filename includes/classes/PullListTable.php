@@ -330,6 +330,12 @@ class PullListTable extends \WP_List_Table {
 		$remote_get_args = [
 			'posts_per_page' => $per_page,
 			'paged'          => $current_page,
+			'meta_query'     => [
+				[
+					'key'       => 'dt_connection_map',
+					'compare'   => 'NOT EXISTS'
+				]
+			]
 		];
 
 		if ( ! empty( $_GET['s'] ) ) {

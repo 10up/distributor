@@ -169,6 +169,7 @@ class NetworkSiteConnection extends Connection {
 	 * @return array|WP_Post|bool
 	 */
 	public function remote_get( $args = array() ) {
+
 		$id = ( empty( $args['id'] ) ) ? false : $args['id'];
 
 		switch_to_blog( $this->site->blog_id );
@@ -191,6 +192,10 @@ class NetworkSiteConnection extends Connection {
 				$query_args['post__in'] = $args['post__in'];
 			} elseif ( isset( $args['post__not_in'] ) ) {
 				$query_args['post__not_in'] = $args['post__not_in'];
+			}
+
+			if( isset( $args['meta_query'] ) ) {
+				$query_args['meta_query'] = $args['meta_query'];
 			}
 
 			$posts_query = new \WP_Query( apply_filters( 'dt_remote_get_query_args', $query_args, $args, $this ) );
