@@ -135,24 +135,22 @@ class NetworkSiteConnection extends Connection {
 			switch_to_blog( $this->site->blog_id );
 
 			$connection_map = get_post_meta( $item_id, 'dt_connection_map', true );
-			if( ! empty( $connection_map ) ) {
-			    $new_map = [
-			        'post_id'   => (int) $new_post,
-                    'time'      => time()
-                ];
 
-			    $connection_map['internal'][$current_blog_id] = $new_map;
-            } else {
-                $connection_map = [
-                    'external' => [],
-                    'internal' => [
-                        $current_blog_id => [
-                            'post_id'   => (int) $new_post,
-                            'time'      => time()
-                        ]
-                    ]
-                ];
-            }
+			if ( empty( $connection_map ) ) {
+				$connection_map = [
+					'internal' => [],
+					'external' => [],
+				];
+			}
+
+			if ( empty( $connection_map['internal'] ) ) {
+				$connection_map['internal'] = [];
+			}
+
+			$connection_map['internal'][ $current_blog_id ] = [
+				'post_id' => (int) $new_post,
+				'time'    => time(),
+			];
 
 			update_post_meta( $item_id, 'dt_connection_map', $connection_map );
 
