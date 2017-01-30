@@ -130,6 +130,32 @@ class NetworkSiteConnection extends Connection {
 				}
 			}
 
+			$current_blog_id = get_current_blog_id();
+
+			switch_to_blog( $this->site->blog_id );
+
+			$connection_map = get_post_meta( $item_id, 'dt_connection_map', true );
+
+			if ( empty( $connection_map ) ) {
+				$connection_map = [
+					'internal' => [],
+					'external' => [],
+				];
+			}
+
+			if ( empty( $connection_map['internal'] ) ) {
+				$connection_map['internal'] = [];
+			}
+
+			$connection_map['internal'][ $current_blog_id ] = [
+				'post_id' => (int) $new_post,
+				'time'    => time(),
+			];
+
+			update_post_meta( $item_id, 'dt_connection_map', $connection_map );
+
+			restore_current_blog();
+
 			do_action( 'dt_pull_post', $new_post, $this );
 
 			$created_posts[] = $new_post;
