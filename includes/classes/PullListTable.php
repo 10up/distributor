@@ -330,12 +330,6 @@ class PullListTable extends \WP_List_Table {
 		$remote_get_args = [
 			'posts_per_page' => $per_page,
 			'paged'          => $current_page,
-			'meta_query'     => [
-				[
-					'key'       => 'dt_connection_map',
-					'compare'   => 'NOT EXISTS'
-				]
-			]
 		];
 
 		if ( ! empty( $_GET['s'] ) ) {
@@ -365,6 +359,13 @@ class PullListTable extends \WP_List_Table {
 
 		if ( empty( $_GET['status'] ) || 'new' === $_GET['status'] ) {
 			$remote_get_args['post__not_in'] = array_merge( $skipped, $syndicated );
+
+			$remote_get_args['meta_query'] = [
+				[
+					'key'     => 'dt_connection_map',
+					'compare' => 'NOT EXISTS'
+				]
+			];
 		} elseif ( 'skipped' === $_GET['status'] ) {
 			$remote_get_args['post__in'] = $skipped;
 		} else {
