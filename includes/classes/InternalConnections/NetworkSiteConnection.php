@@ -268,9 +268,38 @@ class NetworkSiteConnection extends Connection {
 		add_action( 'template_redirect', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'canonicalize_front_end' ) );
 		add_action( 'wp_ajax_dt_auth_check', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'auth_check' ) );
 		add_action( 'edit_form_top', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'canonical_admin_post' ) );
+		add_action( 'admin_enqueue_scripts', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'disable_admin_mce_previews' ), 11 );
 		add_action( 'in_admin_footer', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'end_canonical_admin_post' ) );
 		add_filter( 'get_sample_permalink_html', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'fix_sample_permalink_html' ), 10, 1 );
 		add_filter( 'get_delete_post_link', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'fix_delete_link' ), 10, 3 );
+	}
+
+	/**
+	 * MCE previews break on linked posts so disable them
+	 * 
+	 * @since 0.8
+	 */
+	public static function disable_admin_mce_previews() {
+		global $post;
+
+		if ( empty( $post ) ) {
+			return;
+		}
+
+		$original_blog_id = get_post_meta( $post->ID, 'dt_original_blog_id', true );
+		$original_post_id = get_post_meta( $post->ID, 'dt_original_post_id', true );
+
+		if ( empty( $original_post_id ) || empty( $original_blog_id ) ) {
+			return;
+		}
+
+		$unlinked = (bool) get_post_meta( $post->ID, 'dt_unlinked', true );
+
+		if ( $unlinked ) {
+			return;
+		}
+
+		wp_dequeue_script( 'mce-view' );
 	}
 
 	/**
