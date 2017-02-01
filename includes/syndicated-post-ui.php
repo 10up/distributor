@@ -252,7 +252,7 @@ function clone_media( $post_id ) {
 	// Get media of original post
 	switch_to_blog( $original_blog_id );
 
-	$original_media_posts = get_attached_media( 'image', $original_post_id );
+	$original_media_posts = apply_filters( 'dt_clone_media_ids', get_attached_media( 'image', $original_post_id ) );
 	$original_media = [];
 
 	foreach ( $original_media_posts as $original_media_post ) {
@@ -384,6 +384,8 @@ function unlink() {
 
 	clone_taxonomy_terms( $_GET['post'] );
 
+	do_action( 'dt_unlink_post' );
+
 	wp_redirect( admin_url( 'post.php?action=edit&post=' . $_GET['post'] ) );
 	exit;
 }
@@ -405,6 +407,8 @@ function link() {
 	update_post_meta( $_GET['post'], 'dt_unlinked', false );
 
 	repush( $_GET['post'] );
+
+	do_action( 'dt_link_post' );
 
 	wp_redirect( admin_url( 'post.php?action=edit&post=' . $_GET['post'] ) );
 	exit;
