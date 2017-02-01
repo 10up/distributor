@@ -224,6 +224,10 @@ class NetworkSiteConnection extends Connection {
 				$query_args['meta_query'] = $args['meta_query'];
 			}
 
+			if( isset( $args['s'] ) ) {
+				$query_args['s'] = $args['s'];
+			}
+
 			$posts_query = new \WP_Query( apply_filters( 'dt_remote_get_query_args', $query_args, $args, $this ) );
 
 			$posts = $posts_query->posts;
