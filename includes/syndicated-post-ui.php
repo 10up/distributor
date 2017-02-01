@@ -252,7 +252,7 @@ function clone_media( $post_id ) {
 	// Get media of original post
 	switch_to_blog( $original_blog_id );
 
-	$original_media_posts = apply_filters( 'dt_clone_media_ids', get_attached_media( 'image', $original_post_id ) );
+	$original_media_posts = apply_filters( 'dt_clone_media_assets', get_attached_media( 'image', $original_post_id ) );
 	$original_media = [];
 
 	foreach ( $original_media_posts as $original_media_post ) {
