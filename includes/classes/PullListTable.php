@@ -324,7 +324,8 @@ class PullListTable extends \WP_List_Table {
 		/** Process bulk action */
 		$this->process_bulk_action();
 
-		$per_page     = $this->get_items_per_page( 'connections_per_page', 5 );
+		$per_page     = $this->get_items_per_page( 'pull_posts_per_page', get_option( 'posts_per_page' ) );
+
 		$current_page = $this->get_pagenum();
 
 		$remote_get_args = [

@@ -21,7 +21,21 @@ add_action( 'plugins_loaded', function() {
 	add_action( 'admin_menu', __NAMESPACE__  . '\add_menu_item' );
 	add_action( 'admin_menu', __NAMESPACE__  . '\add_submenu_item', 11 );
 	add_action( 'load-toplevel_page_distributor', __NAMESPACE__ . '\setup_list_table' );
+	add_filter( 'set-screen-option', __NAMESPACE__ . '\set_screen_option', 10, 3 );
 } );
+
+/**
+ * Set screen option for posts per page
+ * 
+ * @param  string $status
+ * @param  string $option
+ * @param  mixed $value
+ * @since  0.8
+ * @return mixed
+ */
+function set_screen_option( $status, $option, $value ) {
+	return $value;
+}
 
 /**
  * Setup list table and process actions
@@ -505,7 +519,7 @@ function screen_option() {
 	$option = 'per_page';
 	$args   = [
 		'label'   => esc_html__( 'External connections per page: ', 'distributor' ),
-		'default' => 5,
+		'default' => get_option( 'posts_per_page' ),
 		'option'  => 'connections_per_page',
 	];
 

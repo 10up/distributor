@@ -11,6 +11,7 @@ add_action( 'plugins_loaded', function() {
 	add_action( 'admin_menu', __NAMESPACE__  . '\action_admin_menu' );
 	add_action( 'admin_enqueue_scripts', __NAMESPACE__  . '\admin_enqueue_scripts' );
 	add_action( 'load-distributor_page_pull', __NAMESPACE__ . '\setup_list_table' );
+	add_filter( 'set-screen-option', __NAMESPACE__ . '\set_screen_option', 10, 3 );
 } );
 
 /**
@@ -122,6 +123,19 @@ function action_admin_menu() {
 }
 
 /**
+ * Set screen option for posts per page
+ * 
+ * @param  string $status
+ * @param  string $option
+ * @param  mixed $value
+ * @since  0.8
+ * @return mixed
+ */
+function set_screen_option( $status, $option, $value ) {
+	return $value;
+}
+
+/**
  * Set up screen options
  *
  * @since 0.8
@@ -130,9 +144,9 @@ function screen_option() {
 
 	$option = 'per_page';
 	$args   = [
-		'label'   => 'Connections',
-		'default' => get_option( 'posts_per_page', 10 ),
-		'option'  => 'connections_per_page',
+		'label'   => esc_html__( 'Posts per page', 'distributor' ),
+		'option'  => 'pull_posts_per_page',
+		'default' => get_option( 'posts_per_page' ),
 	];
 
 	add_screen_option( $option, $args );
