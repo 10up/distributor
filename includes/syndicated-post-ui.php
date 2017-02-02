@@ -226,14 +226,14 @@ function clone_taxonomy_terms( $post_id ) {
 }
 
 /**
- * Bring media files over to syndicated post. We copy all the images and update the featured image
+ * Bring media files over to syndicated post. We sync all the images and update the featured image
  * to use the new one. We leave image urls in the post content intact as we can't guarentee the post 
  * image size in each inserted image exists.
  * 
  * @param  int $post_id
  * @since  0.8
  */
-function clone_media( $post_id ) {
+function sync_media( $post_id ) {
 	$original_blog_id = get_post_meta( $post_id, 'dt_original_blog_id', true );
 	$original_post_id = get_post_meta( $post_id, 'dt_original_post_id', true );
 	$post = get_post( $post_id );
@@ -252,7 +252,7 @@ function clone_media( $post_id ) {
 	// Get media of original post
 	switch_to_blog( $original_blog_id );
 
-	$original_media_posts = apply_filters( 'dt_clone_media_assets', get_attached_media( 'image', $original_post_id ) );
+	$original_media_posts = apply_filters( 'dt_sync_media_assets', get_attached_media( 'image', $original_post_id ) );
 	$original_media = [];
 
 	foreach ( $original_media_posts as $original_media_post ) {
@@ -296,17 +296,19 @@ function clone_media( $post_id ) {
 
 	foreach ( $original_media as $media ) {
 
-		// Delete duplicate if it exists
-		if ( ! empty( $current_media[ $media['src'] ] ) ) {
-			wp_delete_attachment( $current_media[ $media['src'] ], true );
-		}
+		// Delete duplicate if it exists (unless filter says otherwise)
+		if ( apply_filters( 'dt_sync_media_delete_and_replace', true, $post_id ) ) {
+			if ( ! empty( $current_media[ $media['src'] ] ) ) {
+				wp_delete_attachment( $current_media[ $media['src'] ], true );
+			}
 
-		$image_id = process_media( $media['src'], $post_id );
-
-		// If error storing permanently, unlink.
-		if ( ! $image_id ) {
-			@unlink( $file_array['tmp_name'] );
-			continue;
+			$image_id = process_media( $media['src'], $post_id );
+		} else {
+			if ( ! empty( $current_media[ $media['src'] ] ) ) {
+				$image_id = $current_media[ $media['src'] ];
+			} else {
+				$image_id = process_media( $media['src'], $post_id );
+			}
 		}
 
 		update_post_meta( $image_id, 'dt_original_media_url', $media['src'] );
@@ -380,7 +382,7 @@ function unlink() {
 
 	repush( $_GET['post'] );
 
-	clone_media( $_GET['post'] );
+	sync_media( $_GET['post'] );
 
 	clone_taxonomy_terms( $_GET['post'] );
 
