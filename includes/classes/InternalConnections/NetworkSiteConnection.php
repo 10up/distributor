@@ -105,12 +105,6 @@ class NetworkSiteConnection extends Connection {
 
 			unset( $post_array['ID'] );
 
-			// Remove date stuff
-			unset( $post_array['post_date'] );
-			unset( $post_array['post_date_gmt'] );
-			unset( $post_array['post_modified'] );
-			unset( $post_array['post_modified_gmt'] );
-
 			$new_post = wp_insert_post( apply_filters( 'dt_pull_post_args', $post_array, $item_id, $post, $this ) );
 
 			if ( ! is_wp_error( $new_post ) ) {
