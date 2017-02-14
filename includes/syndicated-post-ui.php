@@ -211,14 +211,21 @@ function clone_taxonomy_terms( $post_id ) {
 				$term_ids[] = $term->term_id;
 			}
 		}
-
+        
 		// Handle hierarchical terms if they exist
 		foreach ( $terms as $term_object ) {
 			if ( ! empty( $term_object->parent ) ) {
-				wp_update_term( $term_id_mapping[ $term_object->term_id ], $taxonomy, [
-					'parent' => $term_id_mapping[ $term_object->parent ],
-				] );
-			}
+
+			    // If Term has a parent and that parent already exists on the destination, don't create a new parent relationship
+			    $existing_term = get_term_by( 'name', $term_object->name );
+			    $term_args = [];
+                if( empty( $existing_term ) ) {
+                    $term_args = [ 'parent' => $term_id_mapping[ $term_object->parent ] ];
+                    wp_update_term( $term_id_mapping[ $term_object->term_id ], $taxonomy, $term_args );
+                }
+
+                wp_update_term( $term_id_mapping[ $term_object->term_id ], $taxonomy, $term_args );
+            }
 		}
 
 		wp_set_object_terms( $post_id, $term_ids, $taxonomy );
