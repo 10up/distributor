@@ -15,10 +15,9 @@ add_action( 'plugins_loaded', function() {
 	add_action( 'post_submitbox_misc_actions', __NAMESPACE__ . '\syndication_date' );
 	add_filter( 'admin_body_class', __NAMESPACE__ . '\add_linked_class' );
 	add_filter( 'post_row_actions', __NAMESPACE__ . '\remove_quick_edit', 10, 2 );
+    add_filter( 'manage_posts_columns', __NAMESPACE__ . '\post_list_header' );
+    add_action( 'manage_posts_custom_column', __NAMESPACE__ . '\post_list_distributed', 10, 2);
 } );
-
-add_filter( 'manage_posts_columns', __NAMESPACE__ . '\post_list_header' );
-add_action( 'manage_posts_custom_column', __NAMESPACE__ . '\post_list_distributed', 10, 2);
 
 /**
  * Remove quick edit for linked posts
