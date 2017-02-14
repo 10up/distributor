@@ -213,13 +213,17 @@ function clone_taxonomy_terms( $post_id ) {
 		}
 
 		// Handle hierarchical terms if they exist
-		foreach ( $terms as $term_object ) {
-			if ( ! empty( $term_object->parent ) ) {
-				wp_update_term( $term_id_mapping[ $term_object->term_id ], $taxonomy, [
-					'parent' => $term_id_mapping[ $term_object->parent ],
-				] );
-			}
-		}
+        $update_term_hierachy = apply_filters( 'dt_update_term_hierarchy', true );
+
+		if( ! empty( $update_term_hierachy ) ) {
+            foreach ( $terms as $term_object ) {
+                if ( ! empty( $term_object->parent ) ) {
+                    wp_update_term( $term_id_mapping[ $term_object->term_id ], $taxonomy, [
+                        'parent' => $term_id_mapping[ $term_object->parent ],
+                    ] );
+                }
+            }
+        }
 
 		wp_set_object_terms( $post_id, $term_ids, $taxonomy );
 	}
