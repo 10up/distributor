@@ -425,4 +425,13 @@ class PullListTable extends \WP_List_Table {
 
 		return $actions;
 	}
+
+    /**
+     * Adds a hook after the bulk actions dropdown above and below the list table
+     * 
+     * @param string $which
+     */
+	public function extra_tablenav( $which ) {
+	    do_action( 'dt_pull_filters' );
+    }
 }
