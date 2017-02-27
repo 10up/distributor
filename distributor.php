@@ -3,7 +3,7 @@
 /**
  * Plugin Name: Distributor
  * Description: Syndicate content to and from external websites and within multisite blogs.
- * Version:     0.8
+ * Version:     0.8.1
  * Author:      Taylor Lovett, 10up
  * Author URI:  http://10up.com
  * License:     GPLv2 or later
@@ -15,7 +15,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly.
 }
 
-define( 'DT_VERSION', '0.8' );
+define( 'DT_VERSION', '0.8.1' );
 
 /**
  * PSR-4 autoloading
