@@ -109,7 +109,11 @@ class NetworkSiteConnection extends Connection {
 
 			unset( $post_array['ID'] );
 
+			add_filter( 'wp_insert_post_data', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'fix_modified_date' ), 10, 2 );
+
 			$new_post = wp_insert_post( apply_filters( 'dt_pull_post_args', $post_array, $item_id, $post, $this ) );
+
+			remove_filter( 'wp_insert_post_data', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'fix_modified_date' ), 10, 2 );
 
 			if ( ! is_wp_error( $new_post ) ) {
 				update_post_meta( $new_post, 'dt_original_post_id', (int) $item_id );
