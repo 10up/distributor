@@ -51,11 +51,11 @@ class NetworkSiteConnection extends Connection {
 			$new_post_args['ID'] = $args['remote_post_id'];
 		}
 
-		add_filter( 'wp_insert_post_data', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'fix_modified_date' ), 10, 2 );
+		add_filter( 'wp_insert_post_data', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'maybe_set_modified_date' ), 10, 2 );
 
 		$new_post = wp_insert_post( apply_filters( 'dt_push_post_args', $new_post_args, $post, $args, $this ) );
 
-		remove_filter( 'wp_insert_post_data', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'fix_modified_date' ), 10, 2 );
+		remove_filter( 'wp_insert_post_data', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'maybe_set_modified_date' ), 10, 2 );
 
 		if ( ! is_wp_error( $new_post ) ) {
 			update_post_meta( $new_post, 'dt_original_post_id', (int) $post_id );
@@ -109,11 +109,11 @@ class NetworkSiteConnection extends Connection {
 
 			unset( $post_array['ID'] );
 
-			add_filter( 'wp_insert_post_data', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'fix_modified_date' ), 10, 2 );
+			add_filter( 'wp_insert_post_data', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'maybe_set_modified_date' ), 10, 2 );
 
 			$new_post = wp_insert_post( apply_filters( 'dt_pull_post_args', $post_array, $item_id, $post, $this ) );
 
-			remove_filter( 'wp_insert_post_data', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'fix_modified_date' ), 10, 2 );
+			remove_filter( 'wp_insert_post_data', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'maybe_set_modified_date' ), 10, 2 );
 
 			if ( ! is_wp_error( $new_post ) ) {
 				update_post_meta( $new_post, 'dt_original_post_id', (int) $item_id );
@@ -339,7 +339,7 @@ class NetworkSiteConnection extends Connection {
 	}
 
 	/**
-	 * Set post modified date
+	 * Maybe set post modified date
 	 * On wp_insert_post, modified date is overriden by post date
 	 *
 	 * https://core.trac.wordpress.org/browser/tags/4.7.2/src/wp-includes/post.php#L3151
@@ -349,9 +349,11 @@ class NetworkSiteConnection extends Connection {
 	 * @since 0.8.1
 	 * @return array
 	 */
-	public static function fix_modified_date( $data, $postarr ) {
-		$data['post_modified']     = $postarr['post_modified'];
-		$data['post_modified_gmt'] = $postarr['post_modified_gmt'];
+	public static function maybe_set_modified_date( $data, $postarr ) {
+		if ( ! empty( $postarr['post_modified'] ) && ! empty( $postarr['post_modified_gmt'] ) ) {
+			$data['post_modified']     = $postarr['post_modified'];
+			$data['post_modified_gmt'] = $postarr['post_modified_gmt'];
+		}
 
 		return $data;
 	}
