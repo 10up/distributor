@@ -15,6 +15,8 @@ add_action( 'plugins_loaded', function() {
 	add_action( 'post_submitbox_misc_actions', __NAMESPACE__ . '\syndication_date' );
 	add_filter( 'admin_body_class', __NAMESPACE__ . '\add_linked_class' );
 	add_filter( 'post_row_actions', __NAMESPACE__ . '\remove_quick_edit', 10, 2 );
+    add_filter( 'manage_posts_columns', __NAMESPACE__ . '\post_list_header' );
+    add_action( 'manage_posts_custom_column', __NAMESPACE__ . '\post_list_distributed', 10, 2);
 } );
 
 /**
@@ -472,16 +474,8 @@ function syndicated_message( $post ) {
  * @since  0.8
  */
 function admin_enqueue_scripts( $hook ) {
-	if ( 'post-new.php' !== $hook && 'post.php' !== $hook ) {
-		return;
-	}
 
-	global $post;
-
-	$original_blog_id = get_post_meta( $post->ID, 'dt_original_blog_id', true );
-	$original_post_id = get_post_meta( $post->ID, 'dt_original_post_id', true );
-
-	if ( empty( $original_post_id ) || empty( $original_blog_id ) ) {
+	if ( 'post-new.php' !== $hook && 'post.php' !== $hook && 'edit.php' !== $hook ) {
 		return;
 	}
 
@@ -498,4 +492,52 @@ function admin_enqueue_scripts( $hook ) {
 	if ( ! $unlinked ) {
 		wp_dequeue_script( 'autosave' );
 	}
+}
+
+/**
+ * Registers a new 'Linked' column in post list table
+ * @param $columns
+ * @return array
+ */
+function post_list_header( $columns ) {
+    $new_columns = [];
+
+    foreach( $columns as $col_name => $col_label ) {
+
+        $new_columns[ $col_name ] = $col_label;
+
+        // Add The Distributor Column after the checkbox
+        if( 'cb' === $col_name ) {
+            $new_columns['dt_linked'] = __( 'Linked', 'distributor' );
+        }
+    }
+
+    return $new_columns;
+}
+
+/**
+ * Adds Column content with a "link" dashicon. Distributed content that is still linked is rendered
+ * in green. Unlinked content is rendered in orange.
+ *
+ * @param $column
+ * @param $post_id
+ */
+function post_list_distributed( $column, $post_id ) {
+    if( 'dt_linked' === $column ) {
+        $original_blog_id = get_post_meta( $post_id, 'dt_original_blog_id' );
+
+        if( ! empty( $original_blog_id ) ) {
+
+            $unlinked = get_post_meta( $post_id, 'dt_unlinked', true );
+
+            // Distributed, but is is still linked or not?
+            if( ! empty( $unlinked ) ) {
+                $class = 'unlinked';
+            } else {
+                $class = 'linked';
+            }
+
+            echo sprintf( '<span class="dashicons dashicons-admin-links %s"></span>', esc_attr( $class ) );
+        }
+    }
 }
