@@ -294,7 +294,7 @@ class NetworkSiteConnection extends Connection {
 
 	/**
 	 * MCE previews break on linked posts so disable them
-	 * 
+	 *
 	 * @since 0.8
 	 */
 	public static function disable_admin_mce_previews() {
@@ -322,7 +322,7 @@ class NetworkSiteConnection extends Connection {
 
 	/**
 	 * Make sure delete link works for correct post
-	 * 
+	 *
 	 * @param  string $url
 	 * @param  int $id
 	 * @param  bool $force_delete
@@ -372,7 +372,7 @@ class NetworkSiteConnection extends Connection {
 
 	/**
 	 * Fix permalink HTML to be for the correct blog
-	 * 
+	 *
 	 * @param  string $permalink_html
 	 * @since  0.8
 	 * @return string
@@ -612,7 +612,7 @@ class NetworkSiteConnection extends Connection {
 
 	/**
 	 * Return canonical post thumbnail URL
-	 * 
+	 *
 	 * @param  string $html
 	 * @param  int $id
 	 * @since  0.8
