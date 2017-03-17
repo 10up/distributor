@@ -90,6 +90,8 @@ class NetworkSiteConnection extends Connection {
 	 * @return array
 	 */
 	public function pull( $items ) {
+		global $dt_pull_messages;
+
 		$created_posts = array();
 
 		foreach ( $items as $item_id ) {
@@ -102,6 +104,18 @@ class NetworkSiteConnection extends Connection {
 
 			$post_props = get_object_vars( $post );
 			$post_array = array();
+			$current_blog_id = get_current_blog_id();
+
+			if ( ! empty( $post_props['meta']['dt_connection_map'] ) ) {
+				foreach ( $post_props['meta']['dt_connection_map'] as $distributed ) {
+					$distributed = unserialize( $distributed );
+
+					if ( array_key_exists( $current_blog_id, $distributed['internal'] ) ) {
+						$dt_pull_messages['duplicated'] = 1;
+						continue 2;
+					}
+				}
+			}
 
 			foreach ( $post_props as $key => $value ) {
 				$post_array[ $key ] = $value;
@@ -131,8 +145,6 @@ class NetworkSiteConnection extends Connection {
 					}
 				}
 			}
-
-			$current_blog_id = get_current_blog_id();
 
 			switch_to_blog( $this->site->blog_id );
 
@@ -237,7 +249,7 @@ class NetworkSiteConnection extends Connection {
 			$formatted_posts = [];
 
 			foreach ( $posts as $post ) {
-				$post->link  = get_permalink( $post->ID );
+				$post->link = get_permalink( $post->ID );
 				$post->meta = get_post_meta( $post->ID );
 				$formatted_posts[] = $post;
 			}

@@ -32,6 +32,10 @@ function setup_list_table() {
 		$dt_pull_messages['syndicated'] = 1;
 
 		setcookie( 'dt-syndicated', 1, time() - 60, ADMIN_COOKIE_PATH, COOKIE_DOMAIN, is_ssl() );
+	} elseif ( ! empty( $_COOKIE['dt-duplicated'] ) ) {
+		$dt_pull_messages['duplicated'] = 1;
+
+		setcookie( 'dt-duplicated', 1, time() - 60, ADMIN_COOKIE_PATH, COOKIE_DOMAIN, is_ssl() );
 	}
 
 	$external_connections = new \WP_Query( array(
@@ -159,6 +163,7 @@ function screen_option() {
  */
 function process_actions() {
 	global $connection_list_table;
+	global $dt_pull_messages;
 
 	switch ( $connection_list_table->current_action() ) {
 		case 'syndicate':
@@ -201,7 +206,13 @@ function process_actions() {
 
 			$connection->log_sync( $post_id_mappings );
 
-			setcookie( 'dt-syndicated', 1, time() + DAY_IN_SECONDS, ADMIN_COOKIE_PATH, COOKIE_DOMAIN, is_ssl() );
+			if ( empty( $dt_pull_messages['duplicated'] ) ) {
+				setcookie( 'dt-syndicated', 1, time() + DAY_IN_SECONDS, ADMIN_COOKIE_PATH, COOKIE_DOMAIN, is_ssl() );
+			}
+
+			if ( ! empty( $dt_pull_messages['duplicated'] ) ) {
+				setcookie( 'dt-duplicated', 1, time() + DAY_IN_SECONDS, ADMIN_COOKIE_PATH, COOKIE_DOMAIN, is_ssl() );
+			}
 
 			wp_redirect( wp_get_referer() );
 			exit;
@@ -356,6 +367,12 @@ function dashboard() {
 		<?php if ( ! empty( $dt_pull_messages ) && ! empty( $dt_pull_messages['syndicated'] ) ) : ?>
 			<div id="message" class="updated notice is-dismissible">
 				<p><?php esc_html_e( 'Post(s) have been pulled.', 'distributor' ); ?></p>
+			</div>
+		<?php endif; ?>
+
+		<?php if ( ! empty( $dt_pull_messages ) && ! empty( $dt_pull_messages['duplicated'] ) ) : ?>
+			<div id="message" class="notice notice-warning is-dismissible">
+				<p><?php esc_html_e( 'Post(s) have been already distributed.', 'distributor' ); ?></p>
 			</div>
 		<?php endif; ?>
 
