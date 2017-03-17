@@ -97,7 +97,7 @@ function admin_enqueue_scripts( $hook ) {
 		return;
 	}
 
-	if ( defined( SCRIPT_DEBUG ) && SCRIPT_DEBUG ) {
+	if ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) {
 		$js_path = '/assets/js/src/admin-pull.js';
 		$css_path = '/assets/css/admin-pull-table.css';
 	} else {
