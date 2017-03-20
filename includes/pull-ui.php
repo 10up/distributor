@@ -12,7 +12,6 @@ add_action( 'plugins_loaded', function() {
 	add_action( 'admin_enqueue_scripts'      , __NAMESPACE__ . '\admin_enqueue_scripts' );
 	add_action( 'load-distributor_page_pull' , __NAMESPACE__ . '\setup_list_table' );
 	add_filter( 'set-screen-option'          , __NAMESPACE__ . '\set_screen_option', 10, 3 );
-	add_filter( 'heartbeat_received'         , __NAMESPACE__ . '\heartbeat', 10, 2 );
 } );
 
 /**
@@ -105,16 +104,8 @@ function admin_enqueue_scripts( $hook ) {
 		$css_path = '/assets/css/admin-pull-table.min.css';
 	}
 
-	wp_enqueue_script( 'dt-admin-pull', plugins_url( $js_path, __DIR__ ), array( 'jquery', 'heartbeat', 'jquery-ui-dialog' ), DT_VERSION, true );
+	wp_enqueue_script( 'dt-admin-pull', plugins_url( $js_path, __DIR__ ), array( 'jquery' ), DT_VERSION, true );
 	wp_enqueue_style( 'dt-admin-pull', plugins_url( $css_path, __DIR__ ), array(), DT_VERSION );
-	wp_enqueue_style( 'wp-jquery-ui-dialog' );
-
-	$data = array(
-		'nonce'         => wp_create_nonce( 'dt_lock_pull_screen' ),
-		'modal_title'   => esc_js( 'Locked screen', 'distributor' ),
-		'dashboard_url' => get_admin_url( get_current_blog_id() ),
-	);
-	wp_localize_script( 'dt-admin-pull', 'DtData', $data );
 }
 
 /**
@@ -275,54 +266,6 @@ function process_actions() {
 }
 
 /**
- * Maybe set tansient to lock screen for current user
- *
- * @since 0.8.2
- */
-function maybe_lock() {
-	$current_user_id = get_current_user_id();
-	$locked_data     = get_site_transient( 'dt_locked_pull_ui' );
-	$timestamp       = $locked_data['timestamp'];
-	$locked_to_user  = (int) $locked_data['user'];
-	$time_offset     = apply_filters( 'dt_locked_pull_ui_offset', MINUTE_IN_SECONDS);
-	$current_user_id = get_current_user_id();
-
-	if ( 0 !== $locked_to_user && $current_user_id !== $locked_to_user || ( ! empty( $timestamp ) && $timestamp + $time_offset > time() ) ) {
-		return false;
-	}
-
-	$args = array(
-		'user'      => $current_user_id,
-		'timestamp' => time(),
-	);
-
-	set_site_transient( 'dt_locked_pull_ui', $args, $time_offset - 30 );
-
-	return $current_user_id;
-}
-
-/**
- * Receive current user id via Heartbeat
- *
- * @param array $response Heartbeat response data to pass back to front end
- * @param array $data     Data received from the front end
- */
-function heartbeat( $response, $data ) {
-	if ( empty( $data['nonce'] ) || ! wp_verify_nonce( $data['nonce'], 'dt_lock_pull_screen' ) ) {
-		return $response;
-	}
-
-	$locked_to_user = maybe_lock();
-
-	if ( $locked_to_user ) {
-		$response['unlocked'] = true;
-	}
-
-	return $response;
-}
-
-
-/**
  * Output pull dashboard with custom list table
  *
  * @since 0.8
@@ -356,11 +299,6 @@ function dashboard() {
 			$internal_connection_group[] = $connection;
 		}
 	}
-
-	maybe_lock();
-
-	$locked_data    = get_site_transient( 'dt_locked_pull_ui' );
-	$locked_to_user = $locked_data['user'];
 	?>
 
 	<div class="wrap nosubsub">
@@ -451,17 +389,5 @@ function dashboard() {
 			<?php $connection_list_table->display(); ?>
 		</form>
 	</div>
-
-	<?php if ( ! empty( $locked_to_user ) && $locked_to_user !== get_current_user_id() ) : ?>
-		<?php $user = get_userdata( $locked_to_user ); ?>
-		<div id="dt-locked-screen">
-			<?php
-			printf(
-				'%s %s',
-				$user->data->display_name,
-				esc_html( 'is currently editing this screen. It will become unlocked without the need of refresh.', 'distributor' )
-			);
-			?>
-		</div>
-	<?php endif;
+	<?php
 }
