@@ -177,10 +177,16 @@ function clone_taxonomy_terms( $post_id ) {
 	$original_post = get_post( $original_post_id );
 
 	$original_taxonomy_terms = [];
+	$original_taxonomy_parents = [];
+
 	$original_taxonomies = get_object_taxonomies( $original_post );
 
 	foreach ( $original_taxonomies as $taxonomy ) {
 		$original_taxonomy_terms[ $taxonomy ] = wp_get_object_terms( $original_post_id, $taxonomy );
+
+		foreach ( $original_taxonomy_terms[ $taxonomy ] as $term_object ) {
+			$original_taxonomy_parents[ $taxonomy ][ $term_object->term_id ] = get_term( $term_object->parent, $taxonomy );
+		}
 	}
 
 	restore_current_blog();
@@ -217,12 +223,7 @@ function clone_taxonomy_terms( $post_id ) {
 		if ( ! empty( $update_term_hierachy ) ) {
 			foreach ( $terms as $term_object ) {
 				if ( ! empty( $term_object->parent ) ) {
-					// Get taxonomy/terms of original post
-					switch_to_blog( $original_blog_id );
-
-					$original_term = get_term( $term_object->parent, $taxonomy );
-
-					restore_current_blog();
+					$original_term = $original_taxonomy_parents[ $taxonomy ][ $term_object->term_id ];
 
 					// Try to find term on destination
 					$term_parent = get_term_by( 'slug', $original_term->slug, $taxonomy );
