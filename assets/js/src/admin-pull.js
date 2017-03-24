@@ -1,4 +1,6 @@
 (function($) {
+	'use strict';
+
 	var chooseConnection = document.getElementById('pull_connections');
 
 	$(chooseConnection).on('change', function(event) {

@@ -8,10 +8,10 @@ namespace Distributor\PullUI;
  * @since 0.8
  */
 add_action( 'plugins_loaded', function() {
-	add_action( 'admin_menu', __NAMESPACE__  . '\action_admin_menu' );
-	add_action( 'admin_enqueue_scripts', __NAMESPACE__  . '\admin_enqueue_scripts' );
-	add_action( 'load-distributor_page_pull', __NAMESPACE__ . '\setup_list_table' );
-	add_filter( 'set-screen-option', __NAMESPACE__ . '\set_screen_option', 10, 3 );
+	add_action( 'admin_menu'                 , __NAMESPACE__ . '\action_admin_menu' );
+	add_action( 'admin_enqueue_scripts'      , __NAMESPACE__ . '\admin_enqueue_scripts' );
+	add_action( 'load-distributor_page_pull' , __NAMESPACE__ . '\setup_list_table' );
+	add_filter( 'set-screen-option'          , __NAMESPACE__ . '\set_screen_option', 10, 3 );
 } );
 
 /**
@@ -32,6 +32,10 @@ function setup_list_table() {
 		$dt_pull_messages['syndicated'] = 1;
 
 		setcookie( 'dt-syndicated', 1, time() - 60, ADMIN_COOKIE_PATH, COOKIE_DOMAIN, is_ssl() );
+	} elseif ( ! empty( $_COOKIE['dt-duplicated'] ) ) {
+		$dt_pull_messages['duplicated'] = 1;
+
+		setcookie( 'dt-duplicated', 1, time() - 60, ADMIN_COOKIE_PATH, COOKIE_DOMAIN, is_ssl() );
 	}
 
 	$external_connections = new \WP_Query( array(
@@ -92,7 +96,7 @@ function admin_enqueue_scripts( $hook ) {
 		return;
 	}
 
-	if ( defined( SCRIPT_DEBUG ) && SCRIPT_DEBUG ) {
+	if ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) {
 		$js_path = '/assets/js/src/admin-pull.js';
 		$css_path = '/assets/css/admin-pull-table.css';
 	} else {
@@ -124,7 +128,7 @@ function action_admin_menu() {
 
 /**
  * Set screen option for posts per page
- * 
+ *
  * @param  string $status
  * @param  string $option
  * @param  mixed $value
@@ -159,6 +163,7 @@ function screen_option() {
  */
 function process_actions() {
 	global $connection_list_table;
+	global $dt_pull_messages;
 
 	switch ( $connection_list_table->current_action() ) {
 		case 'syndicate':
@@ -201,7 +206,13 @@ function process_actions() {
 
 			$connection->log_sync( $post_id_mappings );
 
-			setcookie( 'dt-syndicated', 1, time() + DAY_IN_SECONDS, ADMIN_COOKIE_PATH, COOKIE_DOMAIN, is_ssl() );
+			if ( empty( $dt_pull_messages['duplicated'] ) ) {
+				setcookie( 'dt-syndicated', 1, time() + DAY_IN_SECONDS, ADMIN_COOKIE_PATH, COOKIE_DOMAIN, is_ssl() );
+			}
+
+			if ( ! empty( $dt_pull_messages['duplicated'] ) ) {
+				setcookie( 'dt-duplicated', 1, time() + DAY_IN_SECONDS, ADMIN_COOKIE_PATH, COOKIE_DOMAIN, is_ssl() );
+			}
 
 			wp_redirect( wp_get_referer() );
 			exit;
@@ -289,6 +300,7 @@ function dashboard() {
 		}
 	}
 	?>
+
 	<div class="wrap nosubsub">
 		<h1>
 			<?php if ( empty( $connection_list_table->connection_objects ) ) : $connection_now = 0; ?>
@@ -356,6 +368,12 @@ function dashboard() {
 		<?php if ( ! empty( $dt_pull_messages ) && ! empty( $dt_pull_messages['syndicated'] ) ) : ?>
 			<div id="message" class="updated notice is-dismissible">
 				<p><?php esc_html_e( 'Post(s) have been pulled.', 'distributor' ); ?></p>
+			</div>
+		<?php endif; ?>
+
+		<?php if ( ! empty( $dt_pull_messages ) && ! empty( $dt_pull_messages['duplicated'] ) ) : ?>
+			<div id="message" class="notice notice-warning is-dismissible">
+				<p><?php esc_html_e( 'Post(s) have been already distributed.', 'distributor' ); ?></p>
 			</div>
 		<?php endif; ?>
 
