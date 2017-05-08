@@ -535,7 +535,7 @@ function add_menu_item() {
 	$hook = add_menu_page(
 		'Distributor',
 		'Distributor',
-		'manage_options',
+		apply_filters( 'dt_capabilities', 'manage_options' ),
 		'distributor',
 		__NAMESPACE__  . '\dashboard',
 		'dashicons-share-alt2'
