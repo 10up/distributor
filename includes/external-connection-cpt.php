@@ -535,7 +535,7 @@ function add_menu_item() {
 	$hook = add_menu_page(
 		'Distributor',
 		'Distributor',
-		'manage_options',
+		apply_filters( 'dt_capabilities', 'manage_options' ),
 		'distributor',
 		__NAMESPACE__  . '\dashboard',
 		'dashicons-share-alt2'
@@ -552,7 +552,7 @@ function add_menu_item() {
 function add_submenu_item() {
 	global $submenu;
 	unset( $submenu['distributor'][0] );
-	add_submenu_page( 'distributor', esc_html__( 'External Connections', 'distributor' ), '<span class="beta">' . esc_html__( 'beta', 'distributor' ) . '</span>' . esc_html__( 'External Connections', 'distributor' ), 'manage_options', 'distributor' );
+	add_submenu_page( 'distributor', esc_html__( 'External Connections', 'distributor' ), '<span class="beta">' . esc_html__( 'beta', 'distributor' ) . '</span>' . esc_html__( 'External Connections', 'distributor' ), apply_filters( 'dt_external_capabilities', 'manage_options' ), 'distributor' );
 }
 
 /**

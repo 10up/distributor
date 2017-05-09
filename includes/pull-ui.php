@@ -118,7 +118,7 @@ function action_admin_menu() {
 		'distributor',
 		esc_html__( 'Pull Content', 'distributor' ),
 		esc_html__( 'Pull Content', 'distributor' ),
-		'manage_options',
+		apply_filters( 'dt_pull_capabilities', 'manage_options' ),
 		'pull',
 		__NAMESPACE__  . '\dashboard'
 	);
@@ -172,7 +172,7 @@ function process_actions() {
 				exit;
 			}
 
-			if ( ! current_user_can( 'manage_options' ) ) {
+			if ( ! current_user_can( apply_filters( 'dt_pull_capabilities', 'manage_options' ) ) ) {
 				wp_die(
 					'<h1>' . __( 'Cheatin&#8217; uh?' ) . '</h1>' .
 					'<p>' . __( 'Sorry, you are not allowed to add this item.' ) . '</p>',
@@ -224,7 +224,7 @@ function process_actions() {
 				exit;
 			}
 
-			if ( ! current_user_can( 'manage_options' ) ) {
+			if ( ! current_user_can( apply_filters( 'dt_pull_capabilities', 'manage_options' ) ) ) {
 				wp_die(
 					'<h1>' . __( 'Cheatin&#8217; uh?' ) . '</h1>' .
 					'<p>' . __( 'Sorry, you are not allowed to add this item.' ) . '</p>',

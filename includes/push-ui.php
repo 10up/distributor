@@ -340,7 +340,7 @@ function menu_content() {
 			}
 
 			// If not admin lets make sure the current user can push to this connection
-			if ( ! current_user_can( 'manage_options' ) ) {
+			if ( ! current_user_can( apply_filters( 'dt_push_capabilities', 'manage_options' ) ) ) {
 				$current_user_roles = (array) wp_get_current_user()->roles;
 
 				if ( count( array_intersect( $current_user_roles, $allowed_roles ) ) < 1 ) {
