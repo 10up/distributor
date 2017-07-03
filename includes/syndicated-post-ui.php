@@ -177,10 +177,16 @@ function clone_taxonomy_terms( $post_id ) {
 	$original_post = get_post( $original_post_id );
 
 	$original_taxonomy_terms = [];
+	$original_taxonomy_parents = [];
+
 	$original_taxonomies = get_object_taxonomies( $original_post );
 
 	foreach ( $original_taxonomies as $taxonomy ) {
 		$original_taxonomy_terms[ $taxonomy ] = wp_get_object_terms( $original_post_id, $taxonomy );
+
+		foreach ( $original_taxonomy_terms[ $taxonomy ] as $term_object ) {
+			$original_taxonomy_parents[ $taxonomy ][ $term_object->term_id ] = get_term( $term_object->parent, $taxonomy );
+		}
 	}
 
 	restore_current_blog();
@@ -213,17 +219,31 @@ function clone_taxonomy_terms( $post_id ) {
 		}
 
 		// Handle hierarchical terms if they exist
-        $update_term_hierachy = apply_filters( 'dt_update_term_hierarchy', true );
+		$update_term_hierachy = apply_filters( 'dt_update_term_hierarchy', true );
+		if ( ! empty( $update_term_hierachy ) ) {
+			foreach ( $terms as $term_object ) {
+				if ( ! empty( $term_object->parent ) ) {
+					$original_term = $original_taxonomy_parents[ $taxonomy ][ $term_object->term_id ];
 
-		if( ! empty( $update_term_hierachy ) ) {
-            foreach ( $terms as $term_object ) {
-                if ( ! empty( $term_object->parent ) ) {
-                    wp_update_term( $term_id_mapping[ $term_object->term_id ], $taxonomy, [
-                        'parent' => $term_id_mapping[ $term_object->parent ],
-                    ] );
-                }
-            }
-        }
+					// Try to find term on destination
+					$term_parent = get_term_by( 'slug', $original_term->slug, $taxonomy );
+
+					// Create one if there's none
+					if ( empty( $term_parent ) ) {
+						$term_parent = wp_insert_term( $original_term->name, $taxonomy );
+					}
+
+					// Update term with parent id
+					if ( ! is_wp_error( $term_parent ) ) {
+						$parent_term_id = is_array( $term_parent ) ? $term_parent['term_id'] : $term_parent->term_id;
+
+						wp_update_term( $term_id_mapping[ $term_object->term_id ], $taxonomy, [
+							'parent' => $parent_term_id,
+						] );
+					}
+				}
+			}
+		}
 
 		wp_set_object_terms( $post_id, $term_ids, $taxonomy );
 	}
