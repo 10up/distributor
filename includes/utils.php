@@ -138,6 +138,10 @@ function set_taxonomy_terms( $post_id, $taxonomy_terms ) {
 		$term_id_mapping = [];
 
 		foreach ( $terms as $term_array ) {
+			if ( ! is_array( $term_array ) ) {
+				$term_array = (array) $term_array;
+			}
+
 			$term = get_term_by( 'slug', $term_array['slug'], $taxonomy );
 
 			if ( empty( $term ) ) {
@@ -158,6 +162,10 @@ function set_taxonomy_terms( $post_id, $taxonomy_terms ) {
 
 		if ( ! empty( $update_term_hierachy ) ) {
 			foreach ( $terms as $term_array ) {
+				if ( ! is_array( $term_array ) ) {
+					$term_array = (array) $term_array;
+				}
+
 				if ( ! empty( $term_array['parent'] ) ) {
 					wp_update_term( $term_id_mapping[ $term_array['term_id'] ], $taxonomy, [
 						'parent' => $term_id_mapping[ $term_array['parent'] ],

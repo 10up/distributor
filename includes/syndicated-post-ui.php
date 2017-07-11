@@ -179,9 +179,7 @@ function resync( $post_id ) {
 	$original_source_id = get_post_meta( $post_id, 'dt_original_source_id', true );
 
 	if ( ! empty( $original_blog_id ) ) {
-		$current_blog = get_current_blog_id();
-
-		$connection = new \Distributor\InternalConnections\NetworkSiteConnection( get_site( $current_blog ) );
+		$connection = new \Distributor\InternalConnections\NetworkSiteConnection( get_site( $original_blog_id ) );
 		$connection->pull( [
 			[
 				'remote_post_id' => $original_post_id,
