@@ -8,6 +8,7 @@ class ConnectionsTest extends \TestCase {
 	 *
 	 * @since 0.8
 	 * @group Connections
+	 * @runInSeparateProcess
 	 */
 	public function test_register() {
 		Connections::factory()->register( '\TestExternalConnection' );

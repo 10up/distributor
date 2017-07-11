@@ -7,12 +7,14 @@ namespace Distributor\PullUI;
  *
  * @since 0.8
  */
-add_action( 'plugins_loaded', function() {
-	add_action( 'admin_menu'                 , __NAMESPACE__ . '\action_admin_menu' );
-	add_action( 'admin_enqueue_scripts'      , __NAMESPACE__ . '\admin_enqueue_scripts' );
-	add_action( 'load-distributor_page_pull' , __NAMESPACE__ . '\setup_list_table' );
-	add_filter( 'set-screen-option'          , __NAMESPACE__ . '\set_screen_option', 10, 3 );
-} );
+function setup() {
+	add_action( 'plugins_loaded', function() {
+		add_action( 'admin_menu'                 , __NAMESPACE__ . '\action_admin_menu' );
+		add_action( 'admin_enqueue_scripts'      , __NAMESPACE__ . '\admin_enqueue_scripts' );
+		add_action( 'load-distributor_page_pull' , __NAMESPACE__ . '\setup_list_table' );
+		add_filter( 'set-screen-option'          , __NAMESPACE__ . '\set_screen_option', 10, 3 );
+	} );
+}
 
 /**
  * Create list table
@@ -120,10 +122,10 @@ function action_admin_menu() {
 		esc_html__( 'Pull Content', 'distributor' ),
 		apply_filters( 'dt_pull_capabilities', 'manage_options' ),
 		'pull',
-		__NAMESPACE__  . '\dashboard'
+		__NAMESPACE__ . '\dashboard'
 	);
 
-	add_action( "load-$hook", __NAMESPACE__  . '\screen_option' );
+	add_action( "load-$hook", __NAMESPACE__ . '\screen_option' );
 }
 
 /**
@@ -131,7 +133,7 @@ function action_admin_menu() {
  *
  * @param  string $status
  * @param  string $option
- * @param  mixed $value
+ * @param  mixed  $value
  * @since  0.8
  * @return mixed
  */
@@ -184,14 +186,19 @@ function process_actions() {
 				break;
 			}
 
-			$posts = $_GET['post'];
-			if ( ! is_array( $posts ) ) {
-				$posts = [ $posts ];
-			}
+			$posts = (array) $_GET['post'];
+
+			$posts = array_map( function( $remote_post_id ) {
+				return [ 'remote_post_id' => $remote_post_id ];
+			}, $posts );
 
 			if ( 'external' === $_GET['connection_type'] ) {
 				$connection = \Distributor\ExternalConnection::instantiate( $_GET['connection_id'] );
 				$new_posts = $connection->pull( $posts );
+
+				foreach ( $posts as $key => $post_array ) {
+					\Distributor\Subscriptions\create_remote_subscription( $connection, $post_array['remote_post_id'], $new_posts[ $key ] );
+				}
 			} else {
 				$site = get_site( $_GET['connection_id'] );
 				$connection = new \Distributor\InternalConnections\NetworkSiteConnection( $site );
@@ -200,8 +207,8 @@ function process_actions() {
 
 			$post_id_mappings = array();
 
-			foreach ( $posts as $key => $old_post_id ) {
-				$post_id_mappings[ $old_post_id ] = $new_posts[ $key ];
+			foreach ( $posts as $key => $post_array ) {
+				$post_id_mappings[ $post_array['remote_post_id'] ] = $new_posts[ $key ];
 			}
 
 			$connection->log_sync( $post_id_mappings );
@@ -322,7 +329,7 @@ function dashboard() {
 									$selected = true;
 								}
 								?>
-								<option <?php selected( true, $selected ); ?> data-pull-url="<?php echo esc_url( admin_url( 'admin.php?page=pull&connection_type=' . $type .'&connection_id=' . $id ) ); ?>"><?php echo esc_html( $name ); ?></option>
+								<option <?php selected( true, $selected ); ?> data-pull-url="<?php echo esc_url( admin_url( 'admin.php?page=pull&connection_type=' . $type . '&connection_id=' . $id ) ); ?>"><?php echo esc_html( $name ); ?></option>
 							<?php endforeach; ?>
 						<?php if ( ! empty( $external_connection_group ) ) : ?>
 							</optgroup>
@@ -331,7 +338,7 @@ function dashboard() {
 
 					<?php if ( ! empty( $external_connection_group ) ) : ?>
 						<?php if ( ! empty( $internal_connection_group ) ) : ?>
-							<optgroup label="<?php esc_html_e( 'External Connections (beta)', 'distributor' ); ?>">
+							<optgroup label="<?php esc_html_e( 'External Connections', 'distributor' ); ?>">
 						<?php endif; ?>
 							<?php foreach ( $external_connection_group as $connection ) :
 								$type = 'external';
@@ -343,7 +350,7 @@ function dashboard() {
 									$selected = true;
 								}
 								?>
-								<option <?php selected( true, $selected ); ?> data-pull-url="<?php echo esc_url( admin_url( 'admin.php?page=pull&connection_type=' . $type .'&connection_id=' . $id ) ); ?>"><?php echo esc_html( $name ); ?></option>
+								<option <?php selected( true, $selected ); ?> data-pull-url="<?php echo esc_url( admin_url( 'admin.php?page=pull&connection_type=' . $type . '&connection_id=' . $id ) ); ?>"><?php echo esc_html( $name ); ?></option>
 							<?php endforeach; ?>
 						<?php if ( ! empty( $internal_connection_group ) ) : ?>
 							</optgroup>
@@ -352,12 +359,6 @@ function dashboard() {
 				</select>
 			<?php endif; ?>
 		</h1>
-
-		<?php if ( ! empty( $connection_now ) && is_a( $connection_now, '\Distributor\ExternalConnection' ) ) : ?>
-			<div class="network-connections-notice">
-				<strong><?php esc_html_e( "External connections are in beta. We can't push or pull meta data or images from external websites.", 'distributor' ); ?></strong>
-			</div>
-		<?php endif; ?>
 
 		<?php if ( ! empty( $dt_pull_messages ) && ! empty( $dt_pull_messages['skipped'] ) ) : ?>
 			<div id="message" class="updated notice is-dismissible">

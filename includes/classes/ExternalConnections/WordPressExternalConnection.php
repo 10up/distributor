@@ -56,7 +56,7 @@ class WordPressExternalConnection extends ExternalConnection {
 		if ( empty( $id ) ) {
 			$query_args['post_status'] = ( empty( $args['post_status'] ) ) ? 'any' : $args['post_status'];
 			$posts_per_page = ( empty( $args['posts_per_page'] ) ) ? get_option( 'posts_per_page' ) : $args['posts_per_page'];
-			$query_args['paged'] = ( empty( $args['paged'] ) ) ? 1 : $args['paged'];
+			$query_args['page'] = ( empty( $args['paged'] ) ) ? 1 : $args['paged'];
 
 			if ( isset( $args['post__in'] ) ) {
 				if ( empty( $args['post__in'] ) ) {
@@ -67,13 +67,13 @@ class WordPressExternalConnection extends ExternalConnection {
 					], $args, $this );
 				}
 
-				$query_args['post__in'] = $args['post__in'];
+				$query_args['include'] = $args['post__in'];
 			} elseif ( isset( $args['post__not_in'] ) ) {
-				$query_args['post__not_in'] = $args['post__not_in'];
+				$query_args['exclude'] = $args['post__not_in'];
 			}
 
 			if ( ! empty( $args['s'] ) ) {
-				$query_args['s'] = $args['s'];
+				$query_args['search'] = $args['s'];
 			}
 		}
 
@@ -83,6 +83,10 @@ class WordPressExternalConnection extends ExternalConnection {
 		if ( empty( $types_urls[ $post_type ] ) ) {
 			/**
 			 * First let's get the actual route if not cached. We don't know the "plural" of our post type
+			 */
+
+			/**
+			 * Todo: This should be cached in a transient
 			 */
 
 			$path = self::$namespace;
@@ -129,14 +133,14 @@ class WordPressExternalConnection extends ExternalConnection {
 						$args_str .= '&';
 					}
 
-					$args_str .= 'filter[' . $arg_key . '][]=' . $arg_value_value;
+					$args_str .= $arg_key . '[]=' . $arg_value_value;
 				}
 			} else {
 				if ( ! empty( $args_str ) ) {
 					$args_str .= '&';
 				}
 
-				$args_str .= 'filter[' . $arg_key . ']=' . $arg_value;
+				$args_str .= $arg_key . '=' . $arg_value;
 			}
 		}
 
@@ -146,7 +150,7 @@ class WordPressExternalConnection extends ExternalConnection {
 			$posts_url = untrailingslashit( $types_urls[ $post_type ] ) . '/?' . $args_str;
 		}
 
-		$posts_response = wp_remote_get( apply_filters( 'dt_remote_get_url', $posts_url, $args, $this ), $this->auth_handler->format_get_args( array( 'timeout' => 10, ) ) );
+		$posts_response = wp_remote_get( apply_filters( 'dt_remote_get_url', $posts_url, $args, $this ), $this->auth_handler->format_get_args( array( 'timeout' => 10 ) ) );
 
 		if ( is_wp_error( $posts_response ) ) {
 			return $posts_response;
@@ -181,7 +185,8 @@ class WordPressExternalConnection extends ExternalConnection {
 	}
 
 	/**
-	 * Pull items
+	 * Pull items. Pass array of posts, each post should look like:
+	 * [ 'remote_post_id' => POST ID TO GET, 'post_id' (optional) => POST ID TO MAP TO ]
 	 *
 	 * @param  array $items
 	 * @since  0.8
@@ -190,8 +195,8 @@ class WordPressExternalConnection extends ExternalConnection {
 	public function pull( $items ) {
 		$created_posts = array();
 
-		foreach ( $items as $item_id ) {
-			$post = $this->remote_get( [ 'id' => $item_id ] );
+		foreach ( $items as $item_array ) {
+			$post = $this->remote_get( [ 'id' => $item_array['remote_post_id'] ] );
 
 			if ( is_wp_error( $post ) ) {
 				$created_posts[] = $post;
@@ -205,7 +210,11 @@ class WordPressExternalConnection extends ExternalConnection {
 				$post_array[ $key ] = $value;
 			}
 
-			unset( $post_array['ID'] );
+			if ( ! empty( $item_array['post_id'] ) ) {
+				$post_array['ID'] = $item_array['post_id'];
+			} else {
+				unset( $post_array['ID'] );
+			}
 
 			// Remove date stuff
 			unset( $post_array['post_date'] );
@@ -213,7 +222,18 @@ class WordPressExternalConnection extends ExternalConnection {
 			unset( $post_array['post_modified'] );
 			unset( $post_array['post_modified_gmt'] );
 
-			$new_post = wp_insert_post( apply_filters( 'dt_pull_post_args', $post_array, $item_id, $post, $this ) );
+			$new_post = wp_insert_post( apply_filters( 'dt_pull_post_args', $post_array, $item_array['remote_post_id'], $post, $this ) );
+
+			update_post_meta( $new_post, 'dt_original_post_id', (int) $item_array['remote_post_id'] );
+			update_post_meta( $new_post, 'dt_original_source_id', (int) $this->id );
+			update_post_meta( $new_post, 'dt_syndicate_time', time() );
+			update_post_meta( $new_post, 'dt_original_post_url', esc_url_raw( $post_array['link'] ) );
+
+			\Distributor\Utils\set_meta( $new_post, $post_array['meta'] );
+
+			\Distributor\Utils\set_taxonomy_terms( $new_post, $post_array['terms'] );
+
+			\Distributor\Utils\set_media( $new_post, $post_array['media'] );
 
 			do_action( 'dt_pull_post', $new_post, $this );
 
@@ -268,23 +288,32 @@ class WordPressExternalConnection extends ExternalConnection {
 			return new \WP_Error( 'no-push-post-type', esc_html__( 'Could not determine remote post type endpoint', 'distributor' ) );
 		}
 
+		$signature = \Distributor\Subscriptions\generate_signature();
+
 		/**
 		 * Now let's push
 		 */
-		$post_body = array(
-			'title'   => get_the_title( $post_id ),
-			'content' => apply_filters( 'the_content', $post->post_content ),
-			'type'    => $post->post_type,
-			'status'  => ( ! empty( $args['post_status'] ) ) ? $args['post_status'] : 'publish',
-			'excerpt' => $post->post_excerpt,
-		);
+		$post_body = [
+			'title'                          => get_the_title( $post_id ),
+			'content'                        => apply_filters( 'the_content', $post->post_content ),
+			'type'                           => $post->post_type,
+			'status'                         => ( ! empty( $args['post_status'] ) ) ? $args['post_status'] : 'publish',
+			'excerpt'                        => $post->post_excerpt,
+			'distributor_original_source_id' => $this->id,
+			'distributor_original_post_url'  => get_permalink( $post_id ),
+			'distributor_remote_post_id'     => $post_id,
+			'distributor_signature'          => $signature,
+			'distributor_media'              => \Distributor\Utils\prepare_media( $post_id ),
+			'distributor_terms'              => \Distributor\Utils\prepare_taxonomy_terms( $post_id ),
+			'distributor_meta'               => \Distributor\Utils\prepare_meta( $post_id ),
+		];
 
 		// Map to remote ID if a push has already happened
 		if ( ! empty( $args['remote_post_id'] ) ) {
 			$existing_post_url = untrailingslashit( $type_url ) . '/' . $args['remote_post_id'];
 
 			// Check to make sure remote post still exists
-			$post_exists_response = wp_remote_get( $existing_post_url, $this->auth_handler->format_get_args( array( 'timeout' => 10, ) ) );
+			$post_exists_response = wp_remote_get( $existing_post_url, $this->auth_handler->format_get_args( array( 'timeout' => 10 ) ) );
 
 			if ( ! is_wp_error( $post_exists_response ) ) {
 				$post_exists_response_code = wp_remote_retrieve_response_code( $post_exists_response );
@@ -303,6 +332,7 @@ class WordPressExternalConnection extends ExternalConnection {
 			return $response;
 		}
 
+
 		$body = wp_remote_retrieve_body( $response );
 
 		if ( is_wp_error( $body ) ) {
@@ -317,6 +347,13 @@ class WordPressExternalConnection extends ExternalConnection {
 			return new \WP_Error( 'no-push-post-remote-id', esc_html__( 'Could not determine remote post id.', 'distributor' ) );
 		}
 
+		$response_headers = wp_remote_retrieve_headers( $response );
+
+		if ( ! empty( $response_headers['X-Distributor'] ) ) {
+			// We have Distributor on the other side
+			\Distributor\Subscriptions\create_subscription( $post_id, $remote_id, untrailingslashit( $this->base_url ), $signature );
+		}
+
 		return $remote_id;
 	}
 
@@ -329,12 +366,13 @@ class WordPressExternalConnection extends ExternalConnection {
 	public function check_connections() {
 		$output = array(
 			'errors'              => array(),
+			'warnings'            => array(),
 			'can_post'            => array(),
 			'can_get'             => array(),
 			'endpoint_suggestion' => false,
 		);
 
-		$response = wp_remote_get( untrailingslashit( $this->base_url ), $this->auth_handler->format_get_args( array( 'timeout' => 10, ) ) );
+		$response = wp_remote_get( untrailingslashit( $this->base_url ), $this->auth_handler->format_get_args( array( 'timeout' => 10 ) ) );
 		$body = wp_remote_retrieve_body( $response );
 
 		if ( is_wp_error( $response ) || is_wp_error( $body ) ) {
@@ -371,9 +409,13 @@ class WordPressExternalConnection extends ExternalConnection {
 			return $output;
 		}
 
+		if ( empty( $response_headers['X-Distributor'] ) ) {
+			$output['warnings']['no_distributor'] = 'no_distributor';
+		}
+
 		$routes = $data['routes'];
 
-		$types_response = wp_remote_get( untrailingslashit( $this->base_url ) . '/' . self::$namespace . '/types', $this->auth_handler->format_get_args( array( 'timeout' => 10, ) ) );
+		$types_response = wp_remote_get( untrailingslashit( $this->base_url ) . '/' . self::$namespace . '/types', $this->auth_handler->format_get_args( array( 'timeout' => 10 ) ) );
 		$types_body = wp_remote_retrieve_body( $types_response );
 
 		if ( is_wp_error( $types_response ) || is_wp_error( $types_body ) ) {
@@ -387,7 +429,13 @@ class WordPressExternalConnection extends ExternalConnection {
 				$can_get = array();
 				$can_post = array();
 
+				$blacklisted_types = [ 'dt_subscription' ];
+
 				foreach ( $types as $type_key => $type ) {
+
+					if ( in_array( $type_key, $blacklisted_types ) ) {
+						continue;
+					}
 
 					$link = $this->parse_type_items_link( $type );
 					if ( empty( $link ) ) {
@@ -398,7 +446,7 @@ class WordPressExternalConnection extends ExternalConnection {
 
 					if ( ! empty( $routes[ $route ] ) ) {
 						if ( in_array( 'GET',  $routes[ $route ]['methods'] ) ) {
-							$type_response = wp_remote_get( $link, $this->auth_handler->format_get_args( array( 'timeout' => 10, ) ) );
+							$type_response = wp_remote_get( $link, $this->auth_handler->format_get_args( array( 'timeout' => 10 ) ) );
 							if ( ! is_wp_error( $type_response ) ) {
 								$code = (int) wp_remote_retrieve_response_code( $type_response );
 
@@ -443,6 +491,7 @@ class WordPressExternalConnection extends ExternalConnection {
 		$obj->ID = $post['id'];
 		$obj->post_title = $post['title']['rendered'];
 		$obj->post_content = $post['content']['rendered'];
+		$obj->post_excerpt = $post['excerpt']['rendered'];
 		$obj->post_status = 'draft';
 		$obj->post_date = $post['date'];
 		$obj->post_date_gmt = $post['date_gmt'];
@@ -452,6 +501,9 @@ class WordPressExternalConnection extends ExternalConnection {
 		$obj->post_type = $post['type'];
 		$obj->link = $post['link'];
 		$obj->post_author = get_current_user_id();
+		$obj->meta = $post['distributor_meta'];
+		$obj->terms = $post['distributor_terms'];
+		$obj->media = $post['distributor_media'];
 
 		return apply_filters( 'dt_item_mapping', new \WP_Post( $obj ), $post, $this );
 	}

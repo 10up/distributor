@@ -7,20 +7,78 @@ namespace Distributor\SyndicatedPostUI;
  *
  * @since 0.8
  */
-add_action( 'plugins_loaded', function() {
-	add_action( 'edit_form_top', __NAMESPACE__ . '\syndicated_message', 9, 1 );
-	add_action( 'admin_enqueue_scripts', __NAMESPACE__  . '\admin_enqueue_scripts' );
-	add_action( 'admin_init', __NAMESPACE__  . '\unlink' );
-	add_action( 'admin_init', __NAMESPACE__  . '\link' );
-	add_action( 'post_submitbox_misc_actions', __NAMESPACE__ . '\syndication_date' );
-	add_filter( 'admin_body_class', __NAMESPACE__ . '\add_linked_class' );
-	add_filter( 'post_row_actions', __NAMESPACE__ . '\remove_quick_edit', 10, 2 );
-} );
+function setup() {
+	add_action( 'plugins_loaded', function() {
+		add_action( 'edit_form_top', __NAMESPACE__ . '\syndicated_message', 9, 1 );
+		add_action( 'admin_enqueue_scripts', __NAMESPACE__ . '\admin_enqueue_scripts' );
+		add_action( 'admin_init', __NAMESPACE__ . '\unlink' );
+		add_action( 'admin_init', __NAMESPACE__ . '\link' );
+		add_action( 'post_submitbox_misc_actions', __NAMESPACE__ . '\syndication_date' );
+		add_filter( 'admin_body_class', __NAMESPACE__ . '\add_linked_class' );
+		add_filter( 'post_row_actions', __NAMESPACE__ . '\remove_quick_edit', 10, 2 );
+		add_action( 'manage_posts_custom_column' , __NAMESPACE__ . '\output_distributor_column', 10, 2 );
+		add_filter( 'manage_posts_columns', __NAMESPACE__ . '\add_distributor_column' );
+	} );
+}
+
+/**
+ * Add Distributor column to post table to indicate a posts link status
+ *
+ * @since  1.0
+ * @param  array $columns
+ * @return array
+ */
+function add_distributor_column( $columns ) {
+	$post_type = get_post_type();
+
+	if ( ! in_array( $post_type, \Distributor\Utils\distributable_post_types() ) ) {
+		return $columns;
+	}
+
+	unset( $columns['date'] );
+	$columns['distributor'] = esc_html__( 'Distributor', 'distributor' );
+
+	$columns['date'] = __( 'Date' );
+
+	return $columns;
+}
+
+/**
+ * Output Distributor post table column. Tell users if a post is linked.
+ *
+ * @param  string $column_name
+ * @param  int    $post_id
+ * @since  1.0
+ */
+function output_distributor_column( $column_name, $post_id ) {
+	$post_type = get_post_type( $post_id );
+
+	if ( ! in_array( $post_type, \Distributor\Utils\distributable_post_types() ) ) {
+		return;
+	}
+
+	if ( 'distributor' === $column_name ) {
+		$original_blog_id = get_post_meta( $post_id, 'dt_original_blog_id', true );
+		$original_source_id = get_post_meta( $post_id, 'dt_original_source_id', true );
+
+		if ( ! empty( $original_blog_id ) || ! empty( $original_source_id ) ) {
+			$unlinked = (bool) get_post_meta( $post_id, 'dt_unlinked', true );
+
+			if ( $unlinked ) {
+				echo esc_html__( 'Unlinked', 'distributor' );
+			} else {
+				echo esc_html__( 'Linked', 'distributor' );
+			}
+		} else {
+			echo '—';
+		}
+	}
+}
 
 /**
  * Remove quick edit for linked posts
- * 
- * @param  array $actions
+ *
+ * @param  array   $actions
  * @param  WP_Post $post
  * @since  0.8
  * @return array
@@ -28,8 +86,9 @@ add_action( 'plugins_loaded', function() {
 function remove_quick_edit( $actions, $post ) {
 	$original_blog_id = get_post_meta( $post->ID, 'dt_original_blog_id', true );
 	$original_post_id = get_post_meta( $post->ID, 'dt_original_post_id', true );
+	$original_source_id = get_post_meta( $post->ID, 'dt_original_source_id', true );
 
-	if ( empty( $original_post_id ) || empty( $original_blog_id ) ) {
+	if ( empty( $original_post_id ) || ( empty( $original_blog_id ) && empty( $original_source_id ) ) ) {
 		return $actions;
 	}
 
@@ -46,7 +105,7 @@ function remove_quick_edit( $actions, $post ) {
 
 /**
  * Add linked class to body
- * 
+ *
  * @param  string $classes
  * @since  0.8
  * @return string
@@ -55,18 +114,19 @@ function add_linked_class( $classes ) {
 	global $post, $pagenow, $dt_original_post;
 
 	if ( 'post.php' !== $pagenow && 'post-new.php' !== $pagenow ) {
-    	return;
-    }
+		return;
+	}
 
-    if ( empty( $_GET['post'] ) ) {
-    	return $classes;
-    }
+	if ( empty( $_GET['post'] ) ) {
+		return $classes;
+	}
 
-    $original_blog_id = get_post_meta( $_GET['post'], 'dt_original_blog_id', true );
+	$original_blog_id = get_post_meta( $_GET['post'], 'dt_original_blog_id', true );
+	$original_source_id = get_post_meta( $_GET['post'], 'dt_original_source_id', true );
 	$original_post_id = get_post_meta( $_GET['post'], 'dt_original_post_id', true );
 	$syndicate_time = get_post_meta( $_GET['post'], 'dt_syndicate_time', true );
 
-	if ( empty( $original_post_id ) || empty( $original_blog_id ) ) {
+	if ( empty( $original_post_id ) || ( empty( $original_blog_id ) && empty( $original_source_id ) ) ) {
 		return $classes;
 	}
 
@@ -81,7 +141,7 @@ function add_linked_class( $classes ) {
 
 /**
  * Output syndicated on date
- * 
+ *
  * @param  WP_Post $post
  * @since  0.8
  */
@@ -108,60 +168,41 @@ function syndication_date( $post ) {
 }
 
 /**
- * Repush an already pushed post
- * 
+ * Resync an already pushed post
+ *
  * @param  int $post_id
  * @since  0.8
  */
-function repush( $post_id ) {
+function resync( $post_id ) {
 	$original_blog_id = get_post_meta( $post_id, 'dt_original_blog_id', true );
 	$original_post_id = get_post_meta( $post_id, 'dt_original_post_id', true );
+	$original_source_id = get_post_meta( $post_id, 'dt_original_source_id', true );
 
-	$current_blog = get_current_blog_id();
+	if ( ! empty( $original_blog_id ) ) {
+		$current_blog = get_current_blog_id();
 
-	switch_to_blog( $original_blog_id );
-
-	$connection = new \Distributor\InternalConnections\NetworkSiteConnection( get_site( $current_blog ) );
-	$connection->push( $original_post_id, [
-		'remote_post_id' => $post_id,
-	] );
-
-	restore_current_blog();
+		$connection = new \Distributor\InternalConnections\NetworkSiteConnection( get_site( $current_blog ) );
+		$connection->pull( [
+			[
+				'remote_post_id' => $original_post_id,
+				'post_id'        => $post_id,
+			],
+		] );
+	} else {
+		$connection = \Distributor\ExternalConnection::instantiate( $original_source_id );
+		$connection->pull( [
+			[
+				'remote_post_id' => $original_post_id,
+				'post_id'        => $post_id,
+			],
+		] );
+	}
 }
 
 /**
- * Simple function for sideloading media and returning the media id
- * 
- * @param  string $url
- * @param  int $post_id
- * @since  0.8
- * @return int|bool
- */
-function process_media( $url, $post_id ) {
-	preg_match( '/[^\?]+\.(jpe?g|jpe|gif|png)\b/i', $url, $matches );
-	if ( ! $matches ) {
-		return false;
-	}
-
-	$file_array = array();
-	$file_array['name'] = basename( $matches[0] );
-
-	// Download file to temp location.
-	$file_array['tmp_name'] = download_url( $url );
-
-	// If error storing temporarily, return the error.
-	if ( is_wp_error( $file_array['tmp_name'] ) ) {
-		return false;
-	}
-
-	// Do the validation and storage stuff.
-	return media_handle_sideload( $file_array, $post_id );
-}
-
-/**
- * Bring taxonomy terms over to cloned post. We only bring terms from taxonomies that exist on the 
+ * Bring taxonomy terms over to cloned post. We only bring terms from taxonomies that exist on the
  * syndicated post site.
- * 
+ *
  * @param  int $post_id
  * @since  0.8
  */
@@ -186,186 +227,47 @@ function clone_taxonomy_terms( $post_id ) {
 	restore_current_blog();
 
 	// Now let's add the taxonomy/terms to syndicated post
-
-	foreach ( $original_taxonomy_terms as $taxonomy => $terms ) {
-		// Continue if taxonomy doesnt exist
-		if ( ! taxonomy_exists( $taxonomy ) ) {
-			continue;
-		}
-
-		$term_ids = [];
-		$term_id_mapping = [];
-
-		foreach ( $terms as $term_object ) {
-			$term = get_term_by( 'slug', $term_object->slug, $taxonomy );
-
-			if ( empty( $term ) ) {
-				$term = wp_insert_term( $term_object->name, $taxonomy );
-
-				if ( ! is_wp_error( $term ) ) {
-					$term_id_mapping[ $term_object->term_id ] = $term['term_id'];
-					$term_ids[] = $term['term_id'];
-				}
-			} else {
-				$term_id_mapping[ $term_object->term_id ] = $term->term_id;
-				$term_ids[] = $term->term_id;
-			}
-		}
-
-		// Handle hierarchical terms if they exist
-        $update_term_hierachy = apply_filters( 'dt_update_term_hierarchy', true );
-
-		if( ! empty( $update_term_hierachy ) ) {
-            foreach ( $terms as $term_object ) {
-                if ( ! empty( $term_object->parent ) ) {
-                    wp_update_term( $term_id_mapping[ $term_object->term_id ], $taxonomy, [
-                        'parent' => $term_id_mapping[ $term_object->parent ],
-                    ] );
-                }
-            }
-        }
-
-		wp_set_object_terms( $post_id, $term_ids, $taxonomy );
-	}
+	\Distributor\Utils\set_taxonomy_terms( $post_id, $original_taxonomy_terms );
 }
 
 /**
  * Bring media files over to syndicated post. We sync all the images and update the featured image
- * to use the new one. We leave image urls in the post content intact as we can't guarentee the post 
+ * to use the new one. We leave image urls in the post content intact as we can't guarentee the post
  * image size in each inserted image exists.
- * 
+ *
  * @param  int $post_id
  * @since  0.8
  */
 function sync_media( $post_id ) {
 	$original_blog_id = get_post_meta( $post_id, 'dt_original_blog_id', true );
 	$original_post_id = get_post_meta( $post_id, 'dt_original_post_id', true );
-	$post = get_post( $post_id );
-
-	$current_media_posts = get_attached_media( 'image', $post_id );
-	$current_media = [];
-
-	// Create mapping so we don't create duplicates
-	foreach ( $current_media_posts as $media_post ) {
-		$original = get_post_meta( $media_post->ID, 'dt_original_media_url', true );
-		$current_media[ $original ] = $media_post->ID;
-	}
-
-	$current_blog = get_current_blog_id();
 
 	// Get media of original post
 	switch_to_blog( $original_blog_id );
 
-	$original_media_posts = apply_filters( 'dt_sync_media_assets', get_attached_media( 'image', $original_post_id ) );
-	$original_media = [];
+	$raw_media = get_attached_media( get_allowed_mime_types(), $post_id );
+	$media_array = array();
 
-	foreach ( $original_media_posts as $original_media_post ) {
-		$src = wp_get_attachment_image_src( $original_media_post->ID, 'full' );
+	$featured_image_id = get_post_thumbnail_id( $post_id );
+	$found_featured = false;
 
-		$meta = get_post_meta( $original_media_post->ID );
+	foreach ( $raw_media as $media_post ) {
+		$media_item = \Distributor\Utils\format_media_post( $media_post );
 
-		$original_media[] = [
-			'src'          => $src[0],
-			'meta'         => get_post_meta( $original_media_post->ID ),
-			'post_title'   => $original_media_post->post_title,
-			'post_content' => $original_media_post->post_content,
-			'post_excerpt' => $original_media_post->post_excerpt,
-		];
+		if ( $media_item['featured'] ) {
+			$found_featured = true;
+		}
+
+		$media_array[] = $media_item;
 	}
 
-	$featured_image = [];
-	$found_featured_image = false;
-
-	$thumb_id = get_post_meta( $original_post_id, '_thumbnail_id', true );
-
-	if ( ! empty( $thumb_id ) ) {
-	    $thumb = wp_get_attachment_image_src( $thumb_id, 'full' );
-
-	    if ( ! empty( $thumb ) ) {
-			$featured_image['src'] = $thumb[0];
-
-			$featured_image['meta'] = get_post_meta( $thumb_id );
-
-			$featured_image_post = get_post( $thumb_id );
-
-			$featured_image['post_title'] = $featured_image_post->post_title;
-			$featured_image['post_content'] = $featured_image_post->post_content;
-			$featured_image['post_excerpt'] = $featured_image_post->post_excerpt;
-		}
+	if ( ! empty( $featured_image_id ) && ! $found_featured ) {
+		$media_array[] = \Distributor\Utils\format_media_post( get_post( $featured_image_id ) );
 	}
 
 	restore_current_blog();
 
-	$blacklisted_meta = [ '_wp_attached_file' ];
-
-	foreach ( $original_media as $media ) {
-
-		// Delete duplicate if it exists (unless filter says otherwise)
-		if ( apply_filters( 'dt_sync_media_delete_and_replace', true, $post_id ) ) {
-			if ( ! empty( $current_media[ $media['src'] ] ) ) {
-				wp_delete_attachment( $current_media[ $media['src'] ], true );
-			}
-
-			$image_id = process_media( $media['src'], $post_id );
-		} else {
-			if ( ! empty( $current_media[ $media['src'] ] ) ) {
-				$image_id = $current_media[ $media['src'] ];
-			} else {
-				$image_id = process_media( $media['src'], $post_id );
-			}
-		}
-
-		update_post_meta( $image_id, 'dt_original_media_url', $media['src'] );
-
-		if ( ! empty( $featured_image['src'] ) && $featured_image['src'] === $media['src'] ) {
-			$found_featured_image = true;
-			update_post_meta( $post_id, '_thumbnail_id', $image_id );
-		}
-		
-		// Transfer all meta
-		foreach ( $media['meta'] as $meta_key => $meta_array ) {
-			foreach ( $meta_array as $meta ) {
-				if ( ! in_array( $meta_key, $blacklisted_meta ) ) {
-					$meta = maybe_unserialize( $meta );
-					update_post_meta( $image_id, $meta_key, $meta );
-				}
-			}
-		}
-
-		// Transfer post properties
-		wp_update_post( [
-			'ID'           => $image_id,
-			'post_title'   => $media['post_title'],
-			'post_content' => $media['post_content'],
-			'post_excerpt' => $media['post_excerpt'],
-		] );
-	}
-
-	if ( ! $found_featured_image && ! empty( $featured_image ) ) {
-		$image_id = process_media( $featured_image['src'], $post_id );
-
-		if ( ! empty( $image_id ) ) {
-			update_post_meta( $post_id, '_thumbnail_id', $image_id );
-			
-			// Transfer all meta
-			foreach ( $featured_image['meta'] as $meta_key => $meta_array ) {
-				foreach ( $meta_array as $meta ) {
-					if ( ! in_array( $meta_key, $blacklisted_meta ) ) {
-						$meta = maybe_unserialize( $meta );
-						update_post_meta( $image_id, $meta_key, $meta );
-					}
-				}
-			}
-
-			// Transfer post properties
-			wp_update_post( [
-				'ID'           => $image_id,
-				'post_title'   => $featured_image['post_title'],
-				'post_content' => $featured_image['post_content'],
-				'post_excerpt' => $featured_image['post_excerpt'],
-			] );
-		}
-	}
+	\Distributor\Utils\set_media( $post_id, $media_array );
 }
 
 /**
@@ -382,13 +284,24 @@ function unlink() {
 		return;
 	}
 
+	$original_source_id = get_post_meta( $_GET['post'], 'dt_original_source_id', true );
+
 	update_post_meta( $_GET['post'], 'dt_unlinked', true );
 
-	repush( $_GET['post'] );
+	/**
+	 * For external connections we don't need to do this because of subscriptions
+	 */
+	if ( empty( $original_source_id ) ) {
+		resync( $_GET['post'] );
 
-	sync_media( $_GET['post'] );
+		sync_media( $_GET['post'] );
 
-	clone_taxonomy_terms( $_GET['post'] );
+		clone_taxonomy_terms( $_GET['post'] );
+	}
+
+	/**
+	 * Todo: Do we delete subscriptions for external posts?
+	 */
 
 	do_action( 'dt_unlink_post' );
 
@@ -412,7 +325,41 @@ function link() {
 
 	update_post_meta( $_GET['post'], 'dt_unlinked', false );
 
-	repush( $_GET['post'] );
+	$original_source_id = get_post_meta( $_GET['post'], 'dt_original_source_id', true );
+
+	/**
+	 * For external connections we use a saved update since we might not have access to sync from original
+	 */
+	if ( empty( $original_source_id ) ) {
+		resync( $_GET['post'] );
+
+		sync_media( $_GET['post'] );
+
+		clone_taxonomy_terms( $_GET['post'] );
+	} else {
+		$update = get_post_meta( $_GET['post'], 'dt_subscription_update', true );
+
+		if ( ! empty( $update ) ) {
+			wp_update_post( [
+				'ID'           => $_GET['post'],
+				'post_title'   => $update['post_title'],
+				'post_content' => $update['post_content'],
+				'post_excerpt' => $update['post_excerpt'],
+			] );
+
+			if ( null !== $update['meta'] ) {
+				\Distributor\Utils\set_meta( $_GET['post'], $update['meta'] );
+			}
+
+			if ( null !== $update['terms'] ) {
+				\Distributor\Utils\set_taxonomy_terms( $_GET['post'], $update['terms'] );
+			}
+
+			if ( null !== $update['media'] ) {
+				\Distributor\Utils\set_media( $_GET['post'], $update['media'] );
+			}
+		}
+	}
 
 	do_action( 'dt_link_post' );
 
@@ -430,34 +377,40 @@ function syndicated_message( $post ) {
 
 	$original_blog_id = get_post_meta( $post->ID, 'dt_original_blog_id', true );
 	$original_post_id = get_post_meta( $post->ID, 'dt_original_post_id', true );
+	$original_source_id = get_post_meta( $post->ID, 'dt_original_source_id', true );
 
-	if ( empty( $original_post_id ) || empty( $original_blog_id ) ) {
+	if ( empty( $original_post_id ) || ( empty( $original_blog_id ) && empty( $original_source_id ) ) ) {
 		return;
 	}
 
 	$unlinked = (bool) get_post_meta( $post->ID, 'dt_unlinked', true );
 
-	switch_to_blog( $original_blog_id );
-	$post_url = get_permalink( $original_post_id );
-	$blog_name = get_bloginfo( 'name' );
-	restore_current_blog();
-
-	if ( empty( $blog_name ) ) {
-		$blog_name = sprintf( esc_html__( 'Blog #%d', 'distributor' ), $original_blog_id );
-	}
-
 	$post_type_object = get_post_type_object( $post->post_type );
+
+	if ( ! empty( $original_blog_id ) ) {
+		switch_to_blog( $original_blog_id );
+		$post_url = get_permalink( $original_post_id );
+		$original_location_name = get_bloginfo( 'name' );
+		restore_current_blog();
+
+		if ( empty( $blog_name ) ) {
+			$blog_name = sprintf( esc_html__( 'Blog #%d', 'distributor' ), $original_blog_id );
+		}
+	} else {
+		$post_url = get_post_meta( $post->ID, 'dt_original_post_url', true );
+		$original_location_name = get_the_title( $original_source_id );
+	}
 
 	?>
 	<div class="updated syndicate-status">
 		<?php if ( ! $unlinked ) : ?>
 			<p>
-				<?php echo sprintf( __( 'Syndicated from <a href="%s">%s</a>.', 'distributor' ), esc_url( $post_url ), esc_html( $blog_name ) ); ?> 
+				<?php echo sprintf( __( 'Syndicated from <a href="%1$s">%1$s</a>.', 'distributor' ), esc_url( $post_url ), esc_html( $original_location_name ) ); ?>
 				<span><?php echo sprintf( __( 'The original post will update this version unless you <a href="%s">unlink from the original.</a>', 'distributor' ), wp_nonce_url( add_query_arg( 'action', 'unlink', admin_url( sprintf( $post_type_object->_edit_link, $post->ID ) ) ), "unlink-post_{$post->ID}" ) ); ?></span>
 			</p>
 		<?php else : ?>
 			<p>
-				<?php echo sprintf( __( 'Originally syndicated from <a href="%s">%s</a>.', 'distributor' ), esc_url( $post_url ), esc_html( $blog_name ) ); ?> 
+				<?php echo sprintf( __( 'Originally syndicated from <a href="%1$s">%1$s</a>.', 'distributor' ), esc_url( $post_url ), esc_html( $original_location_name ) ); ?>
 				<span><?php echo sprintf( __( "This post has been forked from it's original. However, you can always <a href='%s'>restore it.</a>", 'distributor' ), wp_nonce_url( add_query_arg( 'action', 'link', admin_url( sprintf( $post_type_object->_edit_link, $post->ID ) ) ), "link-post_{$post->ID}" ) ); ?></span>
 			</p>
 		<?php endif; ?>
@@ -480,8 +433,9 @@ function admin_enqueue_scripts( $hook ) {
 
 	$original_blog_id = get_post_meta( $post->ID, 'dt_original_blog_id', true );
 	$original_post_id = get_post_meta( $post->ID, 'dt_original_post_id', true );
+	$original_source_id = get_post_meta( $post->ID, 'dt_original_source_id', true );
 
-	if ( empty( $original_post_id ) || empty( $original_blog_id ) ) {
+	if ( empty( $original_post_id ) || ( empty( $original_blog_id ) && empty( $original_source_id ) ) ) {
 		return;
 	}
 

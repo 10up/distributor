@@ -134,6 +134,11 @@
 	color: #ff0000;
 }
 
+.external-connection-verification .warnings li:before {
+	content: "\f534";
+	color: #ffef00;
+}
+
 .external-connection-verification .successes li:before {
 	content: "\f147";
 	color: #00e803;
@@ -152,20 +157,4 @@
 		color: #f00;
 		text-decoration: none;
 	}
-}
-
-.post-type-dt_ext_connection h1:before {
-	background-color: #0073aa;
-	border-radius: 6px;
-	color: #fff;
-	display: inline-block;
-	font-family: Arial, sans-serif;
-	font-size: 13px;
-	line-height: 13px;
-	padding: 5px 10px;
-	text-transform: uppercase;
-	margin-right: 8px;
-	vertical-align: middle;
-	margin-bottom: 2px;
-	content: 'beta';
 }

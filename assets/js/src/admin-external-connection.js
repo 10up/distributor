@@ -82,6 +82,7 @@
 
 				externalConnectionVerificationWrapper.innerHTML = verificationTemplate({
 					errors: ['no_external_connection'],
+					warnings: [],
 					can_post: [],
 					can_get: []
 				});
@@ -100,6 +101,7 @@
 
 				externalConnectionVerificationWrapper.innerHTML = verificationTemplate({
 					errors: response.data.errors,
+					warnings: response.data.warnings,
 					can_post: response.data.can_post,
 					can_get: response.data.can_get
 				});

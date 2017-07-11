@@ -72,7 +72,8 @@ module.exports = function (grunt) {
 					mainFile: 'distributor.php',
 					potFilename: 'distributor.pot',
 					type: 'wp-plugin',
-					potHeaders: true
+					potHeaders: true,
+					exclude: ['vendor', 'node_modules', 'tests']
 				}
 			}
 		},

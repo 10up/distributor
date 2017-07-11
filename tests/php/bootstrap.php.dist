@@ -5,9 +5,11 @@
  */
 
 require_once __DIR__ . '/../../vendor/autoload.php';
-require_once __DIR__ . '/includes/common.php';
-require_once __DIR__ . '/includes/TestCase.php';
 
 WP_Mock::setUsePatchwork( true );
-WP_Mock::setUsePatchwork( true );
 WP_Mock::bootstrap();
+
+require_once __DIR__ . '/includes/common.php';
+require_once( __DIR__ . '/../../includes/utils.php' );
+require_once( __DIR__ . '/../../includes/subscriptions.php' );
+require_once __DIR__ . '/includes/TestCase.php';

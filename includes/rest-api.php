@@ -1,0 +1,123 @@
+<?php
+
+namespace Distributor\RestApi;
+
+/**
+ * Setup actions and filters
+ *
+ * @since 1.0
+ */
+function setup() {
+	add_action( 'plugins_loaded', function() {
+		add_action( 'rest_api_init', __NAMESPACE__ . '\register_endpoints' );
+
+		$post_types = get_post_types( array(
+			'show_in_rest' => true,
+		) );
+
+		foreach ( $post_types as $post_type ) {
+			add_action( "rest_insert_{$post_type}", __NAMESPACE__ . '\process_distributor_attributes', 10, 3 );
+		}
+	} );
+}
+
+/**
+ * When an API push is being received, handle Distributor specific attributes
+ * 
+ * @param WP_Post $post
+ * @param WP_REST_Request $request
+ * @param bool $update
+ * @since 1.0
+ */
+function process_distributor_attributes( $post, $request, $update ) {
+	if ( empty( $post ) || is_wp_error( $post ) ) {
+		return;
+	}
+
+	if ( ! empty( $request['distributor_remote_post_id'] ) ) {
+		update_post_meta( $post->ID, 'dt_original_post_id', (int) $request['distributor_remote_post_id'] );
+	}
+
+	if ( ! empty( $request['distributor_original_source_id'] ) ) {
+		update_post_meta( $post->ID, 'dt_original_source_id', (int) $request['distributor_original_source_id'] );
+	}
+
+	if ( ! empty( $request['distributor_original_post_url'] ) ) {
+		update_post_meta( $post->ID, 'dt_original_post_url', esc_url_raw( $request['distributor_original_post_url'] ) );
+	}
+
+	if ( ! empty( $request['distributor_signature'] ) ) {
+		update_post_meta( $post->ID, 'dt_subscription_signature', sanitize_text_field( $request['distributor_signature'] ) );
+	}
+
+	update_post_meta( $post->ID, 'dt_syndicate_time', time() );
+
+	if ( isset( $request['distributor_meta'] ) ) {
+		\Distributor\Utils\set_meta( $post->ID, $request['distributor_meta'] );
+	}
+
+	if ( isset( $request['distributor_terms'] ) ) {
+		\Distributor\Utils\set_taxonomy_terms( $post->ID, $request['distributor_terms'] );
+	}
+
+	if ( isset( $request['distributor_media'] ) ) {
+		\Distributor\Utils\set_media( $post->ID, $request['distributor_media'] );
+	}
+}
+
+/**
+ * We need to register distributor post fields for getting all the meta, terms, and media. This
+ * is easier than modifying existing fields which other plugins may depend on.
+ *
+ * @since 1.0
+ */
+function register_endpoints() {
+	$post_types = get_post_types( array(
+		'show_in_rest' => true,
+	) );
+
+	register_rest_field( $post_types, 'distributor_meta', array(
+		'get_callback' => function( $post_array ) {
+			if ( ! current_user_can( 'edit_post', $post_array['id'] ) ) {
+				return false;
+			}
+
+			return \Distributor\Utils\prepare_meta( $post_array['id'] );
+		},
+		'update_callback' => function( $value, $post ) { },
+		'schema' => array(
+			'description' => __( 'Post meta for Distributor.' ),
+			'type'        => 'object',
+		),
+	) );
+
+	register_rest_field( $post_types, 'distributor_terms', array(
+		'get_callback' => function( $post_array ) {
+			if ( ! current_user_can( 'edit_post', $post_array['id'] ) ) {
+				return false;
+			}
+
+			return \Distributor\Utils\prepare_taxonomy_terms( $post_array['id'] );
+		},
+		'update_callback' => function( $value, $post ) { },
+		'schema' => array(
+			'description' => __( 'Taxonomy terms for Distributor.' ),
+			'type'        => 'object',
+		),
+	) );
+
+	register_rest_field( $post_types, 'distributor_media', array(
+		'get_callback' => function( $post_array ) {
+			if ( ! current_user_can( 'edit_post', $post_array['id'] ) ) {
+				return false;
+			}
+			
+			return \Distributor\Utils\prepare_media( $post_array['id'] );
+		},
+		'update_callback' => function( $value, $post ) { },
+		'schema' => array(
+			'description' => __( 'Media for Distributor.' ),
+			'type'        => 'object',
+		),
+	) );
+}

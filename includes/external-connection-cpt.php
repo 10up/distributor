@@ -7,29 +7,31 @@ namespace Distributor\ExternalConnectionCPT;
  *
  * @since 0.8
  */
-add_action( 'plugins_loaded', function() {
-	add_action( 'init', __NAMESPACE__ . '\setup_cpt' );
-	add_filter( 'enter_title_here', __NAMESPACE__ . '\filter_enter_title_here', 10, 2 );
-	add_filter( 'post_updated_messages', __NAMESPACE__ . '\filter_post_updated_messages' );
-	add_action( 'save_post', __NAMESPACE__  . '\save_post' );
-	add_action( 'admin_enqueue_scripts', __NAMESPACE__  . '\admin_enqueue_scripts' );
-	add_action( 'wp_ajax_dt_verify_external_connection', __NAMESPACE__  . '\ajax_verify_external_connection' );
-	add_action( 'wp_ajax_dt_verify_external_connection_endpoint', __NAMESPACE__  . '\ajax_verify_external_connection_endpoint' );
-	add_action( 'admin_footer', __NAMESPACE__  . '\js_templates' );
-	add_filter( 'manage_dt_ext_connection_posts_columns', __NAMESPACE__  . '\filter_columns' );
-	add_action( 'manage_dt_ext_connection_posts_custom_column', __NAMESPACE__  . '\action_custom_columns', 10, 2 );
-	add_action( 'admin_menu', __NAMESPACE__  . '\add_menu_item' );
-	add_action( 'admin_menu', __NAMESPACE__  . '\add_submenu_item', 11 );
-	add_action( 'load-toplevel_page_distributor', __NAMESPACE__ . '\setup_list_table' );
-	add_filter( 'set-screen-option', __NAMESPACE__ . '\set_screen_option', 10, 3 );
-} );
+function setup() {
+	add_action( 'plugins_loaded', function() {
+		add_action( 'init', __NAMESPACE__ . '\setup_cpt' );
+		add_filter( 'enter_title_here', __NAMESPACE__ . '\filter_enter_title_here', 10, 2 );
+		add_filter( 'post_updated_messages', __NAMESPACE__ . '\filter_post_updated_messages' );
+		add_action( 'save_post', __NAMESPACE__ . '\save_post' );
+		add_action( 'admin_enqueue_scripts', __NAMESPACE__ . '\admin_enqueue_scripts' );
+		add_action( 'wp_ajax_dt_verify_external_connection', __NAMESPACE__ . '\ajax_verify_external_connection' );
+		add_action( 'wp_ajax_dt_verify_external_connection_endpoint', __NAMESPACE__ . '\ajax_verify_external_connection_endpoint' );
+		add_action( 'admin_footer', __NAMESPACE__ . '\js_templates' );
+		add_filter( 'manage_dt_ext_connection_posts_columns', __NAMESPACE__ . '\filter_columns' );
+		add_action( 'manage_dt_ext_connection_posts_custom_column', __NAMESPACE__ . '\action_custom_columns', 10, 2 );
+		add_action( 'admin_menu', __NAMESPACE__ . '\add_menu_item' );
+		add_action( 'admin_menu', __NAMESPACE__ . '\add_submenu_item', 11 );
+		add_action( 'load-toplevel_page_distributor', __NAMESPACE__ . '\setup_list_table' );
+		add_filter( 'set-screen-option', __NAMESPACE__ . '\set_screen_option', 10, 3 );
+	} );
+}
 
 /**
  * Set screen option for posts per page
- * 
+ *
  * @param  string $status
  * @param  string $option
- * @param  mixed $value
+ * @param  mixed  $value
  * @since  0.8
  * @return mixed
  */
@@ -184,6 +186,7 @@ function admin_enqueue_scripts( $hook ) {
 	    	'no_connection_check' => esc_html__( 'No external connection has been checked.', 'distributor' ),
 	    	'change' => esc_html__( 'Change', 'distributor' ),
 	    	'cancel' => esc_html__( 'Cancel', 'distributor' ),
+	    	'no_distributor' => esc_html__( 'Distributor not installed. Pushing and pulling functionality will be limited.', 'distributor' ),
 	    ) );
 
 		wp_dequeue_script( 'autosave' );
@@ -319,6 +322,7 @@ function meta_box_external_connection( $post ) {
 
 	$lang = array(
 		'no_external_connection' => esc_html__( "Can't connect to API.", 'distributor' ),
+		'no_distributor'         => esc_html__( 'Distributor not installed. Pushing and pulling functionality will be limited.', 'distributor' ),
 		'can_post'               => esc_html__( 'Can push:', 'distributor' ),
 		'can_get'                => esc_html__( 'Can pull:', 'distributor' ),
 		'no_types'               => esc_html__( "No content types found to pull or push. This probably means the WordPress API is available but V2 of the JSON REST API hasn't been installed to provide any routes", 'distributor' ),
@@ -340,6 +344,12 @@ function meta_box_external_connection( $post ) {
 						<li><?php esc_html_e( 'Can not push any content types.', 'distributor' ); ?></li>
 					<?php endif; ?>
 				<?php endif; ?>
+			</ul>
+
+			<ul class="warnings">
+				<?php foreach ( $external_connections['warnings'] as $warning ) : ?>
+					<li><?php echo esc_html( $lang[ $warning ] ); ?></li>
+				<?php endforeach; ?>
 			</ul>
 
 			<ul class="successes">
@@ -413,7 +423,8 @@ function meta_box_external_connection_details( $post ) {
 		</p>
 	<?php endif; ?>
 
-	<?php foreach ( $registered_external_connection_types as $external_connection_class ) : $auth_handler_class_again = $external_connection_class::$auth_handler_class; if ( ! $auth_handler_class_again::$requires_credentials ) { continue; } ?>
+	<?php foreach ( $registered_external_connection_types as $external_connection_class ) : $auth_handler_class_again = $external_connection_class::$auth_handler_class;
+		if ( ! $auth_handler_class_again::$requires_credentials ) { continue; } ?>
 		<div class="auth-credentials <?php echo esc_attr( $auth_handler_class_again::$slug ); ?>">
 			<?php $auth_handler_class_again::credentials_form( $auth ); ?>
 		</div>
@@ -488,11 +499,7 @@ function dashboard() {
 	?>
 
 	<div class="wrap">
-		<h1><span class="beta"><?php esc_html_e( 'beta', 'distributor' ); ?></span> <?php esc_html_e( 'External Connections', 'distributor' ); ?> <a href="<?php echo esc_url( admin_url( 'post-new.php?post_type=dt_ext_connection' ) ); ?>" class="page-title-action"><?php esc_html_e( 'Add New', 'distributor' ); ?></a></h1>
-		<div class="network-connections-notice">
-			<strong><?php esc_html_e( "This feature is in beta. We can't push or pull meta data or images from external websites.", 'distributor' ); ?></strong>
-		</div>
-
+		<h1><?php esc_html_e( 'External Connections', 'distributor' ); ?> <a href="<?php echo esc_url( admin_url( 'post-new.php?post_type=dt_ext_connection' ) ); ?>" class="page-title-action"><?php esc_html_e( 'Add New', 'distributor' ); ?></a></h1>
 
 		<?php $connection_list_table->views(); ?>
 
@@ -537,11 +544,11 @@ function add_menu_item() {
 		'Distributor',
 		apply_filters( 'dt_capabilities', 'manage_options' ),
 		'distributor',
-		__NAMESPACE__  . '\dashboard',
+		__NAMESPACE__ . '\dashboard',
 		'dashicons-share-alt2'
 	);
 
-	add_action( "load-$hook", __NAMESPACE__  . '\screen_option' );
+	add_action( "load-$hook", __NAMESPACE__ . '\screen_option' );
 }
 
 /**
@@ -552,7 +559,7 @@ function add_menu_item() {
 function add_submenu_item() {
 	global $submenu;
 	unset( $submenu['distributor'][0] );
-	add_submenu_page( 'distributor', esc_html__( 'External Connections', 'distributor' ), '<span class="beta">' . esc_html__( 'beta', 'distributor' ) . '</span>' . esc_html__( 'External Connections', 'distributor' ), apply_filters( 'dt_external_capabilities', 'manage_options' ), 'distributor' );
+	add_submenu_page( 'distributor', esc_html__( 'External Connections', 'distributor' ), esc_html__( 'External Connections', 'distributor' ), apply_filters( 'dt_external_capabilities', 'manage_options' ), 'distributor' );
 }
 
 /**
@@ -646,6 +653,12 @@ function js_templates() {
 						<li><?php esc_html_e( 'Can not push any content types.', 'distributor' ); ?></li>
 					<# } #>
 				<# } #>
+			</ul>
+
+			<ul class="warnings">
+				<# _.each(warnings, function(warning) {  #>
+					<li>{{ sy[warning] }}</li>
+				<# }); #>
 			</ul>
 
 			<ul class="successes">

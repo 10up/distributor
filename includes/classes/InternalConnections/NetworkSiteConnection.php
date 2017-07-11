@@ -62,17 +62,7 @@ class NetworkSiteConnection extends Connection {
 			update_post_meta( $new_post, 'dt_original_blog_id', (int) $original_blog_id );
 			update_post_meta( $new_post, 'dt_syndicate_time', time() );
 
-			$blacklisted_meta = [ 'dt_unlinked', 'dt_original_post_id', 'dt_original_blog_id', 'dt_syndicate_time' ];
-
-			// Transfer all meta
-			foreach ( $meta as $meta_key => $meta_array ) {
-				foreach ( $meta_array as $meta ) {
-					if ( ! in_array( $meta_key, $blacklisted_meta ) ) {
-						$meta = maybe_unserialize( $meta );
-						update_post_meta( $new_post, $meta_key, $meta );
-					}
-				}
-			}
+			\Distributor\Utils\set_meta( $new_post, $meta );
 		}
 
 		do_action( 'dt_push_post', $new_post, $post_id, $args, $this );
@@ -83,7 +73,8 @@ class NetworkSiteConnection extends Connection {
 	}
 
 	/**
-	 * Pull items
+	 * Pull items. Pass array of posts, each post should look like:
+	 * [ 'remote_post_id' => POST ID TO GET, 'post_id' (optional) => POST ID TO MAP TO ]
 	 *
 	 * @param  array $items
 	 * @since  0.8
@@ -94,8 +85,8 @@ class NetworkSiteConnection extends Connection {
 
 		$created_posts = array();
 
-		foreach ( $items as $item_id ) {
-			$post = $this->remote_get( [ 'id' => $item_id ] );
+		foreach ( $items as $item_array ) {
+			$post = $this->remote_get( [ 'id' => $item_array['remote_post_id'] ] );
 
 			if ( is_wp_error( $post ) ) {
 				$created_posts[] = $post;
@@ -121,34 +112,29 @@ class NetworkSiteConnection extends Connection {
 				$post_array[ $key ] = $value;
 			}
 
-			unset( $post_array['ID'] );
+			if ( ! empty( $item_array['post_id'] ) ) {
+				$post_array['ID'] = $item_array['post_id'];
+			} else {
+				unset( $post_array['ID'] );
+			}
 
 			add_filter( 'wp_insert_post_data', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'maybe_set_modified_date' ), 10, 2 );
 
-			$new_post = wp_insert_post( apply_filters( 'dt_pull_post_args', $post_array, $item_id, $post, $this ) );
+			$new_post = wp_insert_post( apply_filters( 'dt_pull_post_args', $post_array, $item_array['remote_post_id'], $post, $this ) );
 
 			remove_filter( 'wp_insert_post_data', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'maybe_set_modified_date' ), 10, 2 );
 
 			if ( ! is_wp_error( $new_post ) ) {
-				update_post_meta( $new_post, 'dt_original_post_id', (int) $item_id );
+				update_post_meta( $new_post, 'dt_original_post_id', (int) $item_array['remote_post_id'] );
 				update_post_meta( $new_post, 'dt_original_blog_id', (int) $this->site->blog_id );
 				update_post_meta( $new_post, 'dt_syndicate_time', time() );
-				$blacklisted_meta = [ 'dt_unlinked', 'dt_original_post_id', 'dt_original_blog_id', 'dt_syndicate_time' ];
 
-				// Transfer meta
-				foreach ( $post->meta as $meta_key => $meta_array ) {
-					foreach ( $meta_array as $meta ) {
-						if ( ! in_array( $meta_key, $blacklisted_meta ) ) {
-							$meta = maybe_unserialize( $meta );
-							update_post_meta( $new_post, $meta_key, $meta );
-						}
-					}
-				}
+				\Distributor\Utils\set_meta( $new_post, $post->meta );
 			}
 
 			switch_to_blog( $this->site->blog_id );
 
-			$connection_map = get_post_meta( $item_id, 'dt_connection_map', true );
+			$connection_map = get_post_meta( $item_array['remote_post_id'], 'dt_connection_map', true );
 
 			if ( empty( $connection_map ) ) {
 				$connection_map = [
@@ -166,7 +152,7 @@ class NetworkSiteConnection extends Connection {
 				'time'    => time(),
 			];
 
-			update_post_meta( $item_id, 'dt_connection_map', $connection_map );
+			update_post_meta( $item_array['remote_post_id'], 'dt_connection_map', $connection_map );
 
 			restore_current_blog();
 
@@ -196,7 +182,7 @@ class NetworkSiteConnection extends Connection {
 			}
 		}
 
-		update_site_option( 'dt_sync_log_' .  $this->site->blog_id, $sync_log );
+		update_site_option( 'dt_sync_log_' . $this->site->blog_id, $sync_log );
 
 		do_action( 'dt_log_sync', $item_id_mappings,  $sync_log, $this );
 	}
@@ -216,7 +202,7 @@ class NetworkSiteConnection extends Connection {
 
 		if ( empty( $id ) ) {
 			$query_args['post_type'] = ( empty( $args['post_type'] ) ) ? 'post' : $args['post_type'];
-			$query_args['post_status'] = ( empty( $args['post_status'] ) ) ? 'any' : $args['post_status'];
+			$query_args['post_status'] = ( empty( $args['post_status'] ) ) ? [ 'publish', 'draft', 'private', 'pending', 'future' ] : $args['post_status'];
 			$query_args['posts_per_page'] = ( empty( $args['posts_per_page'] ) ) ? get_option( 'posts_per_page' ) : $args['posts_per_page'];
 			$query_args['paged'] = ( empty( $args['paged'] ) ) ? 1 : $args['paged'];
 
@@ -234,11 +220,11 @@ class NetworkSiteConnection extends Connection {
 				$query_args['post__not_in'] = $args['post__not_in'];
 			}
 
-			if( isset( $args['meta_query'] ) ) {
+			if ( isset( $args['meta_query'] ) ) {
 				$query_args['meta_query'] = $args['meta_query'];
 			}
 
-			if( isset( $args['s'] ) ) {
+			if ( isset( $args['s'] ) ) {
 				$query_args['s'] = $args['s'];
 			}
 
@@ -324,8 +310,8 @@ class NetworkSiteConnection extends Connection {
 	 * Make sure delete link works for correct post
 	 *
 	 * @param  string $url
-	 * @param  int $id
-	 * @param  bool $force_delete
+	 * @param  int    $id
+	 * @param  bool   $force_delete
 	 * @since  0.8
 	 * @return string
 	 */
@@ -381,7 +367,7 @@ class NetworkSiteConnection extends Connection {
 		global $dt_original_post;
 
 		if ( ! empty( $dt_original_post ) && ! empty( $dt_original_post->permalink ) ) {
-			return sprintf( __( '<strong>Permalink:</strong> <a href="%s">%s</a>', 'distributor' ), esc_url( $dt_original_post->permalink ), esc_url( $dt_original_post->permalink ) );
+			return sprintf( __( '<strong>Permalink:</strong> <a href="%1$s">%1$s</a>', 'distributor' ), esc_url( $dt_original_post->permalink ), esc_url( $dt_original_post->permalink ) );
 		}
 
 		return $permalink_html;
@@ -550,6 +536,7 @@ class NetworkSiteConnection extends Connection {
 
 	/**
 	 * [term_link description]
+	 *
 	 * @param  string $termlink
 	 * @param  object $term
 	 * @param  string $taxonomy
@@ -614,7 +601,7 @@ class NetworkSiteConnection extends Connection {
 	 * Return canonical post thumbnail URL
 	 *
 	 * @param  string $html
-	 * @param  int $id
+	 * @param  int    $id
 	 * @since  0.8
 	 * @return string
 	 */

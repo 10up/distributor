@@ -10,8 +10,7 @@ Distributor is a WordPress plugin allowing you to syndicate content to and from 
 ## Requirements
 
 * PHP 5.6+
-* [WordPress](http://wordpress.org) 4.6+
-* [WP REST API 2.0 beta 12](http://v2.wp-api.org/) (if pushing to external websites)
+* [WordPress](http://wordpress.org) 4.7+
 
 ## Testing
 

@@ -65,9 +65,9 @@ class PullListTable extends \WP_List_Table {
 		$current_status = ( empty( $_GET['status'] ) ) ? 'new' : $_GET['status'];
 
 		$status_links = [
-			'new' => sprintf( __( '<a href="%s" class="%s">New</a>', 'distributor' ), esc_url( $_SERVER['REQUEST_URI'] . '&status=new' ), ( 'new' === $current_status ) ? 'current' : '' ),
-			'pulled' => sprintf( __( '<a href="%s" class="%s">Pulled</a>', 'distributor' ), esc_url( $_SERVER['REQUEST_URI'] . '&status=pulled' ), ( 'pulled' === $current_status ) ? 'current' : '' ),
-			'skipped' => sprintf( __( '<a href="%s" class="%s">Skipped</a>', 'distributor' ), esc_url( $_SERVER['REQUEST_URI'] . '&status=skipped' ), ( 'skipped' === $current_status ) ? 'current' : '' ),
+			'new' => sprintf( __( '<a href="%1$s" class="%2$s">New</a>', 'distributor' ), esc_url( $_SERVER['REQUEST_URI'] . '&status=new' ), ( 'new' === $current_status ) ? 'current' : '' ),
+			'pulled' => sprintf( __( '<a href="%1$s" class="%2$s">Pulled</a>', 'distributor' ), esc_url( $_SERVER['REQUEST_URI'] . '&status=pulled' ), ( 'pulled' === $current_status ) ? 'current' : '' ),
+			'skipped' => sprintf( __( '<a href="%1$s" class="%2$s">Skipped</a>', 'distributor' ), esc_url( $_SERVER['REQUEST_URI'] . '&status=skipped' ), ( 'skipped' === $current_status ) ? 'current' : '' ),
 		];
 
 		return $status_links;
@@ -104,12 +104,13 @@ class PullListTable extends \WP_List_Table {
 			$two = '2';
 		}
 
-		if ( empty( $this->_actions ) )
+		if ( empty( $this->_actions ) ) {
 			return;
+		}
 
 		echo '<label for="bulk-action-selector-' . esc_attr( $which ) . '" class="screen-reader-text">' . __( 'Select bulk action' ) . '</label>';
 		echo '<select name="action' . $two . '" id="bulk-action-selector-' . esc_attr( $which ) . "\">\n";
-		
+
 		foreach ( $this->_actions as $name => $title ) {
 			$class = 'edit' === $name ? ' class="hide-if-no-js"' : '';
 
@@ -138,7 +139,7 @@ class PullListTable extends \WP_List_Table {
 		if ( ! empty( $_GET['status'] ) && 'pulled' === $_GET['status'] ) {
 			if ( ! empty( $this->sync_log[ $post->ID ] ) ) {
 				$syndicated_at = get_post_meta( $this->sync_log[ $post->ID ], 'dt_syndicate_time', true );
-				
+
 				if ( empty( $syndicated_at ) ) {
 					esc_html_e( 'Post deleted.', 'distributor' );
 				} else {
@@ -172,7 +173,6 @@ class PullListTable extends \WP_List_Table {
 					$h_time = mysql2date( __( 'Y/m/d' ), $m_time );
 				}
 			}
-
 
 			if ( 'publish' === $post->post_status ) {
 				_e( 'Published' );
@@ -331,7 +331,16 @@ class PullListTable extends \WP_List_Table {
 		$remote_get_args = [
 			'posts_per_page' => $per_page,
 			'paged'          => $current_page,
+			'post_type'      => \Distributor\Utils\distributable_post_types(),
 		];
+
+		/**
+		 * Todo: Support pulling more than one post type from external connections. This is hard since
+		 * each endpoint can only return one post type.
+		 */
+		if ( is_a( $connection_now, '\Distributor\ExternalConnection' ) ) {
+			$remote_get_args['post_type'] = 'post';
+		}
 
 		if ( ! empty( $_GET['s'] ) ) {
 			$remote_get_args['s'] = $_GET['s'];
@@ -364,8 +373,8 @@ class PullListTable extends \WP_List_Table {
 			$remote_get_args['meta_query'] = [
 				[
 					'key'     => 'dt_connection_map',
-					'compare' => 'NOT EXISTS'
-				]
+					'compare' => 'NOT EXISTS',
+				],
 			];
 		} elseif ( 'skipped' === $_GET['status'] ) {
 			$remote_get_args['post__in'] = $skipped;
@@ -426,12 +435,12 @@ class PullListTable extends \WP_List_Table {
 		return $actions;
 	}
 
-    /**
-     * Adds a hook after the bulk actions dropdown above and below the list table
-     * 
-     * @param string $which
-     */
+	/**
+	 * Adds a hook after the bulk actions dropdown above and below the list table
+	 *
+	 * @param string $which
+	 */
 	public function extra_tablenav( $which ) {
 	    do_action( 'dt_pull_filters' );
-    }
+	}
 }
