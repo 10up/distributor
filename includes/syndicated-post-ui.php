@@ -65,9 +65,9 @@ function output_distributor_column( $column_name, $post_id ) {
 			$unlinked = (bool) get_post_meta( $post_id, 'dt_unlinked', true );
 
 			if ( $unlinked ) {
-				echo esc_html__( 'Unlinked', 'distributor' );
+				echo '<span class="dashicons dashicons-editor-unlink"></span>';
 			} else {
-				echo esc_html__( 'Linked', 'distributor' );
+				echo '<span class="dashicons dashicons-admin-links"></span>';
 			}
 		} else {
 			echo '—';
