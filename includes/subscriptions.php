@@ -164,7 +164,26 @@ function delete_subscriptions( $post_id ) {
 		// This case happens if a post is deleted that is being subscribed to
 
 		foreach ( $subscriptions as $subscription_id ) {
+			$signature = get_post_meta( $subscription_id, 'dt_subscription_signature', true );
+			$remote_post_id = get_post_meta( $subscription_id, 'dt_subscription_remote_post_id', true );
+			$target_url = get_post_meta( $subscription_id, 'dt_subscription_target_url', true );
+
 			wp_delete_post( $subscription_id, true );
+
+			if ( empty( $signature ) || empty( $remote_post_id ) || empty( $target_url ) ) {
+				continue;
+			}
+
+			// We need to ensure any remote post is unlinked to this post
+			$request = wp_remote_post( untrailingslashit( $target_url ) . '/wp/v2/dt_subscription/receive', [
+				'timeout'  => 10,
+				'blocking' => false,
+				'body'     => [
+					'post_id'   => $remote_post_id,
+					'signature' => $signature,
+					'unlink'    => true,
+				],
+			] );
 		}
 	}
 }
@@ -188,7 +207,9 @@ function send_notifications( $post_id ) {
 
 	$post = get_post( $post_id );
 
-	foreach ( $subscriptions as $subscription_id ) {
+	$update_subscriptions = false;
+
+	foreach ( $subscriptions as $subscription_key => $subscription_id ) {
 		$signature = get_post_meta( $subscription_id, 'dt_subscription_signature', true );
 		$remote_post_id = get_post_meta( $subscription_id, 'dt_subscription_remote_post_id', true );
 		$target_url = get_post_meta( $subscription_id, 'dt_subscription_target_url', true );
@@ -199,7 +220,6 @@ function send_notifications( $post_id ) {
 
 		$request = wp_remote_post( untrailingslashit( $target_url ) . '/wp/v2/dt_subscription/receive', [
 			'timeout'  => 10,
-			'blocking' => false,
 			'body'     => [
 				'post_id' => $remote_post_id,
 				'signature' => $signature,
@@ -213,6 +233,26 @@ function send_notifications( $post_id ) {
 				],
 			],
 		] );
+
+		if ( ! is_wp_error( $request ) ) {
+			$response_code = wp_remote_retrieve_response_code( $request );
+			$headers = wp_remote_retrieve_headers( $request );
+
+			if ( 404 === $response_code && ! empty( $headers['X-Distributor-Post-Deleted'] ) ) {
+				/**
+				 * Post on receiving end has been deleted.
+				 */
+				unset( $subscriptions[ $subscription_key ] );
+
+				$update_subscriptions = true;
+
+				wp_delete_post( $subscription_id, true );
+			}
+		}
+	}
+
+	if ( $update_subscriptions ) {
+		update_post_meta( $post_id, 'dt_subscriptions', $subscriptions );
 	}
 }
 

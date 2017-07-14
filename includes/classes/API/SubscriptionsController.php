@@ -135,18 +135,13 @@ class SubscriptionsController extends \WP_REST_Controller {
 	 * @return WP_REST_Response|\WP_Error Response object on success, or \WP_Error object on failure.
 	 */
 	public function receive_item( $request ) {
-		$error = new \WP_Error( 'rest_post_invalid_id', esc_html__( 'Invalid post ID.', 'distributor' ), array( 'status' => 404 ) );
 		if ( (int) $request['post_id'] <= 0 ) {
 			return $error;
 		}
 
 		$post = get_post( (int) $request['post_id'] );
 		if ( empty( $post ) ) {
-			return $error;
-		}
-
-		if ( empty( $request['post_data'] ) ) {
-			return new \WP_Error( 'rest_post_no_data', esc_html__( 'No post data for update.', 'distributor' ), array( 'status' => 400 ) );
+			return new \WP_REST_Response( null, 404, [ 'X-Distributor-Post-Deleted' => 'yes' ] );
 		}
 
 		$original_post_id = get_post_meta( $request['post_id'], 'dt_original_post_id', true );
@@ -155,54 +150,68 @@ class SubscriptionsController extends \WP_REST_Controller {
 			return new \WP_Error( 'rest_post_not_distributed', esc_html__( 'Post not distributed.', 'distributor' ), array( 'status' => 400 ) );
 		}
 
-		/**
-		 * We save the update in meta in case the post is unlinked. If the post is re-linked, we'll
-		 * apply the update
-		 */
-		$update = [
-			'post_title'   => sanitize_text_field( $request['post_data']['title'] ),
-			'post_content' => wp_kses_post( $request['post_data']['content'] ),
-			'post_excerpt' => wp_kses_post( $request['post_data']['excerpt'] ),
-			// Todo: how do we properly sanitize this?
-			'meta'         => ( isset( $request['post_data']['distributor_meta'] ) ) ? $request['post_data']['distributor_meta'] : null,
-			'terms'        => ( isset( $request['post_data']['distributor_terms'] ) ) ? $request['post_data']['distributor_terms'] : null,
-			'media'        => ( isset( $request['post_data']['distributor_media'] ) ) ? $request['post_data']['distributor_media'] : null,
-		];
+		// This endpoint updates post data and unlinks posts
+		if ( isset( $request['unlink'] ) ) {
+			update_post_meta( $request['post_id'], 'dt_unlinked', (bool) $request['unlink'] );
 
-		update_post_meta( (int) $request['post_id'], 'dt_subscription_update', $update );
-
-		$unlinked = (bool) get_post_meta( $request['post_id'], 'dt_unlinked', true );
-
-		if ( ! empty( $unlinked ) ) {
 			$response = new \WP_REST_Response();
-			$response->set_data( array( 'updated' => false ) );
+			$response->set_data( array( 'updated' => true ) );
+
+			return $response;
+		} else {
+			if ( empty( $request['post_data'] ) ) {
+				return new \WP_Error( 'rest_post_no_data', esc_html__( 'No post data for update.', 'distributor' ), array( 'status' => 400 ) );
+			}
+
+			/**
+			 * We save the update in meta in case the post is unlinked. If the post is re-linked, we'll
+			 * apply the update
+			 */
+			$update = [
+				'post_title'   => sanitize_text_field( $request['post_data']['title'] ),
+				'post_content' => wp_kses_post( $request['post_data']['content'] ),
+				'post_excerpt' => wp_kses_post( $request['post_data']['excerpt'] ),
+				// Todo: how do we properly sanitize this?
+				'meta'         => ( isset( $request['post_data']['distributor_meta'] ) ) ? $request['post_data']['distributor_meta'] : null,
+				'terms'        => ( isset( $request['post_data']['distributor_terms'] ) ) ? $request['post_data']['distributor_terms'] : null,
+				'media'        => ( isset( $request['post_data']['distributor_media'] ) ) ? $request['post_data']['distributor_media'] : null,
+			];
+
+			update_post_meta( (int) $request['post_id'], 'dt_subscription_update', $update );
+
+			$unlinked = (bool) get_post_meta( $request['post_id'], 'dt_unlinked', true );
+
+			if ( ! empty( $unlinked ) ) {
+				$response = new \WP_REST_Response();
+				$response->set_data( array( 'updated' => false ) );
+
+				return $response;
+			}
+
+			wp_update_post( [
+				'ID'           => $request['post_id'],
+				'post_title'   => $request['post_data']['title'],
+				'post_content' => $request['post_data']['content'],
+				'post_excerpt' => $request['post_data']['excerpt'],
+			] );
+
+			if ( isset( $request['post_data']['distributor_meta'] ) ) {
+				\Distributor\Utils\set_meta( $request['post_id'], $request['post_data']['distributor_meta'] );
+			}
+
+			if ( isset( $request['post_data']['distributor_terms'] ) ) {
+				\Distributor\Utils\set_taxonomy_terms( $request['post_id'], $request['post_data']['distributor_terms'] );
+			}
+
+			if ( isset( $request['post_data']['distributor_media'] ) ) {
+				\Distributor\Utils\set_media( $request['post_id'], $request['post_data']['distributor_media'] );
+			}
+
+			$response = new \WP_REST_Response();
+			$response->set_data( array( 'updated' => true ) );
 
 			return $response;
 		}
-
-		wp_update_post( [
-			'ID'           => $request['post_id'],
-			'post_title'   => $request['post_data']['title'],
-			'post_content' => $request['post_data']['content'],
-			'post_excerpt' => $request['post_data']['excerpt'],
-		] );
-
-		if ( isset( $request['post_data']['distributor_meta'] ) ) {
-			\Distributor\Utils\set_meta( $request['post_id'], $request['post_data']['distributor_meta'] );
-		}
-
-		if ( isset( $request['post_data']['distributor_terms'] ) ) {
-			\Distributor\Utils\set_taxonomy_terms( $request['post_id'], $request['post_data']['distributor_terms'] );
-		}
-
-		if ( isset( $request['post_data']['distributor_media'] ) ) {
-			\Distributor\Utils\set_media( $request['post_id'], $request['post_data']['distributor_media'] );
-		}
-
-		$response = new \WP_REST_Response();
-		$response->set_data( array( 'updated' => true ) );
-
-		return $response;
 	}
 
 	/**
