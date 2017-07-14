@@ -18,3 +18,7 @@ The plugin contains a standard test suite compatible with PHPUnit. If you want t
 
 ## Plugin Usage and Extensive Documentation
 This lives in the [internal docs site](https://internal.10up.com/docs/distributor-plugin) for now.
+
+## Debugging
+
+You can define a constant `DISTRIBUTOR_DEBUG` to `true` to increase the ease of debugging in Distributor. This will make all remote requests blocking and expose the subscription post type.

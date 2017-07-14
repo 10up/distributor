@@ -91,7 +91,11 @@ function create_remote_subscription( \Distributor\ExternalConnection $connection
 
 	wp_remote_post(
 		$url,
-		$connection->auth_handler->format_post_args( array( 'timeout' => 10, 'blocking' => false, 'body' => $post_body ) )
+		$connection->auth_handler->format_post_args( array(
+			'timeout'  => 10,
+			'blocking' => \Distributor\Utils\is_dt_debug(),
+			'body'     => $post_body
+		) )
 	);
 }
 
@@ -110,9 +114,14 @@ function delete_remote_subscription( \Distributor\ExternalConnection $connection
 		'signature' => $signature,
 	];
 
-	$test = wp_remote_request(
+	wp_remote_request(
 		untrailingslashit( $connection->base_url ) . '/' . $connection::$namespace . '/dt_subscription/delete',
-		array( 'timeout' => 10, 'method' => 'DELETE', 'blocking' => true, 'body' => $post_body )
+		array(
+			'timeout'  => 10,
+			'method'   => 'DELETE',
+			'blocking' => \Distributor\Utils\is_dt_debug(),
+			'body'     => $post_body
+		)
 	);
 
 	delete_post_meta( $post_id, 'dt_subscription_signature' );
@@ -177,7 +186,7 @@ function delete_subscriptions( $post_id ) {
 			// We need to ensure any remote post is unlinked to this post
 			$request = wp_remote_post( untrailingslashit( $target_url ) . '/wp/v2/dt_subscription/receive', [
 				'timeout'  => 10,
-				'blocking' => false,
+				'blocking' => \Distributor\Utils\is_dt_debug(),
 				'body'     => [
 					'post_id'   => $remote_post_id,
 					'signature' => $signature,
@@ -264,12 +273,12 @@ function send_notifications( $post_id ) {
 function register_cpt() {
 	$args = array(
 		'label'                 => esc_html__( 'Distributor Subscription', 'distributor' ),
-		'public'                => true,
+		'public'                => \Distributor\Utils\is_dt_debug(),
 		'query_var'             => false,
 		'rewrite'               => false,
 		'capability_type'       => 'post',
 		'hierarchical'          => false,
-		'supports'              => [ 'custom-fields' ],
+		'supports'              => ( \Distributor\Utils\is_dt_debug() ) ? [ 'custom-fields' ] : [],
 		'has_archive'           => false,
 		'show_in_rest'          => true,
 		'rest_controller_class' => 'Distributor\\API\\SubscriptionsController',

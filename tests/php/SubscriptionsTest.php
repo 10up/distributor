@@ -200,10 +200,10 @@ class SubscriptionsTest extends \TestCase {
 		\WP_Mock::userFunction( 'wp_remote_post', [
 			'times'  => 1,
 			'args'   => [
-				$target_url . '/wp/v2/dt_subscription/receive', 
+				$target_url . '/wp/v2/dt_subscription/receive',
 				[
 					'timeout'  => 10,
-					'blocking' => false,
+					'blocking' => \Distributor\Utils\is_dt_debug(),
 					'body'     => [
 						'post_id' => $remote_post_id,
 						'signature' => $signature,
@@ -242,7 +242,7 @@ class SubscriptionsTest extends \TestCase {
 
 		\WP_Mock::userFunction( 'wp_insert_post', [
 			'times'  => 1,
-			'return' => $subscription_post_id, 
+			'return' => $subscription_post_id,
 		] );
 
 		\WP_Mock::userFunction( 'update_post_meta', [
@@ -333,10 +333,10 @@ class SubscriptionsTest extends \TestCase {
 		\WP_Mock::userFunction( 'wp_remote_post', [
 			'times'  => 1,
 			'args'   => [
-				\WP_Mock\Functions::type( 'string' ), 
+				\WP_Mock\Functions::type( 'string' ),
 				[
 					'timeout'  => 10,
-					'blocking' => false,
+					'blocking' => \Distributor\Utils\is_dt_debug(),
 					'body'     => [
 						'post_id' => $remote_post_id,
 						'remote_post_id' => $post_id,

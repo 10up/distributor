@@ -3,6 +3,16 @@
 namespace Distributor\Utils;
 
 /**
+ * Determine if plugin is in debug mode or not
+ *
+ * @since  1.0
+ * @return boolean
+ */
+function is_dt_debug() {
+	return ( defined( 'DISTRIBUTOR_DEBUG' ) && DISTRIBUTOR_DEBUG );
+}
+
+/**
  * Given an array of meta, set meta to another post. Don't copy in blackisted (Distributor) meta.
  *
  * @param int   $post_id
