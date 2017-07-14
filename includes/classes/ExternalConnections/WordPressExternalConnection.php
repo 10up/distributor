@@ -332,7 +332,6 @@ class WordPressExternalConnection extends ExternalConnection {
 			return $response;
 		}
 
-
 		$body = wp_remote_retrieve_body( $response );
 
 		if ( is_wp_error( $body ) ) {

@@ -23,10 +23,10 @@ function setup() {
 
 /**
  * When an API push is being received, handle Distributor specific attributes
- * 
- * @param WP_Post $post
+ *
+ * @param WP_Post         $post
  * @param WP_REST_Request $request
- * @param bool $update
+ * @param bool            $update
  * @since 1.0
  */
 function process_distributor_attributes( $post, $request, $update ) {
@@ -111,7 +111,7 @@ function register_endpoints() {
 			if ( ! current_user_can( 'edit_post', $post_array['id'] ) ) {
 				return false;
 			}
-			
+
 			return \Distributor\Utils\prepare_media( $post_array['id'] );
 		},
 		'update_callback' => function( $value, $post ) { },

@@ -82,7 +82,7 @@ function prepare_meta( $post_id ) {
  * @return array
  */
 function prepare_media( $post_id ) {
-	$raw_media = get_attached_media( get_allowed_mime_types(), $post_id  );
+	$raw_media = get_attached_media( get_allowed_mime_types(), $post_id );
 	$media_array = array();
 
 	$featured_image_id = get_post_thumbnail_id( $post_id );

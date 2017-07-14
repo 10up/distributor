@@ -79,7 +79,6 @@ class SubscriptionsTest extends \TestCase {
 		] );
 
 		// Called when external connection is instantiated
-
 		\WP_Mock::userFunction( 'get_post_meta', [
 			'times'  => 3,
 		] );
@@ -89,7 +88,6 @@ class SubscriptionsTest extends \TestCase {
 		] );
 
 		// External connection comes back WP_Error and delete_subscription isn't actually called on connection
-
 		Subscriptions\delete_subscriptions( 1 );
 
 	}
@@ -216,8 +214,8 @@ class SubscriptionsTest extends \TestCase {
 							'distributor_meta'  => [],
 						],
 					],
-				]
-			]
+				],
+			],
 		] );
 
 		Subscriptions\send_notifications( $post_id );
@@ -247,22 +245,22 @@ class SubscriptionsTest extends \TestCase {
 
 		\WP_Mock::userFunction( 'update_post_meta', [
 			'times'  => 1,
-			'args'   => [ $subscription_post_id, 'dt_subscription_post_id', $post_id ]
+			'args'   => [ $subscription_post_id, 'dt_subscription_post_id', $post_id ],
 		] );
 
 		\WP_Mock::userFunction( 'update_post_meta', [
 			'times'  => 1,
-			'args'   => [ $subscription_post_id, 'dt_subscription_signature', $signature ]
+			'args'   => [ $subscription_post_id, 'dt_subscription_signature', $signature ],
 		] );
 
 		\WP_Mock::userFunction( 'update_post_meta', [
 			'times'  => 1,
-			'args'   => [ $subscription_post_id, 'dt_subscription_remote_post_id', $remote_post_id ]
+			'args'   => [ $subscription_post_id, 'dt_subscription_remote_post_id', $remote_post_id ],
 		] );
 
 		\WP_Mock::userFunction( 'update_post_meta', [
 			'times'  => 1,
-			'args'   => [ $subscription_post_id, 'dt_subscription_target_url', $target_url ]
+			'args'   => [ $subscription_post_id, 'dt_subscription_target_url', $target_url ],
 		] );
 
 		\WP_Mock::userFunction( 'get_post_meta', [
@@ -273,10 +271,14 @@ class SubscriptionsTest extends \TestCase {
 
 		\WP_Mock::userFunction( 'update_post_meta', [
 			'times'  => 1,
-			'args'   => [ $post_id, 'dt_subscriptions', [
+			'args'   => [
+			$post_id,
+			'dt_subscriptions',
+			[
 				'sig' => 5,
 				md5( $signature ) => $subscription_post_id,
-			] ]
+			],
+			],
 		] );
 
 		Subscriptions\create_subscription( $post_id, $remote_post_id, $target_url, $signature );
@@ -341,10 +343,10 @@ class SubscriptionsTest extends \TestCase {
 						'post_id' => $remote_post_id,
 						'remote_post_id' => $post_id,
 						'signature' => $signature,
-						'target_url' => home_url() . '/wp-json'
+						'target_url' => home_url() . '/wp-json',
 					],
-				]
-			]
+				],
+			],
 		] );
 
 		Subscriptions\create_remote_subscription( $connection, $remote_post_id, $post_id );

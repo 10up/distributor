@@ -90,7 +90,7 @@ class WordPressExternalConnectionTest extends \TestCase {
 		] );
 
 		\WP_Mock::userFunction( 'wp_generate_password', [
-			'return' => '12345'
+			'return' => '12345',
 		] );
 
 		\WP_Mock::userFunction( 'wp_remote_get', [

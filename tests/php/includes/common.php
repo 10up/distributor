@@ -177,7 +177,7 @@ function remote_get_setup() {
 			'id'               => 123,
 			'title'            => [ 'rendered' => 'My post title' ],
 			'content'          => [ 'rendered' => '' ],
-			'excerpt'          => [ 'rendered' => '', ],
+			'excerpt'          => [ 'rendered' => '' ],
 			'date'             => '',
 			'date_gmt'         => '',
 			'guid'             => [ 'rendered' => '' ],

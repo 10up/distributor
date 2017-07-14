@@ -18,8 +18,8 @@ function setup() {
 /**
  * Create a subscription locally for a post.
  *
- * @param  int $post_id
- * @param  int $remote_post_id
+ * @param  int    $post_id
+ * @param  int    $remote_post_id
  * @param  string $target_url
  * @param  string $signature
  * @since  1.0
@@ -70,8 +70,8 @@ function generate_signature() {
  * post's site
  *
  * @param ExternalConnection $connection
- * @param int $remote_post_id
- * @param int $post_id
+ * @param int                $remote_post_id
+ * @param int                $post_id
  * @since 1.0
  */
 function create_remote_subscription( \Distributor\ExternalConnection $connection, $remote_post_id, $post_id ) {
@@ -94,7 +94,7 @@ function create_remote_subscription( \Distributor\ExternalConnection $connection
 		$connection->auth_handler->format_post_args( array(
 			'timeout'  => 10,
 			'blocking' => \Distributor\Utils\is_dt_debug(),
-			'body'     => $post_body
+			'body'     => $post_body,
 		) )
 	);
 }
@@ -120,7 +120,7 @@ function delete_remote_subscription( \Distributor\ExternalConnection $connection
 			'timeout'  => 10,
 			'method'   => 'DELETE',
 			'blocking' => \Distributor\Utils\is_dt_debug(),
-			'body'     => $post_body
+			'body'     => $post_body,
 		)
 	);
 
@@ -130,7 +130,7 @@ function delete_remote_subscription( \Distributor\ExternalConnection $connection
 /**
  * Delete a local subscription for a post given a signature
  *
- * @param int $post_id
+ * @param int    $post_id
  * @param string $signature
  * @since 1.0
  */
@@ -163,7 +163,6 @@ function delete_subscriptions( $post_id ) {
 
 	if ( ! empty( $original_source_id ) && ! empty( $original_post_id ) ) {
 		// This case happens if a post is deleted that is subscribing to a remote post
-
 		$connection = \Distributor\ExternalConnection::instantiate( $original_source_id );
 
 		if ( ! is_wp_error( $connection ) ) {
@@ -171,7 +170,6 @@ function delete_subscriptions( $post_id ) {
 		}
 	} elseif ( ! empty( $subscriptions ) ) {
 		// This case happens if a post is deleted that is being subscribed to
-
 		foreach ( $subscriptions as $subscription_id ) {
 			$signature = get_post_meta( $subscription_id, 'dt_subscription_signature', true );
 			$remote_post_id = get_post_meta( $subscription_id, 'dt_subscription_remote_post_id', true );

@@ -133,7 +133,7 @@ class UtilsTest extends \TestCase {
 					'name'    => $name,
 					'term_id' => $term_id,
 					'parent'  => 0,
-				]
+				],
 			],
 		] );
 	}
@@ -189,7 +189,7 @@ class UtilsTest extends \TestCase {
 					'name'    => $name,
 					'term_id' => $term_id,
 					'parent'  => 0,
-				]
+				],
 			],
 		] );
 	}
@@ -225,7 +225,7 @@ class UtilsTest extends \TestCase {
 					'name'    => $name,
 					'term_id' => $term_id,
 					'parent'  => 0,
-				]
+				],
 			],
 		] );
 	}
