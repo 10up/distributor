@@ -530,4 +530,35 @@ class SubscriptionsTest extends \TestCase {
 
 		Subscriptions\create_remote_subscription( $connection, $remote_post_id, $post_id );
 	}
+
+	/**
+	 * Test a local subscription given a signature
+	 *
+	 * @since  1.0
+	 * @group Subscriptions
+	 * @runInSeparateProcess
+	 */
+	public function test_delete_subscription_local() {
+		$post_id = 1;
+		$subscription_id = 9;
+		$signature = 'signature';
+
+		\WP_Mock::userFunction( 'get_post_meta', array(
+			'times' => 1,
+		    'args' => array( $post_id, 'dt_subscriptions', true ),
+		    'return' => [ md5( $signature ) => $subscription_id ],
+		) );
+
+		\WP_Mock::userFunction( 'wp_delete_post', array(
+			'times' => 1,
+		    'args' => array( $subscription_id, true ),
+		) );
+
+		\WP_Mock::userFunction( 'update_post_meta', array(
+		    'times' => 1,
+		    'args' => array( $post_id, 'dt_subscriptions', [] ),
+		) );
+
+		Subscriptions\delete_subscription( $post_id, $signature );
+	}
 }
