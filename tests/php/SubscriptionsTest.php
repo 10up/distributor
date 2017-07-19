@@ -44,6 +44,47 @@ class SubscriptionsTest extends \TestCase {
 			'args'   => [ 10, true ],
 		] );
 
+		\WP_Mock::passthruFunction( 'untrailingslashit' );
+
+		$subscription_post_id = 9;
+		$remote_post_id = 100;
+		$target_url = 'http://target';
+		$signature = 'signature';
+
+		\WP_Mock::userFunction( 'get_post_meta', [
+			'times'  => 2,
+			'args'   => [ \WP_Mock\Functions::type( 'int' ), 'dt_subscription_signature', true ],
+			'return' => $signature,
+		] );
+
+		\WP_Mock::userFunction( 'get_post_meta', [
+			'times'  => 2,
+			'args'   => [ \WP_Mock\Functions::type( 'int' ), 'dt_subscription_remote_post_id', true ],
+			'return' => $remote_post_id,
+		] );
+
+		\WP_Mock::userFunction( 'get_post_meta', [
+			'times'  => 2,
+			'args'   => [ \WP_Mock\Functions::type( 'int' ), 'dt_subscription_target_url', true ],
+			'return' => $target_url,
+		] );
+
+		\WP_Mock::userFunction( 'wp_remote_post', [
+			'times'  => 2,
+			'args'   => [
+				$target_url . '/wp/v2/dt_subscription/receive',
+				[
+					'timeout'  => 10,
+					'blocking' => \Distributor\Utils\is_dt_debug(),
+					'body'     => [
+						'post_id'   => $remote_post_id,
+						'signature' => $signature,
+						'unlink'    => true,
+					],
+				],
+			],
+		] );
+
 		Subscriptions\delete_subscriptions( 1 );
 
 	}
@@ -118,13 +159,13 @@ class SubscriptionsTest extends \TestCase {
 	}
 
 	/**
-	 * Test send notifications
+	 * Test send notifications when the remote post does not exist, should delete local subscription
 	 *
 	 * @since  1.0
 	 * @group Subscriptions
 	 * @runInSeparateProcess
 	 */
-	public function test_send_notifications() {
+	public function test_send_notifications_no_remote_post() {
 		$post_id = 1;
 		$subscription_post_id = 2;
 		$remote_post_id = 9;
@@ -201,7 +242,6 @@ class SubscriptionsTest extends \TestCase {
 				$target_url . '/wp/v2/dt_subscription/receive',
 				[
 					'timeout'  => 10,
-					'blocking' => \Distributor\Utils\is_dt_debug(),
 					'body'     => [
 						'post_id' => $remote_post_id,
 						'signature' => $signature,
@@ -216,6 +256,145 @@ class SubscriptionsTest extends \TestCase {
 					],
 				],
 			],
+		] );
+
+		\WP_Mock::userFunction( 'wp_remote_retrieve_response_code', [
+			'return' => 404,
+		] );
+
+		\WP_Mock::userFunction( 'wp_remote_retrieve_headers', [
+			'return' => [
+				'X-Distributor-Post-Deleted' => true,
+			],
+		] );
+
+		\WP_Mock::userFunction( 'wp_delete_post', [
+			'times' => 1,
+			'args' => [ $subscription_post_id, true ]
+		] );
+
+		\WP_Mock::userFunction( 'update_post_meta', [
+			'times'  => 1,
+			'args'   => [ $post_id, 'dt_subscriptions', [] ],
+		] );
+
+		Subscriptions\send_notifications( $post_id );
+	}
+
+	/**
+	 * Test send notifications when the remote post does exist, should NOT delete local subscription
+	 *
+	 * @since  1.0
+	 * @group Subscriptions
+	 * @runInSeparateProcess
+	 */
+	public function test_send_notifications_remote_post_exists() {
+		$post_id = 1;
+		$subscription_post_id = 2;
+		$remote_post_id = 9;
+		$target_url = 'http://target';
+		$signature = 'signature';
+
+		\WP_Mock::userFunction( 'current_user_can', [
+			'return' => true,
+		] );
+
+		\WP_Mock::userFunction( 'wp_is_post_revision', [
+			'return' => false,
+		] );
+
+		\WP_Mock::userFunction( 'get_post_meta', [
+			'times'  => 1,
+			'args'   => [ $post_id, 'dt_subscriptions', true ],
+			'return' => [ $subscription_post_id ],
+		] );
+
+		\WP_Mock::userFunction( 'get_post_meta', [
+			'times'  => 1,
+			'args'   => [ $subscription_post_id, 'dt_subscription_signature', true ],
+			'return' => $signature,
+		] );
+
+		\WP_Mock::userFunction( 'get_post_meta', [
+			'times'  => 1,
+			'args'   => [ $subscription_post_id, 'dt_subscription_remote_post_id', true ],
+			'return' => $remote_post_id,
+		] );
+
+		\WP_Mock::userFunction( 'get_post_meta', [
+			'times'  => 1,
+			'args'   => [ $subscription_post_id, 'dt_subscription_target_url', true ],
+			'return' => $target_url,
+		] );
+
+		\WP_Mock::passthruFunction( 'untrailingslashit' );
+
+		\WP_Mock::userFunction( 'get_the_title', [
+			'return' => 'title',
+		] );
+
+		/**
+		 * We will test the util prepare functions later
+		 */
+		\WP_Mock::userFunction( '\Distributor\Utils\prepare_media', [
+			'return' => [],
+		] );
+
+		\WP_Mock::userFunction( '\Distributor\Utils\prepare_taxonomy_terms', [
+			'return' => [],
+		] );
+
+		\WP_Mock::userFunction( '\Distributor\Utils\prepare_meta', [
+			'return' => [],
+		] );
+
+		\WP_Mock::userFunction( 'get_post', [
+			'args'   => [ $post_id ],
+			'return' => function() {
+				$post = new \stdClass();
+				$post->post_content = 'content';
+				$post->post_excerpt = 'excerpt';
+
+				return $post;
+			},
+		] );
+
+		\WP_Mock::userFunction( 'wp_remote_post', [
+			'times'  => 1,
+			'args'   => [
+				$target_url . '/wp/v2/dt_subscription/receive',
+				[
+					'timeout'  => 10,
+					'body'     => [
+						'post_id' => $remote_post_id,
+						'signature' => $signature,
+						'post_data' => [
+							'title'             => 'title',
+							'content'           => 'content',
+							'excerpt'           => 'excerpt',
+							'distributor_media' => [],
+							'distributor_terms' => [],
+							'distributor_meta'  => [],
+						],
+					],
+				],
+			],
+		] );
+
+		\WP_Mock::userFunction( 'wp_remote_retrieve_response_code', [
+			'return' => 200,
+		] );
+
+		\WP_Mock::userFunction( 'wp_remote_retrieve_headers', [
+			'return' => [],
+		] );
+
+		\WP_Mock::userFunction( 'wp_delete_post', [
+			'times' => 0,
+		] );
+
+		\WP_Mock::userFunction( 'update_post_meta', [
+			'times'  => 0,
 		] );
 
 		Subscriptions\send_notifications( $post_id );
