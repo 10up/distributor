@@ -221,6 +221,23 @@ function home_url() {
 }
 
 /**
+ * Return mime types for testing
+ *
+ * @since  1.0
+ * @return string
+ */
+function get_allowed_mime_types() {
+	return [
+		'jpg|jpeg|jpe' => 'image/jpeg',
+		'gif'          => 'image/gif',
+		'png'          => 'image/png',
+		'bmp'          => 'image/bmp',
+		'tif|tiff'     => 'image/tiff',
+		'ico'          => 'image/x-icon',
+	];
+}
+
+/**
  * Classes for testing connections
  */
 class TestExternalConnection extends \Distributor\ExternalConnection {
