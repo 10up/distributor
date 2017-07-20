@@ -235,13 +235,13 @@ class UtilsTest extends \TestCase {
 	 */
 
 	/**
-	 * Test format media
+	 * Test format media with no feature
 	 *
 	 * @since 1.0
 	 * @group Utils
 	 * @runInSeparateProcess
 	 */
-	public function test_format_media() {
+	public function test_format_media_not_featured() {
 		$media_post = new \stdClass();
 		$media_post->ID = 1;
 		$media_post->post_parent = 10;
@@ -287,6 +287,67 @@ class UtilsTest extends \TestCase {
 		] );
 
 		$formatted_media = Utils\format_media_post( $media_post );
+
+		$this->assertFalse( $formatted_media['featured'] );
+
+		return $formatted_media;
+	}
+
+	/**
+	 * Test format media with feature
+	 *
+	 * @since 1.0
+	 * @group Utils
+	 * @runInSeparateProcess
+	 */
+	public function test_format_media_featured() {
+		$media_post = new \stdClass();
+		$media_post->ID = 1;
+		$media_post->post_parent = 10;
+		$media_post->post_title = 'title';
+		$media_post->post_content = 'content';
+		$media_post->post_excerpt = 'excerpt';
+		$media_post->post_mime_type = 'image/png';
+
+		\WP_Mock::userFunction( 'get_post_thumbnail_id', [
+			'times'  => 1,
+			'args'   => [ $media_post->post_parent ],
+			'return' => $media_post->ID,
+		] );
+
+		\WP_Mock::userFunction( 'get_post_meta', [
+			'times'  => 1,
+			'args'   => [ $media_post->ID, '_wp_attachment_image_alt', true ],
+			'return' => 'alt',
+		] );
+
+		\WP_Mock::userFunction( 'wp_attachment_is_image', [
+			'times'  => 1,
+			'args'   => [ $media_post->ID ],
+			'return' => true,
+		] );
+
+		\WP_Mock::userFunction( 'wp_get_attachment_metadata', [
+			'times'  => 1,
+			'args'   => [ $media_post->ID ],
+			'return' => [ 'test' => 1 ],
+		] );
+
+		\WP_Mock::userFunction( 'wp_get_attachment_url', [
+			'times'  => 1,
+			'args'   => [ $media_post->ID ],
+			'return' => 'http://mediaitem.com',
+		] );
+
+		\WP_Mock::userFunction( 'get_post_meta', [
+			'times'  => 1,
+			'args'   => [ $media_post->ID ],
+			'return' => [ 'meta1' => true, 'meta2' => false ],
+		] );
+
+		$formatted_media = Utils\format_media_post( $media_post );
+
+		$this->assertTrue( $formatted_media['featured'] );
 
 		return $formatted_media;
 	}
