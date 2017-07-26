@@ -99,6 +99,30 @@ class NetworkSiteConnectionsTest extends \TestCase {
     }
 
     /**
+     * Test failure of wp insert post
+     * @since 0.8
+     */
+    public function test_push_is_wp_error(){
+
+    	\WP_Mock::userFunction( 'get_post', [
+            'return' => (object) [
+                'post_content' => '',
+                'post_excerpt' => '',
+                'post_type' => '',
+            ]
+        ] );
+
+        \WP_Mock::userFunction( 'wp_insert_post', [
+        	'return' => new \WP_Error('','')
+        ] );
+
+        $this->connection_obj->site->blog_id = 2;
+
+        $this->assertEquals( $this->connection_obj->push( 1 ), new \WP_Error( '', '' ) );
+
+    }
+
+    /**
      * Pull returns an array of Post IDs on success. This test simulates sending an
      * array containing three IDs (integers) will receive an array containing
      * three integers.

@@ -9,6 +9,12 @@ class WordPressExternalConnectionTest extends \TestCase {
 		$this->auth       = new WordPressBasicAuth( array() );
 		$this->connection = new WordPressExternalConnection( 'name', 'url', 1, $this->auth );
 
+		\WP_Mock::userFunction( 'untrailingslashit' );
+
+		\WP_Mock::userFunction( 'get_post_type', [
+			'return' => 'foo'
+		] );
+
 	}
 
 	/**
@@ -40,22 +46,85 @@ class WordPressExternalConnectionTest extends \TestCase {
 	}
 
 	/**
-	 * This test has been greatly simplified to handle testing that the push
-	 * method returns true, or an instance of WP_Error.
+	 * Push method testing when there is no ID present to push.
+	 * The push method will return a WP Error object with
+	 * the id of "no-push-post-id"
 	 *
-	 * An elaborated test case would verify that each WP_Error returns the
-	 * error id, and error message it specifies.
-	 *
-	 * This is needed so the method parse_type_items_link() can return a valid URL
-	 * otherwise that method will return false, rending our test false as well.
-	 * Valid response body, with JSON encoded body
+	 * @since  0.8
 	 */
-	public function test_push() {
+	public function test_push_no_id(){
 
-		\WP_Mock::userFunction( 'untrailingslashit' );
-		\WP_Mock::userFunction( 'get_the_title' );
-		\WP_Mock::userFunction( 'wp_remote_post' );
-		\WP_Mock::userFunction( 'esc_html__' );
+		$this->assertEquals( $this->connection->push( false ), new \WP_Error( 'no-push-post-id' ) );
+
+	}
+
+	/**
+	 * Push method with an ID, however this simulates a WP Error
+	 * response from the wp_remote_get function. When the
+	 * error is returned no message is checked.
+	 *
+	 * @since  0.8
+	 */
+	public function test_push_reponse_is_wp_error(){
+
+		\WP_Mock::userFunction( 'wp_remote_get', [
+			'return' => new \WP_Error('','')
+		] );
+
+		$this->assertEquals( $this->connection->push( 123 ), new \WP_Error('','') );
+
+	}
+
+	/**
+	 * Push method with an ID, however on this test the
+	 * wp_remote_retrieve_body will return a WP Error.
+	 *
+	 * @since 0.8
+	 */
+	public function test_push_body_is_wp_error(){
+
+		\WP_Mock::userFunction( 'wp_remote_retrieve_body', [
+			'return' => new \WP_Error('','')
+		] );
+
+		$this->assertEquals( $this->connection->push( 123 ), new \WP_Error('','') );
+
+	}
+
+	/**
+	 * Push method with an ID, wp_remote_get, and wp_remote_retrieve_body
+	 * do not return an error. However there is no "post type" set
+	 * therefore the class of WP Error is returned with an id
+	 * of "no-push-post-type"
+	 *
+	 * @since 0.8
+	 */
+	public function test_push_no_post_type(){
+
+		\WP_Mock::userFunction( 'get_post_type' );
+		\WP_Mock::userFunction( 'wp_remote_get' );
+		\WP_Mock::userFunction( 'wp_remote_retrieve_body' );
+
+		$this->assertEquals( $this->connection->push( 1 ), new \WP_Error( 'no-push-post-type', null ) );
+
+	}
+
+	// no check for is remote post is NOT wp error; https://github.com/10up/distributor/blob/aab6b906d3d8b3ce31c59949674dafbeeddce64e/includes/classes/ExternalConnections/WordPressExternalConnection.php#L303
+	public function test_push_test_reponse_is_wp_error_two(){}
+
+	// no check for is remote body NOT wp error; https://github.com/10up/distributor/blob/aab6b906d3d8b3ce31c59949674dafbeeddce64e/includes/classes/ExternalConnections/WordPressExternalConnection.php#L308
+	public function test_push_body_is_wp_error_two(){}
+
+	// no check for try statement; https://github.com/10up/distributor/blob/aab6b906d3d8b3ce31c59949674dafbeeddce64e/includes/classes/ExternalConnections/WordPressExternalConnection.php#L314
+	public function test_push_no_post_remote_id(){}
+
+	/**
+	 * Push method with an ID, and a successful; wp_remote_get, wp_remote_retrieve_body,
+	 * along with the post object, and item links set.
+	 *
+	 * @since 0.8
+	 */
+	public function test_push_post_remote_id(){
 
 		$post_type = 'foo';
 
@@ -73,28 +142,23 @@ class WordPressExternalConnectionTest extends \TestCase {
 		] );
 
 		\WP_Mock::userFunction( 'get_post', [
-			'args'   => 1,
 			'return' => ( object ) [
-                'post_content' => 'my post content',
-                'post_type'    => $post_type,
-                'post_excerpt' => 'post excerpt',
-            	],
+				'post_content' => 'my post content',
+				'post_type' => $post_type,
+				'post_excerpt' => 'my post excerpt',
+				'status' => 'publish',
+			]
 		] );
 
-		\WP_Mock::userFunction( 'get_post_type', [
-			'return' => $post_type
-		] );
-
-		\WP_Mock::userFunction( 'wp_remote_get', [
-			'return' => $body
+		\WP_Mock::userFunction( 'wp_remote_post', [
+			'return' => 'no'
 		] );
 
 		\WP_Mock::userFunction( 'wp_remote_retrieve_body', [
 			'return' => $body
 		] );
 
-		$this->assertInstanceOf( \WP_Error::class, $this->connection->push( 0 ) );
-		$this->assertTrue( is_int( $this->connection->push( 1 ) ) );
+		$this->assertEquals( $this->connection->push( 123 ), 123 );
 
 	}
 
@@ -140,6 +204,101 @@ class WordPressExternalConnectionTest extends \TestCase {
 		] ) );
 
 	}
+
+	/**
+	 * Test for an empty post ID
+	 *
+	 * @since  0.8
+	 */
+	public function test_remote_get_empty_post_id(){
+
+		$items = $this->connection->remote_get( [
+			'id'       => false,
+			'post__in' => false,
+		] );
+
+		$this->assertArrayHasKey( 'items', $items );
+		$this->assertArrayHasKey( 'total_items', $items );
+
+	}
+
+	/**
+	 * Test when the remote get is a WP error
+	 *
+	 * @since 0.8
+	 */
+	public function test_remote_get_types_response_error(){
+
+		\WP_Mock::userFunction( 'wp_remote_get', [
+			'return' => new \WP_Error('','')
+		] );
+
+		$this->assertEquals( $this->connection->remote_get( [
+			'id'       => 123,
+			'post__in' => false,
+		] ), new \WP_Error( '', '' ) );
+
+	}
+
+	/**
+	 * Test when the response code is a 404
+	 *
+	 * @since 0.8
+	 */
+	public function test_remote_get_bad_endpoint(){
+
+		\WP_Mock::userFunction( 'wp_remote_retrieve_response_code', [
+			'return' => 404
+		] );
+
+		$this->assertEquals( $this->connection->remote_get( [
+			'id'       => 123,
+			'post__in' => false,
+		] ), new \WP_Error( 'bad-endpoint', '' ) );
+
+	}
+
+	/**
+	 * Test when the body of the remote request is a WP error
+	 * @since 0.8
+	 */
+	public function test_remote_get_types_body_is_wp_error(){
+
+		\WP_Mock::userFunction( 'wp_remote_retrieve_body', [
+			'return' => new \WP_Error( '', '' )
+		] );
+
+		$this->assertEquals( $this->connection->remote_get( [
+			'id' => 123,
+			'post__in' => false,
+		] ), new \WP_Error( '', '' ) );
+
+	}
+
+	/**
+	 * Test when there is no pull post type set
+	 * @since 0.8
+	 */
+	public function test_remote_get_no_pull_post_type(){
+
+		$this->assertEquals( $this->connection->remote_get( [
+			'id'       => 123,
+			'post__in' => false,
+		] ), new \WP_Error( 'no-pull-post-type', '' ) );
+
+	}
+
+	// // posts_response is_wp_error
+	// public function test_remote_get_posts_response_is_wp_error(){}
+
+	// // posts_body is_wp_error
+	// public function test_remote_get_post_body_is_wp_error(){}
+
+	// // empty id
+	// public function test_remote_get_empty_id(){}
+
+	// // Success
+	// public function test_remote_get_sucecss(){}
 
 	/**
 	 * Check that the connection does not return an error
