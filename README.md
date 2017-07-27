@@ -11,6 +11,7 @@ Distributor is a WordPress plugin allowing you to syndicate content to and from 
 
 * PHP 5.6+
 * [WordPress](http://wordpress.org) 4.7+
+* External connections require HTTP Basic Authentication be set up on the remote website. We recommend the [Application Passwords](https://wordpress.org/plugins/application-passwords/) plugin.
 
 ## Testing
 
