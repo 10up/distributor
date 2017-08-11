@@ -165,8 +165,12 @@ class WordPressExternalConnection extends ExternalConnection {
 		$posts = json_decode( $posts_body, true );
 		$formatted_posts = array();
 
+		$response_headers = wp_remote_retrieve_headers( $posts_response );
+
 		if ( empty( $id ) ) {
 			foreach ( $posts as $post ) {
+				$post['full_connection'] = ( ! empty( $response_headers['X-Distributor'] ) );
+
 				$formatted_posts[] = $this->to_wp_post( $post );
 			}
 
@@ -228,6 +232,12 @@ class WordPressExternalConnection extends ExternalConnection {
 			update_post_meta( $new_post, 'dt_original_source_id', (int) $this->id );
 			update_post_meta( $new_post, 'dt_syndicate_time', time() );
 			update_post_meta( $new_post, 'dt_original_post_url', esc_url_raw( $post_array['link'] ) );
+
+			if ( empty( $post_array['full_connection'] ) ) {
+				update_post_meta( $new_post, 'dt_full_connection', false );
+			} else {
+				update_post_meta( $new_post, 'dt_full_connection', true );
+			}
 
 			if ( ! empty( $post_array['meta'] ) ) {
 				\Distributor\Utils\set_meta( $new_post, $post_array['meta'] );
@@ -513,6 +523,8 @@ class WordPressExternalConnection extends ExternalConnection {
 		$obj->meta = ( ! empty( $post['distributor_meta'] ) ) ? $post['distributor_meta'] : [];
 		$obj->terms = ( ! empty( $post['distributor_terms'] ) ) ? $post['distributor_terms'] : [];
 		$obj->media = ( ! empty( $post['distributor_media'] ) ) ? $post['distributor_media'] : [];
+
+		$post->full_connection = ( ! empty( $post['full_connection'] ) );
 
 		return apply_filters( 'dt_item_mapping', new \WP_Post( $obj ), $post, $this );
 	}

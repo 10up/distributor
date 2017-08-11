@@ -52,6 +52,8 @@ function process_distributor_attributes( $post, $request, $update ) {
 
 	update_post_meta( $post->ID, 'dt_syndicate_time', time() );
 
+	update_post_meta( $post->ID, 'dt_full_connection', true );
+
 	if ( isset( $request['distributor_meta'] ) ) {
 		\Distributor\Utils\set_meta( $post->ID, $request['distributor_meta'] );
 	}
