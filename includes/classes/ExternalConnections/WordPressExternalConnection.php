@@ -229,11 +229,17 @@ class WordPressExternalConnection extends ExternalConnection {
 			update_post_meta( $new_post, 'dt_syndicate_time', time() );
 			update_post_meta( $new_post, 'dt_original_post_url', esc_url_raw( $post_array['link'] ) );
 
-			\Distributor\Utils\set_meta( $new_post, $post_array['meta'] );
+			if ( ! empty( $post_array['meta'] ) ) {
+				\Distributor\Utils\set_meta( $new_post, $post_array['meta'] );
+			}
 
-			\Distributor\Utils\set_taxonomy_terms( $new_post, $post_array['terms'] );
+			if ( ! empty( $post_array['terms'] ) ) {
+				\Distributor\Utils\set_taxonomy_terms( $new_post, $post_array['terms'] );
+			}
 
-			\Distributor\Utils\set_media( $new_post, $post_array['media'] );
+			if ( ! empty( $post_array['media'] ) ) {
+				\Distributor\Utils\set_media( $new_post, $post_array['media'] );
+			}
 
 			do_action( 'dt_pull_post', $new_post, $this );
 
@@ -500,9 +506,13 @@ class WordPressExternalConnection extends ExternalConnection {
 		$obj->post_type = $post['type'];
 		$obj->link = $post['link'];
 		$obj->post_author = get_current_user_id();
-		$obj->meta = $post['distributor_meta'];
-		$obj->terms = $post['distributor_terms'];
-		$obj->media = $post['distributor_media'];
+
+		/**
+		 * These will only be set if Distributor is active on the other side
+		 */
+		$obj->meta = ( ! empty( $post['distributor_meta'] ) ) ? $post['distributor_meta'] : [];
+		$obj->terms = ( ! empty( $post['distributor_terms'] ) ) ? $post['distributor_terms'] : [];
+		$obj->media = ( ! empty( $post['distributor_media'] ) ) ? $post['distributor_media'] : [];
 
 		return apply_filters( 'dt_item_mapping', new \WP_Post( $obj ), $post, $this );
 	}
