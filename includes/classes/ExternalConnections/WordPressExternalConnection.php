@@ -524,7 +524,7 @@ class WordPressExternalConnection extends ExternalConnection {
 		$obj->terms = ( ! empty( $post['distributor_terms'] ) ) ? $post['distributor_terms'] : [];
 		$obj->media = ( ! empty( $post['distributor_media'] ) ) ? $post['distributor_media'] : [];
 
-		$post->full_connection = ( ! empty( $post['full_connection'] ) );
+		$obj->full_connection = ( ! empty( $post['full_connection'] ) );
 
 		return apply_filters( 'dt_item_mapping', new \WP_Post( $obj ), $post, $this );
 	}
