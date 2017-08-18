@@ -270,7 +270,7 @@ class SubscriptionsTest extends \TestCase {
 
 		\WP_Mock::userFunction( 'wp_delete_post', [
 			'times' => 1,
-			'args' => [ $subscription_post_id, true ]
+			'args' => [ $subscription_post_id, true ],
 		] );
 
 		\WP_Mock::userFunction( 'update_post_meta', [
