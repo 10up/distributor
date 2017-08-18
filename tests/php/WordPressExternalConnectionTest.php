@@ -199,9 +199,12 @@ class WordPressExternalConnectionTest extends \TestCase {
 			'return' => [],
 		] );
 
-		$this->assertTrue( is_array( $this->connection->pull( [
-			[ 'remote_post_id' => 123 ],
-		] ) ) );
+		\WP_Mock::userFunction( 'wp_remote_retrieve_headers', [
+			'times'  => 1,
+			'return' => [
+				'X-Distributor' => true,
+			],
+		] );
 
 	}
 
@@ -222,6 +225,13 @@ class WordPressExternalConnectionTest extends \TestCase {
 		\WP_Mock::userFunction( 'wp_remote_retrieve_response_code', [
 			'times'  => 1,
 			'return' => 200,
+		] );
+
+		\WP_Mock::userFunction( 'wp_remote_retrieve_headers', [
+			'times'  => 1,
+			'return' => [
+				'X-Distributor' => true,
+			],
 		] );
 
 		$this->assertInstanceOf( \WP_Post::class, $this->connection->remote_get( [

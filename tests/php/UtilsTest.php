@@ -361,7 +361,7 @@ class UtilsTest extends \TestCase {
 	 */
 	public function test_set_media() {
 		$post_id = 1;
-		$media_item = $this->test_format_media();
+		$media_item = $this->test_format_media_featured();
 
 		$attached_media_post = new \stdClass();
 		$attached_media_post->ID = 1;
