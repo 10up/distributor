@@ -52,17 +52,14 @@ abstract class Authentication {
 	/**
 	 * Output a credentials form in the external connection management screen.
 	 *
-	 * @since  0.8
+	 * Child classes should implement - public static function credentials_form();
 	 */
-	public abstract static function credentials_form();
 
 	/**
 	 * Store an associate array as credentials for use with an external connection.
 	 *
-	 * @param  array $args
-	 * @since  0.8
+	 * Child classes should implement - public static function prepare_credentials( $args );
 	 */
-	public abstract static function prepare_credentials( $args );
 
 	/**
 	 * Store pre-sanizited auth credentials in DB
