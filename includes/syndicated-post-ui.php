@@ -60,8 +60,11 @@ function output_distributor_column( $column_name, $post_id ) {
 	if ( 'distributor' === $column_name ) {
 		$original_blog_id = get_post_meta( $post_id, 'dt_original_blog_id', true );
 		$original_source_id = get_post_meta( $post_id, 'dt_original_source_id', true );
+		$original_deleted = (bool) get_post_meta( $post_id, 'dt_original_post_deleted', true );
 
-		if ( ! empty( $original_blog_id ) || ! empty( $original_source_id ) ) {
+		if ( empty( $original_blog_id ) || empty( $original_source_id ) || $original_deleted ) {
+			echo '—';
+		} else {
 			$unlinked = (bool) get_post_meta( $post_id, 'dt_unlinked', true );
 
 			if ( $unlinked ) {
@@ -69,8 +72,6 @@ function output_distributor_column( $column_name, $post_id ) {
 			} else {
 				echo '<span class="dashicons dashicons-admin-links"></span>';
 			}
-		} else {
-			echo '—';
 		}
 	}
 }
@@ -95,6 +96,12 @@ function remove_quick_edit( $actions, $post ) {
 	$unlinked = (bool) get_post_meta( $post->ID, 'dt_unlinked', true );
 
 	if ( $unlinked ) {
+		return $actions;
+	}
+
+	$original_deleted = (bool) get_post_meta( $post->ID, 'dt_original_post_deleted', true );
+
+	if ( $original_deleted ) {
 		return $actions;
 	}
 
@@ -130,10 +137,16 @@ function add_linked_class( $classes ) {
 		return $classes;
 	}
 
-	$unlinked = (bool) get_post_meta( $post->ID, 'dt_unlinked', true );
+	$unlinked = (bool) get_post_meta( $_GET['post'], 'dt_unlinked', true );
 
 	if ( $unlinked ) {
 		return $classes;
+	}
+
+	$original_deleted = (bool) get_post_meta( $post->ID, 'dt_original_post_deleted', true );
+
+	if ( $original_deleted ) {
+		return true;
 	}
 
 	return $classes . ' dt-linked-post';
@@ -381,6 +394,12 @@ function syndicated_message( $post ) {
 		return;
 	}
 
+	$original_deleted = (bool) get_post_meta( $post->ID, 'dt_original_post_deleted', true );
+
+	if ( $original_deleted ) {
+		return;
+	}
+
 	$unlinked = (bool) get_post_meta( $post->ID, 'dt_unlinked', true );
 
 	$post_type_object = get_post_type_object( $post->post_type );
@@ -434,6 +453,12 @@ function admin_enqueue_scripts( $hook ) {
 	$original_source_id = get_post_meta( $post->ID, 'dt_original_source_id', true );
 
 	if ( empty( $original_post_id ) || ( empty( $original_blog_id ) && empty( $original_source_id ) ) ) {
+		return;
+	}
+
+	$original_deleted = (bool) get_post_meta( $post->ID, 'dt_original_post_deleted', true );
+
+	if ( $original_deleted ) {
 		return;
 	}
 

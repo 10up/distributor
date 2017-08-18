@@ -276,6 +276,55 @@ class NetworkSiteConnection extends Connection {
 		add_action( 'in_admin_footer', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'end_canonical_admin_post' ) );
 		add_filter( 'get_sample_permalink_html', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'fix_sample_permalink_html' ), 10, 1 );
 		add_filter( 'get_delete_post_link', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'fix_delete_link' ), 10, 3 );
+		add_action( 'before_delete_post', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'separate_syndicated_on_delete' ) );
+		add_action( 'wp_trash_post', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'separate_syndicated_on_delete' ) );
+		add_action( 'untrash_post', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'connect_syndicated_on_untrash' ) );
+	}
+
+	/**
+	 * When an original is deleted, we need to let internal syndicated posts know
+	 *
+	 * @param  int $post_id
+	 * @since 1.0
+	 */
+	public static function separate_syndicated_on_delete( $post_id ) {
+		$connection_map = get_post_meta( $post_id, 'dt_connection_map', true );
+
+		// If no connections do nothing
+		if ( empty( $connection_map ) || empty( $connection_map['internal'] ) ) {
+			return;
+		}
+
+		foreach ( $connection_map['internal'] as $site_id => $post_array ) {
+			switch_to_blog( $site_id );
+
+			update_post_meta( $post_array['post_id'], 'dt_original_post_deleted', true );
+
+			restore_current_blog();
+		}
+	}
+
+	/**
+	 * When an original is untrashed, we need to let internal syndicated posts know
+	 *
+	 * @param  int $post_id
+	 * @since 1.0
+	 */
+	public static function connect_syndicated_on_untrash( $post_id ) {
+		$connection_map = get_post_meta( $post_id, 'dt_connection_map', true );
+
+		// If no connections do nothing
+		if ( empty( $connection_map ) || empty( $connection_map['internal'] ) ) {
+			return;
+		}
+
+		foreach ( $connection_map['internal'] as $site_id => $post_array ) {
+			switch_to_blog( $site_id );
+
+			delete_post_meta( $post_array['post_id'], 'dt_original_post_deleted' );
+
+			restore_current_blog();
+		}
 	}
 
 	/**
@@ -301,6 +350,12 @@ class NetworkSiteConnection extends Connection {
 
 		if ( $unlinked ) {
 			return;
+		}
+
+		$original_deleted = (bool) get_post_meta( $post->ID, 'dt_original_post_deleted', true );
+
+		if ( $original_deleted ) {
+			return true;
 		}
 
 		wp_dequeue_script( 'mce-view' );
@@ -411,6 +466,12 @@ class NetworkSiteConnection extends Connection {
 
 		if ( $unlinked ) {
 			return;
+		}
+
+		$original_deleted = (bool) get_post_meta( $post->ID, 'dt_original_post_deleted', true );
+
+		if ( $original_deleted ) {
+			return true;
 		}
 
 		$dt_blog_id = get_current_blog_id();
@@ -563,6 +624,12 @@ class NetworkSiteConnection extends Connection {
 			return $termlink;
 		}
 
+		$original_deleted = (bool) get_post_meta( $post->ID, 'dt_original_post_deleted', true );
+
+		if ( $original_deleted ) {
+			return $termlink;
+		}
+
 		switch_to_blog( $original_blog_id );
 		$termlink = get_term_link( $term, $taxonomy );
 		restore_current_blog();
@@ -587,6 +654,12 @@ class NetworkSiteConnection extends Connection {
 		$unlinked = (bool) get_post_meta( $post_id, 'dt_unlinked', true );
 
 		if ( $unlinked ) {
+			return $terms;
+		}
+
+		$original_deleted = (bool) get_post_meta( $post_id, 'dt_original_post_deleted', true );
+
+		if ( $original_deleted ) {
 			return $terms;
 		}
 
@@ -619,6 +692,12 @@ class NetworkSiteConnection extends Connection {
 			return $html;
 		}
 
+		$original_deleted = (bool) get_post_meta( $id, 'dt_original_post_deleted', true );
+
+		if ( $original_deleted ) {
+			return $html;
+		}
+
 		switch_to_blog( $original_blog_id );
 		$html = get_the_post_thumbnail( $original_post_id );
 		restore_current_blog();
@@ -637,8 +716,9 @@ class NetworkSiteConnection extends Connection {
 	public static function canonical_url( $canonical_url, $post ) {
 		$original_blog_id = get_post_meta( $post->ID, 'dt_original_blog_id', true );
 		$original_post_id = get_post_meta( $post->ID, 'dt_original_post_id', true );
+		$original_deleted = (bool) get_post_meta( $post->ID, 'dt_original_post_deleted', true );
 
-		if ( empty( $original_blog_id ) || empty( $original_post_id ) ) {
+		if ( empty( $original_blog_id ) || empty( $original_post_id ) || $original_deleted ) {
 			return $canonical_url;
 		}
 
@@ -671,6 +751,12 @@ class NetworkSiteConnection extends Connection {
 			return $title;
 		}
 
+		$original_deleted = (bool) get_post_meta( $id, 'dt_original_post_deleted', true );
+
+		if ( $original_deleted ) {
+			return $title;
+		}
+
 		switch_to_blog( $original_blog_id );
 		$title = get_the_title( $original_post_id );
 		restore_current_blog();
@@ -698,6 +784,12 @@ class NetworkSiteConnection extends Connection {
 		$unlinked = (bool) get_post_meta( $post->ID, 'dt_unlinked', true );
 
 		if ( $unlinked ) {
+			return $content;
+		}
+
+		$original_deleted = (bool) get_post_meta( $post->ID, 'dt_original_post_deleted', true );
+
+		if ( $original_deleted ) {
 			return $content;
 		}
 
@@ -732,6 +824,12 @@ class NetworkSiteConnection extends Connection {
 			return $date;
 		}
 
+		$original_deleted = (bool) get_post_meta( $post->ID, 'dt_original_post_deleted', true );
+
+		if ( $original_deleted ) {
+			return $date;
+		}
+
 		switch_to_blog( $original_blog_id );
 
 		$date = get_the_date( get_option( 'date_format' ), $original_post_id );
@@ -761,6 +859,12 @@ class NetworkSiteConnection extends Connection {
 		$unlinked = (bool) get_post_meta( $post->ID, 'dt_unlinked', true );
 
 		if ( $unlinked ) {
+			return $excerpt;
+		}
+
+		$original_deleted = (bool) get_post_meta( $post->ID, 'dt_original_post_deleted', true );
+
+		if ( $original_deleted ) {
 			return $excerpt;
 		}
 

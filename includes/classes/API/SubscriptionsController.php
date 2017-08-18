@@ -151,8 +151,8 @@ class SubscriptionsController extends \WP_REST_Controller {
 		}
 
 		// This endpoint updates post data and unlinks posts
-		if ( isset( $request['unlink'] ) ) {
-			update_post_meta( $request['post_id'], 'dt_unlinked', (bool) $request['unlink'] );
+		if ( isset( $request['original_deleted'] ) ) {
+			update_post_meta( $request['post_id'], 'dt_original_post_deleted', true );
 
 			$response = new \WP_REST_Response();
 			$response->set_data( array( 'updated' => true ) );

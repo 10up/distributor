@@ -186,9 +186,9 @@ function delete_subscriptions( $post_id ) {
 				'timeout'  => 10,
 				'blocking' => \Distributor\Utils\is_dt_debug(),
 				'body'     => [
-					'post_id'   => $remote_post_id,
-					'signature' => $signature,
-					'unlink'    => true,
+					'post_id'          => $remote_post_id,
+					'signature'        => $signature,
+					'original_deleted' => true,
 				],
 			] );
 		}
