@@ -429,24 +429,6 @@ function meta_box_external_connection_details( $post ) {
 			<?php $auth_handler_class_again::credentials_form( $auth ); ?>
 		</div>
 	<?php endforeach; ?>
-
-	<p>
-		<label for="dt_external_connection_allowed_roles"><?php esc_html_e( 'Roles Allowed to Push', 'distributor' ); ?></label><br>
-
-		<select name="dt_external_connection_allowed_roles[]" id="dt_external_connection_allowed_roles" multiple="multiple">
-			<?php
-			$editable_roles = get_editable_roles();
-			foreach ( $editable_roles as $role => $details ) {
-				$name = translate_user_role( $details['name'] );
-				if ( in_array( $role, $allowed_roles ) ) {
-					echo "<option selected='selected' value='" . esc_attr( $role ) . "'>$name</option>";
-				} else {
-					echo "<option value='" . esc_attr( $role ) . "'>$name</option>";
-				}
-			}
-			?>
-		</select>
-	</p>
 	<p>
 		<label for="dt_external_connection_url"><?php esc_html_e( 'External Connection URL', 'distributor' ); ?></label><br>
 		<span class="external-connection-url-field-wrapper">
@@ -467,6 +449,22 @@ function meta_box_external_connection_details( $post ) {
 		</span>
 	</p>
 
+	<p class="dt-roles-allowed">
+		<label><?php esc_html_e( 'Roles Allowed to Push', 'distributor' ); ?></label><br>
+
+		<?php
+		$editable_roles = get_editable_roles();
+		foreach ( $editable_roles as $role => $details ) {
+			$name = translate_user_role( $details['name'] );
+			?>
+
+			<label for="dt-role-<?php echo esc_attr( $role ); ?>"><input name="dt_external_connection_allowed_roles[]" id="dt-role-<?php echo esc_attr( $role ); ?>" type="checkbox" <?php checked( true, in_array( $role, $allowed_roles ) ); ?> value="<?php echo esc_attr( $role ); ?>"> <?php echo esc_html( $name ); ?></label><br>
+
+			<?php
+		}
+		?>
+	</p>
+
 	<p>
 		<input type="hidden" name="post_status" value="publish">
 		<input type="hidden" name="original_post_status" value="<?php echo esc_attr( $post->post_status ); ?>">
@@ -474,7 +472,7 @@ function meta_box_external_connection_details( $post ) {
 		<?php if ( 0 < strtotime( $post->post_date_gmt . ' +0000' ) ) : ?>
 
 			<input name="save" type="submit" class="button button-primary button-large" id="publish" value="<?php esc_attr_e( 'Update Connection', 'distributor' ) ?>">
-		
+
 			<a class="delete-link" href="<?php echo esc_url( get_delete_post_link( $post->ID ) ); ?> "><?php esc_html_e( 'Move to Trash', 'distributor' ); ?></a>
 		<?php else : ?>
 			<input name="publish" type="submit" class="button button-primary button-large" id="publish" value="<?php esc_attr_e( 'Create Connection', 'distributor' ) ?>">

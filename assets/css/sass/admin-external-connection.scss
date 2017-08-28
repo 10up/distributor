@@ -13,6 +13,17 @@
 	box-shadow: none;
 }
 
+#dt_external_connection_details .dt-roles-allowed label {
+	font-weight: normal;
+}
+
+#dt_external_connection_details .dt-roles-allowed label:first-child {
+	margin-bottom: 5px;
+	display: inline-block;
+	font-weight: bold;
+}
+
+
 #dt_external_connection_details label {
 	font-size: 14px;
 	font-weight: bold;
