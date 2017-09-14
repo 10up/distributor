@@ -381,7 +381,6 @@ class WordPressExternalConnection extends ExternalConnection {
 	public function check_connections() {
 		$output = array(
 			'errors'              => array(),
-			'warnings'            => array(),
 			'can_post'            => array(),
 			'can_get'             => array(),
 			'endpoint_suggestion' => false,
@@ -425,7 +424,7 @@ class WordPressExternalConnection extends ExternalConnection {
 		}
 
 		if ( empty( $response_headers['X-Distributor'] ) ) {
-			$output['warnings']['no_distributor'] = 'no_distributor';
+			$output['errors']['no_distributor'] = 'no_distributor';
 		}
 
 		$routes = $data['routes'];

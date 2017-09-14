@@ -17,15 +17,12 @@
 
 	var externalConnectionUrlField = document.getElementsByClassName('external-connection-url-field')[0];
 	var externalConnectionMetaBox = document.getElementById('dt_external_connection_details');
-	var externalConnectionVerificationMetaBox = document.getElementById('dt_external_connection_connection');
 	var externalConnectionTypeField = document.getElementsByClassName('external-connection-type-field')[0];
 	var authFields = document.getElementsByClassName('auth-field');
 	var titleField = document.getElementById('title');
-	var externalConnectionVerificationWrapper = document.querySelectorAll('#dt_external_connection_connection .inside')[0];
 	var endpointResult = document.querySelector('.endpoint-result');
 	var postIdField = document.getElementById('post_ID');
 	var $apiVerify = false;
-	var verificationTemplate = processTemplate('dt-external-connection-verification');
 
 	function checkConnections(event) {
 		if ($apiVerify !== false) {
@@ -33,15 +30,12 @@
 		}
 
 		if ('' == externalConnectionUrlField.value) {
-			externalConnectionVerificationWrapper.innerHTML = '<p>' + sy.no_connection_check + '</p>';
-			endpointResult.innerText = sy.will_confirm_endpoint;
+			endpointResult.innerText = '';
 			return;
 		}
 
-		endpointResult.classList.add('loading');
-		endpointResult.innerHTML = sy.endpoint_checking_message;
-
-		externalConnectionVerificationMetaBox.classList.add('loading');
+		endpointResult.setAttribute('data-endpoint-state', 'loading');
+		endpointResult.innerHTML = dt.endpoint_checking_message;
 
 		var auth = {};
 
@@ -66,7 +60,7 @@
 			url: ajaxurl,
 			method: 'post',
 			data: {
-				nonce: sy.nonce,
+				nonce: dt.nonce,
 				action: 'dt_verify_external_connection',
 				auth: auth,
 				url: externalConnectionUrlField.value,
@@ -74,40 +68,33 @@
 				endpoint_id: postId
 			}
 		}).done(function(response) {
-			if (!response.success) {
-				if (!event || event.currentTarget.classList.contains('external-connection-url-field')) {
-					endpointResult.innerHTML = '<span class="dashicons dashicons-warning"></span>';
-					endpointResult.innerHTML += sy.invalid_endpoint;
-				}
+			console.log(response);
 
-				externalConnectionVerificationWrapper.innerHTML = verificationTemplate({
-					errors: ['no_external_connection'],
-					warnings: [],
-					can_post: [],
-					can_get: []
-				});
+			if (!response.success) {
+				/*if (!event || event.currentTarget.classList.contains('external-connection-url-field')) {
+					endpointResult.innerHTML = '<span class="dashicons dashicons-warning"></span>';
+					endpointResult.innerHTML += dt.invalid_endpoint;
+				}*/
+
+				endpointResult.setAttribute('data-endpoint-state', 'error');
 			} else {
 				if (response.data.errors.no_external_connection) {
-					endpointResult.innerHTML = '<span class="dashicons dashicons-warning"></span>';
-					endpointResult.innerHTML += sy.invalid_endpoint;
+					endpointResult.setAttribute('data-endpoint-state', 'error');
 
 					if (response.data.endpoint_suggestion) {
-						endpointResult.innerHTML += ' ' + sy.endpoint_suggestion + ' <a class="suggest">' + response.data.endpoint_suggestion + '</a>'; 
+						endpointResult.innerHTML = ' ' + dt.endpoint_suggestion + ' <a class="suggest">' + response.data.endpoint_suggestion + '</a>';
+					} else {
+						endpointResult.innerHTML = dt.bad_connection;
 					}
-				} else if (!Object.keys(response.data.errors).length || (1 === Object.keys(response.data.errors).length && response.data.errors.no_types)) {
-					endpointResult.innerHTML = '<span class="dashicons dashicons-yes"></span>';
-					endpointResult.innerHTML += sy.valid_endpoint;
+				} else if (response.data.errors.no_distributor) {
+					endpointResult.setAttribute('data-endpoint-state', 'warning');
+					endpointResult.innerHTML = dt.limited_connection;
+				} else if (response.data.errors.no_types) {
+					endpointResult.setAttribute('data-endpoint-state', 'valid');
+					endpointResult.innerHTML = dt.successful_connection;
 				}
-
-				externalConnectionVerificationWrapper.innerHTML = verificationTemplate({
-					errors: response.data.errors,
-					warnings: response.data.warnings,
-					can_post: response.data.can_post,
-					can_get: response.data.can_get
-				});
 			}
 		}).complete(function() {
-			externalConnectionVerificationMetaBox.classList.remove('loading');
 			endpointResult.classList.remove('loading');
 		});
 	}
@@ -153,11 +140,11 @@
 		if (passwordField.disabled) {
 			passwordField.disabled = false;
 			passwordField.value = '';
-			event.currentTarget.innerText = sy.cancel;
+			event.currentTarget.innerText = dt.cancel;
 		} else {
 			passwordField.disabled = true;
 			passwordField.value = 'sdfdsfsdfdsfdsfsd'; // filler password
-			event.currentTarget.innerText = sy.change;
+			event.currentTarget.innerText = dt.change;
 		}
 
 		checkConnections();

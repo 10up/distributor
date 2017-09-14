@@ -16,7 +16,6 @@ function setup() {
 		add_action( 'admin_enqueue_scripts', __NAMESPACE__ . '\admin_enqueue_scripts' );
 		add_action( 'wp_ajax_dt_verify_external_connection', __NAMESPACE__ . '\ajax_verify_external_connection' );
 		add_action( 'wp_ajax_dt_verify_external_connection_endpoint', __NAMESPACE__ . '\ajax_verify_external_connection_endpoint' );
-		add_action( 'admin_footer', __NAMESPACE__ . '\js_templates' );
 		add_filter( 'manage_dt_ext_connection_posts_columns', __NAMESPACE__ . '\filter_columns' );
 		add_action( 'manage_dt_ext_connection_posts_custom_column', __NAMESPACE__ . '\action_custom_columns', 10, 2 );
 		add_action( 'admin_menu', __NAMESPACE__ . '\add_menu_item' );
@@ -172,14 +171,13 @@ function admin_enqueue_scripts( $hook ) {
 		wp_enqueue_style( 'dt-admin-external-connection', plugins_url( $css_path, __DIR__ ), array(), DT_VERSION );
 	    wp_enqueue_script( 'dt-admin-external-connection', plugins_url( $js_path, __DIR__ ), array( 'jquery', 'underscore' ), DT_VERSION, true );
 
-	    wp_localize_script( 'dt-admin-external-connection', 'sy', array(
+	    wp_localize_script( 'dt-admin-external-connection', 'dt', array(
 	    	'nonce' => wp_create_nonce( 'dt-verify-ext-conn' ),
-	    	'no_external_connection' => esc_html__( "Can't connect to API.", 'distributor' ),
 	    	'no_types' => esc_html__( "No content types found to pull or push. This probably means the WordPress API is available but V2 of the JSON REST API hasn't been installed to provide any routes.", 'distributor' ),
-	    	'invalid_endpoint' => esc_html__( "This doesn't seem to be a valid API endpoint.", 'distributor' ),
-	    	'will_confirm_endpoint' => esc_html__( 'We will confirm the API endpoint works.', 'distributor' ),
-	    	'valid_endpoint' => esc_html__( 'This is a valid API endpoint.', 'distributor' ),
-	    	'endpoint_suggestion' => esc_html__( 'How about: ', 'distributor' ),
+	    	'bad_connection' => esc_html__( 'No connection found.', 'distributor' ),
+	    	'successfuly_connection' => esc_html__( 'Connection successfully established.', 'distributor' ),
+	    	'limited_connection' => esc_html__( 'Limited connection established.', 'distributor' ),
+	    	'endpoint_suggestion' => esc_html__( 'Did you mean: ', 'distributor' ),
 	    	'can_post' => esc_html__( 'Can push:', 'distributor' ),
 	    	'can_get' => esc_html__( 'Can pull:', 'distributor' ),
 	    	'endpoint_checking_message' => esc_html__( 'Checking endpoint...', 'distributor' ),
@@ -307,64 +305,6 @@ function save_post( $post_id ) {
  */
 function add_meta_boxes() {
 	add_meta_box( 'dt_external_connection_details', esc_html__( 'External Connection Details', 'distributor' ), __NAMESPACE__ . '\meta_box_external_connection_details', 'dt_ext_connection', 'normal', 'core' );
-	add_meta_box( 'dt_external_connection_connection', esc_html__( 'External Connection Status', 'distributor' ), __NAMESPACE__ . '\meta_box_external_connection', 'dt_ext_connection', 'side', 'core' );
-}
-
-/**
- * Output connection meta box to show status of API
- *
- * @param  WP_Post $post
- * @since  0.8
- */
-function meta_box_external_connection( $post ) {
-	$external_connections = get_post_meta( $post->ID, 'dt_external_connections', true );
-	$check_time = get_post_meta( $post->ID, 'dt_external_connection_check_time', true );
-
-	$lang = array(
-		'no_external_connection' => esc_html__( "Can't connect to API.", 'distributor' ),
-		'no_distributor'         => esc_html__( 'Distributor not installed. Pushing and pulling functionality will be limited.', 'distributor' ),
-		'can_post'               => esc_html__( 'Can push:', 'distributor' ),
-		'can_get'                => esc_html__( 'Can pull:', 'distributor' ),
-		'no_types'               => esc_html__( "No content types found to pull or push. This probably means the WordPress API is available but V2 of the JSON REST API hasn't been installed to provide any routes", 'distributor' ),
-	);
-
-	if ( ! empty( $external_connections ) ) : ?>
-		<div class="external-connection-verification">
-			<ul class="errors">
-				<?php foreach ( $external_connections['errors'] as $error ) : ?>
-					<li><?php echo esc_html( $lang[ $error ] ); ?></li>
-				<?php endforeach; ?>
-
-				<?php if ( empty( $external_connections['errors'] ) ) : ?>
-					<?php if ( empty( $external_connections['can_get'] ) ) : ?>
-						<li><?php esc_html_e( 'Can not pull any content types.', 'distributor' ); ?></li>
-					<?php endif; ?>
-
-					<?php if ( empty( $external_connections['can_post'] ) ) : ?>
-						<li><?php esc_html_e( 'Can not push any content types.', 'distributor' ); ?></li>
-					<?php endif; ?>
-				<?php endif; ?>
-			</ul>
-
-			<ul class="warnings">
-				<?php foreach ( $external_connections['warnings'] as $warning ) : ?>
-					<li><?php echo esc_html( $lang[ $warning ] ); ?></li>
-				<?php endforeach; ?>
-			</ul>
-
-			<ul class="successes">
-				<?php if ( ! empty( $external_connections['can_get'] ) ) : ?>
-					<li><?php echo esc_html( $lang['can_get'] . ' ' . implode( ', ', $external_connections['can_get'] ) ); ?></li>
-				<?php endif; ?>
-				<?php if ( ! empty( $external_connections['can_post'] ) ) : ?>
-					<li><?php echo esc_html( $lang['can_post'] . ' ' . implode( ', ', $external_connections['can_post'] ) ); ?></li>
-				<?php endif; ?>
-			</ul>
-		</div>
-	<?php else : ?>
-		<p><?php esc_html_e( 'No external connection has been checked.', 'distributor' ); ?></p>
-	<?php
-	endif;
 }
 
 /**
@@ -434,19 +374,8 @@ function meta_box_external_connection_details( $post ) {
 		<span class="external-connection-url-field-wrapper">
 			<input value="<?php echo esc_url( $external_connection_url ); ?>" type="text" name="dt_external_connection_url" id="dt_external_connection_url" class="widefat external-connection-url-field">
 		</span>
-		<span class="description endpoint-result">
-			<?php if ( empty( $external_connections ) ) : ?>
-				<?php esc_html_e( 'We will confirm the API endpoint works.', 'distributor' ); ?>
-			<?php elseif ( empty( $external_connections['errors'] ) || ( 1 === count( $external_connections['errors'] ) && ! empty( $external_connections['errors']['no_types'] ) ) ) : ?>
-				<span class="dashicons dashicons-yes"></span><?php esc_html_e( 'This is a valid API endpoint.', 'distributor' ); ?>
-			<?php else : ?>
 
-				<span class="dashicons dashicons-warning"></span><?php esc_html_e( "This doesn't seem to be a valid API endpoint.", 'distributor' ); ?>
-				<?php if ( ! empty( $external_connections['endpoint_suggestion'] ) ) : ?>
-					<?php esc_html_e( 'How about:', 'distributor' ); ?> <a class="suggest"><?php echo esc_html( $external_connections['endpoint_suggestion'] ); ?></a>
-				<?php endif; ?>
-			<?php endif; ?>
-		</span>
+		<span class="description endpoint-result"></span>
 	</p>
 
 	<p class="dt-roles-allowed">
@@ -463,6 +392,7 @@ function meta_box_external_connection_details( $post ) {
 			<?php
 		}
 		?>
+		<span class="description"><?php esc_html_e( 'Please be warned all these users will inherit the permissions of the user on the remote site', 'distributor' ); ?></p>
 	</p>
 
 	<p>
@@ -627,50 +557,4 @@ function filter_post_updated_messages( $messages ) {
 
 	return $messages;
 }
-
-/**
- * Output templates for working with external connections
- *
- * @since  0.8
- */
-function js_templates() {
-	?>
-	<script type="text/html" id="dt-external-connection-verification">
-		<div class="external-connection-verification">
-			<ul class="errors">
-				<# _.each(errors, function(error) {  #>
-					<li>{{ sy[error] }}</li>
-				<# }); #>
-
-				<# if (0 === Object.keys(errors).length) { #>
-					<# if (!can_get.length) { #>
-						<li><?php esc_html_e( 'Can not pull any content types.', 'distributor' ); ?></li>
-					<# } #>
-
-					<# if (!can_post.length) { #>
-						<li><?php esc_html_e( 'Can not push any content types.', 'distributor' ); ?></li>
-					<# } #>
-				<# } #>
-			</ul>
-
-			<ul class="warnings">
-				<# _.each(warnings, function(warning) {  #>
-					<li>{{ sy[warning] }}</li>
-				<# }); #>
-			</ul>
-
-			<ul class="successes">
-				<# if (can_get.length) { #>
-					<li>{{ sy.can_get }} {{ can_get.join(', ') }}</li>
-				<# } #>
-
-				<# if (can_post.length) { #>
-					<li>{{ sy.can_post }} {{ can_post.join(', ') }}</li>
-				<# } #>
-			</ul>
-		</div>
-	</script>
-	<?php
-}
-
 
