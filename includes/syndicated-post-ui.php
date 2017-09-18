@@ -62,7 +62,7 @@ function output_distributor_column( $column_name, $post_id ) {
 		$original_source_id = get_post_meta( $post_id, 'dt_original_source_id', true );
 		$original_deleted = (bool) get_post_meta( $post_id, 'dt_original_post_deleted', true );
 
-		if ( empty( $original_blog_id ) || empty( $original_source_id ) || $original_deleted ) {
+		if ( ( empty( $original_blog_id ) && empty( $original_source_id ) ) || $original_deleted ) {
 			echo '—';
 		} else {
 			$unlinked = (bool) get_post_meta( $post_id, 'dt_unlinked', true );
@@ -131,22 +131,16 @@ function add_linked_class( $classes ) {
 	$original_blog_id = get_post_meta( $_GET['post'], 'dt_original_blog_id', true );
 	$original_source_id = get_post_meta( $_GET['post'], 'dt_original_source_id', true );
 	$original_post_id = get_post_meta( $_GET['post'], 'dt_original_post_id', true );
-	$syndicate_time = get_post_meta( $_GET['post'], 'dt_syndicate_time', true );
 
 	if ( empty( $original_post_id ) || ( empty( $original_blog_id ) && empty( $original_source_id ) ) ) {
 		return $classes;
 	}
 
 	$unlinked = (bool) get_post_meta( $_GET['post'], 'dt_unlinked', true );
-
-	if ( $unlinked ) {
-		return $classes;
-	}
-
 	$original_deleted = (bool) get_post_meta( $post->ID, 'dt_original_post_deleted', true );
 
-	if ( $original_deleted ) {
-		return true;
+	if ( $unlinked || $original_deleted ) {
+		return $classes;
 	}
 
 	return $classes . ' dt-linked-post';
@@ -161,11 +155,7 @@ function add_linked_class( $classes ) {
 function syndication_date( $post ) {
 	global $dt_original_post;
 
-	if ( ! empty( $dt_original_post ) ) {
-		$syndicate_time = $dt_original_post->syndicate_time;
-	} else {
-		$syndicate_time = get_post_meta( $post->ID, 'dt_syndicate_time', true );
-	}
+	$syndicate_time = get_post_meta( $post->ID, 'dt_syndicate_time', true );
 
 	if ( empty( $syndicate_time ) ) {
 		return;
@@ -178,107 +168,6 @@ function syndication_date( $post ) {
 	</div>
 
 	<?php
-}
-
-/**
- * Resync an already pushed post
- *
- * @param  int $post_id
- * @since  0.8
- */
-function resync( $post_id ) {
-	$original_blog_id = get_post_meta( $post_id, 'dt_original_blog_id', true );
-	$original_post_id = get_post_meta( $post_id, 'dt_original_post_id', true );
-	$original_source_id = get_post_meta( $post_id, 'dt_original_source_id', true );
-
-	if ( ! empty( $original_blog_id ) ) {
-		$connection = new \Distributor\InternalConnections\NetworkSiteConnection( get_site( $original_blog_id ) );
-		$connection->pull( [
-			[
-				'remote_post_id' => $original_post_id,
-				'post_id'        => $post_id,
-			],
-		] );
-	} else {
-		$connection = \Distributor\ExternalConnection::instantiate( $original_source_id );
-		$connection->pull( [
-			[
-				'remote_post_id' => $original_post_id,
-				'post_id'        => $post_id,
-			],
-		] );
-	}
-}
-
-/**
- * Bring taxonomy terms over to cloned post. We only bring terms from taxonomies that exist on the
- * syndicated post site.
- *
- * @param  int $post_id
- * @since  0.8
- */
-function clone_taxonomy_terms( $post_id ) {
-	$original_blog_id = get_post_meta( $post_id, 'dt_original_blog_id', true );
-	$original_post_id = get_post_meta( $post_id, 'dt_original_post_id', true );
-
-	$post = get_post( $post_id );
-
-	// Get taxonomy/terms of original post
-	switch_to_blog( $original_blog_id );
-
-	$original_post = get_post( $original_post_id );
-
-	$original_taxonomy_terms = [];
-	$original_taxonomies = get_object_taxonomies( $original_post );
-
-	foreach ( $original_taxonomies as $taxonomy ) {
-		$original_taxonomy_terms[ $taxonomy ] = wp_get_object_terms( $original_post_id, $taxonomy );
-	}
-
-	restore_current_blog();
-
-	// Now let's add the taxonomy/terms to syndicated post
-	\Distributor\Utils\set_taxonomy_terms( $post_id, $original_taxonomy_terms );
-}
-
-/**
- * Bring media files over to syndicated post. We sync all the images and update the featured image
- * to use the new one. We leave image urls in the post content intact as we can't guarentee the post
- * image size in each inserted image exists.
- *
- * @param  int $post_id
- * @since  0.8
- */
-function sync_media( $post_id ) {
-	$original_blog_id = get_post_meta( $post_id, 'dt_original_blog_id', true );
-	$original_post_id = get_post_meta( $post_id, 'dt_original_post_id', true );
-
-	// Get media of original post
-	switch_to_blog( $original_blog_id );
-
-	$raw_media = get_attached_media( get_allowed_mime_types(), $post_id );
-	$media_array = array();
-
-	$featured_image_id = get_post_thumbnail_id( $post_id );
-	$found_featured = false;
-
-	foreach ( $raw_media as $media_post ) {
-		$media_item = \Distributor\Utils\format_media_post( $media_post );
-
-		if ( $media_item['featured'] ) {
-			$found_featured = true;
-		}
-
-		$media_array[] = $media_item;
-	}
-
-	if ( ! empty( $featured_image_id ) && ! $found_featured ) {
-		$media_array[] = \Distributor\Utils\format_media_post( get_post( $featured_image_id ) );
-	}
-
-	restore_current_blog();
-
-	\Distributor\Utils\set_media( $post_id, $media_array );
 }
 
 /**
@@ -295,20 +184,7 @@ function unlink() {
 		return;
 	}
 
-	$original_source_id = get_post_meta( $_GET['post'], 'dt_original_source_id', true );
-
 	update_post_meta( $_GET['post'], 'dt_unlinked', true );
-
-	/**
-	 * For external connections we don't need to do this because of subscriptions
-	 */
-	if ( empty( $original_source_id ) ) {
-		resync( $_GET['post'] );
-
-		sync_media( $_GET['post'] );
-
-		clone_taxonomy_terms( $_GET['post'] );
-	}
 
 	/**
 	 * Todo: Do we delete subscriptions for external posts?
@@ -342,11 +218,7 @@ function link() {
 	 * For external connections we use a saved update since we might not have access to sync from original
 	 */
 	if ( empty( $original_source_id ) ) {
-		resync( $_GET['post'] );
 
-		sync_media( $_GET['post'] );
-
-		clone_taxonomy_terms( $_GET['post'] );
 	} else {
 		$update = get_post_meta( $_GET['post'], 'dt_subscription_update', true );
 
@@ -404,17 +276,17 @@ function syndicated_message( $post ) {
 
 	$post_type_object = get_post_type_object( $post->post_type );
 
+	$post_url = get_post_meta( $post->ID, 'dt_original_post_url', true );
+
 	if ( ! empty( $original_blog_id ) ) {
 		switch_to_blog( $original_blog_id );
-		$post_url = get_permalink( $original_post_id );
 		$original_location_name = get_bloginfo( 'name' );
 		restore_current_blog();
 
-		if ( empty( $blog_name ) ) {
-			$blog_name = sprintf( esc_html__( 'Blog #%d', 'distributor' ), $original_blog_id );
+		if ( empty( $original_location_name  ) ) {
+			$original_location_name  = sprintf( esc_html__( 'Blog #%d', 'distributor' ), $original_blog_id );
 		}
 	} else {
-		$post_url = get_post_meta( $post->ID, 'dt_original_post_url', true );
 		$original_location_name = get_the_title( $original_source_id );
 	}
 

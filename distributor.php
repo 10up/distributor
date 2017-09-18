@@ -63,7 +63,7 @@ add_filter( 'rest_post_dispatch', function( $response ) {
 \Distributor\Connections::factory();
 
 \Distributor\Connections::factory()->register( '\Distributor\ExternalConnections\WordPressExternalConnection' );
-\Distributor\Connections::factory()->register( '\Distributor\InternalConnections\NetworkSiteConnection', 'internal' );
+\Distributor\Connections::factory()->register( '\Distributor\InternalConnections\NetworkSiteConnection' );
 
 
 require_once( __DIR__ . '/includes/utils.php' );
