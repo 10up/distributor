@@ -182,6 +182,7 @@ function admin_enqueue_scripts( $hook ) {
 	    	'change' => esc_html__( 'Change', 'distributor' ),
 	    	'cancel' => esc_html__( 'Cancel', 'distributor' ),
 	    	'no_distributor' => esc_html__( 'Distributor not installed on remote site.', 'distributor' ),
+	    	'roles_warning' => esc_html__( 'Be careful assigning less trusted roles push privileges as they will inherit the capabilities of the user on the remote site.', 'distributor' ),
 	    ) );
 
 		wp_dequeue_script( 'autosave' );
@@ -385,7 +386,7 @@ function meta_box_external_connection_details( $post ) {
 			$name = translate_user_role( $details['name'] );
 			?>
 
-			<label for="dt-role-<?php echo esc_attr( $role ); ?>"><input name="dt_external_connection_allowed_roles[]" id="dt-role-<?php echo esc_attr( $role ); ?>" type="checkbox" <?php checked( true, in_array( $role, $allowed_roles ) ); ?> value="<?php echo esc_attr( $role ); ?>"> <?php echo esc_html( $name ); ?></label><br>
+			<label for="dt-role-<?php echo esc_attr( $role ); ?>"><input class="dt-role-checkbox" name="dt_external_connection_allowed_roles[]" id="dt-role-<?php echo esc_attr( $role ); ?>" type="checkbox" <?php checked( true, in_array( $role, $allowed_roles ) ); ?> value="<?php echo esc_attr( $role ); ?>"> <?php echo esc_html( $name ); ?></label><br>
 
 			<?php
 		}

@@ -19,6 +19,7 @@
 	var externalConnectionMetaBox = document.getElementById('dt_external_connection_details');
 	var externalConnectionTypeField = document.getElementsByClassName('external-connection-type-field')[0];
 	var authFields = document.getElementsByClassName('auth-field');
+	var rolesAllowed = document.getElementsByClassName('dt-roles-allowed');
 	var titleField = document.getElementById('title');
 	var endpointResult = document.querySelector('.endpoint-result');
 	var endpointErrors = document.querySelector('.endpoint-errors');
@@ -72,11 +73,6 @@
 			endpointErrors.innerHTML = '';
 
 			if (!response.success) {
-				/*if (!event || event.currentTarget.classList.contains('external-connection-url-field')) {
-					endpointResult.innerHTML = '<span class="dashicons dashicons-warning"></span>';
-					endpointResult.innerHTML += dt.invalid_endpoint;
-				}*/
-
 				endpointResult.setAttribute('data-endpoint-state', 'error');
 			} else {
 				if (response.data.errors.no_external_connection) {
@@ -88,7 +84,6 @@
 						endpointResult.innerHTML = dt.bad_connection;
 					}
 				} else {
-					console.log(response.data);
 					if (response.data.errors.no_distributor || !response.data.can_post.length) {
 						endpointResult.setAttribute('data-endpoint-state', 'warning');
 						endpointResult.innerHTML = dt.limited_connection;
@@ -169,5 +164,19 @@
 		}
 
 		checkConnections();
+	});
+
+	$(rolesAllowed).on('click', '.dt-role-checkbox', function(event) {
+		if (!event.target.classList.contains('dt-role-checkbox')) {
+			return;
+		}
+
+		if (!event.target.checked) {
+			return;
+		}
+
+		if ('administrator' !== event.target.value && 'editor' !== event.target.value) {
+			alert(dt.roles_warning);
+		}
 	});
 })(jQuery);
