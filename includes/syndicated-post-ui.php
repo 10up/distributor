@@ -283,7 +283,7 @@ function syndicated_message( $post ) {
 		$original_location_name = get_bloginfo( 'name' );
 		restore_current_blog();
 
-		if ( empty( $original_location_name  ) ) {
+		if ( empty( $original_location_name ) ) {
 			$original_location_name  = sprintf( esc_html__( 'Blog #%d', 'distributor' ), $original_blog_id );
 		}
 	} else {
