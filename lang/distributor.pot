@@ -2,9 +2,9 @@
 # This file is distributed under the GPLv2 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: Distributor 0.8.2\n"
+"Project-Id-Version: Distributor 1.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/distributor\n"
-"POT-Creation-Date: 2017-07-10 19:40:47+00:00\n"
+"POT-Creation-Date: 2017-09-19 05:13:11+00:00\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -45,30 +45,29 @@ msgstr ""
 msgid "Signature for given subscription"
 msgstr ""
 
-#: includes/classes/API/SubscriptionsController.php:138
-#: includes/classes/API/SubscriptionsController.php:277
-#: includes/classes/API/SubscriptionsController.php:304
-msgid "Invalid post ID."
-msgstr ""
-
-#: includes/classes/API/SubscriptionsController.php:149
-msgid "No post data for update."
-msgstr ""
-
-#: includes/classes/API/SubscriptionsController.php:155
+#: includes/classes/API/SubscriptionsController.php:150
 msgid "Post not distributed."
 msgstr ""
 
-#: includes/classes/API/SubscriptionsController.php:234
+#: includes/classes/API/SubscriptionsController.php:163
+msgid "No post data for update."
+msgstr ""
+
+#: includes/classes/API/SubscriptionsController.php:243
 msgid "Sorry, you are not allowed to create subscriptions."
 msgstr ""
 
-#: includes/classes/API/SubscriptionsController.php:249
+#: includes/classes/API/SubscriptionsController.php:258
 msgid "Cannot create existing subscription."
 msgstr ""
 
-#: includes/classes/API/SubscriptionsController.php:253
+#: includes/classes/API/SubscriptionsController.php:262
 msgid "Subscription post does not exist."
+msgstr ""
+
+#: includes/classes/API/SubscriptionsController.php:286
+#: includes/classes/API/SubscriptionsController.php:313
+msgid "Invalid post ID."
 msgstr ""
 
 #: includes/classes/Authentications/WordPressBasicAuth.php:38
@@ -130,25 +129,21 @@ msgstr ""
 msgid "Delete Permanently"
 msgstr ""
 
-#: includes/classes/ExternalConnections/WordPressExternalConnection.php:99
+#: includes/classes/ExternalConnections/WordPressExternalConnection.php:103
 msgid "Could not connect to API endpoint."
 msgstr ""
 
-#: includes/classes/ExternalConnections/WordPressExternalConnection.php:113
-#: includes/classes/ExternalConnections/WordPressExternalConnection.php:284
+#: includes/classes/ExternalConnections/WordPressExternalConnection.php:117
+#: includes/classes/ExternalConnections/WordPressExternalConnection.php:304
 msgid "Could not determine remote post type endpoint"
 msgstr ""
 
-#: includes/classes/ExternalConnections/WordPressExternalConnection.php:252
+#: includes/classes/ExternalConnections/WordPressExternalConnection.php:272
 msgid "Post id required to push"
 msgstr ""
 
-#: includes/classes/ExternalConnections/WordPressExternalConnection.php:343
+#: includes/classes/ExternalConnections/WordPressExternalConnection.php:362
 msgid "Could not determine remote post id."
-msgstr ""
-
-#: includes/classes/InternalConnections/NetworkSiteConnection.php:370
-msgid "<strong>Permalink:</strong> <a href=\"%1$s\">%1$s</a>"
 msgstr ""
 
 #: includes/classes/PullListTable.php:34
@@ -164,15 +159,15 @@ msgid "Date"
 msgstr ""
 
 #: includes/classes/PullListTable.php:68
-msgid "<a href=\"%1$s\" class=\"%1$s\">New</a>"
+msgid "<a href=\"%1$s\" class=\"%2$s\">New</a>"
 msgstr ""
 
 #: includes/classes/PullListTable.php:69
-msgid "<a href=\"%1$s\" class=\"%1$s\">Pulled</a>"
+msgid "<a href=\"%1$s\" class=\"%2$s\">Pulled</a>"
 msgstr ""
 
 #: includes/classes/PullListTable.php:70
-msgid "<a href=\"%1$s\" class=\"%1$s\">Skipped</a>"
+msgid "<a href=\"%1$s\" class=\"%2$s\">Skipped</a>"
 msgstr ""
 
 #: includes/classes/PullListTable.php:111
@@ -226,7 +221,7 @@ msgid "Last Modified"
 msgstr ""
 
 #: includes/classes/PullListTable.php:221
-#: includes/external-connection-cpt.php:109
+#: includes/external-connection-cpt.php:108
 msgid "None"
 msgstr ""
 
@@ -255,184 +250,142 @@ msgstr ""
 msgid "Syndicate"
 msgstr ""
 
-#: includes/external-connection-cpt.php:89
+#: includes/external-connection-cpt.php:88
 msgid "URL"
 msgstr ""
 
+#: includes/external-connection-cpt.php:176
+msgid "No connection found."
+msgstr ""
+
 #: includes/external-connection-cpt.php:177
-#: includes/external-connection-cpt.php:324
-msgid "Can't connect to API."
+msgid "Connection established."
 msgstr ""
 
 #: includes/external-connection-cpt.php:178
-msgid ""
-"No content types found to pull or push. This probably means the WordPress "
-"API is available but V2 of the JSON REST API hasn't been installed to "
-"provide any routes."
+msgid "Limited connection established."
 msgstr ""
 
 #: includes/external-connection-cpt.php:179
-#: includes/external-connection-cpt.php:462
-msgid "This doesn't seem to be a valid API endpoint."
+msgid "Did you mean: "
 msgstr ""
 
 #: includes/external-connection-cpt.php:180
-#: includes/external-connection-cpt.php:457
-msgid "We will confirm the API endpoint works."
-msgstr ""
-
-#: includes/external-connection-cpt.php:181
-#: includes/external-connection-cpt.php:459
-msgid "This is a valid API endpoint."
-msgstr ""
-
-#: includes/external-connection-cpt.php:182
-msgid "How about: "
-msgstr ""
-
-#: includes/external-connection-cpt.php:183
-#: includes/external-connection-cpt.php:326
-msgid "Can push:"
-msgstr ""
-
-#: includes/external-connection-cpt.php:184
-#: includes/external-connection-cpt.php:327
-msgid "Can pull:"
-msgstr ""
-
-#: includes/external-connection-cpt.php:185
 msgid "Checking endpoint..."
 msgstr ""
 
-#: includes/external-connection-cpt.php:186
-#: includes/external-connection-cpt.php:365
-msgid "No external connection has been checked."
+#: includes/external-connection-cpt.php:181
+msgid "Push unavailable."
 msgstr ""
 
-#: includes/external-connection-cpt.php:187
+#: includes/external-connection-cpt.php:182
 msgid "Change"
 msgstr ""
 
-#: includes/external-connection-cpt.php:188
+#: includes/external-connection-cpt.php:183
 msgid "Cancel"
 msgstr ""
 
-#: includes/external-connection-cpt.php:189
-#: includes/external-connection-cpt.php:325
-msgid ""
-"Distributor not installed. Pushing and pulling functionality will be "
-"limited."
+#: includes/external-connection-cpt.php:184
+msgid "Distributor not installed on remote site."
 msgstr ""
 
-#: includes/external-connection-cpt.php:227
+#: includes/external-connection-cpt.php:185
+msgid ""
+"Be careful assigning less trusted roles push privileges as they will "
+"inherit the capabilities of the user on the remote site."
+msgstr ""
+
+#: includes/external-connection-cpt.php:223
 msgid "Enter external connection name"
 msgstr ""
 
-#: includes/external-connection-cpt.php:309
+#: includes/external-connection-cpt.php:305
 msgid "External Connection Details"
 msgstr ""
 
-#: includes/external-connection-cpt.php:310
-msgid "External Connection Status"
-msgstr ""
-
-#: includes/external-connection-cpt.php:328
-msgid ""
-"No content types found to pull or push. This probably means the WordPress "
-"API is available but V2 of the JSON REST API hasn't been installed to "
-"provide any routes"
-msgstr ""
-
-#: includes/external-connection-cpt.php:340
-#: includes/external-connection-cpt.php:649
-msgid "Can not pull any content types."
-msgstr ""
-
-#: includes/external-connection-cpt.php:344
-#: includes/external-connection-cpt.php:653
-msgid "Can not push any content types."
-msgstr ""
-
-#: includes/external-connection-cpt.php:416
+#: includes/external-connection-cpt.php:354
 msgid "External Connection Type"
 msgstr ""
 
-#: includes/external-connection-cpt.php:422
+#: includes/external-connection-cpt.php:360
 msgid "We need to know what type of API we are communicating with."
 msgstr ""
 
-#: includes/external-connection-cpt.php:434
-msgid "Roles Allowed to Push"
-msgstr ""
-
-#: includes/external-connection-cpt.php:451
+#: includes/external-connection-cpt.php:371
 msgid "External Connection URL"
 msgstr ""
 
-#: includes/external-connection-cpt.php:464
-msgid "How about:"
+#: includes/external-connection-cpt.php:381
+msgid "Roles Allowed to Push"
 msgstr ""
 
-#: includes/external-connection-cpt.php:476
+#: includes/external-connection-cpt.php:394
+msgid ""
+"Please be warned all these users will inherit the permissions of the user "
+"on the remote site"
+msgstr ""
+
+#: includes/external-connection-cpt.php:403
 msgid "Update Connection"
 msgstr ""
 
-#: includes/external-connection-cpt.php:478
+#: includes/external-connection-cpt.php:405
 msgid "Move to Trash"
 msgstr ""
 
-#: includes/external-connection-cpt.php:480
+#: includes/external-connection-cpt.php:407
 msgid "Create Connection"
 msgstr ""
 
-#: includes/external-connection-cpt.php:502
-#: includes/external-connection-cpt.php:562
-#: includes/external-connection-cpt.php:573 includes/pull-ui.php:341
+#: includes/external-connection-cpt.php:429
+#: includes/external-connection-cpt.php:489
+#: includes/external-connection-cpt.php:500 includes/pull-ui.php:341
 msgid "External Connections"
 msgstr ""
 
+#: includes/external-connection-cpt.php:429
 #: includes/external-connection-cpt.php:502
-#: includes/external-connection-cpt.php:575
 msgid "Add New"
 msgstr ""
 
-#: includes/external-connection-cpt.php:528
+#: includes/external-connection-cpt.php:455
 msgid "External connections per page: "
 msgstr ""
 
-#: includes/external-connection-cpt.php:574
+#: includes/external-connection-cpt.php:501
 msgid "External Connection"
 msgstr ""
 
-#: includes/external-connection-cpt.php:576
+#: includes/external-connection-cpt.php:503
 msgid "Add New External Connection"
 msgstr ""
 
-#: includes/external-connection-cpt.php:577
+#: includes/external-connection-cpt.php:504
 msgid "Edit External Connection"
 msgstr ""
 
-#: includes/external-connection-cpt.php:578
+#: includes/external-connection-cpt.php:505
 msgid "New External Connection"
 msgstr ""
 
-#: includes/external-connection-cpt.php:579
+#: includes/external-connection-cpt.php:506
 msgid "All External Connections"
 msgstr ""
 
-#: includes/external-connection-cpt.php:580
+#: includes/external-connection-cpt.php:507
 msgid "View External Connection"
 msgstr ""
 
-#: includes/external-connection-cpt.php:581
+#: includes/external-connection-cpt.php:508
 msgid "Search External Connections"
 msgstr ""
 
-#: includes/external-connection-cpt.php:582
+#: includes/external-connection-cpt.php:509
 msgid "No external connections found."
 msgstr ""
 
-#: includes/external-connection-cpt.php:583
+#: includes/external-connection-cpt.php:510
 msgid "No external connections found in trash."
 msgstr ""
 
@@ -440,44 +393,44 @@ msgstr ""
 msgid "Distributor"
 msgstr ""
 
-#: includes/external-connection-cpt.php:617
-#: includes/external-connection-cpt.php:620
+#: includes/external-connection-cpt.php:544
+#: includes/external-connection-cpt.php:547
 msgid "External connection updated."
 msgstr ""
 
-#: includes/external-connection-cpt.php:618
+#: includes/external-connection-cpt.php:545
 msgid "Custom field updated."
 msgstr ""
 
-#: includes/external-connection-cpt.php:619
+#: includes/external-connection-cpt.php:546
 msgid "Custom field deleted."
 msgstr ""
 
-#: includes/external-connection-cpt.php:621
+#: includes/external-connection-cpt.php:548
 msgid " External connection restored to revision from %s"
 msgstr ""
 
-#: includes/external-connection-cpt.php:622
+#: includes/external-connection-cpt.php:549
 msgid "External connection created."
 msgstr ""
 
-#: includes/external-connection-cpt.php:623
+#: includes/external-connection-cpt.php:550
 msgid "External connection saved."
 msgstr ""
 
-#: includes/external-connection-cpt.php:624
+#: includes/external-connection-cpt.php:551
 msgid "External connection submitted."
 msgstr ""
 
-#: includes/external-connection-cpt.php:625
+#: includes/external-connection-cpt.php:552
 msgid "External connection scheduled for: <strong>%1$s</strong>."
 msgstr ""
 
-#: includes/external-connection-cpt.php:626
+#: includes/external-connection-cpt.php:553
 msgid "M j, Y @ G:i"
 msgstr ""
 
-#: includes/external-connection-cpt.php:627
+#: includes/external-connection-cpt.php:554
 msgid "External connection draft updated."
 msgstr ""
 
@@ -565,53 +518,45 @@ msgstr ""
 msgid "No connections available for syndication."
 msgstr ""
 
-#: includes/rest-api.php:89
+#: includes/rest-api.php:91
 msgid "Post meta for Distributor."
 msgstr ""
 
-#: includes/rest-api.php:104
+#: includes/rest-api.php:106
 msgid "Taxonomy terms for Distributor."
 msgstr ""
 
-#: includes/rest-api.php:119
+#: includes/rest-api.php:121
 msgid "Media for Distributor."
 msgstr ""
 
-#: includes/subscriptions.php:226
+#: includes/subscriptions.php:273
 msgid "Distributor Subscription"
 msgstr ""
 
-#: includes/syndicated-post-ui.php:68
-msgid "Unlinked"
-msgstr ""
-
-#: includes/syndicated-post-ui.php:70
-msgid "Linked"
-msgstr ""
-
-#: includes/syndicated-post-ui.php:164
+#: includes/syndicated-post-ui.php:167
 msgid "Syndicated on: <strong>%s</strong>"
 msgstr ""
 
-#: includes/syndicated-post-ui.php:391
+#: includes/syndicated-post-ui.php:287
 msgid "Blog #%d"
 msgstr ""
 
-#: includes/syndicated-post-ui.php:402
+#: includes/syndicated-post-ui.php:297
 msgid "Syndicated from <a href=\"%1$s\">%1$s</a>."
 msgstr ""
 
-#: includes/syndicated-post-ui.php:403
+#: includes/syndicated-post-ui.php:298
 msgid ""
 "The original post will update this version unless you <a href=\"%s\">unlink "
 "from the original.</a>"
 msgstr ""
 
-#: includes/syndicated-post-ui.php:407
+#: includes/syndicated-post-ui.php:302
 msgid "Originally syndicated from <a href=\"%1$s\">%1$s</a>."
 msgstr ""
 
-#: includes/syndicated-post-ui.php:408
+#: includes/syndicated-post-ui.php:303
 msgid ""
 "This post has been forked from it's original. However, you can always <a "
 "href='%s'>restore it.</a>"
