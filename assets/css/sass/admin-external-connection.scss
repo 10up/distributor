@@ -47,8 +47,23 @@
 	display: block;
 }
 
-#dt_external_connection_details p {
+#dt_external_connection_details p,
+#dt_external_connection_details .connection-field-wrap {
 	margin-bottom: 3em;
+}
+
+.endpoint-errors {
+	margin: 5px 0 0 0;
+}
+
+.endpoint-errors li {
+	padding-left: 15px;
+	font-style: italic;
+}
+
+.endpoint-errors li:before {
+	content: '-';
+	margin-right: 5px;
 }
 
 .misc-pub-visibility {

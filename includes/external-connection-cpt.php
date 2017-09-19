@@ -173,18 +173,15 @@ function admin_enqueue_scripts( $hook ) {
 
 	    wp_localize_script( 'dt-admin-external-connection', 'dt', array(
 	    	'nonce' => wp_create_nonce( 'dt-verify-ext-conn' ),
-	    	'no_types' => esc_html__( "No content types found to pull or push. This probably means the WordPress API is available but V2 of the JSON REST API hasn't been installed to provide any routes.", 'distributor' ),
 	    	'bad_connection' => esc_html__( 'No connection found.', 'distributor' ),
-	    	'successfuly_connection' => esc_html__( 'Connection successfully established.', 'distributor' ),
+	    	'good_connection' => esc_html__( 'Connection established.', 'distributor' ),
 	    	'limited_connection' => esc_html__( 'Limited connection established.', 'distributor' ),
 	    	'endpoint_suggestion' => esc_html__( 'Did you mean: ', 'distributor' ),
-	    	'can_post' => esc_html__( 'Can push:', 'distributor' ),
-	    	'can_get' => esc_html__( 'Can pull:', 'distributor' ),
 	    	'endpoint_checking_message' => esc_html__( 'Checking endpoint...', 'distributor' ),
-	    	'no_connection_check' => esc_html__( 'No external connection has been checked.', 'distributor' ),
+	    	'no_push' => esc_html__( 'Push unavailable.', 'distributor' ),
 	    	'change' => esc_html__( 'Change', 'distributor' ),
 	    	'cancel' => esc_html__( 'Cancel', 'distributor' ),
-	    	'no_distributor' => esc_html__( 'Distributor not installed. Pushing and pulling functionality will be limited.', 'distributor' ),
+	    	'no_distributor' => esc_html__( 'Distributor not installed on remote site.', 'distributor' ),
 	    ) );
 
 		wp_dequeue_script( 'autosave' );
@@ -369,14 +366,15 @@ function meta_box_external_connection_details( $post ) {
 			<?php $auth_handler_class_again::credentials_form( $auth ); ?>
 		</div>
 	<?php endforeach; ?>
-	<p>
+	<div class="connection-field-wrap">
 		<label for="dt_external_connection_url"><?php esc_html_e( 'External Connection URL', 'distributor' ); ?></label><br>
 		<span class="external-connection-url-field-wrapper">
 			<input value="<?php echo esc_url( $external_connection_url ); ?>" type="text" name="dt_external_connection_url" id="dt_external_connection_url" class="widefat external-connection-url-field">
 		</span>
 
 		<span class="description endpoint-result"></span>
-	</p>
+		<ul class="endpoint-errors"></ul>
+	</div>
 
 	<p class="dt-roles-allowed">
 		<label><?php esc_html_e( 'Roles Allowed to Push', 'distributor' ); ?></label><br>

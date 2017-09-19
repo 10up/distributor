@@ -21,6 +21,7 @@
 	var authFields = document.getElementsByClassName('auth-field');
 	var titleField = document.getElementById('title');
 	var endpointResult = document.querySelector('.endpoint-result');
+	var endpointErrors = document.querySelector('.endpoint-errors');
 	var postIdField = document.getElementById('post_ID');
 	var $apiVerify = false;
 
@@ -68,7 +69,7 @@
 				endpoint_id: postId
 			}
 		}).done(function(response) {
-			console.log(response);
+			endpointErrors.innerHTML = '';
 
 			if (!response.success) {
 				/*if (!event || event.currentTarget.classList.contains('external-connection-url-field')) {
@@ -86,12 +87,32 @@
 					} else {
 						endpointResult.innerHTML = dt.bad_connection;
 					}
-				} else if (response.data.errors.no_distributor) {
-					endpointResult.setAttribute('data-endpoint-state', 'warning');
-					endpointResult.innerHTML = dt.limited_connection;
-				} else if (response.data.errors.no_types) {
-					endpointResult.setAttribute('data-endpoint-state', 'valid');
-					endpointResult.innerHTML = dt.successful_connection;
+				} else {
+					console.log(response.data);
+					if (response.data.errors.no_distributor || !response.data.can_post.length) {
+						endpointResult.setAttribute('data-endpoint-state', 'warning');
+						endpointResult.innerHTML = dt.limited_connection;
+
+						var warnings = [];
+
+						if (response.data.errors.no_distributor) {
+							warnings.push(dt.no_distributor);
+						}
+
+						if (!response.data.can_post.length) {
+							warnings.push(dt.no_push);
+						}
+
+						warnings.forEach(function(warning) {
+							var warningNode = document.createElement('li');
+							warningNode.innerText = warning;
+
+							endpointErrors.append(warningNode);
+						});
+					} else {
+						endpointResult.setAttribute('data-endpoint-state', 'valid');
+						endpointResult.innerHTML = dt.good_connection;
+					}
 				}
 			}
 		}).complete(function() {
