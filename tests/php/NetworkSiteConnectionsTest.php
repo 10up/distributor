@@ -37,72 +37,63 @@ class NetworkSiteConnectionsTest extends \TestCase {
 		\WP_Mock::userFunction( 'get_current_user_id' );
 		\WP_Mock::userFunction( 'switch_to_blog' );
 		\WP_Mock::userFunction( 'add_filter' );
+		\WP_Mock::userFunction( 'restore_current_blog' );
+		\WP_Mock::userFunction( 'get_the_title' );
 		\WP_Mock::userFunction( 'remove_filter' );
 		\WP_Mock::userFunction( 'get_option' );
 
 		$this->connection_obj->site->blog_id = 2;
 
+		$original_url = 'original url';
+		$new_post_id = 123;
+
 		\WP_Mock::userFunction( 'wp_insert_post', [
-			'return' => 123,
+			'return' => $new_post_id,
 		] );
 
 		\WP_Mock::userFunction( 'update_post_meta', [
 		    'times'  => 1,
-		    'args'   => [ \WP_Mock\Functions::type( 'int' ), 'dt_original_post_id', true ],
+		    'args'   => [ $new_post_id, 'dt_original_post_id', true ],
 		    'return' => [],
 		] );
 
 		\WP_Mock::userFunction( 'update_post_meta', [
 		    'times'  => 1,
-		    'args'   => [ \WP_Mock\Functions::type( 'int' ), 'dt_original_blog_id', 925 ],
+		    'args'   => [ $new_post_id, 'dt_original_blog_id', 925 ],
 		    'return' => [],
 		] );
 
 		\WP_Mock::userFunction( 'update_post_meta', [
 		    'times'  => 1,
-		    'args'   => [ \WP_Mock\Functions::type( 'int' ), 'dt_syndicate_time', time() ],
-		    'return' => [],
-		] );
-
-		\WP_Mock::userFunction( 'get_post_meta', [
-			'return' => [
-				'no_dt_unlinked'         => [ 0 ],
-				'no_dt_original_post_id' => [ 0 ],
-				'no_dt_original_blog_id' => [ 0 ],
-				'no_dt_syndicate_time'   => [ 0 ],
-			],
-		] );
-
-		\WP_Mock::userFunction( 'update_post_meta', [
-		    'times'  => 1,
-		    'args'   => [ \WP_Mock\Functions::type( 'int' ), 'no_dt_unlinked', 0 ],
+		    'args'   => [ $new_post_id, 'dt_syndicate_time', time() ],
 		    'return' => [],
 		] );
 
 		\WP_Mock::userFunction( 'update_post_meta', [
 		    'times'  => 1,
-		    'args'   => [ \WP_Mock\Functions::type( 'int' ), 'no_dt_original_post_id', 0 ],
+		    'args'   => [ $new_post_id, 'dt_original_post_url', $original_url ],
 		    'return' => [],
 		] );
 
-		\WP_Mock::userFunction( 'update_post_meta', [
-		    'times'  => 1,
-		    'args'   => [ \WP_Mock\Functions::type( 'int' ), 'no_dt_original_blog_id', 0 ],
-		    'return' => [],
+		\WP_Mock::userFunction( 'get_permalink', [
+			'return' => $original_url,
 		] );
 
-		\WP_Mock::userFunction( 'update_post_meta', [
-		    'times'  => 1,
-		    'args'   => [ \WP_Mock\Functions::type( 'int' ), 'no_dt_syndicate_time', 0 ],
-		    'return' => [],
-		] );
-
-		\WP_Mock::userFunction( 'restore_current_blog' );
-		\WP_Mock::userFunction( 'get_the_title' );
+		/**
+		 * We will test the util prepare/set functions later
+		 */
+		\WP_Mock::userFunction( '\Distributor\Utils\prepare_media' );
+		\WP_Mock::userFunction( '\Distributor\Utils\prepare_taxonomy_terms' );
+		\WP_Mock::userFunction( '\Distributor\Utils\prepare_meta' );
+		\WP_Mock::userFunction( '\Distributor\Utils\set_media' );
+		\WP_Mock::userFunction( '\Distributor\Utils\set_taxonomy_terms' );
+		\WP_Mock::userFunction( '\Distributor\Utils\set_meta' );
 
 		\WP_Mock::onFilter( 'the_content' )
 			->with( '' )
 			->reply( '' );
+
+
 
 		\WP_Mock::expectFilterAdded( 'wp_insert_post_data', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'maybe_set_modified_date' ), 10, 2 );
 
@@ -123,26 +114,22 @@ class NetworkSiteConnectionsTest extends \TestCase {
 
 		$this->connection_obj->site->blog_id = 2;
 
-		\WP_Mock::userFunction( 'get_permalink' );
+		$original_url = 'original url';
+
 		\WP_Mock::userFunction( 'switch_to_blog' );
 		\WP_Mock::userFunction( 'restore_current_blog' );
 		\WP_Mock::userFunction( 'get_current_blog_id' );
 		\WP_Mock::userFunction( 'remove_filter' );
-
-		\WP_Mock::userFunction( 'get_post_meta', [
-			'return' => [
-				'no_dt_unlinked'         => [ 0 ],
-				'no_dt_original_post_id' => [ 0 ],
-				'no_dt_original_blog_id' => [ 0 ],
-				'no_dt_syndicate_time'   => [ 0 ],
-			],
-		] );
 
 		\WP_Mock::userFunction( 'get_post', [
 			'return' => (object) [
 				'post_tite' => 'My post title',
 				'meta'      => [],
 			],
+		] );
+
+		\WP_Mock::userFunction( 'get_permalink', [
+			'return' => $original_url,
 		] );
 
 		\WP_Mock::userFunction( 'wp_insert_post', [
@@ -162,40 +149,39 @@ class NetworkSiteConnectionsTest extends \TestCase {
 		] );
 
 		\WP_Mock::userFunction( 'update_post_meta', [
+		    'times'  => 1,
+		    'args'   => [ \WP_Mock\Functions::type( 'int' ), 'dt_original_post_url', $original_url ],
+		    'return' => [],
+		] );
+
+		\WP_Mock::userFunction( 'update_post_meta', [
 			'times'  => 1,
 			'args'   => [ \WP_Mock\Functions::type( 'int' ), 'dt_syndicate_time', time() ],
 			'return' => [],
 		] );
 
-		\WP_Mock::userFunction( 'update_post_meta', [
+		\WP_Mock::userFunction( 'get_post_meta', [
 		    'times'  => 1,
-		    'args'   => [ \WP_Mock\Functions::type( 'int' ), 'no_dt_unlinked', 0 ],
+		    'args'   => [ \WP_Mock\Functions::type( 'int' ), 'dt_connection_map', true ],
 		    'return' => [],
 		] );
 
 		\WP_Mock::userFunction( 'update_post_meta', [
-		    'times'  => 1,
-		    'args'   => [ \WP_Mock\Functions::type( 'int' ), 'no_dt_original_post_id', 0 ],
-		    'return' => [],
+			'times'  => 1,
+			'args'   => [ \WP_Mock\Functions::type( 'int' ), 'dt_connection_map', \WP_Mock\Functions::type( 'array' ) ],
 		] );
 
-		\WP_Mock::userFunction( 'update_post_meta', [
-		    'times'  => 1,
-		    'args'   => [ \WP_Mock\Functions::type( 'int' ), 'no_dt_original_blog_id', 0 ],
-		    'return' => [],
-		] );
 
-		\WP_Mock::userFunction( 'update_post_meta', [
-		    'times'  => 1,
-		    'args'   => [ \WP_Mock\Functions::type( 'int' ), 'no_dt_syndicate_time', 0 ],
-		    'return' => [],
-		] );
 
-		\WP_Mock::userFunction( 'update_post_meta', [
-		    'times'  => 1,
-		    'args'   => [ \WP_Mock\Functions::type( 'int' ), 'dt_connection_map', \WP_Mock\Functions::type( 'array' ) ],
-		    'return' => [],
-		] );
+		/**
+		 * We will test the util prepare/set functions later
+		 */
+		\WP_Mock::userFunction( '\Distributor\Utils\prepare_media' );
+		\WP_Mock::userFunction( '\Distributor\Utils\prepare_taxonomy_terms' );
+		\WP_Mock::userFunction( '\Distributor\Utils\prepare_meta' );
+		\WP_Mock::userFunction( '\Distributor\Utils\set_media' );
+		\WP_Mock::userFunction( '\Distributor\Utils\set_taxonomy_terms' );
+		\WP_Mock::userFunction( '\Distributor\Utils\set_meta' );
 
 		$this->assertTrue( count( $this->connection_obj->pull( [ [ 'remote_post_id' => 2 ] ] ) ) === 1 );
 
