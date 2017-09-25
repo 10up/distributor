@@ -218,7 +218,18 @@ function link() {
 	 * For external connections we use a saved update since we might not have access to sync from original
 	 */
 	if ( empty( $original_source_id ) ) {
+		$original_post_id = get_post_meta( $_GET['post'], 'dt_original_post_id', true );
+		$original_blog_id = get_post_meta( $_GET['post'], 'dt_original_blog_id', true );
 
+		$blog_id = get_current_blog_id();
+
+		switch_to_blog( $original_blog_id );
+
+		$connection = new \Distributor\InternalConnections\NetworkSiteConnection( get_site( $blog_id ) );
+
+		$connection->push( $original_post_id, array( 'remote_post_id' => $_GET['post'] ) );
+
+		restore_current_blog();
 	} else {
 		$update = get_post_meta( $_GET['post'], 'dt_subscription_update', true );
 
