@@ -134,8 +134,11 @@ class NetworkSiteConnection extends Connection {
 				update_post_meta( $new_post, 'dt_original_post_id', (int) $item_array['remote_post_id'] );
 				update_post_meta( $new_post, 'dt_original_blog_id', (int) $this->site->blog_id );
 				update_post_meta( $new_post, 'dt_syndicate_time', time() );
+				update_post_meta( $new_post, 'dt_original_post_url', esc_url_raw( $post->link ) );
 
 				\Distributor\Utils\set_meta( $new_post, $post->meta );
+				\Distributor\Utils\set_taxonomy_terms( $new_post, $post->terms );
+				\Distributor\Utils\set_media( $new_post, $post->media );
 			}
 
 			switch_to_blog( $this->site->blog_id );
