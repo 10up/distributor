@@ -203,6 +203,9 @@ class NetworkSiteConnectionsTest extends \TestCase {
 		\WP_Mock::userFunction( 'restore_current_blog' );
 		\WP_Mock::userFunction( 'get_permalink' );
 		\WP_Mock::userFunction( 'get_post_meta' );
+		\WP_Mock::userFunction( '\Distributor\Utils\prepare_media' );
+		\WP_Mock::userFunction( '\Distributor\Utils\prepare_taxonomy_terms' );
+		\WP_Mock::userFunction( '\Distributor\Utils\prepare_meta' );
 
 		$this->assertArrayHasKey( 'total_items', $this->connection_obj->remote_get() );
 
@@ -222,6 +225,9 @@ class NetworkSiteConnectionsTest extends \TestCase {
 		\WP_Mock::userFunction( 'restore_current_blog' );
 		\WP_Mock::userFunction( 'get_permalink' );
 		\WP_Mock::userFunction( 'get_post_meta' );
+		\WP_Mock::userFunction( '\Distributor\Utils\prepare_media' );
+		\WP_Mock::userFunction( '\Distributor\Utils\prepare_taxonomy_terms' );
+		\WP_Mock::userFunction( '\Distributor\Utils\prepare_meta' );
 
 		$this->connection_obj->site->blog_id = 321;
 

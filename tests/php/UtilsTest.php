@@ -363,6 +363,8 @@ class UtilsTest extends \TestCase {
 		$post_id = 1;
 		$media_item = $this->test_format_media_featured();
 
+		$new_image_id = 5;
+
 		$attached_media_post = new \stdClass();
 		$attached_media_post->ID = 1;
 		$attached_media_post->post_parent = 10;
@@ -377,17 +379,37 @@ class UtilsTest extends \TestCase {
 			'return' => [ $attached_media_post ],
 		] );
 
+		\WP_Mock::userFunction( 'wp_delete_attachment', [
+			'times'  => 1,
+			'args'   => [ $attached_media_post->ID, true ],
+		] );
+
 		\WP_Mock::userFunction( 'get_post_meta', [
 			'times'  => 1,
 			'args'   => [ $attached_media_post->ID, 'dt_original_media_url', true ],
 			'return' => 'http://mediaitem.com',
 		] );
 
-		Utils\set_media( $post_id, $media_item );
+		\WP_Mock::userFunction( '\Distributor\Utils\process_media', [
+			'times'  => 1,
+			'args'   => [ $media_item['source_url'], $post_id ],
+		] );
+
+		\WP_Mock::userFunction( 'update_post_meta', [
+			'times'  => 1,
+			'args'   => [ \WP_Mock\Functions::type( 'int' ), 'dt_original_media_url', $media_item['source_url'] ],
+		] );
+
+
+		Utils\set_media( $post_id, [ $media_item ] );
 	}
 
 	/**
 	 * Todo finish test_set_media
+	 */
+
+	/**
+	 * Todo finish process_media
 	 */
 
 }
