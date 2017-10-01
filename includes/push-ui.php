@@ -372,7 +372,7 @@ function menu_content() {
 				<# if ('internal' === connection.type) { #>
 					<span>{{ connection.url }}</span>
 				<# } else { #>
-					<span>{{ connection.name }}</span>
+					<span>{{{ connection.name }}}</span>
 				<# } #>
 
 				<# if ('internal' === connection.type && connection.syndicated) { #>
@@ -397,7 +397,7 @@ function menu_content() {
 								<?php foreach ( $dom_connections as $connection ) : ?>
 									<?php if ( 'external' === $connection['type'] ) : ?>
 										<div class="add-connection <?php if ( ! empty( $connection['syndicated'] ) ) : ?>syndicated<?php endif; ?>" data-connection-type="external" data-connection-id="<?php echo (int) $connection['id']; ?>">
-											<span><?php echo esc_html( get_the_title( $connection['id'] ) ); ?></span>
+											<span><?php echo wp_kses_post( get_the_title( $connection['id'] ) ); ?></span>
 										</div>
 									<?php else : ?>
 										<div class="add-connection <?php if ( ! empty( $connection['syndicated'] ) ) : ?>syndicated<?php endif; ?>" data-connection-type="internal" data-connection-id="<?php echo (int) $connection['id']; ?>">
