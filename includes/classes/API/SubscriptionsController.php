@@ -172,9 +172,9 @@ class SubscriptionsController extends \WP_REST_Controller {
 				'post_content' => wp_kses_post( $request['post_data']['content'] ),
 				'post_excerpt' => wp_kses_post( $request['post_data']['excerpt'] ),
 				// Todo: how do we properly sanitize this?
-				'meta'         => ( isset( $request['post_data']['distributor_meta'] ) ) ? $request['post_data']['distributor_meta'] : null,
-				'terms'        => ( isset( $request['post_data']['distributor_terms'] ) ) ? $request['post_data']['distributor_terms'] : null,
-				'media'        => ( isset( $request['post_data']['distributor_media'] ) ) ? $request['post_data']['distributor_media'] : null,
+				'meta'         => ( isset( $request['post_data']['distributor_meta'] ) ) ? $request['post_data']['distributor_meta'] : [],
+				'terms'        => ( isset( $request['post_data']['distributor_terms'] ) ) ? $request['post_data']['distributor_terms'] : [],
+				'media'        => ( isset( $request['post_data']['distributor_media'] ) ) ? $request['post_data']['distributor_media'] : [],
 			];
 
 			update_post_meta( (int) $request['post_id'], 'dt_subscription_update', $update );
@@ -195,17 +195,9 @@ class SubscriptionsController extends \WP_REST_Controller {
 				'post_excerpt' => $request['post_data']['excerpt'],
 			] );
 
-			if ( isset( $request['post_data']['distributor_meta'] ) ) {
-				\Distributor\Utils\set_meta( $request['post_id'], $request['post_data']['distributor_meta'] );
-			}
-
-			if ( isset( $request['post_data']['distributor_terms'] ) ) {
-				\Distributor\Utils\set_taxonomy_terms( $request['post_id'], $request['post_data']['distributor_terms'] );
-			}
-
-			if ( isset( $request['post_data']['distributor_media'] ) ) {
-				\Distributor\Utils\set_media( $request['post_id'], $request['post_data']['distributor_media'] );
-			}
+			\Distributor\Utils\set_meta( $request['post_id'], $request['post_data']['distributor_meta'] );
+			\Distributor\Utils\set_taxonomy_terms( $request['post_id'], $request['post_data']['distributor_terms'] );
+			\Distributor\Utils\set_media( $request['post_id'], $request['post_data']['distributor_media'] );
 
 			$response = new \WP_REST_Response();
 			$response->set_data( array( 'updated' => true ) );
