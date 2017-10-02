@@ -288,6 +288,7 @@ function syndicated_message( $post ) {
 	$post_type_object = get_post_type_object( $post->post_type );
 
 	$post_url = get_post_meta( $post->ID, 'dt_original_post_url', true );
+	$original_site_name = get_post_meta( $post->ID, 'dt_original_site_name', true );
 
 	if ( ! empty( $original_blog_id ) ) {
 		switch_to_blog( $original_blog_id );
@@ -298,7 +299,7 @@ function syndicated_message( $post ) {
 			$original_location_name  = sprintf( esc_html__( 'Blog #%d', 'distributor' ), $original_blog_id );
 		}
 	} else {
-		$original_location_name = get_the_title( $original_source_id );
+		$original_location_name = $original_site_name;
 	}
 
 	?>

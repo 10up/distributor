@@ -42,6 +42,10 @@ function process_distributor_attributes( $post, $request, $update ) {
 		update_post_meta( $post->ID, 'dt_original_source_id', (int) $request['distributor_original_source_id'] );
 	}
 
+	if ( ! empty( $request['distributor_original_site_name'] ) ) {
+		update_post_meta( $post->ID, 'dt_original_site_name', sanitize_text_field( $request['distributor_original_site_name'] ) );
+	}
+
 	if ( ! empty( $request['distributor_original_post_url'] ) ) {
 		update_post_meta( $post->ID, 'dt_original_post_url', esc_url_raw( $request['distributor_original_post_url'] ) );
 	}
@@ -103,7 +107,7 @@ function register_endpoints() {
 		},
 		'update_callback' => function( $value, $post ) { },
 		'schema' => array(
-			'description' => __( 'Taxonomy terms for Distributor.' ),
+			'description' => esc_html__( 'Taxonomy terms for Distributor.', 'distributor' ),
 			'type'        => 'object',
 		),
 	) );
@@ -118,8 +122,19 @@ function register_endpoints() {
 		},
 		'update_callback' => function( $value, $post ) { },
 		'schema' => array(
-			'description' => __( 'Media for Distributor.' ),
+			'description' => esc_html__( 'Media for Distributor.', 'distributor' ),
 			'type'        => 'object',
+		),
+	) );
+
+	register_rest_field( $post_types, 'distributor_original_site_name', array(
+		'get_callback' => function( $post_array ) {
+			return get_bloginfo( 'name' );
+		},
+		'update_callback' => function( $value, $post ) { },
+		'schema' => array(
+			'description' => esc_html__( 'Original site name for Distributor.', 'distributor' ),
+			'type'        => 'string',
 		),
 	) );
 }

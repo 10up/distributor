@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Distributor 1.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/distributor\n"
-"POT-Creation-Date: 2017-10-01 19:38:37+00:00\n"
+"POT-Creation-Date: 2017-10-02 02:04:34+00:00\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -53,20 +53,20 @@ msgstr ""
 msgid "No post data for update."
 msgstr ""
 
-#: includes/classes/API/SubscriptionsController.php:243
+#: includes/classes/API/SubscriptionsController.php:235
 msgid "Sorry, you are not allowed to create subscriptions."
 msgstr ""
 
-#: includes/classes/API/SubscriptionsController.php:258
+#: includes/classes/API/SubscriptionsController.php:250
 msgid "Cannot create existing subscription."
 msgstr ""
 
-#: includes/classes/API/SubscriptionsController.php:262
+#: includes/classes/API/SubscriptionsController.php:254
 msgid "Subscription post does not exist."
 msgstr ""
 
-#: includes/classes/API/SubscriptionsController.php:286
-#: includes/classes/API/SubscriptionsController.php:313
+#: includes/classes/API/SubscriptionsController.php:278
+#: includes/classes/API/SubscriptionsController.php:305
 msgid "Invalid post ID."
 msgstr ""
 
@@ -134,15 +134,15 @@ msgid "Could not connect to API endpoint."
 msgstr ""
 
 #: includes/classes/ExternalConnections/WordPressExternalConnection.php:117
-#: includes/classes/ExternalConnections/WordPressExternalConnection.php:304
+#: includes/classes/ExternalConnections/WordPressExternalConnection.php:305
 msgid "Could not determine remote post type endpoint"
 msgstr ""
 
-#: includes/classes/ExternalConnections/WordPressExternalConnection.php:272
+#: includes/classes/ExternalConnections/WordPressExternalConnection.php:273
 msgid "Post id required to push"
 msgstr ""
 
-#: includes/classes/ExternalConnections/WordPressExternalConnection.php:362
+#: includes/classes/ExternalConnections/WordPressExternalConnection.php:364
 msgid "Could not determine remote post id."
 msgstr ""
 
@@ -518,16 +518,20 @@ msgstr ""
 msgid "No connections available for syndication."
 msgstr ""
 
-#: includes/rest-api.php:91
+#: includes/rest-api.php:95
 msgid "Post meta for Distributor."
 msgstr ""
 
-#: includes/rest-api.php:106
+#: includes/rest-api.php:110
 msgid "Taxonomy terms for Distributor."
 msgstr ""
 
-#: includes/rest-api.php:121
+#: includes/rest-api.php:125
 msgid "Media for Distributor."
+msgstr ""
+
+#: includes/rest-api.php:136
+msgid "Original site name for Distributor."
 msgstr ""
 
 #: includes/subscriptions.php:273
@@ -538,25 +542,25 @@ msgstr ""
 msgid "Syndicated on: <strong>%s</strong>"
 msgstr ""
 
-#: includes/syndicated-post-ui.php:298
+#: includes/syndicated-post-ui.php:299
 msgid "Blog #%d"
 msgstr ""
 
-#: includes/syndicated-post-ui.php:308
+#: includes/syndicated-post-ui.php:309
 msgid "Syndicated from <a href=\"%s\">%s</a>."
 msgstr ""
 
-#: includes/syndicated-post-ui.php:309
+#: includes/syndicated-post-ui.php:310
 msgid ""
 "The original post will update this version unless you <a href=\"%s\">unlink "
 "from the original.</a>"
 msgstr ""
 
-#: includes/syndicated-post-ui.php:313
+#: includes/syndicated-post-ui.php:314
 msgid "Originally syndicated from <a href=\"%1$s\">%1$s</a>."
 msgstr ""
 
-#: includes/syndicated-post-ui.php:314
+#: includes/syndicated-post-ui.php:315
 msgid ""
 "This post has been forked from it's original. However, you can always <a "
 "href='%s'>restore it.</a>"
