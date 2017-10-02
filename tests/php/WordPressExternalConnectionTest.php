@@ -61,6 +61,7 @@ class WordPressExternalConnectionTest extends \TestCase {
 		\WP_Mock::userFunction( 'get_the_title' );
 		\WP_Mock::userFunction( 'wp_remote_post' );
 		\WP_Mock::userFunction( 'esc_html__' );
+		\WP_Mock::userFunction( 'get_bloginfo' );
 
 		$post_type = 'foo';
 
@@ -154,9 +155,11 @@ class WordPressExternalConnectionTest extends \TestCase {
 	 * @runInSeparateProcess
 	 */
 	public function test_pull() {
+		$post_id = 123;
 
 		\WP_Mock::userFunction( 'wp_remote_retrieve_response_code' );
 		\WP_Mock::userFunction( 'untrailingslashit' );
+		\WP_Mock::userFunction( 'sanitize_text_field' );
 
 		remote_get_setup();
 
@@ -177,7 +180,7 @@ class WordPressExternalConnectionTest extends \TestCase {
 
 		\WP_Mock::userFunction( 'update_post_meta', [
 			'times'  => 1,
-			'args'   => [ \WP_Mock\Functions::type( 'int' ), 'dt_original_post_id', 123 ],
+			'args'   => [ \WP_Mock\Functions::type( 'int' ), 'dt_original_post_id', $post_id ],
 			'return' => [],
 		] );
 
@@ -199,6 +202,18 @@ class WordPressExternalConnectionTest extends \TestCase {
 			'return' => [],
 		] );
 
+		\WP_Mock::userFunction( 'update_post_meta', [
+			'times'  => 1,
+			'args'   => [ \WP_Mock\Functions::type( 'int' ), 'dt_original_site_name', '' ],
+			'return' => [],
+		] );
+
+		\WP_Mock::userFunction( 'update_post_meta', [
+			'times'  => 1,
+			'args'   => [ \WP_Mock\Functions::type( 'int' ), 'dt_full_connection', false ],
+			'return' => [],
+		] );
+
 		\WP_Mock::userFunction( 'wp_remote_retrieve_headers', [
 			'times'  => 1,
 			'return' => [
@@ -206,6 +221,9 @@ class WordPressExternalConnectionTest extends \TestCase {
 			],
 		] );
 
+		$this->assertTrue( is_array( $this->connection->pull( [
+			[ 'remote_post_id' => $post_id ],
+		] ) ) );
 	}
 
 	/**
@@ -269,8 +287,9 @@ class WordPressExternalConnectionTest extends \TestCase {
 		\WP_Mock::userFunction( 'wp_remote_get' );
 		\WP_Mock::userFunction( 'untrailingslashit' );
 
-		$this->assertTrue( empty( $this->connection->check_connections()['errors'] ) );
-		$this->assertTrue( ! empty( $this->connection->check_connections()['warnings']['no_distributor'] ) );
+		$check = $this->connection->check_connections();
+
+		$this->assertTrue( ! empty( $check['errors']['no_distributor'] ) );
 	}
 
 	/**
@@ -301,6 +320,6 @@ class WordPressExternalConnectionTest extends \TestCase {
 			],
 		] );
 
-		$this->assertTrue( empty( $this->connection->check_connections()['warnings']['no_distributor'] ) );
+		$this->assertTrue( empty( $this->connection->check_connections()['errors']['no_distributor'] ) );
 	}
 }

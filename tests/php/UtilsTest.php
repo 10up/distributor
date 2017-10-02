@@ -366,7 +366,7 @@ class UtilsTest extends \TestCase {
 		$new_image_id = 5;
 
 		$attached_media_post = new \stdClass();
-		$attached_media_post->ID = 1;
+		$attached_media_post->ID = 3;
 		$attached_media_post->post_parent = 10;
 		$attached_media_post->post_title = 'title';
 		$attached_media_post->post_content = 'content';
@@ -390,16 +390,41 @@ class UtilsTest extends \TestCase {
 			'return' => 'http://mediaitem.com',
 		] );
 
-		\WP_Mock::userFunction( '\Distributor\Utils\process_media', [
+		\WP_Mock::userFunction( 'Distributor\Utils\process_media', [
 			'times'  => 1,
 			'args'   => [ $media_item['source_url'], $post_id ],
+			'return' => $new_image_id,
 		] );
 
 		\WP_Mock::userFunction( 'update_post_meta', [
 			'times'  => 1,
-			'args'   => [ \WP_Mock\Functions::type( 'int' ), 'dt_original_media_url', $media_item['source_url'] ],
+			'args'   => [ $new_image_id, 'dt_original_media_url', $media_item['source_url'] ],
 		] );
 
+		\WP_Mock::userFunction( 'update_post_meta', [
+			'times'  => 1,
+			'args'   => [ $post_id, '_thumbnail_id', $new_image_id ],
+		] );
+
+		\WP_Mock::userFunction( 'update_post_meta', [
+			'times'  => 1,
+			'args'   => [ $new_image_id, 'meta1', true ],
+		] );
+
+		\WP_Mock::userFunction( 'update_post_meta', [
+			'times'  => 1,
+			'args'   => [ $new_image_id, 'meta2', false ],
+		] );
+
+		\WP_Mock::userFunction( 'wp_update_post', [
+			'times'  => 1,
+			'args'   => [ [
+				'ID'         => $new_image_id,
+				'post_title' => $attached_media_post->post_title,
+				'post_content' => $attached_media_post->post_content,
+				'post_excerpt' => $attached_media_post->post_excerpt,
+			] ],
+		] );
 
 		Utils\set_media( $post_id, [ $media_item ] );
 	}
