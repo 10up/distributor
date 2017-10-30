@@ -91,8 +91,8 @@
 
 			_.each(dt_connections, function(connection, id) {
 				if ('' !== searchString) {
-					var nameMatch = connection.name.replace(/[^0-9a-zA-Z ]+/, '').match(searchString);
-					var urlMatch = connection.url.replace(/https?:\/\//i, '').replace(/www/i, '').replace(/[^0-9a-zA-Z ]+/, '').match(searchString);
+					var nameMatch = connection.name.replace(/[^0-9a-zA-Z ]+/, '').toLowerCase().match(searchString.toLowerCase());
+					var urlMatch = connection.url.replace(/https?:\/\//i, '').replace(/www/i, '').replace(/[^0-9a-zA-Z ]+/, '').toLowerCase().match(searchString.toLowerCase());
 
 					if (!nameMatch && !urlMatch) {
 						return;

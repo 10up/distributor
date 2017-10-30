@@ -7,14 +7,16 @@ namespace Distributor\PushUI;
  *
  * @since 0.8
  */
-add_action( 'plugins_loaded', function() {
-	add_action( 'admin_enqueue_scripts', __NAMESPACE__  . '\enqueue_scripts' );
-	add_action( 'wp_enqueue_scripts', __NAMESPACE__  . '\enqueue_scripts' );
-	add_action( 'wp_ajax_dt_push', __NAMESPACE__  . '\ajax_push' );
-	add_action( 'admin_bar_menu', __NAMESPACE__ . '\menu_button', 999 );
-	add_action( 'wp_footer', __NAMESPACE__ . '\menu_content', 10, 1 );
-	add_action( 'admin_footer', __NAMESPACE__ . '\menu_content', 10, 1 );
-} );
+function setup() {
+	add_action( 'plugins_loaded', function() {
+		add_action( 'admin_enqueue_scripts', __NAMESPACE__ . '\enqueue_scripts' );
+		add_action( 'wp_enqueue_scripts', __NAMESPACE__ . '\enqueue_scripts' );
+		add_action( 'wp_ajax_dt_push', __NAMESPACE__ . '\ajax_push' );
+		add_action( 'admin_bar_menu', __NAMESPACE__ . '\menu_button', 999 );
+		add_action( 'wp_footer', __NAMESPACE__ . '\menu_content', 10, 1 );
+		add_action( 'admin_footer', __NAMESPACE__ . '\menu_content', 10, 1 );
+	} );
+}
 
 
 /**
@@ -35,7 +37,7 @@ function syndicatable() {
 	    	return false;
 	    }
 
-	    if ( 'dt_ext_connection' === get_post_type() || ( ! empty( $_GET['post_type'] ) && 'dt_ext_connection' === $_GET['post_type'] ) ) {
+	    if ( ! in_array( get_post_type(), \Distributor\Utils\distributable_post_types() ) || ( ! empty( $_GET['post_type'] ) && 'dt_ext_connection' === $_GET['post_type'] ) ) {
 	    	return false;
 	    }
 	} else {
@@ -107,7 +109,7 @@ function ajax_push() {
 					$push_args['remote_post_id'] = (int) $connection_map['external'][ (int) $connection['id'] ]['post_id'];
 				}
 
-				if ( ! empty( $_POST['draft' ] ) ) {
+				if ( ! empty( $_POST['draft'] ) ) {
 					$push_args['post_status'] = 'draft';
 				}
 
@@ -144,7 +146,7 @@ function ajax_push() {
 				$push_args['remote_post_id'] = (int) $connection_map['internal'][ (int) $connection['id'] ]['post_id'];
 			}
 
-			if ( ! empty( $_POST['draft' ] ) ) {
+			if ( ! empty( $_POST['draft'] ) ) {
 				$push_args['post_status'] = 'draft';
 			}
 
@@ -264,7 +266,7 @@ function menu_content() {
 		<div class="distributor-push-wrapper">
 			<div class="inner">
 				<p class="syndicated-notice">
-					<?php echo sprintf( __( 'This post has been syndicated from <a href="%s">%s</a>.', 'distributor' ), esc_url( $site_url ), esc_html( $blog_name ) ); ?>
+					<?php echo sprintf( __( 'This post has been syndicated from <a href="%1$s">%1$s</a>.', 'distributor' ), esc_url( $site_url ), esc_html( $blog_name ) ); ?>
 					<?php if ( ! empty( $post_url ) ) : ?>
 						<?php echo sprintf( __( 'You can <a href="%s">view the original</a>.', 'distributor' ), esc_url( $post_url ) ); ?>
 					<?php endif; ?>
@@ -370,7 +372,7 @@ function menu_content() {
 				<# if ('internal' === connection.type) { #>
 					<span>{{ connection.url }}</span>
 				<# } else { #>
-					<span>{{ connection.name }}</span>
+					<span>{{{ connection.name }}}</span>
 				<# } #>
 
 				<# if ('internal' === connection.type && connection.syndicated) { #>
@@ -395,7 +397,7 @@ function menu_content() {
 								<?php foreach ( $dom_connections as $connection ) : ?>
 									<?php if ( 'external' === $connection['type'] ) : ?>
 										<div class="add-connection <?php if ( ! empty( $connection['syndicated'] ) ) : ?>syndicated<?php endif; ?>" data-connection-type="external" data-connection-id="<?php echo (int) $connection['id']; ?>">
-											<span><?php echo esc_html( get_the_title( $connection['id'] ) ); ?></span>
+											<span><?php echo wp_kses_post( get_the_title( $connection['id'] ) ); ?></span>
 										</div>
 									<?php else : ?>
 										<div class="add-connection <?php if ( ! empty( $connection['syndicated'] ) ) : ?>syndicated<?php endif; ?>" data-connection-type="internal" data-connection-id="<?php echo (int) $connection['id']; ?>">

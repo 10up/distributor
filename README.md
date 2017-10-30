@@ -10,8 +10,8 @@ Distributor is a WordPress plugin allowing you to syndicate content to and from 
 ## Requirements
 
 * PHP 5.6+
-* [WordPress](http://wordpress.org) 4.6+
-* [WP REST API 2.0 beta 12](http://v2.wp-api.org/) (if pushing to external websites)
+* [WordPress](http://wordpress.org) 4.7+
+* External connections require HTTP Basic Authentication be set up on the remote website. We recommend the [Application Passwords](https://wordpress.org/plugins/application-passwords/) plugin.
 
 ## Testing
 
@@ -19,3 +19,7 @@ The plugin contains a standard test suite compatible with PHPUnit. If you want t
 
 ## Plugin Usage and Extensive Documentation
 This lives in the [internal docs site](https://internal.10up.com/docs/distributor-plugin) for now.
+
+## Debugging
+
+You can define a constant `DISTRIBUTOR_DEBUG` to `true` to increase the ease of debugging in Distributor. This will make all remote requests blocking and expose the subscription post type.

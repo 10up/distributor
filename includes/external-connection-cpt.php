@@ -7,29 +7,30 @@ namespace Distributor\ExternalConnectionCPT;
  *
  * @since 0.8
  */
-add_action( 'plugins_loaded', function() {
-	add_action( 'init', __NAMESPACE__ . '\setup_cpt' );
-	add_filter( 'enter_title_here', __NAMESPACE__ . '\filter_enter_title_here', 10, 2 );
-	add_filter( 'post_updated_messages', __NAMESPACE__ . '\filter_post_updated_messages' );
-	add_action( 'save_post', __NAMESPACE__  . '\save_post' );
-	add_action( 'admin_enqueue_scripts', __NAMESPACE__  . '\admin_enqueue_scripts' );
-	add_action( 'wp_ajax_dt_verify_external_connection', __NAMESPACE__  . '\ajax_verify_external_connection' );
-	add_action( 'wp_ajax_dt_verify_external_connection_endpoint', __NAMESPACE__  . '\ajax_verify_external_connection_endpoint' );
-	add_action( 'admin_footer', __NAMESPACE__  . '\js_templates' );
-	add_filter( 'manage_dt_ext_connection_posts_columns', __NAMESPACE__  . '\filter_columns' );
-	add_action( 'manage_dt_ext_connection_posts_custom_column', __NAMESPACE__  . '\action_custom_columns', 10, 2 );
-	add_action( 'admin_menu', __NAMESPACE__  . '\add_menu_item' );
-	add_action( 'admin_menu', __NAMESPACE__  . '\add_submenu_item', 11 );
-	add_action( 'load-toplevel_page_distributor', __NAMESPACE__ . '\setup_list_table' );
-	add_filter( 'set-screen-option', __NAMESPACE__ . '\set_screen_option', 10, 3 );
-} );
+function setup() {
+	add_action( 'plugins_loaded', function() {
+		add_action( 'init', __NAMESPACE__ . '\setup_cpt' );
+		add_filter( 'enter_title_here', __NAMESPACE__ . '\filter_enter_title_here', 10, 2 );
+		add_filter( 'post_updated_messages', __NAMESPACE__ . '\filter_post_updated_messages' );
+		add_action( 'save_post', __NAMESPACE__ . '\save_post' );
+		add_action( 'admin_enqueue_scripts', __NAMESPACE__ . '\admin_enqueue_scripts' );
+		add_action( 'wp_ajax_dt_verify_external_connection', __NAMESPACE__ . '\ajax_verify_external_connection' );
+		add_action( 'wp_ajax_dt_verify_external_connection_endpoint', __NAMESPACE__ . '\ajax_verify_external_connection_endpoint' );
+		add_filter( 'manage_dt_ext_connection_posts_columns', __NAMESPACE__ . '\filter_columns' );
+		add_action( 'manage_dt_ext_connection_posts_custom_column', __NAMESPACE__ . '\action_custom_columns', 10, 2 );
+		add_action( 'admin_menu', __NAMESPACE__ . '\add_menu_item' );
+		add_action( 'admin_menu', __NAMESPACE__ . '\add_submenu_item', 11 );
+		add_action( 'load-toplevel_page_distributor', __NAMESPACE__ . '\setup_list_table' );
+		add_filter( 'set-screen-option', __NAMESPACE__ . '\set_screen_option', 10, 3 );
+	} );
+}
 
 /**
  * Set screen option for posts per page
- * 
+ *
  * @param  string $status
  * @param  string $option
- * @param  mixed $value
+ * @param  mixed  $value
  * @since  0.8
  * @return mixed
  */
@@ -170,20 +171,18 @@ function admin_enqueue_scripts( $hook ) {
 		wp_enqueue_style( 'dt-admin-external-connection', plugins_url( $css_path, __DIR__ ), array(), DT_VERSION );
 	    wp_enqueue_script( 'dt-admin-external-connection', plugins_url( $js_path, __DIR__ ), array( 'jquery', 'underscore' ), DT_VERSION, true );
 
-	    wp_localize_script( 'dt-admin-external-connection', 'sy', array(
+	    wp_localize_script( 'dt-admin-external-connection', 'dt', array(
 	    	'nonce' => wp_create_nonce( 'dt-verify-ext-conn' ),
-	    	'no_external_connection' => esc_html__( "Can't connect to API.", 'distributor' ),
-	    	'no_types' => esc_html__( "No content types found to pull or push. This probably means the WordPress API is available but V2 of the JSON REST API hasn't been installed to provide any routes.", 'distributor' ),
-	    	'invalid_endpoint' => esc_html__( "This doesn't seem to be a valid API endpoint.", 'distributor' ),
-	    	'will_confirm_endpoint' => esc_html__( 'We will confirm the API endpoint works.', 'distributor' ),
-	    	'valid_endpoint' => esc_html__( 'This is a valid API endpoint.', 'distributor' ),
-	    	'endpoint_suggestion' => esc_html__( 'How about: ', 'distributor' ),
-	    	'can_post' => esc_html__( 'Can push:', 'distributor' ),
-	    	'can_get' => esc_html__( 'Can pull:', 'distributor' ),
+	    	'bad_connection' => esc_html__( 'No connection found.', 'distributor' ),
+	    	'good_connection' => esc_html__( 'Connection established.', 'distributor' ),
+	    	'limited_connection' => esc_html__( 'Limited connection established.', 'distributor' ),
+	    	'endpoint_suggestion' => esc_html__( 'Did you mean: ', 'distributor' ),
 	    	'endpoint_checking_message' => esc_html__( 'Checking endpoint...', 'distributor' ),
-	    	'no_connection_check' => esc_html__( 'No external connection has been checked.', 'distributor' ),
+	    	'no_push' => esc_html__( 'Push unavailable.', 'distributor' ),
 	    	'change' => esc_html__( 'Change', 'distributor' ),
 	    	'cancel' => esc_html__( 'Cancel', 'distributor' ),
+	    	'no_distributor' => esc_html__( 'Distributor not installed on remote site.', 'distributor' ),
+	    	'roles_warning' => esc_html__( 'Be careful assigning less trusted roles push privileges as they will inherit the capabilities of the user on the remote site.', 'distributor' ),
 	    ) );
 
 		wp_dequeue_script( 'autosave' );
@@ -304,57 +303,6 @@ function save_post( $post_id ) {
  */
 function add_meta_boxes() {
 	add_meta_box( 'dt_external_connection_details', esc_html__( 'External Connection Details', 'distributor' ), __NAMESPACE__ . '\meta_box_external_connection_details', 'dt_ext_connection', 'normal', 'core' );
-	add_meta_box( 'dt_external_connection_connection', esc_html__( 'External Connection Status', 'distributor' ), __NAMESPACE__ . '\meta_box_external_connection', 'dt_ext_connection', 'side', 'core' );
-}
-
-/**
- * Output connection meta box to show status of API
- *
- * @param  WP_Post $post
- * @since  0.8
- */
-function meta_box_external_connection( $post ) {
-	$external_connections = get_post_meta( $post->ID, 'dt_external_connections', true );
-	$check_time = get_post_meta( $post->ID, 'dt_external_connection_check_time', true );
-
-	$lang = array(
-		'no_external_connection' => esc_html__( "Can't connect to API.", 'distributor' ),
-		'can_post'               => esc_html__( 'Can push:', 'distributor' ),
-		'can_get'                => esc_html__( 'Can pull:', 'distributor' ),
-		'no_types'               => esc_html__( "No content types found to pull or push. This probably means the WordPress API is available but V2 of the JSON REST API hasn't been installed to provide any routes", 'distributor' ),
-	);
-
-	if ( ! empty( $external_connections ) ) : ?>
-		<div class="external-connection-verification">
-			<ul class="errors">
-				<?php foreach ( $external_connections['errors'] as $error ) : ?>
-					<li><?php echo esc_html( $lang[ $error ] ); ?></li>
-				<?php endforeach; ?>
-
-				<?php if ( empty( $external_connections['errors'] ) ) : ?>
-					<?php if ( empty( $external_connections['can_get'] ) ) : ?>
-						<li><?php esc_html_e( 'Can not pull any content types.', 'distributor' ); ?></li>
-					<?php endif; ?>
-
-					<?php if ( empty( $external_connections['can_post'] ) ) : ?>
-						<li><?php esc_html_e( 'Can not push any content types.', 'distributor' ); ?></li>
-					<?php endif; ?>
-				<?php endif; ?>
-			</ul>
-
-			<ul class="successes">
-				<?php if ( ! empty( $external_connections['can_get'] ) ) : ?>
-					<li><?php echo esc_html( $lang['can_get'] . ' ' . implode( ', ', $external_connections['can_get'] ) ); ?></li>
-				<?php endif; ?>
-				<?php if ( ! empty( $external_connections['can_post'] ) ) : ?>
-					<li><?php echo esc_html( $lang['can_post'] . ' ' . implode( ', ', $external_connections['can_post'] ) ); ?></li>
-				<?php endif; ?>
-			</ul>
-		</div>
-	<?php else : ?>
-		<p><?php esc_html_e( 'No external connection has been checked.', 'distributor' ); ?></p>
-	<?php
-	endif;
 }
 
 /**
@@ -413,47 +361,37 @@ function meta_box_external_connection_details( $post ) {
 		</p>
 	<?php endif; ?>
 
-	<?php foreach ( $registered_external_connection_types as $external_connection_class ) : $auth_handler_class_again = $external_connection_class::$auth_handler_class; if ( ! $auth_handler_class_again::$requires_credentials ) { continue; } ?>
+	<?php foreach ( $registered_external_connection_types as $external_connection_class ) : $auth_handler_class_again = $external_connection_class::$auth_handler_class;
+		if ( ! $auth_handler_class_again::$requires_credentials ) { continue; } ?>
 		<div class="auth-credentials <?php echo esc_attr( $auth_handler_class_again::$slug ); ?>">
 			<?php $auth_handler_class_again::credentials_form( $auth ); ?>
 		</div>
 	<?php endforeach; ?>
-
-	<p>
-		<label for="dt_external_connection_allowed_roles"><?php esc_html_e( 'Roles Allowed to Push', 'distributor' ); ?></label><br>
-
-		<select name="dt_external_connection_allowed_roles[]" id="dt_external_connection_allowed_roles" multiple="multiple">
-			<?php
-			$editable_roles = get_editable_roles();
-			foreach ( $editable_roles as $role => $details ) {
-				$name = translate_user_role( $details['name'] );
-				if ( in_array( $role, $allowed_roles ) ) {
-					echo "<option selected='selected' value='" . esc_attr( $role ) . "'>$name</option>";
-				} else {
-					echo "<option value='" . esc_attr( $role ) . "'>$name</option>";
-				}
-			}
-			?>
-		</select>
-	</p>
-	<p>
+	<div class="connection-field-wrap">
 		<label for="dt_external_connection_url"><?php esc_html_e( 'External Connection URL', 'distributor' ); ?></label><br>
 		<span class="external-connection-url-field-wrapper">
 			<input value="<?php echo esc_url( $external_connection_url ); ?>" type="text" name="dt_external_connection_url" id="dt_external_connection_url" class="widefat external-connection-url-field">
 		</span>
-		<span class="description endpoint-result">
-			<?php if ( empty( $external_connections ) ) : ?>
-				<?php esc_html_e( 'We will confirm the API endpoint works.', 'distributor' ); ?>
-			<?php elseif ( empty( $external_connections['errors'] ) || ( 1 === count( $external_connections['errors'] ) && ! empty( $external_connections['errors']['no_types'] ) ) ) : ?>
-				<span class="dashicons dashicons-yes"></span><?php esc_html_e( 'This is a valid API endpoint.', 'distributor' ); ?>
-			<?php else : ?>
 
-				<span class="dashicons dashicons-warning"></span><?php esc_html_e( "This doesn't seem to be a valid API endpoint.", 'distributor' ); ?>
-				<?php if ( ! empty( $external_connections['endpoint_suggestion'] ) ) : ?>
-					<?php esc_html_e( 'How about:', 'distributor' ); ?> <a class="suggest"><?php echo esc_html( $external_connections['endpoint_suggestion'] ); ?></a>
-				<?php endif; ?>
-			<?php endif; ?>
-		</span>
+		<span class="description endpoint-result"></span>
+		<ul class="endpoint-errors"></ul>
+	</div>
+
+	<p class="dt-roles-allowed">
+		<label><?php esc_html_e( 'Roles Allowed to Push', 'distributor' ); ?></label><br>
+
+		<?php
+		$editable_roles = get_editable_roles();
+		foreach ( $editable_roles as $role => $details ) {
+			$name = translate_user_role( $details['name'] );
+			?>
+
+			<label for="dt-role-<?php echo esc_attr( $role ); ?>"><input class="dt-role-checkbox" name="dt_external_connection_allowed_roles[]" id="dt-role-<?php echo esc_attr( $role ); ?>" type="checkbox" <?php checked( true, in_array( $role, $allowed_roles ) ); ?> value="<?php echo esc_attr( $role ); ?>"> <?php echo esc_html( $name ); ?></label><br>
+
+			<?php
+		}
+		?>
+		<span class="description"><?php esc_html_e( 'Please be warned all these users will inherit the permissions of the user on the remote site', 'distributor' ); ?></p>
 	</p>
 
 	<p>
@@ -463,7 +401,7 @@ function meta_box_external_connection_details( $post ) {
 		<?php if ( 0 < strtotime( $post->post_date_gmt . ' +0000' ) ) : ?>
 
 			<input name="save" type="submit" class="button button-primary button-large" id="publish" value="<?php esc_attr_e( 'Update Connection', 'distributor' ) ?>">
-		
+
 			<a class="delete-link" href="<?php echo esc_url( get_delete_post_link( $post->ID ) ); ?> "><?php esc_html_e( 'Move to Trash', 'distributor' ); ?></a>
 		<?php else : ?>
 			<input name="publish" type="submit" class="button button-primary button-large" id="publish" value="<?php esc_attr_e( 'Create Connection', 'distributor' ) ?>">
@@ -488,11 +426,7 @@ function dashboard() {
 	?>
 
 	<div class="wrap">
-		<h1><span class="beta"><?php esc_html_e( 'beta', 'distributor' ); ?></span> <?php esc_html_e( 'External Connections', 'distributor' ); ?> <a href="<?php echo esc_url( admin_url( 'post-new.php?post_type=dt_ext_connection' ) ); ?>" class="page-title-action"><?php esc_html_e( 'Add New', 'distributor' ); ?></a></h1>
-		<div class="network-connections-notice">
-			<strong><?php esc_html_e( "This feature is in beta. We can't push or pull meta data or images from external websites.", 'distributor' ); ?></strong>
-		</div>
-
+		<h1><?php esc_html_e( 'External Connections', 'distributor' ); ?> <a href="<?php echo esc_url( admin_url( 'post-new.php?post_type=dt_ext_connection' ) ); ?>" class="page-title-action"><?php esc_html_e( 'Add New', 'distributor' ); ?></a></h1>
 
 		<?php $connection_list_table->views(); ?>
 
@@ -537,11 +471,11 @@ function add_menu_item() {
 		'Distributor',
 		apply_filters( 'dt_capabilities', 'manage_options' ),
 		'distributor',
-		__NAMESPACE__  . '\dashboard',
+		__NAMESPACE__ . '\dashboard',
 		'dashicons-share-alt2'
 	);
 
-	add_action( "load-$hook", __NAMESPACE__  . '\screen_option' );
+	add_action( "load-$hook", __NAMESPACE__ . '\screen_option' );
 }
 
 /**
@@ -552,7 +486,7 @@ function add_menu_item() {
 function add_submenu_item() {
 	global $submenu;
 	unset( $submenu['distributor'][0] );
-	add_submenu_page( 'distributor', esc_html__( 'External Connections', 'distributor' ), '<span class="beta">' . esc_html__( 'beta', 'distributor' ) . '</span>' . esc_html__( 'External Connections', 'distributor' ), apply_filters( 'dt_external_capabilities', 'manage_options' ), 'distributor' );
+	add_submenu_page( 'distributor', esc_html__( 'External Connections', 'distributor' ), esc_html__( 'External Connections', 'distributor' ), apply_filters( 'dt_external_capabilities', 'manage_options' ), 'distributor' );
 }
 
 /**
@@ -622,44 +556,4 @@ function filter_post_updated_messages( $messages ) {
 
 	return $messages;
 }
-
-/**
- * Output templates for working with external connections
- *
- * @since  0.8
- */
-function js_templates() {
-	?>
-	<script type="text/html" id="dt-external-connection-verification">
-		<div class="external-connection-verification">
-			<ul class="errors">
-				<# _.each(errors, function(error) {  #>
-					<li>{{ sy[error] }}</li>
-				<# }); #>
-
-				<# if (0 === Object.keys(errors).length) { #>
-					<# if (!can_get.length) { #>
-						<li><?php esc_html_e( 'Can not pull any content types.', 'distributor' ); ?></li>
-					<# } #>
-
-					<# if (!can_post.length) { #>
-						<li><?php esc_html_e( 'Can not push any content types.', 'distributor' ); ?></li>
-					<# } #>
-				<# } #>
-			</ul>
-
-			<ul class="successes">
-				<# if (can_get.length) { #>
-					<li>{{ sy.can_get }} {{ can_get.join(', ') }}</li>
-				<# } #>
-
-				<# if (can_post.length) { #>
-					<li>{{ sy.can_post }} {{ can_post.join(', ') }}</li>
-				<# } #>
-			</ul>
-		</div>
-	</script>
-	<?php
-}
-
 

@@ -37,7 +37,7 @@ class WordPressBasicAuth extends Authentication {
 		<p>
 			<label for="dt_username"><?php esc_html_e( 'Username', 'distributor' ); ?></label><br>
 			<input type="text" name="dt_external_connection_auth[username]" data-auth-field="username" value="<?php echo esc_attr( $args['username'] ); ?>" class="auth-field" id="dt_username">
-			
+
 			<span class="description"><?php esc_html_e( 'We need a username (preferrably with an Administrator role) to the WordPress site with the API.', 'distributor' ); ?>
 		</p>
 
