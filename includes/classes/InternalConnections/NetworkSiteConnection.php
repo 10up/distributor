@@ -503,6 +503,7 @@ class NetworkSiteConnection extends Connection {
 	 */
 	public static function canonicalize_front_end() {
 		add_filter( 'get_canonical_url', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'canonical_url' ), 10, 2 );
+		add_filter( 'wpseo_canonical', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'wpseo_canonical_url' ) );
 	}
 
 	/**
@@ -526,5 +527,41 @@ class NetworkSiteConnection extends Connection {
 		$original_post_url = get_post_meta( $post->ID, 'dt_original_post_url', true );
 
 		return $original_post_url;
+	}
+
+	/**
+	 * Handles the canonical URL change for distributed content when Yoast SEO is in use
+	 *
+	 * @param string $canonical_url The Yoast WPSEO deduced canonical URL
+	 * @since  1.0
+	 * @return string $canonical_url The updated distributor friendly URL
+	 */
+	public static function wpseo_canonical_url( $canonical_url ) {
+
+		// Return as is if not on a singular page - taken from rel_canonical()
+		if ( ! is_singular() ) {
+			$canonical_url;
+		}
+
+		$id = get_queried_object_id();
+
+		// Return as is if we do not have a object id for context - taken from rel_canonical()
+		if ( 0 === $id ) {
+			return $canonical_url;
+		}
+
+		$post = get_post( $id );
+
+		// Return as is if we don't have a valid post object - taken from wp_get_canonical_url()
+		if ( ! $post ) {
+			return $canonical_url;
+		}
+
+		// Return as is if current post is not published - taken from wp_get_canonical_url()
+		if ( 'publish' !== $post->post_status ) {
+			return $canonical_url;
+		}
+
+		return self::canonical_url( $canonical_url, $post );
 	}
 }
