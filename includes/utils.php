@@ -121,6 +121,16 @@ function prepare_taxonomy_terms( $post_id ) {
 	$taxonomy_terms = [];
 	$taxonomies = get_object_taxonomies( $post );
 
+	/**
+	 * Filters the taxonomies that should be synced.
+	 *
+	 * @since 1.0
+	 *
+	 * @param array taxonomies  Associative array list of taxonomies supported by current post
+	 * @param object $post      The Post Object
+	 */
+	$taxonomies = apply_filters( 'dt_syncable_taxonomies', $taxonomies, $post );
+
 	foreach ( $taxonomies as $taxonomy ) {
 		$taxonomy_terms[ $taxonomy ] = wp_get_object_terms( $post_id, $taxonomy );
 	}
