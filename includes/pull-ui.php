@@ -381,8 +381,11 @@ function dashboard() {
 		<?php $connection_list_table->views(); ?>
 
 		<form id="posts-filter" class="status-<?php echo ( ! empty( $_GET['status'] ) ) ? esc_attr( $_GET['status'] ) : 'new'; ?>" method="get">
-			<input type="hidden" name="connection_type" value="<?php echo esc_attr( $connection_type ); ?>">
-			<input type="hidden" name="connection_id" value="<?php echo esc_attr( $connection_id ); ?>">
+			<?php if ( ! empty( $connection_list_table->connection_objects ) ) : ?>
+				<input type="hidden" name="connection_type" value="<?php echo esc_attr( $connection_type ); ?>">
+				<input type="hidden" name="connection_id" value="<?php echo esc_attr( $connection_id ); ?>">
+			<?php endif; ?>
+
 			<input type="hidden" name="page" value="pull">
 
 			<?php $connection_list_table->search_box( esc_html__( 'Search', 'distributor' ), 'post' ); ?>
