@@ -188,7 +188,7 @@ function delete_subscriptions( $post_id ) {
 			}
 
 			// We need to ensure any remote post is unlinked to this post
-			$request = wp_remote_post(
+			wp_remote_post(
 				untrailingslashit( $target_url ) . '/wp/v2/dt_subscription/receive', [
 					'timeout'  => 5,
 					'blocking' => \Distributor\Utils\is_dt_debug(),
