@@ -55,7 +55,7 @@ function add_distributor_column( $columns ) {
 function output_distributor_column( $column_name, $post_id ) {
 	$post_type = get_post_type( $post_id );
 
-	if ( ! in_array( $post_type, \Distributor\Utils\distributable_post_types() ) ) {
+	if ( ! in_array( $post_type, \Distributor\Utils\distributable_post_types(), true ) ) {
 		return;
 	}
 
