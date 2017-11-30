@@ -67,9 +67,9 @@ class PullListTable extends \WP_List_Table {
 		$current_status = ( empty( $_GET['status'] ) ) ? 'new' : $_GET['status'];
 
 		$status_links = [
-			'new'     => sprintf( __( '<a href="%1$s" class="%2$s">New</a>', 'distributor' ), esc_url( $_SERVER['REQUEST_URI'] . '&status=new' ), ( 'new' === $current_status ) ? 'current' : '' ),
-			'pulled'  => sprintf( __( '<a href="%1$s" class="%2$s">Pulled</a>', 'distributor' ), esc_url( $_SERVER['REQUEST_URI'] . '&status=pulled' ), ( 'pulled' === $current_status ) ? 'current' : '' ),
-			'skipped' => sprintf( __( '<a href="%1$s" class="%2$s">Skipped</a>', 'distributor' ), esc_url( $_SERVER['REQUEST_URI'] . '&status=skipped' ), ( 'skipped' === $current_status ) ? 'current' : '' ),
+			'new'     => '<a href="' . esc_url( $_SERVER['REQUEST_URI'] . '&status=new' ) . '" class="' . ( ( 'new' === $current_status ) ? 'current' : '' ) . '">' . esc_html__( 'New', 'distributor' ) . '</a>',
+			'pulled'  => '<a href="' . esc_url( $_SERVER['REQUEST_URI'] . '&status=pulled' ) . '" class="' . ( ( 'pulled' === $current_status ) ? 'current' : '' ) . '">' . esc_html__( 'Pulled', 'distributor' ) . '</a>',
+			'skipped' => '<a href="' . esc_url( $_SERVER['REQUEST_URI'] . '&status=skipped' ) . '" class="' . ( ( 'skipped' === $current_status ) ? 'current' : '' ) . '">' . esc_html__( 'Skipped', 'distributor' ) . '</a>',
 		];
 
 		return $status_links;
