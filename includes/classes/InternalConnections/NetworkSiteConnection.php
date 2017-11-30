@@ -209,6 +209,8 @@ class NetworkSiteConnection extends Connection {
 
 		switch_to_blog( $this->site->blog_id );
 
+		$query_args = array();
+
 		if ( empty( $id ) ) {
 			$query_args['post_type']      = ( empty( $args['post_type'] ) ) ? 'post' : $args['post_type'];
 			$query_args['post_status']    = ( empty( $args['post_status'] ) ) ? [ 'publish', 'draft', 'private', 'pending', 'future' ] : $args['post_status'];
