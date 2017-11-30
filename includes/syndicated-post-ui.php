@@ -120,7 +120,7 @@ function remove_quick_edit( $actions, $post ) {
  * @return string
  */
 function add_linked_class( $classes ) {
-	global $post, $pagenow, $dt_original_post;
+	global $post, $pagenow;
 
 	if ( 'post.php' !== $pagenow && 'post-new.php' !== $pagenow ) {
 		return;
@@ -155,8 +155,6 @@ function add_linked_class( $classes ) {
  * @since  0.8
  */
 function syndication_date( $post ) {
-	global $dt_original_post;
-
 	$syndicate_time = get_post_meta( $post->ID, 'dt_syndicate_time', true );
 
 	if ( empty( $syndicate_time ) ) {
@@ -166,7 +164,7 @@ function syndication_date( $post ) {
 	?>
 
 	<div class="misc-pub-section curtime misc-pub-curtime">
-		<span id="syndicate-time"><?php echo sprintf( __( 'Syndicated on: <strong>%s</strong>', 'syndicate' ), date( 'M j, Y @ h:i', $syndicate_time ) ); ?></span>
+		<span id="syndicate-time"><?php esc_html_e( 'Syndicated on: ', 'distributor' ); ?><strong><?php echo esc_html( date( 'M j, Y @ h:i', $syndicate_time ) ); ?></strong></span>
 	</div>
 
 	<?php
@@ -194,7 +192,7 @@ function unlink() {
 
 	do_action( 'dt_unlink_post' );
 
-	wp_redirect( admin_url( 'post.php?action=edit&post=' . $_GET['post'] ) );
+	wp_safe_redirect( admin_url( 'post.php?action=edit&post=' . $_GET['post'] ) );
 	exit;
 }
 
@@ -261,7 +259,7 @@ function link() {
 
 	do_action( 'dt_link_post' );
 
-	wp_redirect( admin_url( 'post.php?action=edit&post=' . $_GET['post'] ) );
+	wp_safe_redirect( admin_url( 'post.php?action=edit&post=' . $_GET['post'] ) );
 	exit;
 }
 
@@ -310,13 +308,13 @@ function syndicated_message( $post ) {
 	<div class="updated syndicate-status">
 		<?php if ( ! $unlinked ) : ?>
 			<p>
-				<?php echo sprintf( __( 'Syndicated from <a href="%1$s">%2$s</a>.', 'distributor' ), esc_url( $post_url ), esc_html( $original_location_name ) ); ?>
-				<span><?php echo sprintf( __( 'The original post will update this version unless you <a href="%s">unlink from the original.</a>', 'distributor' ), wp_nonce_url( add_query_arg( 'action', 'unlink', admin_url( sprintf( $post_type_object->_edit_link, $post->ID ) ) ), "unlink-post_{$post->ID}" ) ); ?></span>
+				<?php echo wp_kses_post( sprintf( __( 'Syndicated from <a href="%1$s">%2$s</a>.', 'distributor' ), esc_url( $post_url ), esc_html( $original_location_name ) ) ); ?>
+				<span><?php echo wp_kses_post( sprintf( __( 'The original post will update this version unless you <a href="%s">unlink from the original.</a>', 'distributor' ), wp_nonce_url( add_query_arg( 'action', 'unlink', admin_url( sprintf( $post_type_object->_edit_link, $post->ID ) ) ), "unlink-post_{$post->ID}" ) ) ); ?></span>
 			</p>
 		<?php else : ?>
 			<p>
-				<?php echo sprintf( __( 'Originally syndicated from <a href="%1$s">%1$s</a>.', 'distributor' ), esc_url( $post_url ), esc_html( $original_location_name ) ); ?>
-				<span><?php echo sprintf( __( "This post has been forked from it's original. However, you can always <a href='%s'>restore it.</a>", 'distributor' ), wp_nonce_url( add_query_arg( 'action', 'link', admin_url( sprintf( $post_type_object->_edit_link, $post->ID ) ) ), "link-post_{$post->ID}" ) ); ?></span>
+				<?php echo wp_kses_post( sprintf( __( 'Originally syndicated from <a href="%1$s">%1$s</a>.', 'distributor' ), esc_url( $post_url ), esc_html( $original_location_name ) ) ); ?>
+				<span><?php echo wp_kses_post( sprintf( __( "This post has been forked from it's original. However, you can always <a href='%s'>restore it.</a>", 'distributor' ), wp_nonce_url( add_query_arg( 'action', 'link', admin_url( sprintf( $post_type_object->_edit_link, $post->ID ) ) ), "link-post_{$post->ID}" ) ) ); ?></span>
 			</p>
 		<?php endif; ?>
 	</div>

@@ -51,7 +51,7 @@ spl_autoload_register(
  */
 add_action(
 	'send_headers', function() {
-		@header( 'X-Distributor: yes' );
+		header( 'X-Distributor: yes' );
 	}
 );
 

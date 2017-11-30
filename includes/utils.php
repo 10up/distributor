@@ -74,7 +74,7 @@ function prepare_meta( $post_id ) {
 	// Transfer all meta
 	foreach ( $meta as $meta_key => $meta_array ) {
 		foreach ( $meta_array as $meta_value ) {
-			if ( ! in_array( $meta_key, $blacklisted_meta ) ) {
+			if ( ! in_array( $meta_key, $blacklisted_meta, true ) ) {
 				$meta_value                 = maybe_unserialize( $meta_value );
 				$prepared_meta[ $meta_key ] = $meta_value;
 			}
