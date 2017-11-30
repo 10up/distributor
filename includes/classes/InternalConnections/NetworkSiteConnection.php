@@ -457,7 +457,7 @@ class NetworkSiteConnection extends Connection {
 		foreach ( $sites as $site ) {
 			$blog_id = $site->blog_id;
 
-			if ( $blog_id == $current_blog_id ) {
+			if ( $blog_id === $current_blog_id ) {
 				continue;
 			}
 

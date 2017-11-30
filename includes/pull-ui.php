@@ -53,8 +53,6 @@ function setup_list_table() {
 
 	$connection_list_table = new \Distributor\PullListTable();
 
-	global $connection_now;
-
 	if ( ! empty( \Distributor\Connections::factory()->get_registered()['networkblog'] ) ) {
 		$sites = \Distributor\InternalConnections\NetworkSiteConnection::get_available_authorized_sites();
 
@@ -188,8 +186,8 @@ function process_actions() {
 
 			if ( ! current_user_can( apply_filters( 'dt_pull_capabilities', 'manage_options' ) ) ) {
 				wp_die(
-					'<h1>' . __( 'Cheatin&#8217; uh?' ) . '</h1>' .
-					'<p>' . __( 'Sorry, you are not allowed to add this item.' ) . '</p>',
+					'<h1>' . esc_html__( 'Cheatin&#8217; uh?', 'distributor' ) . '</h1>' .
+					'<p>' . esc_html__( 'Sorry, you are not allowed to add this item.', 'distributor' ) . '</p>',
 					403
 				);
 			}
@@ -235,7 +233,7 @@ function process_actions() {
 				setcookie( 'dt-duplicated', 1, time() + DAY_IN_SECONDS, ADMIN_COOKIE_PATH, COOKIE_DOMAIN, is_ssl() );
 			}
 
-			wp_redirect( wp_get_referer() );
+			wp_safe_redirect( wp_get_referer() );
 			exit;
 
 			break;
@@ -247,8 +245,8 @@ function process_actions() {
 
 			if ( ! current_user_can( apply_filters( 'dt_pull_capabilities', 'manage_options' ) ) ) {
 				wp_die(
-					'<h1>' . __( 'Cheatin&#8217; uh?' ) . '</h1>' .
-					'<p>' . __( 'Sorry, you are not allowed to add this item.' ) . '</p>',
+					'<h1>' . esc_html__( 'Cheatin&#8217; uh?', 'distributor' ) . '</h1>' .
+					'<p>' . esc_html__( 'Sorry, you are not allowed to add this item.', 'distributor' ) . '</p>',
 					403
 				);
 			}
@@ -279,7 +277,7 @@ function process_actions() {
 
 			setcookie( 'dt-skipped', 1, time() + DAY_IN_SECONDS, ADMIN_COOKIE_PATH, COOKIE_DOMAIN, is_ssl() );
 
-			wp_redirect( wp_get_referer() );
+			wp_safe_redirect( wp_get_referer() );
 			exit;
 
 			break;
@@ -297,8 +295,6 @@ function dashboard() {
 	global $dt_pull_messages;
 
 	$connection_list_table->prepare_items();
-
-	$pagenum = $connection_list_table->get_pagenum();
 
 	if ( ! empty( $connection_now ) ) {
 		if ( is_a( $connection_now, '\Distributor\ExternalConnection' ) ) {
@@ -327,8 +323,11 @@ function dashboard() {
 			<?php
 			if ( empty( $connection_list_table->connection_objects ) ) :
 				$connection_now = 0;
-?>
-				<?php printf( __( 'No Connections to Pull from, <a href="%s">Create One</a>?', 'distributor' ), esc_url( admin_url( 'post-new.php?post_type=dt_ext_connection' ) ) ); ?>
+				?>
+				<?php esc_html_e( 'No Connections to Pull from,', 'distributor' ); ?>
+
+				<a href="<?php echo esc_url( admin_url( 'post-new.php?post_type=dt_ext_connection' ) ); ?>"><?php esc_html_e( 'Create One?', 'distributor' ); ?></a>
+
 			<?php else : ?>
 				<?php esc_html_e( 'Pull Content from', 'distributor' ); ?>
 				<select id="pull_connections" name="connection" method="get">

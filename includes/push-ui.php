@@ -133,7 +133,7 @@ function ajax_push() {
 						'status'  => 'success',
 					);
 				} else {
-					$external_push_results[ (int) $external_connection_id ] = array(
+					$external_push_results[ (int) $connection['id'] ] = array(
 						'post_id' => (int) $remote_id,
 						'date'    => date( 'F j, Y g:i a' ),
 						'status'  => 'fail',
@@ -274,10 +274,11 @@ function menu_content() {
 		<div class="distributor-push-wrapper">
 			<div class="inner">
 				<p class="syndicated-notice">
-					<?php echo sprintf( __( 'This post has been syndicated from <a href="%1$s">%1$s</a>.', 'distributor' ), esc_url( $site_url ), esc_html( $blog_name ) ); ?>
-					<?php if ( ! empty( $post_url ) ) : ?>
-						<?php echo sprintf( __( 'You can <a href="%s">view the original</a>.', 'distributor' ), esc_url( $post_url ) ); ?>
-					<?php endif; ?>
+					<?php esc_html_e( 'This post has been syndicated from', 'distributor' ); ?>
+					<a href="<?php echo esc_url( $site_url ); ?>"><?php echo esc_html( $blog_name ); ?></a>
+
+					<?php esc_html_e( 'You can ', 'distributor' ); ?>
+					<a href="<?php echo esc_url( $post_url ); ?>"><?php esc_html_e( 'view the original', 'distributor' ); ?></a>
 				</p>
 			</div>
 		</div>
@@ -298,7 +299,7 @@ function menu_content() {
 		if ( ! empty( \Distributor\Connections::factory()->get_registered()['networkblog'] ) ) {
 			$sites = \Distributor\InternalConnections\NetworkSiteConnection::get_available_authorized_sites();
 
-			foreach ( $sites as $key => $site_array ) {
+			foreach ( $sites as $site_array ) {
 				if ( in_array( $post->post_type, $site_array['post_types'], true ) ) {
 					$connection = new \Distributor\InternalConnections\NetworkSiteConnection( $site_array['site'] );
 
@@ -334,8 +335,9 @@ function menu_content() {
 		);
 
 		$current_post_type = get_post_type();
+
 		if ( ! empty( $_GET['post_type'] ) ) {
-			$current_post_type = $post_type;
+			$current_post_type = $_GET['post_type'];
 		}
 
 		if ( empty( $current_post_type ) ) {
@@ -383,7 +385,7 @@ function menu_content() {
 		}
 		?>
 		<script type="text/javascript">
-		var dt_connections = <?php echo json_encode( $dom_connections ); ?>;
+		var dt_connections = <?php echo wp_json_encode( $dom_connections ); ?>;
 		</script>
 
 		<script id="dt-add-connection" type="text/html">
@@ -404,7 +406,7 @@ function menu_content() {
 			<div class="inner">
 
 				<?php if ( ! empty( $dom_connections ) ) : ?>
-					<p><?php echo sprintf( __( 'Post &quot;%s&quot; to other connections.', 'distributor' ), get_the_title( $post->ID ) ); ?></p>
+					<p><?php echo sprintf( esc_html__( 'Post &quot;%s&quot; to other connections.', 'distributor' ), get_the_title( $post->ID ) ); ?></p>
 
 					<div class="connections-selector">
 						<div>
