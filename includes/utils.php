@@ -9,7 +9,7 @@ namespace Distributor\Utils;
  * @return boolean
  */
 function is_vip() {
-	return ( defined( 'WPCOM_IS_VIP_ENV' ) );
+	return ( defined( 'WPCOM_IS_VIP_ENV' ) && WPCOM_IS_VIP_ENV );
 }
 
 /**
@@ -50,6 +50,10 @@ function set_meta( $post_id, $meta ) {
  */
 function distributable_post_types() {
 	$post_types = get_post_types( [ 'public' => true ] );
+
+	if ( ! empty( $post_types['attachment'] ) ) {
+		unset( $post_types['attachment'] );
+	}
 
 	return apply_filters( 'distributable_post_types', array_diff( $post_types, [ 'dt_ext_connection', 'dt_subscription' ] ) );
 }

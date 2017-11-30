@@ -17,8 +17,13 @@ function setup() {
 			add_action( 'post_submitbox_misc_actions', __NAMESPACE__ . '\syndication_date' );
 			add_filter( 'admin_body_class', __NAMESPACE__ . '\add_linked_class' );
 			add_filter( 'post_row_actions', __NAMESPACE__ . '\remove_quick_edit', 10, 2 );
-			add_action( 'manage_posts_custom_column', __NAMESPACE__ . '\output_distributor_column', 10, 2 );
-			add_filter( 'manage_posts_columns', __NAMESPACE__ . '\add_distributor_column' );
+
+			$post_types = \Distributor\Utils\distributable_post_types();
+
+			foreach ( $post_types as $post_type ) {
+				add_action( 'manage_' . $post_type . '_posts_custom_column', __NAMESPACE__ . '\output_distributor_column', 10, 2 );
+				add_filter( 'manage_' . $post_type . '_posts_columns', __NAMESPACE__ . '\add_distributor_column' );
+			}
 		}
 	);
 }
@@ -31,12 +36,6 @@ function setup() {
  * @return array
  */
 function add_distributor_column( $columns ) {
-	$post_type = get_post_type();
-
-	if ( ! in_array( $post_type, \Distributor\Utils\distributable_post_types(), true ) ) {
-		return $columns;
-	}
-
 	unset( $columns['date'] );
 	$columns['distributor'] = esc_html__( 'Distributor', 'distributor' );
 
@@ -53,12 +52,6 @@ function add_distributor_column( $columns ) {
  * @since  1.0
  */
 function output_distributor_column( $column_name, $post_id ) {
-	$post_type = get_post_type( $post_id );
-
-	if ( ! in_array( $post_type, \Distributor\Utils\distributable_post_types(), true ) ) {
-		return;
-	}
-
 	if ( 'distributor' === $column_name ) {
 		$original_blog_id   = get_post_meta( $post_id, 'dt_original_blog_id', true );
 		$original_source_id = get_post_meta( $post_id, 'dt_original_source_id', true );
