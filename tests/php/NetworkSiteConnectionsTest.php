@@ -30,6 +30,7 @@ class NetworkSiteConnectionsTest extends \TestCase {
 					'post_content' => '',
 					'post_excerpt' => '',
 					'post_type'    => '',
+					'post_name'    => '',
 				],
 			]
 		);

@@ -86,6 +86,7 @@ class WordPressExternalConnectionTest extends \TestCase {
 					'post_content' => 'my post content',
 					'post_type'    => $post_type,
 					'post_excerpt' => 'post excerpt',
+					'post_name'    => 'slug',
 				],
 			]
 		);

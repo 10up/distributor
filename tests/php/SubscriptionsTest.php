@@ -93,7 +93,7 @@ class SubscriptionsTest extends \TestCase {
 				'args'  => [
 					$target_url . '/wp/v2/dt_subscription/receive',
 					[
-						'timeout'  => 10,
+						'timeout'  => 5,
 						'blocking' => \Distributor\Utils\is_dt_debug(),
 						'body'     => [
 							'post_id'          => $remote_post_id,
@@ -290,6 +290,7 @@ class SubscriptionsTest extends \TestCase {
 					$post               = new \stdClass();
 					$post->post_content = 'content';
 					$post->post_excerpt = 'excerpt';
+					$post->post_name    = 'slug';
 
 					return $post;
 				},
@@ -302,7 +303,7 @@ class SubscriptionsTest extends \TestCase {
 				'args'  => [
 					$target_url . '/wp/v2/dt_subscription/receive',
 					[
-						'timeout' => 10,
+						'timeout' => 5,
 						'body'    => [
 							'post_id'   => $remote_post_id,
 							'signature' => $signature,
@@ -310,6 +311,7 @@ class SubscriptionsTest extends \TestCase {
 								'title'             => 'title',
 								'content'           => 'content',
 								'excerpt'           => 'excerpt',
+								'slug'              => 'slug',
 								'distributor_media' => [],
 								'distributor_terms' => [],
 								'distributor_meta'  => [],
@@ -445,6 +447,7 @@ class SubscriptionsTest extends \TestCase {
 					$post               = new \stdClass();
 					$post->post_content = 'content';
 					$post->post_excerpt = 'excerpt';
+					$post->post_name = 'slug';
 
 					return $post;
 				},
@@ -457,12 +460,13 @@ class SubscriptionsTest extends \TestCase {
 				'args'  => [
 					$target_url . '/wp/v2/dt_subscription/receive',
 					[
-						'timeout' => 10,
+						'timeout' => 5,
 						'body'    => [
 							'post_id'   => $remote_post_id,
 							'signature' => $signature,
 							'post_data' => [
 								'title'             => 'title',
+								'slug'              => 'slug',
 								'content'           => 'content',
 								'excerpt'           => 'excerpt',
 								'distributor_media' => [],
@@ -645,7 +649,7 @@ class SubscriptionsTest extends \TestCase {
 				'args'  => [
 					\WP_Mock\Functions::type( 'string' ),
 					[
-						'timeout'  => 10,
+						'timeout'  => 5,
 						'blocking' => \Distributor\Utils\is_dt_debug(),
 						'body'     => [
 							'post_id'        => $remote_post_id,
