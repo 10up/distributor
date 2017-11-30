@@ -241,6 +241,7 @@ function send_notifications( $post_id ) {
 					'signature' => $signature,
 					'post_data' => [
 						'title'             => get_the_title( $post_id ),
+						'slug'              => $post->post_name,
 						'content'           => apply_filters( 'the_content', $post->post_content ),
 						'excerpt'           => $post->post_excerpt,
 						'distributor_media' => \Distributor\Utils\prepare_media( $post_id ),

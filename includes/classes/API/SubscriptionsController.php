@@ -174,6 +174,7 @@ class SubscriptionsController extends \WP_REST_Controller {
 			 */
 			$update = [
 				'post_title'   => sanitize_text_field( $request['post_data']['title'] ),
+				'post_name'    => sanitize_text_field( $request['post_data']['slug'] ),
 				'post_content' => wp_kses_post( $request['post_data']['content'] ),
 				'post_excerpt' => wp_kses_post( $request['post_data']['excerpt'] ),
 				// Todo: how do we properly sanitize this?
@@ -199,6 +200,7 @@ class SubscriptionsController extends \WP_REST_Controller {
 					'post_title'   => $request['post_data']['title'],
 					'post_content' => $request['post_data']['content'],
 					'post_excerpt' => $request['post_data']['excerpt'],
+					'post_name'    => $request['post_data']['slug'],
 				]
 			);
 

@@ -341,6 +341,7 @@ class WordPressExternalConnection extends ExternalConnection {
 		 */
 		$post_body = [
 			'title'                          => get_the_title( $post_id ),
+			'slug'                           => $post->post_name,
 			'content'                        => apply_filters( 'the_content', $post->post_content ),
 			'type'                           => $post->post_type,
 			'status'                         => ( ! empty( $args['post_status'] ) ) ? $args['post_status'] : 'publish',
