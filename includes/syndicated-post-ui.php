@@ -33,7 +33,7 @@ function setup() {
 function add_distributor_column( $columns ) {
 	$post_type = get_post_type();
 
-	if ( ! in_array( $post_type, \Distributor\Utils\distributable_post_types() ) ) {
+	if ( ! in_array( $post_type, \Distributor\Utils\distributable_post_types(), true ) ) {
 		return $columns;
 	}
 

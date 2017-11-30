@@ -499,7 +499,7 @@ class WordPressExternalConnection extends ExternalConnection {
 
 				foreach ( $types as $type_key => $type ) {
 
-					if ( in_array( $type_key, $blacklisted_types ) ) {
+					if ( in_array( $type_key, $blacklisted_types, true ) ) {
 						continue;
 					}
 
@@ -511,7 +511,7 @@ class WordPressExternalConnection extends ExternalConnection {
 					$route = str_replace( untrailingslashit( $this->base_url ), '', $link );
 
 					if ( ! empty( $routes[ $route ] ) ) {
-						if ( in_array( 'GET', $routes[ $route ]['methods'] ) ) {
+						if ( in_array( 'GET', $routes[ $route ]['methods'], true ) ) {
 							if ( is_vip() ) {
 								$type_response = vip_safe_wp_remote_get( $link, $this->auth_handler->format_get_args( array( 'timeout' => 10 ) ) );
 							} else {
@@ -527,7 +527,7 @@ class WordPressExternalConnection extends ExternalConnection {
 							}
 						}
 
-						if ( in_array( 'POST', $routes[ $route ]['methods'] ) ) {
+						if ( in_array( 'POST', $routes[ $route ]['methods'], true ) ) {
 							$type_response = wp_remote_post(
 								$link, $this->auth_handler->format_post_args(
 									array(

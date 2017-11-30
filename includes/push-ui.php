@@ -39,7 +39,7 @@ function syndicatable() {
 			return false;
 		}
 
-		if ( ! in_array( get_post_type(), \Distributor\Utils\distributable_post_types() ) || ( ! empty( $_GET['post_type'] ) && 'dt_ext_connection' === $_GET['post_type'] ) ) {
+		if ( ! in_array( get_post_type(), \Distributor\Utils\distributable_post_types(), true ) || ( ! empty( $_GET['post_type'] ) && 'dt_ext_connection' === $_GET['post_type'] ) ) {
 			return false;
 		}
 	} else {
@@ -297,7 +297,7 @@ function menu_content() {
 
 		$sites = \Distributor\InternalConnections\NetworkSiteConnection::get_available_authorized_sites();
 		foreach ( $sites as $key => $site_array ) {
-			if ( in_array( $post->post_type, $site_array['post_types'] ) ) {
+			if ( in_array( $post->post_type, $site_array['post_types'], true ) ) {
 				$connection = new \Distributor\InternalConnections\NetworkSiteConnection( $site_array['site'] );
 
 				$syndicated = false;
@@ -347,7 +347,7 @@ function menu_content() {
 				$allowed_roles = array( 'administrator', 'editor' );
 			}
 
-			if ( empty( $external_connection_status ) || ! in_array( $current_post_type, $external_connection_status['can_post'] ) ) {
+			if ( empty( $external_connection_status ) || ! in_array( $current_post_type, $external_connection_status['can_post'], true ) ) {
 				continue;
 			}
 
@@ -406,7 +406,7 @@ function menu_content() {
 							<div class="new-connections-list">
 								<?php foreach ( $dom_connections as $connection ) : ?>
 									<?php if ( 'external' === $connection['type'] ) : ?>
-										<div class="add-connection 
+										<div class="add-connection
 										<?php
 										if ( ! empty( $connection['syndicated'] ) ) :
 ?>
@@ -414,7 +414,7 @@ syndicated<?php endif; ?>" data-connection-type="external" data-connection-id="<
 											<span><?php echo wp_kses_post( get_the_title( $connection['id'] ) ); ?></span>
 										</div>
 									<?php else : ?>
-										<div class="add-connection 
+										<div class="add-connection
 										<?php
 										if ( ! empty( $connection['syndicated'] ) ) :
 ?>
