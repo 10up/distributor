@@ -592,4 +592,80 @@ class WordPressExternalConnection extends ExternalConnection {
 
 		return apply_filters( 'dt_item_mapping', new \WP_Post( $obj ), $post, $this );
 	}
+
+	/**
+	 * Setup actions and filters that are need on every page load
+	 *
+	 * @since 1.0
+	 */
+	public static function bootstrap() {
+		add_action( 'template_redirect', array( '\Distributor\ExternalConnections\WordPressExternalConnection', 'canonicalize_front_end' ) );
+	}
+
+	/**
+	 * Setup canonicalization on front end
+	 *
+	 * @since  1.0
+	 */
+	public static function canonicalize_front_end() {
+		add_filter( 'get_canonical_url', array( '\Distributor\ExternalConnections\WordPressExternalConnection', 'canonical_url' ), 10, 2 );
+		add_filter( 'wpseo_canonical', array( '\Distributor\ExternalConnections\WordPressExternalConnection', 'wpseo_canonical_url' ) );
+	}
+
+	/**
+	 * Make sure canonical url header is outputted
+	 *
+	 * @param  string $canonical_url
+	 * @param  object $post
+	 * @since  1.0
+	 * @return string
+	 */
+	public static function canonical_url( $canonical_url, $post ) {
+		$original_source_id = get_post_meta( $post->ID, 'dt_original_source_id', true );
+		$original_post_url   = get_post_meta( $post->ID, 'dt_original_post_url', true );
+		$unlinked         = (bool) get_post_meta( $post->ID, 'dt_unlinked', true );
+		$original_deleted = (bool) get_post_meta( $post->ID, 'dt_original_post_deleted', true );
+
+		if ( empty( $original_source_id ) || empty( $original_post_url ) || $unlinked || $original_deleted ) {
+			return $canonical_url;
+		}
+
+		return $original_post_url;
+	}
+
+	/**
+	 * Handles the canonical URL change for distributed content when Yoast SEO is in use
+	 *
+	 * @param string $canonical_url The Yoast WPSEO deduced canonical URL
+	 * @since  1.0
+	 * @return string $canonical_url The updated distributor friendly URL
+	 */
+	public static function wpseo_canonical_url( $canonical_url ) {
+
+		// Return as is if not on a singular page - taken from rel_canonical()
+		if ( ! is_singular() ) {
+			$canonical_url;
+		}
+
+		$id = get_queried_object_id();
+
+		// Return as is if we do not have a object id for context - taken from rel_canonical()
+		if ( 0 === $id ) {
+			return $canonical_url;
+		}
+
+		$post = get_post( $id );
+
+		// Return as is if we don't have a valid post object - taken from wp_get_canonical_url()
+		if ( ! $post ) {
+			return $canonical_url;
+		}
+
+		// Return as is if current post is not published - taken from wp_get_canonical_url()
+		if ( 'publish' !== $post->post_status ) {
+			return $canonical_url;
+		}
+
+		return self::canonical_url( $canonical_url, $post );
+	}
 }
