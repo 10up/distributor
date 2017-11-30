@@ -8,17 +8,19 @@ namespace Distributor\SyndicatedPostUI;
  * @since 0.8
  */
 function setup() {
-	add_action( 'plugins_loaded', function() {
-		add_action( 'edit_form_top', __NAMESPACE__ . '\syndicated_message', 9, 1 );
-		add_action( 'admin_enqueue_scripts', __NAMESPACE__ . '\admin_enqueue_scripts' );
-		add_action( 'admin_init', __NAMESPACE__ . '\unlink' );
-		add_action( 'admin_init', __NAMESPACE__ . '\link' );
-		add_action( 'post_submitbox_misc_actions', __NAMESPACE__ . '\syndication_date' );
-		add_filter( 'admin_body_class', __NAMESPACE__ . '\add_linked_class' );
-		add_filter( 'post_row_actions', __NAMESPACE__ . '\remove_quick_edit', 10, 2 );
-		add_action( 'manage_posts_custom_column' , __NAMESPACE__ . '\output_distributor_column', 10, 2 );
-		add_filter( 'manage_posts_columns', __NAMESPACE__ . '\add_distributor_column' );
-	} );
+	add_action(
+		'plugins_loaded', function() {
+			add_action( 'edit_form_top', __NAMESPACE__ . '\syndicated_message', 9, 1 );
+			add_action( 'admin_enqueue_scripts', __NAMESPACE__ . '\admin_enqueue_scripts' );
+			add_action( 'admin_init', __NAMESPACE__ . '\unlink' );
+			add_action( 'admin_init', __NAMESPACE__ . '\link' );
+			add_action( 'post_submitbox_misc_actions', __NAMESPACE__ . '\syndication_date' );
+			add_filter( 'admin_body_class', __NAMESPACE__ . '\add_linked_class' );
+			add_filter( 'post_row_actions', __NAMESPACE__ . '\remove_quick_edit', 10, 2 );
+			add_action( 'manage_posts_custom_column', __NAMESPACE__ . '\output_distributor_column', 10, 2 );
+			add_filter( 'manage_posts_columns', __NAMESPACE__ . '\add_distributor_column' );
+		}
+	);
 }
 
 /**
@@ -58,9 +60,9 @@ function output_distributor_column( $column_name, $post_id ) {
 	}
 
 	if ( 'distributor' === $column_name ) {
-		$original_blog_id = get_post_meta( $post_id, 'dt_original_blog_id', true );
+		$original_blog_id   = get_post_meta( $post_id, 'dt_original_blog_id', true );
 		$original_source_id = get_post_meta( $post_id, 'dt_original_source_id', true );
-		$original_deleted = (bool) get_post_meta( $post_id, 'dt_original_post_deleted', true );
+		$original_deleted   = (bool) get_post_meta( $post_id, 'dt_original_post_deleted', true );
 
 		if ( ( empty( $original_blog_id ) && empty( $original_source_id ) ) || $original_deleted ) {
 			echo '—';
@@ -85,8 +87,8 @@ function output_distributor_column( $column_name, $post_id ) {
  * @return array
  */
 function remove_quick_edit( $actions, $post ) {
-	$original_blog_id = get_post_meta( $post->ID, 'dt_original_blog_id', true );
-	$original_post_id = get_post_meta( $post->ID, 'dt_original_post_id', true );
+	$original_blog_id   = get_post_meta( $post->ID, 'dt_original_blog_id', true );
+	$original_post_id   = get_post_meta( $post->ID, 'dt_original_post_id', true );
 	$original_source_id = get_post_meta( $post->ID, 'dt_original_source_id', true );
 
 	if ( empty( $original_post_id ) || ( empty( $original_blog_id ) && empty( $original_source_id ) ) ) {
@@ -128,15 +130,15 @@ function add_linked_class( $classes ) {
 		return $classes;
 	}
 
-	$original_blog_id = get_post_meta( $_GET['post'], 'dt_original_blog_id', true );
+	$original_blog_id   = get_post_meta( $_GET['post'], 'dt_original_blog_id', true );
 	$original_source_id = get_post_meta( $_GET['post'], 'dt_original_source_id', true );
-	$original_post_id = get_post_meta( $_GET['post'], 'dt_original_post_id', true );
+	$original_post_id   = get_post_meta( $_GET['post'], 'dt_original_post_id', true );
 
 	if ( empty( $original_post_id ) || ( empty( $original_blog_id ) && empty( $original_source_id ) ) ) {
 		return $classes;
 	}
 
-	$unlinked = (bool) get_post_meta( $_GET['post'], 'dt_unlinked', true );
+	$unlinked         = (bool) get_post_meta( $_GET['post'], 'dt_unlinked', true );
 	$original_deleted = (bool) get_post_meta( $post->ID, 'dt_original_post_deleted', true );
 
 	if ( $unlinked || $original_deleted ) {
@@ -164,7 +166,7 @@ function syndication_date( $post ) {
 	?>
 
 	<div class="misc-pub-section curtime misc-pub-curtime">
-		<span id="syndicate-time"><?php echo sprintf( __( 'Syndicated on: <strong>%s</strong>' ,'syndicate' ), date( 'M j, Y @ h:i', $syndicate_time ) ); ?></span>
+		<span id="syndicate-time"><?php echo sprintf( __( 'Syndicated on: <strong>%s</strong>', 'syndicate' ), date( 'M j, Y @ h:i', $syndicate_time ) ); ?></span>
 	</div>
 
 	<?php
@@ -234,12 +236,14 @@ function link() {
 		$update = get_post_meta( $_GET['post'], 'dt_subscription_update', true );
 
 		if ( ! empty( $update ) ) {
-			wp_update_post( [
-				'ID'           => $_GET['post'],
-				'post_title'   => $update['post_title'],
-				'post_content' => $update['post_content'],
-				'post_excerpt' => $update['post_excerpt'],
-			] );
+			wp_update_post(
+				[
+					'ID'           => $_GET['post'],
+					'post_title'   => $update['post_title'],
+					'post_content' => $update['post_content'],
+					'post_excerpt' => $update['post_excerpt'],
+				]
+			);
 
 			if ( null !== $update['meta'] ) {
 				\Distributor\Utils\set_meta( $_GET['post'], $update['meta'] );
@@ -269,8 +273,8 @@ function link() {
  */
 function syndicated_message( $post ) {
 
-	$original_blog_id = get_post_meta( $post->ID, 'dt_original_blog_id', true );
-	$original_post_id = get_post_meta( $post->ID, 'dt_original_post_id', true );
+	$original_blog_id   = get_post_meta( $post->ID, 'dt_original_blog_id', true );
+	$original_post_id   = get_post_meta( $post->ID, 'dt_original_post_id', true );
 	$original_source_id = get_post_meta( $post->ID, 'dt_original_source_id', true );
 
 	if ( empty( $original_post_id ) || ( empty( $original_blog_id ) && empty( $original_source_id ) ) ) {
@@ -287,7 +291,7 @@ function syndicated_message( $post ) {
 
 	$post_type_object = get_post_type_object( $post->post_type );
 
-	$post_url = get_post_meta( $post->ID, 'dt_original_post_url', true );
+	$post_url           = get_post_meta( $post->ID, 'dt_original_post_url', true );
 	$original_site_name = get_post_meta( $post->ID, 'dt_original_site_name', true );
 
 	if ( ! empty( $original_blog_id ) ) {
@@ -296,7 +300,7 @@ function syndicated_message( $post ) {
 		restore_current_blog();
 
 		if ( empty( $original_location_name ) ) {
-			$original_location_name  = sprintf( esc_html__( 'Blog #%d', 'distributor' ), $original_blog_id );
+			$original_location_name = sprintf( esc_html__( 'Blog #%d', 'distributor' ), $original_blog_id );
 		}
 	} else {
 		$original_location_name = $original_site_name;
@@ -306,7 +310,7 @@ function syndicated_message( $post ) {
 	<div class="updated syndicate-status">
 		<?php if ( ! $unlinked ) : ?>
 			<p>
-				<?php echo sprintf( __( 'Syndicated from <a href="%s">%s</a>.', 'distributor' ), esc_url( $post_url ), esc_html( $original_location_name ) ); ?>
+				<?php echo sprintf( __( 'Syndicated from <a href="%1$s">%2$s</a>.', 'distributor' ), esc_url( $post_url ), esc_html( $original_location_name ) ); ?>
 				<span><?php echo sprintf( __( 'The original post will update this version unless you <a href="%s">unlink from the original.</a>', 'distributor' ), wp_nonce_url( add_query_arg( 'action', 'unlink', admin_url( sprintf( $post_type_object->_edit_link, $post->ID ) ) ), "unlink-post_{$post->ID}" ) ); ?></span>
 			</p>
 		<?php else : ?>
@@ -332,8 +336,8 @@ function admin_enqueue_scripts( $hook ) {
 
 	global $post;
 
-	$original_blog_id = get_post_meta( $post->ID, 'dt_original_blog_id', true );
-	$original_post_id = get_post_meta( $post->ID, 'dt_original_post_id', true );
+	$original_blog_id   = get_post_meta( $post->ID, 'dt_original_blog_id', true );
+	$original_post_id   = get_post_meta( $post->ID, 'dt_original_post_id', true );
 	$original_source_id = get_post_meta( $post->ID, 'dt_original_source_id', true );
 
 	if ( empty( $original_post_id ) || ( empty( $original_blog_id ) && empty( $original_source_id ) ) ) {

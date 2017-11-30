@@ -32,20 +32,28 @@ class TestCase extends \PHPUnit_Framework_TestCase {
 	 * @since 0.8
 	 */
 	public function setup_common() {
-		\WP_Mock::userFunction( '__', array(
-			'return_arg' => 0,
-		) );
+		\WP_Mock::userFunction(
+			'__', array(
+				'return_arg' => 0,
+			)
+		);
 
-		\WP_Mock::userFunction( 'esc_html__', array(
-			'return_arg' => 0,
-		) );
+		\WP_Mock::userFunction(
+			'esc_html__', array(
+				'return_arg' => 0,
+			)
+		);
 
-		\WP_Mock::userFunction( 'esc_html_e', array(
-			'return_arg' => 0,
-		) );
+		\WP_Mock::userFunction(
+			'esc_html_e', array(
+				'return_arg' => 0,
+			)
+		);
 
-		\WP_Mock::userFunction( '_e', array(
-			'return_arg' => 0,
-		) );
+		\WP_Mock::userFunction(
+			'_e', array(
+				'return_arg' => 0,
+			)
+		);
 	}
 }

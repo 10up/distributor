@@ -8,14 +8,16 @@ namespace Distributor\PushUI;
  * @since 0.8
  */
 function setup() {
-	add_action( 'plugins_loaded', function() {
-		add_action( 'admin_enqueue_scripts', __NAMESPACE__ . '\enqueue_scripts' );
-		add_action( 'wp_enqueue_scripts', __NAMESPACE__ . '\enqueue_scripts' );
-		add_action( 'wp_ajax_dt_push', __NAMESPACE__ . '\ajax_push' );
-		add_action( 'admin_bar_menu', __NAMESPACE__ . '\menu_button', 999 );
-		add_action( 'wp_footer', __NAMESPACE__ . '\menu_content', 10, 1 );
-		add_action( 'admin_footer', __NAMESPACE__ . '\menu_content', 10, 1 );
-	} );
+	add_action(
+		'plugins_loaded', function() {
+			add_action( 'admin_enqueue_scripts', __NAMESPACE__ . '\enqueue_scripts' );
+			add_action( 'wp_enqueue_scripts', __NAMESPACE__ . '\enqueue_scripts' );
+			add_action( 'wp_ajax_dt_push', __NAMESPACE__ . '\ajax_push' );
+			add_action( 'admin_bar_menu', __NAMESPACE__ . '\menu_button', 999 );
+			add_action( 'wp_footer', __NAMESPACE__ . '\menu_content', 10, 1 );
+			add_action( 'admin_footer', __NAMESPACE__ . '\menu_content', 10, 1 );
+		}
+	);
 }
 
 
@@ -34,12 +36,12 @@ function syndicatable() {
 		global $pagenow;
 
 		if ( 'post.php' !== $pagenow ) {
-	    	return false;
-	    }
+			return false;
+		}
 
-	    if ( ! in_array( get_post_type(), \Distributor\Utils\distributable_post_types() ) || ( ! empty( $_GET['post_type'] ) && 'dt_ext_connection' === $_GET['post_type'] ) ) {
-	    	return false;
-	    }
+		if ( ! in_array( get_post_type(), \Distributor\Utils\distributable_post_types() ) || ( ! empty( $_GET['post_type'] ) && 'dt_ext_connection' === $_GET['post_type'] ) ) {
+			return false;
+		}
 	} else {
 		if ( ! is_single() ) {
 			return false;
@@ -89,7 +91,7 @@ function ajax_push() {
 	foreach ( $_POST['connections'] as $connection ) {
 		if ( 'external' === $connection['type'] ) {
 			$external_connection_type = get_post_meta( $connection['id'], 'dt_external_connection_type', true );
-			$external_connection_url = get_post_meta( $connection['id'], 'dt_external_connection_url', true );
+			$external_connection_url  = get_post_meta( $connection['id'], 'dt_external_connection_url', true );
 			$external_connection_auth = get_post_meta( $connection['id'], 'dt_external_connection_auth', true );
 
 			if ( empty( $external_connection_auth ) ) {
@@ -126,21 +128,21 @@ function ajax_push() {
 					);
 
 					$external_push_results[ (int) $connection['id'] ] = array(
-						'post_id'       => (int) $remote_id,
-						'date'          => date( 'F j, Y g:i a' ),
-						'status'        => 'success',
+						'post_id' => (int) $remote_id,
+						'date'    => date( 'F j, Y g:i a' ),
+						'status'  => 'success',
 					);
 				} else {
 					$external_push_results[ (int) $external_connection_id ] = array(
-						'post_id'       => (int) $remote_id,
-						'date'          => date( 'F j, Y g:i a' ),
-						'status'        => 'fail',
+						'post_id' => (int) $remote_id,
+						'date'    => date( 'F j, Y g:i a' ),
+						'status'  => 'fail',
 					);
 				}
 			}
 		} else {
 			$internal_connection = new \Distributor\InternalConnections\NetworkSiteConnection( get_site( $connection['id'] ) );
-			$push_args = array();
+			$push_args           = array();
 
 			if ( ! empty( $connection_map['internal'][ (int) $connection['id'] ] ) && ! empty( $connection_map['internal'][ (int) $connection['id'] ]['post_id'] ) ) {
 				$push_args['remote_post_id'] = (int) $connection_map['internal'][ (int) $connection['id'] ]['post_id'];
@@ -183,12 +185,14 @@ function ajax_push() {
 
 	update_post_meta( $_POST['post_id'], 'dt_connection_map', $connection_map );
 
-	wp_send_json_success( array(
-		'results' => array(
-			'internal' => $internal_push_results,
-			'external' => $external_push_results,
-		),
-	) );
+	wp_send_json_success(
+		array(
+			'results' => array(
+				'internal' => $internal_push_results,
+				'external' => $external_push_results,
+			),
+		)
+	);
 
 	exit;
 }
@@ -205,20 +209,22 @@ function enqueue_scripts( $hook ) {
 	}
 
 	if ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) {
-		$js_path = '/assets/js/src/push.js';
+		$js_path  = '/assets/js/src/push.js';
 		$css_path = '/assets/css/push.css';
 	} else {
-		$js_path = '/assets/js/push.min.js';
+		$js_path  = '/assets/js/push.min.js';
 		$css_path = '/assets/css/push.min.css';
 	}
 
 	wp_enqueue_style( 'dt-push', plugins_url( $css_path, __DIR__ ), array(), DT_VERSION );
 	wp_enqueue_script( 'dt-push', plugins_url( $js_path, __DIR__ ), array( 'jquery', 'underscore' ), DT_VERSION, true );
-	wp_localize_script( 'dt-push', 'sy', array(
-		'nonce'   => wp_create_nonce( 'dt-push' ),
-		'post_id' => (int) get_the_ID(),
-		'ajaxurl' => esc_url( admin_url( 'admin-ajax.php' ) ),
-	) );
+	wp_localize_script(
+		'dt-push', 'sy', array(
+			'nonce'   => wp_create_nonce( 'dt-push' ),
+			'post_id' => (int) get_the_ID(),
+			'ajaxurl' => esc_url( admin_url( 'admin-ajax.php' ) ),
+		)
+	);
 }
 
 /**
@@ -232,11 +238,13 @@ function menu_button( $wp_admin_bar ) {
 		return;
 	}
 
-	$wp_admin_bar->add_node( array(
-		'id' => 'distributor',
-		'title' => esc_html__( 'Distributor', 'distributor' ),
-		'href' => '#',
-	) );
+	$wp_admin_bar->add_node(
+		array(
+			'id'    => 'distributor',
+			'title' => esc_html__( 'Distributor', 'distributor' ),
+			'href'  => '#',
+		)
+	);
 }
 
 /**
@@ -251,14 +259,14 @@ function menu_content() {
 		return;
 	}
 
-	$unlinked = (bool) get_post_meta( $post->ID, 'dt_unlinked', true );
+	$unlinked         = (bool) get_post_meta( $post->ID, 'dt_unlinked', true );
 	$original_blog_id = get_post_meta( $post->ID, 'dt_original_blog_id', true );
 	$original_post_id = get_post_meta( $post->ID, 'dt_original_post_id', true );
 
 	if ( ! empty( $original_blog_id ) && ! empty( $original_post_id ) && ! $unlinked ) {
 		switch_to_blog( $original_blog_id );
-		$post_url = get_permalink( $original_post_id );
-		$site_url = home_url();
+		$post_url  = get_permalink( $original_post_id );
+		$site_url  = home_url();
 		$blog_name = get_bloginfo( 'name' );
 		restore_current_blog();
 
@@ -313,12 +321,14 @@ function menu_content() {
 			}
 		}
 
-		$external_connections_query = new \WP_Query( array(
-			'post_type' => 'dt_ext_connection',
-			'posts_per_page' => 200,
-			'no_found_rows' => true,
-			'post_status' => 'publish',
-		) );
+		$external_connections_query = new \WP_Query(
+			array(
+				'post_type'      => 'dt_ext_connection',
+				'posts_per_page' => 200,
+				'no_found_rows'  => true,
+				'post_status'    => 'publish',
+			)
+		);
 
 		$current_post_type = get_post_type();
 		if ( ! empty( $_GET['post_type'] ) ) {
@@ -332,7 +342,7 @@ function menu_content() {
 
 		foreach ( $external_connections_query->posts as $external_connection ) {
 			$external_connection_status = get_post_meta( $external_connection->ID, 'dt_external_connections', true );
-			$allowed_roles = get_post_meta( $external_connection->ID, 'dt_external_connection_allowed_roles', true );
+			$allowed_roles              = get_post_meta( $external_connection->ID, 'dt_external_connection_allowed_roles', true );
 			if ( empty( $allowed_roles ) ) {
 				$allowed_roles = array( 'administrator', 'editor' );
 			}
@@ -396,11 +406,19 @@ function menu_content() {
 							<div class="new-connections-list">
 								<?php foreach ( $dom_connections as $connection ) : ?>
 									<?php if ( 'external' === $connection['type'] ) : ?>
-										<div class="add-connection <?php if ( ! empty( $connection['syndicated'] ) ) : ?>syndicated<?php endif; ?>" data-connection-type="external" data-connection-id="<?php echo (int) $connection['id']; ?>">
+										<div class="add-connection 
+										<?php
+										if ( ! empty( $connection['syndicated'] ) ) :
+?>
+syndicated<?php endif; ?>" data-connection-type="external" data-connection-id="<?php echo (int) $connection['id']; ?>">
 											<span><?php echo wp_kses_post( get_the_title( $connection['id'] ) ); ?></span>
 										</div>
 									<?php else : ?>
-										<div class="add-connection <?php if ( ! empty( $connection['syndicated'] ) ) : ?>syndicated<?php endif; ?>" data-connection-type="internal" data-connection-id="<?php echo (int) $connection['id']; ?>">
+										<div class="add-connection 
+										<?php
+										if ( ! empty( $connection['syndicated'] ) ) :
+?>
+syndicated<?php endif; ?>" data-connection-type="internal" data-connection-id="<?php echo (int) $connection['id']; ?>">
 											<span><?php echo esc_html( $connection['url'] ); ?></span>
 											<?php if ( ! empty( $connection['syndicated'] ) ) : ?>
 												<a href="<?php echo esc_url( $connection['syndicated'] ); ?>"><?php esc_html_e( 'View', 'distributor' ); ?></a>

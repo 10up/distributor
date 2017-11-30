@@ -28,9 +28,9 @@ abstract class ExternalConnection extends Connection {
 	 * @since  0.8
 	 */
 	public function __construct( $name, $base_url, $id, Authentication $auth_handler ) {
-		$this->name = $name;
-		$this->id = $id;
-		$this->base_url = $base_url;
+		$this->name         = $name;
+		$this->id           = $id;
+		$this->base_url     = $base_url;
 		$this->auth_handler = $auth_handler;
 	}
 
@@ -83,7 +83,7 @@ abstract class ExternalConnection extends Connection {
 		}
 
 		$type = get_post_meta( $external_connection_id, 'dt_external_connection_type', true );
-		$url = get_post_meta( $external_connection_id, 'dt_external_connection_url', true );
+		$url  = get_post_meta( $external_connection_id, 'dt_external_connection_url', true );
 		$auth = get_post_meta( $external_connection_id, 'dt_external_connection_auth', true );
 		$name = get_the_title( $external_connection_id );
 

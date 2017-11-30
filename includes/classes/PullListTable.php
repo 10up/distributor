@@ -17,9 +17,11 @@ class PullListTable extends \WP_List_Table {
 	 * @since  0.8
 	 */
 	public function __construct() {
-		parent::__construct( array(
-			'ajax' => false,
-		) );
+		parent::__construct(
+			array(
+				'ajax' => false,
+			)
+		);
 	}
 
 	/**
@@ -30,10 +32,10 @@ class PullListTable extends \WP_List_Table {
 	 */
 	public function get_columns() {
 		$columns = [
-			'cb'      => '<input type="checkbox" />',
-			'name'    => esc_html__( 'Name', 'distributor' ),
+			'cb'           => '<input type="checkbox" />',
+			'name'         => esc_html__( 'Name', 'distributor' ),
 			'content_type' => esc_html__( 'Content Type', 'distributor' ),
-			'date' => esc_html__( 'Date', 'distributor' ),
+			'date'         => esc_html__( 'Date', 'distributor' ),
 		];
 
 		return $columns;
@@ -65,8 +67,8 @@ class PullListTable extends \WP_List_Table {
 		$current_status = ( empty( $_GET['status'] ) ) ? 'new' : $_GET['status'];
 
 		$status_links = [
-			'new' => sprintf( __( '<a href="%1$s" class="%2$s">New</a>', 'distributor' ), esc_url( $_SERVER['REQUEST_URI'] . '&status=new' ), ( 'new' === $current_status ) ? 'current' : '' ),
-			'pulled' => sprintf( __( '<a href="%1$s" class="%2$s">Pulled</a>', 'distributor' ), esc_url( $_SERVER['REQUEST_URI'] . '&status=pulled' ), ( 'pulled' === $current_status ) ? 'current' : '' ),
+			'new'     => sprintf( __( '<a href="%1$s" class="%2$s">New</a>', 'distributor' ), esc_url( $_SERVER['REQUEST_URI'] . '&status=new' ), ( 'new' === $current_status ) ? 'current' : '' ),
+			'pulled'  => sprintf( __( '<a href="%1$s" class="%2$s">Pulled</a>', 'distributor' ), esc_url( $_SERVER['REQUEST_URI'] . '&status=pulled' ), ( 'pulled' === $current_status ) ? 'current' : '' ),
 			'skipped' => sprintf( __( '<a href="%1$s" class="%2$s">Skipped</a>', 'distributor' ), esc_url( $_SERVER['REQUEST_URI'] . '&status=skipped' ), ( 'skipped' === $current_status ) ? 'current' : '' ),
 		];
 
@@ -99,7 +101,7 @@ class PullListTable extends \WP_List_Table {
 			 */
 			$this->_actions = apply_filters( "bulk_actions-{$this->screen->id}", $this->_actions );
 			$this->_actions = array_intersect_assoc( $this->_actions, $no_new_actions );
-			$two = '';
+			$two            = '';
 		} else {
 			$two = '2';
 		}
@@ -158,12 +160,12 @@ class PullListTable extends \WP_List_Table {
 			}
 		} else {
 			if ( '0000-00-00 00:00:00' === $post->post_date ) {
-				$t_time = $h_time = __( 'Unpublished' );
+				$t_time    = $h_time = __( 'Unpublished' );
 				$time_diff = 0;
 			} else {
 				$t_time = get_the_time( __( 'Y/m/d g:i:s a' ) );
 				$m_time = $post->post_date;
-				$time = get_post_time( 'G', true, $post );
+				$time   = get_post_time( 'G', true, $post );
 
 				$time_diff = time() - $time;
 
@@ -258,10 +260,10 @@ class PullListTable extends \WP_List_Table {
 
 		if ( is_a( $connection_now, '\Distributor\ExternalConnection' ) ) {
 			$connection_type = 'external';
-			$connection_id = $connection_now->id;
+			$connection_id   = $connection_now->id;
 		} else {
 			$connection_type = 'internal';
-			$connection_id = $connection_now->site->blog_id;
+			$connection_id   = $connection_now->site->blog_id;
 		}
 
 		if ( empty( $sync_map ) ) {
@@ -287,7 +289,7 @@ class PullListTable extends \WP_List_Table {
 		} elseif ( 'pulled' === $_GET['status'] ) {
 
 			$new_post_id = ( ! empty( $this->sync_log[ (int) $item->ID ] ) ) ? $this->sync_log[ (int) $item->ID ] : 0;
-			$new_post = get_post( $new_post_id );
+			$new_post    = get_post( $new_post_id );
 
 			if ( ! empty( $new_post ) ) {
 				$actions = [
@@ -313,8 +315,8 @@ class PullListTable extends \WP_List_Table {
 			return;
 		}
 
-		$columns = $this->get_columns();
-		$hidden = array();
+		$columns  = $this->get_columns();
+		$hidden   = array();
 		$sortable = $this->get_sortable_columns();
 
 		$data = $this->table_data();
@@ -324,7 +326,7 @@ class PullListTable extends \WP_List_Table {
 		/** Process bulk action */
 		$this->process_bulk_action();
 
-		$per_page     = $this->get_items_per_page( 'pull_posts_per_page', get_option( 'posts_per_page' ) );
+		$per_page = $this->get_items_per_page( 'pull_posts_per_page', get_option( 'posts_per_page' ) );
 
 		$current_page = $this->get_pagenum();
 
@@ -356,7 +358,7 @@ class PullListTable extends \WP_List_Table {
 			$this->sync_log = [];
 		}
 
-		$skipped = array();
+		$skipped    = array();
 		$syndicated = array();
 
 		foreach ( $this->sync_log as $old_post_id => $new_post_id ) {
@@ -384,10 +386,12 @@ class PullListTable extends \WP_List_Table {
 
 		$remote_get = $connection_now->remote_get( $remote_get_args );
 
-		$this->set_pagination_args( [
-			'total_items' => $remote_get['total_items'],
-			'per_page'    => $per_page,
-		] );
+		$this->set_pagination_args(
+			[
+				'total_items' => $remote_get['total_items'],
+				'per_page'    => $per_page,
+			]
+		);
 
 		foreach ( $remote_get['items'] as $item ) {
 			$this->items[] = $item;
@@ -404,9 +408,11 @@ class PullListTable extends \WP_List_Table {
 	 */
 	public function column_cb( $post ) {
 		?>
-		<label class="screen-reader-text" for="cb-select-<?php echo (int) $post->ID; ?>"><?php
-			printf( __( 'Select %s' ), _draft_or_post_title() );
-		?></label>
+		<label class="screen-reader-text" for="cb-select-<?php echo (int) $post->ID; ?>">
+																	<?php
+																	printf( __( 'Select %s' ), _draft_or_post_title() );
+		?>
+		</label>
 		<input id="cb-select-<?php echo (int) $post->ID; ?>" type="checkbox" name="post[]" value="<?php echo (int) $post->ID; ?>" />
 		<div class="locked-indicator"></div>
 		<?php
@@ -422,7 +428,7 @@ class PullListTable extends \WP_List_Table {
 		if ( empty( $_GET['status'] ) || 'new' === $_GET['status'] ) {
 			$actions = [
 				'bulk-syndicate' => esc_html__( 'Syndicate', 'distributor' ),
-				'bulk-skip' => esc_html__( 'Skip', 'distributor' ),
+				'bulk-skip'      => esc_html__( 'Skip', 'distributor' ),
 			];
 		} elseif ( 'skipped' === $_GET['status'] ) {
 			$actions = [
@@ -441,6 +447,6 @@ class PullListTable extends \WP_List_Table {
 	 * @param string $which
 	 */
 	public function extra_tablenav( $which ) {
-	    do_action( 'dt_pull_filters' );
+		do_action( 'dt_pull_filters' );
 	}
 }

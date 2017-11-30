@@ -8,17 +8,21 @@ namespace Distributor\RestApi;
  * @since 1.0
  */
 function setup() {
-	add_action( 'plugins_loaded', function() {
-		add_action( 'rest_api_init', __NAMESPACE__ . '\register_endpoints' );
+	add_action(
+		'plugins_loaded', function() {
+			add_action( 'rest_api_init', __NAMESPACE__ . '\register_endpoints' );
 
-		$post_types = get_post_types( array(
-			'show_in_rest' => true,
-		) );
+			$post_types = get_post_types(
+				array(
+					'show_in_rest' => true,
+				)
+			);
 
-		foreach ( $post_types as $post_type ) {
-			add_action( "rest_insert_{$post_type}", __NAMESPACE__ . '\process_distributor_attributes', 10, 3 );
+			foreach ( $post_types as $post_type ) {
+				add_action( "rest_insert_{$post_type}", __NAMESPACE__ . '\process_distributor_attributes', 10, 3 );
+			}
 		}
-	} );
+	);
 }
 
 /**
@@ -78,63 +82,73 @@ function process_distributor_attributes( $post, $request, $update ) {
  * @since 1.0
  */
 function register_endpoints() {
-	$post_types = get_post_types( array(
-		'show_in_rest' => true,
-	) );
+	$post_types = get_post_types(
+		array(
+			'show_in_rest' => true,
+		)
+	);
 
-	register_rest_field( $post_types, 'distributor_meta', array(
-		'get_callback' => function( $post_array ) {
-			if ( ! current_user_can( 'edit_post', $post_array['id'] ) ) {
-				return false;
-			}
+	register_rest_field(
+		$post_types, 'distributor_meta', array(
+			'get_callback'    => function( $post_array ) {
+				if ( ! current_user_can( 'edit_post', $post_array['id'] ) ) {
+					return false;
+				}
 
-			return \Distributor\Utils\prepare_meta( $post_array['id'] );
-		},
-		'update_callback' => function( $value, $post ) { },
-		'schema' => array(
-			'description' => __( 'Post meta for Distributor.' ),
-			'type'        => 'object',
-		),
-	) );
+				return \Distributor\Utils\prepare_meta( $post_array['id'] );
+			},
+			'update_callback' => function( $value, $post ) { },
+			'schema'          => array(
+				'description' => __( 'Post meta for Distributor.' ),
+				'type'        => 'object',
+			),
+		)
+	);
 
-	register_rest_field( $post_types, 'distributor_terms', array(
-		'get_callback' => function( $post_array ) {
-			if ( ! current_user_can( 'edit_post', $post_array['id'] ) ) {
-				return false;
-			}
+	register_rest_field(
+		$post_types, 'distributor_terms', array(
+			'get_callback'    => function( $post_array ) {
+				if ( ! current_user_can( 'edit_post', $post_array['id'] ) ) {
+					return false;
+				}
 
-			return \Distributor\Utils\prepare_taxonomy_terms( $post_array['id'] );
-		},
-		'update_callback' => function( $value, $post ) { },
-		'schema' => array(
-			'description' => esc_html__( 'Taxonomy terms for Distributor.', 'distributor' ),
-			'type'        => 'object',
-		),
-	) );
+				return \Distributor\Utils\prepare_taxonomy_terms( $post_array['id'] );
+			},
+			'update_callback' => function( $value, $post ) { },
+			'schema'          => array(
+				'description' => esc_html__( 'Taxonomy terms for Distributor.', 'distributor' ),
+				'type'        => 'object',
+			),
+		)
+	);
 
-	register_rest_field( $post_types, 'distributor_media', array(
-		'get_callback' => function( $post_array ) {
-			if ( ! current_user_can( 'edit_post', $post_array['id'] ) ) {
-				return false;
-			}
+	register_rest_field(
+		$post_types, 'distributor_media', array(
+			'get_callback'    => function( $post_array ) {
+				if ( ! current_user_can( 'edit_post', $post_array['id'] ) ) {
+					return false;
+				}
 
-			return \Distributor\Utils\prepare_media( $post_array['id'] );
-		},
-		'update_callback' => function( $value, $post ) { },
-		'schema' => array(
-			'description' => esc_html__( 'Media for Distributor.', 'distributor' ),
-			'type'        => 'object',
-		),
-	) );
+				return \Distributor\Utils\prepare_media( $post_array['id'] );
+			},
+			'update_callback' => function( $value, $post ) { },
+			'schema'          => array(
+				'description' => esc_html__( 'Media for Distributor.', 'distributor' ),
+				'type'        => 'object',
+			),
+		)
+	);
 
-	register_rest_field( $post_types, 'distributor_original_site_name', array(
-		'get_callback' => function( $post_array ) {
-			return get_bloginfo( 'name' );
-		},
-		'update_callback' => function( $value, $post ) { },
-		'schema' => array(
-			'description' => esc_html__( 'Original site name for Distributor.', 'distributor' ),
-			'type'        => 'string',
-		),
-	) );
+	register_rest_field(
+		$post_types, 'distributor_original_site_name', array(
+			'get_callback'    => function( $post_array ) {
+				return get_bloginfo( 'name' );
+			},
+			'update_callback' => function( $value, $post ) { },
+			'schema'          => array(
+				'description' => esc_html__( 'Original site name for Distributor.', 'distributor' ),
+				'type'        => 'string',
+			),
+		)
+	);
 }

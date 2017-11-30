@@ -20,7 +20,7 @@ class SubscriptionsController extends \WP_REST_Controller {
 	public function __construct( $post_type ) {
 		$this->post_type = $post_type;
 		$this->namespace = 'wp/v2';
-		$obj = get_post_type_object( $post_type );
+		$obj             = get_post_type_object( $post_type );
 		$this->rest_base = ! empty( $obj->rest_base ) ? $obj->rest_base : $obj->name;
 
 		$this->meta = new \WP_REST_Post_Meta_Fields( $this->post_type );
@@ -33,75 +33,81 @@ class SubscriptionsController extends \WP_REST_Controller {
 	 */
 	public function register_routes() {
 
-		register_rest_route( $this->namespace, '/' . $this->rest_base, array(
-			array(
-				'methods'             => \WP_REST_Server::CREATABLE,
-				'callback'            => array( $this, 'create_item' ),
-				'permission_callback' => array( $this, 'create_item_permissions_check' ),
-				'args'                => array(
-					'post_id' => array(
-						'required'    => true,
-						'description' => esc_html__( 'Post that is being subscribed to.', 'distributor' ),
-						'type'        => 'integer',
-					),
-					'remote_post_id' => array(
-						'required'    => true,
-						'description' => esc_html__( 'Post on remote site that maps to subscription post.', 'distributor' ),
-						'type'        => 'integer',
-					),
-					'target_url' => array(
-						'required'    => true,
-						'description' => esc_html__( 'WordPress URL to notify.', 'distributor' ),
-						'type'        => 'string',
-					),
-					'signature' => array(
-						'required'    => true,
-						'description' => esc_html__( 'Subscription signature for post.', 'distributor' ),
-						'type'        => 'string',
+		register_rest_route(
+			$this->namespace, '/' . $this->rest_base, array(
+				array(
+					'methods'             => \WP_REST_Server::CREATABLE,
+					'callback'            => array( $this, 'create_item' ),
+					'permission_callback' => array( $this, 'create_item_permissions_check' ),
+					'args'                => array(
+						'post_id'        => array(
+							'required'    => true,
+							'description' => esc_html__( 'Post that is being subscribed to.', 'distributor' ),
+							'type'        => 'integer',
+						),
+						'remote_post_id' => array(
+							'required'    => true,
+							'description' => esc_html__( 'Post on remote site that maps to subscription post.', 'distributor' ),
+							'type'        => 'integer',
+						),
+						'target_url'     => array(
+							'required'    => true,
+							'description' => esc_html__( 'WordPress URL to notify.', 'distributor' ),
+							'type'        => 'string',
+						),
+						'signature'      => array(
+							'required'    => true,
+							'description' => esc_html__( 'Subscription signature for post.', 'distributor' ),
+							'type'        => 'string',
+						),
 					),
 				),
-			),
-		) );
+			)
+		);
 
-		register_rest_route( $this->namespace, '/' . $this->rest_base . '/receive', array(
-			array(
-				'methods'             => \WP_REST_Server::CREATABLE,
-				'callback'            => array( $this, 'receive_item' ),
-				'permission_callback' => array( $this, 'receive_item_permissions_check' ),
-				'args'                => [
-					'post_id' => array(
-						'required'    => true,
-						'description' => esc_html__( 'Post to be updated.', 'distributor' ),
-						'type'        => 'integer',
-					),
-					'signature' => array(
-						'required'    => true,
-						'description' => esc_html__( 'Signature for given signature', 'distributor' ),
-						'type'        => 'string',
-					),
-				],
-			),
-		) );
+		register_rest_route(
+			$this->namespace, '/' . $this->rest_base . '/receive', array(
+				array(
+					'methods'             => \WP_REST_Server::CREATABLE,
+					'callback'            => array( $this, 'receive_item' ),
+					'permission_callback' => array( $this, 'receive_item_permissions_check' ),
+					'args'                => [
+						'post_id'   => array(
+							'required'    => true,
+							'description' => esc_html__( 'Post to be updated.', 'distributor' ),
+							'type'        => 'integer',
+						),
+						'signature' => array(
+							'required'    => true,
+							'description' => esc_html__( 'Signature for given signature', 'distributor' ),
+							'type'        => 'string',
+						),
+					],
+				),
+			)
+		);
 
-		register_rest_route( $this->namespace, '/' . $this->rest_base . '/delete', array(
-			array(
-				'methods'             => \WP_REST_Server::DELETABLE,
-				'callback'            => array( $this, 'delete_item' ),
-				'permission_callback' => array( $this, 'delete_item_permissions_check' ),
-				'args'                => [
-					'post_id' => array(
-						'required'    => true,
-						'description' => esc_html__( 'Post with subscription.', 'distributor' ),
-						'type'        => 'integer',
-					),
-					'signature' => array(
-						'required'    => true,
-						'description' => esc_html__( 'Signature for given subscription', 'distributor' ),
-						'type'        => 'string',
-					),
-				],
-			),
-		) );
+		register_rest_route(
+			$this->namespace, '/' . $this->rest_base . '/delete', array(
+				array(
+					'methods'             => \WP_REST_Server::DELETABLE,
+					'callback'            => array( $this, 'delete_item' ),
+					'permission_callback' => array( $this, 'delete_item_permissions_check' ),
+					'args'                => [
+						'post_id'   => array(
+							'required'    => true,
+							'description' => esc_html__( 'Post with subscription.', 'distributor' ),
+							'type'        => 'integer',
+						),
+						'signature' => array(
+							'required'    => true,
+							'description' => esc_html__( 'Signature for given subscription', 'distributor' ),
+							'type'        => 'string',
+						),
+					],
+				),
+			)
+		);
 	}
 
 	/**
@@ -115,7 +121,7 @@ class SubscriptionsController extends \WP_REST_Controller {
 
 		if ( ! empty( $request['signature'] ) && ! empty( $request['post_id'] ) ) {
 			$original_source_id = get_post_meta( $request['post_id'], 'dt_original_source_id', true );
-			$signature = get_post_meta( $request['post_id'], 'dt_subscription_signature', true );
+			$signature          = get_post_meta( $request['post_id'], 'dt_subscription_signature', true );
 
 			if ( $request['signature'] === $signature ) {
 				return true;
@@ -188,12 +194,14 @@ class SubscriptionsController extends \WP_REST_Controller {
 				return $response;
 			}
 
-			wp_update_post( [
-				'ID'           => $request['post_id'],
-				'post_title'   => $request['post_data']['title'],
-				'post_content' => $request['post_data']['content'],
-				'post_excerpt' => $request['post_data']['excerpt'],
-			] );
+			wp_update_post(
+				[
+					'ID'           => $request['post_id'],
+					'post_title'   => $request['post_data']['title'],
+					'post_content' => $request['post_data']['content'],
+					'post_excerpt' => $request['post_data']['excerpt'],
+				]
+			);
 
 			\Distributor\Utils\set_meta( $request['post_id'], $request['post_data']['distributor_meta'] );
 			\Distributor\Utils\set_taxonomy_terms( $request['post_id'], $request['post_data']['distributor_terms'] );

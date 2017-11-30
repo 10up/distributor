@@ -56,7 +56,7 @@ function blacklisted_meta() {
  * @return array
  */
 function prepare_meta( $post_id ) {
-	$meta = get_post_meta( $post_id );
+	$meta          = get_post_meta( $post_id );
 	$prepared_meta = array();
 
 	$blacklisted_meta = blacklisted_meta();
@@ -65,7 +65,7 @@ function prepare_meta( $post_id ) {
 	foreach ( $meta as $meta_key => $meta_array ) {
 		foreach ( $meta_array as $meta_value ) {
 			if ( ! in_array( $meta_key, $blacklisted_meta ) ) {
-				$meta_value = maybe_unserialize( $meta_value );
+				$meta_value                 = maybe_unserialize( $meta_value );
 				$prepared_meta[ $meta_key ] = $meta_value;
 			}
 		}
@@ -82,11 +82,11 @@ function prepare_meta( $post_id ) {
  * @return array
  */
 function prepare_media( $post_id ) {
-	$raw_media = get_attached_media( get_allowed_mime_types(), $post_id );
+	$raw_media   = get_attached_media( get_allowed_mime_types(), $post_id );
 	$media_array = array();
 
 	$featured_image_id = get_post_thumbnail_id( $post_id );
-	$found_featured = false;
+	$found_featured    = false;
 
 	foreach ( $raw_media as $media_post ) {
 		$media_item = format_media_post( $media_post );
@@ -99,7 +99,7 @@ function prepare_media( $post_id ) {
 	}
 
 	if ( ! empty( $featured_image_id ) && ! $found_featured ) {
-		$featured_image = format_media_post( get_post( $featured_image_id ) );
+		$featured_image             = format_media_post( get_post( $featured_image_id ) );
 		$featured_image['featured'] = true;
 
 		$media_array[] = $featured_image;
@@ -119,7 +119,7 @@ function prepare_taxonomy_terms( $post_id ) {
 	$post = get_post( $post_id );
 
 	$taxonomy_terms = [];
-	$taxonomies = get_object_taxonomies( $post );
+	$taxonomies     = get_object_taxonomies( $post );
 
 	/**
 	 * Filters the taxonomies that should be synced.
@@ -154,7 +154,7 @@ function set_taxonomy_terms( $post_id, $taxonomy_terms ) {
 			continue;
 		}
 
-		$term_ids = [];
+		$term_ids        = [];
 		$term_id_mapping = [];
 
 		foreach ( $terms as $term_array ) {
@@ -169,11 +169,11 @@ function set_taxonomy_terms( $post_id, $taxonomy_terms ) {
 
 				if ( ! is_wp_error( $term ) ) {
 					$term_id_mapping[ $term_array['term_id'] ] = $term['term_id'];
-					$term_ids[] = $term['term_id'];
+					$term_ids[]                                = $term['term_id'];
 				}
 			} else {
 				$term_id_mapping[ $term_array['term_id'] ] = $term->term_id;
-				$term_ids[] = $term->term_id;
+				$term_ids[]                                = $term->term_id;
 			}
 		}
 
@@ -187,9 +187,11 @@ function set_taxonomy_terms( $post_id, $taxonomy_terms ) {
 				}
 
 				if ( ! empty( $term_array['parent'] ) ) {
-					wp_update_term( $term_id_mapping[ $term_array['term_id'] ], $taxonomy, [
-						'parent' => $term_id_mapping[ $term_array['parent'] ],
-					] );
+					wp_update_term(
+						$term_id_mapping[ $term_array['term_id'] ], $taxonomy, [
+							'parent' => $term_id_mapping[ $term_array['parent'] ],
+						]
+					);
 				}
 			}
 		}
@@ -209,11 +211,11 @@ function set_taxonomy_terms( $post_id, $taxonomy_terms ) {
  */
 function set_media( $post_id, $media ) {
 	$current_media_posts = get_attached_media( get_allowed_mime_types(), $post_id );
-	$current_media = [];
+	$current_media       = [];
 
 	// Create mapping so we don't create duplicates
 	foreach ( $current_media_posts as $media_post ) {
-		$original = get_post_meta( $media_post->ID, 'dt_original_media_url', true );
+		$original                   = get_post_meta( $media_post->ID, 'dt_original_media_url', true );
 		$current_media[ $original ] = $media_post->ID;
 	}
 
@@ -247,12 +249,14 @@ function set_media( $post_id, $media ) {
 		set_meta( $image_id, $media_item['meta'] );
 
 		// Transfer post properties
-		wp_update_post( [
-			'ID'           => $image_id,
-			'post_title'   => $media_item['title'],
-			'post_content' => $media_item['description']['raw'],
-			'post_excerpt' => $media_item['caption']['raw'],
-		] );
+		wp_update_post(
+			[
+				'ID'           => $image_id,
+				'post_title'   => $media_item['title'],
+				'post_content' => $media_item['description']['raw'],
+				'post_excerpt' => $media_item['caption']['raw'],
+			]
+		);
 	}
 
 	if ( ! $found_featured_image ) {
@@ -280,12 +284,12 @@ function format_media_post( $media_post ) {
 	}
 
 	$media_item['description'] = array(
-		'raw'       => $media_post->post_content,
-		'rendered'  => apply_filters( 'the_content', $media_post->post_content ),
+		'raw'      => $media_post->post_content,
+		'rendered' => apply_filters( 'the_content', $media_post->post_content ),
 	);
 
 	$media_item['caption'] = array(
-		'raw'       => $media_post->post_excerpt,
+		'raw' => $media_post->post_excerpt,
 	);
 
 	$media_item['alt_text']      = get_post_meta( $media_post->ID, '_wp_attachment_image_alt', true );
@@ -317,7 +321,7 @@ function process_media( $url, $post_id ) {
 	require_once( ABSPATH . 'wp-admin/includes/file.php' );
 	require_once( ABSPATH . 'wp-admin/includes/media.php' );
 
-	$file_array = array();
+	$file_array         = array();
 	$file_array['name'] = basename( $matches[0] );
 
 	// Download file to temp location.

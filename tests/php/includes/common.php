@@ -11,7 +11,7 @@
  */
 class WP_Error {
 	public function __construct( $code = '', $message = '' ) {
-		$this->code = $code;
+		$this->code    = $code;
 		$this->message = $message;
 	}
 }
@@ -75,7 +75,7 @@ function is_serialized( $data, $strict = true ) {
 	}
 	$token = $data[0];
 	switch ( $token ) {
-		case 's' :
+		case 's':
 			if ( $strict ) {
 				if ( '"' !== substr( $data, -2, 1 ) ) {
 					return false;
@@ -84,12 +84,12 @@ function is_serialized( $data, $strict = true ) {
 				return false;
 			}
 			// or else fall through
-		case 'a' :
-		case 'O' :
+		case 'a':
+		case 'O':
 			return (bool) preg_match( "/^{$token}:[0-9]+:/s", $data );
-		case 'b' :
-		case 'i' :
-		case 'd' :
+		case 'b':
+		case 'i':
+		case 'd':
 			$end = $strict ? '$' : '';
 			return (bool) preg_match( "/^{$token}:[0-9.E-]+;$end/", $data );
 	}
@@ -106,18 +106,18 @@ class WP_Query {
 
 		$items = [
 			[
-				'ID' => 2,
-				'title' => 'my title a',
+				'ID'      => 2,
+				'title'   => 'my title a',
 				'content' => 'my content a',
 			],
 			[
-				'ID' => 188,
-				'title' => 'my title b',
+				'ID'      => 188,
+				'title'   => 'my title b',
 				'content' => 'my content b',
 			],
 			[
-				'ID' => 198,
-				'title' => 'my title c',
+				'ID'      => 198,
+				'title'   => 'my title c',
 				'content' => 'my content c',
 			],
 		];
@@ -130,7 +130,7 @@ class WP_Query {
 		}
 
 		$this->found_posts = count( $items );
-		$this->posts = $posts;
+		$this->posts       = $posts;
 
 	}
 
@@ -158,7 +158,7 @@ function remote_get_setup() {
 	\WP_Mock::userFunction( 'get_option' );
 
 	$post_type = 'post';
-	$links = [
+	$links     = [
 		'_links' => [
 			'wp:items' => [
 				[ 'href' => 'http://url.com' ],
@@ -166,31 +166,39 @@ function remote_get_setup() {
 		],
 	];
 
-	\WP_Mock::userFunction( 'wp_remote_get', [
-		'return' => json_encode( [
-			$post_type => $links,
-		] ),
-	] );
+	\WP_Mock::userFunction(
+		'wp_remote_get', [
+			'return' => json_encode(
+				[
+					$post_type => $links,
+				]
+			),
+		]
+	);
 
-	\WP_Mock::userFunction( 'wp_remote_retrieve_body', [
-		'return' => json_encode( [
-			'id'               => 123,
-			'title'            => [ 'rendered' => 'My post title' ],
-			'content'          => [ 'rendered' => '' ],
-			'excerpt'          => [ 'rendered' => '' ],
-			'date'             => '',
-			'date_gmt'         => '',
-			'guid'             => [ 'rendered' => '' ],
-			'modified'         => '',
-			'modified_gmt'     => '',
-			'type'             => '',
-			'link'             => '',
-			'distributor_meta' => [],
-			'distributor_terms' => [],
-			'distributor_media' => [],
-			$post_type         => $links,
-		] ),
-	] );
+	\WP_Mock::userFunction(
+		'wp_remote_retrieve_body', [
+			'return' => json_encode(
+				[
+					'id'                => 123,
+					'title'             => [ 'rendered' => 'My post title' ],
+					'content'           => [ 'rendered' => '' ],
+					'excerpt'           => [ 'rendered' => '' ],
+					'date'              => '',
+					'date_gmt'          => '',
+					'guid'              => [ 'rendered' => '' ],
+					'modified'          => '',
+					'modified_gmt'      => '',
+					'type'              => '',
+					'link'              => '',
+					'distributor_meta'  => [],
+					'distributor_terms' => [],
+					'distributor_media' => [],
+					$post_type          => $links,
+				]
+			),
+		]
+	);
 }
 
 /**
@@ -241,9 +249,9 @@ function get_allowed_mime_types() {
  * Classes for testing connections
  */
 class TestExternalConnection extends \Distributor\ExternalConnection {
-	static $slug = 'test-external-connection';
+	static $slug               = 'test-external-connection';
 	static $auth_handler_class = '\Distributor\Authentications\WordPressBasicAuth';
-	static $namespace = 'wp/v2';
+	static $namespace          = 'wp/v2';
 
 	public function push( $item_id, $args = array() ) { }
 

@@ -65,61 +65,81 @@ class WordPressExternalConnectionTest extends \TestCase {
 
 		$post_type = 'foo';
 
-		$body = json_encode( [
-			'id' => 123,
-			$post_type => [
-				'_links' => [
-					'wp:items' => [
-						0 => [
-							'href' => 'http://url.com',
+		$body = json_encode(
+			[
+				'id'       => 123,
+				$post_type => [
+					'_links' => [
+						'wp:items' => [
+							0 => [
+								'href' => 'http://url.com',
+							],
 						],
 					],
 				],
-			],
-		] );
+			]
+		);
 
-		\WP_Mock::userFunction( 'get_post', [
-			'return' => ( object ) [
-				'post_content' => 'my post content',
-				'post_type'    => $post_type,
-				'post_excerpt' => 'post excerpt',
-			],
-		] );
+		\WP_Mock::userFunction(
+			'get_post', [
+				'return' => (object) [
+					'post_content' => 'my post content',
+					'post_type'    => $post_type,
+					'post_excerpt' => 'post excerpt',
+				],
+			]
+		);
 
-		\WP_Mock::userFunction( 'get_post_type', [
-			'return' => $post_type,
-		] );
+		\WP_Mock::userFunction(
+			'get_post_type', [
+				'return' => $post_type,
+			]
+		);
 
-		\WP_Mock::userFunction( 'wp_generate_password', [
-			'return' => '12345',
-		] );
+		\WP_Mock::userFunction(
+			'wp_generate_password', [
+				'return' => '12345',
+			]
+		);
 
-		\WP_Mock::userFunction( 'wp_remote_get', [
-			'return' => $body,
-		] );
+		\WP_Mock::userFunction(
+			'wp_remote_get', [
+				'return' => $body,
+			]
+		);
 
-		\WP_Mock::userFunction( 'wp_remote_retrieve_body', [
-			'return' => $body,
-		] );
+		\WP_Mock::userFunction(
+			'wp_remote_retrieve_body', [
+				'return' => $body,
+			]
+		);
 
-		\WP_Mock::userFunction( 'wp_remote_retrieve_headers', [
-			'return' => [],
-		] );
+		\WP_Mock::userFunction(
+			'wp_remote_retrieve_headers', [
+				'return' => [],
+			]
+		);
 
 		/**
 		 * We will test the util prepare functions later
 		 */
-		\WP_Mock::userFunction( '\Distributor\Utils\prepare_media', [
-			'return' => [],
-		] );
+		\WP_Mock::userFunction(
+			'\Distributor\Utils\prepare_media', [
+				'return' => [],
+			]
+		);
 
-		\WP_Mock::userFunction( '\Distributor\Utils\prepare_taxonomy_terms', [
-			'return' => [],
-		] );
+		\WP_Mock::userFunction(
+			'\Distributor\Utils\prepare_taxonomy_terms', [
+				'return' => [],
+			]
+		);
 
-		\WP_Mock::userFunction( '\Distributor\Utils\prepare_meta', [
-			'return' => [],
-		] );
+		\WP_Mock::userFunction(
+			'\Distributor\Utils\prepare_meta', [
+				'return' => [],
+			]
+		);
 
 		\WP_Mock::userFunction( 'get_permalink' );
 
@@ -131,18 +151,22 @@ class WordPressExternalConnectionTest extends \TestCase {
 		 * returned by the remote API
 		 */
 
-		\WP_Mock::userFunction( 'wp_remote_retrieve_headers', [
-			'return' => [
-				'X-Distributor' => true,
-			],
-		] );
+		\WP_Mock::userFunction(
+			'wp_remote_retrieve_headers', [
+				'return' => [
+					'X-Distributor' => true,
+				],
+			]
+		);
 
-		\WP_Mock::userFunction( '\Distributor\Subscriptions\create_subscription', [
-			'times' => 0,
-			'return' => [
-				'X-Distributor' => true,
-			],
-		] );
+		\WP_Mock::userFunction(
+			'\Distributor\Subscriptions\create_subscription', [
+				'times'  => 0,
+				'return' => [
+					'X-Distributor' => true,
+				],
+			]
+		);
 
 		$this->assertTrue( is_int( $this->connection->push( 1 ) ) );
 	}
@@ -166,64 +190,90 @@ class WordPressExternalConnectionTest extends \TestCase {
 		\WP_Mock::userFunction( 'get_current_user_id' );
 		\WP_Mock::userFunction( 'delete_post_meta' );
 
-		\WP_Mock::userFunction( 'wp_insert_post', [
-			'return' => 2,
-		] );
+		\WP_Mock::userFunction(
+			'wp_insert_post', [
+				'return' => 2,
+			]
+		);
 
-		\WP_Mock::userFunction( 'get_attached_media', [
-			'return' => [],
-		] );
+		\WP_Mock::userFunction(
+			'get_attached_media', [
+				'return' => [],
+			]
+		);
 
-		\WP_Mock::userFunction( 'get_allowed_mime_types', [
-			'return' => [],
-		] );
+		\WP_Mock::userFunction(
+			'get_allowed_mime_types', [
+				'return' => [],
+			]
+		);
 
-		\WP_Mock::userFunction( 'update_post_meta', [
-			'times'  => 1,
-			'args'   => [ \WP_Mock\Functions::type( 'int' ), 'dt_original_post_id', $post_id ],
-			'return' => [],
-		] );
+		\WP_Mock::userFunction(
+			'update_post_meta', [
+				'times'  => 1,
+				'args'   => [ \WP_Mock\Functions::type( 'int' ), 'dt_original_post_id', $post_id ],
+				'return' => [],
+			]
+		);
 
-		\WP_Mock::userFunction( 'update_post_meta', [
-			'times'  => 1,
-			'args'   => [ \WP_Mock\Functions::type( 'int' ), 'dt_original_source_id', 1 ],
-			'return' => [],
-		] );
+		\WP_Mock::userFunction(
+			'update_post_meta', [
+				'times'  => 1,
+				'args'   => [ \WP_Mock\Functions::type( 'int' ), 'dt_original_source_id', 1 ],
+				'return' => [],
+			]
+		);
 
-		\WP_Mock::userFunction( 'update_post_meta', [
-			'times'  => 1,
-			'args'   => [ \WP_Mock\Functions::type( 'int' ), 'dt_syndicate_time', time() ],
-			'return' => [],
-		] );
+		\WP_Mock::userFunction(
+			'update_post_meta', [
+				'times'  => 1,
+				'args'   => [ \WP_Mock\Functions::type( 'int' ), 'dt_syndicate_time', time() ],
+				'return' => [],
+			]
+		);
 
-		\WP_Mock::userFunction( 'update_post_meta', [
-			'times'  => 1,
-			'args'   => [ \WP_Mock\Functions::type( 'int' ), 'dt_original_post_url', '' ],
-			'return' => [],
-		] );
+		\WP_Mock::userFunction(
+			'update_post_meta', [
+				'times'  => 1,
+				'args'   => [ \WP_Mock\Functions::type( 'int' ), 'dt_original_post_url', '' ],
+				'return' => [],
+			]
+		);
 
-		\WP_Mock::userFunction( 'update_post_meta', [
-			'times'  => 1,
-			'args'   => [ \WP_Mock\Functions::type( 'int' ), 'dt_original_site_name', '' ],
-			'return' => [],
-		] );
+		\WP_Mock::userFunction(
+			'update_post_meta', [
+				'times'  => 1,
+				'args'   => [ \WP_Mock\Functions::type( 'int' ), 'dt_original_site_name', '' ],
+				'return' => [],
+			]
+		);
 
-		\WP_Mock::userFunction( 'update_post_meta', [
-			'times'  => 1,
-			'args'   => [ \WP_Mock\Functions::type( 'int' ), 'dt_full_connection', false ],
-			'return' => [],
-		] );
+		\WP_Mock::userFunction(
+			'update_post_meta', [
+				'times'  => 1,
+				'args'   => [ \WP_Mock\Functions::type( 'int' ), 'dt_full_connection', false ],
+				'return' => [],
+			]
+		);
 
-		\WP_Mock::userFunction( 'wp_remote_retrieve_headers', [
-			'times'  => 1,
-			'return' => [
-				'X-Distributor' => true,
-			],
-		] );
+		\WP_Mock::userFunction(
+			'wp_remote_retrieve_headers', [
+				'times'  => 1,
+				'return' => [
+					'X-Distributor' => true,
+				],
+			]
+		);
 
-		$this->assertTrue( is_array( $this->connection->pull( [
-			[ 'remote_post_id' => $post_id ],
-		] ) ) );
+		$this->assertTrue(
+			is_array(
+				$this->connection->pull(
+					[
+						[ 'remote_post_id' => $post_id ],
+					]
+				)
+			)
+		);
 	}
 
 	/**
@@ -240,22 +290,30 @@ class WordPressExternalConnectionTest extends \TestCase {
 		\WP_Mock::passThruFunction( 'untrailingslashit' );
 		\WP_Mock::userFunction( 'get_current_user_id' );
 
-		\WP_Mock::userFunction( 'wp_remote_retrieve_response_code', [
-			'times'  => 1,
-			'return' => 200,
-		] );
+		\WP_Mock::userFunction(
+			'wp_remote_retrieve_response_code', [
+				'times'  => 1,
+				'return' => 200,
+			]
+		);
 
-		\WP_Mock::userFunction( 'wp_remote_retrieve_headers', [
-			'times'  => 1,
-			'return' => [
-				'X-Distributor' => true,
-			],
-		] );
+		\WP_Mock::userFunction(
+			'wp_remote_retrieve_headers', [
+				'times'  => 1,
+				'return' => [
+					'X-Distributor' => true,
+				],
+			]
+		);
 
-		$this->assertInstanceOf( \WP_Post::class, $this->connection->remote_get( [
-			'id'        => 111,
-			'post_type' => 'post',
-		] ) );
+		$this->assertInstanceOf(
+			\WP_Post::class, $this->connection->remote_get(
+				[
+					'id'        => 111,
+					'post_type' => 'post',
+				]
+			)
+		);
 
 	}
 
@@ -268,21 +326,29 @@ class WordPressExternalConnectionTest extends \TestCase {
 	 */
 	public function test_check_connections_no_errors() {
 
-		\WP_Mock::userFunction( 'wp_remote_retrieve_body', [
-			'return' => json_encode( [
-				'routes' => 'my routes',
-			] ),
-		] );
+		\WP_Mock::userFunction(
+			'wp_remote_retrieve_body', [
+				'return' => json_encode(
+					[
+						'routes' => 'my routes',
+					]
+				),
+			]
+		);
 
-		\WP_Mock::userFunction( 'wp_remote_retrieve_headers', [
-			'return' => [
-				'Link' => null,
-			],
-		] );
+		\WP_Mock::userFunction(
+			'wp_remote_retrieve_headers', [
+				'return' => [
+					'Link' => null,
+				],
+			]
+		);
 
-		\WP_Mock::userFunction( 'wp_remote_retrieve_response_code', [
-			'return' => 200,
-		] );
+		\WP_Mock::userFunction(
+			'wp_remote_retrieve_response_code', [
+				'return' => 200,
+			]
+		);
 
 		\WP_Mock::userFunction( 'wp_remote_get' );
 		\WP_Mock::userFunction( 'untrailingslashit' );
@@ -300,25 +366,33 @@ class WordPressExternalConnectionTest extends \TestCase {
 	 * @runInSeparateProcess
 	 */
 	public function test_check_connections_no_distributor() {
-		\WP_Mock::userFunction( 'wp_remote_retrieve_body', [
-			'return' => json_encode( [
-				'routes' => 'my routes',
-			] ),
-		] );
+		\WP_Mock::userFunction(
+			'wp_remote_retrieve_body', [
+				'return' => json_encode(
+					[
+						'routes' => 'my routes',
+					]
+				),
+			]
+		);
 
 		\WP_Mock::userFunction( 'wp_remote_get' );
 		\WP_Mock::userFunction( 'untrailingslashit' );
 
-		\WP_Mock::userFunction( 'wp_remote_retrieve_response_code', [
-			'return' => 200,
-		] );
+		\WP_Mock::userFunction(
+			'wp_remote_retrieve_response_code', [
+				'return' => 200,
+			]
+		);
 
-		\WP_Mock::userFunction( 'wp_remote_retrieve_headers', [
-			'return' => [
-				'X-Distributor' => true,
-				'Link' => null,
-			],
-		] );
+		\WP_Mock::userFunction(
+			'wp_remote_retrieve_headers', [
+				'return' => [
+					'X-Distributor' => true,
+					'Link'          => null,
+				],
+			]
+		);
 
 		$this->assertTrue( empty( $this->connection->check_connections()['errors']['no_distributor'] ) );
 	}

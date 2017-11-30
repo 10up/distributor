@@ -8,21 +8,23 @@ namespace Distributor\ExternalConnectionCPT;
  * @since 0.8
  */
 function setup() {
-	add_action( 'plugins_loaded', function() {
-		add_action( 'init', __NAMESPACE__ . '\setup_cpt' );
-		add_filter( 'enter_title_here', __NAMESPACE__ . '\filter_enter_title_here', 10, 2 );
-		add_filter( 'post_updated_messages', __NAMESPACE__ . '\filter_post_updated_messages' );
-		add_action( 'save_post', __NAMESPACE__ . '\save_post' );
-		add_action( 'admin_enqueue_scripts', __NAMESPACE__ . '\admin_enqueue_scripts' );
-		add_action( 'wp_ajax_dt_verify_external_connection', __NAMESPACE__ . '\ajax_verify_external_connection' );
-		add_action( 'wp_ajax_dt_verify_external_connection_endpoint', __NAMESPACE__ . '\ajax_verify_external_connection_endpoint' );
-		add_filter( 'manage_dt_ext_connection_posts_columns', __NAMESPACE__ . '\filter_columns' );
-		add_action( 'manage_dt_ext_connection_posts_custom_column', __NAMESPACE__ . '\action_custom_columns', 10, 2 );
-		add_action( 'admin_menu', __NAMESPACE__ . '\add_menu_item' );
-		add_action( 'admin_menu', __NAMESPACE__ . '\add_submenu_item', 11 );
-		add_action( 'load-toplevel_page_distributor', __NAMESPACE__ . '\setup_list_table' );
-		add_filter( 'set-screen-option', __NAMESPACE__ . '\set_screen_option', 10, 3 );
-	} );
+	add_action(
+		'plugins_loaded', function() {
+			add_action( 'init', __NAMESPACE__ . '\setup_cpt' );
+			add_filter( 'enter_title_here', __NAMESPACE__ . '\filter_enter_title_here', 10, 2 );
+			add_filter( 'post_updated_messages', __NAMESPACE__ . '\filter_post_updated_messages' );
+			add_action( 'save_post', __NAMESPACE__ . '\save_post' );
+			add_action( 'admin_enqueue_scripts', __NAMESPACE__ . '\admin_enqueue_scripts' );
+			add_action( 'wp_ajax_dt_verify_external_connection', __NAMESPACE__ . '\ajax_verify_external_connection' );
+			add_action( 'wp_ajax_dt_verify_external_connection_endpoint', __NAMESPACE__ . '\ajax_verify_external_connection_endpoint' );
+			add_filter( 'manage_dt_ext_connection_posts_columns', __NAMESPACE__ . '\filter_columns' );
+			add_action( 'manage_dt_ext_connection_posts_custom_column', __NAMESPACE__ . '\action_custom_columns', 10, 2 );
+			add_action( 'admin_menu', __NAMESPACE__ . '\add_menu_item' );
+			add_action( 'admin_menu', __NAMESPACE__ . '\add_submenu_item', 11 );
+			add_action( 'load-toplevel_page_distributor', __NAMESPACE__ . '\setup_list_table' );
+			add_filter( 'set-screen-option', __NAMESPACE__ . '\set_screen_option', 10, 3 );
+		}
+	);
 }
 
 /**
@@ -58,7 +60,7 @@ function setup_list_table() {
 		if ( 'bulk-delete' === $doaction ) {
 			$sendback = remove_query_arg( array( 'trashed', 'untrashed', 'deleted', 'locked', 'ids' ), wp_get_referer() );
 
-			$deleted = 0;
+			$deleted  = 0;
 			$post_ids = array_map( 'intval', $_REQUEST['post'] );
 
 			foreach ( (array) $post_ids as $post_id ) {
@@ -160,30 +162,32 @@ function ajax_verify_external_connection() {
 function admin_enqueue_scripts( $hook ) {
 	if ( ( 'post.php' === $hook && 'dt_ext_connection' === get_post_type() ) || ( 'post-new.php' === $hook && ! empty( $_GET['post_type'] ) && 'dt_ext_connection' === $_GET['post_type'] ) ) {
 
-	    if ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) {
-			$js_path = '/assets/js/src/admin-external-connection.js';
+		if ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) {
+			$js_path  = '/assets/js/src/admin-external-connection.js';
 			$css_path = '/assets/css/admin-external-connection.css';
 		} else {
-			$js_path = '/assets/js/admin-external-connection.min.js';
+			$js_path  = '/assets/js/admin-external-connection.min.js';
 			$css_path = '/assets/css/admin-external-connection.min.css';
 		}
 
 		wp_enqueue_style( 'dt-admin-external-connection', plugins_url( $css_path, __DIR__ ), array(), DT_VERSION );
-	    wp_enqueue_script( 'dt-admin-external-connection', plugins_url( $js_path, __DIR__ ), array( 'jquery', 'underscore' ), DT_VERSION, true );
+		wp_enqueue_script( 'dt-admin-external-connection', plugins_url( $js_path, __DIR__ ), array( 'jquery', 'underscore' ), DT_VERSION, true );
 
-	    wp_localize_script( 'dt-admin-external-connection', 'dt', array(
-	    	'nonce' => wp_create_nonce( 'dt-verify-ext-conn' ),
-	    	'bad_connection' => esc_html__( 'No connection found.', 'distributor' ),
-	    	'good_connection' => esc_html__( 'Connection established.', 'distributor' ),
-	    	'limited_connection' => esc_html__( 'Limited connection established.', 'distributor' ),
-	    	'endpoint_suggestion' => esc_html__( 'Did you mean: ', 'distributor' ),
-	    	'endpoint_checking_message' => esc_html__( 'Checking endpoint...', 'distributor' ),
-	    	'no_push' => esc_html__( 'Push unavailable.', 'distributor' ),
-	    	'change' => esc_html__( 'Change', 'distributor' ),
-	    	'cancel' => esc_html__( 'Cancel', 'distributor' ),
-	    	'no_distributor' => esc_html__( 'Distributor not installed on remote site.', 'distributor' ),
-	    	'roles_warning' => esc_html__( 'Be careful assigning less trusted roles push privileges as they will inherit the capabilities of the user on the remote site.', 'distributor' ),
-	    ) );
+		wp_localize_script(
+			'dt-admin-external-connection', 'dt', array(
+				'nonce'                     => wp_create_nonce( 'dt-verify-ext-conn' ),
+				'bad_connection'            => esc_html__( 'No connection found.', 'distributor' ),
+				'good_connection'           => esc_html__( 'Connection established.', 'distributor' ),
+				'limited_connection'        => esc_html__( 'Limited connection established.', 'distributor' ),
+				'endpoint_suggestion'       => esc_html__( 'Did you mean: ', 'distributor' ),
+				'endpoint_checking_message' => esc_html__( 'Checking endpoint...', 'distributor' ),
+				'no_push'                   => esc_html__( 'Push unavailable.', 'distributor' ),
+				'change'                    => esc_html__( 'Change', 'distributor' ),
+				'cancel'                    => esc_html__( 'Cancel', 'distributor' ),
+				'no_distributor'            => esc_html__( 'Distributor not installed on remote site.', 'distributor' ),
+				'roles_warning'             => esc_html__( 'Be careful assigning less trusted roles push privileges as they will inherit the capabilities of the user on the remote site.', 'distributor' ),
+			)
+		);
 
 		wp_dequeue_script( 'autosave' );
 	}
@@ -287,7 +291,7 @@ function save_post( $post_id ) {
 			$current_auth = array();
 		}
 
-		$connection_class = \Distributor\Connections::factory()->get_registered()[ $_POST['dt_external_connection_type'] ];
+		$connection_class         = \Distributor\Connections::factory()->get_registered()[ $_POST['dt_external_connection_type'] ];
 		$auth_handler_class_again = $connection_class::$auth_handler_class;
 
 		$auth_creds = $auth_handler_class_again::prepare_credentials( array_merge( (array) $current_auth, $_POST['dt_external_connection_auth'] ) );
@@ -347,7 +351,10 @@ function meta_box_external_connection_details( $post ) {
 	}
 	?>
 
-	<?php if ( 1 === count( $registered_external_connection_types ) ) : $registered_connection_types_keys = array_keys( $registered_external_connection_types ); ?>
+	<?php
+	if ( 1 === count( $registered_external_connection_types ) ) :
+		$registered_connection_types_keys = array_keys( $registered_external_connection_types );
+?>
 		<input id="dt_external_connection_type" class="external-connection-type-field" type="hidden" name="dt_external_connection_type" value="<?php echo esc_attr( $registered_connection_types_keys[0] ); ?>">
 	<?php else : ?>
 		<p>
@@ -361,8 +368,12 @@ function meta_box_external_connection_details( $post ) {
 		</p>
 	<?php endif; ?>
 
-	<?php foreach ( $registered_external_connection_types as $external_connection_class ) : $auth_handler_class_again = $external_connection_class::$auth_handler_class;
-		if ( ! $auth_handler_class_again::$requires_credentials ) { continue; } ?>
+	<?php
+	foreach ( $registered_external_connection_types as $external_connection_class ) :
+		$auth_handler_class_again = $external_connection_class::$auth_handler_class;
+		if ( ! $auth_handler_class_again::$requires_credentials ) {
+			continue; }
+		?>
 		<div class="auth-credentials <?php echo esc_attr( $auth_handler_class_again::$slug ); ?>">
 			<?php $auth_handler_class_again::credentials_form( $auth ); ?>
 		</div>
@@ -400,11 +411,11 @@ function meta_box_external_connection_details( $post ) {
 
 		<?php if ( 0 < strtotime( $post->post_date_gmt . ' +0000' ) ) : ?>
 
-			<input name="save" type="submit" class="button button-primary button-large" id="publish" value="<?php esc_attr_e( 'Update Connection', 'distributor' ) ?>">
+			<input name="save" type="submit" class="button button-primary button-large" id="publish" value="<?php esc_attr_e( 'Update Connection', 'distributor' ); ?>">
 
 			<a class="delete-link" href="<?php echo esc_url( get_delete_post_link( $post->ID ) ); ?> "><?php esc_html_e( 'Move to Trash', 'distributor' ); ?></a>
 		<?php else : ?>
-			<input name="publish" type="submit" class="button button-primary button-large" id="publish" value="<?php esc_attr_e( 'Create Connection', 'distributor' ) ?>">
+			<input name="publish" type="submit" class="button button-primary button-large" id="publish" value="<?php esc_attr_e( 'Create Connection', 'distributor' ); ?>">
 		<?php endif; ?>
 	</p>
 	<?php
@@ -540,17 +551,19 @@ function filter_post_updated_messages( $messages ) {
 	global $post, $post_ID;
 
 	$messages['dt_ext_connection'] = array(
-		0 => '',
-		1 => esc_html__( 'External connection updated.', 'distributor' ),
-		2 => esc_html__( 'Custom field updated.', 'distributor' ),
-		3 => esc_html__( 'Custom field deleted.', 'distributor' ),
-		4 => esc_html__( 'External connection updated.', 'distributor' ),
-		5 => isset( $_GET['revision'] ) ? sprintf( __( ' External connection restored to revision from %s', 'distributor' ), wp_post_revision_title( (int) $_GET['revision'], false ) ) : false,
-		6 => esc_html__( 'External connection created.', 'distributor' ),
-		7 => esc_html__( 'External connection saved.', 'distributor' ),
-		8 => esc_html__( 'External connection submitted.', 'distributor' ),
-		9 => sprintf( __( 'External connection scheduled for: <strong>%1$s</strong>.', 'distributor' ),
-		date_i18n( __( 'M j, Y @ G:i' ), strtotime( $post->post_date ) ) ),
+		0  => '',
+		1  => esc_html__( 'External connection updated.', 'distributor' ),
+		2  => esc_html__( 'Custom field updated.', 'distributor' ),
+		3  => esc_html__( 'Custom field deleted.', 'distributor' ),
+		4  => esc_html__( 'External connection updated.', 'distributor' ),
+		5  => isset( $_GET['revision'] ) ? sprintf( __( ' External connection restored to revision from %s', 'distributor' ), wp_post_revision_title( (int) $_GET['revision'], false ) ) : false,
+		6  => esc_html__( 'External connection created.', 'distributor' ),
+		7  => esc_html__( 'External connection saved.', 'distributor' ),
+		8  => esc_html__( 'External connection submitted.', 'distributor' ),
+		9  => sprintf(
+			__( 'External connection scheduled for: <strong>%1$s</strong>.', 'distributor' ),
+			date_i18n( __( 'M j, Y @ G:i' ), strtotime( $post->post_date ) )
+		),
 		10 => esc_html__( 'External connection draft updated.', 'distributor' ),
 	);
 

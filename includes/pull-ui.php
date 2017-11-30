@@ -8,12 +8,14 @@ namespace Distributor\PullUI;
  * @since 0.8
  */
 function setup() {
-	add_action( 'plugins_loaded', function() {
-		add_action( 'admin_menu'                 , __NAMESPACE__ . '\action_admin_menu' );
-		add_action( 'admin_enqueue_scripts'      , __NAMESPACE__ . '\admin_enqueue_scripts' );
-		add_action( 'load-distributor_page_pull' , __NAMESPACE__ . '\setup_list_table' );
-		add_filter( 'set-screen-option'          , __NAMESPACE__ . '\set_screen_option', 10, 3 );
-	} );
+	add_action(
+		'plugins_loaded', function() {
+			add_action( 'admin_menu', __NAMESPACE__ . '\action_admin_menu' );
+			add_action( 'admin_enqueue_scripts', __NAMESPACE__ . '\admin_enqueue_scripts' );
+			add_action( 'load-distributor_page_pull', __NAMESPACE__ . '\setup_list_table' );
+			add_filter( 'set-screen-option', __NAMESPACE__ . '\set_screen_option', 10, 3 );
+		}
+	);
 }
 
 /**
@@ -40,12 +42,14 @@ function setup_list_table() {
 		setcookie( 'dt-duplicated', 1, time() - 60, ADMIN_COOKIE_PATH, COOKIE_DOMAIN, is_ssl() );
 	}
 
-	$external_connections = new \WP_Query( array(
-		'post_type'      => 'dt_ext_connection',
-		'fields'         => 'ids',
-		'no_found_rows'  => true,
-		'posts_per_page' => 100,
-	) );
+	$external_connections = new \WP_Query(
+		array(
+			'post_type'      => 'dt_ext_connection',
+			'fields'         => 'ids',
+			'no_found_rows'  => true,
+			'posts_per_page' => 100,
+		)
+	);
 
 	$connection_list_table = new \Distributor\PullListTable();
 
@@ -54,7 +58,7 @@ function setup_list_table() {
 	$sites = \Distributor\InternalConnections\NetworkSiteConnection::get_available_authorized_sites();
 
 	foreach ( $sites as $site_array ) {
-		$internal_connection = new \Distributor\InternalConnections\NetworkSiteConnection( $site_array['site'] );
+		$internal_connection                         = new \Distributor\InternalConnections\NetworkSiteConnection( $site_array['site'] );
 		$connection_list_table->connection_objects[] = $internal_connection;
 
 		if ( ! empty( $_GET['connection_id'] ) && ! empty( $_GET['connection_type'] ) && 'internal' === $_GET['connection_type'] && (int) $internal_connection->site->blog_id === (int) $_GET['connection_id'] ) {
@@ -99,10 +103,10 @@ function admin_enqueue_scripts( $hook ) {
 	}
 
 	if ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) {
-		$js_path = '/assets/js/src/admin-pull.js';
+		$js_path  = '/assets/js/src/admin-pull.js';
 		$css_path = '/assets/css/admin-pull-table.css';
 	} else {
-		$js_path = '/assets/js/admin-pull.min.js';
+		$js_path  = '/assets/js/admin-pull.min.js';
 		$css_path = '/assets/css/admin-pull-table.min.css';
 	}
 
@@ -188,21 +192,23 @@ function process_actions() {
 
 			$posts = (array) $_GET['post'];
 
-			$posts = array_map( function( $remote_post_id ) {
-				return [ 'remote_post_id' => $remote_post_id ];
-			}, $posts );
+			$posts = array_map(
+				function( $remote_post_id ) {
+						return [ 'remote_post_id' => $remote_post_id ];
+				}, $posts
+			);
 
 			if ( 'external' === $_GET['connection_type'] ) {
 				$connection = \Distributor\ExternalConnection::instantiate( $_GET['connection_id'] );
-				$new_posts = $connection->pull( $posts );
+				$new_posts  = $connection->pull( $posts );
 
 				foreach ( $posts as $key => $post_array ) {
 					\Distributor\Subscriptions\create_remote_subscription( $connection, $post_array['remote_post_id'], $new_posts[ $key ] );
 				}
 			} else {
-				$site = get_site( $_GET['connection_id'] );
+				$site       = get_site( $_GET['connection_id'] );
 				$connection = new \Distributor\InternalConnections\NetworkSiteConnection( $site );
-				$new_posts = $connection->pull( $posts );
+				$new_posts  = $connection->pull( $posts );
 			}
 
 			$post_id_mappings = array();
@@ -246,7 +252,7 @@ function process_actions() {
 			if ( 'external' === $_GET['connection_type'] ) {
 				$connection = \Distributor\ExternalConnection::instantiate( $_GET['connection_id'] );
 			} else {
-				$site = get_site( $_GET['connection_id'] );
+				$site       = get_site( $_GET['connection_id'] );
 				$connection = new \Distributor\InternalConnections\NetworkSiteConnection( $site );
 			}
 
@@ -289,10 +295,10 @@ function dashboard() {
 	if ( ! empty( $connection_now ) ) {
 		if ( is_a( $connection_now, '\Distributor\ExternalConnection' ) ) {
 			$connection_type = 'external';
-			$connection_id = $connection_now->id;
+			$connection_id   = $connection_now->id;
 		} else {
 			$connection_type = 'internal';
-			$connection_id = $connection_now->site->blog_id;
+			$connection_id   = $connection_now->site->blog_id;
 		}
 	}
 
@@ -310,7 +316,10 @@ function dashboard() {
 
 	<div class="wrap nosubsub">
 		<h1>
-			<?php if ( empty( $connection_list_table->connection_objects ) ) : $connection_now = 0; ?>
+			<?php
+			if ( empty( $connection_list_table->connection_objects ) ) :
+				$connection_now = 0;
+?>
 				<?php printf( __( 'No Connections to Pull from, <a href="%s">Create One</a>?', 'distributor' ), esc_url( admin_url( 'post-new.php?post_type=dt_ext_connection' ) ) ); ?>
 			<?php else : ?>
 				<?php esc_html_e( 'Pull Content from', 'distributor' ); ?>
@@ -319,11 +328,12 @@ function dashboard() {
 						<?php if ( ! empty( $external_connection_group ) ) : ?>
 							<optgroup label="<?php esc_html_e( 'Network Connections', 'distributor' ); ?>">
 						<?php endif; ?>
-							<?php foreach ( $internal_connection_group as $connection ) :
+							<?php
+							foreach ( $internal_connection_group as $connection ) :
 								$selected = false;
-								$type = 'internal';
-								$name = untrailingslashit( $connection->site->domain . $connection->site->path );
-								$id = $connection->site->blog_id;
+								$type     = 'internal';
+								$name     = untrailingslashit( $connection->site->domain . $connection->site->path );
+								$id       = $connection->site->blog_id;
 
 								if ( (int) $connection_now->site->blog_id === (int) $id ) {
 									$selected = true;
@@ -340,11 +350,12 @@ function dashboard() {
 						<?php if ( ! empty( $internal_connection_group ) ) : ?>
 							<optgroup label="<?php esc_html_e( 'External Connections', 'distributor' ); ?>">
 						<?php endif; ?>
-							<?php foreach ( $external_connection_group as $connection ) :
-								$type = 'external';
+							<?php
+							foreach ( $external_connection_group as $connection ) :
+								$type     = 'external';
 								$selected = false;
-								$name = $connection->name;
-								$id = $connection->id;
+								$name     = $connection->name;
+								$id       = $connection->id;
 
 								if ( (int) $connection_now->id === (int) $id ) {
 									$selected = true;

@@ -14,10 +14,12 @@ class ExternalConnectionListTable extends \WP_Posts_List_Table {
 	 * @since  0.8
 	 */
 	public function __construct() {
-		parent::__construct( array(
-			'ajax' => false,
-			'screen' => \WP_Screen::get( 'dt_ext_connection' ),
-		) );
+		parent::__construct(
+			array(
+				'ajax'   => false,
+				'screen' => \WP_Screen::get( 'dt_ext_connection' ),
+			)
+		);
 	}
 
 	/**
@@ -56,9 +58,9 @@ class ExternalConnectionListTable extends \WP_Posts_List_Table {
 		}
 
 		$post_type_object = get_post_type_object( $post->post_type );
-		$can_edit_post = current_user_can( 'edit_post', $post->ID );
-		$actions = array();
-		$title = _draft_or_post_title();
+		$can_edit_post    = current_user_can( 'edit_post', $post->ID );
+		$actions          = array();
+		$title            = _draft_or_post_title();
 
 		$actions['edit'] = sprintf(
 			'<a href="%s" aria-label="%s">%s</a>',

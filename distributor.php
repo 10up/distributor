@@ -20,45 +20,51 @@ define( 'DT_VERSION', '1.0' );
 /**
  * PSR-4 autoloading
  */
-spl_autoload_register( function( $class ) {
-	// project-specific namespace prefix
-	$prefix = 'Distributor\\';
+spl_autoload_register(
+	function( $class ) {
+			// project-specific namespace prefix
+			$prefix = 'Distributor\\';
 
-	// base directory for the namespace prefix
-	$base_dir = __DIR__ . '/includes/classes/';
+			// base directory for the namespace prefix
+			$base_dir = __DIR__ . '/includes/classes/';
 
-	// does the class use the namespace prefix?
-	$len = strlen( $prefix );
+			// does the class use the namespace prefix?
+			$len = strlen( $prefix );
 
-	if ( strncmp( $prefix, $class, $len ) !== 0 ) {
-		return;
+		if ( strncmp( $prefix, $class, $len ) !== 0 ) {
+			return;
+		}
+
+			$relative_class = substr( $class, $len );
+
+			$file = $base_dir . str_replace( '\\', '/', $relative_class ) . '.php';
+
+			// if the file exists, require it
+		if ( file_exists( $file ) ) {
+			require $file;
+		}
 	}
-
-	$relative_class = substr( $class, $len );
-
-	$file = $base_dir . str_replace( '\\', '/', $relative_class ) . '.php';
-
-	// if the file exists, require it
-	if ( file_exists( $file ) ) {
-		require $file;
-	}
-} );
+);
 
 /**
  * Tell the world this site supports Distributor. We need this for external connections.
  */
-add_action( 'send_headers', function() {
-	@header( 'X-Distributor: yes' );
-} );
+add_action(
+	'send_headers', function() {
+		@header( 'X-Distributor: yes' );
+	}
+);
 
 /**
  * Set Distributor header in all API responses
  */
-add_filter( 'rest_post_dispatch', function( $response ) {
-	$response->header( 'X-Distributor', 'yes' );
+add_filter(
+	'rest_post_dispatch', function( $response ) {
+		$response->header( 'X-Distributor', 'yes' );
 
-	return $response;
-} );
+		return $response;
+	}
+);
 
 \Distributor\Connections::factory();
 

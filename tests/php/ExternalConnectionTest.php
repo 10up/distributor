@@ -14,29 +14,37 @@ class ExternalConnectionTest extends \TestCase {
 	public function test_instantiate_fail_type() {
 		Connections::factory()->register( '\TestExternalConnection' );
 
-		\WP_Mock::userFunction( 'get_post_meta', array(
-		    'times' => 1,
-		    'args' => array( \WP_Mock\Functions::type( 'int' ), 'dt_external_connection_type', true ),
-		    'return' => false,
-		) );
+		\WP_Mock::userFunction(
+			'get_post_meta', array(
+				'times'  => 1,
+				'args'   => array( \WP_Mock\Functions::type( 'int' ), 'dt_external_connection_type', true ),
+				'return' => false,
+			)
+		);
 
-		\WP_Mock::userFunction( 'get_post_meta', array(
-		    'times' => 1,
-		    'args' => array( \WP_Mock\Functions::type( 'int' ), 'dt_external_connection_url', true ),
-		    'return' => false,
-		) );
+		\WP_Mock::userFunction(
+			'get_post_meta', array(
+				'times'  => 1,
+				'args'   => array( \WP_Mock\Functions::type( 'int' ), 'dt_external_connection_url', true ),
+				'return' => false,
+			)
+		);
 
-		\WP_Mock::userFunction( 'get_post_meta', array(
-		    'times' => 1,
-		    'args' => array( \WP_Mock\Functions::type( 'int' ), 'dt_external_connection_auth', true ),
-		    'return' => false,
-		) );
+		\WP_Mock::userFunction(
+			'get_post_meta', array(
+				'times'  => 1,
+				'args'   => array( \WP_Mock\Functions::type( 'int' ), 'dt_external_connection_auth', true ),
+				'return' => false,
+			)
+		);
 
-		\WP_Mock::userFunction( 'get_the_title', array(
-		    'times' => 1,
-		    'args' => 1,
-		    'return' => '',
-		) );
+		\WP_Mock::userFunction(
+			'get_the_title', array(
+				'times'  => 1,
+				'args'   => 1,
+				'return' => '',
+			)
+		);
 
 		// Test non-existent connection ID
 		$external_connection = ExternalConnection::instantiate( 1 );
@@ -54,29 +62,37 @@ class ExternalConnectionTest extends \TestCase {
 	public function test_instantiate_fail_not_registered() {
 		Connections::factory()->register( '\TestExternalConnection' );
 
-		\WP_Mock::userFunction( 'get_post_meta', array(
-		    'times' => 1,
-		    'args' => array( \WP_Mock\Functions::type( 'int' ), 'dt_external_connection_type', true ),
-		    'return' => 'fake',
-		) );
+		\WP_Mock::userFunction(
+			'get_post_meta', array(
+				'times'  => 1,
+				'args'   => array( \WP_Mock\Functions::type( 'int' ), 'dt_external_connection_type', true ),
+				'return' => 'fake',
+			)
+		);
 
-		\WP_Mock::userFunction( 'get_post_meta', array(
-		    'times' => 1,
-		    'args' => array( \WP_Mock\Functions::type( 'int' ), 'dt_external_connection_url', true ),
-		    'return' => 'fake',
-		) );
+		\WP_Mock::userFunction(
+			'get_post_meta', array(
+				'times'  => 1,
+				'args'   => array( \WP_Mock\Functions::type( 'int' ), 'dt_external_connection_url', true ),
+				'return' => 'fake',
+			)
+		);
 
-		\WP_Mock::userFunction( 'get_post_meta', array(
-		    'times' => 1,
-		    'args' => array( \WP_Mock\Functions::type( 'int' ), 'dt_external_connection_auth', true ),
-		    'return' => false,
-		) );
+		\WP_Mock::userFunction(
+			'get_post_meta', array(
+				'times'  => 1,
+				'args'   => array( \WP_Mock\Functions::type( 'int' ), 'dt_external_connection_auth', true ),
+				'return' => false,
+			)
+		);
 
-		\WP_Mock::userFunction( 'get_the_title', array(
-		    'times' => 1,
-		    'args' => 1,
-		    'return' => '',
-		) );
+		\WP_Mock::userFunction(
+			'get_the_title', array(
+				'times'  => 1,
+				'args'   => 1,
+				'return' => '',
+			)
+		);
 
 		// Test non-existent connection ID
 		$external_connection = ExternalConnection::instantiate( 1 );
@@ -94,29 +110,37 @@ class ExternalConnectionTest extends \TestCase {
 	public function test_instantiate_success() {
 		Connections::factory()->register( '\TestExternalConnection' );
 
-		\WP_Mock::userFunction( 'get_post_meta', array(
-		    'times' => 1,
-		    'args' => array( \WP_Mock\Functions::type( 'int' ), 'dt_external_connection_type', true ),
-		    'return' => 'test-external-connection',
-		) );
+		\WP_Mock::userFunction(
+			'get_post_meta', array(
+				'times'  => 1,
+				'args'   => array( \WP_Mock\Functions::type( 'int' ), 'dt_external_connection_type', true ),
+				'return' => 'test-external-connection',
+			)
+		);
 
-		\WP_Mock::userFunction( 'get_post_meta', array(
-		    'times' => 1,
-		    'args' => array( \WP_Mock\Functions::type( 'int' ), 'dt_external_connection_url', true ),
-		    'return' => 'fake',
-		) );
+		\WP_Mock::userFunction(
+			'get_post_meta', array(
+				'times'  => 1,
+				'args'   => array( \WP_Mock\Functions::type( 'int' ), 'dt_external_connection_url', true ),
+				'return' => 'fake',
+			)
+		);
 
-		\WP_Mock::userFunction( 'get_post_meta', array(
-		    'times' => 1,
-		    'args' => array( \WP_Mock\Functions::type( 'int' ), 'dt_external_connection_auth', true ),
-		    'return' => array(),
-		) );
+		\WP_Mock::userFunction(
+			'get_post_meta', array(
+				'times'  => 1,
+				'args'   => array( \WP_Mock\Functions::type( 'int' ), 'dt_external_connection_auth', true ),
+				'return' => array(),
+			)
+		);
 
-		\WP_Mock::userFunction( 'get_the_title', array(
-		    'times' => 1,
-		    'args' => 1,
-		    'return' => '',
-		) );
+		\WP_Mock::userFunction(
+			'get_the_title', array(
+				'times'  => 1,
+				'args'   => 1,
+				'return' => '',
+			)
+		);
 
 		// Test non-existent connection ID
 		$external_connection = ExternalConnection::instantiate( 1 );

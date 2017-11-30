@@ -5,10 +5,10 @@ use \Distributor\ExternalConnection as ExternalConnection;
 
 class WordPressExternalConnection extends ExternalConnection {
 
-	static $slug = 'wp';
-	static $label = 'WordPress REST API';
+	static $slug               = 'wp';
+	static $label              = 'WordPress REST API';
 	static $auth_handler_class = '\Distributor\Authentications\WordPressBasicAuth';
-	static $namespace = 'wp/v2';
+	static $namespace          = 'wp/v2';
 
 	/**
 	 * This is a utility function for parsing annoying API link headers returned by the types endpoint
@@ -55,16 +55,18 @@ class WordPressExternalConnection extends ExternalConnection {
 
 		if ( empty( $id ) ) {
 			$query_args['post_status'] = ( empty( $args['post_status'] ) ) ? 'any' : $args['post_status'];
-			$posts_per_page = ( empty( $args['posts_per_page'] ) ) ? get_option( 'posts_per_page' ) : $args['posts_per_page'];
-			$query_args['page'] = ( empty( $args['paged'] ) ) ? 1 : $args['paged'];
+			$posts_per_page            = ( empty( $args['posts_per_page'] ) ) ? get_option( 'posts_per_page' ) : $args['posts_per_page'];
+			$query_args['page']        = ( empty( $args['paged'] ) ) ? 1 : $args['paged'];
 
 			if ( isset( $args['post__in'] ) ) {
 				if ( empty( $args['post__in'] ) ) {
 					// If post__in is empty, we can just stop right here
-					return apply_filters( 'dt_remote_get', [
-						'items'       => array(),
-						'total_items' => 0,
-					], $args, $this );
+					return apply_filters(
+						'dt_remote_get', [
+							'items'       => array(),
+							'total_items' => 0,
+						], $args, $this
+					);
 				}
 
 				$query_args['include'] = $args['post__in'];
@@ -91,9 +93,11 @@ class WordPressExternalConnection extends ExternalConnection {
 
 			$path = self::$namespace;
 
-			$types_response = wp_remote_get( untrailingslashit( $this->base_url ) . '/' . $path . '/types', array(
-				'timeout' => 10,
-			) );
+			$types_response = wp_remote_get(
+				untrailingslashit( $this->base_url ) . '/' . $path . '/types', array(
+					'timeout' => 10,
+				)
+			);
 
 			if ( is_wp_error( $types_response ) ) {
 				return $types_response;
@@ -162,7 +166,7 @@ class WordPressExternalConnection extends ExternalConnection {
 			return $posts_body;
 		}
 
-		$posts = json_decode( $posts_body, true );
+		$posts           = json_decode( $posts_body, true );
 		$formatted_posts = array();
 
 		$response_headers = wp_remote_retrieve_headers( $posts_response );
@@ -179,10 +183,12 @@ class WordPressExternalConnection extends ExternalConnection {
 				$total_posts = count( $formatted_posts );
 			}
 
-			return apply_filters( 'dt_remote_get', [
-				'items'       => $formatted_posts,
-				'total_items' => $total_posts,
-			], $args, $this );
+			return apply_filters(
+				'dt_remote_get', [
+					'items'       => $formatted_posts,
+					'total_items' => $total_posts,
+				], $args, $this
+			);
 		} else {
 			return apply_filters( 'dt_remote_get', $this->to_wp_post( $posts ), $args, $this );
 		}
@@ -270,7 +276,7 @@ class WordPressExternalConnection extends ExternalConnection {
 	 */
 	public function push( $post_id, $args = array() ) {
 		if ( empty( $post_id ) ) {
-			return new \WP_Error( 'no-push-post-id' , esc_html__( 'Post id required to push', 'distributor' ) );
+			return new \WP_Error( 'no-push-post-id', esc_html__( 'Post id required to push', 'distributor' ) );
 		}
 
 		$post = get_post( $post_id );
@@ -283,9 +289,11 @@ class WordPressExternalConnection extends ExternalConnection {
 		 * First let's get the actual route. We don't know the "plural" of our post type
 		 */
 
-		$response = wp_remote_get( untrailingslashit( $this->base_url ) . '/' . $path . '/types', array(
-			'timeout' => 10,
-		) );
+		$response = wp_remote_get(
+			untrailingslashit( $this->base_url ) . '/' . $path . '/types', array(
+				'timeout' => 10,
+			)
+		);
 
 		if ( is_wp_error( $response ) ) {
 			return $response;
@@ -342,7 +350,14 @@ class WordPressExternalConnection extends ExternalConnection {
 			}
 		}
 
-		$response = wp_remote_post( $type_url, $this->auth_handler->format_post_args( array( 'timeout' => 10, 'body' => apply_filters( 'dt_push_post_args', $post_body, $post, $this ) ) ) );
+		$response = wp_remote_post(
+			$type_url, $this->auth_handler->format_post_args(
+				array(
+					'timeout' => 10,
+					'body'    => apply_filters( 'dt_push_post_args', $post_body, $post, $this ),
+				)
+			)
+		);
 
 		do_action( 'dt_push_post', $response, $post_body, $type_url, $post_id, $args, $this );
 
@@ -389,7 +404,7 @@ class WordPressExternalConnection extends ExternalConnection {
 		);
 
 		$response = wp_remote_get( untrailingslashit( $this->base_url ), $this->auth_handler->format_get_args( array( 'timeout' => 10 ) ) );
-		$body = wp_remote_retrieve_body( $response );
+		$body     = wp_remote_retrieve_body( $response );
 
 		if ( is_wp_error( $response ) || is_wp_error( $body ) ) {
 			$output['errors']['no_external_connection'] = 'no_external_connection';
@@ -403,7 +418,7 @@ class WordPressExternalConnection extends ExternalConnection {
 		}
 
 		$response_headers = wp_remote_retrieve_headers( $response );
-		$link_headers = (array) $response_headers['Link'];
+		$link_headers     = (array) $response_headers['Link'];
 		$correct_endpoint = false;
 
 		foreach ( $link_headers as $link_header ) {
@@ -414,11 +429,11 @@ class WordPressExternalConnection extends ExternalConnection {
 
 		if ( ! empty( $correct_endpoint ) && untrailingslashit( $this->base_url ) !== untrailingslashit( $correct_endpoint ) ) {
 			$output['errors']['no_external_connection'] = 'no_external_connection';
-			$output['endpoint_suggestion'] = untrailingslashit( $correct_endpoint );
+			$output['endpoint_suggestion']              = untrailingslashit( $correct_endpoint );
 		}
 
 		if ( empty( $data['routes'] ) && empty( $output['errors']['no_external_connection'] ) ) {
-			$output['errors']['no_types']  = 'no_types';
+			$output['errors']['no_types'] = 'no_types';
 		}
 
 		if ( ! empty( $output['errors'] ) ) {
@@ -432,17 +447,17 @@ class WordPressExternalConnection extends ExternalConnection {
 		$routes = $data['routes'];
 
 		$types_response = wp_remote_get( untrailingslashit( $this->base_url ) . '/' . self::$namespace . '/types', $this->auth_handler->format_get_args( array( 'timeout' => 10 ) ) );
-		$types_body = wp_remote_retrieve_body( $types_response );
+		$types_body     = wp_remote_retrieve_body( $types_response );
 
 		if ( is_wp_error( $types_response ) || is_wp_error( $types_body ) ) {
-			$output['errors']['no_types']  = 'no_types';
+			$output['errors']['no_types'] = 'no_types';
 		} else {
 			$types = json_decode( $types_body, true );
 
 			if ( 200 !== wp_remote_retrieve_response_code( $types_response ) || empty( $types ) ) {
-				$output['errors']['no_types']  = 'no_types';
+				$output['errors']['no_types'] = 'no_types';
 			} else {
-				$can_get = array();
+				$can_get  = array();
 				$can_post = array();
 
 				$blacklisted_types = [ 'dt_subscription' ];
@@ -461,7 +476,7 @@ class WordPressExternalConnection extends ExternalConnection {
 					$route = str_replace( untrailingslashit( $this->base_url ), '', $link );
 
 					if ( ! empty( $routes[ $route ] ) ) {
-						if ( in_array( 'GET',  $routes[ $route ]['methods'] ) ) {
+						if ( in_array( 'GET', $routes[ $route ]['methods'] ) ) {
 							$type_response = wp_remote_get( $link, $this->auth_handler->format_get_args( array( 'timeout' => 10 ) ) );
 							if ( ! is_wp_error( $type_response ) ) {
 								$code = (int) wp_remote_retrieve_response_code( $type_response );
@@ -472,8 +487,15 @@ class WordPressExternalConnection extends ExternalConnection {
 							}
 						}
 
-						if ( in_array( 'POST',  $routes[ $route ]['methods'] ) ) {
-							$type_response = wp_remote_post( $link, $this->auth_handler->format_post_args( array( 'timeout' => 10, 'body' => array( 'test' => 1 ) ) ) );
+						if ( in_array( 'POST', $routes[ $route ]['methods'] ) ) {
+							$type_response = wp_remote_post(
+								$link, $this->auth_handler->format_post_args(
+									array(
+										'timeout' => 10,
+										'body'    => array( 'test' => 1 ),
+									)
+								)
+							);
 
 							if ( ! is_wp_error( $type_response ) ) {
 								$code = (int) wp_remote_retrieve_response_code( $type_response );
@@ -486,7 +508,7 @@ class WordPressExternalConnection extends ExternalConnection {
 					}
 				}
 
-				$output['can_get'] = $can_get;
+				$output['can_get']  = $can_get;
 				$output['can_post'] = $can_post;
 			}
 		}
@@ -504,26 +526,26 @@ class WordPressExternalConnection extends ExternalConnection {
 	private function to_wp_post( $post ) {
 		$obj = new \stdClass();
 
-		$obj->ID = $post['id'];
-		$obj->post_title = $post['title']['rendered'];
-		$obj->post_content = $post['content']['rendered'];
-		$obj->post_excerpt = $post['excerpt']['rendered'];
-		$obj->post_status = 'draft';
-		$obj->post_date = $post['date'];
-		$obj->post_date_gmt = $post['date_gmt'];
-		$obj->guid = $post['guid']['rendered'];
-		$obj->post_modified = $post['modified'];
+		$obj->ID                = $post['id'];
+		$obj->post_title        = $post['title']['rendered'];
+		$obj->post_content      = $post['content']['rendered'];
+		$obj->post_excerpt      = $post['excerpt']['rendered'];
+		$obj->post_status       = 'draft';
+		$obj->post_date         = $post['date'];
+		$obj->post_date_gmt     = $post['date_gmt'];
+		$obj->guid              = $post['guid']['rendered'];
+		$obj->post_modified     = $post['modified'];
 		$obj->post_modified_gmt = $post['modified_gmt'];
-		$obj->post_type = $post['type'];
-		$obj->link = $post['link'];
-		$obj->post_author = get_current_user_id();
+		$obj->post_type         = $post['type'];
+		$obj->link              = $post['link'];
+		$obj->post_author       = get_current_user_id();
 
 		/**
 		 * These will only be set if Distributor is active on the other side
 		 */
-		$obj->meta = ( ! empty( $post['distributor_meta'] ) ) ? $post['distributor_meta'] : [];
-		$obj->terms = ( ! empty( $post['distributor_terms'] ) ) ? $post['distributor_terms'] : [];
-		$obj->media = ( ! empty( $post['distributor_media'] ) ) ? $post['distributor_media'] : [];
+		$obj->meta               = ( ! empty( $post['distributor_meta'] ) ) ? $post['distributor_meta'] : [];
+		$obj->terms              = ( ! empty( $post['distributor_terms'] ) ) ? $post['distributor_terms'] : [];
+		$obj->media              = ( ! empty( $post['distributor_media'] ) ) ? $post['distributor_media'] : [];
 		$obj->original_site_name = ( ! empty( $post['distributor_original_site_name'] ) ) ? $post['distributor_original_site_name'] : null;
 
 		$obj->full_connection = ( ! empty( $post['full_connection'] ) );

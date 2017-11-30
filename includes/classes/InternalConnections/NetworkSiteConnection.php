@@ -31,8 +31,8 @@ class NetworkSiteConnection extends Connection {
 	 * @return int|WP_Error
 	 */
 	public function push( $post_id, $args = array() ) {
-		$post = get_post( $post_id );
-		$original_blog_id = get_current_blog_id();
+		$post              = get_post( $post_id );
+		$original_blog_id  = get_current_blog_id();
 		$original_post_url = get_permalink( $post_id );
 
 		$new_post_args = array(
@@ -46,7 +46,7 @@ class NetworkSiteConnection extends Connection {
 
 		$media = \Distributor\Utils\prepare_media( $post_id );
 		$terms = \Distributor\Utils\prepare_taxonomy_terms( $post_id );
-		$meta = \Distributor\Utils\prepare_meta( $post_id );
+		$meta  = \Distributor\Utils\prepare_meta( $post_id );
 
 		switch_to_blog( $this->site->blog_id );
 
@@ -99,8 +99,8 @@ class NetworkSiteConnection extends Connection {
 				continue;
 			}
 
-			$post_props = get_object_vars( $post );
-			$post_array = array();
+			$post_props      = get_object_vars( $post );
+			$post_array      = array();
 			$current_blog_id = get_current_blog_id();
 
 			if ( ! empty( $post_props['meta']['dt_connection_map'] ) ) {
@@ -193,7 +193,7 @@ class NetworkSiteConnection extends Connection {
 
 		update_site_option( 'dt_sync_log_' . $this->site->blog_id, $sync_log );
 
-		do_action( 'dt_log_sync', $item_id_mappings,  $sync_log, $this );
+		do_action( 'dt_log_sync', $item_id_mappings, $sync_log, $this );
 	}
 
 	/**
@@ -210,18 +210,20 @@ class NetworkSiteConnection extends Connection {
 		switch_to_blog( $this->site->blog_id );
 
 		if ( empty( $id ) ) {
-			$query_args['post_type'] = ( empty( $args['post_type'] ) ) ? 'post' : $args['post_type'];
-			$query_args['post_status'] = ( empty( $args['post_status'] ) ) ? [ 'publish', 'draft', 'private', 'pending', 'future' ] : $args['post_status'];
+			$query_args['post_type']      = ( empty( $args['post_type'] ) ) ? 'post' : $args['post_type'];
+			$query_args['post_status']    = ( empty( $args['post_status'] ) ) ? [ 'publish', 'draft', 'private', 'pending', 'future' ] : $args['post_status'];
 			$query_args['posts_per_page'] = ( empty( $args['posts_per_page'] ) ) ? get_option( 'posts_per_page' ) : $args['posts_per_page'];
-			$query_args['paged'] = ( empty( $args['paged'] ) ) ? 1 : $args['paged'];
+			$query_args['paged']          = ( empty( $args['paged'] ) ) ? 1 : $args['paged'];
 
 			if ( isset( $args['post__in'] ) ) {
 				if ( empty( $args['post__in'] ) ) {
 					// If post__in is empty, we can just stop right here
-					return apply_filters( 'dt_remote_get', [
-						'items'       => array(),
-						'total_items' => 0,
-					], $args, $this );
+					return apply_filters(
+						'dt_remote_get', [
+							'items'       => array(),
+							'total_items' => 0,
+						], $args, $this
+					);
 				}
 
 				$query_args['post__in'] = $args['post__in'];
@@ -244,8 +246,8 @@ class NetworkSiteConnection extends Connection {
 			$formatted_posts = [];
 
 			foreach ( $posts as $post ) {
-				$post->link = get_permalink( $post->ID );
-				$post->meta = \Distributor\Utils\prepare_meta( $post->ID );
+				$post->link  = get_permalink( $post->ID );
+				$post->meta  = \Distributor\Utils\prepare_meta( $post->ID );
 				$post->terms = \Distributor\Utils\prepare_taxonomy_terms( $post->ID );
 				$post->media = \Distributor\Utils\prepare_media( $post->ID );
 
@@ -254,10 +256,12 @@ class NetworkSiteConnection extends Connection {
 
 			restore_current_blog();
 
-			return apply_filters( 'dt_remote_get', [
-				'items'       => $formatted_posts,
-				'total_items' => $posts_query->found_posts,
-			], $args, $this );
+			return apply_filters(
+				'dt_remote_get', [
+					'items'       => $formatted_posts,
+					'total_items' => $posts_query->found_posts,
+				], $args, $this
+			);
 		} else {
 			$post = get_post( $id );
 
@@ -266,7 +270,7 @@ class NetworkSiteConnection extends Connection {
 			}
 
 			$post->link  = get_permalink( $id );
-			$post->meta = \Distributor\Utils\prepare_meta( $id );
+			$post->meta  = \Distributor\Utils\prepare_meta( $id );
 			$post->terms = \Distributor\Utils\prepare_taxonomy_terms( $id );
 			$post->media = \Distributor\Utils\prepare_media( $id );
 
@@ -417,7 +421,7 @@ class NetworkSiteConnection extends Connection {
 			exit;
 		}
 
-		$post_types = get_post_types();
+		$post_types            = get_post_types();
 		$authorized_post_types = array();
 
 		foreach ( $post_types as $post_type ) {
@@ -443,7 +447,7 @@ class NetworkSiteConnection extends Connection {
 			return array();
 		}
 
-		$sites = get_sites();
+		$sites            = get_sites();
 		$authorized_sites = array();
 
 		$current_blog_id = get_current_blog_id();
@@ -463,14 +467,16 @@ class NetworkSiteConnection extends Connection {
 
 			$current_user = wp_get_current_user();
 
-			$response = wp_remote_post( untrailingslashit( $base_url ) . '/wp-admin/admin-ajax.php', array(
-				'body' => array(
-					'nonce'     => wp_create_nonce( 'dt-auth-check' ),
-					'username'  => $current_user->user_login,
-					'action'    => 'dt_auth_check',
-				),
-				'cookies' => $_COOKIE,
-			) );
+			$response = wp_remote_post(
+				untrailingslashit( $base_url ) . '/wp-admin/admin-ajax.php', array(
+					'body'    => array(
+						'nonce'    => wp_create_nonce( 'dt-auth-check' ),
+						'username' => $current_user->user_login,
+						'action'   => 'dt_auth_check',
+					),
+					'cookies' => $_COOKIE,
+				)
+			);
 
 			if ( ! is_wp_error( $response ) ) {
 
@@ -517,7 +523,7 @@ class NetworkSiteConnection extends Connection {
 	public static function canonical_url( $canonical_url, $post ) {
 		$original_blog_id = get_post_meta( $post->ID, 'dt_original_blog_id', true );
 		$original_post_id = get_post_meta( $post->ID, 'dt_original_post_id', true );
-		$unlinked = (bool) get_post_meta( $post->ID, 'dt_unlinked', true );
+		$unlinked         = (bool) get_post_meta( $post->ID, 'dt_unlinked', true );
 		$original_deleted = (bool) get_post_meta( $post->ID, 'dt_original_post_deleted', true );
 
 		if ( empty( $original_blog_id ) || empty( $original_post_id ) || $unlinked || $original_deleted ) {
