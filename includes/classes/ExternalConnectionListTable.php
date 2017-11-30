@@ -58,7 +58,6 @@ class ExternalConnectionListTable extends \WP_Posts_List_Table {
 		}
 
 		$post_type_object = get_post_type_object( $post->post_type );
-		$can_edit_post    = current_user_can( 'edit_post', $post->ID );
 		$actions          = array();
 		$title            = _draft_or_post_title();
 
