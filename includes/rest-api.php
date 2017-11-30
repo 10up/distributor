@@ -99,7 +99,7 @@ function register_endpoints() {
 			},
 			'update_callback' => function( $value, $post ) { },
 			'schema'          => array(
-				'description' => __( 'Post meta for Distributor.' ),
+				'description' => esc_html__( 'Post meta for Distributor.', 'distributor' ),
 				'type'        => 'object',
 			),
 		)
