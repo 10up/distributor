@@ -40,7 +40,7 @@ function add_distributor_column( $columns ) {
 	unset( $columns['date'] );
 	$columns['distributor'] = esc_html__( 'Distributor', 'distributor' );
 
-	$columns['date'] = __( 'Date' );
+	$columns['date'] = esc_html__( 'Date', 'distributor' );
 
 	return $columns;
 }
