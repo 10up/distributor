@@ -286,7 +286,13 @@ class PullListTable extends \WP_List_Table {
 			}
 		}
 
-		echo '<strong>' . esc_html( $item->post_title ) . '</strong>';
+		$title = $item->post_title;
+
+		if ( empty( $title ) ) {
+			$title = esc_html__( '(no title)', 'distributor' );
+		}
+
+		echo '<strong>' . esc_html( $title ) . '</strong>';
 		echo $this->row_actions( $actions );
 	}
 
