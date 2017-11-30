@@ -42,6 +42,7 @@ class NetworkSiteConnection extends Connection {
 			'post_type'    => $post->post_type,
 			'post_author'  => get_current_user_id(),
 			'post_status'  => ( ! empty( $args['post_status'] ) ) ? $args['post_status'] : 'publish',
+			'post_name'    => $post->post_name,
 		);
 
 		$media = \Distributor\Utils\prepare_media( $post_id );
