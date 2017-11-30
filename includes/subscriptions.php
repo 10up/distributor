@@ -97,7 +97,7 @@ function create_remote_subscription( \Distributor\ExternalConnection $connection
 		$url,
 		$connection->auth_handler->format_post_args(
 			array(
-				'timeout'  => 10,
+				'timeout'  => 5,
 				'blocking' => \Distributor\Utils\is_dt_debug(),
 				'body'     => $post_body,
 			)
@@ -123,7 +123,7 @@ function delete_remote_subscription( \Distributor\ExternalConnection $connection
 	wp_remote_request(
 		untrailingslashit( $connection->base_url ) . '/' . $connection::$namespace . '/dt_subscription/delete',
 		array(
-			'timeout'  => 10,
+			'timeout'  => 5,
 			'method'   => 'DELETE',
 			'blocking' => \Distributor\Utils\is_dt_debug(),
 			'body'     => $post_body,
@@ -190,7 +190,7 @@ function delete_subscriptions( $post_id ) {
 			// We need to ensure any remote post is unlinked to this post
 			$request = wp_remote_post(
 				untrailingslashit( $target_url ) . '/wp/v2/dt_subscription/receive', [
-					'timeout'  => 10,
+					'timeout'  => 5,
 					'blocking' => \Distributor\Utils\is_dt_debug(),
 					'body'     => [
 						'post_id'          => $remote_post_id,
@@ -235,7 +235,7 @@ function send_notifications( $post_id ) {
 
 		$request = wp_remote_post(
 			untrailingslashit( $target_url ) . '/wp/v2/dt_subscription/receive', [
-				'timeout' => 10,
+				'timeout' => 5,
 				'body'    => [
 					'post_id'   => $remote_post_id,
 					'signature' => $signature,

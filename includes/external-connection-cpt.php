@@ -50,8 +50,6 @@ function setup_list_table() {
 
 	$connection_list_table = new \Distributor\ExternalConnectionListTable();
 
-	$pagenum = $connection_list_table->get_pagenum();
-
 	$doaction = $connection_list_table->current_action();
 
 	if ( ! empty( $doaction ) ) {
@@ -72,7 +70,8 @@ function setup_list_table() {
 
 			$sendback = remove_query_arg( array( 'action', 'action2', 'tags_input', 'post_author', 'comment_status', 'ping_status', '_status', 'post', 'bulk_edit', 'post_view' ), $sendback );
 
-			wp_redirect( $sendback );
+			wp_safe_redirect( $sendback );
+			exit;
 		}
 
 		exit;
@@ -101,7 +100,7 @@ function filter_columns( $columns ) {
  * @since  0.8
  */
 function action_custom_columns( $column, $post_id ) {
-	if ( 'dt_external_connection_url' == $column ) {
+	if ( 'dt_external_connection_url' === $column ) {
 		$url = get_post_meta( $post_id, 'dt_external_connection_url', true );
 
 		if ( ! empty( $url ) ) {
@@ -234,7 +233,7 @@ function filter_enter_title_here( $label, $post = 0 ) {
  * @since 0.8
  */
 function save_post( $post_id ) {
-	if ( ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) || ! current_user_can( 'edit_post', $post_id ) || 'revision' == get_post_type( $post_id ) ) {
+	if ( ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) || ! current_user_can( 'edit_post', $post_id ) || 'revision' === get_post_type( $post_id ) ) {
 		return;
 	}
 
@@ -330,13 +329,9 @@ function meta_box_external_connection_details( $post ) {
 		$external_connection_url = '';
 	}
 
-	$external_connections = get_post_meta( $post->ID, 'dt_external_connections', true );
-
 	$registered_external_connection_types = \Distributor\Connections::factory()->get_registered();
 
 	foreach ( $registered_external_connection_types as $slug => $class ) {
-		$parent_class = get_parent_class( $class );
-
 		if ( 'Distributor\ExternalConnection' !== get_parent_class( $class ) ) {
 			unset( $registered_external_connection_types[ $slug ] );
 		}
@@ -360,7 +355,7 @@ function meta_box_external_connection_details( $post ) {
 		<p>
 			<label for="dt_external_connection_type"><?php esc_html_e( 'External Connection Type', 'distributor' ); ?></label><br>
 			<select name="dt_external_connection_type" class="external-connection-type-field" id="dt_external_connection_type">
-				<?php foreach ( $registered_connection_types as $slug => $external_connection_class ) : ?>
+				<?php foreach ( $registered_external_connection_types as $slug => $external_connection_class ) : ?>
 					<option <?php selected( $slug, $external_connection_type ); ?> value="<?php echo esc_attr( $slug ); ?>"><?php echo esc_attr( $external_connection_class::$label ); ?></option>
 				<?php endforeach; ?>
 			</select>
@@ -397,7 +392,7 @@ function meta_box_external_connection_details( $post ) {
 			$name = translate_user_role( $details['name'] );
 			?>
 
-			<label for="dt-role-<?php echo esc_attr( $role ); ?>"><input class="dt-role-checkbox" name="dt_external_connection_allowed_roles[]" id="dt-role-<?php echo esc_attr( $role ); ?>" type="checkbox" <?php checked( true, in_array( $role, $allowed_roles ) ); ?> value="<?php echo esc_attr( $role ); ?>"> <?php echo esc_html( $name ); ?></label><br>
+			<label for="dt-role-<?php echo esc_attr( $role ); ?>"><input class="dt-role-checkbox" name="dt_external_connection_allowed_roles[]" id="dt-role-<?php echo esc_attr( $role ); ?>" type="checkbox" <?php checked( true, in_array( $role, $allowed_roles, true ) ); ?> value="<?php echo esc_attr( $role ); ?>"> <?php echo esc_html( $name ); ?></label><br>
 
 			<?php
 		}
@@ -430,8 +425,6 @@ function dashboard() {
 	global $connection_list_table;
 
 	$_GET['post_type'] = 'dt_ext_connection';
-
-	$post_type_object = get_post_type_object( 'dt_ext_connection' );
 
 	$connection_list_table->prepare_items();
 	?>
@@ -548,7 +541,7 @@ function setup_cpt() {
  * @return array
  */
 function filter_post_updated_messages( $messages ) {
-	global $post, $post_ID;
+	global $post;
 
 	$messages['dt_ext_connection'] = array(
 		0  => '',

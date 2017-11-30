@@ -209,6 +209,8 @@ class NetworkSiteConnection extends Connection {
 
 		switch_to_blog( $this->site->blog_id );
 
+		$query_args = array();
+
 		if ( empty( $id ) ) {
 			$query_args['post_type']      = ( empty( $args['post_type'] ) ) ? 'post' : $args['post_type'];
 			$query_args['post_status']    = ( empty( $args['post_status'] ) ) ? [ 'publish', 'draft', 'private', 'pending', 'future' ] : $args['post_status'];
@@ -450,12 +452,12 @@ class NetworkSiteConnection extends Connection {
 		$sites            = get_sites();
 		$authorized_sites = array();
 
-		$current_blog_id = get_current_blog_id();
+		$current_blog_id = (int) get_current_blog_id();
 
 		foreach ( $sites as $site ) {
-			$blog_id = $site->blog_id;
+			$blog_id = (int) $site->blog_id;
 
-			if ( $blog_id == $current_blog_id ) {
+			if ( $blog_id === $current_blog_id ) {
 				continue;
 			}
 

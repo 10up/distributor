@@ -2,6 +2,7 @@
 
 namespace Distributor\ExternalConnections;
 use \Distributor\ExternalConnection as ExternalConnection;
+use function \Distributor\Utils\is_vip as is_vip;
 
 class WordPressExternalConnection extends ExternalConnection {
 
@@ -93,11 +94,19 @@ class WordPressExternalConnection extends ExternalConnection {
 
 			$path = self::$namespace;
 
-			$types_response = wp_remote_get(
-				untrailingslashit( $this->base_url ) . '/' . $path . '/types', array(
-					'timeout' => 10,
-				)
-			);
+			$types_path = untrailingslashit( $this->base_url ) . '/' . $path . '/types';
+
+			if ( is_vip() ) {
+				$types_response = vip_safe_wp_remote_get( $types_path, array(
+						'timeout' => 5,
+					)
+				);
+			} else {
+				$types_response = wp_remote_get( $types_path, array(
+						'timeout' => 5,
+					)
+				);
+			}
 
 			if ( is_wp_error( $types_response ) ) {
 				return $types_response;
@@ -154,7 +163,11 @@ class WordPressExternalConnection extends ExternalConnection {
 			$posts_url = untrailingslashit( $types_urls[ $post_type ] ) . '/?' . $args_str;
 		}
 
-		$posts_response = wp_remote_get( apply_filters( 'dt_remote_get_url', $posts_url, $args, $this ), $this->auth_handler->format_get_args( array( 'timeout' => 10 ) ) );
+		if ( is_vip() ) {
+			$posts_response = vip_safe_wp_remote_get( apply_filters( 'dt_remote_get_url', $posts_url, $args, $this ), $this->auth_handler->format_get_args( array( 'timeout' => 5 ) ) );
+		} else {
+			$posts_response = wp_remote_get( apply_filters( 'dt_remote_get_url', $posts_url, $args, $this ), $this->auth_handler->format_get_args( array( 'timeout' => 5 ) ) );
+		}
 
 		if ( is_wp_error( $posts_response ) ) {
 			return $posts_response;
@@ -289,11 +302,19 @@ class WordPressExternalConnection extends ExternalConnection {
 		 * First let's get the actual route. We don't know the "plural" of our post type
 		 */
 
-		$response = wp_remote_get(
-			untrailingslashit( $this->base_url ) . '/' . $path . '/types', array(
-				'timeout' => 10,
-			)
-		);
+		$types_path = untrailingslashit( $this->base_url ) . '/' . $path . '/types';
+
+		if ( is_vip() ) {
+			$response = vip_safe_wp_remote_get( $types_path, array(
+					'timeout' => 5,
+				)
+			);
+		} else {
+			$response = wp_remote_get( $types_path, array(
+					'timeout' => 5,
+				)
+			);
+		}
 
 		if ( is_wp_error( $response ) ) {
 			return $response;
@@ -339,7 +360,11 @@ class WordPressExternalConnection extends ExternalConnection {
 			$existing_post_url = untrailingslashit( $type_url ) . '/' . $args['remote_post_id'];
 
 			// Check to make sure remote post still exists
-			$post_exists_response = wp_remote_get( $existing_post_url, $this->auth_handler->format_get_args( array( 'timeout' => 10 ) ) );
+			if ( is_vip() ) {
+				$post_exists_response = vip_safe_wp_remote_get( $existing_post_url, $this->auth_handler->format_get_args( array( 'timeout' => 5 ) ) );
+			} else {
+				$post_exists_response = wp_remote_get( $existing_post_url, $this->auth_handler->format_get_args( array( 'timeout' => 5 ) ) );
+			}
 
 			if ( ! is_wp_error( $post_exists_response ) ) {
 				$post_exists_response_code = wp_remote_retrieve_response_code( $post_exists_response );
@@ -353,7 +378,7 @@ class WordPressExternalConnection extends ExternalConnection {
 		$response = wp_remote_post(
 			$type_url, $this->auth_handler->format_post_args(
 				array(
-					'timeout' => 10,
+					'timeout' => 5,
 					'body'    => apply_filters( 'dt_push_post_args', $post_body, $post, $this ),
 				)
 			)
@@ -403,7 +428,11 @@ class WordPressExternalConnection extends ExternalConnection {
 			'endpoint_suggestion' => false,
 		);
 
-		$response = wp_remote_get( untrailingslashit( $this->base_url ), $this->auth_handler->format_get_args( array( 'timeout' => 10 ) ) );
+		if ( is_vip() ) {
+			$response = vip_safe_wp_remote_get( untrailingslashit( $this->base_url ), $this->auth_handler->format_get_args( array( 'timeout' => 5 ) ) );
+		} else {
+			$response = wp_remote_get( untrailingslashit( $this->base_url ), $this->auth_handler->format_get_args( array( 'timeout' => 5 ) ) );
+		}
 		$body     = wp_remote_retrieve_body( $response );
 
 		if ( is_wp_error( $response ) || is_wp_error( $body ) ) {
@@ -446,7 +475,13 @@ class WordPressExternalConnection extends ExternalConnection {
 
 		$routes = $data['routes'];
 
-		$types_response = wp_remote_get( untrailingslashit( $this->base_url ) . '/' . self::$namespace . '/types', $this->auth_handler->format_get_args( array( 'timeout' => 10 ) ) );
+		$types_path = untrailingslashit( $this->base_url ) . '/' . self::$namespace . '/types';
+
+		if ( is_vip() ) {
+			$types_response = vip_safe_wp_remote_get( $types_path, $this->auth_handler->format_get_args( array( 'timeout' => 5 ) ) );
+		} else {
+			$types_response = wp_remote_get( $types_path, $this->auth_handler->format_get_args( array( 'timeout' => 5 ) ) );
+		}
 		$types_body     = wp_remote_retrieve_body( $types_response );
 
 		if ( is_wp_error( $types_response ) || is_wp_error( $types_body ) ) {
@@ -464,7 +499,7 @@ class WordPressExternalConnection extends ExternalConnection {
 
 				foreach ( $types as $type_key => $type ) {
 
-					if ( in_array( $type_key, $blacklisted_types ) ) {
+					if ( in_array( $type_key, $blacklisted_types, true ) ) {
 						continue;
 					}
 
@@ -476,8 +511,13 @@ class WordPressExternalConnection extends ExternalConnection {
 					$route = str_replace( untrailingslashit( $this->base_url ), '', $link );
 
 					if ( ! empty( $routes[ $route ] ) ) {
-						if ( in_array( 'GET', $routes[ $route ]['methods'] ) ) {
-							$type_response = wp_remote_get( $link, $this->auth_handler->format_get_args( array( 'timeout' => 10 ) ) );
+						if ( in_array( 'GET', $routes[ $route ]['methods'], true ) ) {
+							if ( is_vip() ) {
+								$type_response = vip_safe_wp_remote_get( $link, $this->auth_handler->format_get_args( array( 'timeout' => 5 ) ) );
+							} else {
+								$type_response = wp_remote_get( $link, $this->auth_handler->format_get_args( array( 'timeout' => 5 ) ) );
+							}
+
 							if ( ! is_wp_error( $type_response ) ) {
 								$code = (int) wp_remote_retrieve_response_code( $type_response );
 
@@ -487,11 +527,11 @@ class WordPressExternalConnection extends ExternalConnection {
 							}
 						}
 
-						if ( in_array( 'POST', $routes[ $route ]['methods'] ) ) {
+						if ( in_array( 'POST', $routes[ $route ]['methods'], true ) ) {
 							$type_response = wp_remote_post(
 								$link, $this->auth_handler->format_post_args(
 									array(
-										'timeout' => 10,
+										'timeout' => 5,
 										'body'    => array( 'test' => 1 ),
 									)
 								)
@@ -551,5 +591,81 @@ class WordPressExternalConnection extends ExternalConnection {
 		$obj->full_connection = ( ! empty( $post['full_connection'] ) );
 
 		return apply_filters( 'dt_item_mapping', new \WP_Post( $obj ), $post, $this );
+	}
+
+	/**
+	 * Setup actions and filters that are need on every page load
+	 *
+	 * @since 1.0
+	 */
+	public static function bootstrap() {
+		add_action( 'template_redirect', array( '\Distributor\ExternalConnections\WordPressExternalConnection', 'canonicalize_front_end' ) );
+	}
+
+	/**
+	 * Setup canonicalization on front end
+	 *
+	 * @since  1.0
+	 */
+	public static function canonicalize_front_end() {
+		add_filter( 'get_canonical_url', array( '\Distributor\ExternalConnections\WordPressExternalConnection', 'canonical_url' ), 10, 2 );
+		add_filter( 'wpseo_canonical', array( '\Distributor\ExternalConnections\WordPressExternalConnection', 'wpseo_canonical_url' ) );
+	}
+
+	/**
+	 * Make sure canonical url header is outputted
+	 *
+	 * @param  string $canonical_url
+	 * @param  object $post
+	 * @since  1.0
+	 * @return string
+	 */
+	public static function canonical_url( $canonical_url, $post ) {
+		$original_source_id = get_post_meta( $post->ID, 'dt_original_source_id', true );
+		$original_post_url   = get_post_meta( $post->ID, 'dt_original_post_url', true );
+		$unlinked         = (bool) get_post_meta( $post->ID, 'dt_unlinked', true );
+		$original_deleted = (bool) get_post_meta( $post->ID, 'dt_original_post_deleted', true );
+
+		if ( empty( $original_source_id ) || empty( $original_post_url ) || $unlinked || $original_deleted ) {
+			return $canonical_url;
+		}
+
+		return $original_post_url;
+	}
+
+	/**
+	 * Handles the canonical URL change for distributed content when Yoast SEO is in use
+	 *
+	 * @param string $canonical_url The Yoast WPSEO deduced canonical URL
+	 * @since  1.0
+	 * @return string $canonical_url The updated distributor friendly URL
+	 */
+	public static function wpseo_canonical_url( $canonical_url ) {
+
+		// Return as is if not on a singular page - taken from rel_canonical()
+		if ( ! is_singular() ) {
+			$canonical_url;
+		}
+
+		$id = get_queried_object_id();
+
+		// Return as is if we do not have a object id for context - taken from rel_canonical()
+		if ( 0 === $id ) {
+			return $canonical_url;
+		}
+
+		$post = get_post( $id );
+
+		// Return as is if we don't have a valid post object - taken from wp_get_canonical_url()
+		if ( ! $post ) {
+			return $canonical_url;
+		}
+
+		// Return as is if current post is not published - taken from wp_get_canonical_url()
+		if ( 'publish' !== $post->post_status ) {
+			return $canonical_url;
+		}
+
+		return self::canonical_url( $canonical_url, $post );
 	}
 }

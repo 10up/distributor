@@ -3,6 +3,16 @@
 namespace Distributor\Utils;
 
 /**
+ * Determine if we are on VIP
+ *
+ * @since  1.0
+ * @return boolean
+ */
+function is_vip() {
+	return ( defined( 'WPCOM_IS_VIP_ENV' ) && WPCOM_IS_VIP_ENV );
+}
+
+/**
  * Determine if plugin is in debug mode or not
  *
  * @since  1.0
@@ -24,7 +34,7 @@ function set_meta( $post_id, $meta ) {
 	foreach ( $meta as $meta_key => $meta_array ) {
 		$meta_array = (array) $meta_array;
 		foreach ( $meta_array as $meta_value ) {
-			if ( ! in_array( $meta_key, $blacklisted_meta ) ) {
+			if ( ! in_array( $meta_key, $blacklisted_meta, true ) ) {
 				$meta_value = maybe_unserialize( $meta_value );
 				update_post_meta( $post_id, $meta_key, $meta_value );
 			}
@@ -40,6 +50,10 @@ function set_meta( $post_id, $meta ) {
  */
 function distributable_post_types() {
 	$post_types = get_post_types( [ 'public' => true ] );
+
+	if ( ! empty( $post_types['attachment'] ) ) {
+		unset( $post_types['attachment'] );
+	}
 
 	return apply_filters( 'distributable_post_types', array_diff( $post_types, [ 'dt_ext_connection', 'dt_subscription' ] ) );
 }
@@ -64,7 +78,7 @@ function prepare_meta( $post_id ) {
 	// Transfer all meta
 	foreach ( $meta as $meta_key => $meta_array ) {
 		foreach ( $meta_array as $meta_value ) {
-			if ( ! in_array( $meta_key, $blacklisted_meta ) ) {
+			if ( ! in_array( $meta_key, $blacklisted_meta, true ) ) {
 				$meta_value                 = maybe_unserialize( $meta_value );
 				$prepared_meta[ $meta_key ] = $meta_value;
 			}

@@ -39,7 +39,7 @@ function syndicatable() {
 			return false;
 		}
 
-		if ( ! in_array( get_post_type(), \Distributor\Utils\distributable_post_types() ) || ( ! empty( $_GET['post_type'] ) && 'dt_ext_connection' === $_GET['post_type'] ) ) {
+		if ( ! in_array( get_post_type(), \Distributor\Utils\distributable_post_types(), true ) || ( ! empty( $_GET['post_type'] ) && 'dt_ext_connection' === $_GET['post_type'] ) ) {
 			return false;
 		}
 	} else {
@@ -133,7 +133,7 @@ function ajax_push() {
 						'status'  => 'success',
 					);
 				} else {
-					$external_push_results[ (int) $external_connection_id ] = array(
+					$external_push_results[ (int) $connection['id'] ] = array(
 						'post_id' => (int) $remote_id,
 						'date'    => date( 'F j, Y g:i a' ),
 						'status'  => 'fail',
@@ -274,10 +274,11 @@ function menu_content() {
 		<div class="distributor-push-wrapper">
 			<div class="inner">
 				<p class="syndicated-notice">
-					<?php echo sprintf( __( 'This post has been syndicated from <a href="%1$s">%1$s</a>.', 'distributor' ), esc_url( $site_url ), esc_html( $blog_name ) ); ?>
-					<?php if ( ! empty( $post_url ) ) : ?>
-						<?php echo sprintf( __( 'You can <a href="%s">view the original</a>.', 'distributor' ), esc_url( $post_url ) ); ?>
-					<?php endif; ?>
+					<?php esc_html_e( 'This post has been syndicated from', 'distributor' ); ?>
+					<a href="<?php echo esc_url( $site_url ); ?>"><?php echo esc_html( $blog_name ); ?></a>
+
+					<?php esc_html_e( 'You can ', 'distributor' ); ?>
+					<a href="<?php echo esc_url( $post_url ); ?>"><?php esc_html_e( 'view the original', 'distributor' ); ?></a>
 				</p>
 			</div>
 		</div>
@@ -295,29 +296,32 @@ function menu_content() {
 			$connection_map['internal'] = [];
 		}
 
-		$sites = \Distributor\InternalConnections\NetworkSiteConnection::get_available_authorized_sites();
-		foreach ( $sites as $key => $site_array ) {
-			if ( in_array( $post->post_type, $site_array['post_types'] ) ) {
-				$connection = new \Distributor\InternalConnections\NetworkSiteConnection( $site_array['site'] );
+		if ( ! empty( \Distributor\Connections::factory()->get_registered()['networkblog'] ) ) {
+			$sites = \Distributor\InternalConnections\NetworkSiteConnection::get_available_authorized_sites();
 
-				$syndicated = false;
-				if ( ! empty( $connection_map['internal'][ (int) $connection->site->blog_id ] ) ) {
-					switch_to_blog( $connection->site->blog_id );
-					$syndicated = get_permalink( $connection_map['internal'][ (int) $connection->site->blog_id ]['post_id'] );
-					restore_current_blog();
+			foreach ( $sites as $site_array ) {
+				if ( in_array( $post->post_type, $site_array['post_types'], true ) ) {
+					$connection = new \Distributor\InternalConnections\NetworkSiteConnection( $site_array['site'] );
 
-					if ( empty( $syndicated ) ) {
-						$syndicated = true; // In case it was deleted
+					$syndicated = false;
+					if ( ! empty( $connection_map['internal'][ (int) $connection->site->blog_id ] ) ) {
+						switch_to_blog( $connection->site->blog_id );
+						$syndicated = get_permalink( $connection_map['internal'][ (int) $connection->site->blog_id ]['post_id'] );
+						restore_current_blog();
+
+						if ( empty( $syndicated ) ) {
+							$syndicated = true; // In case it was deleted
+						}
 					}
-				}
 
-				$dom_connections[ 'internal' . $connection->site->blog_id ] = [
-					'type'       => 'internal',
-					'id'         => $connection->site->blog_id,
-					'url'        => untrailingslashit( preg_replace( '#(https?:\/\/|www\.)#i', '', get_site_url( $connection->site->blog_id ) ) ),
-					'name'       => $connection->site->blogname,
-					'syndicated' => $syndicated,
-				];
+					$dom_connections[ 'internal' . $connection->site->blog_id ] = [
+						'type'       => 'internal',
+						'id'         => $connection->site->blog_id,
+						'url'        => untrailingslashit( preg_replace( '#(https?:\/\/|www\.)#i', '', get_site_url( $connection->site->blog_id ) ) ),
+						'name'       => $connection->site->blogname,
+						'syndicated' => $syndicated,
+					];
+				}
 			}
 		}
 
@@ -331,8 +335,9 @@ function menu_content() {
 		);
 
 		$current_post_type = get_post_type();
+
 		if ( ! empty( $_GET['post_type'] ) ) {
-			$current_post_type = $post_type;
+			$current_post_type = $_GET['post_type'];
 		}
 
 		if ( empty( $current_post_type ) ) {
@@ -341,13 +346,19 @@ function menu_content() {
 		}
 
 		foreach ( $external_connections_query->posts as $external_connection ) {
+			$external_connection_type = get_post_meta( $external_connection->ID, 'dt_external_connection_type', true );
+
+			if ( empty( \Distributor\Connections::factory()->get_registered()[ $external_connection_type ] ) ) {
+				continue;
+			}
+
 			$external_connection_status = get_post_meta( $external_connection->ID, 'dt_external_connections', true );
 			$allowed_roles              = get_post_meta( $external_connection->ID, 'dt_external_connection_allowed_roles', true );
 			if ( empty( $allowed_roles ) ) {
 				$allowed_roles = array( 'administrator', 'editor' );
 			}
 
-			if ( empty( $external_connection_status ) || ! in_array( $current_post_type, $external_connection_status['can_post'] ) ) {
+			if ( empty( $external_connection_status ) || ! in_array( $current_post_type, $external_connection_status['can_post'], true ) ) {
 				continue;
 			}
 
@@ -374,7 +385,7 @@ function menu_content() {
 		}
 		?>
 		<script type="text/javascript">
-		var dt_connections = <?php echo json_encode( $dom_connections ); ?>;
+		var dt_connections = <?php echo wp_json_encode( $dom_connections ); ?>;
 		</script>
 
 		<script id="dt-add-connection" type="text/html">
@@ -395,7 +406,7 @@ function menu_content() {
 			<div class="inner">
 
 				<?php if ( ! empty( $dom_connections ) ) : ?>
-					<p><?php echo sprintf( __( 'Post &quot;%s&quot; to other connections.', 'distributor' ), get_the_title( $post->ID ) ); ?></p>
+					<p><?php echo sprintf( esc_html__( 'Post &quot;%s&quot; to other connections.', 'distributor' ), get_the_title( $post->ID ) ); ?></p>
 
 					<div class="connections-selector">
 						<div>
@@ -406,7 +417,7 @@ function menu_content() {
 							<div class="new-connections-list">
 								<?php foreach ( $dom_connections as $connection ) : ?>
 									<?php if ( 'external' === $connection['type'] ) : ?>
-										<div class="add-connection 
+										<div class="add-connection
 										<?php
 										if ( ! empty( $connection['syndicated'] ) ) :
 ?>
@@ -414,7 +425,7 @@ syndicated<?php endif; ?>" data-connection-type="external" data-connection-id="<
 											<span><?php echo wp_kses_post( get_the_title( $connection['id'] ) ); ?></span>
 										</div>
 									<?php else : ?>
-										<div class="add-connection 
+										<div class="add-connection
 										<?php
 										if ( ! empty( $connection['syndicated'] ) ) :
 ?>

@@ -58,7 +58,6 @@ class ExternalConnectionListTable extends \WP_Posts_List_Table {
 		}
 
 		$post_type_object = get_post_type_object( $post->post_type );
-		$can_edit_post    = current_user_can( 'edit_post', $post->ID );
 		$actions          = array();
 		$title            = _draft_or_post_title();
 
@@ -66,8 +65,8 @@ class ExternalConnectionListTable extends \WP_Posts_List_Table {
 			'<a href="%s" aria-label="%s">%s</a>',
 			get_edit_post_link( $post->ID ),
 			/* translators: %s: post title */
-			esc_attr( sprintf( __( 'Edit &#8220;%s&#8221;' ), $title ) ),
-			__( 'Edit' )
+			esc_attr( sprintf( esc_html__( 'Edit "%s"', 'distributor' ), $title ) ),
+			esc_html__( 'Edit', 'distributor' )
 		);
 
 		if ( current_user_can( 'delete_post', $post->ID ) ) {
@@ -76,16 +75,16 @@ class ExternalConnectionListTable extends \WP_Posts_List_Table {
 					'<a href="%s" aria-label="%s">%s</a>',
 					wp_nonce_url( admin_url( sprintf( $post_type_object->_edit_link . '&amp;action=untrash', $post->ID ) ), 'untrash-post_' . $post->ID ),
 					/* translators: %s: post title */
-					esc_attr( sprintf( __( 'Restore &#8220;%s&#8221; from the Trash' ), $title ) ),
-					__( 'Restore' )
+					esc_attr( sprintf( esc_html__( 'Restore "%s" from the Trash', 'distributor' ), $title ) ),
+					esc_html__( 'Restore', 'distributor' )
 				);
 			} elseif ( EMPTY_TRASH_DAYS ) {
 				$actions['trash'] = sprintf(
 					'<a href="%s" class="submitdelete" aria-label="%s">%s</a>',
 					get_delete_post_link( $post->ID ),
 					/* translators: %s: post title */
-					esc_attr( sprintf( __( 'Move &#8220;%s&#8221; to the Trash' ), $title ) ),
-					_x( 'Trash', 'verb' )
+					esc_attr( sprintf( esc_html__( 'Move "%s" to the Trash', 'distributor' ), $title ) ),
+					esc_html_x( 'Trash', 'verb', 'distributor' )
 				);
 			}
 			if ( 'trash' === $post->post_status || ! EMPTY_TRASH_DAYS ) {
@@ -93,8 +92,8 @@ class ExternalConnectionListTable extends \WP_Posts_List_Table {
 					'<a href="%s" class="submitdelete" aria-label="%s">%s</a>',
 					get_delete_post_link( $post->ID, '', true ),
 					/* translators: %s: post title */
-					esc_attr( sprintf( __( 'Delete &#8220;%s&#8221; permanently' ), $title ) ),
-					__( 'Delete Permanently' )
+					esc_attr( sprintf( esc_html__( 'Delete "%s" permanently', 'distributor' ), $title ) ),
+					esc_html__( 'Delete Permanently', 'distributor' )
 				);
 			}
 		}

@@ -120,7 +120,6 @@ class SubscriptionsController extends \WP_REST_Controller {
 	public function receive_item_permissions_check( $request ) {
 
 		if ( ! empty( $request['signature'] ) && ! empty( $request['post_id'] ) ) {
-			$original_source_id = get_post_meta( $request['post_id'], 'dt_original_source_id', true );
 			$signature          = get_post_meta( $request['post_id'], 'dt_subscription_signature', true );
 
 			if ( $request['signature'] === $signature ) {
@@ -142,7 +141,7 @@ class SubscriptionsController extends \WP_REST_Controller {
 	 */
 	public function receive_item( $request ) {
 		if ( (int) $request['post_id'] <= 0 ) {
-			return $error;
+			return new \WP_Error( 'rest_post_no_post_id', esc_html__( 'Missing post id.', 'distributor' ), array( 'status' => 400 ) );
 		}
 
 		$post = get_post( (int) $request['post_id'] );

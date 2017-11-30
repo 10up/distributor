@@ -67,9 +67,9 @@ class PullListTable extends \WP_List_Table {
 		$current_status = ( empty( $_GET['status'] ) ) ? 'new' : $_GET['status'];
 
 		$status_links = [
-			'new'     => sprintf( __( '<a href="%1$s" class="%2$s">New</a>', 'distributor' ), esc_url( $_SERVER['REQUEST_URI'] . '&status=new' ), ( 'new' === $current_status ) ? 'current' : '' ),
-			'pulled'  => sprintf( __( '<a href="%1$s" class="%2$s">Pulled</a>', 'distributor' ), esc_url( $_SERVER['REQUEST_URI'] . '&status=pulled' ), ( 'pulled' === $current_status ) ? 'current' : '' ),
-			'skipped' => sprintf( __( '<a href="%1$s" class="%2$s">Skipped</a>', 'distributor' ), esc_url( $_SERVER['REQUEST_URI'] . '&status=skipped' ), ( 'skipped' === $current_status ) ? 'current' : '' ),
+			'new'     => '<a href="' . esc_url( $_SERVER['REQUEST_URI'] . '&status=new' ) . '" class="' . ( ( 'new' === $current_status ) ? 'current' : '' ) . '">' . esc_html__( 'New', 'distributor' ) . '</a>',
+			'pulled'  => '<a href="' . esc_url( $_SERVER['REQUEST_URI'] . '&status=pulled' ) . '" class="' . ( ( 'pulled' === $current_status ) ? 'current' : '' ) . '">' . esc_html__( 'Pulled', 'distributor' ) . '</a>',
+			'skipped' => '<a href="' . esc_url( $_SERVER['REQUEST_URI'] . '&status=skipped' ) . '" class="' . ( ( 'skipped' === $current_status ) ? 'current' : '' ) . '">' . esc_html__( 'Skipped', 'distributor' ) . '</a>',
 		];
 
 		return $status_links;
@@ -110,18 +110,16 @@ class PullListTable extends \WP_List_Table {
 			return;
 		}
 
-		echo '<label for="bulk-action-selector-' . esc_attr( $which ) . '" class="screen-reader-text">' . __( 'Select bulk action' ) . '</label>';
+		echo '<label for="bulk-action-selector-' . esc_attr( $which ) . '" class="screen-reader-text">' . esc_html__( 'Select bulk action', 'distributor' ) . '</label>';
 		echo '<select name="action' . $two . '" id="bulk-action-selector-' . esc_attr( $which ) . "\">\n";
 
 		foreach ( $this->_actions as $name => $title ) {
-			$class = 'edit' === $name ? ' class="hide-if-no-js"' : '';
-
-			echo "\t" . '<option value="' . $name . '"' . $class . '>' . $title . "</option>\n";
+			echo "\t" . '<option value="' . esc_attr( $name ) . '"' . ( 'edit' === $name ? ' class="hide-if-no-js"' : '' ) . '>' . esc_html( $title ) . "</option>\n";
 		}
 
 		echo "</select>\n";
 
-		submit_button( __( 'Apply' ), 'action', '', false, array( 'id' => "doaction$two" ) );
+		submit_button( esc_html__( 'Apply', 'distributor' ), 'action', '', false, array( 'id' => "doaction$two" ) );
 		echo "\n";
 	}
 
@@ -145,53 +143,53 @@ class PullListTable extends \WP_List_Table {
 				if ( empty( $syndicated_at ) ) {
 					esc_html_e( 'Post deleted.', 'distributor' );
 				} else {
-					$t_time = get_the_time( __( 'Y/m/d g:i:s a' ) );
+					$t_time = get_the_time( esc_html__( 'Y/m/d g:i:s a', 'distributor' ) );
 
 					$time_diff = time() - $syndicated_at;
 
 					if ( $time_diff > 0 && $time_diff < DAY_IN_SECONDS ) {
-						$h_time = sprintf( __( '%s ago' ), human_time_diff( $syndicated_at ) );
+						$h_time = sprintf( esc_html__( '%s ago', 'distributor' ), human_time_diff( $syndicated_at ) );
 					} else {
 						$h_time = date( 'F j, Y', $syndicated_at );
 					}
 
-					echo sprintf( __( 'Pulled %s', 'distributor' ), esc_html( $h_time ) );
+					echo sprintf( esc_html__( 'Pulled %s', 'distributor' ), esc_html( $h_time ) );
 				}
 			}
 		} else {
 			if ( '0000-00-00 00:00:00' === $post->post_date ) {
-				$t_time    = $h_time = __( 'Unpublished' );
+				$t_time    = $h_time = esc_html__( 'Unpublished', 'distributor' );
 				$time_diff = 0;
 			} else {
-				$t_time = get_the_time( __( 'Y/m/d g:i:s a' ) );
+				$t_time = get_the_time( esc_html__( 'Y/m/d g:i:s a', 'distributor' ) );
 				$m_time = $post->post_date;
 				$time   = get_post_time( 'G', true, $post );
 
 				$time_diff = time() - $time;
 
 				if ( $time_diff > 0 && $time_diff < DAY_IN_SECONDS ) {
-					$h_time = sprintf( __( '%s ago' ), human_time_diff( $time ) );
+					$h_time = sprintf( esc_html__( '%s ago', 'distributor' ), human_time_diff( $time ) );
 				} else {
-					$h_time = mysql2date( __( 'Y/m/d' ), $m_time );
+					$h_time = mysql2date( esc_html__( 'Y/m/d', 'distributor' ), $m_time );
 				}
 			}
 
 			if ( 'publish' === $post->post_status ) {
-				_e( 'Published' );
+				esc_html_e( 'Published', 'distributor' );
 			} elseif ( 'future' === $post->post_status ) {
 				if ( $time_diff > 0 ) {
-					echo '<strong class="error-message">' . __( 'Missed schedule' ) . '</strong>';
+					echo '<strong class="error-message">' . esc_html__( 'Missed schedule', 'distributor' ) . '</strong>';
 				} else {
-					_e( 'Scheduled' );
+					esc_html_e( 'Scheduled', 'distributor' );
 				}
 			} else {
-				_e( 'Last Modified' );
+				esc_html_e( 'Last Modified', 'distributor' );
 			}
 			echo '<br />';
 			if ( 'excerpt' === $mode ) {
-				echo apply_filters( 'post_date_column_time', $t_time, $post, 'date', $mode );
+				echo esc_html( apply_filters( 'post_date_column_time', $t_time, $post, 'date', $mode ) );
 			} else {
-				echo '<abbr title="' . $t_time . '">' . apply_filters( 'post_date_column_time', $h_time, $post, 'date', $mode ) . '</abbr>';
+				echo '<abbr title="' . esc_attr( $t_time ) . '">' . esc_html( apply_filters( 'post_date_column_time', $h_time, $post, 'date', $mode ) ) . '</abbr>';
 			}
 		}
 	}
@@ -240,7 +238,7 @@ class PullListTable extends \WP_List_Table {
 	 * @param string  $primary
 	 */
 	protected function _column_name( $item, $classes, $data, $primary ) {
-		echo '<td class="' . $classes . ' page-title" ', $data, '>';
+		echo '<td class="' . esc_attr( $classes ) . ' page-title">';
 		echo $this->column_name( $item );
 		echo $this->handle_row_actions( $item, 'title', $primary );
 		echo '</td>';
@@ -254,8 +252,6 @@ class PullListTable extends \WP_List_Table {
 	 */
 	public function column_name( $item ) {
 
-		$title = '<strong>' . esc_html( $item->post_title ) . '</strong>';
-
 		global $connection_now;
 
 		if ( is_a( $connection_now, '\Distributor\ExternalConnection' ) ) {
@@ -266,21 +262,12 @@ class PullListTable extends \WP_List_Table {
 			$connection_id   = $connection_now->site->blog_id;
 		}
 
-		if ( empty( $sync_map ) ) {
-			$sync_map = array();
-		}
-
 		$actions = [];
-
-		$as_draft = '';
-		if ( is_a( $connection_now, '\Distributor\ExternalConnection' ) ) {
-			$as_draft = ' ' . esc_html__( '(as draft)', 'distributor' );
-		}
 
 		if ( empty( $_GET['status'] ) || 'new' === $_GET['status'] ) {
 			$actions = [
 				'view' => '<a href="' . esc_url( $item->link ) . '">' . esc_html__( 'View', 'distributor' ) . '</a>',
-				'skip' => sprintf( '<a href="%s">%s</a>', esc_url( wp_nonce_url( admin_url( 'admin.php?page=pull&action=skip&_wp_http_referer=' . urlencode( $_SERVER['REQUEST_URI'] ) . '&post=' . $item->ID . '&connection_type=' . $connection_type . '&connection_id=' . $connection_id ), 'dt_skip' ) ), esc_html__( 'Skip', 'distributor' ) ),
+				'skip' => sprintf( '<a href="%s">%s</a>', esc_url( wp_nonce_url( admin_url( 'admin.php?page=pull&action=skip&_wp_http_referer=' . rawurlencode( $_SERVER['REQUEST_URI'] ) . '&post=' . $item->ID . '&connection_type=' . $connection_type . '&connection_id=' . $connection_id ), 'dt_skip' ) ), esc_html__( 'Skip', 'distributor' ) ),
 			];
 		} elseif ( 'skipped' === $_GET['status'] ) {
 			$actions = [
@@ -299,7 +286,13 @@ class PullListTable extends \WP_List_Table {
 			}
 		}
 
-		echo $title;
+		$title = $item->post_title;
+
+		if ( empty( $title ) ) {
+			$title = esc_html__( '(no title)', 'distributor' );
+		}
+
+		echo '<strong>' . esc_html( $title ) . '</strong>';
 		echo $this->row_actions( $actions );
 	}
 
@@ -409,9 +402,7 @@ class PullListTable extends \WP_List_Table {
 	public function column_cb( $post ) {
 		?>
 		<label class="screen-reader-text" for="cb-select-<?php echo (int) $post->ID; ?>">
-																	<?php
-																	printf( __( 'Select %s' ), _draft_or_post_title() );
-		?>
+		<?php echo esc_html( sprintf( esc_html__( 'Select %s', 'distributor' ), _draft_or_post_title() ) ); ?>
 		</label>
 		<input id="cb-select-<?php echo (int) $post->ID; ?>" type="checkbox" name="post[]" value="<?php echo (int) $post->ID; ?>" />
 		<div class="locked-indicator"></div>
