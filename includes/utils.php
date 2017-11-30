@@ -3,6 +3,16 @@
 namespace Distributor\Utils;
 
 /**
+ * Determine if we are on VIP
+ *
+ * @since  1.0
+ * @return boolean
+ */
+function is_vip() {
+	return ( defined( 'WPCOM_IS_VIP_ENV' ) );
+}
+
+/**
  * Determine if plugin is in debug mode or not
  *
  * @since  1.0
