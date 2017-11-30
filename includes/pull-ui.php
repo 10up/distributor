@@ -55,18 +55,26 @@ function setup_list_table() {
 
 	global $connection_now;
 
-	$sites = \Distributor\InternalConnections\NetworkSiteConnection::get_available_authorized_sites();
+	if ( ! empty( \Distributor\Connections::factory()->get_registered()['networkblog'] ) ) {
+		$sites = \Distributor\InternalConnections\NetworkSiteConnection::get_available_authorized_sites();
 
-	foreach ( $sites as $site_array ) {
-		$internal_connection                         = new \Distributor\InternalConnections\NetworkSiteConnection( $site_array['site'] );
-		$connection_list_table->connection_objects[] = $internal_connection;
+		foreach ( $sites as $site_array ) {
+			$internal_connection                         = new \Distributor\InternalConnections\NetworkSiteConnection( $site_array['site'] );
+			$connection_list_table->connection_objects[] = $internal_connection;
 
-		if ( ! empty( $_GET['connection_id'] ) && ! empty( $_GET['connection_type'] ) && 'internal' === $_GET['connection_type'] && (int) $internal_connection->site->blog_id === (int) $_GET['connection_id'] ) {
-			$connection_now = $internal_connection;
+			if ( ! empty( $_GET['connection_id'] ) && ! empty( $_GET['connection_type'] ) && 'internal' === $_GET['connection_type'] && (int) $internal_connection->site->blog_id === (int) $_GET['connection_id'] ) {
+				$connection_now = $internal_connection;
+			}
 		}
 	}
 
 	foreach ( $external_connections->posts as $external_connection_id ) {
+		$external_connection_type = get_post_meta( $external_connection_id, 'dt_external_connection_type', true );
+
+		if ( empty( \Distributor\Connections::factory()->get_registered()[ $external_connection_type ] ) ) {
+			continue;
+		}
+
 		$external_connection_status = get_post_meta( $external_connection_id, 'dt_external_connections', true );
 
 		if ( empty( $external_connection_status ) || empty( $external_connection_status['can_get'] ) ) {

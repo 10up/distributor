@@ -295,29 +295,32 @@ function menu_content() {
 			$connection_map['internal'] = [];
 		}
 
-		$sites = \Distributor\InternalConnections\NetworkSiteConnection::get_available_authorized_sites();
-		foreach ( $sites as $key => $site_array ) {
-			if ( in_array( $post->post_type, $site_array['post_types'], true ) ) {
-				$connection = new \Distributor\InternalConnections\NetworkSiteConnection( $site_array['site'] );
+		if ( ! empty( \Distributor\Connections::factory()->get_registered()['networkblog'] ) ) {
+			$sites = \Distributor\InternalConnections\NetworkSiteConnection::get_available_authorized_sites();
 
-				$syndicated = false;
-				if ( ! empty( $connection_map['internal'][ (int) $connection->site->blog_id ] ) ) {
-					switch_to_blog( $connection->site->blog_id );
-					$syndicated = get_permalink( $connection_map['internal'][ (int) $connection->site->blog_id ]['post_id'] );
-					restore_current_blog();
+			foreach ( $sites as $key => $site_array ) {
+				if ( in_array( $post->post_type, $site_array['post_types'], true ) ) {
+					$connection = new \Distributor\InternalConnections\NetworkSiteConnection( $site_array['site'] );
 
-					if ( empty( $syndicated ) ) {
-						$syndicated = true; // In case it was deleted
+					$syndicated = false;
+					if ( ! empty( $connection_map['internal'][ (int) $connection->site->blog_id ] ) ) {
+						switch_to_blog( $connection->site->blog_id );
+						$syndicated = get_permalink( $connection_map['internal'][ (int) $connection->site->blog_id ]['post_id'] );
+						restore_current_blog();
+
+						if ( empty( $syndicated ) ) {
+							$syndicated = true; // In case it was deleted
+						}
 					}
-				}
 
-				$dom_connections[ 'internal' . $connection->site->blog_id ] = [
-					'type'       => 'internal',
-					'id'         => $connection->site->blog_id,
-					'url'        => untrailingslashit( preg_replace( '#(https?:\/\/|www\.)#i', '', get_site_url( $connection->site->blog_id ) ) ),
-					'name'       => $connection->site->blogname,
-					'syndicated' => $syndicated,
-				];
+					$dom_connections[ 'internal' . $connection->site->blog_id ] = [
+						'type'       => 'internal',
+						'id'         => $connection->site->blog_id,
+						'url'        => untrailingslashit( preg_replace( '#(https?:\/\/|www\.)#i', '', get_site_url( $connection->site->blog_id ) ) ),
+						'name'       => $connection->site->blogname,
+						'syndicated' => $syndicated,
+					];
+				}
 			}
 		}
 
@@ -341,6 +344,12 @@ function menu_content() {
 		}
 
 		foreach ( $external_connections_query->posts as $external_connection ) {
+			$external_connection_type = get_post_meta( $external_connection->ID, 'dt_external_connection_type', true );
+
+			if ( empty( \Distributor\Connections::factory()->get_registered()[ $external_connection_type ] ) ) {
+				continue;
+			}
+
 			$external_connection_status = get_post_meta( $external_connection->ID, 'dt_external_connections', true );
 			$allowed_roles              = get_post_meta( $external_connection->ID, 'dt_external_connection_allowed_roles', true );
 			if ( empty( $allowed_roles ) ) {

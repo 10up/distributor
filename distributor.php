@@ -68,10 +68,6 @@ add_filter(
 
 \Distributor\Connections::factory();
 
-\Distributor\Connections::factory()->register( '\Distributor\ExternalConnections\WordPressExternalConnection' );
-\Distributor\Connections::factory()->register( '\Distributor\InternalConnections\NetworkSiteConnection' );
-
-
 require_once( __DIR__ . '/includes/utils.php' );
 require_once( __DIR__ . '/includes/external-connection-cpt.php' );
 require_once( __DIR__ . '/includes/push-ui.php' );
@@ -79,6 +75,17 @@ require_once( __DIR__ . '/includes/pull-ui.php' );
 require_once( __DIR__ . '/includes/rest-api.php' );
 require_once( __DIR__ . '/includes/subscriptions.php' );
 require_once( __DIR__ . '/includes/syndicated-post-ui.php' );
+
+/**
+ * Register connections
+ */
+add_action( 'init', function() {
+	\Distributor\Connections::factory()->register( '\Distributor\ExternalConnections\WordPressExternalConnection' );
+
+	if ( ! \Distributor\Utils\is_vip() ) {
+		\Distributor\Connections::factory()->register( '\Distributor\InternalConnections\NetworkSiteConnection' );
+	}
+}, 1 );
 
 /**
  * We use setup functions to avoid unit testing WP_Mock strict mode errors.
