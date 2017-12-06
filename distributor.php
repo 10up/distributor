@@ -52,8 +52,8 @@ spl_autoload_register(
 register_activation_hook( __FILE__, function() {
 	if ( version_compare( PHP_VERSION, '5.6.0', '<' ) ) {
 		wp_die(
-			__( 'Distributor requires PHP version 5.6.', 'distributor' ),
-			__( 'Error Activating', 'distributor' )
+			esc_html__( 'Distributor requires PHP version 5.6.', 'distributor' ),
+			esc_html__( 'Error Activating', 'distributor' )
 		);
 	}
 } );
