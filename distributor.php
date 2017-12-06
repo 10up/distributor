@@ -47,6 +47,18 @@ spl_autoload_register(
 );
 
 /**
+ * Require PHP version 5.6 - throw an error if the plugin is activated on an older version.
+ */
+register_activation_hook( __FILE__, function() {
+	if ( version_compare( PHP_VERSION, '5.6.0', '<' ) ) {
+		wp_die(
+			esc_html__( 'Distributor requires PHP version 5.6.', 'distributor' ),
+			esc_html__( 'Error Activating', 'distributor' )
+		);
+	}
+} );
+
+/**
  * Tell the world this site supports Distributor. We need this for external connections.
  */
 add_action(
