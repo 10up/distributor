@@ -11,7 +11,7 @@ Distributor is a WordPress plugin allowing you to syndicate content to and from 
 
 * PHP 5.6+
 * [WordPress](http://wordpress.org) 4.7+
-* External connections require HTTP Basic Authentication be set up on the remote website. We recommend the [Application Passwords](https://wordpress.org/plugins/application-passwords/) plugin.
+* External connections require HTTP Basic Authentication be set up on the remote website. We recommend the [Application Passwords](https://wordpress.org/plugins/application-passwords/) plugin. Also, for full functionality Distributor will need to be installed on BOTH sides of the connection.
 
 ## Install
 
@@ -22,8 +22,9 @@ Distributor is a WordPress plugin allowing you to syndicate content to and from 
 
 The plugin contains a standard test suite compatible with PHPUnit. If you want to test across multiple PHP versions, a [Dockunit](https://github.com/dockunit/dockunit) file is included.
 
-## Plugin Usage and Extensive Documentation
-This lives in the [internal docs site](https://internal.10up.com/docs/distributor-plugin) for now.
+## Plugin Usage
+
+Coming soon!
 
 ## Debugging
 
