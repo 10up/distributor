@@ -33,8 +33,11 @@
 			$apiVerify.abort();
 		}
 
-		if ('' == externalConnectionUrlField.value) {
+		if ('' === externalConnectionUrlField.value) {
+			endpointErrors.innerText = '';
 			endpointResult.innerText = '';
+
+			endpointResult.removeAttribute( 'data-endpoint-state' );
 			return;
 		}
 
