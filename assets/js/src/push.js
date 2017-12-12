@@ -80,7 +80,7 @@
 					distributorPushWrapper.classList.add( 'message-success' );
 
 					connectionsSelected.classList.add( 'empty' );
-					connectionsSelectedList.innerHTML = '';
+					connectionsSelectedList.innerText = '';
 
 					setTimeout(
 						function() {
@@ -98,7 +98,7 @@
 		 * Show connections. If there is a search string, then filter by it
 		 */
 			function showConnections() {
-				connectionsNewList.innerHTML = '';
+				connectionsNewList.innerText = '';
 
 				_.each(
 					dt_connections, function(connection, id) {
@@ -225,7 +225,11 @@
 
 					var element        = event.currentTarget.cloneNode();
 					element.innerText  = event.currentTarget.innerText;
-					element.innerHTML += '<span class="remove-connection"></span>';
+
+					var removeLink = document.createElement( 'span' );
+					removeLink.classList.add( 'remove-connection' );
+
+					element.appendChild( removeLink );
 					element.classList  = 'added-connection';
 
 					connectionsSelectedList.appendChild( element );

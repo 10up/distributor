@@ -39,7 +39,7 @@
 		}
 
 		endpointResult.setAttribute( 'data-endpoint-state', 'loading' );
-		endpointResult.innerHTML = dt.endpoint_checking_message;
+		endpointResult.innerText = dt.endpoint_checking_message;
 
 		var auth = {};
 
@@ -77,7 +77,7 @@
 			}
 		).done(
 			function(response) {
-					endpointErrors.innerHTML = '';
+					endpointErrors.innerText = '';
 
 				if ( ! response.success) {
 					endpointResult.setAttribute( 'data-endpoint-state', 'error' );
@@ -86,14 +86,20 @@
 						endpointResult.setAttribute( 'data-endpoint-state', 'error' );
 
 						if (response.data.endpoint_suggestion) {
-							endpointResult.innerHTML = ' ' + dt.endpoint_suggestion + ' <a class="suggest">' + response.data.endpoint_suggestion + '</a>';
+							endpointResult.innerText = dt.endpoint_suggestion + ' ';
+
+							var suggestion = document.createElement( 'a' );
+							suggestion.classList.add( 'suggest' );
+							suggestion.innerText = response.data.endpoint_suggestion;
+
+							endpointResult.appendChild(suggestion);
 						} else {
-							endpointResult.innerHTML = dt.bad_connection;
+							endpointResult.innerText = dt.bad_connection;
 						}
 					} else {
 						if (response.data.errors.no_distributor || ! response.data.can_post.length) {
 							endpointResult.setAttribute( 'data-endpoint-state', 'warning' );
-							endpointResult.innerHTML = dt.limited_connection;
+							endpointResult.innerText = dt.limited_connection;
 
 							var warnings = [];
 
@@ -115,7 +121,7 @@
 							);
 						} else {
 							endpointResult.setAttribute( 'data-endpoint-state', 'valid' );
-							endpointResult.innerHTML = dt.good_connection;
+							endpointResult.innerText = dt.good_connection;
 						}
 					}
 				}
