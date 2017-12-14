@@ -2,7 +2,6 @@
 
 namespace Distributor\ExternalConnections;
 use \Distributor\ExternalConnection as ExternalConnection;
-use function \Distributor\Utils\is_vip as is_vip;
 
 class WordPressExternalConnection extends ExternalConnection {
 
@@ -96,7 +95,7 @@ class WordPressExternalConnection extends ExternalConnection {
 
 			$types_path = untrailingslashit( $this->base_url ) . '/' . $path . '/types';
 
-			if ( is_vip() ) {
+			if ( function_exists( 'vip_safe_wp_remote_get' ) ) {
 				$types_response = vip_safe_wp_remote_get( $types_path, array(
 						$this->auth_handler->format_get_args( array( 'timeout' => 5 ) ),
 					)
@@ -167,7 +166,7 @@ class WordPressExternalConnection extends ExternalConnection {
 			$posts_url = untrailingslashit( $types_urls[ $post_type ] ) . '/?' . $args_str;
 		}
 
-		if ( is_vip() ) {
+		if ( function_exists( 'vip_safe_wp_remote_get' ) ) {
 			$posts_response = vip_safe_wp_remote_get( apply_filters( 'dt_remote_get_url', $posts_url, $args, $this ), $this->auth_handler->format_get_args( array( 'timeout' => 5 ) ) );
 		} else {
 			$posts_response = wp_remote_get( apply_filters( 'dt_remote_get_url', $posts_url, $args, $this ), $this->auth_handler->format_get_args( array( 'timeout' => 5 ) ) );
@@ -308,7 +307,7 @@ class WordPressExternalConnection extends ExternalConnection {
 
 		$types_path = untrailingslashit( $this->base_url ) . '/' . $path . '/types';
 
-		if ( is_vip() ) {
+		if ( function_exists( 'vip_safe_wp_remote_get' ) ) {
 			$response = vip_safe_wp_remote_get( $types_path, array(
 					'timeout' => 5,
 				)
@@ -365,7 +364,7 @@ class WordPressExternalConnection extends ExternalConnection {
 			$existing_post_url = untrailingslashit( $type_url ) . '/' . $args['remote_post_id'];
 
 			// Check to make sure remote post still exists
-			if ( is_vip() ) {
+			if ( function_exists( 'vip_safe_wp_remote_get' ) ) {
 				$post_exists_response = vip_safe_wp_remote_get( $existing_post_url, $this->auth_handler->format_get_args( array( 'timeout' => 5 ) ) );
 			} else {
 				$post_exists_response = wp_remote_get( $existing_post_url, $this->auth_handler->format_get_args( array( 'timeout' => 5 ) ) );
@@ -433,7 +432,7 @@ class WordPressExternalConnection extends ExternalConnection {
 			'endpoint_suggestion' => false,
 		);
 
-		if ( is_vip() ) {
+		if ( function_exists( 'vip_safe_wp_remote_get' ) ) {
 			$response = vip_safe_wp_remote_get( untrailingslashit( $this->base_url ), $this->auth_handler->format_get_args( array( 'timeout' => 5 ) ) );
 		} else {
 			$response = wp_remote_get( untrailingslashit( $this->base_url ), $this->auth_handler->format_get_args( array( 'timeout' => 5 ) ) );
@@ -482,7 +481,7 @@ class WordPressExternalConnection extends ExternalConnection {
 
 		$types_path = untrailingslashit( $this->base_url ) . '/' . self::$namespace . '/types';
 
-		if ( is_vip() ) {
+		if ( function_exists( 'vip_safe_wp_remote_get' ) ) {
 			$types_response = vip_safe_wp_remote_get( $types_path, $this->auth_handler->format_get_args( array( 'timeout' => 5 ) ) );
 		} else {
 			$types_response = wp_remote_get( $types_path, $this->auth_handler->format_get_args( array( 'timeout' => 5 ) ) );
@@ -517,7 +516,7 @@ class WordPressExternalConnection extends ExternalConnection {
 
 					if ( ! empty( $routes[ $route ] ) ) {
 						if ( in_array( 'GET', $routes[ $route ]['methods'], true ) ) {
-							if ( is_vip() ) {
+							if ( function_exists( 'vip_safe_wp_remote_get' ) ) {
 								$type_response = vip_safe_wp_remote_get( $link, $this->auth_handler->format_get_args( array( 'timeout' => 5 ) ) );
 							} else {
 								$type_response = wp_remote_get( $link, $this->auth_handler->format_get_args( array( 'timeout' => 5 ) ) );

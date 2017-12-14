@@ -96,7 +96,7 @@ require_once( __DIR__ . '/includes/syndicated-post-ui.php' );
 add_action( 'init', function() {
 	\Distributor\Connections::factory()->register( '\Distributor\ExternalConnections\WordPressExternalConnection' );
 
-	if ( ! \Distributor\Utils\is_vip() ) {
+	if ( ! \Distributor\Utils\is_vip_com() ) {
 		\Distributor\Connections::factory()->register( '\Distributor\InternalConnections\NetworkSiteConnection' );
 	}
 }, 1 );

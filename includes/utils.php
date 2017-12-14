@@ -8,7 +8,7 @@ namespace Distributor\Utils;
  * @since  1.0
  * @return boolean
  */
-function is_vip() {
+function is_vip_com() {
 	return ( defined( 'WPCOM_IS_VIP_ENV' ) && WPCOM_IS_VIP_ENV );
 }
 
