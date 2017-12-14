@@ -396,20 +396,24 @@ function dashboard() {
 			</div>
 		<?php endif; ?>
 
-		<?php $connection_list_table->views(); ?>
+		<?php if ( ! empty( $connection_list_table->pull_error ) ) : ?>
+			<p><?php esc_html_e( 'Could not pull content from connection due to error.', 'distributor' ); ?></p>
+		<?php else : ?>
+			<?php $connection_list_table->views(); ?>
 
-		<form id="posts-filter" class="status-<?php echo ( ! empty( $_GET['status'] ) ) ? esc_attr( $_GET['status'] ) : 'new'; ?>" method="get">
-			<?php if ( ! empty( $connection_list_table->connection_objects ) ) : ?>
-				<input type="hidden" name="connection_type" value="<?php echo esc_attr( $connection_type ); ?>">
-				<input type="hidden" name="connection_id" value="<?php echo esc_attr( $connection_id ); ?>">
-			<?php endif; ?>
+			<form id="posts-filter" class="status-<?php echo ( ! empty( $_GET['status'] ) ) ? esc_attr( $_GET['status'] ) : 'new'; ?>" method="get">
+				<?php if ( ! empty( $connection_list_table->connection_objects ) ) : ?>
+					<input type="hidden" name="connection_type" value="<?php echo esc_attr( $connection_type ); ?>">
+					<input type="hidden" name="connection_id" value="<?php echo esc_attr( $connection_id ); ?>">
+				<?php endif; ?>
 
-			<input type="hidden" name="page" value="pull">
+				<input type="hidden" name="page" value="pull">
 
-			<?php $connection_list_table->search_box( esc_html__( 'Search', 'distributor' ), 'post' ); ?>
+				<?php $connection_list_table->search_box( esc_html__( 'Search', 'distributor' ), 'post' ); ?>
 
-			<?php $connection_list_table->display(); ?>
-		</form>
+				<?php $connection_list_table->display(); ?>
+			</form>
+		<?php endif; ?>
 	</div>
 	<?php
 }

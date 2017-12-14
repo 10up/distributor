@@ -124,6 +124,10 @@ class WordPressExternalConnection extends ExternalConnection {
 
 			$types_body_array = json_decode( $types_body, true );
 
+			if ( empty( $types_body_array ) || empty( $types_body_array[ $post_type ] ) ) {
+				return new \WP_Error( 'no-pull-post-type', esc_html__( 'Could not determine remote post type endpoint', 'distributor' ) );
+			}
+
 			$types_urls[ $post_type ] = $this->parse_type_items_link( $types_body_array[ $post_type ] );
 
 			if ( empty( $types_urls[ $post_type ] ) ) {
