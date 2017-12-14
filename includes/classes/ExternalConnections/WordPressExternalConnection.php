@@ -98,12 +98,12 @@ class WordPressExternalConnection extends ExternalConnection {
 
 			if ( is_vip() ) {
 				$types_response = vip_safe_wp_remote_get( $types_path, array(
-						'timeout' => 5,
+						$this->auth_handler->format_get_args( array( 'timeout' => 5 ) ),
 					)
 				);
 			} else {
 				$types_response = wp_remote_get( $types_path, array(
-						'timeout' => 5,
+						$this->auth_handler->format_get_args( array( 'timeout' => 5 ) ),
 					)
 				);
 			}
