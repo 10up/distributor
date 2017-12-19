@@ -67,8 +67,7 @@ $background-color-dark: #23282d;
 .distributor-push-wrapper .new-connections-list {
 	overflow: auto;
 	border: 1px solid $border-color;
-	margin-top: .5em;
-	max-height: 200px;
+	max-height: 125px;
 }
 
 .distributor-push-wrapper .selected-connections-list {
@@ -153,6 +152,7 @@ $background-color-dark: #23282d;
 	background-color: $background-color;
 	border: 2px solid $border-color;
 	color: $font-color;
+	margin-bottom: .5em;
 
 	&::placeholder {
 		color: darken($font-color, 50%);
@@ -215,7 +215,6 @@ $background-color-dark: #23282d;
 }
 
 .distributor-push-wrapper .add-connection.syndicated span {
-	text-decoration: line-through;
 	color: $border-color;
 }
 
@@ -223,14 +222,6 @@ $background-color-dark: #23282d;
 	color: inherit;
 	text-decoration: underline;
 	float: right;
-}
-
-.distributor-push-wrapper .add-connection[data-connection-type="external"]:after,
-.distributor-push-wrapper .added-connection[data-connection-type="external"]:after {
-	float: right;
-	content: '\f319';
-	margin-right: 3px;
-	font-family: dashicons;
 }
 
 .distributor-push-wrapper .added-connection {

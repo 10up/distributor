@@ -408,11 +408,11 @@ function menu_content() {
 			<div class="inner">
 
 				<?php if ( ! empty( $dom_connections ) ) : ?>
-					<p><?php echo sprintf( esc_html__( 'Post &quot;%s&quot; to other connections.', 'distributor' ), get_the_title( $post->ID ) ); ?></p>
+					<p><?php echo sprintf( esc_html__( 'Distribute &quot;%s&quot; to other connections.', 'distributor' ), get_the_title( $post->ID ) ); ?></p>
 
 					<div class="connections-selector">
 						<div>
-							<?php if ( 0 < count( $dom_connections ) ) : ?>
+							<?php if ( 5 < count( $dom_connections ) ) : ?>
 								<input type="text" id="dt-connection-search" placeholder="<?php esc_html_e( 'Search available connections', 'distributor' ); ?>">
 							<?php endif; ?>
 
