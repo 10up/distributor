@@ -89,6 +89,7 @@ require_once( __DIR__ . '/includes/pull-ui.php' );
 require_once( __DIR__ . '/includes/rest-api.php' );
 require_once( __DIR__ . '/includes/subscriptions.php' );
 require_once( __DIR__ . '/includes/syndicated-post-ui.php' );
+require_once( __DIR__ . '/includes/distributed-post-ui.php' );
 
 /**
  * Register connections
@@ -110,4 +111,5 @@ add_action( 'init', function() {
 \Distributor\RestApi\setup();
 \Distributor\Subscriptions\setup();
 \Distributor\SyndicatedPostUI\setup();
+\Distributor\DistributedPostUI\setup();
 
