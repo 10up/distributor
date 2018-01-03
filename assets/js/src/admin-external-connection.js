@@ -44,6 +44,8 @@
 		endpointResult.setAttribute( 'data-endpoint-state', 'loading' );
 		endpointResult.innerText = dt.endpoint_checking_message;
 
+		endpointErrors.innerText = '';
+
 		var auth = {};
 
 		_.each(
@@ -80,8 +82,6 @@
 			}
 		).done(
 			function(response) {
-					endpointErrors.innerText = '';
-
 				if ( ! response.success) {
 					endpointResult.setAttribute( 'data-endpoint-state', 'error' );
 				} else {
@@ -106,12 +106,12 @@
 
 							var warnings = [];
 
-							if (response.data.errors.no_distributor) {
-								warnings.push( dt.no_distributor );
+							if ( ! response.data.can_post.length) {
+								warnings.push( dt.bad_auth );
 							}
 
-							if ( ! response.data.can_post.length) {
-								warnings.push( dt.no_push );
+							if (response.data.errors.no_distributor) {
+								warnings.push( dt.no_distributor );
 							}
 
 							warnings.forEach(
