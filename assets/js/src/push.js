@@ -36,8 +36,8 @@
 			var asDraftInput            = document.getElementById( 'dt-as-draft' );
 
 			/**
-		 * Handle UI error changes
-		 */
+			 * Handle UI error changes
+			 */
 			function doError() {
 				distributorPushWrapper.classList.add( 'message-error' );
 
@@ -49,8 +49,8 @@
 			}
 
 			/**
-		 * Handle UI success changes
-		 */
+			 * Handle UI success changes
+			 */
 			function doSuccess(results) {
 				var error = false;
 
@@ -95,8 +95,8 @@
 			}
 
 			/**
-		 * Show connections. If there is a search string, then filter by it
-		 */
+			 * Show connections. If there is a search string, then filter by it
+			 */
 			function showConnections() {
 				connectionsNewList.innerText = '';
 
@@ -217,7 +217,7 @@
 						var type = event.currentTarget.getAttribute( 'data-connection-type' );
 						var id   = event.currentTarget.getAttribute( 'data-connection-id' );
 
-						var deleteNode = connectionsSelectedList.querySelector('[data-connection-id="' + id + '"][data-connection-type="' + type + '"]');
+						var deleteNode = connectionsSelectedList.querySelector( '[data-connection-id="' + id + '"][data-connection-type="' + type + '"]' );
 
 						deleteNode.parentNode.removeChild( deleteNode );
 
@@ -237,14 +237,14 @@
 
 						connectionsSelected.classList.remove( 'empty' );
 
-						var element        = event.currentTarget.cloneNode();
-						element.innerText  = event.currentTarget.innerText;
+						var element       = event.currentTarget.cloneNode();
+						element.innerText = event.currentTarget.innerText;
 
 						var removeLink = document.createElement( 'span' );
 						removeLink.classList.add( 'remove-connection' );
 
 						element.appendChild( removeLink );
-						element.classList  = 'added-connection';
+						element.classList = 'added-connection';
 
 						connectionsSelectedList.appendChild( element );
 

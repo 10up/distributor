@@ -1,6 +1,7 @@
 <?php
 
 namespace Distributor\InternalConnections;
+
 use \Distributor\Connection as Connection;
 
 /**

@@ -40,11 +40,13 @@ function add_help_tab() {
 	$screen = get_current_screen();
 
 	// Add my_help_tab if current screen is My Admin Page
-	$screen->add_help_tab( array(
-		'id'	  => 'distributer',
-		'title'	  => esc_html__( 'Distributor', 'distributor' ),
-		'content' => '<p>' . esc_html__( 'The number of connections this post has been distributed to is shown in the publish meta box. If this post is deleted, it could have ramifications across all those posts.', 'distributor' ) . '</p>',
-	) );
+	$screen->add_help_tab(
+		array(
+			'id'      => 'distributer',
+			'title'   => esc_html__( 'Distributor', 'distributor' ),
+			'content' => '<p>' . esc_html__( 'The number of connections this post has been distributed to is shown in the publish meta box. If this post is deleted, it could have ramifications across all those posts.', 'distributor' ) . '</p>',
+		)
+	);
 }
 
 /**
@@ -96,10 +98,10 @@ function enqueue_post_scripts_styles( $hook ) {
 
 	if ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) {
 		$css_path = '/assets/css/admin-distributed-post.css';
-		$js_path = '/assets/js/src/admin-distributed-post.js';
+		$js_path  = '/assets/js/src/admin-distributed-post.js';
 	} else {
 		$css_path = '/assets/css/admin-distributed-post.min.css';
-		$js_path = '/assets/js/admin-distributed-post.min.js';
+		$js_path  = '/assets/js/admin-distributed-post.min.js';
 	}
 
 	wp_enqueue_style( 'dt-admin-distributed-post', plugins_url( $css_path, __DIR__ ), array(), DT_VERSION );

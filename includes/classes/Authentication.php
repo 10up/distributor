@@ -1,6 +1,7 @@
 <?php
 
 namespace Distributor;
+
 use \Distributor\ExternalConnection as ExternalConnection;
 
 /**

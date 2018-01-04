@@ -447,7 +447,7 @@ class SubscriptionsTest extends \TestCase {
 					$post               = new \stdClass();
 					$post->post_content = 'content';
 					$post->post_excerpt = 'excerpt';
-					$post->post_name = 'slug';
+					$post->post_name    = 'slug';
 
 					return $post;
 				},

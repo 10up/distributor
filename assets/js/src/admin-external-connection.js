@@ -95,7 +95,7 @@
 							suggestion.classList.add( 'suggest' );
 							suggestion.innerText = response.data.endpoint_suggestion;
 
-							endpointResult.appendChild(suggestion);
+							endpointResult.appendChild( suggestion );
 						} else {
 							endpointResult.innerText = dt.bad_connection;
 						}
