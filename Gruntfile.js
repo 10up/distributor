@@ -22,6 +22,9 @@ module.exports = function (grunt) {
 					],
 					'assets/js/admin-external-connection.min.js' : [
 						'assets/js/src/admin-external-connection.js',
+					],
+					'assets/js/admin-distributed-post.min.js' : [
+						'assets/js/src/admin-distributed-post.js',
 					]
 				}
 			}

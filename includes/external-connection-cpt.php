@@ -16,7 +16,6 @@ function setup() {
 			add_action( 'save_post', __NAMESPACE__ . '\save_post' );
 			add_action( 'admin_enqueue_scripts', __NAMESPACE__ . '\admin_enqueue_scripts' );
 			add_action( 'wp_ajax_dt_verify_external_connection', __NAMESPACE__ . '\ajax_verify_external_connection' );
-			add_action( 'wp_ajax_dt_verify_external_connection_endpoint', __NAMESPACE__ . '\ajax_verify_external_connection_endpoint' );
 			add_filter( 'manage_dt_ext_connection_posts_columns', __NAMESPACE__ . '\filter_columns' );
 			add_action( 'manage_dt_ext_connection_posts_custom_column', __NAMESPACE__ . '\action_custom_columns', 10, 2 );
 			add_action( 'admin_menu', __NAMESPACE__ . '\add_menu_item' );

@@ -1,6 +1,12 @@
 #distributed-to,
-#distributed-to strong {
+#distributed-to strong,
+#distributed-to a {
 	vertical-align: top;
+}
+
+.open-distributor-help {
+	cursor: pointer;
+	text-decoration: underline;
 }
 
 #distributed-to:before {

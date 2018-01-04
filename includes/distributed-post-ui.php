@@ -10,10 +10,9 @@ namespace Distributor\DistributedPostUI;
 function setup() {
 	add_action(
 		'plugins_loaded', function() {
-			add_action( 'admin_enqueue_scripts', __NAMESPACE__ . '\enqueue_post_scripts' );
+			add_action( 'admin_enqueue_scripts', __NAMESPACE__ . '\enqueue_post_scripts_styles' );
 			add_action( 'post_submitbox_misc_actions', __NAMESPACE__ . '\distributed_to' );
-			add_action( 'load-post.php', __NAMESPACE__ . '\add_help_tab' );
-			add_action( 'load-post-new.php', __NAMESPACE__ . '\add_help_tab');
+			add_action( 'in_admin_header', __NAMESPACE__ . '\add_help_tab' );
 		}
 	);
 }
@@ -22,6 +21,12 @@ function setup() {
  * Register distributor help tab
  */
 function add_help_tab() {
+	global $pagenow;
+
+	if ( 'post.php' !== $pagenow && 'post-new.php' !== $pagenow ) {
+		return;
+	}
+
 	if ( empty( $_GET['post'] ) ) {
 		return;
 	}
@@ -60,7 +65,10 @@ function distributed_to( $post ) {
 	?>
 
 	<div class="misc-pub-section curtime misc-pub-curtime">
-		<span id="distributed-to"><?php printf( wp_kses_post( _n( 'Distributed to <strong>%d</strong> connection', 'Distributed to <strong>%d</strong> connections', (int) $total_connections, 'distributor' ) ), (int) $total_connections ); ?></span>
+		<span id="distributed-to">
+			<?php printf( wp_kses_post( _n( 'Distributed to <strong>%d</strong> connection', 'Distributed to <strong>%d</strong> connections', (int) $total_connections, 'distributor' ) ), (int) $total_connections ); ?>
+			<a class="open-distributor-help">(?)</a>
+		</span>
 	</div>
 
 	<?php
@@ -73,7 +81,7 @@ function distributed_to( $post ) {
  * @param  string $hook
  * @since  0.8
  */
-function enqueue_post_scripts( $hook ) {
+function enqueue_post_scripts_styles( $hook ) {
 	if ( 'post-new.php' !== $hook && 'post.php' !== $hook ) {
 		return;
 	}
@@ -88,9 +96,12 @@ function enqueue_post_scripts( $hook ) {
 
 	if ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) {
 		$css_path = '/assets/css/admin-distributed-post.css';
+		$js_path = '/assets/js/src/admin-distributed-post.js';
 	} else {
 		$css_path = '/assets/css/admin-distributed-post.min.css';
+		$js_path = '/assets/js/admin-distributed-post.min.js';
 	}
 
 	wp_enqueue_style( 'dt-admin-distributed-post', plugins_url( $css_path, __DIR__ ), array(), DT_VERSION );
+	wp_enqueue_script( 'dt-admin-distributed-post', plugins_url( $js_path, __DIR__ ), [ 'jquery' ], DT_VERSION, true );
 }

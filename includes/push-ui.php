@@ -360,7 +360,15 @@ function menu_content() {
 				$allowed_roles = array( 'administrator', 'editor' );
 			}
 
-			if ( empty( $external_connection_status ) || ! in_array( $current_post_type, $external_connection_status['can_post'], true ) ) {
+			if ( empty( $external_connection_status ) ) {
+				continue;
+			}
+
+			if ( ! empty( $external_connection_status['errors'] ) && ! empty( $external_connection_status['errors']['no_distributor'] ) ) {
+				continue;
+			}
+
+			if ( ! in_array( $current_post_type, $external_connection_status['can_post'], true ) ) {
 				continue;
 			}
 
