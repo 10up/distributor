@@ -15,7 +15,7 @@ abstract class Connection {
 	 * @since  0.8
 	 * @return bool|WP_Error
 	 */
-	public abstract function push( $item_id, $args = array() );
+	abstract public function push( $item_id, $args = array() );
 
 	/**
 	 * Pull items
@@ -24,7 +24,7 @@ abstract class Connection {
 	 * @since  0.8
 	 * @return bool|WP_Error
 	 */
-	public abstract function pull( $items );
+	abstract public function pull( $items );
 
 	/**
 	 * Get content from a connection
@@ -33,7 +33,7 @@ abstract class Connection {
 	 * @since  0.8
 	 * @return array|WP_Error
 	 */
-	public abstract function remote_get( $args );
+	abstract public function remote_get( $args );
 
 	/**
 	 * Log a sync
@@ -41,7 +41,7 @@ abstract class Connection {
 	 * @param  array $item_id_mappings
 	 * @since  0.8
 	 */
-	public abstract function log_sync( array $item_id_mappings );
+	abstract public function log_sync( array $item_id_mappings );
 
 	/**
 	 * This method is called on every page load. It's helpful for canonicalization

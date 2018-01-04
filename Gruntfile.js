@@ -12,7 +12,7 @@ module.exports = function (grunt) {
 						except : ['jQuery']
 					}
 				},
-				
+
 				files : {
 					'assets/js/push.min.js' : [
 						'assets/js/src/push.js',
@@ -22,6 +22,9 @@ module.exports = function (grunt) {
 					],
 					'assets/js/admin-external-connection.min.js' : [
 						'assets/js/src/admin-external-connection.js',
+					],
+					'assets/js/admin-distributed-post.min.js' : [
+						'assets/js/src/admin-distributed-post.js',
 					]
 				}
 			}
@@ -33,6 +36,8 @@ module.exports = function (grunt) {
 					'assets/css/admin-external-connection.css' : 'assets/css/sass/admin-external-connection.scss',
 					'assets/css/admin-external-connections.css' : 'assets/css/sass/admin-external-connections.scss',
 					'assets/css/admin-syndicated-post.css' : 'assets/css/sass/admin-syndicated-post.scss',
+					'assets/css/admin-distributed-post.css' : 'assets/css/sass/admin-distributed-post.scss',
+					'assets/css/admin-edit-table.css' : 'assets/css/sass/admin-edit-table.scss',
 					'assets/css/admin.css' : 'assets/css/sass/admin.scss',
 					'assets/css/admin-pull-table.css' : 'assets/css/sass/admin-pull-table.scss',
 					'assets/css/push.css' : 'assets/css/sass/push.scss'
@@ -45,7 +50,7 @@ module.exports = function (grunt) {
 				files : [{
 					expand : true,
 					cwd    : 'assets/css',
-					src    : ['admin-external-connection.css', 'admin-pull-table.css', 'admin-external-connections.css', 'admin.css', 'admin-syndicated-post.css', 'push.css'],
+					src    : ['admin-external-connection.css', 'admin-pull-table.css', 'admin-edit-table.css', 'admin-external-connections.css', 'admin.css', 'admin-syndicated-post.css', 'admin-distributed-post.css', 'push.css'],
 					dest   : 'assets/css',
 					ext    : '.min.css'
 				}]

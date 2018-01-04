@@ -1,6 +1,7 @@
 <?php
 
 namespace Distributor\ExternalConnections;
+
 use \Distributor\ExternalConnection as ExternalConnection;
 
 class WordPressExternalConnection extends ExternalConnection {
@@ -96,12 +97,14 @@ class WordPressExternalConnection extends ExternalConnection {
 			$types_path = untrailingslashit( $this->base_url ) . '/' . $path . '/types';
 
 			if ( function_exists( 'vip_safe_wp_remote_get' ) ) {
-				$types_response = vip_safe_wp_remote_get( $types_path, array(
+				$types_response = vip_safe_wp_remote_get(
+					$types_path, array(
 						$this->auth_handler->format_get_args( array( 'timeout' => 5 ) ),
 					)
 				);
 			} else {
-				$types_response = wp_remote_get( $types_path, array(
+				$types_response = wp_remote_get(
+					$types_path, array(
 						$this->auth_handler->format_get_args( array( 'timeout' => 5 ) ),
 					)
 				);
@@ -308,12 +311,14 @@ class WordPressExternalConnection extends ExternalConnection {
 		$types_path = untrailingslashit( $this->base_url ) . '/' . $path . '/types';
 
 		if ( function_exists( 'vip_safe_wp_remote_get' ) ) {
-			$response = vip_safe_wp_remote_get( $types_path, array(
+			$response = vip_safe_wp_remote_get(
+				$types_path, array(
 					'timeout' => 5,
 				)
 			);
 		} else {
-			$response = wp_remote_get( $types_path, array(
+			$response = wp_remote_get(
+				$types_path, array(
 					'timeout' => 5,
 				)
 			);
@@ -437,7 +442,7 @@ class WordPressExternalConnection extends ExternalConnection {
 		} else {
 			$response = wp_remote_get( untrailingslashit( $this->base_url ), $this->auth_handler->format_get_args( array( 'timeout' => 5 ) ) );
 		}
-		$body     = wp_remote_retrieve_body( $response );
+		$body = wp_remote_retrieve_body( $response );
 
 		if ( is_wp_error( $response ) || is_wp_error( $body ) ) {
 			$output['errors']['no_external_connection'] = 'no_external_connection';
@@ -486,7 +491,7 @@ class WordPressExternalConnection extends ExternalConnection {
 		} else {
 			$types_response = wp_remote_get( $types_path, $this->auth_handler->format_get_args( array( 'timeout' => 5 ) ) );
 		}
-		$types_body     = wp_remote_retrieve_body( $types_response );
+		$types_body = wp_remote_retrieve_body( $types_response );
 
 		if ( is_wp_error( $types_response ) || is_wp_error( $types_body ) ) {
 			$output['errors']['no_types'] = 'no_types';
@@ -626,9 +631,9 @@ class WordPressExternalConnection extends ExternalConnection {
 	 */
 	public static function canonical_url( $canonical_url, $post ) {
 		$original_source_id = get_post_meta( $post->ID, 'dt_original_source_id', true );
-		$original_post_url   = get_post_meta( $post->ID, 'dt_original_post_url', true );
-		$unlinked         = (bool) get_post_meta( $post->ID, 'dt_unlinked', true );
-		$original_deleted = (bool) get_post_meta( $post->ID, 'dt_original_post_deleted', true );
+		$original_post_url  = get_post_meta( $post->ID, 'dt_original_post_url', true );
+		$unlinked           = (bool) get_post_meta( $post->ID, 'dt_unlinked', true );
+		$original_deleted   = (bool) get_post_meta( $post->ID, 'dt_original_post_deleted', true );
 
 		if ( empty( $original_source_id ) || empty( $original_post_url ) || $unlinked || $original_deleted ) {
 			return $canonical_url;

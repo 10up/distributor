@@ -1,6 +1,7 @@
 <?php
 
 namespace Distributor\Authentications;
+
 use \Distributor\Authentication as Authentication;
 
 /**
