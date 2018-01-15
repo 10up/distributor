@@ -1,5 +1,6 @@
 <?php
 namespace Distributor\ExternalConnections;
+
 use \Distributor\Authentications\WordPressBasicAuth as WordPressBasicAuth;
 
 class WordPressExternalConnectionTest extends \TestCase {

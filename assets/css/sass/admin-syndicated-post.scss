@@ -55,18 +55,19 @@ body.dt-linked-post {
 	}
 }
 
-#syndicate-time:before {
-	content: "\f242";
-	font-family: dashicons;
-	font: normal 20px/1 dashicons;
-	speak: none;
-	display: inline-block;
-	padding: 0 4px 0 0;
-	top: 0;
-	left: -1px;
-	position: relative;
+#syndicate-time,
+#syndicate-time strong {
 	vertical-align: top;
-	-webkit-font-smoothing: antialiased;
+}
+
+#syndicate-time:before {
+	content: ' ';
+	display: inline-block;
 	top: -1px;
-	color: #82878c;
+	padding-right: 5px;
+	width: 20px;
+	height: 20px;
+	background: url(../img/icon.svg) no-repeat top left;
+	background-size: contain;
+	position: relative;
 }

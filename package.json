@@ -13,5 +13,8 @@
     "grunt-sass": "*",
     "grunt-wp-i18n": "^0.5.3",
     "load-grunt-tasks": "*"
+  },
+  "scripts": {
+    "phpcbf": "phpcbf --standard=WordPress includes tests assets/js/src distributor.php"
   }
 }

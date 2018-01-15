@@ -8,7 +8,7 @@ namespace Distributor\Utils;
  * @since  1.0
  * @return boolean
  */
-function is_vip() {
+function is_vip_com() {
 	return ( defined( 'WPCOM_IS_VIP_ENV' ) && WPCOM_IS_VIP_ENV );
 }
 
@@ -331,9 +331,9 @@ function process_media( $url, $post_id ) {
 		return false;
 	}
 
-	require_once( ABSPATH . 'wp-admin/includes/image.php' );
-	require_once( ABSPATH . 'wp-admin/includes/file.php' );
-	require_once( ABSPATH . 'wp-admin/includes/media.php' );
+	require_once ABSPATH . 'wp-admin/includes/image.php';
+	require_once ABSPATH . 'wp-admin/includes/file.php';
+	require_once ABSPATH . 'wp-admin/includes/media.php';
 
 	$file_array         = array();
 	$file_array['name'] = basename( $matches[0] );

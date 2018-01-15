@@ -49,14 +49,16 @@ spl_autoload_register(
 /**
  * Require PHP version 5.6 - throw an error if the plugin is activated on an older version.
  */
-register_activation_hook( __FILE__, function() {
-	if ( version_compare( PHP_VERSION, '5.6.0', '<' ) ) {
-		wp_die(
-			esc_html__( 'Distributor requires PHP version 5.6.', 'distributor' ),
-			esc_html__( 'Error Activating', 'distributor' )
-		);
+register_activation_hook(
+	__FILE__, function() {
+		if ( version_compare( PHP_VERSION, '5.6.0', '<' ) ) {
+			wp_die(
+				esc_html__( 'Distributor requires PHP version 5.6.', 'distributor' ),
+				esc_html__( 'Error Activating', 'distributor' )
+			);
+		}
 	}
-} );
+);
 
 /**
  * Tell the world this site supports Distributor. We need this for external connections.
@@ -82,24 +84,27 @@ add_filter(
 
 \Distributor\Connections::factory();
 
-require_once( __DIR__ . '/includes/utils.php' );
-require_once( __DIR__ . '/includes/external-connection-cpt.php' );
-require_once( __DIR__ . '/includes/push-ui.php' );
-require_once( __DIR__ . '/includes/pull-ui.php' );
-require_once( __DIR__ . '/includes/rest-api.php' );
-require_once( __DIR__ . '/includes/subscriptions.php' );
-require_once( __DIR__ . '/includes/syndicated-post-ui.php' );
+require_once __DIR__ . '/includes/utils.php';
+require_once __DIR__ . '/includes/external-connection-cpt.php';
+require_once __DIR__ . '/includes/push-ui.php';
+require_once __DIR__ . '/includes/pull-ui.php';
+require_once __DIR__ . '/includes/rest-api.php';
+require_once __DIR__ . '/includes/subscriptions.php';
+require_once __DIR__ . '/includes/syndicated-post-ui.php';
+require_once __DIR__ . '/includes/distributed-post-ui.php';
 
 /**
  * Register connections
  */
-add_action( 'init', function() {
-	\Distributor\Connections::factory()->register( '\Distributor\ExternalConnections\WordPressExternalConnection' );
+add_action(
+	'init', function() {
+		\Distributor\Connections::factory()->register( '\Distributor\ExternalConnections\WordPressExternalConnection' );
 
-	if ( ! \Distributor\Utils\is_vip() ) {
-		\Distributor\Connections::factory()->register( '\Distributor\InternalConnections\NetworkSiteConnection' );
-	}
-}, 1 );
+		if ( ! \Distributor\Utils\is_vip_com() ) {
+			\Distributor\Connections::factory()->register( '\Distributor\InternalConnections\NetworkSiteConnection' );
+		}
+	}, 1
+);
 
 /**
  * We use setup functions to avoid unit testing WP_Mock strict mode errors.
@@ -110,4 +115,5 @@ add_action( 'init', function() {
 \Distributor\RestApi\setup();
 \Distributor\Subscriptions\setup();
 \Distributor\SyndicatedPostUI\setup();
+\Distributor\DistributedPostUI\setup();
 

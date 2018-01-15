@@ -5,11 +5,25 @@ namespace Distributor;
 class PullListTable extends \WP_List_Table {
 
 	/**
+	 * Stores all our connections
+	 *
 	 * @var array
 	 */
-	public $connection_objects = array();
+	public $connection_objects = [];
 
+	/**
+	 * Store record of synced posts
+	 *
+	 * @var array
+	 */
 	public $sync_log = [];
+
+	/**
+	 * Save error to determine if we can show the pull table
+	 *
+	 * @var bool
+	 */
+	public $pull_error;
 
 	/**
 	 * Initialize pull table
@@ -378,6 +392,12 @@ class PullListTable extends \WP_List_Table {
 		}
 
 		$remote_get = $connection_now->remote_get( $remote_get_args );
+
+		if ( is_wp_error( $remote_get ) ) {
+			$this->pull_error = true;
+
+			return;
+		}
 
 		$this->set_pagination_args(
 			[

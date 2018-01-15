@@ -2,7 +2,7 @@
 
 namespace Distributor;
 
-require_once( ABSPATH . '/wp-admin/includes/class-wp-posts-list-table.php' );
+require_once ABSPATH . '/wp-admin/includes/class-wp-posts-list-table.php';
 
 /**
  * External connection table shows all external connections

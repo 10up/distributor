@@ -120,7 +120,7 @@ class SubscriptionsController extends \WP_REST_Controller {
 	public function receive_item_permissions_check( $request ) {
 
 		if ( ! empty( $request['signature'] ) && ! empty( $request['post_id'] ) ) {
-			$signature          = get_post_meta( $request['post_id'], 'dt_subscription_signature', true );
+			$signature = get_post_meta( $request['post_id'], 'dt_subscription_signature', true );
 
 			if ( $request['signature'] === $signature ) {
 				return true;

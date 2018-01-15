@@ -1,6 +1,7 @@
 <?php
 
 namespace Distributor;
+
 use \Distributor\Connection as Connection;
 
 /**
@@ -66,7 +67,7 @@ abstract class ExternalConnection extends Connection {
 	 * @since  0.8
 	 * @return array
 	 */
-	public abstract function check_connections();
+	abstract public function check_connections();
 
 	/**
 	 * This is a static factory method for initializing an external connection

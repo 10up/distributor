@@ -33,13 +33,18 @@
 			$apiVerify.abort();
 		}
 
-		if ('' == externalConnectionUrlField.value) {
+		if ('' === externalConnectionUrlField.value) {
+			endpointErrors.innerText = '';
 			endpointResult.innerText = '';
+
+			endpointResult.removeAttribute( 'data-endpoint-state' );
 			return;
 		}
 
 		endpointResult.setAttribute( 'data-endpoint-state', 'loading' );
-		endpointResult.innerHTML = dt.endpoint_checking_message;
+		endpointResult.innerText = dt.endpoint_checking_message;
+
+		endpointErrors.innerText = '';
 
 		var auth = {};
 
@@ -77,8 +82,6 @@
 			}
 		).done(
 			function(response) {
-					endpointErrors.innerHTML = '';
-
 				if ( ! response.success) {
 					endpointResult.setAttribute( 'data-endpoint-state', 'error' );
 				} else {
@@ -86,23 +89,29 @@
 						endpointResult.setAttribute( 'data-endpoint-state', 'error' );
 
 						if (response.data.endpoint_suggestion) {
-							endpointResult.innerHTML = ' ' + dt.endpoint_suggestion + ' <a class="suggest">' + response.data.endpoint_suggestion + '</a>';
+							endpointResult.innerText = dt.endpoint_suggestion + ' ';
+
+							var suggestion = document.createElement( 'a' );
+							suggestion.classList.add( 'suggest' );
+							suggestion.innerText = response.data.endpoint_suggestion;
+
+							endpointResult.appendChild( suggestion );
 						} else {
-							endpointResult.innerHTML = dt.bad_connection;
+							endpointResult.innerText = dt.bad_connection;
 						}
 					} else {
 						if (response.data.errors.no_distributor || ! response.data.can_post.length) {
 							endpointResult.setAttribute( 'data-endpoint-state', 'warning' );
-							endpointResult.innerHTML = dt.limited_connection;
+							endpointResult.innerText = dt.limited_connection;
 
 							var warnings = [];
 
-							if (response.data.errors.no_distributor) {
-								warnings.push( dt.no_distributor );
+							if ( ! response.data.can_post.length) {
+								warnings.push( dt.bad_auth );
 							}
 
-							if ( ! response.data.can_post.length) {
-								warnings.push( dt.no_push );
+							if (response.data.errors.no_distributor) {
+								warnings.push( dt.no_distributor );
 							}
 
 							warnings.forEach(
@@ -115,7 +124,7 @@
 							);
 						} else {
 							endpointResult.setAttribute( 'data-endpoint-state', 'valid' );
-							endpointResult.innerHTML = dt.good_connection;
+							endpointResult.innerText = dt.good_connection;
 						}
 					}
 				}

@@ -11,7 +11,8 @@ function setup() {
 	add_action(
 		'plugins_loaded', function() {
 			add_action( 'edit_form_top', __NAMESPACE__ . '\syndicated_message', 9, 1 );
-			add_action( 'admin_enqueue_scripts', __NAMESPACE__ . '\admin_enqueue_scripts' );
+			add_action( 'admin_enqueue_scripts', __NAMESPACE__ . '\enqueue_post_scripts' );
+			add_action( 'admin_enqueue_scripts', __NAMESPACE__ . '\enqueue_edit_scripts' );
 			add_action( 'admin_init', __NAMESPACE__ . '\unlink' );
 			add_action( 'admin_init', __NAMESPACE__ . '\link' );
 			add_action( 'post_submitbox_misc_actions', __NAMESPACE__ . '\syndication_date' );
@@ -37,7 +38,7 @@ function setup() {
  */
 function add_distributor_column( $columns ) {
 	unset( $columns['date'] );
-	$columns['distributor'] = esc_html__( 'Distributor', 'distributor' );
+	$columns['distributor'] = '<img src="' . esc_url( plugins_url( 'assets/img/icon.svg', __DIR__ ) ) . '" alt="' . esc_html__( 'See which posts have been distributed', 'distributor' ) . '" title="' . esc_html__( 'See which posts have been distributed', 'distributor' ) . '">';
 
 	$columns['date'] = esc_html__( 'Date', 'distributor' );
 
@@ -63,9 +64,9 @@ function output_distributor_column( $column_name, $post_id ) {
 			$unlinked = (bool) get_post_meta( $post_id, 'dt_unlinked', true );
 
 			if ( $unlinked ) {
-				echo '<span class="dashicons dashicons-editor-unlink"></span>';
+				echo '<img class="dt-unlinked" src="' . esc_url( plugins_url( 'assets/img/icon.svg', __DIR__ ) ) . '" alt="' . esc_html__( 'See which posts have been distributed', 'distributor' ) . '" title="' . esc_html__( 'See which posts have been distributed', 'distributor' ) . '">';
 			} else {
-				echo '<span class="dashicons dashicons-admin-links"></span>';
+				echo '<img src="' . esc_url( plugins_url( 'assets/img/icon.svg', __DIR__ ) ) . '" alt="' . esc_html__( 'See which posts have been distributed', 'distributor' ) . '" title="' . esc_html__( 'See which posts have been distributed', 'distributor' ) . '">';
 			}
 		}
 	}
@@ -157,7 +158,7 @@ function syndication_date( $post ) {
 	?>
 
 	<div class="misc-pub-section curtime misc-pub-curtime">
-		<span id="syndicate-time"><?php esc_html_e( 'Syndicated on: ', 'distributor' ); ?><strong><?php echo esc_html( date( 'M j, Y @ h:i', $syndicate_time ) ); ?></strong></span>
+		<span id="syndicate-time"><?php esc_html_e( 'Distributed on: ', 'distributor' ); ?><strong><?php echo esc_html( date( 'M j, Y @ h:i', $syndicate_time ) ); ?></strong></span>
 	</div>
 
 	<?php
@@ -274,10 +275,6 @@ function syndicated_message( $post ) {
 
 	$original_deleted = (bool) get_post_meta( $post->ID, 'dt_original_post_deleted', true );
 
-	if ( $original_deleted ) {
-		return;
-	}
-
 	$unlinked = (bool) get_post_meta( $post->ID, 'dt_unlinked', true );
 
 	$post_type_object = get_post_type_object( $post->post_type );
@@ -297,17 +294,23 @@ function syndicated_message( $post ) {
 		$original_location_name = $original_site_name;
 	}
 
+	$post_type_singular = $post_type_object->labels->singular_name;
+
 	?>
 	<div class="updated syndicate-status">
-		<?php if ( ! $unlinked ) : ?>
+		<?php if ( $original_deleted ) : ?>
 			<p>
-				<?php echo wp_kses_post( sprintf( __( 'Syndicated from <a href="%1$s">%2$s</a>.', 'distributor' ), esc_url( $post_url ), esc_html( $original_location_name ) ) ); ?>
-				<span><?php echo wp_kses_post( sprintf( __( 'The original post will update this version unless you <a href="%s">unlink from the original.</a>', 'distributor' ), wp_nonce_url( add_query_arg( 'action', 'unlink', admin_url( sprintf( $post_type_object->_edit_link, $post->ID ) ) ), "unlink-post_{$post->ID}" ) ) ); ?></span>
+				<?php echo wp_kses_post( sprintf( __( 'This %s was distributed from <a href="%2$s">%3$s</a>. However, the original has been deleted.', 'distributor' ), esc_html( strtolower( $post_type_singular ) ), esc_url( $post_url ), esc_html( $original_location_name ) ) ); ?>
+			</p>
+		<?php elseif ( ! $unlinked ) : ?>
+			<p>
+				<?php echo wp_kses_post( sprintf( __( 'Distributed from <a href="%1$s">%2$s</a>.', 'distributor' ), esc_url( $post_url ), esc_html( $original_location_name ) ) ); ?>
+				<span><?php echo wp_kses_post( sprintf( __( 'The original %1$s will update this version unless you <a href="%2$s">unlink from the original.</a>', 'distributor' ), esc_html( strtolower( $post_type_singular ) ), wp_nonce_url( add_query_arg( 'action', 'unlink', admin_url( sprintf( $post_type_object->_edit_link, $post->ID ) ) ), "unlink-post_{$post->ID}" ) ) ); ?></span>
 			</p>
 		<?php else : ?>
 			<p>
-				<?php echo wp_kses_post( sprintf( __( 'Originally syndicated from <a href="%1$s">%1$s</a>.', 'distributor' ), esc_url( $post_url ), esc_html( $original_location_name ) ) ); ?>
-				<span><?php echo wp_kses_post( sprintf( __( "This post has been forked from it's original. However, you can always <a href='%s'>restore it.</a>", 'distributor' ), wp_nonce_url( add_query_arg( 'action', 'link', admin_url( sprintf( $post_type_object->_edit_link, $post->ID ) ) ), "link-post_{$post->ID}" ) ) ); ?></span>
+				<?php echo wp_kses_post( sprintf( __( 'Originally distributed from <a href="%1$s">%1$s</a>.', 'distributor' ), esc_url( $post_url ), esc_html( $original_location_name ) ) ); ?>
+				<span><?php echo wp_kses_post( sprintf( __( "This %1\$s has been forked from it's original. However, you can always <a href='%2\$s'>restore it.</a>", 'distributor' ), esc_html( strtolower( $post_type_singular ) ), wp_nonce_url( add_query_arg( 'action', 'link', admin_url( sprintf( $post_type_object->_edit_link, $post->ID ) ) ), "link-post_{$post->ID}" ) ) ); ?></span>
 			</p>
 		<?php endif; ?>
 	</div>
@@ -315,12 +318,12 @@ function syndicated_message( $post ) {
 }
 
 /**
- * Enqueue admin scripts for external connection editor
+ * Enqueue admin scripts/styles for post.php
  *
  * @param  string $hook
  * @since  0.8
  */
-function admin_enqueue_scripts( $hook ) {
+function enqueue_post_scripts( $hook ) {
 	if ( 'post-new.php' !== $hook && 'post.php' !== $hook ) {
 		return;
 	}
@@ -332,12 +335,6 @@ function admin_enqueue_scripts( $hook ) {
 	$original_source_id = get_post_meta( $post->ID, 'dt_original_source_id', true );
 
 	if ( empty( $original_post_id ) || ( empty( $original_blog_id ) && empty( $original_source_id ) ) ) {
-		return;
-	}
-
-	$original_deleted = (bool) get_post_meta( $post->ID, 'dt_original_post_deleted', true );
-
-	if ( $original_deleted ) {
 		return;
 	}
 
@@ -354,4 +351,24 @@ function admin_enqueue_scripts( $hook ) {
 	if ( ! $unlinked ) {
 		wp_dequeue_script( 'autosave' );
 	}
+}
+
+/**
+ * Enqueue admin scripts/styles for edit.php
+ *
+ * @param  string $hook
+ * @since  0.8
+ */
+function enqueue_edit_scripts( $hook ) {
+	if ( 'edit.php' !== $hook ) {
+		return;
+	}
+
+	if ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) {
+		$css_path = '/assets/css/admin-edit-table.css';
+	} else {
+		$css_path = '/assets/css/admin-edit-table.min.css';
+	}
+
+	wp_enqueue_style( 'dt-admin-syndicated-post', plugins_url( $css_path, __DIR__ ), array(), DT_VERSION );
 }

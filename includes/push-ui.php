@@ -270,12 +270,14 @@ function menu_content() {
 		$blog_name = get_bloginfo( 'name' );
 		restore_current_blog();
 
+		$post_type_object = get_post_type_object( $post->post_type );
+
 		?>
 		<div class="distributor-push-wrapper">
 			<div class="inner">
 				<p class="syndicated-notice">
-					<?php esc_html_e( 'This post has been syndicated from', 'distributor' ); ?>
-					<a href="<?php echo esc_url( $site_url ); ?>"><?php echo esc_html( $blog_name ); ?></a>
+					<?php printf( esc_html__( 'This %s has been distributed from', 'distributor' ), esc_html( strtolower( $post_type_object->labels->singular_name ) ) ); ?>
+					<a href="<?php echo esc_url( $site_url ); ?>"><?php echo esc_html( $blog_name ); ?></a>.
 
 					<?php esc_html_e( 'You can ', 'distributor' ); ?>
 					<a href="<?php echo esc_url( $post_url ); ?>"><?php esc_html_e( 'view the original', 'distributor' ); ?></a>
@@ -358,7 +360,15 @@ function menu_content() {
 				$allowed_roles = array( 'administrator', 'editor' );
 			}
 
-			if ( empty( $external_connection_status ) || ! in_array( $current_post_type, $external_connection_status['can_post'], true ) ) {
+			if ( empty( $external_connection_status ) ) {
+				continue;
+			}
+
+			if ( ! empty( $external_connection_status['errors'] ) && ! empty( $external_connection_status['errors']['no_distributor'] ) ) {
+				continue;
+			}
+
+			if ( ! in_array( $current_post_type, $external_connection_status['can_post'], true ) ) {
 				continue;
 			}
 
@@ -406,11 +416,11 @@ function menu_content() {
 			<div class="inner">
 
 				<?php if ( ! empty( $dom_connections ) ) : ?>
-					<p><?php echo sprintf( esc_html__( 'Post &quot;%s&quot; to other connections.', 'distributor' ), get_the_title( $post->ID ) ); ?></p>
+					<p><?php echo sprintf( esc_html__( 'Distribute &quot;%s&quot; to other connections.', 'distributor' ), get_the_title( $post->ID ) ); ?></p>
 
 					<div class="connections-selector">
 						<div>
-							<?php if ( 0 < count( $dom_connections ) ) : ?>
+							<?php if ( 5 < count( $dom_connections ) ) : ?>
 								<input type="text" id="dt-connection-search" placeholder="<?php esc_html_e( 'Search available connections', 'distributor' ); ?>">
 							<?php endif; ?>
 
@@ -441,28 +451,28 @@ syndicated<?php endif; ?>" data-connection-type="internal" data-connection-id="<
 						</div>
 					</div>
 					<div class="connections-selected empty">
-						<header class="with-selected"><?php esc_html_e( 'Selected sites', 'distributor' ); ?></header>
-						<header class="no-selected"><?php esc_html_e( 'No sites selected', 'distributor' ); ?></header>
+						<header class="with-selected"><?php esc_html_e( 'Selected connections', 'distributor' ); ?></header>
+						<header class="no-selected"><?php esc_html_e( 'No connections selected', 'distributor' ); ?></header>
 
 						<div class="selected-connections-list"></div>
 
 						<div class="action-wrapper">
-							<button class="syndicate-button"><?php esc_html_e( 'Syndicate', 'distributor' ); ?></button> <label class="as-draft" for="dt-as-draft"><input type="checkbox" id="dt-as-draft" checked> <?php esc_html_e( 'As draft', 'distributor' ); ?></label>
+							<button class="syndicate-button"><?php esc_html_e( 'Distribute', 'distributor' ); ?></button> <label class="as-draft" for="dt-as-draft"><input type="checkbox" id="dt-as-draft" checked> <?php esc_html_e( 'As draft', 'distributor' ); ?></label>
 						</div>
 					</div>
 
 					<div class="messages">
 						<div class="dt-success">
-							<?php esc_html_e( 'Post successfully syndicated.', 'distributor' ); ?>
+							<?php esc_html_e( 'Post successfully distributed.', 'distributor' ); ?>
 						</div>
 						<div class="dt-error">
-							<?php esc_html_e( 'There was an issue syndicating the post.', 'distributor' ); ?>
+							<?php esc_html_e( 'There was an issue distributing the post.', 'distributor' ); ?>
 						</div>
 					</div>
 
 				<?php else : ?>
 					<p class="no-connections-notice">
-						<?php esc_html_e( 'No connections available for syndication.', 'distributor' ); ?>
+						<?php esc_html_e( 'No connections available for distribution.', 'distributor' ); ?>
 					</p>
 				<?php endif; ?>
 			</div>
