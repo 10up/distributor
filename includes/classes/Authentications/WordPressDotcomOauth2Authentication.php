@@ -57,8 +57,23 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 	 * @return array
 	 */
 	static function prepare_credentials( $args ) {
+		$auth = array();
 
+		if ( ! empty( $args['client_id'] ) ) {
+			$auth['client_id'] = sanitize_text_field( $args['client_id'] );
+		}
+
+		if ( ! empty( $args['client_secret'] ) ) {
+			$auth['client_secret'] = sanitize_text_field( $args['client_secret'] );
+		}
+
+		if ( ! empty( $args['password'] ) ) {
+			$auth['redirect_url'] = sanitize_text_field( $args['redirect_url'] );
+		}
+
+		return apply_filters( 'dt_auth_prepare_credentials', $auth, $args, self::$slug );
 	}
+
 
 	/**
 	 * Add basic auth headers to get args
@@ -69,9 +84,6 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 	 * @return array
 	 */
 	public function format_get_args( $args, $context = array() ) {
-
-
-
 		return parent::format_get_args( $args, $context );
 	}
 
@@ -84,7 +96,22 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 	 * @return array
 	 */
 	public function format_post_args( $args, $context = array() ) {
-
 		return parent::format_post_args( $args, $context );
 	}
 }
+
+/**
+ * The first thing you need to do is create a new WordPress.com Application, this will give you a chance to describe your application and how we should communicate with it. You should give your app the same title as your website as that information is used in the login form users see. Once configured you will receive your CLIENT ID and CLIENT SECRET to identify your app.
+
+https://developer.wordpress.com/apps/
+
+Production Domain Name: e.g http://exampledomain.com/ Just enter exampledomain.com
+espnfivethirtyeight.wordpress.com
+REST API Client ID :
+52828
+REST API Client Secret :
+uyp8IZkCNubX8QTNJiCeN3l0xZPrKH5zoyyVYvdJqakcnRAdDxhv1gZoT60qtO7f
+REST API Redirect URI :
+
+
+ */
