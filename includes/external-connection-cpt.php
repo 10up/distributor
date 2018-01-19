@@ -410,11 +410,11 @@ function meta_box_external_connection_details( $post ) {
 
 		<?php if ( 0 < strtotime( $post->post_date_gmt . ' +0000' ) ) : ?>
 
-			<input name="save" type="submit" class="button button-primary button-large" id="publish" value="<?php esc_attr_e( 'Update Connection', 'distributor' ); ?>">
+			<input name="save" type="submit" class="button button-primary button-large" id="create-connection" value="<?php esc_attr_e( 'Update Connection', 'distributor' ); ?>">
 
 			<a class="delete-link" href="<?php echo esc_url( get_delete_post_link( $post->ID ) ); ?> "><?php esc_html_e( 'Move to Trash', 'distributor' ); ?></a>
 		<?php else : ?>
-			<input name="publish" type="submit" class="button button-primary button-large" id="publish" value="<?php esc_attr_e( 'Create Connection', 'distributor' ); ?>">
+			<input name="create-connection" type="submit" class="button button-primary button-large" id="create-connection" value="<?php esc_attr_e( 'Create Connection', 'distributor' ); ?>">
 		<?php endif; ?>
 	</p>
 	<?php
