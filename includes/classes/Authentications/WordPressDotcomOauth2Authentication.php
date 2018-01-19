@@ -8,9 +8,9 @@ use \Distributor\Authentication as Authentication;
  * This auth type is simple username/password WP style
  */
 class WordPressDotcomOauth2Authentication extends Authentication {
-	static $slug                 = 'secret-key';
+	static $slug                 = 'dotcom-oauth2';
 	static $requires_credentials = true;
-	static $label                = 'Client ID/Secret';
+	static $label                = 'WordPress.com Oauth2';
 
 	public function __construct( $args ) {
 		parent::__construct( $args );
