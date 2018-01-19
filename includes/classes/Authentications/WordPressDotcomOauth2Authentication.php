@@ -35,7 +35,7 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 		?>
 		<p>
 			<label for="dt_client_secret"><?php esc_html_e( 'Client Secret', 'distributor' ); ?></label><br>
-			<input type="text" name="dt_external_connection_auth[client_secret]" data-auth-field="client_secret" value="<?php echo esc_attr( $client_secret ); ?>" class="widefat auth-field" id="dt_client_secret">
+			<input type="password" name="dt_external_connection_auth[client_secret]" data-auth-field="client_secret" value="<?php echo esc_attr( $client_secret ); ?>" class="widefat auth-field" id="dt_client_secret">
 		</p>
 		<?php
 				error_log(json_encode(admin_url( 'post-new.php?post_type=dt_ext_connection' ), JSON_PRETTY_PRINT));
