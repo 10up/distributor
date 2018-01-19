@@ -99,6 +99,7 @@ require_once __DIR__ . '/includes/distributed-post-ui.php';
 add_action(
 	'init', function() {
 		\Distributor\Connections::factory()->register( '\Distributor\ExternalConnections\WordPressExternalConnection' );
+		\Distributor\Connections::factory()->register( '\Distributor\ExternalConnections\WordPressDotcomExternalConnection' );
 
 		if ( ! \Distributor\Utils\is_vip_com() ) {
 			\Distributor\Connections::factory()->register( '\Distributor\InternalConnections\NetworkSiteConnection' );
