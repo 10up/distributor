@@ -142,6 +142,16 @@
 		}, 300
 	);
 
+	/**
+	 * When the External connection type drop-down is changed, show the corresponding authorization fields.
+	 */
+	$( externalConnectionTypeField ).on( 'change', function( event ) {
+		var slug = externalConnectionTypeField.value;
+		console.log( externalConnectionTypeField.value, event );
+		$( '.auth-credentials' ).hide();
+		$( '.auth-credentials.' + slug ).show();
+	} );
+
 	$( externalConnectionMetaBox ).on(
 		'click', '.suggest', function(event) {
 			externalConnectionUrlField.value = event.currentTarget.innerText;
