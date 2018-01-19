@@ -331,7 +331,11 @@ function meta_box_external_connection_details( $post ) {
 	$registered_external_connection_types = \Distributor\Connections::factory()->get_registered();
 
 	foreach ( $registered_external_connection_types as $slug => $class ) {
-		if ( 'Distributor\ExternalConnection' !== get_parent_class( $class ) ) {
+
+		if (
+			'Distributor\ExternalConnection' !== get_parent_class( $class ) &&
+			'Distributor\ExternalConnections\WordPressExternalConnection' !== get_parent_class( $class )
+		) {
 			unset( $registered_external_connection_types[ $slug ] );
 		}
 	}
