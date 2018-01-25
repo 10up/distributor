@@ -39,21 +39,32 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 	 * @since  0.8
 	 */
 	static function credentials_form( $args = array() ) {
-		global $wp;
 
 		// Check if we need to display the form, or request a token?
 		$token_created = false;
-		$code          = isset( $_GET['code'] ) ? sanitize_key( $_GET['code'] ) : false;
+		$code          = isset( $_GET['code'] ) ? sanitize_text_field( $_GET['code'] ) : false;
 		if ( ! empty( $code ) ) {
 			$token_created = self::fetch_access_token( $code );
 		}
-		$show_cred_form = false;
+		$saved_access_token = self::get_authentication_option_by_key( self::access_token_key );
+		$is_valid_token     = self::is_valid_token();
+
+		$update_credentials = isset( $_GET['updatecredentials'] );
 		$authorize_url  = '';
 		$client_id = isset( $args['client_id'] ) ? $args['client_id'] : '';
 		$client_secret = isset( $args['client_secret'] ) ? $args['client_secret'] : '';
 		$redirect_uri =  esc_url( ( is_ssl() ? 'https://' : 'http://' ) . $_SERVER['HTTP_HOST'] .  $_SERVER['SCRIPT_NAME'] . '?' . $_SERVER['QUERY_STRING'] );
 
-		if ( empty( $client_id ) || empty( $client_secret ) || empty( $redirect_uri ) || empty( $code ) ) {
+		if (
+			$update_credentials ||
+			! $is_valid_token && (
+				empty( $saved_access_token ) ||
+				empty( $client_id ) ||
+				empty( $client_secret ) ||
+				empty( $redirect_uri ) ||
+				empty( $code )
+			)
+		) {
 		?>
 			<a href="https://developer.wordpress.com/apps/"><?php esc_html_e( 'Create an app to connect to WordPress.com', 'distributor' ); ?></a>
 			<p>
@@ -69,8 +80,50 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 		<?php
 		} else {
 		?>
-		<div id="message" class="oauth-connection-established"><p><span class="message-header">&#10003<?php esc_html_e( 'Connection Established', 'distributor' ); ?></span><br/><a href="<?php echo esc_url( $redirect_uri . '?update' ); ?>"><?php esc_html_e( 'change credentials', 'distributor' ); ?></a></p></div>
+		<div id="message" class="oauth-connection-established"><p><span class="message-header">&#10003<?php esc_html_e( 'Connection Established', 'distributor' ); ?></span><br/><a href="<?php echo esc_url( $redirect_uri . '&updatecredentials=1' ); ?>"><?php esc_html_e( 'Update credentials', 'distributor' ); ?></a></p></div>
 		<?php
+		}
+	}
+
+	/**
+	 * Helper function extract a single option by key.
+	 */
+	static function get_authentication_option_by_key( $key ) {
+		global $post;
+		$external_connection_id = $post ? $post->ID : false;
+		if ( $external_connection_id ) {
+			$current_values = get_post_meta( $external_connection_id, 'dt_external_connection_auth', true );
+			if ( isset( $current_values[ $key ] ) ) {
+				return $current_values[ $key ];
+			}
+		}
+		return false;
+
+	}
+
+	/**
+	 * Helper function extract a single option by key.
+	 */
+	static function get_authentication_options() {
+		global $post;
+		$external_connection_id = $post ? $post->ID : false;
+		if ( $external_connection_id ) {
+			return get_post_meta( $external_connection_id, 'dt_external_connection_auth', true );
+		}
+		return false;
+	}
+
+	/**
+	 * Helper function to set a single option by key.
+	 */
+	static function set_authentication_option_by_key( $key, $value ) {
+		global $post;
+		$external_connection_id = $post ? $post->ID : false;
+
+		if ( $external_connection_id ) {
+			$current_values = get_post_meta( $external_connection_id, 'dt_external_connection_auth', true );
+			$current_values[ $key ] = $value;
+			update_post_meta( $external_connection_id, 'dt_external_connection_auth', $current_values );
 		}
 	}
 
@@ -85,15 +138,15 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 		$auth = array();
 
 		if ( ! empty( $args['client_id'] ) ) {
-			$auth['client_id'] = sanitize_text_field( $args['client_id'] );
+			$auth[ self::api_client_id ] = sanitize_text_field( $args['client_id'] );
 		}
 
 		if ( ! empty( $args['client_secret'] ) ) {
-			$auth['client_secret'] = sanitize_text_field( $args['client_secret'] );
+			$auth[ self::api_client_secret ] = sanitize_text_field( $args['client_secret'] );
 		}
 
 		if ( ! empty( $args['redirect_uri'] ) ) {
-			$auth['redirect_uri'] = sanitize_text_field( $args['redirect_uri'] );
+			$auth[ self::api_redirect_uri ] = sanitize_text_field( $args['redirect_uri'] );
 		}
 
 		return apply_filters( 'dt_auth_prepare_credentials', $auth, $args, self::$slug );
@@ -117,7 +170,7 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 			! empty( array_diff( $current_values,$args ) )
 		)
 		{
-			self::get_authorization_code( $args );
+			self::get_authorization_code();
 		}
 	}
 
@@ -154,22 +207,30 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 	 * @version 2015-07-06 Archana Mandhare - PPT-5077
 	 *
 	 */
-	public function fetch_access_token( $code ) {
+	public static function fetch_access_token( $code ) {
+		global $post;
+
+		$external_connection_id = $post ? $post->ID : false;
 
 		$time = date( '[d/M/Y:H:i:s]' );
 
-		$client_id     = get_option( self::api_client_id );
-		$client_secret = get_option( self::api_client_secret );
-		$redirect_uri  = get_option( self::api_redirect_uri );
+		$options = self::get_authentication_options();
+		if ( ! $options ) {
+			return false;
+		}
 
-		if ( empty( $client_id ) || empty( $client_secret ) || empty( $redirect_uri ) || empty( $code ) ) {
+		$client_id     = $options[ self::api_client_id ];
+		$client_secret = $options[ self::api_client_secret ];
+		$redirect_uri  = $options[ self::api_redirect_uri ];
 
-			error_log( $time . ' Admin Settings form input date not saved. Please try saving the credentials again. ' . PHP_EOL, 3, DISTRIBUTOR_LOG_FILE );
+		if ( empty( $client_id ) || empty( $client_secret ) || empty( $redirect_uri ) || empty( $code ) || ! $external_connection_id ) {
+
+			error_log( $time . ' Admin Settings form input date not saved. Please try saving the credentials again. ' . PHP_EOL );
 
 			return false;
 		}
-		try {
 
+		try {
 			$params = array(
 				'client_id'     => $client_id,
 				'client_secret' => $client_secret,
@@ -188,7 +249,7 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 
 			if ( is_wp_error( $response ) ) {
 
-				error_log( $time . ' fetch_access_token() Failed -- ' . $response->get_error_message() . PHP_EOL, 3, DISTRIBUTOR_LOG_FILE );
+				error_log( $time . ' fetch_access_token() Failed -- ' . $response->get_error_message() . PHP_EOL );
 
 				return false;
 			}
@@ -199,18 +260,18 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 
 			if ( empty( $auth->access_token ) ) {
 
-				error_log( $time . ' fetch_access_token() Failed -- ' . $response_body . PHP_EOL, 3, DISTRIBUTOR_LOG_FILE );
+				error_log( $time . ' fetch_access_token() Failed -- ' . $response_body . PHP_EOL );
 
 				return false;
 			}
 
-			update_option( self::access_token_key, $auth->access_token );
+			self::set_authentication_option_by_key( self::access_token_key, $auth->access_token );
 
 			return true;
 
 		} catch ( \Exception $ex ) {
 
-			error_log( $time . ' fetch_access_token() Failed -- ' . $ex->getMessage() . PHP_EOL, 3, DISTRIBUTOR_LOG_FILE );
+			error_log( $time . ' fetch_access_token() Failed -- ' . $ex->getMessage() . PHP_EOL );
 
 			return false;
 		}
@@ -245,16 +306,21 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 	 * @version 2015-07-06 Archana Mandhare - PPT-5077
 	 *
 	 */
-	public static function get_authorization_code( $args ) {
+	public static function get_authorization_code() {
 
 		$time = date( '[d/M/Y:H:i:s]' );
 
-		$client_id    = $args['client_id'];
-		$redirect_uri = $args['redirect_uri'];
+		$options = self::get_authentication_options();
+		if ( ! $options ) {
+			return false;
+		}
+
+		$client_id     = $options[ self::api_client_id ];
+		$redirect_uri  = $options[ self::api_redirect_uri ];
 
 		if ( empty( $client_id ) || empty( $redirect_uri ) ) {
 
-			error_log( $time . ' Admin Settings Form values not saved. Please try saving the credentials again. ' . PHP_EOL, 3, DISTRIBUTOR_LOG_FILE );
+			error_log( $time . ' Admin Settings Form values not saved. Please try saving the credentials again. ' . PHP_EOL );
 
 			return false;
 		}
@@ -266,7 +332,6 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 				'client_id'     => $client_id,
 				'redirect_uri'  => self::get_authorization_redirect( $redirect_uri ),
 			);
-		error_log(json_encode($args, JSON_PRETTY_PRINT));
 
 			$query_param = http_build_query( $args );
 
@@ -278,7 +343,7 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 
 		} catch ( \Exception $ex ) {
 
-			error_log( $time . ' fetch_access_token() Failed -- ' . $ex->getMessage() . PHP_EOL, 3, DISTRIBUTOR_LOG_FILE );
+			error_log( $time . ' fetch_access_token() Failed -- ' . $ex->getMessage() . PHP_EOL );
 
 			return false;
 		}
@@ -305,22 +370,27 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 
 		$time = date( '[d/M/Y:H:i:s]' );
 
-		$domain = get_option( self::api_domain );
+		$options = get_authentication_options();
+		if ( ! $options ) {
+			return false;
+		}
+
+		$domain     = $options[ self::api_domain];
+		$saved_access_token = $options[ self::access_token_key];
 
 		if ( empty( $domain ) ) {
 
-			error_log( $time . ' Domain is not set. Please try saving it from the settings form . -- ' . $route_name . PHP_EOL, 3, DISTRIBUTOR_LOG_FILE );
+			error_log( $time . ' Domain is not set. Please try saving it from the settings form . -- ' . $route_name . PHP_EOL );
 
 			return new \WP_Error( 'unauthorized_access', 'No Domain set. Please Try again. --' );
 		}
 
 		$route_name = ! empty( $route_name ) ? $route_name : $route;
 
-		$saved_access_token = get_option( self::access_token_key );
 
 		if ( empty( $saved_access_token ) ) {
 
-			error_log( $time . ' ERROR --  No saved access token. Access denied . -- ' . $route_name . PHP_EOL, 3, DISTRIBUTOR_LOG_FILE );
+			error_log( $time . ' ERROR --  No saved access token. Access denied . -- ' . $route_name . PHP_EOL );
 
 			return new \WP_Error( 'unauthorized_access', '  No access token. Please get access token. ' );
 
@@ -359,7 +429,7 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 			// @codingStandardsIgnoreEnd
 
 			if ( empty( $response ) ) {
-				error_log( $time . $api_url . ' $$$$  No Data returned. Please Try again. -- ' . PHP_EOL, 3, DISTRIBUTOR_LOG_FILE );
+				error_log( $time . $api_url . ' $$$$  No Data returned. Please Try again. -- ' . PHP_EOL );
 
 				return new \WP_Error( 'unauthorized_access', $api_url . '$$$$  No Data returned. Please Try again. --' );
 			}
@@ -369,7 +439,7 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 			$data = json_decode( $response, true );
 
 			if ( 200 !== $data['code'] ) {
-				error_log( $time . 'token ##### unauthorized_access for route ###### ' . $route_name . json_encode( $data ) . ' and api url = ' . $api_url . PHP_EOL, 3, DISTRIBUTOR_LOG_FILE );
+				error_log( $time . 'token ##### unauthorized_access for route ###### ' . $route_name . json_encode( $data ) . ' and api url = ' . $api_url . PHP_EOL );
 
 				return new \WP_Error( 'unauthorized_access', $route_name . ' Failed with Exception - ' . $data['body']['message'] );
 			}
@@ -382,7 +452,7 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 				return $return_val;
 			}
 		} catch ( \Exception $ex ) {
-			error_log( $time . 'API route Failed -- ' . $ex->getMessage() . PHP_EOL, 3, DISTRIBUTOR_LOG_FILE );
+			error_log( $time . 'API route Failed -- ' . $ex->getMessage() . PHP_EOL );
 		}
 
 		return false;
@@ -442,7 +512,7 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 			'timeout' => 500,
 		);
 
-		$saved_access_token = get_option( self::access_token_key );
+		$saved_access_token = get_authentication_option_by_key( self::access_token_key );
 
 		if ( ! empty( $saved_access_token ) ) {
 			$args = array(
@@ -488,12 +558,17 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 	 * @return bool - true if token is valid else false
 	 *
 	 */
-	public function is_valid_token( $count = 1 ) {
+	public static function is_valid_token( $count = 1 ) {
 
 		$time = date( '[d/M/Y:H:i:s]' );
 
-		$client_id    = get_option( self::api_client_id );
-		$access_token = get_option( self::access_token_key );
+		$options = self::get_authentication_options();
+		if ( ! $options ) {
+			return false;
+		}
+
+		$client_id    = $options[ self::api_client_id ];
+		$access_token = $options[ self::access_token_key ];
 
 		if ( empty( $client_id ) || empty( $access_token ) ) {
 			return false;
@@ -522,7 +597,7 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 
 		if ( is_wp_error( $response ) ) {
 
-			error_log( $time . 'Failed to validate token giving error ' . $response->get_error_message() . PHP_EOL, 3, DISTRIBUTOR_LOG_FILE );
+			error_log( $time . 'Failed to validate token giving error ' . $response->get_error_message() . PHP_EOL );
 			$count ++;
 			if ( $count <= 3 ) {
 				$this->is_valid_token( $count );
