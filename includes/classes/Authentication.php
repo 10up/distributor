@@ -72,4 +72,16 @@ abstract class Authentication {
 	public static function store_credentials( $external_connection_id, $args ) {
 		update_post_meta( $external_connection_id, 'dt_external_connection_auth', $args );
 	}
+
+	/**
+	 * Error logging facility for non production environments.
+	 *
+	 * @param string $error_message The error message to log.
+	 */
+	public static function log_authentication_error( $error_message ) {
+		if ( isset( 'WP_DEBUG') && WP_DEBUG ) {
+			$time = date( '[d/M/Y:H:i:s]' );
+			error_log( $time . ': ' . $error_message );
+		}
+	}
 }
