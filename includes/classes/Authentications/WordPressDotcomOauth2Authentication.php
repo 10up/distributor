@@ -240,7 +240,7 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 
 		if ( empty( $client_id ) || empty( $client_secret ) || empty( $redirect_uri ) || empty( $code ) || ! $external_connection_id ) {
 
-			error_log( $time . ' Admin Settings form input date not saved. Please try saving the credentials again. ' . PHP_EOL );
+			self::log_authentication_error( ' Admin Settings form input date not saved. Please try saving the credentials again. ' );
 
 			return false;
 		}
@@ -264,7 +264,7 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 
 			if ( is_wp_error( $response ) ) {
 
-				error_log( $time . ' fetch_access_token() Failed -- ' . $response->get_error_message() . PHP_EOL );
+				self::log_authentication_error( ' fetch_access_token() Failed -- ' . $response->get_error_message() );
 
 				return false;
 			}
@@ -275,7 +275,7 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 
 			if ( empty( $auth->access_token ) ) {
 
-				error_log( $time . ' fetch_access_token() Failed -- ' . $response_body . PHP_EOL );
+				self::log_authentication_error( ' fetch_access_token() Failed -- ' . $response_body );
 
 				return false;
 			}
@@ -286,7 +286,7 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 
 		} catch ( \Exception $ex ) {
 
-			error_log( $time . ' fetch_access_token() Failed -- ' . $ex->getMessage() . PHP_EOL );
+			self::log_authentication_error( ' fetch_access_token() Failed -- ' . $ex->getMessage() );
 
 			return false;
 		}
@@ -335,7 +335,7 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 
 		if ( empty( $client_id ) || empty( $redirect_uri ) ) {
 
-			error_log( $time . ' Admin Settings Form values not saved. Please try saving the credentials again. ' . PHP_EOL );
+			self::log_authentication_error( ' Admin Settings Form values not saved. Please try saving the credentials again. ' );
 
 			return false;
 		}
@@ -358,7 +358,7 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 
 		} catch ( \Exception $ex ) {
 
-			error_log( $time . ' fetch_access_token() Failed -- ' . $ex->getMessage() . PHP_EOL );
+			self::log_authentication_error( ' fetch_access_token() Failed -- ' . $ex->getMessage() );
 
 			return false;
 		}
@@ -395,7 +395,7 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 
 		if ( empty( $domain ) ) {
 
-			error_log( $time . ' Domain is not set. Please try saving it from the settings form . -- ' . $route_name . PHP_EOL );
+			self::log_authentication_error( ' Domain is not set. Please try saving it from the settings form . -- ' . $route_name );
 
 			return new \WP_Error( 'unauthorized_access', 'No Domain set. Please Try again. --' );
 		}
@@ -405,7 +405,7 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 
 		if ( empty( $saved_access_token ) ) {
 
-			error_log( $time . ' ERROR --  No saved access token. Access denied . -- ' . $route_name . PHP_EOL );
+			self::log_authentication_error( ' ERROR --  No saved access token. Access denied . -- ' . $route_name );
 
 			return new \WP_Error( 'unauthorized_access', '  No access token. Please get access token. ' );
 
@@ -444,7 +444,7 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 			// @codingStandardsIgnoreEnd
 
 			if ( empty( $response ) ) {
-				error_log( $time . $api_url . ' $$$$  No Data returned. Please Try again. -- ' . PHP_EOL );
+				self::log_authentication_error( $time . $api_url . ' $$$$  No Data returned. Please Try again. -- ' );
 
 				return new \WP_Error( 'unauthorized_access', $api_url . '$$$$  No Data returned. Please Try again. --' );
 			}
@@ -454,7 +454,7 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 			$data = json_decode( $response, true );
 
 			if ( 200 !== $data['code'] ) {
-				error_log( $time . 'token ##### unauthorized_access for route ###### ' . $route_name . json_encode( $data ) . ' and api url = ' . $api_url . PHP_EOL );
+				self::log_authentication_error( 'token ##### unauthorized_access for route ###### ' . $route_name . json_encode( $data ) . ' and api url = ' . $api_url );
 
 				return new \WP_Error( 'unauthorized_access', $route_name . ' Failed with Exception - ' . $data['body']['message'] );
 			}
@@ -467,7 +467,7 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 				return $return_val;
 			}
 		} catch ( \Exception $ex ) {
-			error_log( $time . 'API route Failed -- ' . $ex->getMessage() . PHP_EOL );
+			self::log_authentication_error( 'API route Failed -- ' . $ex->getMessage() );
 		}
 
 		return false;
@@ -612,7 +612,7 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 
 		if ( is_wp_error( $response ) ) {
 
-			error_log( $time . 'Failed to validate token giving error ' . $response->get_error_message() . PHP_EOL );
+			self::log_authentication_error( 'Failed to validate token giving error ' . $response->get_error_message() );
 			$count ++;
 			if ( $count <= 3 ) {
 				$this->is_valid_token( $count );
