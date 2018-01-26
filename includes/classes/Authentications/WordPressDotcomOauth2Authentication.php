@@ -91,6 +91,7 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 	static function get_authentication_option_by_key( $key ) {
 		global $post;
 		$external_connection_id = $post ? $post->ID : false;
+
 		if ( $external_connection_id ) {
 			$current_values = get_post_meta( $external_connection_id, 'dt_external_connection_auth', true );
 			if ( isset( $current_values[ $key ] ) ) {
@@ -184,6 +185,14 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 	 * @return array
 	 */
 	public function format_get_args( $args, $context = array() ) {
+		$saved_access_token = isset( $this->{self::access_token_key} ) ?
+			$this->{self::access_token_key} :
+			false;
+
+		if ( $saved_access_token ) {
+			$args['headers']['Authorization'] = 'Bearer ' . $saved_access_token;
+		}
+
 		return parent::format_get_args( $args, $context );
 	}
 
@@ -196,6 +205,12 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 	 * @return array
 	 */
 	public function format_post_args( $args, $context = array() ) {
+		$saved_access_token = isset( $this->{self::access_token_key} ) ?
+			$this->{self::access_token_key} :
+			false;
+		if ( $saved_access_token ) {
+			$args['headers']['Authorization'] = 'Bearer ' . $saved_access_token;
+		}
 		return parent::format_post_args( $args, $context );
 	}
 
