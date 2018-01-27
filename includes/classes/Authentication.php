@@ -79,7 +79,7 @@ abstract class Authentication {
 	 * @param string $error_message The error message to log.
 	 */
 	public static function log_authentication_error( $error_message ) {
-		if ( isset( 'WP_DEBUG') && WP_DEBUG ) {
+		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 			$time = date( '[d/M/Y:H:i:s]' );
 			error_log( $time . ': ' . $error_message );
 		}
