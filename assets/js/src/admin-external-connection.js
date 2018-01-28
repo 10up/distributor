@@ -142,6 +142,14 @@
 		}, 300
 	);
 
+	var hideItemsRequiringAuth = function() {
+		dt_client_id = document.getElementById( 'dt_client_id' );
+		dt_client_secret = document.getElementById( 'dt_client_secret' );
+		if ( ! dt_client_id || '' === dt_client_id.value || '' === dt_client_secret.value ) {
+			$( '.hide-until-authed' ).hide();
+		}
+	}
+
 	/**
 	 * When the External connection type drop-down is changed, show the corresponding authorization fields.
 	 */
