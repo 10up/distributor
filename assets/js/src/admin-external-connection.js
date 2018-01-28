@@ -155,9 +155,16 @@
 	 */
 	$( externalConnectionTypeField ).on( 'change', function( event ) {
 		var slug = externalConnectionTypeField.value;
-		console.log( externalConnectionTypeField.value, event );
+
 		$( '.auth-credentials' ).hide();
 		$( '.auth-credentials.' + slug ).show();
+
+		// Handle the extra fields.
+		if ( 'wpdotcom' === slug ) {
+			hideItemsRequiringAuth();
+		} else {
+			$( '.hide-until-authed' ).show()
+		}
 	} );
 
 	// On load for wpdotcom, hide the fields that show after auth is complete.
