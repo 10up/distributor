@@ -213,7 +213,10 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 			false;
 
 		if ( $saved_access_token ) {
-			$args['headers']['Authorization'] = 'Bearer ' . $saved_access_token;
+			$args['timeout'] = 500;
+			$args['headers'] = array(
+					'Authorization' => 'Bearer ' . $saved_access_token,
+			);
 		}
 
 		return parent::format_get_args( $args, $context );
@@ -231,8 +234,12 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 		$saved_access_token = isset( $this->{self::access_token_key} ) ?
 			$this->{self::access_token_key} :
 			false;
+
 		if ( $saved_access_token ) {
-			$args['headers']['Authorization'] = 'Bearer ' . $saved_access_token;
+			$args['timeout'] = 500;
+			$args['headers'] = array(
+					'Authorization' => 'Bearer ' . $saved_access_token,
+			);
 		}
 		return parent::format_post_args( $args, $context );
 	}
