@@ -152,6 +152,11 @@
 		$( '.auth-credentials.' + slug ).show();
 	} );
 
+	// On load for wpdotcom, hide the fields that show after auth is complete.
+	if ( 'wpdotcom' === $( externalConnectionTypeField ).val() ) {
+		hideItemsRequiringAuth();
+	}
+
 	$( externalConnectionMetaBox ).on(
 		'click', '.suggest', function(event) {
 			externalConnectionUrlField.value = event.currentTarget.innerText;
