@@ -381,7 +381,7 @@ function meta_box_external_connection_details( $post ) {
 			<?php $auth_handler_class_again::credentials_form( $auth ); ?>
 		</div>
 	<?php endforeach; ?>
-	<div class="connection-field-wrap">
+	<div class="connection-field-wrap hide-until-authed">
 		<label for="dt_external_connection_url"><?php esc_html_e( 'External Connection URL', 'distributor' ); ?></label><br>
 		<span class="external-connection-url-field-wrapper">
 			<input value="<?php echo esc_url( $external_connection_url ); ?>" type="text" name="dt_external_connection_url" id="dt_external_connection_url" class="widefat external-connection-url-field">
@@ -391,7 +391,7 @@ function meta_box_external_connection_details( $post ) {
 		<ul class="endpoint-errors"></ul>
 	</div>
 
-	<p class="dt-roles-allowed">
+	<p class="dt-roles-allowed hide-until-authed">
 		<label><?php esc_html_e( 'Roles Allowed to Push', 'distributor' ); ?></label><br>
 
 		<?php
@@ -408,7 +408,7 @@ function meta_box_external_connection_details( $post ) {
 		<span class="description"><?php esc_html_e( 'Please be warned all these users will inherit the permissions of the user on the remote site', 'distributor' ); ?></p>
 	</p>
 
-	<p>
+	<p class="dt-submit-connection hide-until-authed">
 		<input type="hidden" name="post_status" value="publish">
 		<input type="hidden" name="original_post_status" value="<?php echo esc_attr( $post->post_status ); ?>">
 
