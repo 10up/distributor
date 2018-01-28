@@ -41,20 +41,24 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 	static function credentials_form( $args = array() ) {
 
 		// Check if we need to display the form, or request a token?
-		$token_created = false;
-		$code          = isset( $_GET['code'] ) ? sanitize_text_field( $_GET['code'] ) : false;
+		$code = isset( $_GET['code'] ) ? sanitize_text_field( $_GET['code'] ) : false; // Input var okay. WPCS: CSRF ok.
 		if ( ! empty( $code ) ) {
-			$token_created = self::fetch_access_token( $code );
+			self::fetch_access_token( $code );
 		}
 		$saved_access_token = self::get_authentication_option_by_key( self::access_token_key );
 		$is_valid_token     = self::is_valid_token();
 
-		$update_credentials = isset( $_GET['updatecredentials'] );
-		$authorize_url  = '';
+		$update_credentials = isset( $_GET['updatecredentials'] ); // Input var okay. WPCS: CSRF ok.
 
 		$client_id = isset( $args[ self::api_client_id ] ) ? $args[ self::api_client_id ] : '';
 		$client_secret = isset( $args[ self::api_client_secret ] ) ? $args[ self::api_client_secret ] : '';
-		$redirect_uri =  esc_url( ( is_ssl() ? 'https://' : 'http://' ) . $_SERVER['HTTP_HOST'] .  $_SERVER['SCRIPT_NAME'] . '?' . $_SERVER['QUERY_STRING'] );
+		$redirect_uri  = esc_url(
+			( is_ssl() ? 'https://' : 'http://' ) .
+			sanitize_text_field( isset( $_SERVER['HTTP_HOST'] ) ? $_SERVER['HTTP_HOST'] : '' ) . // Input var okay. WPCS: CSRF ok.
+			sanitize_text_field( isset( $_SERVER['SCRIPT_NAME'] ) ? $_SERVER['SCRIPT_NAME'] : '' ) . // WPCS: input var ok.
+			'?' .
+			sanitize_text_field( isset( $_SERVER['QUERY_STRING'] ) ? $_SERVER['QUERY_STRING'] : '' ) // WPCS: input var ok.
+		);
 		$screen = get_current_screen();
 		$is_adding = isset( $screen->action ) && 'add' === $screen->action;
 		if (
@@ -213,7 +217,6 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 			false;
 
 		if ( $saved_access_token ) {
-			$args['timeout'] = 500;
 			$args['headers'] = array(
 					'Authorization' => 'Bearer ' . $saved_access_token,
 			);
@@ -236,7 +239,6 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 			false;
 
 		if ( $saved_access_token ) {
-			$args['timeout'] = 500;
 			$args['headers'] = array(
 					'Authorization' => 'Bearer ' . $saved_access_token,
 			);
@@ -256,8 +258,6 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 		global $post;
 
 		$external_connection_id = $post ? $post->ID : false;
-
-		$time = date( '[d/M/Y:H:i:s]' );
 
 		$options = self::get_authentication_options();
 		if ( ! $options ) {
@@ -286,7 +286,6 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 			);
 
 			$args = array(
-				'timeout' => 500,
 				'body'    => $params,
 			);
 
@@ -330,14 +329,14 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 	 */
 	public static function get_authorization_redirect( $redirect_uri ) {
 		// to workaround wp security where cookie is useless due to wp oauth redirect trigger browser not passing cookie
-		$url_parts = parse_url( $redirect_uri );
-		if ( !empty( $url_parts['path'] ) && 'redirectme' === trim( $url_parts['path'], '/' ) ) {
-			if ( !empty( $url_parts['query'] ) ) {
+		$url_parts = wp_parse_url( $redirect_uri );
+		if ( ! empty( $url_parts['path'] ) && 'redirectme' === trim( $url_parts['path'], '/' ) ) {
+			if ( ! empty( $url_parts['query'] ) ) {
 				$url_parts['query'] = $url_parts['query'] . '&';
 			} else {
 				$url_parts['query'] = '';
 			}
-			$url_parts['query'] = $url_parts['query'] . 'to=' . urlencode ( get_admin_url() . 'tools.php?page=data-import' );
+			$url_parts['query'] = $url_parts['query'] . 'to=' . rawurlencode( get_admin_url() . 'tools.php?page=data-import' );
 			$redirect_uri = sprintf('%s://%s%s?%s', $url_parts['scheme'], $url_parts['host'], $url_parts['path'], $url_parts['query'] );
 		}
 		return $redirect_uri;
@@ -352,8 +351,6 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 	 *
 	 */
 	public static function get_authorization_code() {
-
-		$time = date( '[d/M/Y:H:i:s]' );
 
 		$options = self::get_authentication_options();
 		if ( ! $options ) {
@@ -379,41 +376,15 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 			);
 
 			$query_param = http_build_query( $args );
-
 			$authorize_url = self::AUTHORIZE_URL . '?' . $query_param;
-
-			wp_redirect( esc_url_raw( $authorize_url ) );
-
+			wp_safe_redirect( esc_url_raw( $authorize_url ) );
 			exit;
 
 		} catch ( \Exception $ex ) {
 
 			self::log_authentication_error( ' fetch_access_token() Failed -- ' . $ex->getMessage() );
-
 			return false;
 		}
-
-	}
-
-	/**
-	 * Returns the query params the need to be passed to the API endpoint
-	 *
-	 * @since 2015-07-14
-	 *
-	 * @version 2015-07-14 Archana Mandhare - PPT-5077
-	 *
-	 * @param array $params array of query arguments that needs to be passed
-	 *
-	 * @return string The query string that should be passed to the API
-	 *
-	 */
-	private function _get_query_params( $params = array() ) {
-
-		$defaults = array( 'http_envelope' => 'true' );
-
-		$query_params = wp_parse_args( $params, $defaults );
-
-		return http_build_query( $query_params );
 
 	}
 

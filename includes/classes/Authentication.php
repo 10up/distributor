@@ -81,6 +81,7 @@ abstract class Authentication {
 	public static function log_authentication_error( $error_message ) {
 		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 			$time = date( '[d/M/Y:H:i:s]' );
+			// @codingStandardsIgnoreLine - error_log is only used when WP_DEBUG is true.
 			error_log( $time . ': ' . $error_message );
 		}
 	}
