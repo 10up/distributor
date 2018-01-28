@@ -436,8 +436,8 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 			return false;
 		}
 
-		$client_id    = $options[ self::api_client_id ];
-		$access_token = $options[ self::access_token_key ];
+		$client_id    = isset( $options[ self::api_client_id ] ) ? $options[ self::api_client_id ] : '';
+		$access_token = isset( $options[ self::access_token_key ] ) ? $options[ self::access_token_key ] : '';
 
 		if ( empty( $client_id ) || empty( $access_token ) ) {
 			return false;
