@@ -372,8 +372,12 @@ function meta_box_external_connection_details( $post ) {
 		$auth_handler_class_again = $external_connection_class::$auth_handler_class;
 		if ( ! $auth_handler_class_again::$requires_credentials ) {
 			continue; }
+		$selected = $external_connection_class::$slug === $external_connection_type ||
+			( '' === $external_connection_type && 1 === $index );
+		$is_hidden = ! $selected;
+		$index++;
 		?>
-		<div class="auth-credentials <?php echo ( $external_connection_class::$slug !== $external_connection_type ? 'hidden ': '' ); ?><?php echo esc_attr( $auth_handler_class_again::$slug ); ?> <?php echo esc_attr( $external_connection_class::$slug ); ?>">
+		<div class="auth-credentials <?php echo ( $is_hidden ? 'hidden ': '' ); ?><?php echo esc_attr( $auth_handler_class_again::$slug ); ?> <?php echo esc_attr( $external_connection_class::$slug ); ?>">
 			<?php $auth_handler_class_again::credentials_form( $auth ); ?>
 		</div>
 	<?php endforeach; ?>
