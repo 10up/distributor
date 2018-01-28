@@ -51,10 +51,12 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 
 		$update_credentials = isset( $_GET['updatecredentials'] );
 		$authorize_url  = '';
-		$client_id = isset( $args['client_id'] ) ? $args['client_id'] : '';
-		$client_secret = isset( $args['client_secret'] ) ? $args['client_secret'] : '';
-		$redirect_uri =  esc_url( ( is_ssl() ? 'https://' : 'http://' ) . $_SERVER['HTTP_HOST'] .  $_SERVER['SCRIPT_NAME'] . '?' . $_SERVER['QUERY_STRING'] );
 
+		$client_id = isset( $args[ self::api_client_id ] ) ? $args[ self::api_client_id ] : '';
+		$client_secret = isset( $args[ self::api_client_secret ] ) ? $args[ self::api_client_secret ] : '';
+		$redirect_uri =  esc_url( ( is_ssl() ? 'https://' : 'http://' ) . $_SERVER['HTTP_HOST'] .  $_SERVER['SCRIPT_NAME'] . '?' . $_SERVER['QUERY_STRING'] );
+		$screen = get_current_screen();
+		$is_adding = isset( $screen->action ) && 'add' === $screen->action;
 		if (
 			$update_credentials ||
 			! $is_valid_token && (
@@ -66,8 +68,20 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 			)
 		) {
 		?>
-			<a href="https://developer.wordpress.com/apps/"><?php esc_html_e( 'Create an app to connect to WordPress.com', 'distributor' ); ?></a>
 			<p>
+			<a href="https://developer.wordpress.com/apps/"><?php esc_html_e( 'Create an app to connect to WordPress.com', 'distributor' ); ?></a>
+			</p>
+			<?php
+			/**
+			 * On the new connection screen, only show a button to save the connection. Oauth requires a return redirect
+			 * and we need to save to generate a post id we can redirect back to before continuing.
+			 */
+			if ( $is_adding ) {
+			?>
+			<p>
+			<input name="save" type="submit" class="button button-primary button-large" id="create-connection" value="<?php esc_attr_e( 'Begin Oauth Authorization', 'distributor' ); ?>">
+			<p>
+			<?php } else { ?>
 				<label for="dt_client_id"><?php esc_html_e( 'Client ID', 'distributor' ); ?></label><br>
 				<input type="text" name="dt_external_connection_auth[client_id]" data-auth-field="client_id" value="<?php echo esc_attr( $client_id ); ?>" class="widefat auth-field" id="dt_client_id">
 			</p>
@@ -76,11 +90,20 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 				<input type="password" name="dt_external_connection_auth[client_secret]" data-auth-field="client_secret" value="<?php echo esc_attr( $client_secret ); ?>" class="widefat auth-field" id="dt_client_secret">
 			</p>
 				<input type="hidden" name="dt_external_connection_auth[redirect_uri]" data-auth-field="redirect_uri" value="<?php echo esc_attr( $redirect_uri ); ?>" class="widefat  auth-field" id="dt_redirect_uri">
-
+			<input name="save" type="submit" class="button button-primary button-large" id="create-connection" value="<?php esc_attr_e( 'Authenticate Connection', 'distributor' ); ?>">
 		<?php
+			}
 		} else {
 		?>
 		<div id="message" class="oauth-connection-established"><p><span class="message-header">&#10003<?php esc_html_e( 'Connection Established', 'distributor' ); ?></span><br/><a href="<?php echo esc_url( $redirect_uri . '&updatecredentials=1' ); ?>"><?php esc_html_e( 'Update credentials', 'distributor' ); ?></a></p></div>
+		<input type="hidden" name="dt_external_connection_auth[client_id]" data-auth-field="client_id" value="<?php echo esc_attr( $client_id ); ?>" class="widefat auth-field" id="dt_client_id">
+		<input type="hidden" name="dt_external_connection_auth[client_secret]" data-auth-field="client_secret" value="<?php echo esc_attr( $client_secret ); ?>" class="widefat auth-field" id="dt_client_secret">
+		<input type="hidden" name="dt_external_connection_auth[redirect_uri]" data-auth-field="redirect_uri" value="<?php echo esc_attr( $redirect_uri ); ?>" class="widefat  auth-field" id="dt_redirect_uri">
+
+		<script type="text/javascript">
+			// Remove the code credentials from the URL to prevent refresh from initiating a new flow.
+			window.history.replaceState( {}, window.location.title, window.location.href.split( '&code=' )[0] ) ;
+		</script>
 		<?php
 		}
 	}
