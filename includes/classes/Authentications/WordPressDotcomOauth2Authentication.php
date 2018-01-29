@@ -5,7 +5,7 @@ namespace Distributor\Authentications;
 use \Distributor\Authentication as Authentication;
 
 /**
- * This auth type is simple username/password WP style
+ * Enables WordPress.com Oauth2 authentication.
  */
 class WordPressDotcomOauth2Authentication extends Authentication {
 	static $slug                 = 'dotcom-oauth2';
@@ -25,10 +25,10 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 	}
 
 	/**
-	 * Output credentials form for this auth type
+	 * Output the credentials form.
 	 *
 	 * @param  array $args
-	 * @since  0.8
+	 * @since  1.1.0
 	 */
 	static function credentials_form( $args = array() ) {
 
@@ -149,7 +149,7 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 	 * Prepare credentials for this auth type
 	 *
 	 * @param  array $args
-	 * @since  0.8
+	 * @since  1.1.0
 	 * @return array
 	 */
 	static function prepare_credentials( $args ) {
@@ -171,7 +171,9 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 	}
 
 	/**
-	 * Store pre-sanizited auth credentials in DB
+	 * Store pre-sanizited auth credentials in DB.
+	 *
+	 * If we don't have an access token, proceed with the auth flow.
 	 *
 	 * @param int   $external_connection_id
 	 * @param array $args
@@ -193,11 +195,11 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 
 
 	/**
-	 * Add basic auth headers to get args
+	 * Add basic auth headers to get args.
 	 *
 	 * @param  array $args
 	 * @param  array $context
-	 * @since  0.8
+	 * @since  1.1.0
 	 * @return array
 	 */
 	public function format_get_args( $args, $context = array() ) {
@@ -215,11 +217,11 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 	}
 
 	/**
-	 * Add basic auth headers to post args
+	 * Add basic auth headers to post args.
 	 *
 	 * @param  array $args
 	 * @param  array $context
-	 * @since  0.8
+	 * @since  1.1.0
 	 * @return array
 	 */
 	public function format_post_args( $args, $context = array() ) {
@@ -236,7 +238,7 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 	}
 
 	/**
-	 * Authorise the request using the secret key and save the access token
+	 * Authorize the request using the secret key and save the access token.
 	 *
 	 * @since 2015-07-06
 	 *
