@@ -142,6 +142,14 @@
 		}, 300
 	);
 
+	/**
+	 * If the client id and secret are unavailable, hide all '.hide-until-authed' areas.
+	 *
+	 * For Oauth authentication, simplify the interface by hiding certain elements until the user has
+	 * completed the authorization process.
+	 *
+	 * Creates a cleaner flow for authorization by separating the authorization steps.
+	 */
 	var hideItemsRequiringAuth = function() {
 		dt_client_id = document.getElementById( 'dt_client_id' );
 		dt_client_secret = document.getElementById( 'dt_client_secret' );
@@ -159,15 +167,17 @@
 		$( '.auth-credentials' ).hide();
 		$( '.auth-credentials.' + slug ).show();
 
-		// Handle the extra fields.
+		// For WordPress.com Oauth authentication, hide fields until authentication is complete.
 		if ( 'wpdotcom' === slug ) {
 			hideItemsRequiringAuth();
 		} else {
+
+			// Otherwise, ensure all areas are showing.
 			$( '.hide-until-authed' ).show()
 		}
 	} );
 
-	// On load for wpdotcom, hide the fields that show after auth is complete.
+	// On load for WordPress.com Oauth authentication, hide fields until authentication is complete.
 	if ( 'wpdotcom' === $( externalConnectionTypeField ).val() ) {
 		hideItemsRequiringAuth();
 	}

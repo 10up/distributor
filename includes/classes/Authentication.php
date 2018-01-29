@@ -74,7 +74,7 @@ abstract class Authentication {
 	}
 
 	/**
-	 * Error logging facility for non production environments.
+	 * Oauth connection error logging facility for non production environments.
 	 *
 	 * @param string $error_message The error message to log.
 	 */
