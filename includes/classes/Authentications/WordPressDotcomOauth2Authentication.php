@@ -348,6 +348,13 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 
 			$query_param   = http_build_query( $args );
 			$authorize_url = self::AUTHORIZE_URL . '?' . $query_param;
+
+			// Allow wp_safe_redirect to redirect to the .com authorization endpoint.
+			add_filter( 'allowed_redirect_hosts' , function( $content ){
+				$content[] = 'public-api.wordpress.com';
+				return $content;
+			} );
+
 			wp_safe_redirect( esc_url_raw( $authorize_url ) );
 			exit;
 
