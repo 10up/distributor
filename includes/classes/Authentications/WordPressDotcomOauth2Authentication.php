@@ -33,26 +33,24 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 	static function credentials_form( $args = array() ) {
 
 		// Check if we need to display the form, or request a token?
-		$code = isset( $_GET['code'] ) ? sanitize_text_field( $_GET['code'] ) : false; // Input var okay. WPCS: CSRF ok.
+		$code = isset( $_GET['code'] ) ? sanitize_text_field( wp_unslash( $_GET['code'] ) ) : false; // Input var okay. WPCS: CSRF ok.
 		if ( ! empty( $code ) ) {
 			self::fetch_access_token( $code );
 		}
 		$saved_access_token = self::get_authentication_option_by_key( self::ACCESS_TOKEN_KEY );
 		$is_valid_token     = self::is_valid_token();
-
 		$update_credentials = isset( $_GET['updatecredentials'] ); // Input var okay. WPCS: CSRF ok.
-
-		$client_id = isset( $args[ self::API_CLIENT_ID ] ) ? $args[ self::API_CLIENT_ID ] : '';
-		$client_secret = isset( $args[ self::API_CLIENT_SECRET ] ) ? $args[ self::API_CLIENT_SECRET ] : '';
-		$redirect_uri  = esc_url(
+		$client_id          = isset( $args[ self::API_CLIENT_ID ] ) ? $args[ self::API_CLIENT_ID ] : '';
+		$client_secret      = isset( $args[ self::API_CLIENT_SECRET ] ) ? $args[ self::API_CLIENT_SECRET ] : '';
+		$screen             = get_current_screen();
+		$is_adding          = isset( $screen->action ) && 'add' === $screen->action;
+		$redirect_uri       = esc_url(
 			( is_ssl() ? 'https://' : 'http://' ) .
 			sanitize_text_field( isset( $_SERVER['HTTP_HOST'] ) ? $_SERVER['HTTP_HOST'] : '' ) . // Input var okay. WPCS: CSRF ok.
 			sanitize_text_field( isset( $_SERVER['SCRIPT_NAME'] ) ? $_SERVER['SCRIPT_NAME'] : '' ) . // WPCS: input var ok.
 			'?' .
 			sanitize_text_field( isset( $_SERVER['QUERY_STRING'] ) ? $_SERVER['QUERY_STRING'] : '' ) // WPCS: input var ok.
 		);
-		$screen = get_current_screen();
-		$is_adding = isset( $screen->action ) && 'add' === $screen->action;
 		if (
 			$update_credentials ||
 			! $is_valid_token && (
@@ -87,8 +85,8 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 			</p>
 				<input type="hidden" name="dt_external_connection_auth[redirect_uri]" data-auth-field="redirect_uri" value="<?php echo esc_attr( $redirect_uri ); ?>" class="widefat  auth-field" id="dt_redirect_uri">
 			<input name="save" type="submit" class="button button-primary button-large" id="create-connection" value="<?php esc_attr_e( 'Authenticate Connection', 'distributor' ); ?>">
-		<?php
-			}
+			<?php
+}
 		} else {
 		?>
 		<div id="message" class="oauth-connection-established"><p><span class="message-header">&#10003<?php esc_html_e( 'Connection Established', 'distributor' ); ?></span><br/><a href="<?php echo esc_url( $redirect_uri . '&updatecredentials=1' ); ?>"><?php esc_html_e( 'Update credentials', 'distributor' ); ?></a></p></div>
@@ -141,7 +139,7 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 		$external_connection_id = $post ? $post->ID : false;
 
 		if ( $external_connection_id ) {
-			$current_values = get_post_meta( $external_connection_id, 'dt_external_connection_auth', true );
+			$current_values         = get_post_meta( $external_connection_id, 'dt_external_connection_auth', true );
 			$current_values[ $key ] = $value;
 			update_post_meta( $external_connection_id, 'dt_external_connection_auth', $current_values );
 		}
@@ -182,14 +180,13 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 	public static function store_credentials( $external_connection_id, $args ) {
 
 		$current_values = get_post_meta( $external_connection_id, 'dt_external_connection_auth', true );
-		$access_token = get_post_meta( $external_connection_id, 'dt_external_connection_auth_access_token', true );
+		$access_token   = get_post_meta( $external_connection_id, 'dt_external_connection_auth_access_token', true );
 		update_post_meta( $external_connection_id, 'dt_external_connection_auth', $args );
 
 		if (
 			empty( $access_token ) ||
-			! empty( array_diff( $current_values,$args ) )
-		)
-		{
+			! empty( array_diff( $current_values, $args ) )
+		) {
 			self::get_authorization_code();
 		}
 	}
@@ -210,7 +207,7 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 
 		if ( $saved_access_token ) {
 			$args['headers'] = array(
-					'Authorization' => 'Bearer ' . $saved_access_token,
+				'Authorization' => 'Bearer ' . $saved_access_token,
 			);
 		}
 
@@ -232,7 +229,7 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 
 		if ( $saved_access_token ) {
 			$args['headers'] = array(
-					'Authorization' => 'Bearer ' . $saved_access_token,
+				'Authorization' => 'Bearer ' . $saved_access_token,
 			);
 		}
 		return parent::format_post_args( $args, $context );
@@ -278,7 +275,7 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 			);
 
 			$args = array(
-				'body'    => $params,
+				'body' => $params,
 			);
 
 			$response = wp_remote_post( esc_url_raw( self::REQUEST_TOKEN_URL ), $args );
@@ -329,7 +326,7 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 				$url_parts['query'] = '';
 			}
 			$url_parts['query'] = $url_parts['query'] . 'to=' . rawurlencode( get_admin_url() . 'tools.php?page=data-import' );
-			$redirect_uri = sprintf('%s://%s%s?%s', $url_parts['scheme'], $url_parts['host'], $url_parts['path'], $url_parts['query'] );
+			$redirect_uri       = sprintf( '%s://%s%s?%s', $url_parts['scheme'], $url_parts['host'], $url_parts['path'], $url_parts['query'] );
 		}
 		return $redirect_uri;
 	}
@@ -349,8 +346,8 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 			return false;
 		}
 
-		$client_id     = $options[ self::API_CLIENT_ID ];
-		$redirect_uri  = $options[ self::API_REDIRECT_URI ];
+		$client_id    = $options[ self::API_CLIENT_ID ];
+		$redirect_uri = $options[ self::API_REDIRECT_URI ];
 
 		if ( empty( $client_id ) || empty( $redirect_uri ) ) {
 
@@ -367,7 +364,7 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 				'redirect_uri'  => self::get_authorization_redirect( $redirect_uri ),
 			);
 
-			$query_param = http_build_query( $args );
+			$query_param   = http_build_query( $args );
 			$authorize_url = self::AUTHORIZE_URL . '?' . $query_param;
 			wp_safe_redirect( esc_url_raw( $authorize_url ) );
 			exit;
