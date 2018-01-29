@@ -312,15 +312,15 @@ class WordPressExternalConnection extends ExternalConnection {
 
 		if ( function_exists( 'vip_safe_wp_remote_get' ) ) {
 			$response = vip_safe_wp_remote_get(
-				$types_path, $this->auth_handler->format_get_args( array(
+				$types_path, array(
 					'timeout' => 5,
-				) )
+				)
 			);
 		} else {
 			$response = wp_remote_get(
-				$types_path, $this->auth_handler->format_get_args( array(
+				$types_path, array(
 					'timeout' => 5,
-				) )
+				)
 			);
 		}
 

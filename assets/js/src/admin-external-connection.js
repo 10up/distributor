@@ -142,6 +142,46 @@
 		}, 300
 	);
 
+	/**
+	 * If the client id and secret are unavailable, hide all '.hide-until-authed' areas.
+	 *
+	 * For Oauth authentication, simplify the interface by hiding certain elements until the user has
+	 * completed the authorization process.
+	 *
+	 * Creates a cleaner flow for authorization by separating the authorization steps.
+	 */
+	var hideItemsRequiringAuth = function() {
+		dt_client_id = document.getElementById( 'dt_client_id' );
+		dt_client_secret = document.getElementById( 'dt_client_secret' );
+		if ( ! dt_client_id || '' === dt_client_id.value || '' === dt_client_secret.value ) {
+			$( '.hide-until-authed' ).hide();
+		}
+	}
+
+	/**
+	 * When the External connection type drop-down is changed, show the corresponding authorization fields.
+	 */
+	$( externalConnectionTypeField ).on( 'change', function( event ) {
+		var slug = externalConnectionTypeField.value;
+
+		$( '.auth-credentials' ).hide();
+		$( '.auth-credentials.' + slug ).show();
+
+		// For WordPress.com Oauth authentication, hide fields until authentication is complete.
+		if ( 'wpdotcom' === slug ) {
+			hideItemsRequiringAuth();
+		} else {
+
+			// Otherwise, ensure all areas are showing.
+			$( '.hide-until-authed' ).show()
+		}
+	} );
+
+	// On load for WordPress.com Oauth authentication, hide fields until authentication is complete.
+	if ( 'wpdotcom' === $( externalConnectionTypeField ).val() ) {
+		hideItemsRequiringAuth();
+	}
+
 	$( externalConnectionMetaBox ).on(
 		'click', '.suggest', function(event) {
 			externalConnectionUrlField.value = event.currentTarget.innerText;

@@ -79,7 +79,14 @@ class WordPressBasicAuth extends Authentication {
 			$auth['base64_encoded'] = base64_encode( $args['username'] . ':' . $args['password'] );
 		}
 
-		return apply_filters( 'dt_auth_prepare_credentials', $auth, $args );
+		/**
+		 * Filter the authorization credentials prepared before saving.
+		 *
+		 * @param array  $auth The credentials to be saved.
+		 * @param array  $args The arguments originally passed to .prepare_credentials'.
+		 * @param string $slug The authorization handler type slug.
+		 */
+		return apply_filters( 'dt_auth_prepare_credentials', $auth, $args, self::$slug );
 	}
 
 	/**
