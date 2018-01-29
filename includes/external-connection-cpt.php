@@ -331,7 +331,11 @@ function meta_box_external_connection_details( $post ) {
 	$registered_external_connection_types = \Distributor\Connections::factory()->get_registered();
 
 	foreach ( $registered_external_connection_types as $slug => $class ) {
-		if ( 'Distributor\ExternalConnection' !== get_parent_class( $class ) ) {
+
+		if (
+			'Distributor\ExternalConnection' !== get_parent_class( $class ) &&
+			'Distributor\ExternalConnections\WordPressExternalConnection' !== get_parent_class( $class )
+		) {
 			unset( $registered_external_connection_types[ $slug ] );
 		}
 	}
@@ -363,16 +367,21 @@ function meta_box_external_connection_details( $post ) {
 	<?php endif; ?>
 
 	<?php
+	$index = 1;
 	foreach ( $registered_external_connection_types as $external_connection_class ) :
 		$auth_handler_class_again = $external_connection_class::$auth_handler_class;
 		if ( ! $auth_handler_class_again::$requires_credentials ) {
 			continue; }
+		$selected = $external_connection_class::$slug === $external_connection_type ||
+			( '' === $external_connection_type && 1 === $index );
+		$is_hidden = ! $selected;
+		$index++;
 		?>
-		<div class="auth-credentials <?php echo esc_attr( $auth_handler_class_again::$slug ); ?>">
+		<div class="auth-credentials <?php echo ( $is_hidden ? 'hidden ': '' ); ?><?php echo esc_attr( $auth_handler_class_again::$slug ); ?> <?php echo esc_attr( $external_connection_class::$slug ); ?>">
 			<?php $auth_handler_class_again::credentials_form( $auth ); ?>
 		</div>
 	<?php endforeach; ?>
-	<div class="connection-field-wrap">
+	<div class="connection-field-wrap hide-until-authed">
 		<label for="dt_external_connection_url"><?php esc_html_e( 'External Connection URL', 'distributor' ); ?></label><br>
 		<span class="external-connection-url-field-wrapper">
 			<input value="<?php echo esc_url( $external_connection_url ); ?>" type="text" name="dt_external_connection_url" id="dt_external_connection_url" class="widefat external-connection-url-field">
@@ -382,7 +391,7 @@ function meta_box_external_connection_details( $post ) {
 		<ul class="endpoint-errors"></ul>
 	</div>
 
-	<p class="dt-roles-allowed">
+	<p class="dt-roles-allowed hide-until-authed">
 		<label><?php esc_html_e( 'Roles Allowed to Push', 'distributor' ); ?></label><br>
 
 		<?php
@@ -399,17 +408,17 @@ function meta_box_external_connection_details( $post ) {
 		<span class="description"><?php esc_html_e( 'Please be warned all these users will inherit the permissions of the user on the remote site', 'distributor' ); ?></p>
 	</p>
 
-	<p>
+	<p class="dt-submit-connection hide-until-authed">
 		<input type="hidden" name="post_status" value="publish">
 		<input type="hidden" name="original_post_status" value="<?php echo esc_attr( $post->post_status ); ?>">
 
 		<?php if ( 0 < strtotime( $post->post_date_gmt . ' +0000' ) ) : ?>
 
-			<input name="save" type="submit" class="button button-primary button-large" id="publish" value="<?php esc_attr_e( 'Update Connection', 'distributor' ); ?>">
+			<input name="save" type="submit" class="button button-primary button-large" id="create-connection" value="<?php esc_attr_e( 'Update Connection', 'distributor' ); ?>">
 
 			<a class="delete-link" href="<?php echo esc_url( get_delete_post_link( $post->ID ) ); ?> "><?php esc_html_e( 'Move to Trash', 'distributor' ); ?></a>
 		<?php else : ?>
-			<input name="publish" type="submit" class="button button-primary button-large" id="publish" value="<?php esc_attr_e( 'Create Connection', 'distributor' ); ?>">
+			<input name="create-connection" type="submit" class="button button-primary button-large" id="create-connection" value="<?php esc_attr_e( 'Create Connection', 'distributor' ); ?>">
 		<?php endif; ?>
 	</p>
 	<?php
