@@ -12,21 +12,13 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 	static $requires_credentials = true;
 	static $label                = 'WordPress.com Oauth2';
 
-	const REST_BASE_URL = 'https://public-api.wordpress.com/rest/v1.1/sites/';
-	const REQUEST_TOKEN_URL = 'https://public-api.wordpress.com/oauth2/token';
-	const AUTHORIZE_URL = 'https://public-api.wordpress.com/oauth2/authorize';
+	const REQUEST_TOKEN_URL  = 'https://public-api.wordpress.com/oauth2/token';
+	const AUTHORIZE_URL      = 'https://public-api.wordpress.com/oauth2/authorize';
 	const VALIDATE_TOKEN_URL = 'https://public-api.wordpress.com/oauth2/token-info';
-	const REST_URL_HOST = 'public-api.wordpress.com';
-	const COOKIE_DOMAIN = '.vip.local';
-
-	const access_token_key = 'rest_api_access_token';
-	const api_domain = 'rest_api_domain';
-	const api_client_id = 'rest_api_client_id';
-	const api_client_secret = 'rest_api_client_secret';
-	const api_redirect_uri = 'rest_api_redirect_uri';
-	const api_xmlrpc_username = 'xmlrpc_username';
-	const api_xmlrpc_password = 'xmlrpc_password';
-	const show_form = 'show_data_import_form';
+	const ACCESS_TOKEN_KEY   = 'rest_api_access_token';
+	const API_CLIENT_ID      = 'rest_api_client_id';
+	const API_CLIENT_SECRET  = 'rest_api_client_secret';
+	const API_REDIRECT_URI   = 'rest_api_redirect_uri';
 
 	public function __construct( $args ) {
 		parent::__construct( $args );
@@ -45,13 +37,13 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 		if ( ! empty( $code ) ) {
 			self::fetch_access_token( $code );
 		}
-		$saved_access_token = self::get_authentication_option_by_key( self::access_token_key );
+		$saved_access_token = self::get_authentication_option_by_key( self::ACCESS_TOKEN_KEY );
 		$is_valid_token     = self::is_valid_token();
 
 		$update_credentials = isset( $_GET['updatecredentials'] ); // Input var okay. WPCS: CSRF ok.
 
-		$client_id = isset( $args[ self::api_client_id ] ) ? $args[ self::api_client_id ] : '';
-		$client_secret = isset( $args[ self::api_client_secret ] ) ? $args[ self::api_client_secret ] : '';
+		$client_id = isset( $args[ self::API_CLIENT_ID ] ) ? $args[ self::API_CLIENT_ID ] : '';
+		$client_secret = isset( $args[ self::API_CLIENT_SECRET ] ) ? $args[ self::API_CLIENT_SECRET ] : '';
 		$redirect_uri  = esc_url(
 			( is_ssl() ? 'https://' : 'http://' ) .
 			sanitize_text_field( isset( $_SERVER['HTTP_HOST'] ) ? $_SERVER['HTTP_HOST'] : '' ) . // Input var okay. WPCS: CSRF ok.
@@ -166,15 +158,15 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 		$auth = array();
 
 		if ( ! empty( $args['client_id'] ) ) {
-			$auth[ self::api_client_id ] = sanitize_text_field( $args['client_id'] );
+			$auth[ self::API_CLIENT_ID ] = sanitize_text_field( $args['client_id'] );
 		}
 
 		if ( ! empty( $args['client_secret'] ) ) {
-			$auth[ self::api_client_secret ] = sanitize_text_field( $args['client_secret'] );
+			$auth[ self::API_CLIENT_SECRET ] = sanitize_text_field( $args['client_secret'] );
 		}
 
 		if ( ! empty( $args['redirect_uri'] ) ) {
-			$auth[ self::api_redirect_uri ] = sanitize_text_field( $args['redirect_uri'] );
+			$auth[ self::API_REDIRECT_URI ] = sanitize_text_field( $args['redirect_uri'] );
 		}
 
 		return apply_filters( 'dt_auth_prepare_credentials', $auth, $args, self::$slug );
@@ -212,8 +204,8 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 	 * @return array
 	 */
 	public function format_get_args( $args, $context = array() ) {
-		$saved_access_token = isset( $this->{self::access_token_key} ) ?
-			$this->{self::access_token_key} :
+		$saved_access_token = isset( $this->{self::ACCESS_TOKEN_KEY} ) ?
+			$this->{self::ACCESS_TOKEN_KEY} :
 			false;
 
 		if ( $saved_access_token ) {
@@ -234,8 +226,8 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 	 * @return array
 	 */
 	public function format_post_args( $args, $context = array() ) {
-		$saved_access_token = isset( $this->{self::access_token_key} ) ?
-			$this->{self::access_token_key} :
+		$saved_access_token = isset( $this->{self::ACCESS_TOKEN_KEY} ) ?
+			$this->{self::ACCESS_TOKEN_KEY} :
 			false;
 
 		if ( $saved_access_token ) {
@@ -264,9 +256,9 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 			return false;
 		}
 
-		$client_id     = $options[ self::api_client_id ];
-		$client_secret = $options[ self::api_client_secret ];
-		$redirect_uri  = $options[ self::api_redirect_uri ];
+		$client_id     = $options[ self::API_CLIENT_ID ];
+		$client_secret = $options[ self::API_CLIENT_SECRET ];
+		$redirect_uri  = $options[ self::API_REDIRECT_URI ];
 
 		if ( empty( $client_id ) || empty( $client_secret ) || empty( $redirect_uri ) || empty( $code ) || ! $external_connection_id ) {
 
@@ -309,7 +301,7 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 				return false;
 			}
 
-			self::set_authentication_option_by_key( self::access_token_key, $auth->access_token );
+			self::set_authentication_option_by_key( self::ACCESS_TOKEN_KEY, $auth->access_token );
 
 			return true;
 
@@ -357,8 +349,8 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 			return false;
 		}
 
-		$client_id     = $options[ self::api_client_id ];
-		$redirect_uri  = $options[ self::api_redirect_uri ];
+		$client_id     = $options[ self::API_CLIENT_ID ];
+		$redirect_uri  = $options[ self::API_REDIRECT_URI ];
 
 		if ( empty( $client_id ) || empty( $redirect_uri ) ) {
 
@@ -405,8 +397,8 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 			return false;
 		}
 
-		$client_id    = isset( $options[ self::api_client_id ] ) ? $options[ self::api_client_id ] : '';
-		$access_token = isset( $options[ self::access_token_key ] ) ? $options[ self::access_token_key ] : '';
+		$client_id    = isset( $options[ self::API_CLIENT_ID ] ) ? $options[ self::API_CLIENT_ID ] : '';
+		$access_token = isset( $options[ self::ACCESS_TOKEN_KEY ] ) ? $options[ self::ACCESS_TOKEN_KEY ] : '';
 
 		if ( empty( $client_id ) || empty( $access_token ) ) {
 			return false;
