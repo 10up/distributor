@@ -400,8 +400,6 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 	 */
 	public static function is_valid_token( $count = 1 ) {
 
-		$time = date( '[d/M/Y:H:i:s]' );
-
 		$options = self::get_authentication_options();
 		if ( ! $options ) {
 			return false;
@@ -421,17 +419,14 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 
 		$params = http_build_query( $query );
 
+		/**
+		 * Recommended function is vip_safe_wp_remote_get() but since it has a max timeout of 3 secs which
+		 * is not feasible since the response time is way ahead 3 secs.
+		 */
+		// @codingStandardsIgnoreStart
 		$args = array(
 			'timeout' => 500,
 		);
-
-		/**
-		 * Do not remove the below comments @codingStandardsIgnoreStart and @codingStandardsIgnoreEnd
-		 * Recommended function is vip_safe_wp_remote_get() but since it has a max timeout of 3 secs which
-		 * is not feasible since the response time is way ahead 3 secs here and I am unable to fetch data
-		 * if I use vip_safe_wp_remote_get()
-		 */
-		// @codingStandardsIgnoreStart
 		$response = wp_remote_get( esc_url_raw( self::VALIDATE_TOKEN_URL ) . '?' . $params, $args );
 		// @codingStandardsIgnoreEnd
 
