@@ -259,10 +259,14 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 		$client_secret = $options[ self::API_CLIENT_SECRET ];
 		$redirect_uri  = $options[ self::API_REDIRECT_URI ];
 
-		if ( empty( $client_id ) || empty( $client_secret ) || empty( $redirect_uri ) || empty( $code ) || ! $external_connection_id ) {
-
+		if (
+			empty( $client_id ) ||
+			empty( $client_secret ) ||
+			empty( $redirect_uri ) ||
+			empty( $code ) ||
+			! $external_connection_id
+		) {
 			self::log_authentication_error( ' Admin Settings form input date not saved. Please try saving the credentials again. ' );
-
 			return false;
 		}
 
@@ -283,34 +287,25 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 			$response = wp_remote_post( esc_url_raw( self::REQUEST_TOKEN_URL ), $args );
 
 			if ( is_wp_error( $response ) ) {
-
 				self::log_authentication_error( ' fetch_access_token() Failed -- ' . $response->get_error_message() );
-
 				return false;
 			}
 
 			$response_body = wp_remote_retrieve_body( $response );
-
-			$auth = json_decode( $response_body );
+			$auth          = json_decode( $response_body );
 
 			if ( empty( $auth->access_token ) ) {
-
 				self::log_authentication_error( ' fetch_access_token() Failed -- ' . $response_body );
-
 				return false;
 			}
 
 			self::set_authentication_option_by_key( self::ACCESS_TOKEN_KEY, $auth->access_token );
-
 			return true;
 
 		} catch ( \Exception $ex ) {
-
 			self::log_authentication_error( ' fetch_access_token() Failed -- ' . $ex->getMessage() );
-
 			return false;
 		}
-
 	}
 
 	/**
@@ -332,9 +327,7 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 		$redirect_uri = $options[ self::API_REDIRECT_URI ];
 
 		if ( empty( $client_id ) || empty( $redirect_uri ) ) {
-
 			self::log_authentication_error( ' Admin Settings Form values not saved. Please try saving the credentials again. ' );
-
 			return false;
 		}
 		try {
