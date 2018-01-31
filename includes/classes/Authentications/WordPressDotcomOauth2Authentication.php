@@ -63,30 +63,33 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 		) {
 		?>
 			<p>
-			<a href="https://developer.wordpress.com/apps/"><?php esc_html_e( 'Create an app to connect to WordPress.com', 'distributor' ); ?></a>
+			<?php esc_html_e( 'WordPress.com/WordPress VIP use', 'distributor' ); ?> <a href="https://developer.wordpress.com/docs/oauth2/"><?php esc_html_e( 'Oauth2 authentication', 'distributor' ); ?>.</a>
+			<?php esc_html_e( 'To connect, first ', 'distributor' ); ?>
+			<a href="https://developer.wordpress.com/apps/"><?php esc_html_e( 'create an application with the WordPress.com applications manager', 'distributor' ); ?></a>.
 			</p>
 			<?php
 			/**
-			 * On the new connection screen, only show a button to save the connection. Oauth requires a return redirect
+			 * On the new connection screen, at first only show a button to save the connection. Oauth requires a return redirect
 			 * and we need to save to generate a post id we can redirect back to before continuing.
 			 */
-			if ( $is_adding ) {
 			?>
-			<p>
-			<input name="save" type="submit" class="button button-primary button-large" id="create-connection" value="<?php esc_attr_e( 'Begin Oauth Authorization', 'distributor' ); ?>">
-			<p>
-			<?php } else { ?>
-				<label for="dt_client_id"><?php esc_html_e( 'Client ID', 'distributor' ); ?></label><br>
-				<input type="text" name="dt_external_connection_auth[client_id]" data-auth-field="client_id" value="<?php echo esc_attr( $client_id ); ?>" class="widefat auth-field" id="dt_client_id">
+			<p class='oauth_begin_authentication_wrapper<?php echo ( ! $is_adding ? ' hidden' : '' ); ?>'>
+			<button name="save" type="button" class="button button-primary button-large" id="begin-authorization"><?php esc_attr_e( 'Begin Authorization', 'distributor' ); ?></button>
 			</p>
-			<p>
-				<label for="dt_client_secret"><?php esc_html_e( 'Client Secret', 'distributor' ); ?></label><br>
-				<input type="password" name="dt_external_connection_auth[client_secret]" data-auth-field="client_secret" value="<?php echo esc_attr( $client_secret ); ?>" class="widefat auth-field" id="dt_client_secret">
-			</p>
-				<input type="hidden" name="dt_external_connection_auth[redirect_uri]" data-auth-field="redirect_uri" value="<?php echo esc_attr( $redirect_uri ); ?>" class="widefat  auth-field" id="dt_redirect_uri">
-			<input name="save" type="submit" class="button button-primary button-large" id="create-connection" value="<?php esc_attr_e( 'Authenticate Connection', 'distributor' ); ?>">
+			<div class="oauth_authentication_details_wrapper<?php echo ( $is_adding ? ' hidden' : '' ); ?>">
+				<p>
+					<label for="dt_client_id"><?php esc_html_e( 'Client ID', 'distributor' ); ?></label><br>
+					<input type="text" name="dt_external_connection_auth[client_id]" data-auth-field="client_id" value="<?php echo esc_attr( $client_id ); ?>" class="widefat auth-field" id="dt_client_id">
+				</p>
+				<p>
+					<label for="dt_client_secret"><?php esc_html_e( 'Client Secret', 'distributor' ); ?></label><br>
+					<input type="password" name="dt_external_connection_auth[client_secret]" data-auth-field="client_secret" value="<?php echo esc_attr( $client_secret ); ?>" class="widefat auth-field" id="dt_client_secret">
+				</p>
+					<input type="hidden" name="dt_external_connection_auth[redirect_uri]" data-auth-field="redirect_uri" value="<?php echo esc_attr( $redirect_uri ); ?>" class="widefat  auth-field" id="dt_redirect_uri">
+				<input name="save" type="submit" class="button button-primary button-large" id="create-connection" value="<?php esc_attr_e( 'Authenticate Connection', 'distributor' ); ?>">
+			</div>
 			<?php
-}
+
 		} else {
 		?>
 		<div id="message" class="oauth-connection-established"><p><span class="message-header">&#10003<?php esc_html_e( 'Connection Established', 'distributor' ); ?></span><br/><a href="<?php echo esc_url( $redirect_uri . '&updatecredentials=1' ); ?>"><?php esc_html_e( 'Update credentials', 'distributor' ); ?></a></p></div>

@@ -22,9 +22,44 @@ function setup() {
 			add_action( 'admin_menu', __NAMESPACE__ . '\add_submenu_item', 11 );
 			add_action( 'load-toplevel_page_distributor', __NAMESPACE__ . '\setup_list_table' );
 			add_filter( 'set-screen-option', __NAMESPACE__ . '\set_screen_option', 10, 3 );
+			add_action( 'wp_ajax_dt_begin_authorization', __NAMESPACE__ . '\ajax_begin_authorization' );
 		}
 	);
 }
+
+	/**
+	 * Save the external connection, returning the post ID so the auth process can continue
+	 */
+	function ajax_begin_authorization() {
+		if ( ! check_ajax_referer( 'dt-verify-ext-conn', 'nonce', false ) ) {
+			wp_send_json_error();
+			exit;
+		}
+
+		if ( empty( $_POST['title'] ) ) {
+			wp_send_json_error();
+			exit;
+		}
+
+		// Create the external connection, and return the post ID.
+		$post = wp_insert_post(
+			array(
+				'post_title' => sanitize_text_field( wp_unslash( $_POST['title'] ) ),
+				'post_type'  => 'dt_ext_connection',
+			)
+		);
+
+		if ( is_wp_error( $post ) || 0 === $post ) {
+			wp_send_json_error();
+			exit;
+		}
+
+		// Set the connection type.
+		update_post_meta( $post, 'dt_external_connection_type', 'wpdotcom' );
+
+		// Send su
+		wp_send_json_success( array( 'id' => $post ), 201 );
+	}
 
 /**
  * Set screen option for posts per page
@@ -184,6 +219,7 @@ function admin_enqueue_scripts( $hook ) {
 				'cancel'                    => esc_html__( 'Cancel', 'distributor' ),
 				'no_distributor'            => esc_html__( 'Distributor not installed on remote site.', 'distributor' ),
 				'roles_warning'             => esc_html__( 'Be careful assigning less trusted roles push privileges as they will inherit the capabilities of the user on the remote site.', 'distributor' ),
+				'admin_url'                 => admin_url(),
 			)
 		);
 

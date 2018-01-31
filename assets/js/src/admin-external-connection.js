@@ -177,9 +177,65 @@
 		}
 	} );
 
+
+	/**
+	 *
+	 * Code for WordPress.com Oauth2 Authentication.
+	 *
+	 */
 	// On load for WordPress.com Oauth authentication, hide fields until authentication is complete.
 	if ( 'wpdotcom' === $( externalConnectionTypeField ).val() ) {
 		hideItemsRequiringAuth();
+	}
+
+	var beginAuthorize = document.getElementById( 'begin-authorization' );
+
+	if ( beginAuthorize ) {
+
+		// Handle click to the wpdotcom begin-authorization button.
+		$( document ).on( 'click', 'button#begin-authorization', function( event ) {
+				var $titleEl = $( document.getElementById( 'title' ) ),
+					title = $titleEl.val();
+
+				if ( '' === title ) {
+
+					// Highlight the blank title field, title is required.
+					$titleEl.addClass( 'error-required' );
+				} else {
+
+					// Disable the button during the ajax request.
+					$( beginAuthorize ).addClass( 'disabled' );
+					// remove any error highlighting.
+					$titleEl.removeClass( 'error-required' );
+					$.ajax(
+						{
+							url: ajaxurl,
+							method: 'post',
+							data: {
+								nonce: dt.nonce,
+								action: 'dt_begin_authorization',
+								title: title
+							}
+						}
+					).done(
+						function( response ) {
+
+							if ( response.success && response.data.id ) {
+
+								// The post has been saved, update the url in case the user refreshes.
+								var url = dt.admin_url + 'post.php?post=' + response.data.id  + '&action=edit';
+								history.pushState( {}, 'Oauth Authorize Details', url );
+
+								$( '.oauth_begin_authentication_wrapper' ).hide();
+								$( '.oauth_authentication_details_wrapper' ).show();
+
+							}
+						}
+					).always( function() {
+						$( beginAuthorize ).removeClass( 'disabled' );
+					} );
+				}
+		} );
 	}
 
 	$( externalConnectionMetaBox ).on(

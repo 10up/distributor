@@ -175,3 +175,7 @@
 	color: green;
 	font-weight: bold;
 }
+
+input[type="text"].error-required {
+	border: 2px solid red;
+}
