@@ -187,12 +187,32 @@
 		hideItemsRequiringAuth();
 	}
 
-	var beginAuthorize = document.getElementById( 'begin-authorization' );
 
+	// Handle the changeCredentials link.
+	var changeCredentials = document.getElementById( 'oauth-authentication-change-credentials' );
+	if ( changeCredentials ) {
+		$( changeCredentials ).on( 'click', function() {
+
+			// Show the credentials fields.
+			$( '.oauth-authentication-details-wrapper' ).show();
+
+			// Clear the secret field.
+			$( document.getElementById( 'dt_client_secret' ) ).val( '' );
+
+			// Remove the authorized message.
+			$( '.oauth-connection-established' ).remove();
+
+			// Hide the remaining fields that only show after authorization is complete.
+			hideItemsRequiringAuth();
+		} );
+	}
+
+	// Handle the Authorize Connection button.
+	var beginAuthorize = document.getElementById( 'begin-authorization' );
 	if ( beginAuthorize ) {
 
 		// Handle click to the wpdotcom begin-authorization button.
-		$( document ).on( 'click', 'button#begin-authorization', function( event ) {
+		$( beginAuthorize ).on( 'click', function( event ) {
 				var $titleEl = $( document.getElementById( 'title' ) ),
 					title = $titleEl.val();
 
@@ -204,7 +224,8 @@
 
 					// Disable the button during the ajax request.
 					$( beginAuthorize ).addClass( 'disabled' );
-					// remove any error highlighting.
+
+					// Remove any error highlighting.
 					$titleEl.removeClass( 'error-required' );
 					$.ajax(
 						{
@@ -225,7 +246,7 @@
 								var url = dt.admin_url + 'post.php?post=' + response.data.id  + '&action=edit';
 								history.pushState( {}, 'Oauth Authorize Details', url );
 
-								$( '.oauth_begin_authentication_wrapper' ).hide();
+								$( '.oauth-begin-authentication-wrapper' ).hide();
 								$( '.oauth_authentication_details_wrapper' ).show();
 
 							} else {
