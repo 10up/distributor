@@ -75,7 +75,7 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 			 * and we need to save to generate a post id we can redirect back to before continuing.
 			 */
 			?>
-			<p class='oauth_begin_authentication_wrapper<?php echo ( ! $is_adding ? ' hidden' : '' ); ?>'>
+			<p class='oauth-begin-authentication-wrapper<?php echo ( ! $is_adding ? ' hidden' : '' ); ?>'>
 			<button name="save" type="button" class="button button-primary button-large" id="begin-authorization"><?php esc_attr_e( 'Authorize Connection', 'distributor' ); ?></button>
 			</p>
 			<?php
@@ -83,7 +83,7 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 
 		} else {
 		?>
-		<div id="message" class="oauth-connection-established"><p><span class="message-header">&#10003<?php esc_html_e( 'Connection Authorized', 'distributor' ); ?></span><br/><a href="<?php echo esc_url( $redirect_uri . '&updatecredentials=1' ); ?>"><?php esc_html_e( 'Update/change credentials.', 'distributor' ); ?></a></p></div>
+		<div id="message" class="oauth-connection-established"><p><span class="message-header">&#10003<?php esc_html_e( 'Connection Authorized', 'distributor' ); ?></span><br/><a id="oauth-authentication-change-credentials" href="#"><?php esc_html_e( 'Update/change credentials.', 'distributor' ); ?></a></p></div>
 		<?php
 			self::credentials_partial( $args, true );
 		?>
@@ -107,7 +107,7 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 		$client_secret = isset( $args[ self::API_CLIENT_SECRET ] ) ? $args[ self::API_CLIENT_SECRET ] : '';
 		$redirect_uri  = isset( $args[ self::API_REDIRECT_URI ] ) ? $args[ self::API_REDIRECT_URI ] : '';
 	?>
-			<div class="oauth_authentication_details_wrapper<?php echo ( $hidden ? ' hidden' : '' ); ?>">
+			<div class="oauth-authentication-details-wrapper<?php echo ( $hidden ? ' hidden' : '' ); ?>">
 				<h3 >
 					<?php esc_html_e( 'WordPress.com Application Client ID and Client Secret: ', 'distributor' ); ?>
 				</h3>
