@@ -49,8 +49,9 @@ function setup() {
 		// Create the external connection, and return the post ID.
 		$post = wp_insert_post(
 			array(
-				'post_title' => sanitize_text_field( wp_unslash( $_POST['title'] ) ),
-				'post_type'  => 'dt_ext_connection',
+				'post_title'  => sanitize_text_field( wp_unslash( $_POST['title'] ) ),
+				'post_type'   => 'dt_ext_connection',
+				'post_status' => 'publish',
 			)
 		);
 
