@@ -246,6 +246,8 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 			return;
 		}
 
+		$access_token = isset( $current_values[ self::ACCESS_TOKEN_KEY ] ) ? $current_values[ self::ACCESS_TOKEN_KEY ] : '';
+
 		if (
 			empty( $access_token ) ||
 			$current_values[ self::API_CLIENT_ID ] !== $args[ self::API_CLIENT_ID ] ||
@@ -254,7 +256,6 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 			update_post_meta( $external_connection_id, 'dt_external_connection_auth', $args );
 			self::get_authorization_code();
 		} else {
-		$access_token = isset( $current_values[ self::ACCESS_TOKEN_KEY ] ) ? $current_values[ self::ACCESS_TOKEN_KEY ] : '';
 			$args[ self::ACCESS_TOKEN_KEY ] = $access_token;
 			update_post_meta( $external_connection_id, 'dt_external_connection_auth', $args );
 		}
