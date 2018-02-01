@@ -1,4 +1,4 @@
-## Authenticating the the WordPress.com REST API.
+## Authenticating with the WordPress.com REST API.
 
 Distributor enables connecting to websites hosted on the WordPress.com platform including WordPress VIP (Classic) via [Oauth2](https://developer.wordpress.com/docs/oauth2/).
 
