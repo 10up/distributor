@@ -151,9 +151,8 @@
 	 * Creates a cleaner flow for authorization by separating the authorization steps.
 	 */
 	var hideItemsRequiringAuth = function() {
-		dt_client_id = document.getElementById( 'dt_client_id' );
-		dt_client_secret = document.getElementById( 'dt_client_secret' );
-		if ( ! dt_client_id || '' === dt_client_id.value || '' === dt_client_secret.value ) {
+		oauthconnectionestablished = document.getElementsByClassName( 'oauth-connection-established' );
+		if ( 0 === oauthconnectionestablished.length ) {
 			$( '.hide-until-authed' ).hide();
 		}
 	}
@@ -229,6 +228,8 @@
 								$( '.oauth_begin_authentication_wrapper' ).hide();
 								$( '.oauth_authentication_details_wrapper' ).show();
 
+							} else {
+								// @todo handle errors.
 							}
 						}
 					).always( function() {
