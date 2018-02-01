@@ -51,6 +51,7 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 			'?' .
 			sanitize_text_field( isset( $_SERVER['QUERY_STRING'] ) ? $_SERVER['QUERY_STRING'] : '' ) // WPCS: input var ok.
 		);
+		$args[ self::API_REDIRECT_URI ] = $redirect_uri;
 		if (
 			$update_credentials ||
 			! $is_valid_token && (
@@ -65,7 +66,9 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 			<p>
 			<?php esc_html_e( 'WordPress.com/WordPress VIP use', 'distributor' ); ?> <a href="https://developer.wordpress.com/docs/oauth2/"><?php esc_html_e( 'Oauth2 authentication', 'distributor' ); ?>.</a>
 			<?php esc_html_e( 'To connect, first ', 'distributor' ); ?>
-			<a href="https://developer.wordpress.com/apps/"><?php esc_html_e( 'create an application with the WordPress.com applications manager', 'distributor' ); ?></a>.
+			<a href="https://developer.wordpress.com/apps/"><?php esc_html_e( 'create an application with the WordPress.com applications manager', 'distributor' ); ?></a>.<br />
+			<?php esc_html_e( 'Use the following redirect URL when creating your application: ', 'distributor' ); ?>
+			<strong><?php echo esc_url( admin_url( 'post.php' ) ); ?></strong>
 			</p>
 			<?php
 			/**
@@ -76,33 +79,59 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 			<p class='oauth_begin_authentication_wrapper<?php echo ( ! $is_adding ? ' hidden' : '' ); ?>'>
 			<button name="save" type="button" class="button button-primary button-large" id="begin-authorization"><?php esc_attr_e( 'Begin Authorization', 'distributor' ); ?></button>
 			</p>
-			<div class="oauth_authentication_details_wrapper<?php echo ( $is_adding ? ' hidden' : '' ); ?>">
-				<p>
-					<label for="dt_client_id"><?php esc_html_e( 'Client ID', 'distributor' ); ?></label><br>
-					<input type="text" name="dt_external_connection_auth[client_id]" data-auth-field="client_id" value="<?php echo esc_attr( $client_id ); ?>" class="widefat auth-field" id="dt_client_id">
-				</p>
-				<p>
-					<label for="dt_client_secret"><?php esc_html_e( 'Client Secret', 'distributor' ); ?></label><br>
-					<input type="password" name="dt_external_connection_auth[client_secret]" data-auth-field="client_secret" value="<?php echo esc_attr( $client_secret ); ?>" class="widefat auth-field" id="dt_client_secret">
-				</p>
-					<input type="hidden" name="dt_external_connection_auth[redirect_uri]" data-auth-field="redirect_uri" value="<?php echo esc_attr( $redirect_uri ); ?>" class="widefat  auth-field" id="dt_redirect_uri">
-				<input name="save" type="submit" class="button button-primary button-large" id="create-connection" value="<?php esc_attr_e( 'Authenticate Connection', 'distributor' ); ?>">
-			</div>
 			<?php
+			self::credentials_partial( $args, $is_adding );
 
 		} else {
 		?>
-		<div id="message" class="oauth-connection-established"><p><span class="message-header">&#10003<?php esc_html_e( 'Connection Established', 'distributor' ); ?></span><br/><a href="<?php echo esc_url( $redirect_uri . '&updatecredentials=1' ); ?>"><?php esc_html_e( 'Update credentials', 'distributor' ); ?></a></p></div>
-		<input type="hidden" name="dt_external_connection_auth[client_id]" data-auth-field="client_id" value="<?php echo esc_attr( $client_id ); ?>" class="widefat auth-field" id="dt_client_id">
-		<input type="hidden" name="dt_external_connection_auth[client_secret]" data-auth-field="client_secret" value="<?php echo esc_attr( $client_secret ); ?>" class="widefat auth-field" id="dt_client_secret">
-		<input type="hidden" name="dt_external_connection_auth[redirect_uri]" data-auth-field="redirect_uri" value="<?php echo esc_attr( $redirect_uri ); ?>" class="widefat  auth-field" id="dt_redirect_uri">
-
+		<div id="message" class="oauth-connection-established"><p><span class="message-header">&#10003<?php esc_html_e( 'Connection Established', 'distributor' ); ?></span><br/><a href="<?php echo esc_url( $redirect_uri . '&updatecredentials=1' ); ?>"><?php esc_html_e( 'Update/change credentials.', 'distributor' ); ?></a></p></div>
+		<?php
+			self::credentials_partial( $args, true );
+		?>
 		<script type="text/javascript">
 			// Remove the code credentials from the URL to prevent refresh from initiating a new flow.
 			window.history.replaceState( {}, window.location.title, window.location.href.split( '&code=' )[0] ) ;
 		</script>
 		<?php
 		}
+	}
+
+	/**
+	 * Helper function to output the credentials section of the authorization form.
+	 *
+	 * @param array   $args        The authentication arguments.
+	 * @param boolean $hidden      Should the entire section be hidden?
+	 */
+	static function credentials_partial( $args, $hidden = false ) {
+
+		// Validate $args.
+		if (
+			! isset( $args[ self::API_CLIENT_ID ] ) ||
+			! isset( $args[ self::API_CLIENT_SECRET ] ) ||
+			! isset( $args[ self::API_REDIRECT_URI ] )
+		) {
+			return;
+		}
+
+		$client_id     = $args[ self::API_CLIENT_ID ];
+		$client_secret = $args[ self::API_CLIENT_SECRET ];
+		$redirect_uri  = $args[ self::API_REDIRECT_URI ];
+	?>
+			<div class="oauth_authentication_details_wrapper<?php echo ( $hidden ? ' hidden' : '' ); ?>">
+				<h3 >
+					<?php esc_html_e( 'Enter the Client ID and secret from your application: ', 'distributor' ); ?>
+				</h3>
+				<p>
+					<label for="dt_client_id"><?php esc_html_e( 'Client ID', 'distributor' ); ?></label><br>
+					<input type="text" name="dt_external_connection_auth[client_id]" data-auth-field="client_id" value="<?php echo esc_attr( $client_id ); ?>" class="widefat auth-field" id="dt_client_id">
+
+					<label for="dt_client_secret"><?php esc_html_e( 'Client Secret', 'distributor' ); ?></label><br>
+					<input type="password" name="dt_external_connection_auth[client_secret]" data-auth-field="client_secret" value="<?php echo esc_attr( $client_secret ); ?>" class="widefat auth-field" id="dt_client_secret">
+				</p>
+					<input type="hidden" name="dt_external_connection_auth[redirect_uri]" data-auth-field="redirect_uri" value="<?php echo esc_attr( $redirect_uri ); ?>" class="widefat  auth-field" id="dt_redirect_uri">
+				<input name="save" type="submit" class="button button-primary button-large" id="create-connection" value="<?php esc_attr_e( 'Authorize Connection with WordPress.com', 'distributor' ); ?>">
+			</div>
+	<?php
 	}
 
 	/**
