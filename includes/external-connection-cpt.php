@@ -36,6 +36,11 @@ function setup() {
 			exit;
 		}
 
+		if ( ! current_user_can( 'edit_posts' ) ) {
+			wp_send_json_error();
+			exit;
+		}
+
 		if ( empty( $_POST['title'] ) ) {
 			wp_send_json_error();
 			exit;
