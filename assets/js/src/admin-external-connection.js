@@ -150,12 +150,14 @@
 	 *
 	 * Creates a cleaner flow for authorization by separating the authorization steps.
 	 */
-	var hideItemsRequiringAuth = function() {
-		oauthconnectionestablished = document.getElementsByClassName( 'oauth-connection-established' );
-		if ( 0 === oauthconnectionestablished.length ) {
-			$( '.hide-until-authed' ).hide();
-		}
-	}
+	var $hideUntilAuthed = $( '.hide-until-authed' ),
+		$authCredentials = $( '.auth-credentials' ),
+		hideItemsRequiringAuth = function() {
+			oauthconnectionestablished = document.getElementsByClassName( 'oauth-connection-established' );
+			if ( 0 === oauthconnectionestablished.length ) {
+				$hideUntilAuthed.hide();
+			}
+		};
 
 	/**
 	 * When the External connection type drop-down is changed, show the corresponding authorization fields.
@@ -163,7 +165,7 @@
 	$( externalConnectionTypeField ).on( 'change', function( event ) {
 		var slug = externalConnectionTypeField.value;
 
-		$( '.auth-credentials' ).hide();
+		$authCredentials.hide();
 		$( '.auth-credentials.' + slug ).show();
 
 		// For WordPress.com Oauth authentication, hide fields until authentication is complete.
@@ -172,7 +174,7 @@
 		} else {
 
 			// Otherwise, ensure all areas are showing.
-			$( '.hide-until-authed' ).show()
+			$hideUntilAuthed.show()
 		}
 	} );
 
@@ -190,11 +192,14 @@
 
 	// Handle the changeCredentials link.
 	var changeCredentials = document.getElementById( 'oauth-authentication-change-credentials' );
+	$authenticationDetailsWrapper = $( '.oauth-authentication-details-wrapper' );
+
 	if ( changeCredentials ) {
+
 		$( changeCredentials ).on( 'click', function() {
 
 			// Show the credentials fields.
-			$( '.oauth-authentication-details-wrapper' ).show();
+			$authenticationDetailsWrapper.show();
 
 			// Clear the secret field.
 			$( document.getElementById( 'dt_client_secret' ) ).val( '' );
@@ -213,7 +218,7 @@
 
 		// Handle click to the wpdotcom begin-authorization button.
 		$( beginAuthorize ).on( 'click', function( event ) {
-				var $titleEl = $( document.getElementById( 'title' ) ),
+				var $titleEl = $( titleField ),
 					title = $titleEl.val();
 
 				// Ensure the connection title is not blank.
@@ -253,7 +258,7 @@
 
 							// Hide the first step and show the authentication details.
 							$( '.oauth-begin-authentication-wrapper' ).hide();
-							$( '.oauth-authentication-details-wrapper' ).show();
+							$authenticationDetailsWrapper.show();
 						} else {
 							// @todo handle errors.
 						}
