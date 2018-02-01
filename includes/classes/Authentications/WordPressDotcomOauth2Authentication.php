@@ -208,9 +208,6 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 	public static function store_credentials( $external_connection_id, $args ) {
 
 		$current_values = get_post_meta( $external_connection_id, 'dt_external_connection_auth', true );
-		$access_token   = isset( $current_values[ self::ACCESS_TOKEN_KEY ] ) ? $current_values[ self::ACCESS_TOKEN_KEY ] : '';
-		$args[ self::ACCESS_TOKEN_KEY ] = $access_token;
-		update_post_meta( $external_connection_id, 'dt_external_connection_auth', $args );
 
 		// Don't attempt to authorize blank values.
 		if (
@@ -227,7 +224,12 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 			$current_values[ self::API_CLIENT_ID ] !== $args[ self::API_CLIENT_ID ] ||
 			$current_values[ self::API_CLIENT_SECRET ] !== $args[ self::API_CLIENT_SECRET ]
 		) {
+			update_post_meta( $external_connection_id, 'dt_external_connection_auth', $args );
 			self::get_authorization_code();
+		} else {
+		$access_token = isset( $current_values[ self::ACCESS_TOKEN_KEY ] ) ? $current_values[ self::ACCESS_TOKEN_KEY ] : '';
+			$args[ self::ACCESS_TOKEN_KEY ] = $access_token;
+			update_post_meta( $external_connection_id, 'dt_external_connection_auth', $args );
 		}
 	}
 
