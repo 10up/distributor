@@ -212,6 +212,16 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 		$args[ self::ACCESS_TOKEN_KEY ] = $access_token;
 		update_post_meta( $external_connection_id, 'dt_external_connection_auth', $args );
 
+		// Don't attempt to authorize blank values.
+		if (
+			! isset( $args[ self::API_CLIENT_ID ] ) ||
+			'' === $args[ self::API_CLIENT_ID ] ||
+			! isset( $args[ self::API_CLIENT_SECRET ] ) ||
+			'' === $args[ self::API_CLIENT_SECRET ]
+		) {
+			return;
+		}
+
 		if (
 			empty( $access_token ) ||
 			$current_values[ self::API_CLIENT_ID ] !== $args[ self::API_CLIENT_ID ] ||
