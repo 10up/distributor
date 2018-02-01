@@ -146,6 +146,7 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 					<input type="password" name="dt_external_connection_auth[client_secret]" data-auth-field="client_secret" value="<?php echo esc_attr( $client_secret ); ?>" class="regular-text auth-field" id="dt_client_secret">
 				</p>
 					<input type="hidden" name="dt_external_connection_auth[redirect_uri]" data-auth-field="redirect_uri" value="<?php echo esc_attr( $redirect_uri ); ?>" class="regular-text  auth-field" id="dt_redirect_uri">
+					<input type="hidden" id="dt_created_post_id" name="dt_external_connection_auth[dt_created_post_id]">
 				<input name="save" type="submit" class="button button-primary button-large" id="create-connection" value="<?php esc_attr_e( 'Authorize Connection with WordPress.com', 'distributor' ); ?>">
 			</div>
 	<?php
@@ -220,6 +221,10 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 			$auth[ self::API_REDIRECT_URI ] = sanitize_text_field( $args['redirect_uri'] );
 		}
 
+		if ( ! empty( $args['dt_created_post_id'] ) ) {
+			$auth[ 'dt_created_post_id' ] = sanitize_text_field( $args['dt_created_post_id'] );
+		}
+
 		return apply_filters( 'dt_auth_prepare_credentials', $auth, $args, self::$slug );
 	}
 
@@ -247,14 +252,15 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 		}
 
 		$access_token = isset( $current_values[ self::ACCESS_TOKEN_KEY ] ) ? $current_values[ self::ACCESS_TOKEN_KEY ] : '';
-
+		$created_id = isset( $args['dt_created_post_id'] ) ? $args['dt_created_post_id'] : false;
+		$args['dt_created_post_id'] = false;
 		if (
 			empty( $access_token ) ||
 			$current_values[ self::API_CLIENT_ID ] !== $args[ self::API_CLIENT_ID ] ||
 			$current_values[ self::API_CLIENT_SECRET ] !== $args[ self::API_CLIENT_SECRET ]
 		) {
-			update_post_meta( $external_connection_id, 'dt_external_connection_auth', $args );
-			self::get_authorization_code();
+			update_post_meta( $created_id ? $created_id : $external_connection_id, 'dt_external_connection_auth', $args );
+			self::get_authorization_code( $args );
 		} else {
 			$args[ self::ACCESS_TOKEN_KEY ] = $access_token;
 			update_post_meta( $external_connection_id, 'dt_external_connection_auth', $args );
@@ -380,12 +386,8 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 	 * @since 1.1.0
 	 *
 	 */
-	public static function get_authorization_code() {
+	public static function get_authorization_code( $options ) {
 
-		$options = self::get_authentication_options();
-		if ( ! $options ) {
-			return false;
-		}
 
 		$client_id    = $options[ self::API_CLIENT_ID ];
 		$redirect_uri = $options[ self::API_REDIRECT_URI ];

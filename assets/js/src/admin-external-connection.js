@@ -247,8 +247,9 @@
 							var url = dt.admin_url + 'post.php?post=' + response.data.id  + '&action=edit';
 							history.pushState( {}, 'Oauth Authorize Details', url );
 
-							// Update the form field for dt_redirect_uri.
+							// Update the form field for dt_redirect_uri and post id.
 							$( document.getElementById( 'dt_redirect_uri' ) ).val( url );
+							$( document.getElementById( 'dt_created_post_id' ) ).val( response.data.id );
 
 							// Hide the first step and show the authentication details.
 							$( '.oauth-begin-authentication-wrapper' ).hide();
