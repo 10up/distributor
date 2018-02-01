@@ -216,6 +216,7 @@
 				var $titleEl = $( document.getElementById( 'title' ) ),
 					title = $titleEl.val();
 
+				// Ensure the connection title is not blank.
 				if ( '' === title ) {
 
 					// Highlight the blank title field, title is required.
@@ -227,6 +228,8 @@
 
 					// Remove any error highlighting.
 					$titleEl.removeClass( 'error-required' );
+
+					// Make an ajax request to save the connection and retrieve the resulting post id.
 					$.ajax(
 						{
 							url: ajaxurl,
@@ -237,23 +240,22 @@
 								title: title
 							}
 						}
-					).done(
-						function( response ) {
+					).done( function( response ) {
+						if ( response.success && response.data.id ) {
 
-							if ( response.success && response.data.id ) {
+							// The post has been saved, update the url in case the user refreshes.
+							var url = dt.admin_url + 'post.php?post=' + response.data.id  + '&action=edit';
+							history.pushState( {}, 'Oauth Authorize Details', url );
 
-								// The post has been saved, update the url in case the user refreshes.
-								var url = dt.admin_url + 'post.php?post=' + response.data.id  + '&action=edit';
-								history.pushState( {}, 'Oauth Authorize Details', url );
-
-								$( '.oauth-begin-authentication-wrapper' ).hide();
-								$( '.oauth_authentication_details_wrapper' ).show();
-
-							} else {
-								// @todo handle errors.
-							}
+							// Hide the first step and show the authentication details.
+							$( '.oauth-begin-authentication-wrapper' ).hide();
+							$( '.oauth-authentication-details-wrapper' ).show();
+						} else {
+							// @todo handle errors.
 						}
-					).always( function() {
+					} ).complete( function() {
+
+						// Ensure the
 						$( beginAuthorize ).removeClass( 'disabled' );
 					} );
 				}

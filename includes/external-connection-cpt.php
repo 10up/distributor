@@ -28,7 +28,7 @@ function setup() {
 }
 
 	/**
-	 * Save the external connection, returning the post ID so the auth process can continue
+	 * Save the external connection, returning the post ID so the authorization process can continue.
 	 */
 	function ajax_begin_authorization() {
 		if ( ! check_ajax_referer( 'dt-verify-ext-conn', 'nonce', false ) ) {
@@ -60,10 +60,10 @@ function setup() {
 			exit;
 		}
 
-		// Set the connection type.
+		// Set the connection type for the newly created connection
 		update_post_meta( $post, 'dt_external_connection_type', 'wpdotcom' );
 
-		// Send su
+		// Send back the id of the created post with a 201 "Created" status.
 		wp_send_json_success( array( 'id' => $post ), 201 );
 	}
 
