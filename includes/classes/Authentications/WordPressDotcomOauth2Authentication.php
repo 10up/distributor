@@ -104,18 +104,9 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 	 */
 	static function credentials_partial( $args, $hidden = false ) {
 
-		// Validate $args.
-		if (
-			! isset( $args[ self::API_CLIENT_ID ] ) ||
-			! isset( $args[ self::API_CLIENT_SECRET ] ) ||
-			! isset( $args[ self::API_REDIRECT_URI ] )
-		) {
-			return;
-		}
-
-		$client_id     = $args[ self::API_CLIENT_ID ];
-		$client_secret = $args[ self::API_CLIENT_SECRET ];
-		$redirect_uri  = $args[ self::API_REDIRECT_URI ];
+		$client_id     = isset( $args[ self::API_CLIENT_ID ] ) ? $args[ self::API_CLIENT_ID ] : '';
+		$client_secret = isset( $args[ self::API_CLIENT_SECRET ] ) ? $args[ self::API_CLIENT_SECRET ] : '';
+		$redirect_uri  = isset( $args[ self::API_REDIRECT_URI ] ) ? $args[ self::API_REDIRECT_URI ] : '';
 	?>
 			<div class="oauth_authentication_details_wrapper<?php echo ( $hidden ? ' hidden' : '' ); ?>">
 				<h3 >
@@ -199,6 +190,10 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 			$auth[ self::API_REDIRECT_URI ] = sanitize_text_field( $args['redirect_uri'] );
 		}
 
+		if ( ! empty( $args['redirect_uri'] ) ) {
+			$auth[ self::API_REDIRECT_URI ] = sanitize_text_field( $args['redirect_uri'] );
+		}
+
 		return apply_filters( 'dt_auth_prepare_credentials', $auth, $args, self::$slug );
 	}
 
@@ -214,12 +209,14 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 	public static function store_credentials( $external_connection_id, $args ) {
 
 		$current_values = get_post_meta( $external_connection_id, 'dt_external_connection_auth', true );
-		$access_token   = get_post_meta( $external_connection_id, 'dt_external_connection_auth_access_token', true );
+		$access_token   = isset( $current_values[ self::ACCESS_TOKEN_KEY ] ) ? $current_values[ self::ACCESS_TOKEN_KEY ] : '';
+		$args[ self::ACCESS_TOKEN_KEY ] = $access_token;
 		update_post_meta( $external_connection_id, 'dt_external_connection_auth', $args );
 
 		if (
 			empty( $access_token ) ||
-			! empty( array_diff( $current_values, $args ) )
+			$current_values[ self::API_CLIENT_ID ] !== $args[ self::API_CLIENT_ID ] ||
+			$current_values[ self::API_CLIENT_SECRET ] !== $args[ self::API_CLIENT_SECRET ]
 		) {
 			self::get_authorization_code();
 		}
