@@ -207,6 +207,21 @@
 		hideItemsRequiringAuth();
 	}
 
+	// When authorization is initiated, ensure fields are non-empty.
+	var createConnectionButton = document.getElementById( 'create-oauth-connection' );
+	if ( createConnectionButton ) {
+		$( createConnectionButton ).on( 'click', function( event ) {
+			var validateClientSecret = validateField( $clientSecret ),
+				validateClientId     = validateField( $clientId )
+			if (
+				! validateClientSecret ||
+				! validateClientId
+			) {
+					event.preventDefault();
+					return false;
+				}
+		} );
+	}
 
 	// Handle the changeCredentials link.
 	var changeCredentials = document.getElementById( 'oauth-authentication-change-credentials' );
