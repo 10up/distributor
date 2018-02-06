@@ -147,7 +147,7 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 				</p>
 					<input type="hidden" name="dt_external_connection_auth[redirect_uri]" data-auth-field="redirect_uri" value="<?php echo esc_attr( $redirect_uri ); ?>" class="regular-text  auth-field" id="dt_redirect_uri">
 					<input type="hidden" id="dt_created_post_id" name="dt_external_connection_auth[dt_created_post_id]">
-				<input name="save" type="submit" class="button button-primary button-large" id="create-connection" value="<?php esc_attr_e( 'Authorize Connection with WordPress.com', 'distributor' ); ?>">
+				<input name="save" type="submit" class="button button-primary button-large" id="create-oauth-connection" value="<?php esc_attr_e( 'Authorize Connection with WordPress.com', 'distributor' ); ?>">
 			</div>
 	<?php
 	}
