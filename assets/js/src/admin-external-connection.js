@@ -255,11 +255,7 @@
 					title = $titleEl.val();
 
 				// Ensure the connection title is not blank.
-				if ( '' === title ) {
-
-					// Highlight the blank title field, title is required.
-					$titleEl.addClass( 'error-required' );
-				} else {
+				if ( ! validateField( $titleEl ) ) {
 
 					// Disable the button during the ajax request.
 					$( beginAuthorize ).addClass( 'disabled' );
