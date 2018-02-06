@@ -176,6 +176,7 @@
 	font-weight: bold;
 }
 
-input[type="text"].error-required {
+input[type="text"].error-required,
+input[type="password"].error-required {
 	border: 2px solid red;
 }
