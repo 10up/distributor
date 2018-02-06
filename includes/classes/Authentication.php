@@ -12,6 +12,8 @@ use \Distributor\ExternalConnection as ExternalConnection;
  */
 abstract class Authentication {
 
+	static $error_message;
+
 	/**
 	 * Set associative arguments as instance variables
 	 *
@@ -79,6 +81,20 @@ abstract class Authentication {
 	 * @param string $error_message The error message to log.
 	 */
 	public static function log_authentication_error( $error_message ) {
+
+		// Store the message for output at the top of the authorization form
+		self::$error_message = $error_message;
+		add_action( 'auth_admin_notices', function() {
+		?>
+		<div class="notice notice-error is-dismissible">
+			<p>
+				<strong>
+					<?php esc_html_e( 'Authorization error:', 'distributor' )?>
+				</strong> <?php echo esc_html( self::$error_message ); ?>
+			</p>
+		</div>
+		<?php
+		} );
 		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 			$time = date( '[d/M/Y:H:i:s]' );
 			// @codingStandardsIgnoreLine - error_log is only used when WP_DEBUG is true.
