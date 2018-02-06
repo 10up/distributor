@@ -93,7 +93,7 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 			 */
 			?>
 			<p class='oauth-begin-authentication-wrapper<?php echo ( ! $adding_new_connection ? ' hidden' : '' ); ?>'>
-			<button name="save" type="button" class="button button-primary button-large" id="begin-authorization"><?php esc_attr_e( 'Authorize Connection', 'distributor' ); ?></button>
+			<button name="save" type="button" class="button button-primary button-large" id="begin-authorization"><?php esc_attr_e( 'Start Setup', 'distributor' ); ?></button>
 			</p>
 			<?php
 
