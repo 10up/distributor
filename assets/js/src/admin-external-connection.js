@@ -235,7 +235,7 @@
 			$authenticationDetailsWrapper.show();
 
 			// Clear the secret field.
-			$( document.getElementById( 'dt_client_secret' ) ).val( '' );
+			$clientSecret.val( '' );
 
 			// Remove the authorized message.
 			$( '.oauth-connection-established' ).remove();
