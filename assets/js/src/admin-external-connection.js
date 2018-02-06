@@ -166,7 +166,7 @@
 		 *
 		 * @param  {jQuery DomElement} $field The field to check.
 		 */
-		validateField = function( $field ) {
+		validateField = function( $field, event ) {
 			if ( '' === $field.val() ) {
 				event.preventDefault();
 				$field.addClass( 'error-required' );
@@ -211,8 +211,8 @@
 	var createConnectionButton = document.getElementById( 'create-oauth-connection' );
 	if ( createConnectionButton ) {
 		$( createConnectionButton ).on( 'click', function( event ) {
-			var validateClientSecret = validateField( $clientSecret ),
-				validateClientId     = validateField( $clientId )
+			var validateClientSecret = validateField( $clientSecret, event ),
+				validateClientId     = validateField( $clientId, event )
 			if (
 				! validateClientSecret ||
 				! validateClientId
@@ -255,7 +255,7 @@
 					title = $titleEl.val();
 
 				// Ensure the connection title is not blank.
-				if ( ! validateField( $titleEl ) ) {
+				if ( validateField( $titleEl, event ) ) {
 
 					// Disable the button during the ajax request.
 					$( beginAuthorize ).addClass( 'disabled' );
