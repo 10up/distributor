@@ -106,7 +106,7 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 		} else {
 		// The connection is already authorized and we have a valid token. Show the green connection status and
 		?>
-		<div id="message" class="oauth-connection-established"><p><span class="message-header">&#10003<?php esc_html_e( 'Connection Authorized', 'distributor' ); ?></span><br/><a id="oauth-authentication-change-credentials" href="#"><?php esc_html_e( 'Change credentials.', 'distributor' ); ?></a></p></div>
+		<div id="message" class="oauth-connection-established"><p><span class="message-header">&#10003 <?php esc_html_e( 'Connection Authorized', 'distributor' ); ?></span><br/><a id="oauth-authentication-change-credentials" href="#"><?php esc_html_e( 'Change credentials.', 'distributor' ); ?></a></p></div>
 		<?php
 			// Render the credentials field in a hidden div so they can be shown when clicking 'Change credentials'.
 			self::credentials_partial( $args, true );
