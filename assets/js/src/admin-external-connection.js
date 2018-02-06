@@ -152,12 +152,30 @@
 	 */
 	var $hideUntilAuthed = $( '.hide-until-authed' ),
 		$authCredentials = $( '.auth-credentials' ),
+		$clientSecret    = $( document.getElementById( 'dt_client_secret' ) ),
+		$clientId        = $( document.getElementById( 'dt_client_id' ) ),
 		hideItemsRequiringAuth = function() {
 			oauthconnectionestablished = document.getElementsByClassName( 'oauth-connection-established' );
 			if ( 0 === oauthconnectionestablished.length ) {
 				$hideUntilAuthed.hide();
 			}
-		};
+		},
+
+		/**
+		 * Validate a form field, ensuring it is non-empty. Add an error class if empty.
+		 *
+		 * @param  {jQuery DomElement} $field The field to check.
+		 */
+		validateField = function( $field ) {
+			if ( '' === $field.val() ) {
+				event.preventDefault();
+				$field.addClass( 'error-required' );
+				return false;
+			} else {
+				$field.removeClass( 'error-required' );
+			}
+			return true;
+		}
 
 	/**
 	 * When the External connection type drop-down is changed, show the corresponding authorization fields.
