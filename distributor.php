@@ -101,7 +101,14 @@ add_action(
 		\Distributor\Connections::factory()->register( '\Distributor\ExternalConnections\WordPressExternalConnection' );
 		\Distributor\Connections::factory()->register( '\Distributor\ExternalConnections\WordPressDotcomExternalConnection' );
 
-		if ( ! \Distributor\Utils\is_vip_com() ) {
+		if (
+			! \Distributor\Utils\is_vip_com() &&
+
+			/**
+			 * Filter whether the network connection type is enabled. Enabled by default, return false to disable.
+			 */
+			apply_filters( 'dt_network_site_connection_enabled', true );
+		) {
 			\Distributor\Connections::factory()->register( '\Distributor\InternalConnections\NetworkSiteConnection' );
 		}
 	}, 1
