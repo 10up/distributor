@@ -107,7 +107,7 @@ add_action(
 			/**
 			 * Filter whether the network connection type is enabled. Enabled by default, return false to disable.
 			 */
-			apply_filters( 'dt_network_site_connection_enabled', true );
+			apply_filters( 'dt_network_site_connection_enabled', true )
 		) {
 			\Distributor\Connections::factory()->register( '\Distributor\InternalConnections\NetworkSiteConnection' );
 		}
