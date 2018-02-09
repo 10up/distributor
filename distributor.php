@@ -93,6 +93,10 @@ require_once __DIR__ . '/includes/subscriptions.php';
 require_once __DIR__ . '/includes/syndicated-post-ui.php';
 require_once __DIR__ . '/includes/distributed-post-ui.php';
 
+if ( \Distributor\Utils\is_vip_com() ) {
+	add_filter( 'dt_network_site_connection_enabled', '__return_false', 9 );
+}
+
 /**
  * Register connections
  */
@@ -100,10 +104,7 @@ add_action(
 	'init', function() {
 		\Distributor\Connections::factory()->register( '\Distributor\ExternalConnections\WordPressExternalConnection' );
 		\Distributor\Connections::factory()->register( '\Distributor\ExternalConnections\WordPressDotcomExternalConnection' );
-
 		if (
-			! \Distributor\Utils\is_vip_com() &&
-
 			/**
 			 * Filter whether the network connection type is enabled. Enabled by default, return false to disable.
 			 */
