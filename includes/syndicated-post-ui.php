@@ -338,13 +338,7 @@ function enqueue_post_scripts( $hook ) {
 		return;
 	}
 
-	if ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) {
-		$css_path = '/assets/css/admin-syndicated-post.css';
-	} else {
-		$css_path = '/assets/css/admin-syndicated-post.min.css';
-	}
-
-	wp_enqueue_style( 'dt-admin-syndicated-post', plugins_url( $css_path, __DIR__ ), array(), DT_VERSION );
+	wp_enqueue_style( 'dt-admin-syndicated-post', plugins_url( '/dist/css/admin-syndicated-post.min.css', __DIR__ ), array(), DT_VERSION );
 
 	$unlinked = (bool) get_post_meta( $post->ID, 'dt_unlinked', true );
 

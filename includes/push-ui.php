@@ -208,18 +208,10 @@ function enqueue_scripts( $hook ) {
 		return;
 	}
 
-	if ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) {
-		$js_path  = '/assets/js/src/push.js';
-		$css_path = '/assets/css/push.css';
-	} else {
-		$js_path  = '/assets/js/push.min.js';
-		$css_path = '/assets/css/push.min.css';
-	}
-
-	wp_enqueue_style( 'dt-push', plugins_url( $css_path, __DIR__ ), array(), DT_VERSION );
-	wp_enqueue_script( 'dt-push', plugins_url( $js_path, __DIR__ ), array( 'jquery', 'underscore' ), DT_VERSION, true );
+	wp_enqueue_style( 'dt-push', plugins_url( '/dist/css/push.min.css', __DIR__ ), array(), DT_VERSION );
+	wp_enqueue_script( 'dt-push', plugins_url( '/dist/js/push.min.js', __DIR__ ), array( 'jquery', 'underscore' ), DT_VERSION, true );
 	wp_localize_script(
-		'dt-push', 'sy', array(
+		'dt-push', 'dt', array(
 			'nonce'   => wp_create_nonce( 'dt-push' ),
 			'post_id' => (int) get_the_ID(),
 			'ajaxurl' => esc_url( admin_url( 'admin-ajax.php' ) ),
@@ -395,7 +387,7 @@ function menu_content() {
 		}
 		?>
 		<script type="text/javascript">
-		var dt_connections = <?php echo wp_json_encode( $dom_connections ); ?>;
+		var dtConnections = <?php echo wp_json_encode( $dom_connections ); ?>;
 		</script>
 
 		<script id="dt-add-connection" type="text/html">
