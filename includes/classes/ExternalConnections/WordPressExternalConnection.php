@@ -391,7 +391,12 @@ class WordPressExternalConnection extends ExternalConnection {
 		$response = wp_remote_post(
 			$type_url, $this->auth_handler->format_post_args(
 				array(
-					'timeout' => 5,
+					/**
+					 * Filter the timeout used when calling WordPressExternalConnection::push.
+					 *
+					 * int $timeout The timeout to use for the remote post. Default is 5.
+					 */
+					'timeout' => apply_filters( 'dt_push_post_timeout', 5, $post ),
 					'body'    => apply_filters( 'dt_push_post_args', $post_body, $post, $this ),
 				)
 			)
