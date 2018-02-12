@@ -108,16 +108,8 @@ function admin_enqueue_scripts( $hook ) {
 		return;
 	}
 
-	if ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) {
-		$js_path  = '/assets/js/src/admin-pull.js';
-		$css_path = '/assets/css/admin-pull-table.css';
-	} else {
-		$js_path  = '/assets/js/admin-pull.min.js';
-		$css_path = '/assets/css/admin-pull-table.min.css';
-	}
-
-	wp_enqueue_script( 'dt-admin-pull', plugins_url( $js_path, __DIR__ ), array( 'jquery' ), DT_VERSION, true );
-	wp_enqueue_style( 'dt-admin-pull', plugins_url( $css_path, __DIR__ ), array(), DT_VERSION );
+	wp_enqueue_script( 'dt-admin-pull', plugins_url( '/dist/js/admin-pull.min.js', __DIR__ ), array( 'jquery' ), DT_VERSION, true );
+	wp_enqueue_style( 'dt-admin-pull', plugins_url( '/dist/css/admin-pull-table.min.css', __DIR__ ), array(), DT_VERSION );
 }
 
 /**
