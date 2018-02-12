@@ -41,14 +41,15 @@ function setup() {
 			exit;
 		}
 
-		if ( empty( $_POST['title'] ) ) {
+		if ( empty( $_POST['title'] ) || empty( $_POST['id'] ) ) {
 			wp_send_json_error();
 			exit;
 		}
 
 		// Create the external connection, and return the post ID.
-		$post = wp_insert_post(
+		$post = wp_update_post(
 			array(
+				'ID'          => sanitize_key( wp_unslash( $_POST['id'] ) ),
 				'post_title'  => sanitize_text_field( wp_unslash( $_POST['title'] ) ),
 				'post_type'   => 'dt_ext_connection',
 				'post_status' => 'publish',

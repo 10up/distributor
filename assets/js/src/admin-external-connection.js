@@ -271,7 +271,8 @@
 							data: {
 								nonce: dt.nonce,
 								action: 'dt_begin_authorization',
-								title: title
+								title: title,
+								id: $( document.getElementById( 'post_ID' ) ).val()
 							}
 						}
 					).done( function( response ) {
@@ -284,6 +285,7 @@
 							// Update the form field for dt_redirect_uri and post id.
 							$( document.getElementById( 'dt_redirect_uri' ) ).val( url );
 							$( document.getElementById( 'dt_created_post_id' ) ).val( response.data.id );
+							$( document.getElementById( 'original_post_status' ) ).val( 'publish' );
 
 							// Hide the first step and show the authentication details.
 							$( '.oauth-begin-authentication-wrapper' ).hide();
