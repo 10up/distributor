@@ -6,7 +6,8 @@
     "build": "./node_modules/.bin/gulp",
     "js": "./node_modules/.bin/gulp",
     "watch": "./node_modules/.bin/gulp watch",
-    "css": "./node_modules/.bin/gulp css"
+    "css": "./node_modules/.bin/gulp css",
+    "postinstall": "./node_modules/.bin/gulp"
   },
   "dependencies": {
     "babel-core": "^6.26.0",
