@@ -27,46 +27,46 @@ function setup() {
 	);
 }
 
-	/**
-	 * Save the external connection, returning the post ID so the authorization process can continue.
-	 */
-	function ajax_begin_authorization() {
-		if ( ! check_ajax_referer( 'dt-verify-ext-conn', 'nonce', false ) ) {
-			wp_send_json_error();
-			exit;
-		}
-
-		if ( ! current_user_can( 'edit_posts' ) ) {
-			wp_send_json_error();
-			exit;
-		}
-
-		if ( empty( $_POST['title'] ) || empty( $_POST['id'] ) ) {
-			wp_send_json_error();
-			exit;
-		}
-
-		// Create the external connection, and return the post ID.
-		$post = wp_update_post(
-			array(
-				'ID'          => sanitize_key( wp_unslash( $_POST['id'] ) ),
-				'post_title'  => sanitize_text_field( wp_unslash( $_POST['title'] ) ),
-				'post_type'   => 'dt_ext_connection',
-				'post_status' => 'publish',
-			)
-		);
-
-		if ( is_wp_error( $post ) || 0 === $post ) {
-			wp_send_json_error();
-			exit;
-		}
-
-		// Set the connection type for the newly created connection
-		update_post_meta( $post, 'dt_external_connection_type', 'wpdotcom' );
-
-		// Send back the id of the created post with a 201 "Created" status.
-		wp_send_json_success( array( 'id' => $post ), 201 );
+/**
+ * Save the external connection, returning the post ID so the authorization process can continue.
+ */
+function ajax_begin_authorization() {
+	if ( ! check_ajax_referer( 'dt-verify-ext-conn', 'nonce', false ) ) {
+		wp_send_json_error();
+		exit;
 	}
+
+	if ( ! current_user_can( 'edit_posts' ) ) {
+		wp_send_json_error();
+		exit;
+	}
+
+	if ( empty( $_POST['title'] ) || empty( $_POST['id'] ) ) {
+		wp_send_json_error();
+		exit;
+	}
+
+	// Create the external connection, and return the post ID.
+	$post = wp_update_post(
+		array(
+			'ID'          => sanitize_key( wp_unslash( $_POST['id'] ) ),
+			'post_title'  => sanitize_text_field( wp_unslash( $_POST['title'] ) ),
+			'post_type'   => 'dt_ext_connection',
+			'post_status' => 'publish',
+		)
+	);
+
+	if ( is_wp_error( $post ) || 0 === $post ) {
+		wp_send_json_error();
+		exit;
+	}
+
+	// Set the connection type for the newly created connection.
+	update_post_meta( $post, 'dt_external_connection_type', 'wpdotcom' );
+
+	// Send back the id of the created post with a 201 "Created" status.
+	wp_send_json_success( array( 'id' => $post ), 201 );
+}
 
 /**
  * Set screen option for posts per page

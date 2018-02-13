@@ -45,6 +45,8 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 			// Attempt to fetch an access token using the code. If successful, the token will be stored as in ACCESS_TOKEN_KEY.
 			self::fetch_access_token( $code );
 		}
+
+		// Load the access token if available.
 		$saved_access_token = self::get_authentication_option_by_key( self::ACCESS_TOKEN_KEY );
 
 		// Do we have a valid token?
@@ -270,7 +272,6 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 		}
 	}
 
-
 	/**
 	 * Add the Bearer: {Token} authorization header for get requests.
 	 *
@@ -351,7 +352,6 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 				'client_secret' => $client_secret,
 				'grant_type'    => 'authorization_code',
 				'code'          => $code,
-				// Note: this redirect must match request request request data
 				'redirect_uri'  => $redirect_uri,
 			);
 
@@ -359,6 +359,7 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 				'body' => $params,
 			);
 
+			// Request a token.
 			$response = wp_remote_post( esc_url_raw( self::REQUEST_TOKEN_URL ), $args );
 
 			if ( is_wp_error( $response ) ) {
@@ -374,6 +375,7 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 				return false;
 			}
 
+			// Success! Store the token.
 			self::set_authentication_option_by_key( self::ACCESS_TOKEN_KEY, $auth->access_token );
 			return true;
 
@@ -390,8 +392,6 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 	 *
 	 */
 	public static function get_authorization_code( $options ) {
-
-
 		$client_id    = $options[ self::API_CLIENT_ID ];
 		$redirect_uri = $options[ self::API_REDIRECT_URI ];
 
@@ -490,6 +490,5 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 		}
 
 		return false;
-
 	}
 }
