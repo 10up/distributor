@@ -169,3 +169,14 @@
 #side-sortables {
 	display: none
 }
+
+.oauth-connection-established .message-header {
+	font-size: 16px;
+	color: green;
+	font-weight: bold;
+}
+
+input[type="text"].error-required,
+input[type="password"].error-required {
+	border: 2px solid red;
+}
