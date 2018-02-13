@@ -103,9 +103,7 @@ class WordPressExternalConnection extends ExternalConnection {
 				);
 			} else {
 				$types_response = wp_remote_get(
-				$types_path, $this->auth_handler->format_get_args( array(
-					'timeout' => 5,
-				) )
+					$types_path, $this->auth_handler->format_get_args( array( 'timeout' => 5 ) )
 			);
 			}
 

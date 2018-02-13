@@ -202,16 +202,8 @@ function ajax_verify_external_connection() {
 function admin_enqueue_scripts( $hook ) {
 	if ( ( 'post.php' === $hook && 'dt_ext_connection' === get_post_type() ) || ( 'post-new.php' === $hook && ! empty( $_GET['post_type'] ) && 'dt_ext_connection' === $_GET['post_type'] ) ) {
 
-		if ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) {
-			$js_path  = '/assets/js/src/admin-external-connection.js';
-			$css_path = '/assets/css/admin-external-connection.css';
-		} else {
-			$js_path  = '/assets/js/admin-external-connection.min.js';
-			$css_path = '/assets/css/admin-external-connection.min.css';
-		}
-
-		wp_enqueue_style( 'dt-admin-external-connection', plugins_url( $css_path, __DIR__ ), array(), DT_VERSION );
-		wp_enqueue_script( 'dt-admin-external-connection', plugins_url( $js_path, __DIR__ ), array( 'jquery', 'underscore' ), DT_VERSION, true );
+		wp_enqueue_style( 'dt-admin-external-connection', plugins_url( '/dist/css/admin-external-connection.min.css', __DIR__ ), array(), DT_VERSION );
+		wp_enqueue_script( 'dt-admin-external-connection', plugins_url( '/dist/js/admin-external-connection.min.js', __DIR__ ), array( 'jquery', 'underscore' ), DT_VERSION, true );
 
 		wp_localize_script(
 			'dt-admin-external-connection', 'dt', array(
