@@ -11,7 +11,7 @@ const titleField                  = document.getElementById( 'title' )
 const endpointResult              = document.querySelector( '.endpoint-result' )
 const endpointErrors              = document.querySelector( '.endpoint-errors' )
 const postIdField                 = document.getElementById( 'post_ID' )
-let $apiVerify                  = false
+let $apiVerify                    = false
 
 function checkConnections() {
 	if ( $apiVerify !== false ) {
@@ -175,3 +175,162 @@ jQuery( rolesAllowed ).on( 'click', '.dt-role-checkbox', ( event ) => {
 		alert( dt.roles_warning )
 	}
 } )
+
+/**
+ * Code for WordPress.com Oauth2 Authentication.
+ *
+ * @todo separate out code.
+ */
+
+/**
+ * If the client id and secret are unavailable, hide all '.hide-until-authed' areas.
+ *
+ * For Oauth authentication, simplify the interface by hiding certain elements until the user has
+ * completed the authorization process.
+ *
+ * Creates a cleaner flow for authorization by separating the authorization steps.
+ */
+var $hideUntilAuthed = jQuery( '.hide-until-authed' ),
+	$authCredentials = jQuery( '.auth-credentials' ),
+	$clientSecret    = jQuery( document.getElementById( 'dt_client_secret' ) ),
+	$clientId        = jQuery( document.getElementById( 'dt_client_id' ) ),
+	hideItemsRequiringAuth = function() {
+		var oauthconnectionestablished = document.getElementsByClassName( 'oauth-connection-established' )
+		if ( oauthconnectionestablished.length === 0 ) {
+			$hideUntilAuthed.hide()
+		}
+	},
+
+	/**
+	 * Validate a form field, ensuring it is non-empty. Add an error class if empty.
+	 *
+	 * @param  {jQuery DomElement} $field The field to check.
+	 */
+	validateField = function( $field, event ) {
+		if ( $field.val() === '' ) {
+			event.preventDefault()
+			$field.addClass( 'error-required' )
+			return false
+		} else {
+			$field.removeClass( 'error-required' )
+		}
+		return true
+	}
+
+/**
+ * When the External connection type drop-down is changed, show the corresponding authorization fields.
+ */
+jQuery( externalConnectionTypeField ).on( 'change', function() {
+	var slug = externalConnectionTypeField.value
+
+	$authCredentials.hide()
+	jQuery( '.auth-credentials.' + slug ).show()
+
+	// For WordPress.com Oauth authentication, hide fields until authentication is complete.
+	if ( slug === 'wpdotcom' ) {
+		hideItemsRequiringAuth()
+	} else {
+
+		// Otherwise, ensure all areas are showing.
+		$hideUntilAuthed.show()
+	}
+} )
+
+
+// On load for WordPress.com Oauth authentication, hide fields until authentication is complete.
+if ( externalConnectionTypeField.value === 'wpdotcom' ) {
+	hideItemsRequiringAuth()
+}
+
+// When authorization is initiated, ensure fields are non-empty.
+var createConnectionButton = document.getElementById( 'create-oauth-connection' )
+if ( createConnectionButton ) {
+	jQuery( createConnectionButton ).on( 'click', function( event ) {
+		var validateClientSecret = validateField( $clientSecret, event ),
+			validateClientId     = validateField( $clientId, event )
+		if (
+			! validateClientSecret ||
+			! validateClientId
+		) {
+			event.preventDefault()
+			return false
+		}
+	} )
+}
+
+// Handle the changeCredentials link.
+var changeCredentials             = document.getElementById( 'oauth-authentication-change-credentials' ),
+	$authenticationDetailsWrapper = jQuery( '.oauth-authentication-details-wrapper' )
+
+if ( changeCredentials ) {
+
+	jQuery( changeCredentials ).on( 'click', function() {
+
+		// Show the credentials fields.
+		$authenticationDetailsWrapper.show()
+
+		// Clear the secret field.
+		$clientSecret.val( '' )
+
+		// Remove the authorized message.
+		jQuery( '.oauth-connection-established' ).remove()
+
+		// Hide the remaining fields that only show after authorization is complete.
+		hideItemsRequiringAuth()
+	} )
+}
+
+// Handle the Authorize Connection button.
+var beginAuthorize = document.getElementById( 'begin-authorization' )
+if ( beginAuthorize ) {
+
+	// Handle click to the wpdotcom begin-authorization button.
+	jQuery( beginAuthorize ).on( 'click', function( event ) {
+		var $titleEl = jQuery( titleField ),
+			title = $titleEl.val()
+
+		// Ensure the connection title is not blank.
+		if ( validateField( $titleEl, event ) ) {
+
+			// Disable the button during the ajax request.
+			jQuery( beginAuthorize ).addClass( 'disabled' )
+
+			// Remove any error highlighting.
+			$titleEl.removeClass( 'error-required' )
+
+			// Make an ajax request to save the connection and retrieve the resulting post id.
+			jQuery.ajax( {
+				url: ajaxurl,
+				method: 'post',
+				data: {
+					nonce: dt.nonce,
+					action: 'dt_begin_authorization',
+					title: title,
+					id: jQuery( document.getElementById( 'post_ID' ) ).val()
+				}
+			} ).done( function( response ) {
+				if ( response.success && response.data.id ) {
+
+					// The post has been saved, update the url in case the user refreshes.
+					var url = dt.admin_url + 'post.php?post=' + response.data.id  + '&action=edit'
+					history.pushState( {}, 'Oauth Authorize Details', url )
+
+					// Update the form field for dt_redirect_uri and post id.
+					jQuery( document.getElementById( 'dt_redirect_uri' ) ).val( url )
+					jQuery( document.getElementById( 'dt_created_post_id' ) ).val( response.data.id )
+					jQuery( document.getElementById( 'original_post_status' ) ).val( 'publish' )
+
+					// Hide the first step and show the authentication details.
+					jQuery( '.oauth-begin-authentication-wrapper' ).hide()
+					$authenticationDetailsWrapper.show()
+				} else {
+					// @todo handle errors.
+				}
+			} ).complete( function() {
+
+				// Ensure the
+				jQuery( beginAuthorize ).removeClass( 'disabled' )
+			} )
+		}
+	} )
+}

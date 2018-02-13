@@ -3,7 +3,7 @@
 /**
  * Plugin Name: Distributor
  * Description: Syndicate content to and from external websites and within multisite blogs.
- * Version:     1.0
+ * Version:     1.1.0
  * Author:      Taylor Lovett, 10up
  * Author URI:  http://10up.com
  * License:     GPLv2 or later
@@ -15,7 +15,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly.
 }
 
-define( 'DT_VERSION', '1.0' );
+define( 'DT_VERSION', '1.1.0' );
 
 /**
  * PSR-4 autoloading
@@ -93,14 +93,23 @@ require_once __DIR__ . '/includes/subscriptions.php';
 require_once __DIR__ . '/includes/syndicated-post-ui.php';
 require_once __DIR__ . '/includes/distributed-post-ui.php';
 
+if ( \Distributor\Utils\is_vip_com() ) {
+	add_filter( 'dt_network_site_connection_enabled', '__return_false', 9 );
+}
+
 /**
  * Register connections
  */
 add_action(
 	'init', function() {
 		\Distributor\Connections::factory()->register( '\Distributor\ExternalConnections\WordPressExternalConnection' );
-
-		if ( ! \Distributor\Utils\is_vip_com() ) {
+		\Distributor\Connections::factory()->register( '\Distributor\ExternalConnections\WordPressDotcomExternalConnection' );
+		if (
+			/**
+			 * Filter whether the network connection type is enabled. Enabled by default, return false to disable.
+			 */
+			apply_filters( 'dt_network_site_connection_enabled', true )
+		) {
 			\Distributor\Connections::factory()->register( '\Distributor\InternalConnections\NetworkSiteConnection' );
 		}
 	}, 1

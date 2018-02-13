@@ -33,3 +33,9 @@ Coming soon!
 ## Debugging
 
 You can define a constant `DISTRIBUTOR_DEBUG` to `true` to increase the ease of debugging in Distributor. This will make all remote requests blocking and expose the subscription post type.
+
+## Changelog
+
+* 1.1.0 - Enable wordpress.com Oauth2 authentication.
+
+* 1.0 - Initial release.
