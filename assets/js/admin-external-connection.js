@@ -190,14 +190,14 @@ jQuery( rolesAllowed ).on( 'click', '.dt-role-checkbox', ( event ) => {
  *
  * Creates a cleaner flow for authorization by separating the authorization steps.
  */
-var $hideUntilAuthed = $( '.hide-until-authed' ),
-	$authCredentials = $( '.auth-credentials' ),
-	$clientSecret    = $( document.getElementById( 'dt_client_secret' ) ),
-	$clientId        = $( document.getElementById( 'dt_client_id' ) ),
+var $hideUntilAuthed = jQuery( '.hide-until-authed' ),
+	$authCredentials = jQuery( '.auth-credentials' ),
+	$clientSecret    = jQuery( document.getElementById( 'dt_client_secret' ) ),
+	$clientId        = jQuery( document.getElementById( 'dt_client_id' ) ),
 	hideItemsRequiringAuth = function() {
-		oauthconnectionestablished = document.getElementsByClassName( 'oauth-connection-established' );
-		if ( 0 === oauthconnectionestablished.length ) {
-			$hideUntilAuthed.hide();
+		var oauthconnectionestablished = document.getElementsByClassName( 'oauth-connection-established' )
+		if ( oauthconnectionestablished.length === 0 ) {
+			$hideUntilAuthed.hide()
 		}
 	},
 
@@ -207,131 +207,130 @@ var $hideUntilAuthed = $( '.hide-until-authed' ),
 	 * @param  {jQuery DomElement} $field The field to check.
 	 */
 	validateField = function( $field, event ) {
-		if ( '' === $field.val() ) {
-			event.preventDefault();
-			$field.addClass( 'error-required' );
-			return false;
+		if ( $field.val() === '' ) {
+			event.preventDefault()
+			$field.addClass( 'error-required' )
+			return false
 		} else {
-			$field.removeClass( 'error-required' );
+			$field.removeClass( 'error-required' )
 		}
-		return true;
+		return true
 	}
 
 /**
  * When the External connection type drop-down is changed, show the corresponding authorization fields.
  */
-$( externalConnectionTypeField ).on( 'change', function( event ) {
-	var slug = externalConnectionTypeField.value;
+jQuery( externalConnectionTypeField ).on( 'change', function() {
+	var slug = externalConnectionTypeField.value
 
-	$authCredentials.hide();
-	$( '.auth-credentials.' + slug ).show();
+	$authCredentials.hide()
+	jQuery( '.auth-credentials.' + slug ).show()
 
 	// For WordPress.com Oauth authentication, hide fields until authentication is complete.
-	if ( 'wpdotcom' === slug ) {
-		hideItemsRequiringAuth();
+	if ( slug === 'wpdotcom' ) {
+		hideItemsRequiringAuth()
 	} else {
 
 		// Otherwise, ensure all areas are showing.
 		$hideUntilAuthed.show()
 	}
-} );
+} )
+
 
 // On load for WordPress.com Oauth authentication, hide fields until authentication is complete.
-if ( 'wpdotcom' === $( externalConnectionTypeField ).val() ) {
-	hideItemsRequiringAuth();
+if ( externalConnectionTypeField.value === 'wpdotcom' ) {
+	hideItemsRequiringAuth()
 }
 
 // When authorization is initiated, ensure fields are non-empty.
-var createConnectionButton = document.getElementById( 'create-oauth-connection' );
+var createConnectionButton = document.getElementById( 'create-oauth-connection' )
 if ( createConnectionButton ) {
-	$( createConnectionButton ).on( 'click', function( event ) {
+	jQuery( createConnectionButton ).on( 'click', function( event ) {
 		var validateClientSecret = validateField( $clientSecret, event ),
 			validateClientId     = validateField( $clientId, event )
 		if (
 			! validateClientSecret ||
 			! validateClientId
 		) {
-				event.preventDefault();
-				return false;
-			}
-	} );
+			event.preventDefault()
+			return false
+		}
+	} )
 }
 
 // Handle the changeCredentials link.
-var changeCredentials = document.getElementById( 'oauth-authentication-change-credentials' );
-$authenticationDetailsWrapper = $( '.oauth-authentication-details-wrapper' );
+var changeCredentials             = document.getElementById( 'oauth-authentication-change-credentials' ),
+	$authenticationDetailsWrapper = jQuery( '.oauth-authentication-details-wrapper' )
 
 if ( changeCredentials ) {
 
-	$( changeCredentials ).on( 'click', function() {
+	jQuery( changeCredentials ).on( 'click', function() {
 
 		// Show the credentials fields.
-		$authenticationDetailsWrapper.show();
+		$authenticationDetailsWrapper.show()
 
 		// Clear the secret field.
-		$clientSecret.val( '' );
+		$clientSecret.val( '' )
 
 		// Remove the authorized message.
-		$( '.oauth-connection-established' ).remove();
+		jQuery( '.oauth-connection-established' ).remove()
 
 		// Hide the remaining fields that only show after authorization is complete.
-		hideItemsRequiringAuth();
-	} );
+		hideItemsRequiringAuth()
+	} )
 }
 
 // Handle the Authorize Connection button.
-var beginAuthorize = document.getElementById( 'begin-authorization' );
+var beginAuthorize = document.getElementById( 'begin-authorization' )
 if ( beginAuthorize ) {
 
 	// Handle click to the wpdotcom begin-authorization button.
-	$( beginAuthorize ).on( 'click', function( event ) {
-			var $titleEl = $( titleField ),
-				title = $titleEl.val();
+	jQuery( beginAuthorize ).on( 'click', function( event ) {
+		var $titleEl = jQuery( titleField ),
+			title = $titleEl.val()
 
-			// Ensure the connection title is not blank.
-			if ( validateField( $titleEl, event ) ) {
+		// Ensure the connection title is not blank.
+		if ( validateField( $titleEl, event ) ) {
 
-				// Disable the button during the ajax request.
-				$( beginAuthorize ).addClass( 'disabled' );
+			// Disable the button during the ajax request.
+			jQuery( beginAuthorize ).addClass( 'disabled' )
 
-				// Remove any error highlighting.
-				$titleEl.removeClass( 'error-required' );
+			// Remove any error highlighting.
+			$titleEl.removeClass( 'error-required' )
 
-				// Make an ajax request to save the connection and retrieve the resulting post id.
-				$.ajax(
-					{
-						url: ajaxurl,
-						method: 'post',
-						data: {
-							nonce: dt.nonce,
-							action: 'dt_begin_authorization',
-							title: title,
-							id: $( document.getElementById( 'post_ID' ) ).val()
-						}
-					}
-				).done( function( response ) {
-					if ( response.success && response.data.id ) {
+			// Make an ajax request to save the connection and retrieve the resulting post id.
+			jQuery.ajax( {
+				url: ajaxurl,
+				method: 'post',
+				data: {
+					nonce: dt.nonce,
+					action: 'dt_begin_authorization',
+					title: title,
+					id: jQuery( document.getElementById( 'post_ID' ) ).val()
+				}
+			} ).done( function( response ) {
+				if ( response.success && response.data.id ) {
 
-						// The post has been saved, update the url in case the user refreshes.
-						var url = dt.admin_url + 'post.php?post=' + response.data.id  + '&action=edit';
-						history.pushState( {}, 'Oauth Authorize Details', url );
+					// The post has been saved, update the url in case the user refreshes.
+					var url = dt.admin_url + 'post.php?post=' + response.data.id  + '&action=edit'
+					history.pushState( {}, 'Oauth Authorize Details', url )
 
-						// Update the form field for dt_redirect_uri and post id.
-						$( document.getElementById( 'dt_redirect_uri' ) ).val( url );
-						$( document.getElementById( 'dt_created_post_id' ) ).val( response.data.id );
-						$( document.getElementById( 'original_post_status' ) ).val( 'publish' );
+					// Update the form field for dt_redirect_uri and post id.
+					jQuery( document.getElementById( 'dt_redirect_uri' ) ).val( url )
+					jQuery( document.getElementById( 'dt_created_post_id' ) ).val( response.data.id )
+					jQuery( document.getElementById( 'original_post_status' ) ).val( 'publish' )
 
-						// Hide the first step and show the authentication details.
-						$( '.oauth-begin-authentication-wrapper' ).hide();
-						$authenticationDetailsWrapper.show();
-					} else {
-						// @todo handle errors.
-					}
-				} ).complete( function() {
+					// Hide the first step and show the authentication details.
+					jQuery( '.oauth-begin-authentication-wrapper' ).hide()
+					$authenticationDetailsWrapper.show()
+				} else {
+					// @todo handle errors.
+				}
+			} ).complete( function() {
 
-					// Ensure the
-					$( beginAuthorize ).removeClass( 'disabled' );
-				} );
-			}
-	} );
+				// Ensure the
+				jQuery( beginAuthorize ).removeClass( 'disabled' )
+			} )
+		}
+	} )
 }
