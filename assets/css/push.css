@@ -277,6 +277,7 @@
 	@media (--small-screen) {
 		width: 40%;
 		float: right;
+		clear: right;
 		padding-left: 3em;
 	}
 }
