@@ -31,13 +31,10 @@ function is_dt_debug() {
 function set_meta( $post_id, $meta ) {
 	$blacklisted_meta = blacklisted_meta();
 
-	foreach ( $meta as $meta_key => $meta_array ) {
-		$meta_array = (array) $meta_array;
-		foreach ( $meta_array as $meta_value ) {
-			if ( ! in_array( $meta_key, $blacklisted_meta, true ) ) {
-				$meta_value = maybe_unserialize( $meta_value );
-				update_post_meta( $post_id, $meta_key, $meta_value );
-			}
+	foreach ( $meta as $meta_key => $meta_value ) {
+		if ( ! in_array( $meta_key, $blacklisted_meta, true ) ) {
+			$meta_value = maybe_unserialize( $meta_value );
+			update_post_meta( $post_id, $meta_key, $meta_value );
 		}
 	}
 }
@@ -59,7 +56,7 @@ function distributable_post_types() {
 }
 
 function blacklisted_meta() {
-	return apply_filters( 'dt_blacklisted_meta', [ 'dt_unlinked', 'dt_subscription_update', 'dt_subscriptions', 'dt_subscription_signature', 'dt_original_post_id', 'dt_original_post_url', 'dt_original_blog_id', 'dt_syndicate_time', '_wp_attached_file', '_edit_lock', '_edit_last' ] );
+	return apply_filters( 'dt_blacklisted_meta', [ 'dt_unlinked', 'dt_connection_map', 'dt_subscription_update', 'dt_subscriptions', 'dt_subscription_signature', 'dt_original_post_id', 'dt_original_post_url', 'dt_original_blog_id', 'dt_syndicate_time', '_wp_attached_file', '_edit_lock', '_edit_last' ] );
 }
 
 /**
