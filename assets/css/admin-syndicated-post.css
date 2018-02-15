@@ -19,7 +19,10 @@ body.dt-linked-post {
 	& #show-settings-link,
 	& #contextual-help-link,
 	& #timestampdiv .button,
-	& #timestampdiv input {
+	& #timestampdiv input,
+	& #screen-options-wrap input,
+	& #screen-options-wrap select,
+	& #screen-options-wrap textarea {
 		opacity: 1;
 		pointer-events: auto;
 		cursor: pointer;
@@ -52,6 +55,14 @@ body.dt-linked-post {
 			content: ' ';
 			z-index: 2;
 		}
+	}
+
+	& #revisionsdiv {
+		display: none;
+	}
+
+	& label[for="revisionsdiv-hide"] {
+		display: none;
 	}
 }
 
