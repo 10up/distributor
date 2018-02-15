@@ -7,7 +7,8 @@
     "js": "./node_modules/.bin/gulp",
     "watch": "./node_modules/.bin/gulp watch",
     "css": "./node_modules/.bin/gulp css",
-    "postinstall": "./node_modules/.bin/gulp"
+    "postinstall": "./node_modules/.bin/gulp",
+    "makepot": "./node_modules/.bin/wpi18n && echo '.pot file updated'"
   },
   "dependencies": {
     "babel-core": "^6.26.0",
@@ -25,6 +26,7 @@
     "gulp-rename": "^1.2.2",
     "gulp-sourcemaps": "^2.6.4",
     "imports-loader": "^0.7.1",
+    "node-wp-i18n": "^1.0.5",
     "postcss-cssnext": "^3.1.0",
     "postcss-import": "^11.1.0",
     "pump": "^3.0.0",
