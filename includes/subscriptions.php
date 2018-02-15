@@ -80,6 +80,19 @@ function generate_signature() {
  */
 function create_remote_subscription( \Distributor\ExternalConnection $connection, $remote_post_id, $post_id ) {
 
+	/**
+	 * What is a signature? Why do we need it?
+	 *
+	 * For a post that is distributed, for each distributed post, we create a subscription (CPT) to keep track
+	 * of the copy. Attached to each subscription is a unique signature. When a post is updated, we check for subscriptions.
+	 * If subscriptions exist, we grab the signature for each subscription and send the update to the remote copy along
+	 * with the signature. The signature is a passcode of sorts. The subscription signature must match the copied post's
+	 * signature otherwise the update is not authorized.
+	 *
+	 * You might be wondering why we don't just use HTTP Basic Auth or OAuth since we've already set that up.
+	 * That won't work for pulls. If I create an external connection and pull from that external connection, the
+	 * remote post does not have auth credentials for my site (whereas with push it would).
+	 */
 	$signature = generate_signature();
 
 	update_post_meta( $post_id, 'dt_subscription_signature', sanitize_text_field( $signature ) );
