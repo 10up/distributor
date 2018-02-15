@@ -190,12 +190,12 @@ jQuery( rolesAllowed ).on( 'click', '.dt-role-checkbox', ( event ) => {
  *
  * Creates a cleaner flow for authorization by separating the authorization steps.
  */
-var $hideUntilAuthed = jQuery( '.hide-until-authed' ),
+const $hideUntilAuthed = jQuery( '.hide-until-authed' ),
 	$authCredentials = jQuery( '.auth-credentials' ),
 	$clientSecret    = jQuery( document.getElementById( 'dt_client_secret' ) ),
 	$clientId        = jQuery( document.getElementById( 'dt_client_id' ) ),
-	hideItemsRequiringAuth = function() {
-		var oauthconnectionestablished = document.getElementsByClassName( 'oauth-connection-established' )
+	hideItemsRequiringAuth = () => {
+		const oauthconnectionestablished = document.getElementsByClassName( 'oauth-connection-established' )
 		if ( oauthconnectionestablished.length === 0 ) {
 			$hideUntilAuthed.hide()
 		}
@@ -206,7 +206,7 @@ var $hideUntilAuthed = jQuery( '.hide-until-authed' ),
 	 *
 	 * @param  {jQuery DomElement} $field The field to check.
 	 */
-	validateField = function( $field, event ) {
+	validateField = ( $field, event ) => {
 		if ( $field.val() === '' ) {
 			event.preventDefault()
 			$field.addClass( 'error-required' )
@@ -220,8 +220,8 @@ var $hideUntilAuthed = jQuery( '.hide-until-authed' ),
 /**
  * When the External connection type drop-down is changed, show the corresponding authorization fields.
  */
-jQuery( externalConnectionTypeField ).on( 'change', function() {
-	var slug = externalConnectionTypeField.value
+jQuery( externalConnectionTypeField ).on( 'change', () => {
+	const slug = externalConnectionTypeField.value
 
 	$authCredentials.hide()
 	jQuery( '.auth-credentials.' + slug ).show()
@@ -243,10 +243,10 @@ if ( externalConnectionTypeField.value === 'wpdotcom' ) {
 }
 
 // When authorization is initiated, ensure fields are non-empty.
-var createConnectionButton = document.getElementById( 'create-oauth-connection' )
+const createConnectionButton = document.getElementById( 'create-oauth-connection' )
 if ( createConnectionButton ) {
-	jQuery( createConnectionButton ).on( 'click', function( event ) {
-		var validateClientSecret = validateField( $clientSecret, event ),
+	jQuery( createConnectionButton ).on( 'click', ( event ) => {
+		const validateClientSecret = validateField( $clientSecret, event ),
 			validateClientId     = validateField( $clientId, event )
 		if (
 			! validateClientSecret ||
@@ -259,7 +259,7 @@ if ( createConnectionButton ) {
 }
 
 // Handle the changeCredentials link.
-var changeCredentials             = document.getElementById( 'oauth-authentication-change-credentials' ),
+const changeCredentials             = document.getElementById( 'oauth-authentication-change-credentials' ),
 	$authenticationDetailsWrapper = jQuery( '.oauth-authentication-details-wrapper' )
 
 if ( changeCredentials ) {
@@ -281,12 +281,12 @@ if ( changeCredentials ) {
 }
 
 // Handle the Authorize Connection button.
-var beginAuthorize = document.getElementById( 'begin-authorization' )
+const beginAuthorize = document.getElementById( 'begin-authorization' )
 if ( beginAuthorize ) {
 
 	// Handle click to the wpdotcom begin-authorization button.
-	jQuery( beginAuthorize ).on( 'click', function( event ) {
-		var $titleEl = jQuery( titleField ),
+	jQuery( beginAuthorize ).on( 'click', ( event ) => {
+		const $titleEl = jQuery( titleField ),
 			title = $titleEl.val()
 
 		// Ensure the connection title is not blank.
@@ -308,11 +308,11 @@ if ( beginAuthorize ) {
 					title: title,
 					id: jQuery( document.getElementById( 'post_ID' ) ).val()
 				}
-			} ).done( function( response ) {
+			} ).done( ( response ) => {
 				if ( response.success && response.data.id ) {
 
 					// The post has been saved, update the url in case the user refreshes.
-					var url = dt.admin_url + 'post.php?post=' + response.data.id  + '&action=edit'
+					const url = dt.admin_url + 'post.php?post=' + response.data.id  + '&action=edit'
 					history.pushState( {}, 'Oauth Authorize Details', url )
 
 					// Update the form field for dt_redirect_uri and post id.
@@ -326,7 +326,7 @@ if ( beginAuthorize ) {
 				} else {
 					// @todo handle errors.
 				}
-			} ).complete( function() {
+			} ).complete( () => {
 
 				// Ensure the
 				jQuery( beginAuthorize ).removeClass( 'disabled' )
