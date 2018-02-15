@@ -204,9 +204,20 @@ class SubscriptionsController extends \WP_REST_Controller {
 				]
 			);
 
-			\Distributor\Utils\set_meta( $request['post_id'], $request['post_data']['distributor_meta'] );
-			\Distributor\Utils\set_taxonomy_terms( $request['post_id'], $request['post_data']['distributor_terms'] );
-			\Distributor\Utils\set_media( $request['post_id'], $request['post_data']['distributor_media'] );
+			/**
+			 * We check if each of these exist since the API removes empty arrays from requests
+			 */
+			if ( ! empty( $request['post_data']['distributor_meta'] ) ) {
+				\Distributor\Utils\set_meta( $request['post_id'], $request['post_data']['distributor_meta'] );
+			}
+
+			if ( ! empty( $request['post_data']['distributor_terms'] ) ) {
+				\Distributor\Utils\set_taxonomy_terms( $request['post_id'], $request['post_data']['distributor_terms'] );
+			}
+
+			if ( ! empty( $request['post_data']['distributor_media'] ) ) {
+				\Distributor\Utils\set_media( $request['post_id'], $request['post_data']['distributor_media'] );
+			}
 
 			$response = new \WP_REST_Response();
 			$response->set_data( array( 'updated' => true ) );
