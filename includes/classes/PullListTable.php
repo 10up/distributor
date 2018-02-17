@@ -78,12 +78,14 @@ class PullListTable extends \WP_List_Table {
 	 */
 	protected function get_views() {
 
-		$current_status = ( empty( $_GET['status'] ) ) ? 'new' : $_GET['status'];
+		$current_status = ( empty( $_GET['status'] ) ) ? 'new' : sanitize_key( $_GET['status'] );
+
+		$request_uri = $_SERVER['REQUEST_URI'];
 
 		$status_links = [
-			'new'     => '<a href="' . esc_url( $_SERVER['REQUEST_URI'] . '&status=new' ) . '" class="' . ( ( 'new' === $current_status ) ? 'current' : '' ) . '">' . esc_html__( 'New', 'distributor' ) . '</a>',
-			'pulled'  => '<a href="' . esc_url( $_SERVER['REQUEST_URI'] . '&status=pulled' ) . '" class="' . ( ( 'pulled' === $current_status ) ? 'current' : '' ) . '">' . esc_html__( 'Pulled', 'distributor' ) . '</a>',
-			'skipped' => '<a href="' . esc_url( $_SERVER['REQUEST_URI'] . '&status=skipped' ) . '" class="' . ( ( 'skipped' === $current_status ) ? 'current' : '' ) . '">' . esc_html__( 'Skipped', 'distributor' ) . '</a>',
+			'new'     => '<a href="' . esc_url( $request_uri . '&status=new' ) . '" class="' . ( ( 'new' === $current_status ) ? 'current' : '' ) . '">' . esc_html__( 'New', 'distributor' ) . '</a>',
+			'pulled'  => '<a href="' . esc_url( $request_uri . '&status=pulled' ) . '" class="' . ( ( 'pulled' === $current_status ) ? 'current' : '' ) . '">' . esc_html__( 'Pulled', 'distributor' ) . '</a>',
+			'skipped' => '<a href="' . esc_url( $request_uri . '&status=skipped' ) . '" class="' . ( ( 'skipped' === $current_status ) ? 'current' : '' ) . '">' . esc_html__( 'Skipped', 'distributor' ) . '</a>',
 		];
 
 		return $status_links;
@@ -352,7 +354,7 @@ class PullListTable extends \WP_List_Table {
 		}
 
 		if ( ! empty( $_GET['s'] ) ) {
-			$remote_get_args['s'] = $_GET['s'];
+			$remote_get_args['s'] = sanitize_key( $_GET['s'] );
 		}
 
 		if ( is_a( $connection_now, '\Distributor\ExternalConnection' ) ) {
