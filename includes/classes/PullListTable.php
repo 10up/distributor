@@ -253,7 +253,7 @@ class PullListTable extends \WP_List_Table {
 	 */
 	protected function _column_name( $item, $classes, $data, $primary ) {
 		echo '<td class="' . esc_attr( $classes ) . ' page-title">';
-		echo $this->column_name( $item );
+		$this->column_name( $item );
 		echo $this->handle_row_actions( $item, 'title', $primary );
 		echo '</td>';
 	}
