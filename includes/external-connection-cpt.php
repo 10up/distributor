@@ -173,7 +173,7 @@ function ajax_verify_external_connection() {
 		$auth = $_POST['auth'];
 	}
 
-	$current_auth = get_post_meta( $_POST['endpoint_id'], 'dt_external_connection_auth', true );
+	$current_auth = get_post_meta( intval( $_POST['endpoint_id'] ), 'dt_external_connection_auth', true );
 
 	if ( ! empty( $current_auth ) ) {
 		$auth = array_merge( $auth, (array) $current_auth );
