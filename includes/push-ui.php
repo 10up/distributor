@@ -72,7 +72,7 @@ function ajax_push() {
 		exit;
 	}
 
-	$connection_map = get_post_meta( $_POST['post_id'], 'dt_connection_map', true );
+	$connection_map = get_post_meta( intval( $_POST['post_id'] ), 'dt_connection_map', true );
 	if ( empty( $connection_map ) ) {
 		$connection_map = array();
 	}
@@ -115,7 +115,7 @@ function ajax_push() {
 					$push_args['post_status'] = 'draft';
 				}
 
-				$remote_id = $external_connection->push( $_POST['post_id'], $push_args );
+				$remote_id = $external_connection->push( intval( $_POST['post_id'] ), $push_args );
 
 				/**
 				 * Record the external connection id's remote post id for this local post
@@ -152,13 +152,13 @@ function ajax_push() {
 				$push_args['post_status'] = 'draft';
 			}
 
-			$remote_id = $internal_connection->push( $_POST['post_id'], $push_args );
+			$remote_id = $internal_connection->push( intval( $_POST['post_id'] ), $push_args );
 
 			/**
 			 * Record the internal connection id's remote post id for this local post
 			 */
 			if ( ! is_wp_error( $remote_id ) ) {
-				switch_to_blog( $connection['id'] );
+				switch_to_blog( intval( $connection['id'] ) );
 				$remote_url = get_permalink( $remote_id );
 				restore_current_blog();
 
@@ -183,7 +183,7 @@ function ajax_push() {
 		}
 	}
 
-	update_post_meta( $_POST['post_id'], 'dt_connection_map', $connection_map );
+	update_post_meta( intval( $_POST['post_id'] ), 'dt_connection_map', $connection_map );
 
 	wp_send_json_success(
 		array(
