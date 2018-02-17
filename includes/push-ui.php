@@ -331,7 +331,7 @@ function menu_content() {
 		$current_post_type = get_post_type();
 
 		if ( ! empty( $_GET['post_type'] ) ) {
-			$current_post_type = $_GET['post_type'];
+			$current_post_type = sanitize_key( $_GET['post_type'] );
 		}
 
 		if ( empty( $current_post_type ) ) {
