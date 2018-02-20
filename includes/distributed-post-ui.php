@@ -31,7 +31,7 @@ function add_help_tab() {
 		return;
 	}
 
-	$connection_map = get_post_meta( $_GET['post'], 'dt_connection_map', true );
+	$connection_map = get_post_meta( intval( $_GET['post'] ), 'dt_connection_map', true );
 
 	if ( empty( $connection_map ) ) {
 		return;

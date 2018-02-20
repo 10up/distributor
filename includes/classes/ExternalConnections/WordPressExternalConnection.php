@@ -11,6 +11,8 @@ class WordPressExternalConnection extends ExternalConnection {
 	static $auth_handler_class = '\Distributor\Authentications\WordPressBasicAuth';
 	static $namespace          = 'wp/v2';
 
+	static $timeout            = 5;
+
 	/**
 	 * This is a utility function for parsing annoying API link headers returned by the types endpoint
 	 *
@@ -103,7 +105,7 @@ class WordPressExternalConnection extends ExternalConnection {
 				);
 			} else {
 				$types_response = wp_remote_get(
-					$types_path, $this->auth_handler->format_get_args( array( 'timeout' => 5 ) )
+					$types_path, $this->auth_handler->format_get_args( array( 'timeout' => self::$timeout ) )
 			);
 			}
 
@@ -172,7 +174,7 @@ class WordPressExternalConnection extends ExternalConnection {
 				false, 3, 3, 10, $this->auth_handler->format_get_args()
 			);
 		} else {
-			$posts_response = wp_remote_get( apply_filters( 'dt_remote_get_url', $posts_url, $args, $this ), $this->auth_handler->format_get_args( array( 'timeout' => 5 ) ) );
+			$posts_response = wp_remote_get( apply_filters( 'dt_remote_get_url', $posts_url, $args, $this ), $this->auth_handler->format_get_args( array( 'timeout' => self::$timeout ) ) );
 		}
 
 		if ( is_wp_error( $posts_response ) ) {
@@ -318,7 +320,7 @@ class WordPressExternalConnection extends ExternalConnection {
 		} else {
 			$response = wp_remote_get(
 				$types_path, $this->auth_handler->format_get_args( array(
-					'timeout' => 5,
+					'timeout' => self::$timeout,
 				) )
 			);
 		}
@@ -374,7 +376,7 @@ class WordPressExternalConnection extends ExternalConnection {
 					false, 3, 3, 10, $this->auth_handler->format_get_args()
 				);
 			} else {
-				$post_exists_response = wp_remote_get( $existing_post_url, $this->auth_handler->format_get_args( array( 'timeout' => 5 ) ) );
+				$post_exists_response = wp_remote_get( $existing_post_url, $this->auth_handler->format_get_args( array( 'timeout' => self::$timeout ) ) );
 			}
 
 			if ( ! is_wp_error( $post_exists_response ) ) {
@@ -450,7 +452,7 @@ class WordPressExternalConnection extends ExternalConnection {
 				false, 3, 3, 10, $this->auth_handler->format_get_args()
 			);
 		} else {
-			$response = wp_remote_get( untrailingslashit( $this->base_url ), $this->auth_handler->format_get_args( array( 'timeout' => 5 ) ) );
+			$response = wp_remote_get( untrailingslashit( $this->base_url ), $this->auth_handler->format_get_args( array( 'timeout' => self::$timeout ) ) );
 		}
 		$body = wp_remote_retrieve_body( $response );
 
@@ -502,7 +504,7 @@ class WordPressExternalConnection extends ExternalConnection {
 					false, 3, 3, 10, $this->auth_handler->format_get_args()
 				);
 		} else {
-			$types_response = wp_remote_get( $types_path, $this->auth_handler->format_get_args( array( 'timeout' => 5 ) ) );
+			$types_response = wp_remote_get( $types_path, $this->auth_handler->format_get_args( array( 'timeout' => self::$timeout ) ) );
 		}
 		$types_body = wp_remote_retrieve_body( $types_response );
 
@@ -540,7 +542,7 @@ class WordPressExternalConnection extends ExternalConnection {
 									false, 3, 3, 10, $this->auth_handler->format_get_args()
 								);
 							} else {
-								$type_response = wp_remote_get( $link, $this->auth_handler->format_get_args( array( 'timeout' => 5 ) ) );
+								$type_response = wp_remote_get( $link, $this->auth_handler->format_get_args( array( 'timeout' => self::$timeout ) ) );
 							}
 
 							if ( ! is_wp_error( $type_response ) ) {
@@ -556,7 +558,7 @@ class WordPressExternalConnection extends ExternalConnection {
 							$type_response = wp_remote_post(
 								$link, $this->auth_handler->format_post_args(
 									array(
-										'timeout' => 5,
+										'timeout' => self::$timeout,
 										'body'    => array( 'test' => 1 ),
 									)
 								)

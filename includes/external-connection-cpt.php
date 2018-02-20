@@ -173,14 +173,14 @@ function ajax_verify_external_connection() {
 		$auth = $_POST['auth'];
 	}
 
-	$current_auth = get_post_meta( $_POST['endpoint_id'], 'dt_external_connection_auth', true );
+	$current_auth = get_post_meta( intval( sanitize_key( $_POST['endpoint_id'] ) ), 'dt_external_connection_auth', true );
 
 	if ( ! empty( $current_auth ) ) {
 		$auth = array_merge( $auth, (array) $current_auth );
 	}
 
 	// Create an instance of the connection to test connections
-	$external_connection_class = \Distributor\Connections::factory()->get_registered()[ $_POST['type'] ];
+	$external_connection_class = \Distributor\Connections::factory()->get_registered()[ sanitize_key( $_POST['type'] ) ];
 
 	$auth_handler = new $external_connection_class::$auth_handler_class( $auth );
 
@@ -295,7 +295,7 @@ function save_post( $post_id ) {
 		update_post_meta( $post_id, 'dt_external_connection_url', sanitize_text_field( $_POST['dt_external_connection_url'] ) );
 
 		// Create an instance of the connection to test connections
-		$external_connection_class = \Distributor\Connections::factory()->get_registered()[ $_POST['dt_external_connection_type'] ];
+		$external_connection_class = \Distributor\Connections::factory()->get_registered()[ sanitize_key( $_POST['dt_external_connection_type'] ) ];
 
 		$auth = array();
 		if ( ! empty( $_POST['dt_external_connection_auth'] ) ) {
@@ -324,7 +324,7 @@ function save_post( $post_id ) {
 			$current_auth = array();
 		}
 
-		$connection_class         = \Distributor\Connections::factory()->get_registered()[ $_POST['dt_external_connection_type'] ];
+		$connection_class         = \Distributor\Connections::factory()->get_registered()[ sanitize_key( $_POST['dt_external_connection_type'] ) ];
 		$auth_handler_class_again = $connection_class::$auth_handler_class;
 
 		$auth_creds = $auth_handler_class_again::prepare_credentials( array_merge( (array) $current_auth, $_POST['dt_external_connection_auth'] ) );
@@ -479,7 +479,7 @@ function dashboard() {
 
 		<form id="posts-filter" method="get">
 
-		<input type="hidden" name="post_status" class="post_status_page" value="<?php echo ! empty( $_REQUEST['post_status'] ) ? esc_attr( $_REQUEST['post_status'] ) : 'all'; ?>">
+		<input type="hidden" name="post_status" class="post_status_page" value="<?php echo ! empty( $_REQUEST['post_status'] ) ? esc_attr( sanitize_key( $_REQUEST['post_status'] ) ) : 'all'; ?>">
 		<input type="hidden" name="post_type" class="post_type_page" value="dt_ext_connection">
 		<input type="hidden" name="page" value="distributor">
 

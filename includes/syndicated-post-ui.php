@@ -124,15 +124,15 @@ function add_linked_class( $classes ) {
 		return $classes;
 	}
 
-	$original_blog_id   = get_post_meta( $_GET['post'], 'dt_original_blog_id', true );
-	$original_source_id = get_post_meta( $_GET['post'], 'dt_original_source_id', true );
-	$original_post_id   = get_post_meta( $_GET['post'], 'dt_original_post_id', true );
+	$original_blog_id   = get_post_meta( intval( $_GET['post'] ), 'dt_original_blog_id', true );
+	$original_source_id = get_post_meta( intval( $_GET['post'] ), 'dt_original_source_id', true );
+	$original_post_id   = get_post_meta( intval( $_GET['post'] ), 'dt_original_post_id', true );
 
 	if ( empty( $original_post_id ) || ( empty( $original_blog_id ) && empty( $original_source_id ) ) ) {
 		return $classes;
 	}
 
-	$unlinked         = (bool) get_post_meta( $_GET['post'], 'dt_unlinked', true );
+	$unlinked         = (bool) get_post_meta( intval( $_GET['post'] ), 'dt_unlinked', true );
 	$original_deleted = (bool) get_post_meta( $post->ID, 'dt_original_post_deleted', true );
 
 	if ( $unlinked || $original_deleted ) {
@@ -174,11 +174,13 @@ function unlink() {
 		return;
 	}
 
-	if ( empty( $_GET['_wpnonce'] ) || ! wp_verify_nonce( $_GET['_wpnonce'], 'unlink-post_' . $_GET['post'] ) ) {
+	$post_id = intval( $_GET['post'] );
+
+	if ( empty( $_GET['_wpnonce'] ) || ! wp_verify_nonce( $_GET['_wpnonce'], 'unlink-post_' . $post_id ) ) {
 		return;
 	}
 
-	update_post_meta( $_GET['post'], 'dt_unlinked', true );
+	update_post_meta( $post_id, 'dt_unlinked', true );
 
 	/**
 	 * Todo: Do we delete subscriptions for external posts?
@@ -186,7 +188,7 @@ function unlink() {
 
 	do_action( 'dt_unlink_post' );
 
-	wp_safe_redirect( admin_url( 'post.php?action=edit&post=' . $_GET['post'] ) );
+	wp_safe_redirect( admin_url( 'post.php?action=edit&post=' . intval( $_GET['post'] ) ) );
 	exit;
 }
 
@@ -200,20 +202,24 @@ function link() {
 		return;
 	}
 
-	if ( empty( $_GET['_wpnonce'] ) || ! wp_verify_nonce( $_GET['_wpnonce'], 'link-post_' . $_GET['post'] ) ) {
+	$post_id = intval( $_GET['post'] );
+
+	if ( empty( $_GET['_wpnonce'] ) || ! wp_verify_nonce( $_GET['_wpnonce'], 'link-post_' . $post_id ) ) {
 		return;
 	}
 
-	update_post_meta( $_GET['post'], 'dt_unlinked', false );
 
-	$original_source_id = get_post_meta( $_GET['post'], 'dt_original_source_id', true );
+
+	update_post_meta( $post_id, 'dt_unlinked', false );
+
+	$original_source_id = get_post_meta( $post_id, 'dt_original_source_id', true );
 
 	/**
 	 * For external connections we use a saved update since we might not have access to sync from original
 	 */
 	if ( empty( $original_source_id ) ) {
-		$original_post_id = get_post_meta( $_GET['post'], 'dt_original_post_id', true );
-		$original_blog_id = get_post_meta( $_GET['post'], 'dt_original_blog_id', true );
+		$original_post_id = get_post_meta( $post_id, 'dt_original_post_id', true );
+		$original_blog_id = get_post_meta( $post_id, 'dt_original_blog_id', true );
 
 		$blog_id = get_current_blog_id();
 
@@ -221,16 +227,16 @@ function link() {
 
 		$connection = new \Distributor\InternalConnections\NetworkSiteConnection( get_site( $blog_id ) );
 
-		$connection->push( $original_post_id, array( 'remote_post_id' => $_GET['post'] ) );
+		$connection->push( $original_post_id, array( 'remote_post_id' => $post_id ) );
 
 		restore_current_blog();
 	} else {
-		$update = get_post_meta( $_GET['post'], 'dt_subscription_update', true );
+		$update = get_post_meta( $post_id, 'dt_subscription_update', true );
 
 		if ( ! empty( $update ) ) {
 			wp_update_post(
 				[
-					'ID'           => $_GET['post'],
+					'ID'           => $post_id,
 					'post_title'   => $update['post_title'],
 					'post_content' => $update['post_content'],
 					'post_excerpt' => $update['post_excerpt'],
@@ -238,22 +244,22 @@ function link() {
 			);
 
 			if ( null !== $update['meta'] ) {
-				\Distributor\Utils\set_meta( $_GET['post'], $update['meta'] );
+				\Distributor\Utils\set_meta( $post_id, $update['meta'] );
 			}
 
 			if ( null !== $update['terms'] ) {
-				\Distributor\Utils\set_taxonomy_terms( $_GET['post'], $update['terms'] );
+				\Distributor\Utils\set_taxonomy_terms( $post_id, $update['terms'] );
 			}
 
 			if ( null !== $update['media'] ) {
-				\Distributor\Utils\set_media( $_GET['post'], $update['media'] );
+				\Distributor\Utils\set_media( $post_id, $update['media'] );
 			}
 		}
 	}
 
 	do_action( 'dt_link_post' );
 
-	wp_safe_redirect( admin_url( 'post.php?action=edit&post=' . $_GET['post'] ) );
+	wp_safe_redirect( admin_url( 'post.php?action=edit&post=' . $post_id ) );
 	exit;
 }
 

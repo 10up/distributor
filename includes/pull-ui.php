@@ -197,14 +197,14 @@ function process_actions() {
 			);
 
 			if ( 'external' === $_GET['connection_type'] ) {
-				$connection = \Distributor\ExternalConnection::instantiate( $_GET['connection_id'] );
+				$connection = \Distributor\ExternalConnection::instantiate( intval( $_GET['connection_id'] ) );
 				$new_posts  = $connection->pull( $posts );
 
 				foreach ( $posts as $key => $post_array ) {
 					\Distributor\Subscriptions\create_remote_subscription( $connection, $post_array['remote_post_id'], $new_posts[ $key ] );
 				}
 			} else {
-				$site       = get_site( $_GET['connection_id'] );
+				$site       = get_site( intval( $_GET['connection_id'] ) );
 				$connection = new \Distributor\InternalConnections\NetworkSiteConnection( $site );
 				$new_posts  = $connection->pull( $posts );
 			}
@@ -248,9 +248,9 @@ function process_actions() {
 			}
 
 			if ( 'external' === $_GET['connection_type'] ) {
-				$connection = \Distributor\ExternalConnection::instantiate( $_GET['connection_id'] );
+				$connection = \Distributor\ExternalConnection::instantiate( intval( $_GET['connection_id'] ) );
 			} else {
-				$site       = get_site( $_GET['connection_id'] );
+				$site       = get_site( intval( $_GET['connection_id'] ) );
 				$connection = new \Distributor\InternalConnections\NetworkSiteConnection( $site );
 			}
 
