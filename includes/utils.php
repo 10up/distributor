@@ -33,7 +33,6 @@ function set_meta( $post_id, $meta ) {
 
 	foreach ( $meta as $meta_key => $meta_value ) {
 		if ( is_string( $meta_value ) ) {
-						error_log( json_encode( $meta_value, JSON_PRETTY_PRINT ) );
 			if ( ! in_array( $meta_key, $blacklisted_meta, true ) ) {
 				$meta_value = maybe_unserialize( $meta_value );
 				update_post_meta( $post_id, $meta_key, $meta_value );
@@ -41,7 +40,6 @@ function set_meta( $post_id, $meta ) {
 		} else {
 			$meta_array = (array) $meta_value;
 			foreach ( $meta_array as $meta_item_value ) {
-						error_log( json_encode( $meta_value, JSON_PRETTY_PRINT ) );
 				if ( ! in_array( $meta_key, $blacklisted_meta, true ) ) {
 					$meta_item_value = maybe_unserialize( $meta_item_value );
 					update_post_meta( $post_id, $meta_key, $meta_item_value );
