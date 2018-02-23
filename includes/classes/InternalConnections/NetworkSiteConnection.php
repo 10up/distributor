@@ -515,6 +515,7 @@ class NetworkSiteConnection extends Connection {
 	public static function canonicalize_front_end() {
 		add_filter( 'get_canonical_url', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'canonical_url' ), 10, 2 );
 		add_filter( 'wpseo_canonical', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'wpseo_canonical_url' ) );
+		add_filter( 'wpseo_opengraph_url', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'wpseo_og_url' ) );
 	}
 
 	/**
@@ -574,5 +575,20 @@ class NetworkSiteConnection extends Connection {
 		}
 
 		return self::canonical_url( $canonical_url, $post );
+	}
+
+	/**
+	 * Handles the og:url change for distributed content when Yoast SEO is in use
+	 *
+	 * @param string $og_url The Yoast WPSEO deduced OG URL which is a result of wpseo_canonical_url
+	 *
+	 * @return string $og_url The updated distributor friendly URL
+	 */
+	public static function wpseo_og_url( $og_url ) {
+		if ( is_singular() ) {
+			$og_url = get_permalink();
+		}
+
+		return $og_url;
 	}
 }
