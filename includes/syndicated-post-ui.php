@@ -40,7 +40,7 @@ function setup() {
  */
 function add_distributor_column( $columns ) {
 	unset( $columns['date'] );
-	$columns['distributor'] = '<img src="' . esc_url( plugins_url( 'assets/img/icon.svg', __DIR__ ) ) . '" alt="' . esc_html__( 'See which posts have been distributed', 'distributor' ) . '" title="' . esc_html__( 'See which posts have been distributed', 'distributor' ) . '">';
+	$columns['distributor'] = '<img src="' . esc_url( plugins_url( 'assets/img/icon.svg', __DIR__ ) ) . '" alt="' . esc_html__( 'Posts distributed from another site.', 'distributor' ) . '" title="' . esc_html__( 'Posts distributed from another site.', 'distributor' ) . '">';
 
 	$columns['date'] = esc_html__( 'Date', 'distributor' );
 
@@ -64,11 +64,12 @@ function output_distributor_column( $column_name, $post_id ) {
 			echo '—';
 		} else {
 			$unlinked = (bool) get_post_meta( $post_id, 'dt_unlinked', true );
+			$post_type_object = get_post_type_object( get_post_type( $post_id ) );
 
 			if ( $unlinked ) {
-				echo '<img class="dt-unlinked" src="' . esc_url( plugins_url( 'assets/img/icon.svg', __DIR__ ) ) . '" alt="' . esc_html__( 'See which posts have been distributed', 'distributor' ) . '" title="' . esc_html__( 'See which posts have been distributed', 'distributor' ) . '">';
+				echo '<img class="dt-unlinked" src="' . esc_url( plugins_url( 'assets/img/icon.svg', __DIR__ ) ) . '" alt="' . sprintf( esc_html__( 'Unlinked from an original %s.', 'distributor' ), esc_html( strtolower( $post_type_object->labels->singular_name ) ) ) . '" title="' . sprintf( esc_html__( 'Unlinked from an original %s.', 'distributor' ), esc_html( strtolower( $post_type_object->labels->singular_name ) ) ) . '">';
 			} else {
-				echo '<img src="' . esc_url( plugins_url( 'assets/img/icon.svg', __DIR__ ) ) . '" alt="' . esc_html__( 'See which posts have been distributed', 'distributor' ) . '" title="' . esc_html__( 'See which posts have been distributed', 'distributor' ) . '">';
+				echo '<img src="' . esc_url( plugins_url( 'assets/img/icon.svg', __DIR__ ) ) . '" alt="' . sprintf( esc_html__( 'Linked from an original %s.', 'distributor' ), esc_html( strtolower( $post_type_object->labels->singular_name ) ) ) . '" title="' . sprintf( esc_html__( 'Linked from an original %s.', 'distributor' ), esc_html( strtolower( $post_type_object->labels->singular_name ) ) ) . '">';
 			}
 		}
 	}
