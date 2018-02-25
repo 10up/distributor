@@ -383,7 +383,7 @@ class PullListTable extends \WP_List_Table {
 
 			$remote_get_args['meta_query'] = [
 				[
-					'key'     => 'dt_connection_map',
+					'key'     => 'dt_syndicate_time',
 					'compare' => 'NOT EXISTS',
 				],
 			];
