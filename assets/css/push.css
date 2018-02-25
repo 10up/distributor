@@ -133,6 +133,10 @@
 	}
 }
 
+#wpadminbar #distributor-push-wrapper input[type=checkbox] {
+	height: 16px !important;
+}
+
 #wpadminbar #distributor-push-wrapper input[type=text] {
 	font-size: inherit;
 	padding: 0.5278em;
@@ -210,6 +214,7 @@
 	color: inherit;
 	text-decoration: underline;
 	float: right;
+	height: auto;
 }
 
 #wpadminbar #distributor-push-wrapper .added-connection {
