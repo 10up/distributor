@@ -65,11 +65,12 @@ function output_distributor_column( $column_name, $post_id ) {
 		} else {
 			$unlinked = (bool) get_post_meta( $post_id, 'dt_unlinked', true );
 			$post_type_object = get_post_type_object( get_post_type( $post_id ) );
+			$post_url = get_post_meta( $post_id, 'dt_original_post_url', true );
 
 			if ( $unlinked ) {
-				echo '<img class="dt-unlinked" src="' . esc_url( plugins_url( 'assets/img/icon.svg', __DIR__ ) ) . '" alt="' . sprintf( esc_html__( 'Unlinked from an original %s.', 'distributor' ), esc_html( strtolower( $post_type_object->labels->singular_name ) ) ) . '" title="' . sprintf( esc_html__( 'Unlinked from an original %s.', 'distributor' ), esc_html( strtolower( $post_type_object->labels->singular_name ) ) ) . '">';
+				echo '<a href="' . esc_url( $post_url ) . '"><img class="dt-unlinked" src="' . esc_url( plugins_url( 'assets/img/icon.svg', __DIR__ ) ) . '" alt="' . sprintf( esc_html__( 'Unlinked from an original %s.', 'distributor' ), esc_html( strtolower( $post_type_object->labels->singular_name ) ) ) . '" title="' . sprintf( esc_html__( 'Unlinked from an original %s.', 'distributor' ), esc_html( strtolower( $post_type_object->labels->singular_name ) ) ) . '"></a>';
 			} else {
-				echo '<img src="' . esc_url( plugins_url( 'assets/img/icon.svg', __DIR__ ) ) . '" alt="' . sprintf( esc_html__( 'Linked from an original %s.', 'distributor' ), esc_html( strtolower( $post_type_object->labels->singular_name ) ) ) . '" title="' . sprintf( esc_html__( 'Linked from an original %s.', 'distributor' ), esc_html( strtolower( $post_type_object->labels->singular_name ) ) ) . '">';
+				echo '<a href="' . esc_url( $post_url ) . '"><img src="' . esc_url( plugins_url( 'assets/img/icon.svg', __DIR__ ) ) . '" alt="' . sprintf( esc_html__( 'Linked from an original %s.', 'distributor' ), esc_html( strtolower( $post_type_object->labels->singular_name ) ) ) . '" title="' . sprintf( esc_html__( 'Linked from an original %s.', 'distributor' ), esc_html( strtolower( $post_type_object->labels->singular_name ) ) ) . '"></a>';
 			}
 		}
 	}
