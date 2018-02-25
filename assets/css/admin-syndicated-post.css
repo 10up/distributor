@@ -28,10 +28,6 @@ body.dt-linked-post {
 		cursor: pointer;
 	}
 
-	& .misc-pub-revisions {
-		display: none;
-	}
-
 	& #visibility {
 		display: none;
 	}
@@ -55,10 +51,6 @@ body.dt-linked-post {
 			content: ' ';
 			z-index: 2;
 		}
-	}
-
-	& #revisionsdiv {
-		display: none;
 	}
 
 	& label[for="revisionsdiv-hide"] {

@@ -18,6 +18,8 @@ function setup() {
 			add_action( 'post_submitbox_misc_actions', __NAMESPACE__ . '\syndication_date' );
 			add_filter( 'admin_body_class', __NAMESPACE__ . '\add_linked_class' );
 			add_filter( 'post_row_actions', __NAMESPACE__ . '\remove_quick_edit', 10, 2 );
+			add_action( 'do_meta_boxes', __NAMESPACE__ . '\replace_revisions_meta_box', 10, 3 );
+			add_action( 'add_meta_boxes', __NAMESPACE__ . '\add_revisions_meta_box' );
 
 			$post_types = \Distributor\Utils\distributable_post_types();
 
@@ -149,12 +151,21 @@ function add_linked_class( $classes ) {
  * @since  0.8
  */
 function syndication_date( $post ) {
-	$syndicate_time = get_post_meta( $post->ID, 'dt_syndicate_time', true );
+	$original_blog_id   = get_post_meta( $post->ID, 'dt_original_blog_id', true );
+	$original_post_id   = get_post_meta( $post->ID, 'dt_original_post_id', true );
+	$original_source_id = get_post_meta( $post->ID, 'dt_original_source_id', true );
 
-	if ( empty( $syndicate_time ) ) {
+	if ( empty( $original_post_id ) || ( empty( $original_blog_id ) && empty( $original_source_id ) ) ) {
 		return;
 	}
 
+	$unlinked = (bool) get_post_meta( $post->ID, 'dt_unlinked', true );
+
+	if ( $unlinked ) {
+		return;
+	}
+
+	$syndicate_time = get_post_meta( $post->ID, 'dt_syndicate_time', true );
 	?>
 
 	<div class="misc-pub-section curtime misc-pub-curtime">
@@ -162,6 +173,69 @@ function syndication_date( $post ) {
 	</div>
 
 	<?php
+}
+
+/**
+ * Remove old revisions meta box
+ *
+ * @param  string  $post_type
+ * @param  string  $context
+ * @param  WP_Post $post
+ * @since  1.0
+ */
+function add_revisions_meta_box() {
+	global $post;
+
+	$original_blog_id   = get_post_meta( $post->ID, 'dt_original_blog_id', true );
+	$original_post_id   = get_post_meta( $post->ID, 'dt_original_post_id', true );
+	$original_source_id = get_post_meta( $post->ID, 'dt_original_source_id', true );
+
+	if ( empty( $original_post_id ) || ( empty( $original_blog_id ) && empty( $original_source_id ) ) ) {
+		return;
+	}
+
+	$unlinked = (bool) get_post_meta( $post->ID, 'dt_unlinked', true );
+
+	if ( $unlinked ) {
+		return;
+	}
+
+	add_meta_box( 'revisionsdiv2', esc_html__( 'Revisions', 'distributor' ), __NAMESPACE__ . '\new_revisions_meta_box', $post->post_type );
+}
+
+function new_revisions_meta_box( $post_id ) {
+	$post_type = get_post_type_object( get_post_type( $post_id ) );
+	?>
+	<p>
+		<?php printf( esc_html__( 'Revisions are not accessible for linked %s.', 'distributor' ), esc_html( strtolower( $post_type->labels->name ) ) ); ?>
+	</p>
+	<?php
+}
+
+/**
+ * Remove old revisions meta box
+ *
+ * @param  string  $post_type
+ * @param  string  $context
+ * @param  WP_Post $post
+ * @since  1.0
+ */
+function replace_revisions_meta_box( $post_type, $context, $post ) {
+	$original_blog_id   = get_post_meta( $post->ID, 'dt_original_blog_id', true );
+	$original_post_id   = get_post_meta( $post->ID, 'dt_original_post_id', true );
+	$original_source_id = get_post_meta( $post->ID, 'dt_original_source_id', true );
+
+	if ( empty( $original_post_id ) || ( empty( $original_blog_id ) && empty( $original_source_id ) ) ) {
+		return;
+	}
+
+	$unlinked = (bool) get_post_meta( $post->ID, 'dt_unlinked', true );
+
+	if ( $unlinked ) {
+		return;
+	}
+
+	remove_meta_box( 'revisionsdiv', $post_type, $context );
 }
 
 /**
@@ -316,7 +390,7 @@ function syndicated_message( $post ) {
 		<?php else : ?>
 			<p>
 				<?php echo wp_kses_post( sprintf( __( 'Originally distributed from <a href="%1$s">%1$s</a>.', 'distributor' ), esc_url( $post_url ), esc_html( $original_location_name ) ) ); ?>
-				<span><?php echo wp_kses_post( sprintf( __( "This %1\$s has been forked from it's original. However, you can always <a href='%2\$s'>restore it.</a>", 'distributor' ), esc_html( strtolower( $post_type_singular ) ), wp_nonce_url( add_query_arg( 'action', 'link', admin_url( sprintf( $post_type_object->_edit_link, $post->ID ) ) ), "link-post_{$post->ID}" ) ) ); ?></span>
+				<span><?php echo wp_kses_post( sprintf( __( "This %1\$s has been unlinked from it's original. However, you can always <a href='%2\$s'>restore it.</a>", 'distributor' ), esc_html( strtolower( $post_type_singular ) ), wp_nonce_url( add_query_arg( 'action', 'link', admin_url( sprintf( $post_type_object->_edit_link, $post->ID ) ) ), "link-post_{$post->ID}" ) ) ); ?></span>
 			</p>
 		<?php endif; ?>
 	</div>
