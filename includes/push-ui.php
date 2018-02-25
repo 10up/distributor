@@ -265,7 +265,7 @@ function menu_content() {
 		$post_type_object = get_post_type_object( $post->post_type );
 
 		?>
-		<div class="distributor-push-wrapper">
+		<div id="distributor-push-wrapper">
 			<div class="inner">
 				<p class="syndicated-notice">
 					<?php printf( esc_html__( 'This %s has been distributed from', 'distributor' ), esc_html( strtolower( $post_type_object->labels->singular_name ) ) ); ?>
@@ -404,7 +404,7 @@ function menu_content() {
 			</div>
 		</script>
 
-		<div class="distributor-push-wrapper">
+		<div id="distributor-push-wrapper">
 			<div class="inner">
 
 				<?php if ( ! empty( $dom_connections ) ) : ?>

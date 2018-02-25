@@ -22,8 +22,8 @@ const processTemplate = _.memoize( ( id ) => {
 } )
 
 jQuery( window ).load( () => {
-	const distributorMenuItem     = document.querySelector( '#wp-admin-bar-distributor a' )
-	const distributorPushWrapper  = document.querySelector( '.distributor-push-wrapper' )
+	const distributorMenuItem     = document.querySelector( '#wp-admin-bar-distributor' )
+	const distributorPushWrapper  = document.querySelector( '#distributor-push-wrapper' )
 	const connectionsSelected     = distributorPushWrapper.querySelector( '.connections-selected' )
 	const connectionsSelectedList = distributorPushWrapper.querySelector( '.selected-connections-list' )
 	const connectionsNewList      = distributorPushWrapper.querySelector( '.new-connections-list' )
@@ -31,6 +31,8 @@ jQuery( window ).load( () => {
 	const syndicateButton         = distributorPushWrapper.querySelector( '.syndicate-button' )
 	const actionWrapper           = distributorPushWrapper.querySelector( '.action-wrapper' )
 	const asDraftInput            = document.getElementById( 'dt-as-draft' )
+
+	distributorMenuItem.appendChild( distributorPushWrapper )
 
 	/**
 		 * Handle UI error changes
@@ -151,21 +153,6 @@ jQuery( window ).load( () => {
 				doError()
 			}, 500 )
 		} )
-	} )
-
-	/**
-	 * Show distributor dropdown
-	 */
-	jQuery( distributorMenuItem ).on( 'click', ( event ) => {
-		event.preventDefault()
-
-		if ( document.body.classList.contains( 'distributor-show' ) ) {
-			distributorMenuItem.blur()
-		} else {
-			distributorMenuItem.focus()
-		}
-
-		document.body.classList.toggle( 'distributor-show' )
 	} )
 
 	/**
