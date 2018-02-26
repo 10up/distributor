@@ -23,8 +23,62 @@ function setup() {
 			add_action( 'load-toplevel_page_distributor', __NAMESPACE__ . '\setup_list_table' );
 			add_filter( 'set-screen-option', __NAMESPACE__ . '\set_screen_option', 10, 3 );
 			add_action( 'wp_ajax_dt_begin_authorization', __NAMESPACE__ . '\ajax_begin_authorization' );
+			add_action( 'manage_dt_ext_connection_posts_custom_column', __NAMESPACE__ . '\output_status_column', 10, 2 );
+			add_filter( 'manage_dt_ext_connection_posts_columns', __NAMESPACE__ . '\add_status_column' );
 		}
 	);
+}
+
+
+/**
+ * Add status column to post table to indicate a connections status
+ *
+ * @since  1.0
+ * @param  array $columns
+ * @return array
+ */
+function add_status_column( $columns ) {
+	unset( $columns['date'] );
+	$columns['dt_status'] = esc_html__( 'Status', 'distributor' )/*'<span class="connection-status green"></span>'*/;
+
+	$columns['date'] = esc_html__( 'Date', 'distributor' );
+
+	return $columns;
+}
+
+/**
+ * Output status column
+ *
+ * @param  string $column_name
+ * @param  int    $post_id
+ * @since  1.0
+ */
+function output_status_column( $column_name, $post_id ) {
+	if ( 'dt_status' === $column_name ) {
+		$external_connection_status = get_post_meta( $post_id, 'dt_external_connections', true );
+		$last_checked = get_post_meta( $post_id, 'dt_external_connection_check_time', true );
+
+		$status = 'valid';
+
+		if ( empty( $external_connection_status ) ) {
+			$status = 'error';
+		} else {
+			if ( ! empty( $external_connection_status['errors'] ) && ! empty( $external_connection_status['errors']['no_distributor'] ) ) {
+				$status = 'error';
+			}
+
+			if ( empty( $external_connection_status['can_post'] ) ) {
+				$status = 'warning';
+			}
+		}
+
+		?>
+		<span class="connection-status <?php echo esc_attr( $status ); ?>"></span>
+		<?php if ( ! empty( $last_checked ) ) : ?>
+			<?php printf( esc_html__( '(Last Checked on %s)' ), esc_html( date( 'F j, Y, g:i a', $last_checked ) ) ); ?>
+		<?php endif; ?>
+		<?php
+	}
 }
 
 /**
