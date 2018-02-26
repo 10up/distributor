@@ -86,13 +86,14 @@ function checkConnections() {
 
 					const warnings = []
 
-					if ( ! response.data.can_post.length ) {
-						warnings.push( dt.bad_auth )
+					if ( response.data.errors.no_distributor ) {
+						endpointResult.innerText += ' ' + dt.no_distributor
+					} else {
+						endpointResult.innerText += ' ' + dt.bad_auth
 					}
 
-					if ( response.data.errors.no_distributor ) {
-						warnings.push( dt.no_distributor )
-					}
+					warnings.push( dt.no_push )
+					warnings.push( dt.pull_limited )
 
 					warnings.forEach( ( warning ) => {
 						const warningNode       = document.createElement( 'li' )
