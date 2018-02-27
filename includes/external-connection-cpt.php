@@ -285,7 +285,7 @@ function admin_enqueue_scripts( $hook ) {
 		if ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) {
 			$css_path = '/assets/css/admin-external-connections.css';
 		} else {
-			$css_path = '/assets/css/admin-external-connections.min.css';
+			$css_path = '/dist/css/admin-external-connections.min.css';
 		}
 
 		wp_enqueue_style( 'dt-admin-external-connections', plugins_url( $css_path, __DIR__ ), array(), DT_VERSION );
@@ -294,7 +294,7 @@ function admin_enqueue_scripts( $hook ) {
 	if ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) {
 		$css_path = '/assets/css/admin.css';
 	} else {
-		$css_path = '/assets/css/admin.min.css';
+		$css_path = '/dist/css/admin.min.css';
 	}
 
 	wp_enqueue_style( 'dt-admin', plugins_url( $css_path, __DIR__ ), array(), DT_VERSION );
