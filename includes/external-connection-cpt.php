@@ -282,22 +282,10 @@ function admin_enqueue_scripts( $hook ) {
 	}
 
 	if ( ! empty( $_GET['page'] ) && 'distributor' === $_GET['page'] ) {
-		if ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) {
-			$css_path = '/assets/css/admin-external-connections.css';
-		} else {
-			$css_path = '/assets/css/admin-external-connections.min.css';
-		}
-
-		wp_enqueue_style( 'dt-admin-external-connections', plugins_url( $css_path, __DIR__ ), array(), DT_VERSION );
+		wp_enqueue_style( 'dt-admin-external-connections', plugins_url( '/dist/css/admin-external-connections.min.css', __DIR__ ), array(), DT_VERSION );
 	}
 
-	if ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) {
-		$css_path = '/assets/css/admin.css';
-	} else {
-		$css_path = '/assets/css/admin.min.css';
-	}
-
-	wp_enqueue_style( 'dt-admin', plugins_url( $css_path, __DIR__ ), array(), DT_VERSION );
+	wp_enqueue_style( 'dt-admin', plugins_url( '/dist/css/admin.min.css', __DIR__ ), array(), DT_VERSION );
 }
 
 /**
