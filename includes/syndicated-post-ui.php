@@ -444,11 +444,5 @@ function enqueue_edit_scripts( $hook ) {
 		return;
 	}
 
-	if ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) {
-		$css_path = '/assets/css/admin-edit-table.css';
-	} else {
-		$css_path = '/dist/css/admin-edit-table.min.css';
-	}
-
-	wp_enqueue_style( 'dt-admin-syndicated-post', plugins_url( $css_path, __DIR__ ), array(), DT_VERSION );
+	wp_enqueue_style( 'dt-admin-syndicated-post', plugins_url( '/dist/css/admin-edit-table.min.css', __DIR__ ), array(), DT_VERSION );
 }
