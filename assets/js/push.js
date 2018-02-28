@@ -24,6 +24,11 @@ const processTemplate = _.memoize( ( id ) => {
 jQuery( window ).load( () => {
 	const distributorMenuItem     = document.querySelector( '#wp-admin-bar-distributor' )
 	const distributorPushWrapper  = document.querySelector( '#distributor-push-wrapper' )
+
+	if ( ! distributorMenuItem || ! distributorPushWrapper ) {
+		return
+	}
+
 	const connectionsSelected     = distributorPushWrapper.querySelector( '.connections-selected' )
 	const connectionsSelectedList = distributorPushWrapper.querySelector( '.selected-connections-list' )
 	const connectionsNewList      = distributorPushWrapper.querySelector( '.new-connections-list' )
