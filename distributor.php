@@ -1,14 +1,15 @@
 <?php
 
 /**
- * Plugin Name: Distributor
- * Description: Syndicate content to and from external websites and within multisite blogs.
- * Version:     1.1.0
- * Author:      Taylor Lovett, 10up
- * Author URI:  http://10up.com
- * License:     GPLv2 or later
- * Text Domain: distributor
- * Domain Path: /lang/
+ * Plugin Name:       Distributor
+ * Description:       Syndicate content to and from external websites and within multisite blogs.
+ * Version:           1.1.0
+ * Author:            Taylor Lovett, 10up
+ * Author URI:        http://10up.com
+ * License:           GPLv2 or later
+ * Text Domain:       distributor
+ * Domain Path:       /lang/
+ * GitHub Plugin URI: https://github.com/10up/distributor
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
