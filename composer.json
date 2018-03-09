@@ -1,5 +1,6 @@
 {
   "name": "10up/distributor",
+  "type": "wordpress-plugin",
   "authors": [
   	{
   		"name": "Taylor Lovett",
