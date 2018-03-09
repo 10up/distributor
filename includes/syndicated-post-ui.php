@@ -68,9 +68,9 @@ function output_distributor_column( $column_name, $post_id ) {
 			$post_url = get_post_meta( $post_id, 'dt_original_post_url', true );
 
 			if ( $unlinked ) {
-				echo '<a href="' . esc_url( $post_url ) . '"><img class="dt-unlinked" src="' . esc_url( plugins_url( 'assets/img/icon.svg', __DIR__ ) ) . '" alt="' . sprintf( esc_html__( 'Unlinked from an original %s.', 'distributor' ), esc_html( strtolower( $post_type_object->labels->singular_name ) ) ) . '" title="' . sprintf( esc_html__( 'Unlinked from an original %s.', 'distributor' ), esc_html( strtolower( $post_type_object->labels->singular_name ) ) ) . '"></a>';
+				echo '<a href="' . esc_url( $post_url ) . '"><img class="dt-unlinked" src="' . esc_url( plugins_url( 'assets/img/icon.svg', __DIR__ ) ) . '" alt="' . esc_html__( 'Unlinked', 'distributor' ) . '" title="' . esc_html__( 'Unlinked', 'distributor' ) . '"></a>';
 			} else {
-				echo '<a href="' . esc_url( $post_url ) . '"><img src="' . esc_url( plugins_url( 'assets/img/icon.svg', __DIR__ ) ) . '" alt="' . sprintf( esc_html__( 'Linked from an original %s.', 'distributor' ), esc_html( strtolower( $post_type_object->labels->singular_name ) ) ) . '" title="' . sprintf( esc_html__( 'Linked from an original %s.', 'distributor' ), esc_html( strtolower( $post_type_object->labels->singular_name ) ) ) . '"></a>';
+				echo '<a href="' . esc_url( $post_url ) . '"><img src="' . esc_url( plugins_url( 'assets/img/icon.svg', __DIR__ ) ) . '" alt="' . esc_html__( 'Linked', 'distributor' ) . '" title="' . esc_html__( 'Linked', 'distributor' ) . '"></a>';
 			}
 		}
 	}
@@ -396,7 +396,7 @@ function syndicated_message( $post ) {
 		<?php else : ?>
 			<p>
 				<?php echo wp_kses_post( sprintf( __( 'Originally distributed from <a href="%1$s">%1$s</a>.', 'distributor' ), esc_url( $post_url ), esc_html( $original_location_name ) ) ); ?>
-				<span><?php echo wp_kses_post( sprintf( __( "This %1\$s has been unlinked from it's original. However, you can always <a href='%2\$s'>restore it.</a>", 'distributor' ), esc_html( strtolower( $post_type_singular ) ), wp_nonce_url( add_query_arg( 'action', 'link', admin_url( sprintf( $post_type_object->_edit_link, $post->ID ) ) ), "link-post_{$post->ID}" ) ) ); ?></span>
+				<span><?php echo wp_kses_post( sprintf( __( "This %1\$s has been unlinked from the original. However, you can always <a href='%2\$s'>restore it.</a>", 'distributor' ), esc_html( strtolower( $post_type_singular ) ), wp_nonce_url( add_query_arg( 'action', 'link', admin_url( sprintf( $post_type_object->_edit_link, $post->ID ) ) ), "link-post_{$post->ID}" ) ) ); ?></span>
 			</p>
 		<?php endif; ?>
 	</div>

@@ -83,6 +83,14 @@
 	}
 }
 
+#wpadminbar #distributor-push-wrapper .connections-selected label {
+	color: inherit;
+}
+#wpadminbar #distributor-push-wrapper .connections-selected input[type="checkbox"] {
+	vertical-align: middle;
+	margin-right: 2px;
+}
+
 #wpadminbar #distributor-push-wrapper .connections-selected.empty:after {
 	content: ' ';
 	position: absolute;
