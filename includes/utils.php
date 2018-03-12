@@ -260,6 +260,7 @@ function set_media( $post_id, $media ) {
 		}
 
 		update_post_meta( $image_id, 'dt_original_media_url', $media_item['source_url'] );
+		update_post_meta( $image_id, 'dt_original_media_id', $media_item['id'] );
 
 		if ( $media_item['featured'] ) {
 			$found_featured_image = true;
