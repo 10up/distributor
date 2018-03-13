@@ -8,7 +8,7 @@
     "watch": "./node_modules/.bin/gulp watch",
     "css": "./node_modules/.bin/gulp css",
     "postinstall": "./node_modules/.bin/gulp",
-    "makepot": "./node_modules/.bin/wpi18n && echo '.pot file updated'"
+    "makepot": "./node_modules/.bin/wpi18n makepot && echo '.pot file updated'"
   },
   "dependencies": {
     "babel-core": "^6.26.0",
