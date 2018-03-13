@@ -209,7 +209,7 @@ function new_revisions_meta_box( $post_id ) {
 	$post_type = get_post_type_object( get_post_type( $post_id ) );
 	?>
 	<p>
-		<?php printf( esc_html__( 'Revisions are not accessible for linked %s.', 'distributor' ), esc_html( strtolower( $post_type->labels->name ) ) ); ?>
+		<?php printf( esc_html__( 'Distributed %s do not support revisions unless unlinked.', 'distributor' ), esc_html( strtolower( $post_type->labels->name ) ) ); ?>
 	</p>
 	<?php
 }
