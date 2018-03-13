@@ -40,7 +40,7 @@ function setup() {
  */
 function add_distributor_column( $columns ) {
 	unset( $columns['date'] );
-	$columns['distributor'] = '<img src="' . esc_url( plugins_url( 'assets/img/icon.svg', __DIR__ ) ) . '" alt="' . esc_html__( 'Posts distributed from another site.', 'distributor' ) . '" title="' . esc_html__( 'Posts distributed from another site.', 'distributor' ) . '">';
+	$columns['distributor'] = '<img src="' . esc_url( plugins_url( 'assets/img/icon.svg', __DIR__ ) ) . '" alt="' . esc_html__( 'Posts distributed from another site.', 'distributor' ) . '" title="' . esc_html__( 'Posts distributed from another site.', 'distributor' ) . '"> <span class="dt-column-header">Distributor</span>';
 
 	$columns['date'] = esc_html__( 'Date', 'distributor' );
 

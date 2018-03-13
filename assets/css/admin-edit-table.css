@@ -16,3 +16,8 @@
 .distributor.column-distributor img {
 	width: 18px;
 }
+
+.column-distributor .dt-column-header {
+	display: none;
+}
+
