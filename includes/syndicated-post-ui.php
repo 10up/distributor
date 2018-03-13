@@ -20,15 +20,23 @@ function setup() {
 			add_filter( 'post_row_actions', __NAMESPACE__ . '\remove_quick_edit', 10, 2 );
 			add_action( 'do_meta_boxes', __NAMESPACE__ . '\replace_revisions_meta_box', 10, 3 );
 			add_action( 'add_meta_boxes', __NAMESPACE__ . '\add_revisions_meta_box' );
-
-			$post_types = \Distributor\Utils\distributable_post_types();
-
-			foreach ( $post_types as $post_type ) {
-				add_action( 'manage_' . $post_type . '_posts_custom_column', __NAMESPACE__ . '\output_distributor_column', 10, 2 );
-				add_filter( 'manage_' . $post_type . '_posts_columns', __NAMESPACE__ . '\add_distributor_column' );
-			}
+			add_action( 'admin_init', __NAMESPACE__ . '\setup_columns' );
 		}
 	);
+}
+
+/**
+ * Setup custom admin columns
+ *
+ * @since 1.0
+ */
+function setup_columns() {
+	$post_types = \Distributor\Utils\distributable_post_types();
+
+	foreach ( $post_types as $post_type ) {
+		add_action( 'manage_' . $post_type . '_posts_custom_column', __NAMESPACE__ . '\output_distributor_column', 10, 2 );
+		add_filter( 'manage_' . $post_type . '_posts_columns', __NAMESPACE__ . '\add_distributor_column' );
+	}
 }
 
 /**
