@@ -73,10 +73,13 @@ function output_status_column( $column_name, $post_id ) {
 		}
 
 		?>
-		<span class="connection-status <?php echo esc_attr( $status ); ?>"></span>
-		<?php if ( ! empty( $last_checked ) ) : ?>
-			<?php printf( esc_html__( '(Last Checked on %s)' ), esc_html( date( 'F j, Y, g:i a', $last_checked ) ) ); ?>
-		<?php endif; ?>
+		<span
+			class="connection-status <?php echo esc_attr( $status ); ?>"
+			<?php if ( ! empty( $last_checked ) ) : ?>
+				title="<?php printf( esc_html__( 'Last Checked on %s' ), esc_html( date( 'F j, Y, g:i a', $last_checked ) ) ); ?>"
+			<?php endif; ?>
+		></span>
+		<a href="<?php echo esc_url( get_edit_post_link( $post_id ) ); ?>"><?php esc_html_e( '(Verify)', 'distributor' ); ?></a>
 		<?php
 	}
 }
