@@ -39,12 +39,14 @@ function add_help_tab() {
 
 	$screen = get_current_screen();
 
+	$post_type_object = get_post_type_object( get_post_type( $_GET['post'] ) );
+
 	// Add my_help_tab if current screen is My Admin Page
 	$screen->add_help_tab(
 		array(
 			'id'      => 'distributer',
 			'title'   => esc_html__( 'Distributor', 'distributor' ),
-			'content' => '<p>' . esc_html__( 'The number of connections this post has been distributed to is shown in the publish meta box. If this post is deleted, it could have ramifications across all those posts.', 'distributor' ) . '</p>',
+			'content' => '<p>' . sprintf( esc_html__( 'The number of connections this %s has been distributed to is shown in the publish meta box. If this %s is deleted, it could have ramifications across all those %s.', 'distributor' ), esc_html( strtolower( $post_type_object->labels->singular_name ) ), esc_html( strtolower( $post_type_object->labels->singular_name ) ), esc_html( strtolower( $post_type_object->labels->name ) ) ) . '</p>',
 		)
 	);
 }
