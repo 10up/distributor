@@ -162,8 +162,25 @@ class WordPressExternalConnection extends ExternalConnection {
 			}
 		}
 
+		$context = 'view';
+
+		$prelim_get_args = $this->auth_handler->format_get_args( array() );
+
+		/**
+		 * See if we are trying to authenticate
+		 */
+		if ( ! empty( $prelim_get_args ) && ! empty( $prelim_get_args['headers'] ) && ! empty( $prelim_get_args['headers']['Authorization'] ) ) {
+			$context = 'edit';
+
+			if ( ! empty( $args_str ) ) {
+				$args_str .= '&';
+			}
+
+			$args_str .= 'context=edit';
+		}
+
 		if ( ! empty( $id ) ) {
-			$posts_url = untrailingslashit( $types_urls[ $post_type ] ) . '/' . $id;
+			$posts_url = untrailingslashit( $types_urls[ $post_type ] ) . '/' . $id . '/?context=' . $context;
 		} else {
 			$posts_url = untrailingslashit( $types_urls[ $post_type ] ) . '/?' . $args_str;
 		}
@@ -596,7 +613,13 @@ class WordPressExternalConnection extends ExternalConnection {
 		$obj->ID                = $post['id'];
 		$obj->post_title        = $post['title']['rendered'];
 		$obj->post_content      = $post['content']['rendered'];
-		$obj->post_excerpt      = $post['excerpt']['rendered'];
+
+		if ( ! empty( $post['excerpt']['raw'] ) ) {
+			$obj->post_excerpt = $post['excerpt']['raw'];
+		} else {
+			$obj->post_excerpt = $post['excerpt']['rendered'];
+		}
+
 		$obj->post_status       = 'draft';
 		$obj->post_date         = $post['date'];
 		$obj->post_date_gmt     = $post['date_gmt'];
