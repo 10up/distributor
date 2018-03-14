@@ -9,7 +9,7 @@ namespace Distributor\RestApi;
  */
 function setup() {
 	add_action(
-		'plugins_loaded', function() {
+		'init', function() {
 			add_action( 'rest_api_init', __NAMESPACE__ . '\register_endpoints' );
 
 			$post_types = get_post_types(
@@ -21,7 +21,7 @@ function setup() {
 			foreach ( $post_types as $post_type ) {
 				add_action( "rest_insert_{$post_type}", __NAMESPACE__ . '\process_distributor_attributes', 10, 3 );
 			}
-		}
+		}, 100
 	);
 }
 
