@@ -614,7 +614,7 @@ class WordPressExternalConnection extends ExternalConnection {
 		$obj->post_title        = $post['title']['rendered'];
 		$obj->post_content      = $post['content']['rendered'];
 
-		if ( ! empty( $post['excerpt']['raw'] ) ) {
+		if ( isset( $post['excerpt']['raw'] ) ) {
 			$obj->post_excerpt = $post['excerpt']['raw'];
 		} else {
 			$obj->post_excerpt = $post['excerpt']['rendered'];
