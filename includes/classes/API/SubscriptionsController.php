@@ -276,6 +276,34 @@ class SubscriptionsController extends \WP_REST_Controller {
 
 		$post_id = \Distributor\Subscriptions\create_subscription( $request['post_id'], $request['remote_post_id'], $request['target_url'], $request['signature'] );
 
+		/**
+		 * We need to make sure this post shows up as "distributed"
+		 */
+		$connection_map = get_post_meta( $request['post_id'], 'dt_connection_map', true );
+
+		if ( empty( $connection_map ) ) {
+			$connection_map = [
+				'internal' => [],
+				'external' => [],
+			];
+		}
+
+		if ( empty( $connection_map['external'] ) ) {
+			$connection_map['external'] = [];
+		}
+
+		/**
+		 * We don't know the external connection ID
+		 *
+		 * @Todo: Find a way around this
+		 */
+		$connection_map['external'][ -1 ] = [
+			'post_id' => (int) $request['remote_post_id'],
+			'time'    => time(),
+		];
+
+		update_post_meta( $request['post_id'], 'dt_connection_map', $connection_map );
+
 		$response = rest_ensure_response( $this->get_response_array( $post_id ) );
 
 		$response->set_status( 201 );
