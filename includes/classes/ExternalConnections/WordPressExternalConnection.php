@@ -47,7 +47,7 @@ class WordPressExternalConnection extends ExternalConnection {
 	 *
 	 * @param  array $args
 	 * @since  0.8
-	 * @return array|WP_Post
+	 * @return array|\WP_Post|\WP_Error
 	 */
 	public function remote_get( $args = array() ) {
 		$id = ( empty( $args['id'] ) ) ? false : $args['id'];
@@ -164,7 +164,7 @@ class WordPressExternalConnection extends ExternalConnection {
 
 		$context = 'view';
 
-		$prelim_get_args = $this->auth_handler->format_get_args( array() );
+		$prelim_get_args = $this->auth_handler->format_get_args();
 
 		/**
 		 * See if we are trying to authenticate
@@ -310,7 +310,7 @@ class WordPressExternalConnection extends ExternalConnection {
 	 * @param  int   $post_id
 	 * @param  array $args
 	 * @since  0.8
-	 * @return bool|WP_Error
+	 * @return bool|\WP_Error
 	 */
 	public function push( $post_id, $args = array() ) {
 		if ( empty( $post_id ) ) {
@@ -605,7 +605,7 @@ class WordPressExternalConnection extends ExternalConnection {
 	 *
 	 * @param  array
 	 * @since  0.8
-	 * @return WP_Post
+	 * @return \WP_Post
 	 */
 	private function to_wp_post( $post ) {
 		$obj = new \stdClass();
@@ -694,7 +694,7 @@ class WordPressExternalConnection extends ExternalConnection {
 
 		// Return as is if not on a singular page - taken from rel_canonical()
 		if ( ! is_singular() ) {
-			$canonical_url;
+			return $canonical_url;
 		}
 
 		$id = get_queried_object_id();
