@@ -93,6 +93,7 @@ require_once __DIR__ . '/includes/rest-api.php';
 require_once __DIR__ . '/includes/subscriptions.php';
 require_once __DIR__ . '/includes/syndicated-post-ui.php';
 require_once __DIR__ . '/includes/distributed-post-ui.php';
+require_once __DIR__ . '/includes/template-tags.php';
 
 if ( \Distributor\Utils\is_vip_com() ) {
 	add_filter( 'dt_network_site_connection_enabled', '__return_false', 9 );
