@@ -11,7 +11,7 @@ use Distributor\Utils;
 function setup() {
 	add_action(
 		'plugins_loaded', function() {
-			add_action( 'admin_menu', __NAMESPACE__ . '\admin_menu' );
+			add_action( 'admin_menu', __NAMESPACE__ . '\admin_menu', 20 );
 			add_action( 'admin_init', __NAMESPACE__ . '\setup_fields_sections' );
 			add_action( 'admin_init', __NAMESPACE__ . '\register_settings' );
 		}
@@ -26,7 +26,7 @@ function setup() {
 function setup_fields_sections() {
 	add_settings_section( 'dt-section-1', '', '', 'distributor' );
 
-  	add_settings_field( 'replace_distributed_author', esc_html__( 'Replace Distributed Author', 'distributor' ), __NAMESPACE__ . '\replace_distributed_author_callback', 'distributor', 'dt-section-1' );
+  	add_settings_field( 'override_author_byline', esc_html__( 'Override Author Byline', 'distributor' ), __NAMESPACE__ . '\override_author_byline_callback', 'distributor', 'dt-section-1' );
 
 }
 
@@ -35,20 +35,17 @@ function setup_fields_sections() {
  *
  * @since 1.0
  */
-function replace_distributed_author_callback() {
+function override_author_byline_callback() {
 
 	$settings = Utils\get_settings();
 
 	$value = true;
-	if ( isset( $settings['replace_distributed_author'] ) && false === $settings['replace_distributed_author'] ) {
+	if ( isset( $settings['override_author_byline'] ) && false === $settings['override_author_byline'] ) {
 		$value = false;
 	}
 
 	?>
-	<select value="1" name="dt_settings[replace_distributed_author]">
-		<option value="1"><?php esc_html_e( 'Yes', 'distributor' ); ?></option>
-		<option <?php selected( $value, false ); ?> value="0"><?php esc_html_e( 'No', 'distributor' ); ?></option>
-	</select>
+	<input <?php checked( $value, true ); ?> type="checkbox" value="1" name="dt_settings[override_author_byline]">
 
 	<p class="description">
 		<?php esc_html_e( 'For linked distributed posts, replace the author name and link with the original site name and link.', 'distributor' ); ?>
@@ -104,13 +101,9 @@ function settings_screen() {
 function sanitize_settings( $settings ) {
 	$new_settings = [];
 
-	foreach ( $settings as $key => $value ) {
-
-		if ( 'replace_distributed_author' === $key ) {
-			$new_settings[ $key ] = (bool) $value;
-		} else {
-			$new_settings[ $key ] = sanitize_text_field( $value );
-		}
+	$new_settings['override_author_byline'] = true;
+	if ( ! isset( $settings['override_author_byline'] ) ) {
+		$new_settings['override_author_byline'] = false;
 	}
 
 	return $new_settings;

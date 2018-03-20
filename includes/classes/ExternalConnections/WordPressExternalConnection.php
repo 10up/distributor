@@ -684,7 +684,7 @@ class WordPressExternalConnection extends ExternalConnection {
 
 		$settings = Utils\get_settings();
 
-		if ( empty( $settings['replace_distributed_author'] ) ) {
+		if ( empty( $settings['override_author_byline'] ) ) {
 			return $link;
 		}
 
@@ -715,7 +715,7 @@ class WordPressExternalConnection extends ExternalConnection {
 
 		$settings = Utils\get_settings();
 
-		if ( empty( $settings['replace_distributed_author'] ) ) {
+		if ( empty( $settings['override_author_byline'] ) ) {
 			return $author;
 		}
 

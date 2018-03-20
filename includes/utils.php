@@ -20,7 +20,7 @@ function is_vip_com() {
  */
 function get_settings() {
 	$defaults = [
-		'replace_distributed_author' => true,
+		'override_author_byline' => true,
 	];
 
 	$settings = get_option( 'dt_settings', [] );

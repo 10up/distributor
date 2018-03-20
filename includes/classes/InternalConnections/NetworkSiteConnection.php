@@ -537,7 +537,7 @@ class NetworkSiteConnection extends Connection {
 
 		$settings = Utils\get_settings();
 
-		if ( empty( $settings['replace_distributed_author'] ) ) {
+		if ( empty( $settings['override_author_byline'] ) ) {
 			return $link;
 		}
 
@@ -568,7 +568,7 @@ class NetworkSiteConnection extends Connection {
 
 		$settings = Utils\get_settings();
 
-		if ( empty( $settings['replace_distributed_author'] ) ) {
+		if ( empty( $settings['override_author_byline'] ) ) {
 			return $author;
 		}
 
