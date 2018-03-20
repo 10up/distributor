@@ -3,6 +3,7 @@
 namespace Distributor\InternalConnections;
 
 use \Distributor\Connection as Connection;
+use Distributor\Utils;
 
 /**
  * A network site connection let's you push and pull content within your blog
@@ -516,6 +517,73 @@ class NetworkSiteConnection extends Connection {
 		add_filter( 'get_canonical_url', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'canonical_url' ), 10, 2 );
 		add_filter( 'wpseo_canonical', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'wpseo_canonical_url' ) );
 		add_filter( 'wpseo_opengraph_url', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'wpseo_og_url' ) );
+		add_filter( 'the_author', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'the_author_distributed' ) );
+		add_filter( 'author_link', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'author_posts_url_distributed' ), 10, 3 );
+	}
+
+	/**
+	 * Override author with site name on distributed post
+	 *
+	 * @param  string $author
+	 * @since  1.0
+	 * @return string
+	 */
+	public static function author_posts_url_distributed( $link, $author_id, $author_nicename ) {
+		global $post;
+
+		if ( empty( $post ) ) {
+			return $link;
+		}
+
+		$settings = Utils\get_settings();
+
+		if ( empty( $settings['replace_distributed_author'] ) ) {
+			return $link;
+		}
+
+		$original_blog_id = get_post_meta( $post->ID, 'dt_original_blog_id', true );
+		$original_post_id = get_post_meta( $post->ID, 'dt_original_post_id', true );
+		$unlinked         = (bool) get_post_meta( $post->ID, 'dt_unlinked', true );
+
+		if ( empty( $original_blog_id ) || empty( $original_post_id ) || $unlinked ) {
+			return $link;
+		}
+
+		return get_home_url( $original_blog_id );
+	}
+
+	/**
+	 * Override author with site name on distributed post
+	 *
+	 * @param  string $author
+	 * @since  1.0
+	 * @return string
+	 */
+	public static function the_author_distributed( $author ) {
+		global $post;
+
+		if ( empty( $post ) ) {
+			return $author;
+		}
+
+		$settings = Utils\get_settings();
+
+		if ( empty( $settings['replace_distributed_author'] ) ) {
+			return $author;
+		}
+
+		$original_blog_id = get_post_meta( $post->ID, 'dt_original_blog_id', true );
+		$original_post_id = get_post_meta( $post->ID, 'dt_original_post_id', true );
+		$unlinked         = (bool) get_post_meta( $post->ID, 'dt_unlinked', true );
+
+		if ( empty( $original_blog_id ) || empty( $original_post_id ) || $unlinked ) {
+			return $author;
+		}
+
+		$blog_details = get_blog_details( $original_blog_id );
+
+
+		return $blog_details->blogname;
 	}
 
 	/**

@@ -1,6 +1,7 @@
 <?php
 
 namespace Distributor\Settings;
+use Distributor\Utils;
 
 /**
  * Setup settings
@@ -36,7 +37,7 @@ function setup_fields_sections() {
  */
 function replace_distributed_author_callback() {
 
-	$settings = (array) get_option( 'dt_settings', [] );
+	$settings = Utils\get_settings();
 
 	$value = true;
 	if ( isset( $settings['replace_distributed_author'] ) && false === $settings['replace_distributed_author'] ) {
