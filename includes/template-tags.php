@@ -106,3 +106,44 @@ function distributor_get_original_site_name( $post_id = null ) {
 function distributor_the_original_site_name( $post_id = null ) {
 	echo distributor_get_original_site_name( $post_id );
 }
+
+/**
+ * Get original site link
+ *
+ * @param  int  $post_id Leave null to use current post
+ * @since  1.0
+ * @return string|bool
+ */
+function distributor_get_original_site_link( $post_id = null ) {
+	if ( null === $post_id ) {
+		global $post;
+
+		$post_id = $post->ID;
+	}
+
+	$original_blog_id = get_post_meta( $post_id, 'dt_original_blog_id', true );
+	$original_site_url = get_post_meta( $post_id, 'dt_original_site_url', true );
+
+	if ( ! empty( $original_blog_id ) ) {
+		switch_to_blog( $original_blog_id );
+
+		$link = home_url();
+
+		restore_current_blog();
+
+		return $link;
+	} elseif ( ! empty( $original_site_url ) ) {
+		return $original_site_url;
+	} else {
+		return false;
+	}
+}
+
+/**
+ * See docblock for distributor_get_original_site_link
+ *
+ * @since 1.0
+ */
+function distributor_the_original_site_link( $post_id = null ) {
+	echo distributor_get_original_site_link( $post_id );
+}
