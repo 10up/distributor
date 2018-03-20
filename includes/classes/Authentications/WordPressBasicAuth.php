@@ -97,7 +97,7 @@ class WordPressBasicAuth extends Authentication {
 	 * @since  0.8
 	 * @return array
 	 */
-	public function format_get_args( $args, $context = array() ) {
+	public function format_get_args( $args = array(), $context = array() ) {
 		if ( ! empty( $this->username ) && ! empty( $this->base64_encoded ) ) {
 			if ( empty( $args['headers'] ) ) {
 				$args['headers'] = array();

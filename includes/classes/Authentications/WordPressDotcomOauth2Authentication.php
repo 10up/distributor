@@ -280,7 +280,7 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 	 * @since  1.1.0
 	 * @return array
 	 */
-	public function format_get_args( $args, $context = array() ) {
+	public function format_get_args( $args = array(), $context = array() ) {
 		$saved_access_token = isset( $this->{self::ACCESS_TOKEN_KEY} ) ?
 			$this->{self::ACCESS_TOKEN_KEY} :
 			false;

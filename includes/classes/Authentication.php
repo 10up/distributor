@@ -36,7 +36,7 @@ abstract class Authentication {
 	 * @since  .8
 	 * @return array
 	 */
-	public function format_get_args( $args, $context = array() ) {
+	public function format_get_args( $args = array(), $context = array() ) {
 		return apply_filters( 'dt_auth_format_get_args', $args, $context, $this );
 	}
 
