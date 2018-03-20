@@ -114,7 +114,7 @@ function distributor_the_original_site_name( $post_id = null ) {
  * @since  1.0
  * @return string|bool
  */
-function distributor_get_original_site_link( $post_id = null ) {
+function distributor_get_original_site_url( $post_id = null ) {
 	if ( null === $post_id ) {
 		global $post;
 
@@ -127,17 +127,45 @@ function distributor_get_original_site_link( $post_id = null ) {
 	if ( ! empty( $original_blog_id ) ) {
 		switch_to_blog( $original_blog_id );
 
-		$link = home_url();
+		$url = home_url();
 
 		restore_current_blog();
 
-		return $link;
+		return $url;
 	} elseif ( ! empty( $original_site_url ) ) {
 		return $original_site_url;
 	} else {
 		return false;
 	}
 }
+
+/**
+ * See docblock for distributor_get_original_site_url
+ *
+ * @since 1.0
+ */
+function distributor_the_original_site_url( $post_id = null ) {
+	echo distributor_get_original_site_url( $post_id );
+}
+
+/**
+ * Get pretty link for outputting original distributor site link
+ *
+ * @param  int $post_id
+ * @since  1.0
+ * @return string
+ */
+function distributor_get_original_site_link( $post_id = null ) {
+	$site_name = distributor_get_original_site_name( $post_id );
+	$site_url = distributor_get_original_site_url( $post_id );
+
+	if ( empty( $site_name ) || empty( $site_url ) ) {
+		return;
+	}
+
+	return apply_filters( 'distributor_get_original_site_link', __( sprintf( 'By <a href="%s">%s</a>', esc_url( $site_url ), esc_html( $site_name ) ), 'distributor' ) );
+}
+
 
 /**
  * See docblock for distributor_get_original_site_link
