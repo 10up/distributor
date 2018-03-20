@@ -93,6 +93,7 @@ require_once __DIR__ . '/includes/rest-api.php';
 require_once __DIR__ . '/includes/subscriptions.php';
 require_once __DIR__ . '/includes/syndicated-post-ui.php';
 require_once __DIR__ . '/includes/distributed-post-ui.php';
+require_once __DIR__ . '/includes/settings.php';
 require_once __DIR__ . '/includes/template-tags.php';
 
 if ( \Distributor\Utils\is_vip_com() ) {
@@ -127,4 +128,5 @@ add_action(
 \Distributor\Subscriptions\setup();
 \Distributor\SyndicatedPostUI\setup();
 \Distributor\DistributedPostUI\setup();
+\Distributor\Settings\setup();
 

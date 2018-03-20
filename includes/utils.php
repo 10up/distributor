@@ -13,6 +13,23 @@ function is_vip_com() {
 }
 
 /**
+ * Get Distributor settings with defaults
+ *
+ * @since  1.0
+ * @return array
+ */
+function get_settings() {
+	$defaults = [
+		'replace_distributed_author' => true,
+	];
+
+	$settings = get_option( 'dt_settings', [] );
+	$settings = wp_parse_args( $settings, $defaults );
+
+	return $settings;
+}
+
+/**
  * Determine if plugin is in debug mode or not
  *
  * @since  1.0

@@ -3,6 +3,7 @@
 namespace Distributor\ExternalConnections;
 
 use \Distributor\ExternalConnection as ExternalConnection;
+use \Distributor\Utils;
 
 class WordPressExternalConnection extends ExternalConnection {
 
@@ -663,6 +664,71 @@ class WordPressExternalConnection extends ExternalConnection {
 	public static function canonicalize_front_end() {
 		add_filter( 'get_canonical_url', array( '\Distributor\ExternalConnections\WordPressExternalConnection', 'canonical_url' ), 10, 2 );
 		add_filter( 'wpseo_canonical', array( '\Distributor\ExternalConnections\WordPressExternalConnection', 'wpseo_canonical_url' ) );
+		add_filter( 'the_author', array( '\Distributor\ExternalConnections\WordPressExternalConnection', 'the_author_distributed' ) );
+		add_filter( 'author_link', array( '\Distributor\ExternalConnections\WordPressExternalConnection', 'author_posts_url_distributed' ), 10, 3 );
+	}
+
+	/**
+	 * Override author with site name on distributed post
+	 *
+	 * @param  string $author
+	 * @since  1.0
+	 * @return string
+	 */
+	public static function author_posts_url_distributed( $link, $author_id, $author_nicename ) {
+		global $post;
+
+		if ( empty( $post ) ) {
+			return $link;
+		}
+
+		$settings = Utils\get_settings();
+
+		if ( empty( $settings['replace_distributed_author'] ) ) {
+			return $link;
+		}
+
+		$original_source_id = get_post_meta( $post->ID, 'dt_original_source_id', true );
+		$original_site_url  = get_post_meta( $post->ID, 'dt_original_site_url', true );
+		$unlinked           = (bool) get_post_meta( $post->ID, 'dt_unlinked', true );
+
+		if ( empty( $original_source_id ) || empty( $original_site_url ) || $unlinked ) {
+			return $link;
+		}
+
+		return $original_site_url;
+	}
+
+	/**
+	 * Override author with site name on distributed post
+	 *
+	 * @param  string $author
+	 * @since  1.0
+	 * @return string
+	 */
+	public static function the_author_distributed( $author ) {
+		global $post;
+
+		if ( empty( $post ) ) {
+			return $author;
+		}
+
+		$settings = Utils\get_settings();
+
+		if ( empty( $settings['replace_distributed_author'] ) ) {
+			return $author;
+		}
+
+		$original_source_id = get_post_meta( $post->ID, 'dt_original_source_id', true );
+		$original_site_name  = get_post_meta( $post->ID, 'dt_original_site_name', true );
+		$original_site_url  = get_post_meta( $post->ID, 'dt_original_site_url', true );
+		$unlinked           = (bool) get_post_meta( $post->ID, 'dt_unlinked', true );
+
+		if ( empty( $original_source_id ) || empty( $original_site_url ) || empty( $original_site_name ) || $unlinked ) {
+			return $author;
+		}
+
+		return $original_site_name;
 	}
 
 	/**
