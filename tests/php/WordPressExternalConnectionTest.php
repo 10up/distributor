@@ -253,6 +253,14 @@ class WordPressExternalConnectionTest extends \TestCase {
 		\WP_Mock::userFunction(
 			'update_post_meta', [
 				'times'  => 1,
+				'args'   => [ \WP_Mock\Functions::type( 'int' ), 'dt_original_site_url', '' ],
+				'return' => [],
+			]
+		);
+
+		\WP_Mock::userFunction(
+			'update_post_meta', [
+				'times'  => 1,
 				'args'   => [ \WP_Mock\Functions::type( 'int' ), 'dt_full_connection', false ],
 				'return' => [],
 			]
