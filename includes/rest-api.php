@@ -50,6 +50,10 @@ function process_distributor_attributes( $post, $request, $update ) {
 		update_post_meta( $post->ID, 'dt_original_site_name', sanitize_text_field( $request['distributor_original_site_name'] ) );
 	}
 
+	if ( ! empty( $request['distributor_original_site_url'] ) ) {
+		update_post_meta( $post->ID, 'dt_original_site_url', sanitize_text_field( $request['distributor_original_site_url'] ) );
+	}
+
 	if ( ! empty( $request['distributor_original_post_url'] ) ) {
 		update_post_meta( $post->ID, 'dt_original_post_url', esc_url_raw( $request['distributor_original_post_url'] ) );
 	}
@@ -147,6 +151,19 @@ function register_endpoints() {
 			'update_callback' => function( $value, $post ) { },
 			'schema'          => array(
 				'description' => esc_html__( 'Original site name for Distributor.', 'distributor' ),
+				'type'        => 'string',
+			),
+		)
+	);
+
+	register_rest_field(
+		$post_types, 'distributor_original_site_url', array(
+			'get_callback'    => function( $post_array ) {
+				return home_url();
+			},
+			'update_callback' => function( $value, $post ) { },
+			'schema'          => array(
+				'description' => esc_html__( 'Original site url for Distributor.', 'distributor' ),
 				'type'        => 'string',
 			),
 		)
