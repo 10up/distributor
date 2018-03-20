@@ -495,6 +495,13 @@ class UtilsTest extends \TestCase {
 		\WP_Mock::userFunction(
 			'update_post_meta', [
 				'times' => 1,
+				'args'  => [ $new_image_id, 'dt_original_media_id', $media_item['id'] ],
+			]
+		);
+
+		\WP_Mock::userFunction(
+			'update_post_meta', [
+				'times' => 1,
 				'args'  => [ $new_image_id, 'meta1', true ],
 			]
 		);
