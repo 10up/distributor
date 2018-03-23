@@ -199,6 +199,22 @@ class WordPressExternalConnection extends ExternalConnection {
 			return $posts_response;
 		}
 
+		$response_code = wp_remote_retrieve_response_code( $posts_response );
+
+		if ( 200 !== $response_code ) {
+
+			if ( 404 === $response_code ) {
+				return new \WP_Error( 'bad-endpoint', esc_html__( 'Could not connect to API endpoint.', 'distributor' ) );
+			}
+
+			$posts_body = json_decode( wp_remote_retrieve_body( $posts_response ), true );
+
+			$code    = empty( $posts_body['code'] ) ? 'endpoint-error' : esc_html( $posts_body['code'] );
+			$message = empty( $posts_body['message'] ) ? esc_html__( 'API endpoint error.', 'distributor' ) : esc_html( $posts_body['message'] );
+
+			return new \WP_Error( $code, $message );
+		}
+
 		$posts_body = wp_remote_retrieve_body( $posts_response );
 
 		if ( empty( $posts_body ) ) {
