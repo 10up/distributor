@@ -42,7 +42,7 @@
 	line-height: 1.5;
 }
 
-#wp-admin-bar-distributor:hover #distributor-push-wrapper {
+.distributor-show #wp-admin-bar-distributor #distributor-push-wrapper {
 	display: flex;
 }
 
