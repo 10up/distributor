@@ -2,7 +2,7 @@
 
 /**
  * Plugin Name:       Distributor
- * Description:       Syndicate content to and from external websites and within multisite blogs.
+ * Description:       Distributor is a WordPress plugin allowing you to syndicate content to and from external websites and within multisite blogs.
  * Version:           1.1.0
  * Author:            Taylor Lovett, 10up
  * Author URI:        http://10up.com
@@ -19,33 +19,18 @@ if ( ! defined( 'ABSPATH' ) ) {
 define( 'DT_VERSION', '1.1.0-1' );
 
 /**
- * PSR-4 autoloading
+ * Load dependencies
  */
-spl_autoload_register(
-	function( $class ) {
-			// project-specific namespace prefix
-			$prefix = 'Distributor\\';
+require_once __DIR__ . '/vendor/autoload.php';
 
-			// base directory for the namespace prefix
-			$base_dir = __DIR__ . '/includes/classes/';
-
-			// does the class use the namespace prefix?
-			$len = strlen( $prefix );
-
-		if ( strncmp( $prefix, $class, $len ) !== 0 ) {
-			return;
-		}
-
-			$relative_class = substr( $class, $len );
-
-			$file = $base_dir . str_replace( '\\', '/', $relative_class ) . '.php';
-
-			// if the file exists, require it
-		if ( file_exists( $file ) ) {
-			require $file;
-		}
-	}
+$updateChecker = Puc_v4_Factory::buildUpdateChecker(
+	'https://github.com/10up/distributor/',
+	__FILE__,
+	'distributor'
 );
+
+$updateChecker->setBranch( 'master' );
+
 
 /**
  * Require PHP version 5.6 - throw an error if the plugin is activated on an older version.
