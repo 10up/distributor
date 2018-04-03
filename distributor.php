@@ -18,19 +18,19 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 define( 'DT_VERSION', '1.1.0-1' );
 
+// Define a constant if we're network activated to allow plugin to respond accordingly.
+$plugins = get_site_option( 'active_sitewide_plugins' );
+
+if ( is_multisite() && isset( $plugins[ plugin_basename( __FILE__ ) ] ) ) {
+	define( 'DT_IS_NETWORK', true );
+} else {
+	define( 'DT_IS_NETWORK', false );
+}
+
 /**
  * Load dependencies
  */
 require_once __DIR__ . '/vendor/autoload.php';
-
-$updateChecker = Puc_v4_Factory::buildUpdateChecker(
-	'https://github.com/10up/distributor/',
-	__FILE__,
-	'distributor'
-);
-
-$updateChecker->setBranch( 'master' );
-
 
 /**
  * Require PHP version 5.6 - throw an error if the plugin is activated on an older version.
@@ -83,6 +83,19 @@ require_once __DIR__ . '/includes/template-tags.php';
 
 if ( \Distributor\Utils\is_vip_com() ) {
 	add_filter( 'dt_network_site_connection_enabled', '__return_false', 9 );
+}
+
+/**
+ * Enable updates if we have a valid license
+ */
+if ( true === \Distributor\Utils\get_settings()['valid_license'] ) {
+	$updateChecker = Puc_v4_Factory::buildUpdateChecker(
+		'https://github.com/10up/distributor/',
+		__FILE__,
+		'distributor'
+	);
+
+	$updateChecker->setBranch( 'master' );
 }
 
 /**

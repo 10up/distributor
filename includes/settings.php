@@ -14,8 +14,23 @@ function setup() {
 			add_action( 'admin_menu', __NAMESPACE__ . '\admin_menu', 20 );
 			add_action( 'admin_init', __NAMESPACE__ . '\setup_fields_sections' );
 			add_action( 'admin_init', __NAMESPACE__ . '\register_settings' );
+			add_action( 'admin_enqueue_scripts', __NAMESPACE__ . '\admin_enqueue_scripts' );
 		}
 	);
+}
+
+/**
+ * Enqueue admin scripts for settings
+ *
+ * @param  string $hook
+ * @since  0.8
+ */
+function admin_enqueue_scripts( $hook ) {
+	if ( empty( $_GET['page'] ) || 'distributor-settings' !== $_GET['page'] ) {
+		return;
+	}
+
+	wp_enqueue_style( 'dt-admin-settings', plugins_url( '/dist/css/admin-settings.min.css', __DIR__ ), array(), DT_VERSION );
 }
 
 /**
@@ -27,7 +42,7 @@ function setup_fields_sections() {
 	add_settings_section( 'dt-section-1', '', '', 'distributor' );
 
   	add_settings_field( 'override_author_byline', esc_html__( 'Override Author Byline', 'distributor' ), __NAMESPACE__ . '\override_author_byline_callback', 'distributor', 'dt-section-1' );
-
+  	add_settings_field( 'automatic_updates', esc_html__( 'Enable Automatic Updates', 'distributor' ), __NAMESPACE__ . '\license_key_callback', 'distributor', 'dt-section-1' );
 }
 
 /**
@@ -49,6 +64,28 @@ function override_author_byline_callback() {
 
 	<p class="description">
 		<?php esc_html_e( 'For linked distributed posts, replace the author name and link with the original site name and link.', 'distributor' ); ?>
+	</p>
+	<?php
+}
+
+/**
+ * Output license key field and check current key
+ *
+ * @since 1.2
+ */
+function license_key_callback() {
+
+	$settings = Utils\get_settings();
+
+	$license_key = ( ! empty( $settings['license_key'] ) ) ? $settings['license_key'] : '';
+	$email = ( ! empty( $settings['email'] ) ) ? $settings['email'] : '';
+	?>
+	<div class="license-wrap <?php if ( true === $settings['valid_license'] ) : ?>valid<?php elseif ( false === $settings['valid_license'] ) : ?>invalid<?php endif; ?>">
+		<input name="dt_settings[email]" type="email" placeholder="Email" value="<?php echo esc_attr( $email ); ?>"> <input name="dt_settings[license_key]" type="text" placeholder="License Key" value="<?php echo esc_attr( $license_key ); ?>">
+	</div>
+
+	<p class="description">
+		<?php echo wp_kses_post( __( 'Distributor requires a license to enable automatic updates. Get one for free <a href="https://distributorplugin.com">here</a>.', 'distributor' ) ); ?>
 	</p>
 	<?php
 }
@@ -99,11 +136,24 @@ function settings_screen() {
  * @since  1.0
  */
 function sanitize_settings( $settings ) {
-	$new_settings = [];
+	$new_settings = Utils\get_settings();
 
-	$new_settings['override_author_byline'] = true;
 	if ( ! isset( $settings['override_author_byline'] ) ) {
 		$new_settings['override_author_byline'] = false;
+	}
+
+	if ( ! empty( $settings['license_key'] ) ) {
+		$new_settings['license_key'] = sanitize_text_field( $settings['license_key'] );
+	}
+
+	if ( ! empty( $settings['email'] ) ) {
+		$new_settings['email'] = sanitize_text_field( $settings['email'] );
+	}
+
+	if ( ! empty( $settings['email'] ) && ! empty( $settings['license_key'] ) ) {
+		$new_settings['valid_license'] = (bool) Utils\check_license_key( $settings['email'], $settings['license_key'] );
+	} else {
+		$new_settings['valid_license'] = null;
 	}
 
 	return $new_settings;

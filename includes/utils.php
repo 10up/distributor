@@ -21,12 +21,43 @@ function is_vip_com() {
 function get_settings() {
 	$defaults = [
 		'override_author_byline' => true,
+		'email'                  => '',
+		'license_key'            => '',
+		'valid_license'          => null,
 	];
 
 	$settings = get_option( 'dt_settings', [] );
 	$settings = wp_parse_args( $settings, $defaults );
 
 	return $settings;
+}
+
+/**
+ * Hit license API to see if key/email is valid
+ * @param  string $email
+ * @param  string $license_key
+ * @since  1.2
+ * @return bool
+ */
+function check_license_key( $email, $license_key ) {
+
+	$request = wp_remote_post( 'https://distributorplugin.com/wp-json/distributor-theme/v1/validate-license', [
+		'timeout' => 10,
+		'body'    => [
+			'license_key' => $license_key,
+			'email'       => $email,
+		],
+	] );
+
+	if ( is_wp_error( $request ) ) {
+		return false;
+	}
+
+	if ( 200 === wp_remote_retrieve_response_code( $request ) ) {
+		return true;
+	}
+
+	return false;
 }
 
 /**
