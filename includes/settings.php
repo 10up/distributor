@@ -21,8 +21,76 @@ function setup() {
 			add_action( 'admin_init', __NAMESPACE__ . '\setup_fields_sections' );
 			add_action( 'admin_init', __NAMESPACE__ . '\register_settings' );
 			add_action( 'admin_enqueue_scripts', __NAMESPACE__ . '\admin_enqueue_scripts' );
+			add_action( 'admin_notices', __NAMESPACE__ . '\maybe_notice' );
+			add_action( 'network_admin_notices', __NAMESPACE__ . '\maybe_notice' );
+			add_action( 'wp_ajax_dt_notice_dismiss', __NAMESPACE__ . '\notice_dismiss' );
 		}
 	);
+}
+
+/**
+ * Make license notice dismissable
+ *
+ * @since 1.2
+ */
+function notice_dismiss() {
+	if ( empty( $_POST['notice'] ) || ! check_ajax_referer( 'dt-notice', 'nonce', false ) ) {
+		wp_send_json_error();
+		exit;
+	}
+
+	if ( ! current_user_can( 'manage_options' ) ) {
+		wp_send_json_error();
+		exit;
+	}
+
+	if ( DT_IS_NETWORK ) {
+		update_site_option( 'hide_license_key_warning', true );
+	} else {
+		update_option( 'hide_license_key_warning', true );
+	}
+
+	wp_send_json_success();
+}
+
+/**
+ * Maybe show license notice
+ *
+ * @since 1.2
+ */
+function maybe_notice() {
+	if ( ! empty( $_GET['page'] ) && 'distributor-settings' === $_GET['page'] ) {
+		return;
+	}
+
+	if ( DT_IS_NETWORK ) {
+		if ( get_site_option( 'hide_license_key_warning' ) ) {
+			return;
+		}
+
+		$settings = Utils\get_network_settings();
+	} else {
+		if ( get_option( 'hide_license_key_warning' ) ) {
+			return;
+		}
+
+		$settings = Utils\get_settings();
+	}
+
+	if ( true === $settings['valid_license'] ) {
+		return;
+	}
+
+	if ( DT_IS_NETWORK ) {
+		$notice_url = network_admin_url( 'admin.php?page=distributor-settings' );
+	} else {
+		$notice_url = admin_url( 'admin.php?page=distributor-settings' );
+	}
+	?>
+	<div data-notice="auto-upgrade-disabled" class="notice notice-warning is-dismissible">
+        <p><?php echo wp_kses_post( sprintf( __( 'Distributor auto updates are disabled. <a href="%s">Add your license key</a> to enable them.', 'elasticpress' ), esc_url( $notice_url ) ) ); ?></p>
+    </div>
+	<?php
 }
 
 /**
@@ -32,11 +100,15 @@ function setup() {
  * @since  0.8
  */
 function admin_enqueue_scripts( $hook ) {
-	if ( empty( $_GET['page'] ) || 'distributor-settings' !== $_GET['page'] ) {
-		return;
-	}
+	wp_enqueue_script( 'dt-admin', plugins_url( '/dist/js/admin.min.js', __DIR__ ), [ 'jquery' ], DT_VERSION, true );
 
-	wp_enqueue_style( 'dt-admin-settings', plugins_url( '/dist/css/admin-settings.min.css', __DIR__ ), array(), DT_VERSION );
+	wp_localize_script( 'dt-admin', 'dtAdmin', [
+		'nonce' => wp_create_nonce( 'dt-notice' ),
+	] );
+
+	if ( ! empty( $_GET['page'] ) && 'distributor-settings' === $_GET['page'] ) {
+		wp_enqueue_style( 'dt-admin-settings', plugins_url( '/dist/css/admin-settings.min.css', __DIR__ ), array(), DT_VERSION );
+	}
 }
 
 /**
