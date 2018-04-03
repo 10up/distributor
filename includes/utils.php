@@ -33,6 +33,25 @@ function get_settings() {
 }
 
 /**
+ * Get Distributor network settings with defaults
+ *
+ * @since  1.2
+ * @return array
+ */
+function get_network_settings() {
+	$defaults = [
+		'email'                  => '',
+		'license_key'            => '',
+		'valid_license'          => null,
+	];
+
+	$settings = get_site_option( 'dt_settings', [] );
+	$settings = wp_parse_args( $settings, $defaults );
+
+	return $settings;
+}
+
+/**
  * Hit license API to see if key/email is valid
  * @param  string $email
  * @param  string $license_key

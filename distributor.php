@@ -88,7 +88,15 @@ if ( \Distributor\Utils\is_vip_com() ) {
 /**
  * Enable updates if we have a valid license
  */
-if ( true === \Distributor\Utils\get_settings()['valid_license'] ) {
+$valid_license = false;
+
+if ( ! DT_IS_NETWORK ) {
+	$valid_license = \Distributor\Utils\get_settings()['valid_license'];
+} else {
+	$valid_license = \Distributor\Utils\get_network_settings()['valid_license'];
+}
+
+if ( $valid_license ) {
 	$updateChecker = Puc_v4_Factory::buildUpdateChecker(
 		'https://github.com/10up/distributor/',
 		__FILE__,
