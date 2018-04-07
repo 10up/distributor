@@ -17,6 +17,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 define( 'DT_VERSION', '1.1.0-1' );
+define( 'DT_PLUGIN_FILE', preg_replace( '#^.*plugins/(.*)$#i', '$1', __FILE__ ) );
 
 // Define a constant if we're network activated to allow plugin to respond accordingly.
 $plugins = get_site_option( 'active_sitewide_plugins' );
@@ -104,6 +105,7 @@ if ( $valid_license ) {
 	);
 
 	$updateChecker->setBranch( 'master' );
+	$updateChecker->setAuthentication( 'c63e57ffa5bb7b8ba23394c00f4c1918e5870543' );
 }
 
 /**

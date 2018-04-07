@@ -10,7 +10,6 @@ module.exports = {
 	entry: {
 		'admin-external-connection': './assets/js/admin-external-connection.js',
 		'admin-pull': './assets/js/admin-pull.js',
-		'admin': './assets/js/admin.js',
 		'admin-distributed-post': './assets/js/admin-distributed-post.js',
 		push: './assets/js/push.js'
 	},

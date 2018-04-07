@@ -20,64 +20,49 @@ function setup() {
 
 			add_action( 'admin_init', __NAMESPACE__ . '\setup_fields_sections' );
 			add_action( 'admin_init', __NAMESPACE__ . '\register_settings' );
-			add_action( 'admin_enqueue_scripts', __NAMESPACE__ . '\admin_enqueue_scripts' );
 			add_action( 'admin_notices', __NAMESPACE__ . '\maybe_notice' );
 			add_action( 'network_admin_notices', __NAMESPACE__ . '\maybe_notice' );
-			add_action( 'wp_ajax_dt_notice_dismiss', __NAMESPACE__ . '\notice_dismiss' );
+			add_action( 'after_plugin_row', __NAMESPACE__ . '\update_notice', 10, 3 );
+			add_action( 'admin_print_styles', __NAMESPACE__ . '\plugin_update_styles' );
+			add_action( 'admin_enqueue_scripts', __NAMESPACE__ . '\admin_enqueue_scripts' );
 		}
 	);
 }
 
 /**
- * Make license notice dismissable
+ * Properly style plugin update row for Distributor
  *
  * @since 1.2
  */
-function notice_dismiss() {
-	if ( empty( $_POST['notice'] ) || ! check_ajax_referer( 'dt-notice', 'nonce', false ) ) {
-		wp_send_json_error();
-		exit;
-	}
+function plugin_update_styles() {
+	global $pagenow;
 
-	if ( ! current_user_can( 'manage_options' ) ) {
-		wp_send_json_error();
-		exit;
+	if ( 'plugins.php' !== $pagenow ) {
+		return;
 	}
+	?>
+	<style type="text/css">
+		#wpbody tr[data-slug="distributor"] td,
+		#wpbody tr[data-slug="distributor"] th {
+			box-shadow: none;
+			border-bottom: 0;
+		}
 
-	if ( DT_IS_NETWORK ) {
-		update_site_option( 'hide_license_key_warning', true );
-	} else {
-		update_option( 'hide_license_key_warning', true );
-	}
-
-	wp_send_json_success();
+		#distributor-update .update-message {
+			margin-top: 0;
+		}
+	</style>
+	<?php
 }
 
 /**
- * Maybe show license notice
+ * Under plugin row update notice
  *
- * @since 1.2
+ * @param  string $plugin_file
+ * @since  1.2
  */
-function maybe_notice() {
-	if ( ! empty( $_GET['page'] ) && 'distributor-settings' === $_GET['page'] ) {
-		return;
-	}
-
-	if ( DT_IS_NETWORK ) {
-		if ( get_site_option( 'hide_license_key_warning' ) ) {
-			return;
-		}
-
-		$settings = Utils\get_network_settings();
-	} else {
-		if ( get_option( 'hide_license_key_warning' ) ) {
-			return;
-		}
-
-		$settings = Utils\get_settings();
-	}
-
-	if ( true === $settings['valid_license'] ) {
+function update_notice( $plugin_file, $plugin_data, $status ) {
+	if ( DT_PLUGIN_FILE !== $plugin_file ) {
 		return;
 	}
 
@@ -86,26 +71,63 @@ function maybe_notice() {
 	} else {
 		$notice_url = admin_url( 'admin.php?page=distributor-settings' );
 	}
+
+	if ( is_network_admin() ) {
+		$active = DT_IS_NETWORK;
+	} else {
+		$active = true;
+	}
 	?>
-	<div data-notice="auto-upgrade-disabled" class="notice notice-warning is-dismissible">
-        <p><?php echo wp_kses_post( sprintf( __( 'Distributor auto updates are disabled. <a href="%s">Add your license key</a> to enable them.', 'elasticpress' ), esc_url( $notice_url ) ) ); ?></p>
-    </div>
+
+	<tr class="plugin-update-tr <?php if ( $active ) : ?>active<?php endif; ?>" id="distributor-update" >
+		<td colspan="3" class="plugin-update colspanchange">
+			<div class="update-message notice inline notice-warning notice-alt">
+				<p>
+					<?php echo wp_kses_post( __( '<a href="%s">Register</a> for a free Distributor key to receive updates.', 'distributor' ), esc_url( $notice_url ) ); ?>
+				</p>
+			</div>
+		</td>
+	</tr>
 	<?php
 }
 
 /**
- * Enqueue admin scripts for settings
+ * Maybe show license notice
+ *
+ * @since 1.2
+ */
+function maybe_notice() {
+	if ( ! empty( $_GET['page'] ) && ( 'distributor-settings' === $_GET['page'] || 'pull' === $_GET['page'] || 'distributor' === $_GET['page'] ) ) {
+		if ( DT_IS_NETWORK ) {
+			$settings = Utils\get_network_settings();
+		} else {
+			$settings = Utils\get_settings();
+		}
+
+		if ( true === $settings['valid_license'] ) {
+			return;
+		}
+
+		if ( DT_IS_NETWORK ) {
+			$notice_url = network_admin_url( 'admin.php?page=distributor-settings' );
+		} else {
+			$notice_url = admin_url( 'admin.php?page=distributor-settings' );
+		}
+		?>
+		<div data-notice="auto-upgrade-disabled" class="notice notice-warning">
+	        <p><?php echo wp_kses_post( sprintf( __( 'Distributor is not receiving plugin updates. <a href="%s">Add your registration key</a> to start receiving them.', 'elasticpress' ), esc_url( $notice_url ) ) ); ?></p>
+	    </div>
+		<?php
+	}
+}
+
+/**
+ * Enqueue admin scripts/styles for settings
  *
  * @param  string $hook
- * @since  0.8
+ * @since  1.2
  */
 function admin_enqueue_scripts( $hook ) {
-	wp_enqueue_script( 'dt-admin', plugins_url( '/dist/js/admin.min.js', __DIR__ ), [ 'jquery' ], DT_VERSION, true );
-
-	wp_localize_script( 'dt-admin', 'dtAdmin', [
-		'nonce' => wp_create_nonce( 'dt-notice' ),
-	] );
-
 	if ( ! empty( $_GET['page'] ) && 'distributor-settings' === $_GET['page'] ) {
 		wp_enqueue_style( 'dt-admin-settings', plugins_url( '/dist/css/admin-settings.min.css', __DIR__ ), array(), DT_VERSION );
 	}
@@ -122,7 +144,7 @@ function setup_fields_sections() {
 	add_settings_field( 'override_author_byline', esc_html__( 'Override Author Byline', 'distributor' ), __NAMESPACE__ . '\override_author_byline_callback', 'distributor', 'dt-section-1' );
 
 	if ( false === DT_IS_NETWORK ) {
-		add_settings_field( 'automatic_updates', esc_html__( 'Enable Automatic Updates', 'distributor' ), __NAMESPACE__ . '\license_key_callback', 'distributor', 'dt-section-1' );
+		add_settings_field( 'registation_key', esc_html__( 'Registration Key', 'distributor' ), __NAMESPACE__ . '\license_key_callback', 'distributor', 'dt-section-1' );
 	}
 }
 
@@ -143,9 +165,9 @@ function override_author_byline_callback() {
 	?>
 	<input <?php checked( $value, true ); ?> type="checkbox" value="1" name="dt_settings[override_author_byline]">
 
-	<p class="description">
+	<span class="description">
 		<?php esc_html_e( 'For linked distributed posts, replace the author name and link with the original site name and link.', 'distributor' ); ?>
-	</p>
+	</span>
 	<?php
 }
 
@@ -162,11 +184,11 @@ function license_key_callback() {
 	$email = ( ! empty( $settings['email'] ) ) ? $settings['email'] : '';
 	?>
 	<div class="license-wrap <?php if ( true === $settings['valid_license'] ) : ?>valid<?php elseif ( false === $settings['valid_license'] ) : ?>invalid<?php endif; ?>">
-		<input name="dt_settings[email]" type="email" placeholder="<?php esc_html_e( 'Email', 'distributor' ); ?>" value="<?php echo esc_attr( $email ); ?>"> <input name="dt_settings[license_key]" type="text" placeholder="<?php esc_html_e( 'License Key', 'distributor' ); ?>" value="<?php echo esc_attr( $license_key ); ?>">
+		<input name="dt_settings[email]" type="email" placeholder="<?php esc_html_e( 'Email', 'distributor' ); ?>" value="<?php echo esc_attr( $email ); ?>"> <input name="dt_settings[license_key]" type="text" placeholder="<?php esc_html_e( 'Registration Key', 'distributor' ); ?>" value="<?php echo esc_attr( $license_key ); ?>">
 	</div>
 
 	<p class="description">
-		<?php echo wp_kses_post( __( 'Distributor requires a license to enable automatic updates. Get one for free <a href="https://distributorplugin.com">here</a>.', 'distributor' ) ); ?>
+		<?php echo wp_kses_post( __( 'Registration is 100% free and required for automatic updates; <a href="https://distributorplugin.com">sign up for your key</a>.', 'distributor' ) ); ?>
 	</p>
 	<?php
 }
@@ -243,14 +265,14 @@ function network_settings_screen() {
 		<table class="form-table">
 			<tbody>
 				<tr>
-					<th scope="row"><?php esc_html_e( 'Enable Automatic Updates', 'distributor' ); ?></th>
+					<th scope="row"><?php esc_html_e( 'Registration Key', 'distributor' ); ?></th>
 					<td>
 						<div class="license-wrap <?php if ( true === $settings['valid_license'] ) : ?>valid<?php elseif ( false === $settings['valid_license'] ) : ?>invalid<?php endif; ?>">
-							<input name="dt_settings[email]" type="email" placeholder="<?php esc_html_e( 'Email', 'distributor' ); ?>" value="<?php echo esc_attr( $email ); ?>"> <input name="dt_settings[license_key]" type="text" placeholder="<?php esc_html_e( 'License Key', 'distributor' ); ?>" value="<?php echo esc_attr( $license_key ); ?>">
+							<input name="dt_settings[email]" type="email" placeholder="<?php esc_html_e( 'Email', 'distributor' ); ?>" value="<?php echo esc_attr( $email ); ?>"> <input name="dt_settings[license_key]" type="text" placeholder="<?php esc_html_e( 'Registration Key', 'distributor' ); ?>" value="<?php echo esc_attr( $license_key ); ?>">
 						</div>
 
 						<p class="description">
-							<?php echo wp_kses_post( __( 'Distributor requires a license to enable automatic updates. Get one for free <a href="https://distributorplugin.com">here</a>.', 'distributor' ) ); ?>
+							<?php echo wp_kses_post( __( 'Registration is 100% free and required for automatic updates; <a href="https://distributorplugin.com">sign up for your key</a>.', 'distributor' ) ); ?>
 						</p>
 					</td>
 				</tr>
@@ -281,11 +303,11 @@ function handle_network_settings() {
 
 	$new_settings = Utils\get_network_settings();
 
-	if ( ! empty( $_POST['dt_settings']['license_key'] ) ) {
+	if ( isset( $_POST['dt_settings']['license_key'] ) ) {
 		$new_settings['license_key'] = sanitize_text_field( $_POST['dt_settings']['license_key'] );
 	}
 
-	if ( ! empty( $_POST['dt_settings']['email'] ) ) {
+	if ( isset( $_POST['dt_settings']['email'] ) ) {
 		$new_settings['email'] = sanitize_text_field( $_POST['dt_settings']['email'] );
 	}
 
@@ -313,11 +335,11 @@ function sanitize_settings( $settings ) {
 		$new_settings['override_author_byline'] = true;
 	}
 
-	if ( ! empty( $settings['license_key'] ) ) {
+	if ( isset( $settings['license_key'] ) ) {
 		$new_settings['license_key'] = sanitize_text_field( $settings['license_key'] );
 	}
 
-	if ( ! empty( $settings['email'] ) ) {
+	if ( isset( $settings['email'] ) ) {
 		$new_settings['email'] = sanitize_text_field( $settings['email'] );
 	}
 
