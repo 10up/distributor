@@ -131,7 +131,7 @@ function maybe_notice() {
 		}
 		?>
 		<div data-notice="auto-upgrade-disabled" class="notice notice-warning">
-	        <p><?php echo wp_kses_post( sprintf( __( 'Distributor is not receiving plugin updates. <a href="%s">Add your registration key</a> to start receiving them.', 'elasticpress' ), esc_url( $notice_url ) ) ); ?></p>
+	        <p><?php echo wp_kses_post( sprintf( __( 'Distributor is not receiving plugin update notifications. <a href="%s">Add your registration key</a> to start receiving them.', 'elasticpress' ), esc_url( $notice_url ) ) ); ?></p>
 	    </div>
 		<?php
 	}
@@ -204,7 +204,7 @@ function license_key_callback() {
 	</div>
 
 	<p class="description">
-		<?php echo wp_kses_post( __( 'Registration is 100% free and required for automatic updates; <a href="https://distributorplugin.com">sign up for your key</a>.', 'distributor' ) ); ?>
+		<?php echo wp_kses_post( __( 'Registration is 100% free and provides update notifications and upgrades inside the dashboard; <a href="https://distributorplugin.com">sign up for your key</a>.', 'distributor' ) ); ?>
 	</p>
 	<?php
 }
