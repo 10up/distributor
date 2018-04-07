@@ -67,9 +67,15 @@ function update_notice( $plugin_file, $plugin_data, $status ) {
 	}
 
 	if ( DT_IS_NETWORK ) {
+		$settings = Utils\get_network_settings();
 		$notice_url = network_admin_url( 'admin.php?page=distributor-settings' );
 	} else {
 		$notice_url = admin_url( 'admin.php?page=distributor-settings' );
+		$settings = Utils\get_settings();
+	}
+
+	if ( true === $settings['valid_license'] ) {
+		return;
 	}
 
 	if ( is_network_admin() ) {
