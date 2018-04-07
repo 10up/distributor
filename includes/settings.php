@@ -288,7 +288,7 @@ function network_settings_screen() {
 						</div>
 
 						<p class="description">
-							<?php echo wp_kses_post( __( 'Registration is 100% free and required for automatic updates; <a href="https://distributorplugin.com">sign up for your key</a>.', 'distributor' ) ); ?>
+							<?php echo wp_kses_post( __( 'Registration is 100% free and provides update notifications and upgrades inside the dashboard; <a href="https://distributorplugin.com">sign up for your key</a>.', 'distributor' ) ); ?>
 						</p>
 					</td>
 				</tr>
