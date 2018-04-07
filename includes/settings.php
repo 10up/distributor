@@ -40,6 +40,16 @@ function plugin_update_styles() {
 	if ( 'plugins.php' !== $pagenow ) {
 		return;
 	}
+
+	if ( DT_IS_NETWORK ) {
+		$settings = Utils\get_network_settings();
+	} else {
+		$settings = Utils\get_settings();
+	}
+
+	if ( true === $settings['valid_license'] ) {
+		return;
+	}
 	?>
 	<style type="text/css">
 		#wpbody tr[data-slug="distributor"] td,
