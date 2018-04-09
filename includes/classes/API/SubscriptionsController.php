@@ -24,6 +24,8 @@ class SubscriptionsController extends \WP_REST_Controller {
 		$this->rest_base = ! empty( $obj->rest_base ) ? $obj->rest_base : $obj->name;
 
 		$this->meta = new \WP_REST_Post_Meta_Fields( $this->post_type );
+		add_filter( 'rest_authentication_errors', array( $this, 'dt_verify_signature_authentication' );
+
 	}
 
 	/**
@@ -111,23 +113,43 @@ class SubscriptionsController extends \WP_REST_Controller {
 	}
 
 	/**
-	 * Determine if receive endpoint permissions are correct by checking the signature
+	 * Authenticate the request via the signature if available.
+	 *
+	 * @param  WP_Error|null|bool $status The authentication status.
+	 *
+	 * @return WP_Error|null|bool The filtered authentication status.
+	 */
+	public function dt_verify_signature_authentication( $status ) {
+
+		// Is the request authentication already handled?
+		if ( null !== $status ) {
+			return $status;
+		}
+
+		// Authenticate by signature, if available.
+		if ( ! empty( $request['signature'] ) && ! empty( $request['post_id'] ) ) {
+			$signature = get_post_meta( $request['post_id'], 'dt_subscription_signature', true );
+
+			if ( $request['signature'] === $signature ) {
+				return true;
+			} else {
+				return new \WP_Error( 'rest_post_invalid_signature', esc_html__( 'Signature invalid.', 'distributor' ), array( 'status' => 403 ) );
+			}
+		}
+
+		// No check was performed.
+		return null;
+	}
+
+	/**
+	 * Determine if receive endpoint permissions are correct.
 	 *
 	 * @param  WP_REST_Request $request Full details about the request.
 	 * @since  1.0
 	 * @return true|\WP_Error True if the request has receive access, \WP_Error object otherwise.
 	 */
 	public function receive_item_permissions_check( $request ) {
-
-		if ( ! empty( $request['signature'] ) && ! empty( $request['post_id'] ) ) {
-			$signature = get_post_meta( $request['post_id'], 'dt_subscription_signature', true );
-
-			if ( $request['signature'] === $signature ) {
-				return true;
-			}
-		}
-
-		return false;
+		return true;
 	}
 
 	/**
@@ -140,10 +162,6 @@ class SubscriptionsController extends \WP_REST_Controller {
 	 * @return WP_REST_Response|\WP_Error Response object on success, or \WP_Error object on failure.
 	 */
 	public function receive_item( $request ) {
-		if ( (int) $request['post_id'] <= 0 ) {
-			return new \WP_Error( 'rest_post_no_post_id', esc_html__( 'Missing post id.', 'distributor' ), array( 'status' => 400 ) );
-		}
-
 		$post = get_post( (int) $request['post_id'] );
 		if ( empty( $post ) ) {
 			return new \WP_REST_Response( null, 404, [ 'X-Distributor-Post-Deleted' => 'yes' ] );
@@ -242,7 +260,7 @@ class SubscriptionsController extends \WP_REST_Controller {
 	}
 
 	/**
-	 * Ensure user has permissions to create a subscription
+	 * Ensure user has permissions to create a subscription.
 	 *
 	 * @param  WP_REST_Request $request Full details about the request.
 	 * @since  1.0
@@ -329,10 +347,6 @@ class SubscriptionsController extends \WP_REST_Controller {
 		$subscriptions = get_post_meta( $request['post_id'], 'dt_subscriptions', true );
 
 		if ( empty( $subscriptions[ md5( $request['signature'] ) ] ) ) {
-			return false;
-		}
-
-		if ( $request['signature'] !== get_post_meta( $subscriptions[ md5( $request['signature'] ) ], 'dt_subscription_signature', true ) ) {
 			return false;
 		}
 
