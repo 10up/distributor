@@ -99,7 +99,7 @@ function update_notice( $plugin_file, $plugin_data, $status ) {
 		<td colspan="3" class="plugin-update colspanchange">
 			<div class="update-message notice inline notice-warning notice-alt">
 				<p>
-					<?php echo wp_kses_post( __( '<a href="%s">Register</a> for a free Distributor key to receive updates.', 'distributor' ), esc_url( $notice_url ) ); ?>
+					<?php echo wp_kses_post( __( '<a href="%s">Register Distributor</a> to receive important plugin update notices and other Distributor news.', 'distributor' ), esc_url( $notice_url ) ); ?>
 				</p>
 			</div>
 		</td>
@@ -204,7 +204,7 @@ function license_key_callback() {
 	</div>
 
 	<p class="description">
-		<?php echo wp_kses_post( __( 'Registration is 100% free and provides update notifications and upgrades inside the dashboard; <a href="https://distributorplugin.com">sign up for your key</a>.', 'distributor' ) ); ?>
+		<?php echo wp_kses_post( __( 'Registration is 100% free and provides update notifications and upgrades inside the dashboard; <a href="https://distributorplugin.com">Register for your key</a>.', 'distributor' ) ); ?>
 	</p>
 	<?php
 }
@@ -288,7 +288,7 @@ function network_settings_screen() {
 						</div>
 
 						<p class="description">
-							<?php echo wp_kses_post( __( 'Registration is 100% free and provides update notifications and upgrades inside the dashboard; <a href="https://distributorplugin.com">sign up for your key</a>.', 'distributor' ) ); ?>
+							<?php echo wp_kses_post( __( 'Registration is 100% free and provides update notifications and upgrades inside the dashboard; <a href="https://distributorplugin.com">Register for your key</a>.', 'distributor' ) ); ?>
 						</p>
 					</td>
 				</tr>
