@@ -124,12 +124,14 @@ function maybe_notice() {
 			return;
 		}
 
-		if ( DT_IS_NETWORK ) {
-			$notice_url = network_admin_url( 'admin.php?page=distributor-settings' );
-		} elseif( 'disttributor-settings' === $_GET['page'] ) {
+		if( 'distributor-settings' === $_GET['page'] ) {
 			$notice_url = 'https://distributorplugin.com/#cta';
 		} else {
-			$notice_url = admin_url( 'admin.php?page=distributor-settings' );
+			if ( DT_IS_NETWORK ) {
+				$notice_url = network_admin_url( 'admin.php?page=distributor-settings' );
+			} else {
+				$notice_url = admin_url( 'admin.php?page=distributor-settings' );
+			}
 		}
 		?>
 		<div data-notice="auto-upgrade-disabled" class="notice notice-warning">
