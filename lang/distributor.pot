@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Distributor 1.1.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/distributor\n"
-"POT-Creation-Date: 2018-04-10 15:54:55+00:00\n"
+"POT-Creation-Date: 2018-04-10 15:58:13+00:00\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -649,51 +649,58 @@ msgstr ""
 msgid "<a href=\"%s\">Register</a> for a free Distributor key to receive updates."
 msgstr ""
 
-#: includes/settings.php:134
+#: includes/settings.php:136
 msgid ""
 "<a href=\"%s\">Register Distributor</a> to receive important plugin update "
 "notices and other Distributor news."
 msgstr ""
 
-#: includes/settings.php:160
+#: includes/settings.php:162
 msgid "Override Author Byline"
 msgstr ""
 
-#: includes/settings.php:163 includes/settings.php:203
-#: includes/settings.php:284 includes/settings.php:287
+#: includes/settings.php:165 includes/settings.php:205
+#: includes/settings.php:286 includes/settings.php:289
 msgid "Registration Key"
 msgstr ""
 
-#: includes/settings.php:185
+#: includes/settings.php:187
 msgid ""
 "For linked distributed posts, replace the author name and link with the "
 "original site name and link."
 msgstr ""
 
-#: includes/settings.php:203 includes/settings.php:287
+#: includes/settings.php:205 includes/settings.php:289
 msgid "Email"
 msgstr ""
 
-#: includes/settings.php:207 includes/settings.php:291
+#: includes/settings.php:209
+msgid ""
+"Registration is 100% free and provides update notifications and upgrades "
+"inside the dashboard; <a "
+"href=\"https://distributorplugin.com/#cta\">Register for your key</a>."
+msgstr ""
+
+#: includes/settings.php:229
+msgid "Settings"
+msgstr ""
+
+#: includes/settings.php:248
+msgid "Distributor Settings"
+msgstr ""
+
+#: includes/settings.php:275
+msgid "Distributor Network Settings"
+msgstr ""
+
+#: includes/settings.php:293
 msgid ""
 "Registration is 100% free and provides update notifications and upgrades "
 "inside the dashboard; <a href=\"https://distributorplugin.com\">Register "
 "for your key</a>."
 msgstr ""
 
-#: includes/settings.php:227
-msgid "Settings"
-msgstr ""
-
-#: includes/settings.php:246
-msgid "Distributor Settings"
-msgstr ""
-
-#: includes/settings.php:273
-msgid "Distributor Network Settings"
-msgstr ""
-
-#: includes/settings.php:317
+#: includes/settings.php:319
 msgid "Security error!"
 msgstr ""
 

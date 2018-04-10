@@ -99,7 +99,7 @@ function update_notice( $plugin_file, $plugin_data, $status ) {
 		<td colspan="3" class="plugin-update colspanchange">
 			<div class="update-message notice inline notice-warning notice-alt">
 				<p>
-					<?php echo wp_kses_post( __( '<a href="%s">Register</a> for a free Distributor key to receive updates.', 'distributor' ), esc_url( $notice_url ) ); ?>
+					<?php echo wp_kses_post( sprintf( __( '<a href="%s">Register</a> for a free Distributor key to receive updates.', 'distributor' ), esc_url( $notice_url ) ) ); ?>
 				</p>
 			</div>
 		</td>
@@ -126,6 +126,8 @@ function maybe_notice() {
 
 		if ( DT_IS_NETWORK ) {
 			$notice_url = network_admin_url( 'admin.php?page=distributor-settings' );
+		} elseif( 'disttributor-settings' === $_GET['page'] ) {
+			$notice_url = 'https://distributorplugin.com/#cta';
 		} else {
 			$notice_url = admin_url( 'admin.php?page=distributor-settings' );
 		}
@@ -204,7 +206,7 @@ function license_key_callback() {
 	</div>
 
 	<p class="description">
-		<?php echo wp_kses_post( __( 'Registration is 100% free and provides update notifications and upgrades inside the dashboard; <a href="https://distributorplugin.com">Register for your key</a>.', 'distributor' ) ); ?>
+		<?php echo wp_kses_post( __( 'Registration is 100% free and provides update notifications and upgrades inside the dashboard; <a href="https://distributorplugin.com/#cta">Register for your key</a>.', 'distributor' ) ); ?>
 	</p>
 	<?php
 }
