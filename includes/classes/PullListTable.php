@@ -325,7 +325,7 @@ class PullListTable extends \WP_List_Table {
 		}
 
 		$columns  = $this->get_columns();
-		$hidden   = array();
+		$hidden   = get_hidden_columns( $this->screen );
 		$sortable = $this->get_sortable_columns();
 
 		$data = $this->table_data();
