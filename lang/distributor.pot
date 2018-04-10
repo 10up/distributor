@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Distributor 1.1.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/distributor\n"
-"POT-Creation-Date: 2018-04-10 15:52:39+00:00\n"
+"POT-Creation-Date: 2018-04-10 15:54:55+00:00\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -646,15 +646,13 @@ msgid "Original site url for Distributor."
 msgstr ""
 
 #: includes/settings.php:102
-msgid ""
-"<a href=\"%s\">Register Distributor</a> to receive important plugin update "
-"notices and other Distributor news."
+msgid "<a href=\"%s\">Register</a> for a free Distributor key to receive updates."
 msgstr ""
 
 #: includes/settings.php:134
 msgid ""
-"Distributor is not receiving plugin update notifications. <a "
-"href=\"%s\">Add your registration key</a> to start receiving them."
+"<a href=\"%s\">Register Distributor</a> to receive important plugin update "
+"notices and other Distributor news."
 msgstr ""
 
 #: includes/settings.php:160
