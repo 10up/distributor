@@ -488,7 +488,7 @@ class NetworkSiteConnection extends Connection {
 
 				$body = wp_remote_retrieve_body( $response );
 
-				if ( ! is_wp_error( $body ) ) {
+				if ( ! empty( $body ) ) {
 					try {
 						$body_array = json_decode( $body, true );
 

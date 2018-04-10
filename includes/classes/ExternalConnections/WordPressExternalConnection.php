@@ -120,8 +120,8 @@ class WordPressExternalConnection extends ExternalConnection {
 
 			$types_body = wp_remote_retrieve_body( $types_response );
 
-			if ( is_wp_error( $types_body ) ) {
-				return $types_body;
+			if ( empty( $types_body ) ) {
+				return new \WP_Error( 'no-response-body', esc_html__( 'Response body is empty', 'distributor' ) );
 			}
 
 			$types_body_array = json_decode( $types_body, true );
@@ -199,10 +199,26 @@ class WordPressExternalConnection extends ExternalConnection {
 			return $posts_response;
 		}
 
+		$response_code = wp_remote_retrieve_response_code( $posts_response );
+
+		if ( 200 !== $response_code ) {
+
+			if ( 404 === $response_code ) {
+				return new \WP_Error( 'bad-endpoint', esc_html__( 'Could not connect to API endpoint.', 'distributor' ) );
+			}
+
+			$posts_body = json_decode( wp_remote_retrieve_body( $posts_response ), true );
+
+			$code    = empty( $posts_body['code'] ) ? 'endpoint-error' : esc_html( $posts_body['code'] );
+			$message = empty( $posts_body['message'] ) ? esc_html__( 'API endpoint error.', 'distributor' ) : esc_html( $posts_body['message'] );
+
+			return new \WP_Error( $code, $message );
+		}
+
 		$posts_body = wp_remote_retrieve_body( $posts_response );
 
-		if ( is_wp_error( $posts_body ) ) {
-			return $posts_body;
+		if ( empty( $posts_body ) ) {
+			return new \WP_Error( 'no-response-body', esc_html__( 'Response body is empty', 'distributor' ) );
 		}
 
 		$posts           = json_decode( $posts_body, true );
@@ -350,8 +366,8 @@ class WordPressExternalConnection extends ExternalConnection {
 
 		$body = wp_remote_retrieve_body( $response );
 
-		if ( is_wp_error( $body ) ) {
-			return $body;
+		if ( empty( $body ) ) {
+			return new \WP_Error( 'no-response-body', esc_html__( 'Response body is empty', 'distributor' ) );
 		}
 
 		$body_array = json_decode( $body, true );
@@ -430,8 +446,8 @@ class WordPressExternalConnection extends ExternalConnection {
 
 		$body = wp_remote_retrieve_body( $response );
 
-		if ( is_wp_error( $body ) ) {
-			return $body;
+		if ( empty( $body ) ) {
+			return new \WP_Error( 'no-response-body', esc_html__( 'Response body is empty', 'distributor' ) );
 		}
 
 		$body_array = json_decode( $body, true );
@@ -476,7 +492,7 @@ class WordPressExternalConnection extends ExternalConnection {
 		}
 		$body = wp_remote_retrieve_body( $response );
 
-		if ( is_wp_error( $response ) || is_wp_error( $body ) ) {
+		if ( is_wp_error( $response ) || empty( $body ) ) {
 			$output['errors']['no_external_connection'] = 'no_external_connection';
 			return $output;
 		}
@@ -528,7 +544,7 @@ class WordPressExternalConnection extends ExternalConnection {
 		}
 		$types_body = wp_remote_retrieve_body( $types_response );
 
-		if ( is_wp_error( $types_response ) || is_wp_error( $types_body ) ) {
+		if ( is_wp_error( $types_response ) || empty( $types_body ) ) {
 			$output['errors']['no_types'] = 'no_types';
 		} else {
 			$types = json_decode( $types_body, true );
