@@ -151,8 +151,11 @@ jQuery( window ).load( () => {
 			data.draft = true
 		}
 
+		const xhr = dt.usexhr ? { withCredentials: true } : false
+
 		jQuery.ajax( {
 			url: dt.ajaxurl,
+			xhrFields: xhr,
 			method: 'post',
 			data: data
 		} ).done( ( response ) => {
