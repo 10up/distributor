@@ -298,8 +298,38 @@ class NetworkSiteConnection extends Connection {
 		add_action( 'wp_ajax_dt_auth_check', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'auth_check' ) );
 		add_action( 'save_post', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'update_syndicated' ) );
 		add_action( 'before_delete_post', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'separate_syndicated_on_delete' ) );
+		add_action( 'before_delete_post', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'remove_distributor_post_form_original' ) );
 		add_action( 'wp_trash_post', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'separate_syndicated_on_delete' ) );
 		add_action( 'untrash_post', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'connect_syndicated_on_untrash' ) );
+	}
+
+	/**
+	 * Mark original post such that this post does not appear distributed
+	 *
+	 * @param  int $post_id
+	 * @since  1.2
+	 */
+	public static function remove_distributor_post_form_original( $post_id ) {
+		$original_blog_id = get_post_meta( $post_id, 'dt_original_blog_id', true );
+		$original_post_id = get_post_meta( $post_id, 'dt_original_post_id', true );
+
+		if ( empty( $original_blog_id ) || empty( $original_post_id ) ) {
+			return;
+		}
+
+		$blog_id = get_current_blog_id();
+
+		switch_to_blog( $original_blog_id );
+
+		$connection_map = get_post_meta( $original_post_id, 'dt_connection_map', true );
+
+		if ( ! empty( $connection_map['internal'] ) && ! empty( $connection_map['internal'][ (int) $blog_id ] ) ) {
+			unset( $connection_map['internal'][ (int) $blog_id ] );
+
+			update_post_meta( $original_post_id, 'dt_connection_map', $connection_map );
+		}
+
+		restore_current_blog();
 	}
 
 	/**
