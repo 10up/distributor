@@ -215,6 +215,15 @@ function enqueue_scripts( $hook ) {
 			'nonce'   => wp_create_nonce( 'dt-push' ),
 			'post_id' => (int) get_the_ID(),
 			'ajaxurl' => esc_url( admin_url( 'admin-ajax.php' ) ),
+
+			/**
+			 * Filter whether front end ajax requests should use xhrFields credentials:true.
+			 *
+			 * Front end ajax requests may require xhrFields with credentials when the front end and
+			 * back end domains do not match. This filter lets themes opt in.
+			 * See https://vip.wordpress.com/documentation/handling-frontend-file-uploads/#handling-ajax-requests
+			 */
+			'usexhr'  => apply_filters( 'dt_ajax_requires_with_credentials', false ),
 		)
 	);
 }
