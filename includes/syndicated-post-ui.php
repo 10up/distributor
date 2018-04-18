@@ -450,16 +450,21 @@ function enqueue_post_scripts( $hook ) {
 	}
 }
 
-function enqueue_gutenberg_edit_scripts( $hook ) {
-	/*if ( 'post-new.php' !== $hook && 'post.php' !== $hook ) {
-		return;
-	}*/
-
+function enqueue_gutenberg_edit_scripts() {
 	global $post;
+
+	if ( empty( $post ) ) {
+		return;
+	}
 
 	$original_blog_id   = get_post_meta( $post->ID, 'dt_original_blog_id', true );
 	$original_post_id   = get_post_meta( $post->ID, 'dt_original_post_id', true );
 	$original_source_id = get_post_meta( $post->ID, 'dt_original_source_id', true );
+
+	if ( empty( $original_post_id ) || ( empty( $original_blog_id ) && empty( $original_source_id ) ) ) {
+		return;
+	}
+
 	$original_deleted   = get_post_meta( $post->ID, 'dt_original_post_deleted', true );
 	$unlinked           = get_post_meta( $post->ID, 'dt_unlinked', true );
 	$post_type_object   = get_post_type_object( $post->post_type );
