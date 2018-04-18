@@ -1,5 +1,4 @@
 import { wp, dtGutenberg } from 'window'
-import jQuery from 'jquery'
 
 wp.i18n.setLocaleData( dtGutenberg.i18n, 'distributor' )
 
