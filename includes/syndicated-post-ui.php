@@ -13,13 +13,18 @@ function setup() {
 			add_action( 'edit_form_top', __NAMESPACE__ . '\syndicated_message', 9, 1 );
 			add_action( 'admin_enqueue_scripts', __NAMESPACE__ . '\enqueue_post_scripts' );
 			add_action( 'admin_enqueue_scripts', __NAMESPACE__ . '\enqueue_edit_scripts' );
+			add_action( 'enqueue_block_editor_assets', __NAMESPACE__ . '\enqueue_gutenberg_edit_scripts' );
 			add_action( 'admin_init', __NAMESPACE__ . '\unlink' );
 			add_action( 'admin_init', __NAMESPACE__ . '\link' );
 			add_action( 'post_submitbox_misc_actions', __NAMESPACE__ . '\syndication_date' );
 			add_filter( 'admin_body_class', __NAMESPACE__ . '\add_linked_class' );
 			add_filter( 'post_row_actions', __NAMESPACE__ . '\remove_quick_edit', 10, 2 );
-			add_action( 'do_meta_boxes', __NAMESPACE__ . '\replace_revisions_meta_box', 10, 3 );
-			add_action( 'add_meta_boxes', __NAMESPACE__ . '\add_revisions_meta_box' );
+
+			if ( ! \Distributor\Utils\is_using_gutenberg() ) {
+				add_action( 'do_meta_boxes', __NAMESPACE__ . '\replace_revisions_meta_box', 10, 3 );
+				add_action( 'add_meta_boxes', __NAMESPACE__ . '\add_revisions_meta_box' );
+			}
+
 			add_action( 'admin_init', __NAMESPACE__ . '\setup_columns' );
 		}
 	);
@@ -432,13 +437,64 @@ function enqueue_post_scripts( $hook ) {
 		return;
 	}
 
-	wp_enqueue_style( 'dt-admin-syndicated-post', plugins_url( '/dist/css/admin-syndicated-post.min.css', __DIR__ ), array(), DT_VERSION );
+	if ( \Distributor\Utils\is_using_gutenberg() ) {
+		wp_enqueue_style( 'dt-gutenberg-syndicated-post', plugins_url( '/dist/css/gutenberg-syndicated-post.min.css', __DIR__ ), array(), DT_VERSION );
+	} else {
+		wp_enqueue_style( 'dt-admin-syndicated-post', plugins_url( '/dist/css/admin-syndicated-post.min.css', __DIR__ ), array(), DT_VERSION );
+	}
 
 	$unlinked = (bool) get_post_meta( $post->ID, 'dt_unlinked', true );
 
 	if ( ! $unlinked ) {
 		wp_dequeue_script( 'autosave' );
 	}
+}
+
+function enqueue_gutenberg_edit_scripts( $hook ) {
+	/*if ( 'post-new.php' !== $hook && 'post.php' !== $hook ) {
+		return;
+	}*/
+
+	global $post;
+
+	$original_blog_id   = get_post_meta( $post->ID, 'dt_original_blog_id', true );
+	$original_post_id   = get_post_meta( $post->ID, 'dt_original_post_id', true );
+	$original_source_id = get_post_meta( $post->ID, 'dt_original_source_id', true );
+	$original_deleted   = get_post_meta( $post->ID, 'dt_original_post_deleted', true );
+	$unlinked           = get_post_meta( $post->ID, 'dt_unlinked', true );
+	$post_type_object   = get_post_type_object( $post->post_type );
+	$post_url           = get_post_meta( $post->ID, 'dt_original_post_url', true );
+	$original_site_name = get_post_meta( $post->ID, 'dt_original_site_name', true );
+
+	if ( ! empty( $original_blog_id ) ) {
+		switch_to_blog( $original_blog_id );
+		$original_location_name = get_bloginfo( 'name' );
+		restore_current_blog();
+
+		if ( empty( $original_location_name ) ) {
+			$original_location_name = sprintf( esc_html__( 'Blog #%d', 'distributor' ), $original_blog_id );
+		}
+	} else {
+		$original_location_name = $original_site_name;
+	}
+
+	$post_type_singular = $post_type_object->labels->singular_name;
+
+	wp_enqueue_script( 'dt-gutenberg-syndicated-post', plugins_url( '/dist/js/gutenberg-syndicated-post.min.js', __DIR__ ), [ 'wp-blocks' ], DT_VERSION, true );
+	wp_localize_script( 'dt-gutenberg-syndicated-post', 'dtGutenberg', [
+		'i18n'                 =>  gutenberg_get_jed_locale_data( 'distributor' ),
+		'originalBlogId'       => (int) $original_blog_id,
+		'originalPostId'       => (int) $original_post_id,
+		'originalSourceId'     => (int) $original_source_id,
+		'originalDelete'       => (int) $original_deleted,
+		'unlinked'             => (int) $unlinked,
+		'postTypeSingular'     => sanitize_text_field( $post_type_singular ),
+		'postUrl'              => sanitize_text_field( $post_url ),
+		'originalSiteName'     => sanitize_text_field( $original_site_name ),
+		'originalLocationName' => sanitize_text_field( $original_location_name ),
+		'unlinkNonceUrl'       => wp_nonce_url( add_query_arg( 'action', 'unlink', admin_url( sprintf( $post_type_object->_edit_link, $post->ID ) ) ), "unlink-post_{$post->ID}" ),
+		'linkNonceUrl'         => wp_nonce_url( add_query_arg( 'action', 'link', admin_url( sprintf( $post_type_object->_edit_link, $post->ID ) ) ), "link-post_{$post->ID}" ),
+	] );
 }
 
 /**

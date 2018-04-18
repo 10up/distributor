@@ -17,6 +17,7 @@
     "camelcase": [ 1 ],
     "no-debugger": [ 1 ],
     "no-unused-vars": [ 1 ],
-    "function-paren-newline": [ 1, "never" ]
+    "function-paren-newline": [ 1, "never" ],
+    "no-extra-boolean-cast": [ 1 ]
   }
 }

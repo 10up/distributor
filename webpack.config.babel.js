@@ -11,7 +11,8 @@ module.exports = {
 		'admin-external-connection': './assets/js/admin-external-connection.js',
 		'admin-pull': './assets/js/admin-pull.js',
 		'admin-distributed-post': './assets/js/admin-distributed-post.js',
-		push: './assets/js/push.js'
+		push: './assets/js/push.js',
+		'gutenberg-syndicated-post': './assets/js/gutenberg-syndicated-post.js',
 	},
 	output: {
 		path: DIST_PATH,
@@ -54,7 +55,8 @@ module.exports = {
 	externals: {
 		jquery: 'jQuery',
 		underscores: '_',
-		window: 'window'
+		window: 'window',
+		wp: 'wp'
 	},
 	stats: { colors: true },
 }
