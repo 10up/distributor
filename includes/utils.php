@@ -202,7 +202,16 @@ function set_taxonomy_terms( $post_id, $taxonomy_terms ) {
 
 			$term = get_term_by( 'slug', $term_array['slug'], $taxonomy );
 
+			// Create terms on remote site if they don't exist
+			$create_missing_terms = apply_filters( 'dt_create_missing_terms', true );
+
 			if ( empty( $term ) ) {
+
+				// Bail if terms shouldn't be created
+				if ( false === $create_missing_terms ) {
+					continue;
+				}
+
 				$term = wp_insert_term( $term_array['name'], $taxonomy );
 
 				if ( ! is_wp_error( $term ) ) {
