@@ -470,6 +470,7 @@ function enqueue_gutenberg_edit_scripts() {
 	$post_type_object   = get_post_type_object( $post->post_type );
 	$post_url           = get_post_meta( $post->ID, 'dt_original_post_url', true );
 	$original_site_name = get_post_meta( $post->ID, 'dt_original_site_name', true );
+	$syndication_time   = get_post_meta( $post->ID, 'dt_syndicate_time', true );
 
 	if ( ! empty( $original_blog_id ) ) {
 		switch_to_blog( $original_blog_id );
@@ -496,6 +497,7 @@ function enqueue_gutenberg_edit_scripts() {
 		'postTypeSingular'     => sanitize_text_field( $post_type_singular ),
 		'postUrl'              => sanitize_text_field( $post_url ),
 		'originalSiteName'     => sanitize_text_field( $original_site_name ),
+		'syndicationTime'      => esc_html( date( 'M j, Y @ h:i', ( $syndication_time + ( get_option( 'gmt_offset' ) * HOUR_IN_SECONDS ) ) ) ),
 		'originalLocationName' => sanitize_text_field( $original_location_name ),
 		'unlinkNonceUrl'       => wp_nonce_url( add_query_arg( 'action', 'unlink', admin_url( sprintf( $post_type_object->_edit_link, $post->ID ) ) ), "unlink-post_{$post->ID}" ),
 		'linkNonceUrl'         => wp_nonce_url( add_query_arg( 'action', 'link', admin_url( sprintf( $post_type_object->_edit_link, $post->ID ) ) ), "link-post_{$post->ID}" ),
