@@ -35,7 +35,8 @@ body.dt-linked-post {
 	& .components-panel__body-toggle,
 	& .edit-post-post-visibility__toggle,
 	& .editor-post-trash,
-	& .edit-post-post-schedule__toggle {
+	& .edit-post-post-schedule__toggle,
+	& .components-menu-item__button  {
 		opacity: 1;
 		pointer-events: auto;
 		cursor: pointer;
