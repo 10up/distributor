@@ -1,10 +1,13 @@
 import { wp, dtGutenberg } from 'window'
+import { DistributorSidebar } from './gutenberg-sidebar.js'
+const { registerPlugin } = wp.plugins
+
 
 wp.i18n.setLocaleData( dtGutenberg.i18n, 'distributor' )
 
 const messages = []
 
-if ( !! parseInt( dtGutenberg.originalDeleted ) ) {
+if ( parseInt( dtGutenberg.originalDeleted ) ) {
 	messages.push( wp.i18n.sprintf( wp.i18n.__( 'This %s was distributed from ' ), dtGutenberg.postTypeSingular ) )
 	messages.push( wp.element.createElement( 'a', {
 		href: dtGutenberg.postUrl
@@ -13,6 +16,9 @@ if ( !! parseInt( dtGutenberg.originalDeleted ) ) {
 	] ) )
 	messages.push( wp.i18n.__( '. However, the original has been deleted.' ) )
 } else if ( ! parseInt( dtGutenberg.unlinked ) ) {
+	registerPlugin( 'distributor-sidebar', {
+		render: DistributorSidebar,
+	} )
 	messages.push( wp.i18n.__( 'Distributed from ', 'distributor' ) )
 
 	messages.push( wp.element.createElement( 'a', {
