@@ -3,9 +3,9 @@ const { Button, PanelBody } = wp.components
 const { dispatch } = wp.data
 const { Fragment } = wp.element
 const { __ } = wp.i18n
-const { PluginSidebar, PluginSidebarMoreMenuItem } = wp.editPost
+const { PluginSidebar, PluginSidebarMoreMenuItem } = wp.editPost;
 
-export const DistributorSidebar = () => {
+export const DistributedToSidebar = () => {
 
 	return (
 		<Fragment>
@@ -14,7 +14,13 @@ export const DistributorSidebar = () => {
 				title="Distributor Details"
 			>
 				<PanelBody>
-					<p>{ __( 'Distributed on: ' ) + dtGutenberg.syndicationTime }</p>
+					<p>
+						{ wp.i18n.sprintf(
+							wp.i18n.__( "Distributed to %1$s connection%2$s.", 'distributor' ),
+							dtGutenberg.syndicationCount,
+							'1' === dtGutenberg.syndicationCount ? '' : 's'
+						) }
+					</p>
 				</PanelBody>
 			</PluginSidebar>
 			<PluginSidebarMoreMenuItem
