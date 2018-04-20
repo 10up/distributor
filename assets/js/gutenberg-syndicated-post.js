@@ -1,15 +1,16 @@
 import { wp, dtGutenberg } from 'window'
 import { DistributedFromSidebar } from './gutenberg-distributed-from-sidebar.js'
 import { DistributedToSidebar } from './gutenberg-distributed-to-sidebar.js'
-const { registerPlugin } = wp.plugins
+const { registerPlugin } = wp.plugins;
+
 
 wp.i18n.setLocaleData( dtGutenberg.i18n, 'distributor' )
-
 console.log( 'dtGutenberg.syndicationCount', dtGutenberg.syndicationCount );
 if ( dtGutenberg.syndicationCount > 0 ) {
 		registerPlugin( 'distributor-sidebar', {
-		render: DistributedToSidebar,
-	} )
+			render: DistributedToSidebar,
+		} )
+
 }
 
 if ( '0' !== dtGutenberg.originalSourceId ) {

@@ -13,6 +13,7 @@ module.exports = {
 		'admin-distributed-post': './assets/js/admin-distributed-post.js',
 		push: './assets/js/push.js',
 		'gutenberg-syndicated-post': './assets/js/gutenberg-syndicated-post.js',
+		'gutenberg-status-plugin': './assets/js/gutenberg-status-plugin.js',
 	},
 	output: {
 		path: DIST_PATH,
