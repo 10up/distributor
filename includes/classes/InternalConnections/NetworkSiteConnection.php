@@ -54,8 +54,14 @@ class NetworkSiteConnection extends Connection {
 
 		switch_to_blog( $this->site->blog_id );
 
+		// Handle existing posts.
 		if ( ! empty( $args['remote_post_id'] ) && get_post( $args['remote_post_id'] ) ) {
+
+			// Setting the ID makes `wp_insert_post` perform an update.
 			$new_post_args['ID'] = $args['remote_post_id'];
+
+			// Avoid updating the status of previously distributed posts.
+			$new_post_args['post_status'] = get_post_status( (int) $new_post_args['ID'] );
 		}
 
 		add_filter( 'wp_insert_post_data', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'maybe_set_modified_date' ), 10, 2 );
