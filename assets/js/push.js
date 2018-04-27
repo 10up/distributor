@@ -36,7 +36,6 @@ jQuery( window ).load( () => {
 	const syndicateButton         = distributorPushWrapper.querySelector( '.syndicate-button' )
 	const actionWrapper           = distributorPushWrapper.querySelector( '.action-wrapper' )
 	const postStatusInput         = document.getElementById( 'dt-post-status' )
-	const asDraftInput            = document.getElementById( 'dt-as-draft' )
 
 	distributorMenuItem.appendChild( distributorPushWrapper )
 
@@ -147,8 +146,6 @@ jQuery( window ).load( () => {
 			connections: selectedConnections,
 			post_id: dt.post_id
 		}
-
-		data.post_status = asDraftInput.checked ? 'draft' : postStatusInput.value
 
 		const xhr = dt.usexhr ? { withCredentials: true } : false
 
