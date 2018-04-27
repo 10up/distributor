@@ -61,7 +61,7 @@ class NetworkSiteConnection extends Connection {
 			$new_post_args['ID'] = $args['remote_post_id'];
 		}
 
-		if ( empty( $args['post_status'] ) {
+		if ( empty( $args['post_status'] ) ) {
 			if ( isset( $new_post_args['ID'] ) ) {
 
 				// Avoid updating the status of previously distributed posts.
@@ -73,7 +73,7 @@ class NetworkSiteConnection extends Connection {
 		} else {
 			$new_post_args['post_status'] = $args['post_status'];
 		}
-		
+
 		add_filter( 'wp_insert_post_data', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'maybe_set_modified_date' ), 10, 2 );
 
 		$new_post = wp_insert_post( apply_filters( 'dt_push_post_args', $new_post_args, $post, $args, $this ) );
