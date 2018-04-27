@@ -35,7 +35,7 @@ jQuery( window ).load( () => {
 	const connectionsSearchInput  = document.getElementById( 'dt-connection-search' )
 	const syndicateButton         = distributorPushWrapper.querySelector( '.syndicate-button' )
 	const actionWrapper           = distributorPushWrapper.querySelector( '.action-wrapper' )
-	const postStatusInput         = document.getElementById( 'dt-post-status' )
+	const asDraftInput            = document.getElementById( 'dt-as-draft' )
 
 	distributorMenuItem.appendChild( distributorPushWrapper )
 
@@ -145,6 +145,10 @@ jQuery( window ).load( () => {
 			nonce: dt.nonce,
 			connections: selectedConnections,
 			post_id: dt.post_id
+		}
+
+		if ( asDraftInput.checked ) {
+			data.draft = true
 		}
 
 		const xhr = dt.usexhr ? { withCredentials: true } : false

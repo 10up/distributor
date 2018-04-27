@@ -112,7 +112,7 @@
 		position: fixed;
 
 		& .connections-selector {
-			width: 55%;
+			width: 60%;
 			position: relative;
 			float: left;
 			padding-right: 0;
@@ -127,7 +127,7 @@
 		}
 
 		& .connections-selected {
-			width: 45%;
+			width: 40%;
 			float: right;
 			margin-top: 0;
 			padding-left: 3em;
@@ -262,10 +262,10 @@
 }
 
 #wpadminbar #distributor-push-wrapper .as-draft {
-	margin-left: 5px;
+	margin-left: .5em;
     height: 30px;
     line-height: 28px;
-    padding: 2px 2px 2px;
+    padding: 2px 12px 2px;
     display: inline-block;
     box-sizing: border-box;
 }
@@ -336,3 +336,4 @@
 		transform: rotate(360deg);
 	}
 }
+
