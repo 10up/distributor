@@ -33,7 +33,7 @@ function syndicatable() {
 	}
 
 	// Only published posts can be distributed.
-	if ( 'publish' !== get_post_status() ) {
+	if ( 'publish' !== get_post_status() && ! apply_filters( 'dt_drafts_can_be_distributed', false ) ) {
 		return false;
 	}
 
