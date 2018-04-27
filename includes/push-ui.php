@@ -148,8 +148,8 @@ function ajax_push() {
 				$push_args['remote_post_id'] = (int) $connection_map['internal'][ (int) $connection['id'] ]['post_id'];
 			}
 
-			if ( ! empty( $_POST['draft'] ) ) {
-				$push_args['post_status'] = 'draft';
+			if ( ! empty( $_POST['post_status'] ) ) {
+				$push_args['post_status'] = $_POST['post_status'];
 			}
 
 			$remote_id = $internal_connection->push( intval( $_POST['post_id'] ), $push_args );
@@ -458,6 +458,7 @@ syndicated<?php endif; ?>" data-connection-type="internal" data-connection-id="<
 						<div class="selected-connections-list"></div>
 
 						<div class="action-wrapper">
+							<input type="hidden" id="dt-post-status" value="<?php echo esc_attr( $post->post_status ); ?>">
 							<button class="syndicate-button"><?php esc_html_e( 'Distribute', 'distributor' ); ?></button> <label class="as-draft" for="dt-as-draft"><input type="checkbox" id="dt-as-draft" checked> <?php esc_html_e( 'As draft', 'distributor' ); ?></label>
 						</div>
 					</div>
