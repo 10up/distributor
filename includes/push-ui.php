@@ -32,6 +32,11 @@ function syndicatable() {
 		return false;
 	}
 
+	// Only published posts can be distributed.
+	if ( 'publish' !== get_post_status() ) {
+		return false;
+	}
+
 	if ( is_admin() ) {
 		global $pagenow;
 
