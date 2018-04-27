@@ -336,10 +336,3 @@
 		transform: rotate(360deg);
 	}
 }
-
-#wpadminbar input.dt-radio {
-	height: 15px;
-	border-radius: 50%;
-	margin-right: 2px;
-	line-height: 10px;
-}
