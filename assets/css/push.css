@@ -262,10 +262,10 @@
 }
 
 #wpadminbar #distributor-push-wrapper .as-draft {
-	margin-left: .5em;
+	margin-left: 5px;
     height: 30px;
     line-height: 28px;
-    padding: 2px 12px 2px;
+    padding: 2px 2px 2px;
     display: inline-block;
     box-sizing: border-box;
 }
@@ -337,3 +337,9 @@
 	}
 }
 
+#wpadminbar input.dt-radio {
+	height: 15px;
+	border-radius: 50%;
+	margin-right: 2px;
+	line-height: 10px;
+}
