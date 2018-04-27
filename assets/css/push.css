@@ -112,7 +112,7 @@
 		position: fixed;
 
 		& .connections-selector {
-			width: 60%;
+			width: 55%;
 			position: relative;
 			float: left;
 			padding-right: 0;
@@ -127,7 +127,7 @@
 		}
 
 		& .connections-selected {
-			width: 40%;
+			width: 45%;
 			float: right;
 			margin-top: 0;
 			padding-left: 3em;
