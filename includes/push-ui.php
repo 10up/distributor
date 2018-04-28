@@ -46,6 +46,10 @@ function syndicatable() {
 		if ( ! is_single() ) {
 			return false;
 		}
+
+		if ( ! in_array( get_post_type(), \Distributor\Utils\distributable_post_types(), true ) ) {
+			return false;
+		}
 	}
 
 	return true;
