@@ -214,6 +214,7 @@ class NetworkSiteConnection extends Connection {
 		switch_to_blog( $this->site->blog_id );
 
 		$query_args = array();
+		$response   = false;
 
 		if ( empty( $id ) ) {
 			$query_args['post_type']      = ( empty( $args['post_type'] ) ) ? 'post' : $args['post_type'];
@@ -260,32 +261,27 @@ class NetworkSiteConnection extends Connection {
 				$formatted_posts[] = $post;
 			}
 
-			restore_current_blog();
+			$response = [
+				'items'       => $formatted_posts,
+				'total_items' => $posts_query->found_posts,
+			];
 
-			return apply_filters(
-				'dt_remote_get', [
-					'items'       => $formatted_posts,
-					'total_items' => $posts_query->found_posts,
-				], $args, $this
-			);
 		} else {
 			$post = get_post( $id );
 
-			if ( empty( $post ) ) {
-				return false;
+			if ( ! empty( $post ) ) {
+				$post->link  = get_permalink( $id );
+				$post->meta  = \Distributor\Utils\prepare_meta( $id );
+				$post->terms = \Distributor\Utils\prepare_taxonomy_terms( $id );
+				$post->media = \Distributor\Utils\prepare_media( $id );
+
+				$response = $post;
 			}
-
-			$post->link  = get_permalink( $id );
-			$post->meta  = \Distributor\Utils\prepare_meta( $id );
-			$post->terms = \Distributor\Utils\prepare_taxonomy_terms( $id );
-			$post->media = \Distributor\Utils\prepare_media( $id );
-
-			$formatted_post = $post;
-
-			restore_current_blog();
-
-			return apply_filters( 'dt_remote_get', $formatted_post, $args, $this );
 		}
+
+		restore_current_blog();
+
+		return apply_filters( 'dt_remote_get', $response, $args, $this  )
 	}
 
 	/**
