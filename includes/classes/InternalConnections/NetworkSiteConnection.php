@@ -44,7 +44,7 @@ class NetworkSiteConnection extends Connection {
 			'post_excerpt' => $post->post_excerpt,
 			'post_type'    => $post->post_type,
 			'post_author'  => get_current_user_id(),
-			'post_status'  => ( ! empty( $args['post_status'] ) ) ? $args['post_status'] : 'publish',
+			'post_status'  => 'publish',
 			'post_name'    => $post->post_name,
 		);
 
@@ -54,8 +54,24 @@ class NetworkSiteConnection extends Connection {
 
 		switch_to_blog( $this->site->blog_id );
 
+		// Handle existing posts.
 		if ( ! empty( $args['remote_post_id'] ) && get_post( $args['remote_post_id'] ) ) {
+
+			// Setting the ID makes `wp_insert_post` perform an update.
 			$new_post_args['ID'] = $args['remote_post_id'];
+		}
+
+		if ( empty( $args['post_status'] ) ) {
+			if ( isset( $new_post_args['ID'] ) ) {
+
+				// Avoid updating the status of previously distributed posts.
+				$existing_status = get_post_status( (int) $new_post_args['ID'] );
+				if ( $existing_status ) {
+					$new_post_args['post_status'] = $existing_status;
+				}
+			}
+		} else {
+			$new_post_args['post_status'] = $args['post_status'];
 		}
 
 		add_filter( 'wp_insert_post_data', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'maybe_set_modified_date' ), 10, 2 );
