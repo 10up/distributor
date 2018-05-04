@@ -157,8 +157,8 @@ function ajax_push() {
 				$push_args['remote_post_id'] = (int) $connection_map['internal'][ (int) $connection['id'] ]['post_id'];
 			}
 
-			if ( ! empty( $_POST['post_status'] ) ) {
-				$push_args['post_status'] = $_POST['post_status'];
+			if ( ! empty( $_POST['draft'] ) ) {
+				$push_args['post_status'] = 'draft';
 			}
 
 			$remote_id = $internal_connection->push( intval( $_POST['post_id'] ), $push_args );
