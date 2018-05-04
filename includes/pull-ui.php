@@ -231,7 +231,7 @@ function process_actions() {
 			break;
 		case 'bulk-skip':
 		case 'skip':
-			if ( ! wp_verify_nonce( $_GET['_wpnonce'], 'dt_skip' ) && ! wp_verify_nonce( $_GET['_wpnonce'], 'bulk-syndicate_page_pull' ) ) {
+			if ( ! wp_verify_nonce( $_GET['_wpnonce'], 'dt_skip' ) && ! wp_verify_nonce( $_GET['_wpnonce'], 'bulk-distributor_page_pull' ) ) {
 				exit;
 			}
 
