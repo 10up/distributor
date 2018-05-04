@@ -188,7 +188,7 @@ class NetworkSiteConnection extends Connection {
 		$sync_log = get_site_option( 'dt_sync_log_' . $this->site->blog_id, array() );
 
 		foreach ( $item_id_mappings as $old_item_id => $new_item_id ) {
-			if ( empty( $new_item_id ) ) {
+			if ( empty( $new_item_id ) || is_wp_error( $new_item_id ) ) {
 				$sync_log[ $old_item_id ] = false;
 			} else {
 				$sync_log[ $old_item_id ] = (int) $new_item_id;
