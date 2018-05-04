@@ -1,34 +1,32 @@
 import { wp, dtGutenberg } from 'window'
 
 const { registerPlugin } = wp.plugins;
-const { PluginPostStatusVisibility } = wp.editPost;
+const { PluginPostStatusInfo } = wp.editPost;
 const { __ } = wp.i18n;
 const { PanelRow } =  wp.components;
 
 const renderDistributedFrom = () => {
 	return(
-		<PluginPostStatusVisibility.Fill>
+		<PluginPostStatusInfo>
 				<p>
 					{ __( 'Distributed on: ' ) }
 					<strong> { dtGutenberg.syndicationTime } </strong>
 				</p>
-		</PluginPostStatusVisibility.Fill>
+		</PluginPostStatusInfo>
 	)
 }
 
 const renderDistributedTo = () => {
 	return(
-		<PanelRow>
-			<PluginPostStatusVisibility.Fill>
-					<p>
-					{ wp.i18n.sprintf(
-						wp.i18n.__( "Distributed to %1$s connection%2$s.", 'distributor' ),
-						dtGutenberg.syndicationCount,
-						'1' === dtGutenberg.syndicationCount ? '' : 's'
-					) }
-					</p>
-			</PluginPostStatusVisibility.Fill>
-		</PanelRow>
+		<PluginPostStatusInfo>
+				<p>
+				{ wp.i18n.sprintf(
+					wp.i18n.__( "Distributed to %1$s connection%2$s.", 'distributor' ),
+					dtGutenberg.syndicationCount,
+					'1' === dtGutenberg.syndicationCount ? '' : 's'
+				) }
+				</p>
+		</PluginPostStatusInfo>
 	)
 }
 
