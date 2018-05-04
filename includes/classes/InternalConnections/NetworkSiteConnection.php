@@ -214,17 +214,15 @@ class NetworkSiteConnection extends Connection {
 		switch_to_blog( $this->site->blog_id );
 
 		$query_args = array();
-		$response   = false;
 
 		if ( empty( $id ) ) {
-			$query_args['post_type']      = ( empty( $args['post_type'] ) ) ? 'post' : $args['post_type'];
-			$query_args['post_status']    = ( empty( $args['post_status'] ) ) ? [ 'publish', 'draft', 'private', 'pending', 'future' ] : $args['post_status'];
-			$query_args['posts_per_page'] = ( empty( $args['posts_per_page'] ) ) ? get_option( 'posts_per_page' ) : $args['posts_per_page'];
-			$query_args['paged']          = ( empty( $args['paged'] ) ) ? 1 : $args['paged'];
 
 			if ( isset( $args['post__in'] ) ) {
 				if ( empty( $args['post__in'] ) ) {
+
 					// If post__in is empty, we can just stop right here
+					restore_current_blog();
+
 					return apply_filters(
 						'dt_remote_get', [
 							'items'       => array(),
@@ -237,6 +235,11 @@ class NetworkSiteConnection extends Connection {
 			} elseif ( isset( $args['post__not_in'] ) ) {
 				$query_args['post__not_in'] = $args['post__not_in'];
 			}
+
+			$query_args['post_type']      = ( empty( $args['post_type'] ) ) ? 'post' : $args['post_type'];
+			$query_args['post_status']    = ( empty( $args['post_status'] ) ) ? [ 'publish', 'draft', 'private', 'pending', 'future' ] : $args['post_status'];
+			$query_args['posts_per_page'] = ( empty( $args['posts_per_page'] ) ) ? get_option( 'posts_per_page' ) : $args['posts_per_page'];
+			$query_args['paged']          = ( empty( $args['paged'] ) ) ? 1 : $args['paged'];
 
 			if ( isset( $args['meta_query'] ) ) {
 				$query_args['meta_query'] = $args['meta_query'];
@@ -261,27 +264,33 @@ class NetworkSiteConnection extends Connection {
 				$formatted_posts[] = $post;
 			}
 
-			$response = [
-				'items'       => $formatted_posts,
-				'total_items' => $posts_query->found_posts,
-			];
+			restore_current_blog();
+
+			return apply_filters(
+				'dt_remote_get', [
+					'items'       => $formatted_posts,
+					'total_items' => $posts_query->found_posts,
+				], $args, $this
+			);
 
 		} else {
 			$post = get_post( $id );
 
-			if ( ! empty( $post ) ) {
+			if ( empty( $post ) ) {
+				$formatted_post = false;
+			} else {
 				$post->link  = get_permalink( $id );
 				$post->meta  = \Distributor\Utils\prepare_meta( $id );
 				$post->terms = \Distributor\Utils\prepare_taxonomy_terms( $id );
 				$post->media = \Distributor\Utils\prepare_media( $id );
 
-				$response = $post;
+				$formatted_post = $post;
 			}
+
+			restore_current_blog();
+
+			return apply_filters( 'dt_remote_get', $formatted_post, $args, $this );
 		}
-
-		restore_current_blog();
-
-		return apply_filters( 'dt_remote_get', $response, $args, $this  )
 	}
 
 	/**
