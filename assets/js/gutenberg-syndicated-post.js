@@ -44,17 +44,21 @@ if ( '0' !== dtGutenberg.originalSourceId ) {
 		messages.push( wp.i18n.__( 'Originally distributed from ', 'distributor' ) )
 
 		messages.push( wp.element.createElement( 'a', {
-			href: dtGutenberg.postUrl
+			href: dtGutenberg.postUrl,
+			key: 'original-location-link'
 		}, [
 			dtGutenberg.originalLocationName
 		] ) )
 
 		messages.push( '.' )
 
-		messages.push( wp.element.createElement( 'span', {}, [
+		messages.push( wp.element.createElement( 'span', {
+				key: 'message-span'
+		}, [
 			wp.i18n.sprintf( wp.i18n.__( " This %1$s has been unlinked from the original. However, you can always ", 'distributor' ), dtGutenberg.postTypeSingular.toLowerCase() ),
 			wp.element.createElement( 'a', {
-				href: dtGutenberg.linkNonceUrl
+				href: dtGutenberg.linkNonceUrl,
+				key: 'original-restore-link'
 			}, [
 				wp.i18n.__( 'restore it.', 'distributor' )
 			] )
