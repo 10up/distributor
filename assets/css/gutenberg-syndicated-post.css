@@ -1,0 +1,54 @@
+body.dt-linked-post {
+
+	& .edit-post-visual-editor,
+	& .editor-post-excerpt__textarea  {
+		opacity: .5;
+		pointer-events: none;
+		cursor: default;
+	}
+
+	& input,
+	& select,
+	& button,
+	& textarea,
+	& .button {
+		opacity: .5;
+		pointer-events: none;
+		cursor: default;
+	}
+
+	& .edit-post-header__settings,
+	& .components-time-picker,
+	& .react-datepicker,
+	& .components-panel__header {
+		& input,
+		& select,
+		& button,
+		& textarea,
+		& .button {
+			opacity: 1;
+			pointer-events: auto;
+			cursor: pointer;
+		}
+	}
+
+	& .components-panel__body-toggle,
+	& .edit-post-post-visibility__toggle,
+	& .editor-post-trash,
+	& .edit-post-post-schedule__toggle,
+	& .components-menu-item__button  {
+		opacity: 1;
+		pointer-events: auto;
+		cursor: pointer;
+	}
+
+	& #post-sticky-toggle-0 {
+		pointer-events: auto;
+		cursor: pointer;
+	}
+
+	& .edit-post-last-revision__panel {
+		display: none;
+	}
+
+}
