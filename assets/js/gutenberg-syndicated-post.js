@@ -1,5 +1,4 @@
 import { wp, dtGutenberg } from 'window'
-import { DistributedFromSidebar } from './gutenberg-distributed-from-sidebar.js'
 const { registerPlugin } = wp.plugins;
 
 
@@ -18,9 +17,6 @@ if ( '0' !== dtGutenberg.originalSourceId ) {
 		] ) )
 		messages.push( wp.i18n.__( '. However, the original has been deleted.' ) )
 	} else if ( ! parseInt( dtGutenberg.unlinked ) ) {
-		registerPlugin( 'distributor-sidebar', {
-			render: DistributedFromSidebar,
-		} )
 		messages.push( wp.i18n.__( 'Distributed from ', 'distributor' ) )
 
 		messages.push( wp.element.createElement( 'a', {
