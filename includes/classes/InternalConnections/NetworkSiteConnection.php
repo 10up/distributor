@@ -232,14 +232,13 @@ class NetworkSiteConnection extends Connection {
 		$query_args = array();
 
 		if ( empty( $id ) ) {
-			$query_args['post_type']      = ( empty( $args['post_type'] ) ) ? 'post' : $args['post_type'];
-			$query_args['post_status']    = ( empty( $args['post_status'] ) ) ? [ 'publish', 'draft', 'private', 'pending', 'future' ] : $args['post_status'];
-			$query_args['posts_per_page'] = ( empty( $args['posts_per_page'] ) ) ? get_option( 'posts_per_page' ) : $args['posts_per_page'];
-			$query_args['paged']          = ( empty( $args['paged'] ) ) ? 1 : $args['paged'];
 
 			if ( isset( $args['post__in'] ) ) {
 				if ( empty( $args['post__in'] ) ) {
+
 					// If post__in is empty, we can just stop right here
+					restore_current_blog();
+
 					return apply_filters(
 						'dt_remote_get', [
 							'items'       => array(),
@@ -252,6 +251,11 @@ class NetworkSiteConnection extends Connection {
 			} elseif ( isset( $args['post__not_in'] ) ) {
 				$query_args['post__not_in'] = $args['post__not_in'];
 			}
+
+			$query_args['post_type']      = ( empty( $args['post_type'] ) ) ? 'post' : $args['post_type'];
+			$query_args['post_status']    = ( empty( $args['post_status'] ) ) ? [ 'publish', 'draft', 'private', 'pending', 'future' ] : $args['post_status'];
+			$query_args['posts_per_page'] = ( empty( $args['posts_per_page'] ) ) ? get_option( 'posts_per_page' ) : $args['posts_per_page'];
+			$query_args['paged']          = ( empty( $args['paged'] ) ) ? 1 : $args['paged'];
 
 			if ( isset( $args['meta_query'] ) ) {
 				$query_args['meta_query'] = $args['meta_query'];
@@ -284,19 +288,20 @@ class NetworkSiteConnection extends Connection {
 					'total_items' => $posts_query->found_posts,
 				], $args, $this
 			);
+
 		} else {
 			$post = get_post( $id );
 
 			if ( empty( $post ) ) {
-				return false;
+				$formatted_post = false;
+			} else {
+				$post->link  = get_permalink( $id );
+				$post->meta  = \Distributor\Utils\prepare_meta( $id );
+				$post->terms = \Distributor\Utils\prepare_taxonomy_terms( $id );
+				$post->media = \Distributor\Utils\prepare_media( $id );
+
+				$formatted_post = $post;
 			}
-
-			$post->link  = get_permalink( $id );
-			$post->meta  = \Distributor\Utils\prepare_meta( $id );
-			$post->terms = \Distributor\Utils\prepare_taxonomy_terms( $id );
-			$post->media = \Distributor\Utils\prepare_media( $id );
-
-			$formatted_post = $post;
 
 			restore_current_blog();
 
