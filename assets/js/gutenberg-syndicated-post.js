@@ -20,17 +20,22 @@ if ( '0' !== dtGutenberg.originalSourceId ) {
 		messages.push( wp.i18n.__( 'Distributed from ', 'distributor' ) )
 
 		messages.push( wp.element.createElement( 'a', {
-			href: dtGutenberg.postUrl
+			href: dtGutenberg.postUrl,
+			key: 'original-location-link'
 		}, [
 			dtGutenberg.originalLocationName
 		] ) )
 
 		messages.push( '.' )
 
-		messages.push( wp.element.createElement( 'span', {}, [
+		messages.push(
+			wp.element.createElement( 'span', {
+				key: 'message-span'
+			}, [
 			wp.i18n.sprintf( wp.i18n.__( " The original %1$s will update this version unless you ", 'distributor' ), dtGutenberg.postTypeSingular.toLowerCase() ),
 			wp.element.createElement( 'a', {
-				href: dtGutenberg.unlinkNonceUrl
+				href: dtGutenberg.unlinkNonceUrl,
+				key: 'original-unlink'
 			}, [
 				wp.i18n.__( 'unlink from the original.', 'distributor' )
 			] )
