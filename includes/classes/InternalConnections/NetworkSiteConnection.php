@@ -44,7 +44,7 @@ class NetworkSiteConnection extends Connection {
 			'post_excerpt' => $post->post_excerpt,
 			'post_type'    => $post->post_type,
 			'post_author'  => get_current_user_id(),
-			'post_status'  => ( ! empty( $args['post_status'] ) ) ? $args['post_status'] : 'publish',
+			'post_status'  => 'publish',
 			'post_name'    => $post->post_name,
 		);
 
@@ -54,8 +54,24 @@ class NetworkSiteConnection extends Connection {
 
 		switch_to_blog( $this->site->blog_id );
 
+		// Handle existing posts.
 		if ( ! empty( $args['remote_post_id'] ) && get_post( $args['remote_post_id'] ) ) {
+
+			// Setting the ID makes `wp_insert_post` perform an update.
 			$new_post_args['ID'] = $args['remote_post_id'];
+		}
+
+		if ( empty( $args['post_status'] ) ) {
+			if ( isset( $new_post_args['ID'] ) ) {
+
+				// Avoid updating the status of previously distributed posts.
+				$existing_status = get_post_status( (int) $new_post_args['ID'] );
+				if ( $existing_status ) {
+					$new_post_args['post_status'] = $existing_status;
+				}
+			}
+		} else {
+			$new_post_args['post_status'] = $args['post_status'];
 		}
 
 		add_filter( 'wp_insert_post_data', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'maybe_set_modified_date' ), 10, 2 );
@@ -188,7 +204,7 @@ class NetworkSiteConnection extends Connection {
 		$sync_log = get_site_option( 'dt_sync_log_' . $this->site->blog_id, array() );
 
 		foreach ( $item_id_mappings as $old_item_id => $new_item_id ) {
-			if ( empty( $new_item_id ) ) {
+			if ( empty( $new_item_id ) || is_wp_error( $new_item_id ) ) {
 				$sync_log[ $old_item_id ] = false;
 			} else {
 				$sync_log[ $old_item_id ] = (int) $new_item_id;
@@ -216,14 +232,13 @@ class NetworkSiteConnection extends Connection {
 		$query_args = array();
 
 		if ( empty( $id ) ) {
-			$query_args['post_type']      = ( empty( $args['post_type'] ) ) ? 'post' : $args['post_type'];
-			$query_args['post_status']    = ( empty( $args['post_status'] ) ) ? [ 'publish', 'draft', 'private', 'pending', 'future' ] : $args['post_status'];
-			$query_args['posts_per_page'] = ( empty( $args['posts_per_page'] ) ) ? get_option( 'posts_per_page' ) : $args['posts_per_page'];
-			$query_args['paged']          = ( empty( $args['paged'] ) ) ? 1 : $args['paged'];
 
 			if ( isset( $args['post__in'] ) ) {
 				if ( empty( $args['post__in'] ) ) {
+
 					// If post__in is empty, we can just stop right here
+					restore_current_blog();
+
 					return apply_filters(
 						'dt_remote_get', [
 							'items'       => array(),
@@ -236,6 +251,11 @@ class NetworkSiteConnection extends Connection {
 			} elseif ( isset( $args['post__not_in'] ) ) {
 				$query_args['post__not_in'] = $args['post__not_in'];
 			}
+
+			$query_args['post_type']      = ( empty( $args['post_type'] ) ) ? 'post' : $args['post_type'];
+			$query_args['post_status']    = ( empty( $args['post_status'] ) ) ? [ 'publish', 'draft', 'private', 'pending', 'future' ] : $args['post_status'];
+			$query_args['posts_per_page'] = ( empty( $args['posts_per_page'] ) ) ? get_option( 'posts_per_page' ) : $args['posts_per_page'];
+			$query_args['paged']          = ( empty( $args['paged'] ) ) ? 1 : $args['paged'];
 
 			if ( isset( $args['meta_query'] ) ) {
 				$query_args['meta_query'] = $args['meta_query'];
@@ -268,19 +288,20 @@ class NetworkSiteConnection extends Connection {
 					'total_items' => $posts_query->found_posts,
 				], $args, $this
 			);
+
 		} else {
 			$post = get_post( $id );
 
 			if ( empty( $post ) ) {
-				return false;
+				$formatted_post = false;
+			} else {
+				$post->link  = get_permalink( $id );
+				$post->meta  = \Distributor\Utils\prepare_meta( $id );
+				$post->terms = \Distributor\Utils\prepare_taxonomy_terms( $id );
+				$post->media = \Distributor\Utils\prepare_media( $id );
+
+				$formatted_post = $post;
 			}
-
-			$post->link  = get_permalink( $id );
-			$post->meta  = \Distributor\Utils\prepare_meta( $id );
-			$post->terms = \Distributor\Utils\prepare_taxonomy_terms( $id );
-			$post->media = \Distributor\Utils\prepare_media( $id );
-
-			$formatted_post = $post;
 
 			restore_current_blog();
 
