@@ -1,4 +1,4 @@
-import { wp, dtGutenberg } from 'window'
+import { wp, dtGutenberg } from 'window';
 
 const { registerPlugin } = wp.plugins;
 const { PluginPostStatusInfo } = wp.editPost;
@@ -8,10 +8,11 @@ const { PanelRow } =  wp.components;
 const renderDistributedFrom = () => {
 	return(
 		<PluginPostStatusInfo>
-				<p>
+				<span id='distributed-from'>
 					{ __( 'Distributed on: ' ) }
 					<strong> { dtGutenberg.syndicationTime } </strong>
-				</p>
+					<a className='open-distributor-help'>(?)</a>
+				</span>
 		</PluginPostStatusInfo>
 	)
 }
@@ -19,17 +20,18 @@ const renderDistributedFrom = () => {
 const renderDistributedTo = () => {
 	return(
 		<PluginPostStatusInfo>
-				<p>
+				<span id='distributed-to'>
 				{ wp.i18n.sprintf(
 					wp.i18n.__( "Distributed to %1$s connection%2$s.", 'distributor' ),
 					dtGutenberg.syndicationCount,
 					'1' === dtGutenberg.syndicationCount ? '' : 's'
 				) }
-				</p>
+				</span>
 		</PluginPostStatusInfo>
 	)
 }
 
 const renderFunction = ( dtGutenberg.syndicationCount > 0  ) ? renderDistributedTo : renderDistributedFrom
 
-registerPlugin( 'distributor-status-panel', { render: renderFunction } );
+//registerPlugin( 'distributor-status-panel', { render: renderFunction } );
+
