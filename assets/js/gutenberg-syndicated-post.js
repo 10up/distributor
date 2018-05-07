@@ -12,6 +12,7 @@ if ( '0' !== dtGutenberg.originalSourceId ) {
 		messages.push( wp.i18n.sprintf( wp.i18n.__( 'This %s was distributed from ' ), dtGutenberg.postTypeSingular ) )
 		messages.push( wp.element.createElement( 'a', {
 			href: dtGutenberg.postUrl
+			key: 'original-location-link'
 		}, [
 			dtGutenberg.originalLocationName
 		] ) )
