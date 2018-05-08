@@ -606,7 +606,7 @@ function setup_cpt() {
 
 	$args = array(
 		'labels'               => $labels,
-		'public'               => true,
+		'public'               => false,
 		'publicly_queryable'   => false,
 		'show_ui'              => true,
 		'show_in_menu'         => false,

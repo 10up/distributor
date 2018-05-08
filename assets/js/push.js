@@ -116,6 +116,21 @@ jQuery( window ).load( () => {
 	}
 
 	/**
+	 * Handle distributor push dropdown menu hover using hoverIntent.
+	 */
+	function distributorMenuEntered() {
+		distributorMenuItem.focus()
+		document.body.classList.toggle( 'distributor-show' )
+	}
+
+	function distributorMenuExited() {
+		distributorMenuItem.blur()
+		document.body.classList.toggle( 'distributor-show' )
+	}
+
+	jQuery( distributorMenuItem ).hoverIntent( distributorMenuEntered, 300, distributorMenuExited )
+
+	/**
 	 * Do syndication ajax
 	 */
 	jQuery( syndicateButton ).on( 'click', () => {
@@ -136,8 +151,11 @@ jQuery( window ).load( () => {
 			data.draft = true
 		}
 
+		const xhr = dt.usexhr ? { withCredentials: true } : false
+
 		jQuery.ajax( {
 			url: dt.ajaxurl,
+			xhrFields: xhr,
 			method: 'post',
 			data: data
 		} ).done( ( response ) => {

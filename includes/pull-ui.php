@@ -231,7 +231,7 @@ function process_actions() {
 			break;
 		case 'bulk-skip':
 		case 'skip':
-			if ( ! wp_verify_nonce( $_GET['_wpnonce'], 'dt_skip' ) && ! wp_verify_nonce( $_GET['_wpnonce'], 'bulk-syndicate_page_pull' ) ) {
+			if ( ! wp_verify_nonce( $_GET['_wpnonce'], 'dt_skip' ) && ! wp_verify_nonce( $_GET['_wpnonce'], 'bulk-distributor_page_pull' ) ) {
 				exit;
 			}
 
@@ -334,7 +334,7 @@ function dashboard() {
 								$name     = untrailingslashit( $connection->site->domain . $connection->site->path );
 								$id       = $connection->site->blog_id;
 
-								if ( (int) $connection_now->site->blog_id === (int) $id ) {
+								if ( is_a( $connection_now, '\Distributor\InternalConnection' ) && (int) $connection_now->site->blog_id === (int) $id ) {
 									$selected = true;
 								}
 								?>
@@ -356,7 +356,7 @@ function dashboard() {
 								$name     = $connection->name;
 								$id       = $connection->id;
 
-								if ( (int) $connection_now->id === (int) $id ) {
+								if ( is_a( $connection_now, '\Distributor\ExternalConnection' ) && (int) $connection_now->id === (int) $id ) {
 									$selected = true;
 								}
 								?>

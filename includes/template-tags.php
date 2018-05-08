@@ -145,7 +145,7 @@ function distributor_get_original_site_url( $post_id = null ) {
  * @since 1.0
  */
 function distributor_the_original_site_url( $post_id = null ) {
-	echo distributor_get_original_site_url( $post_id );
+	echo esc_url( distributor_get_original_site_url( $post_id ) );
 }
 
 /**
@@ -173,5 +173,54 @@ function distributor_get_original_site_link( $post_id = null ) {
  * @since 1.0
  */
 function distributor_the_original_site_link( $post_id = null ) {
-	echo distributor_get_original_site_link( $post_id );
+	echo esc_url( distributor_get_original_site_link( $post_id ) );
 }
+
+
+/**
+ * Generate a list of information about a given post.
+ *
+ * @param null $post_id The Post ID.
+ * @return array
+ */
+function distributor_get_the_connection_source( $post_id = null ) {
+	if ( ! $post_id ) {
+		global $post;
+		$post_id = $post->ID;
+	}
+	return array(
+		'url'               => distributor_get_original_site_url( $post_id ),
+		'site_name'         => distributor_get_original_site_name( $post_id ),
+		'original_post_url' => distributor_get_original_post_link( $post_id ),
+		'post_is_unlinked'  => distributor_is_unlinked( $post_id ),
+	);
+}
+
+/**
+ * Display information about where a post was distributed from.
+ *
+ * @param int|null|mixed     $post_id Post ID.
+ * @param string |null|mixed $preface The string that will preceed the link.
+ */
+function distributor_the_connection_source( $post_id = null, $preface = null ) {
+	if ( ! $post_id ) {
+		global $post;
+		$post_id = $post->ID;
+	}
+
+	$connection_data = distributor_get_the_connection_source( $post_id );
+
+	// If the post is unlinked, don't output anything.
+	if ( isset( $connection_data['post_is_unlinked'] ) && 1 === $connection_data['post_is_unlinked'] ) {
+		return;
+	}
+
+	$preface   = ( $preface ) ? $preface : __( 'Distributed from', 'distributor' );
+	$url       = isset( $connection_data['original_post_url'] ) ? $connection_data['original_post_url'] : false;
+	$site_name = isset( $connection_data['site_name'] ) ? $connection_data['site_name'] : false;
+
+	if ( $url && $site_name ) {
+		printf( '%s <a href="%s" target="_blank" rel="noopener noreferrer">%s</a>', esc_html( $preface ), esc_url( $url ), esc_html( $site_name ) );
+	}
+}
+

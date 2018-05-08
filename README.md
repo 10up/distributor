@@ -24,7 +24,15 @@ The plugin contains a standard test suite compatible with PHPUnit. If you want t
 
 ## Plugin Usage
 
-Coming soon!
+Distributor supports content sharing via "pushing" and "pulling". Within the edit post screen, any post (or custom post type) that can be distributed will have a `Distributor` admin bar item that empowers an editor to share that content to any `connection`.
+
+There are two connection types: `external` and `internal`. External connections are external websites. Sharing between external websites is powered via the JSON REST API. External connections can be added via a top level menu item in the admin. Internal connections are other blogs within a multisite network.
+
+Under the top level Distributor menu item is a link to the pull screen. The pull content screen lets an editor share content from any connection to the current site.
+
+## Known Caveats/Issues
+
+__Post Meta Associations__ - A distributed post will contain all the post meta from the original. Sometimes post meta references an ID for another piece of content on the original site. Distributor does not "bring along" the referenced content and does not update those references. This type of situation can be handled on a case by case basis by extending the plugin with custom code. This is very common with the ACF plugin.
 
 ## Debugging
 
@@ -32,6 +40,6 @@ You can define a constant `DISTRIBUTOR_DEBUG` to `true` to increase the ease of 
 
 ## Changelog
 
-* 1.1.0 - Enable wordpress.com Oauth2 authentication.
+* 1.1.0 - Enable WordPress.com Oauth2 authentication.
 
 * 1.0 - Initial release.

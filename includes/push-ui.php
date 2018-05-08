@@ -32,6 +32,11 @@ function syndicatable() {
 		return false;
 	}
 
+	// Only published posts can be distributed.
+	if ( 'publish' !== get_post_status() && ! apply_filters( 'dt_drafts_can_be_distributed', false ) ) {
+		return false;
+	}
+
 	if ( is_admin() ) {
 		global $pagenow;
 
@@ -44,6 +49,10 @@ function syndicatable() {
 		}
 	} else {
 		if ( ! is_single() ) {
+			return false;
+		}
+
+		if ( ! in_array( get_post_type(), \Distributor\Utils\distributable_post_types(), true ) ) {
 			return false;
 		}
 	}
@@ -209,12 +218,21 @@ function enqueue_scripts( $hook ) {
 	}
 
 	wp_enqueue_style( 'dt-push', plugins_url( '/dist/css/push.min.css', __DIR__ ), array(), DT_VERSION );
-	wp_enqueue_script( 'dt-push', plugins_url( '/dist/js/push.min.js', __DIR__ ), array( 'jquery', 'underscore' ), DT_VERSION, true );
+	wp_enqueue_script( 'dt-push', plugins_url( '/dist/js/push.min.js', __DIR__ ), array( 'jquery', 'underscore', 'hoverIntent' ), DT_VERSION, true );
 	wp_localize_script(
 		'dt-push', 'dt', array(
 			'nonce'   => wp_create_nonce( 'dt-push' ),
 			'post_id' => (int) get_the_ID(),
 			'ajaxurl' => esc_url( admin_url( 'admin-ajax.php' ) ),
+
+			/**
+			 * Filter whether front end ajax requests should use xhrFields credentials:true.
+			 *
+			 * Front end ajax requests may require xhrFields with credentials when the front end and
+			 * back end domains do not match. This filter lets themes opt in.
+			 * See https://vip.wordpress.com/documentation/handling-frontend-file-uploads/#handling-ajax-requests
+			 */
+			'usexhr'  => apply_filters( 'dt_ajax_requires_with_credentials', false ),
 		)
 	);
 }
@@ -449,7 +467,16 @@ syndicated<?php endif; ?>" data-connection-type="internal" data-connection-id="<
 						<div class="selected-connections-list"></div>
 
 						<div class="action-wrapper">
-							<button class="syndicate-button"><?php esc_html_e( 'Distribute', 'distributor' ); ?></button> <label class="as-draft" for="dt-as-draft"><input type="checkbox" id="dt-as-draft" checked> <?php esc_html_e( 'As draft', 'distributor' ); ?></label>
+							<?php
+							/**
+							 * Only show the "As Draft" checkbox If draft distribution is enabled and the post
+							 * status is not draft, posts can only be pushed as drafts. Draft posts always
+							 * distribute as drafts.
+							 */
+							if ( ! apply_filters( 'dt_drafts_can_be_distributed', false ) || 'draft' !== get_post_status() ) :
+							?>
+								<button class="syndicate-button"><?php esc_html_e( 'Distribute', 'distributor' ); ?></button> <label class="as-draft" for="dt-as-draft"><input type="checkbox" id="dt-as-draft" checked> <?php esc_html_e( 'As draft', 'distributor' ); ?></label>
+							<?php endif; ?>
 						</div>
 					</div>
 
