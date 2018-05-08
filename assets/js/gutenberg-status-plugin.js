@@ -32,5 +32,8 @@ const renderDistributedTo = () => {
 
 const renderFunction = ( dtGutenberg.syndicationCount > 0  ) ? renderDistributedTo : renderDistributedFrom
 
-registerPlugin( 'distributor-status-panel', { render: renderFunction } );
-
+if ( parseInt( dtGutenberg.syndicationCount ) > 0 ) {
+	registerPlugin( 'distributor-status-panel', { render: renderDistributedTo } )
+} else if ( 0 !== parseInt( dtGutenberg.syndicationTime ) ) {
+	registerPlugin( 'distributor-status-panel', { render: renderDistributedFrom } )
+}
