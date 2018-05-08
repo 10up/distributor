@@ -30,7 +30,7 @@ There are two connection types: `external` and `internal`. External connections 
 
 Under the top level Distributor menu item is a link to the pull screen. The pull content screen lets an editor share content from any connection to the current site.
 
-## Known Issues
+## Known Caveats/Issues
 
 __Post Meta Associations__ - A distributed post will contain all the post meta from the original. Sometimes post meta references an ID for another piece of content on the original site. Distributor does not "bring along" the referenced content and does not update those references. This type of situation can be handled on a case by case basis by extending the plugin with custom code. This is very common with the ACF plugin.
 
