@@ -13,6 +13,16 @@ function is_vip_com() {
 }
 
 /**
+ * Determine if Gutenberg is being used
+ *
+ * @since  1.2
+ * @return boolean
+ */
+function is_using_gutenberg() {
+	return ( function_exists( 'the_gutenberg_project' ) );
+}
+
+/**
  * Get Distributor settings with defaults
  *
  * @since  1.0
