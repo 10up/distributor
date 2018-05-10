@@ -314,7 +314,14 @@ class WordPressExternalConnection extends ExternalConnection {
 				\Distributor\Utils\set_media( $new_post, $post_array['media'] );
 			}
 
-			do_action( 'dt_pull_post', $new_post, $this );
+			/**
+			 * Action triggered when a post is pulled via distributor.
+			 *
+			 * @param array              $new_post   The new post that was pulled.
+			 * @param ExternalConnection $this       The distributor connection pulling the post.
+			 * @param array              $post_array The original post data retrieved via the connection.
+			 */
+			do_action( 'dt_pull_post', $new_post, $this, $post_array );
 
 			$created_posts[] = $new_post;
 		}
