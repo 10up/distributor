@@ -34,7 +34,7 @@ Under the top level Distributor menu item is a link to the pull screen. The pull
 
 __Post Meta Associations__ - A distributed post will contain all the post meta from the original. Sometimes post meta references an ID for another piece of content on the original site. Distributor does not "bring along" the referenced content and does not update those references. This type of situation can be handled on a case by case basis by extending the plugin with custom code. This is very common with the ACF plugin.
 
-__Deleting Distributed Posts__ - When a distributed post is deleted, the distributed copies will become unlinked from the original post and thus become editable.
+__Deleting Distributed Posts__ - When a post that has been distributed post is deleted, the distributed copies will become unlinked from the original post and thus become editable.
 
 ## Debugging
 
