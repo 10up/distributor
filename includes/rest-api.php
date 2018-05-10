@@ -77,6 +77,15 @@ function process_distributor_attributes( $post, $request, $update ) {
 	if ( isset( $request['distributor_media'] ) ) {
 		\Distributor\Utils\set_media( $post->ID, $request['distributor_media'] );
 	}
+
+	/**
+	 * Action fired after an API push is handled by Distributor.
+	 *
+	 * @param WP_Post         $post    Inserted or updated post object.
+	 * @param WP_REST_Request $request Request object.
+	 * @param bool            $update  True when creating a post, false when updating.
+	 */
+	do_action( 'dt_process_distributor_attributes', $post, $request, $update );
 }
 
 /**
