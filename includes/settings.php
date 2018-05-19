@@ -26,7 +26,7 @@ function setup() {
 function setup_fields_sections() {
 	add_settings_section( 'dt-section-1', '', '', 'distributor' );
 
-  	add_settings_field( 'override_author_byline', esc_html__( 'Override Author Byline', 'distributor' ), __NAMESPACE__ . '\override_author_byline_callback', 'distributor', 'dt-section-1' );
+	add_settings_field( 'override_author_byline', esc_html__( 'Override Author Byline', 'distributor' ), __NAMESPACE__ . '\override_author_byline_callback', 'distributor', 'dt-section-1' );
 
 }
 

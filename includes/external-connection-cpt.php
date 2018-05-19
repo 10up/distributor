@@ -39,7 +39,7 @@ function setup() {
  */
 function add_status_column( $columns ) {
 	unset( $columns['date'] );
-	$columns['dt_status'] = esc_html__( 'Status', 'distributor' )/*'<span class="connection-status green"></span>'*/;
+	$columns['dt_status'] = esc_html__( 'Status', 'distributor' );/*'<span class="connection-status green"></span>'*/
 
 	$columns['date'] = esc_html__( 'Date', 'distributor' );
 
@@ -56,7 +56,7 @@ function add_status_column( $columns ) {
 function output_status_column( $column_name, $post_id ) {
 	if ( 'dt_status' === $column_name ) {
 		$external_connection_status = get_post_meta( $post_id, 'dt_external_connections', true );
-		$last_checked = get_post_meta( $post_id, 'dt_external_connection_check_time', true );
+		$last_checked               = get_post_meta( $post_id, 'dt_external_connection_check_time', true );
 
 		$status = 'valid';
 
@@ -454,12 +454,12 @@ function meta_box_external_connection_details( $post ) {
 		$auth_handler_class_again = $external_connection_class::$auth_handler_class;
 		if ( ! $auth_handler_class_again::$requires_credentials ) {
 			continue; }
-		$selected = $external_connection_class::$slug === $external_connection_type ||
+		$selected  = $external_connection_class::$slug === $external_connection_type ||
 			( '' === $external_connection_type && 1 === $index );
 		$is_hidden = ! $selected;
 		$index++;
 		?>
-		<div class="auth-credentials <?php echo ( $is_hidden ? 'hidden ': '' ); ?><?php echo esc_attr( $auth_handler_class_again::$slug ); ?> <?php echo esc_attr( $external_connection_class::$slug ); ?>">
+		<div class="auth-credentials <?php echo ( $is_hidden ? 'hidden ' : '' ); ?><?php echo esc_attr( $auth_handler_class_again::$slug ); ?> <?php echo esc_attr( $external_connection_class::$slug ); ?>">
 			<?php $auth_handler_class_again::credentials_form( $auth ); ?>
 		</div>
 	<?php endforeach; ?>

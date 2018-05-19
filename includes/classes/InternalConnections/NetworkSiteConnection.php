@@ -640,7 +640,6 @@ class NetworkSiteConnection extends Connection {
 
 		$blog_details = get_blog_details( $original_blog_id );
 
-
 		return $blog_details->blogname;
 	}
 

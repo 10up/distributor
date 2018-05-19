@@ -315,7 +315,7 @@ class SubscriptionsController extends \WP_REST_Controller {
 		 *
 		 * @Todo: Find a way around this
 		 */
-		$connection_map['external'][ -1 ] = [
+		$connection_map['external'][-1] = [
 			'post_id' => (int) $request['remote_post_id'],
 			'time'    => time(),
 		];

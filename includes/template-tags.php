@@ -26,7 +26,7 @@ function distributor_is_unlinked( $post_id = null ) {
 /**
  * Get original post link as a string.
  *
- * @param  int  $post_id Leave null to use current post
+ * @param  int $post_id Leave null to use current post
  * @since  1.0
  * @return string|bool
  */
@@ -37,10 +37,10 @@ function distributor_get_original_post_link( $post_id = null ) {
 		$post_id = $post->ID;
 	}
 
-	$original_blog_id = get_post_meta( $post_id, 'dt_original_blog_id', true );
-	$original_post_id = get_post_meta( $post_id, 'dt_original_post_id', true );
+	$original_blog_id   = get_post_meta( $post_id, 'dt_original_blog_id', true );
+	$original_post_id   = get_post_meta( $post_id, 'dt_original_post_id', true );
 	$original_site_name = get_post_meta( $post_id, 'dt_original_site_name', true );
-	$original_post_url = get_post_meta( $post_id, 'dt_original_post_url', true );
+	$original_post_url  = get_post_meta( $post_id, 'dt_original_post_url', true );
 
 	if ( ! empty( $original_blog_id ) && ! empty( $original_post_id ) ) {
 		switch_to_blog( $original_blog_id );
@@ -69,7 +69,7 @@ function distributor_the_original_post_link( $post_id = null ) {
 /**
  * Get original site name
  *
- * @param  int  $post_id Leave null to use current post
+ * @param  int $post_id Leave null to use current post
  * @since  1.0
  * @return string|bool
  */
@@ -80,7 +80,7 @@ function distributor_get_original_site_name( $post_id = null ) {
 		$post_id = $post->ID;
 	}
 
-	$original_blog_id = get_post_meta( $post_id, 'dt_original_blog_id', true );
+	$original_blog_id   = get_post_meta( $post_id, 'dt_original_blog_id', true );
 	$original_site_name = get_post_meta( $post_id, 'dt_original_site_name', true );
 
 	if ( ! empty( $original_blog_id ) ) {
@@ -110,7 +110,7 @@ function distributor_the_original_site_name( $post_id = null ) {
 /**
  * Get original site link
  *
- * @param  int  $post_id Leave null to use current post
+ * @param  int $post_id Leave null to use current post
  * @since  1.0
  * @return string|bool
  */
@@ -121,7 +121,7 @@ function distributor_get_original_site_url( $post_id = null ) {
 		$post_id = $post->ID;
 	}
 
-	$original_blog_id = get_post_meta( $post_id, 'dt_original_blog_id', true );
+	$original_blog_id  = get_post_meta( $post_id, 'dt_original_blog_id', true );
 	$original_site_url = get_post_meta( $post_id, 'dt_original_site_url', true );
 
 	if ( ! empty( $original_blog_id ) ) {
@@ -157,7 +157,7 @@ function distributor_the_original_site_url( $post_id = null ) {
  */
 function distributor_get_original_site_link( $post_id = null ) {
 	$site_name = distributor_get_original_site_name( $post_id );
-	$site_url = distributor_get_original_site_url( $post_id );
+	$site_url  = distributor_get_original_site_url( $post_id );
 
 	if ( empty( $site_name ) || empty( $site_url ) ) {
 		return;

@@ -12,7 +12,7 @@ class WordPressExternalConnection extends ExternalConnection {
 	static $auth_handler_class = '\Distributor\Authentications\WordPressBasicAuth';
 	static $namespace          = 'wp/v2';
 
-	static $timeout            = 5;
+	static $timeout = 5;
 
 	/**
 	 * This is a utility function for parsing annoying API link headers returned by the types endpoint
@@ -107,7 +107,7 @@ class WordPressExternalConnection extends ExternalConnection {
 			} else {
 				$types_response = wp_remote_get(
 					$types_path, $this->auth_handler->format_get_args( array( 'timeout' => self::$timeout ) )
-			);
+				);
 			}
 
 			if ( is_wp_error( $types_response ) ) {
@@ -361,9 +361,11 @@ class WordPressExternalConnection extends ExternalConnection {
 			);
 		} else {
 			$response = wp_remote_get(
-				$types_path, $this->auth_handler->format_get_args( array(
-					'timeout' => self::$timeout,
-				) )
+				$types_path, $this->auth_handler->format_get_args(
+					array(
+						'timeout' => self::$timeout,
+					)
+				)
 			);
 		}
 
@@ -544,8 +546,8 @@ class WordPressExternalConnection extends ExternalConnection {
 		if ( function_exists( 'vip_safe_wp_remote_get' ) && \Distributor\Utils\is_vip_com() ) {
 			$types_response = vip_safe_wp_remote_get(
 				$types_path,
-					false, 3, 3, 10, $this->auth_handler->format_get_args()
-				);
+				false, 3, 3, 10, $this->auth_handler->format_get_args()
+			);
 		} else {
 			$types_response = wp_remote_get( $types_path, $this->auth_handler->format_get_args( array( 'timeout' => self::$timeout ) ) );
 		}
@@ -636,9 +638,9 @@ class WordPressExternalConnection extends ExternalConnection {
 	private function to_wp_post( $post ) {
 		$obj = new \stdClass();
 
-		$obj->ID                = $post['id'];
-		$obj->post_title        = $post['title']['rendered'];
-		$obj->post_content      = $post['content']['rendered'];
+		$obj->ID           = $post['id'];
+		$obj->post_title   = $post['title']['rendered'];
+		$obj->post_content = $post['content']['rendered'];
 
 		if ( isset( $post['excerpt']['raw'] ) ) {
 			$obj->post_excerpt = $post['excerpt']['raw'];
@@ -743,7 +745,7 @@ class WordPressExternalConnection extends ExternalConnection {
 		}
 
 		$original_source_id = get_post_meta( $post->ID, 'dt_original_source_id', true );
-		$original_site_name  = get_post_meta( $post->ID, 'dt_original_site_name', true );
+		$original_site_name = get_post_meta( $post->ID, 'dt_original_site_name', true );
 		$original_site_url  = get_post_meta( $post->ID, 'dt_original_site_url', true );
 		$unlinked           = (bool) get_post_meta( $post->ID, 'dt_unlinked', true );
 
