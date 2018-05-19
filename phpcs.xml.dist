@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<ruleset name="Distributor">
+	<description>PHPCS rules for Distributor</description>
+
+	<file>./includes</file>
+	<file>./tests</file>
+	<file>./distributor.php</file>
+
+	<!-- Include the WordPress-Extra standard. -->
+	<rule ref="WordPress-Core">
+		<exclude name="WordPress.Files.FileName"/>
+	</rule>
+
+	<rule ref="WordPress-Docs"/>
+
+	<rule ref="Generic.CodeAnalysis.UnusedFunctionParameter"/>
+	<rule ref="Generic.Commenting.Todo"/>
+
+	<config name="testVersion" value="5.6"/>
+	<rule ref="PHPCompatibility"/>
+
+	<config name="minimum_supported_wp_version" value="4.6"/>
+</ruleset>
