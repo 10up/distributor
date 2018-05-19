@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Plugin Name:       Distributor
  * Description:       Syndicate content to and from external websites and within multisite blogs.
@@ -10,6 +9,8 @@
  * Text Domain:       distributor
  * Domain Path:       /lang/
  * GitHub Plugin URI: https://github.com/10up/distributor
+ *
+ * @package distributor
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -23,13 +24,13 @@ define( 'DT_VERSION', '1.1.0-1' );
  */
 spl_autoload_register(
 	function( $class ) {
-			// project-specific namespace prefix
+			// Project-specific namespace prefix.
 			$prefix = 'Distributor\\';
 
-			// base directory for the namespace prefix
+			// Base directory for the namespace prefix.
 			$base_dir = __DIR__ . '/includes/classes/';
 
-			// does the class use the namespace prefix?
+			// Does the class use the namespace prefix?
 			$len = strlen( $prefix );
 
 		if ( strncmp( $prefix, $class, $len ) !== 0 ) {
@@ -40,7 +41,7 @@ spl_autoload_register(
 
 			$file = $base_dir . str_replace( '\\', '/', $relative_class ) . '.php';
 
-			// if the file exists, require it
+			// If the file exists, require it.
 		if ( file_exists( $file ) ) {
 			require $file;
 		}
@@ -73,7 +74,7 @@ add_action(
 );
 
 /**
- * Set Distributor header in all API responses
+ * Set Distributor header in all API responses.
  */
 add_filter(
 	'rest_post_dispatch', function( $response ) {
