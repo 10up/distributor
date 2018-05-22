@@ -114,6 +114,9 @@ function prepare_meta( $post_id ) {
 		foreach ( $meta_array as $meta_value ) {
 			if ( ! in_array( $meta_key, $blacklisted_meta, true ) ) {
 				$meta_value                 = maybe_unserialize( $meta_value );
+				if( false === apply_filters( 'dt_sync_meta', true, $meta_key, $meta_value, $post_id ) ) {
+					continue;
+				}
 				$prepared_meta[ $meta_key ] = $meta_value;
 			}
 		}
