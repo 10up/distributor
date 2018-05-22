@@ -358,7 +358,7 @@ function format_media_post( $media_post ) {
 	$media_item['source_url']    = wp_get_attachment_url( $media_post->ID );
 	$media_item['meta']          = get_post_meta( $media_post->ID );
 
-	return $media_item;
+	return apply_filters( 'dt_media_item_args', $media_item, $media_post->ID );
 }
 
 /**
