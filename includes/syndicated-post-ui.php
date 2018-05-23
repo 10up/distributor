@@ -269,7 +269,17 @@ function unlink() {
 
 	$post_id = intval( $_GET['post'] );
 
-	if ( empty( $_GET['_wpnonce'] ) || ! wp_verify_nonce( $_GET['_wpnonce'], 'unlink-post_' . $post_id ) ) {
+	if ( empty( $_GET['_wpnonce'] ) ||
+	    ! wp_verify_nonce( $_GET['_wpnonce'], 'unlink-post_' . $post_id ) ||
+	    /**
+	     * Filters whether the post can be unlinked.
+	     *
+	     * @since 1.0
+	     *
+	     * @param bool true       Whether the post is allowed to be unlinked. Default true.
+	     * @param int  $post_id   The ID of the post attempting to be unlinked.
+	     */
+	    ! apply_filters( 'dt_allow_post_unlink', true, $post_id) ) {
 		return;
 	}
 
@@ -402,7 +412,9 @@ function syndicated_message( $post ) {
 		<?php elseif ( ! $unlinked ) : ?>
 			<p>
 				<?php echo wp_kses_post( sprintf( __( 'Distributed from <a href="%1$s">%2$s</a>.', 'distributor' ), esc_url( $post_url ), esc_html( $original_location_name ) ) ); ?>
-				<span><?php echo wp_kses_post( sprintf( __( 'The original %1$s will update this version unless you <a href="%2$s">unlink from the original.</a>', 'distributor' ), esc_html( strtolower( $post_type_singular ) ), wp_nonce_url( add_query_arg( 'action', 'unlink', admin_url( sprintf( $post_type_object->_edit_link, $post->ID ) ) ), "unlink-post_{$post->ID}" ) ) ); ?></span>
+				<?php if(apply_filters( 'dt_allow_post_unlink', true, $post->ID)) : ?>
+					<span><?php echo wp_kses_post( sprintf( __( 'The original %1$s will update this version unless you <a href="%2$s">unlink from the original.</a>', 'distributor' ), esc_html( strtolower( $post_type_singular ) ), wp_nonce_url( add_query_arg( 'action', 'unlink', admin_url( sprintf( $post_type_object->_edit_link, $post->ID ) ) ), "unlink-post_{$post->ID}" ) ) ); ?></span>
+				<?php endif; ?>
 			</p>
 		<?php else : ?>
 			<p>
