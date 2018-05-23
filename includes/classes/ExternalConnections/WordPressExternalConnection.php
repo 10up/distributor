@@ -322,10 +322,10 @@ class WordPressExternalConnection extends ExternalConnection {
 			 *
 			 * @since 1.0
 			 *
-			 * @param  array  $post_array                     The post to be inserted.
-			 * @param  array  $item_array['remote_post_id']   The remote post ID.
-			 * @param  object $post                           The request that got the post.
-			 * @param  object $this                           The class.
+			 * @param  array              $post_array                     The post to be inserted.
+			 * @param  array              $item_array['remote_post_id']   The remote post ID.
+			 * @param  object             $post                           The request that got the post.
+			 * @param  ExternalConnection $this                           The distributor connection pulling the post.
 			 */
 			$new_post = wp_insert_post( apply_filters( 'dt_pull_post_args', $post_array, $item_array['remote_post_id'], $post, $this ) );
 
@@ -490,15 +490,25 @@ class WordPressExternalConnection extends ExternalConnection {
 					 *
 					 * @since 1.0
 					 *
-					 * @param  array  $post_body                      The request body to send.
-					 * @param  object $post                           The WP_Post that is being pushed.
-					 * @param  object $this                           The class.
+					 * @param  array              $post_body                      The request body to send.
+					 * @param  object             $post                           The WP_Post that is being pushed.
+					 * @param  ExternalConnection $this                           The distributor connection being pushed to.
 					 */
 					'body'    => apply_filters( 'dt_push_post_args', $post_body, $post, $this ),
 				)
 			)
 		);
 
+		/**
+		 * Action triggered when a post is pushed via distributor.
+		 *
+		 * @param array              $response   The HTTP response of the push.
+		 * @param array              $post_body  The body that was POSTed.
+		 * @param string             $type_url   The URL that was POSTed to.
+		 * @param int                $post_id    The post ID that was pushed.
+		 * @param array              $args       The arguments sent with the POST.
+		 * @param ExternalConnection $this       The distributor connection being pushed to.
+		 */
 		do_action( 'dt_push_post', $response, $post_body, $type_url, $post_id, $args, $this );
 
 		if ( is_wp_error( $response ) ) {
