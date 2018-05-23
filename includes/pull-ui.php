@@ -122,6 +122,13 @@ function action_admin_menu() {
 		'distributor',
 		esc_html__( 'Pull Content', 'distributor' ),
 		esc_html__( 'Pull Content', 'distributor' ),
+		/**
+		 * Filter Distributor capabilities allowed to pull content.
+		 *
+		 * @since 1.0.0
+		 *
+		 * @param string manage_options The capability allowed to pull content.
+		 */
 		apply_filters( 'dt_pull_capabilities', 'manage_options' ),
 		'pull',
 		__NAMESPACE__ . '\dashboard'

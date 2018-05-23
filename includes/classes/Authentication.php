@@ -33,10 +33,19 @@ abstract class Authentication {
 	 *
 	 * @param  array $args
 	 * @param  array $context optional array of information about the request
-	 * @since  .8
+	 * @since  0.8
 	 * @return array
 	 */
 	public function format_get_args( $args = array(), $context = array() ) {
+		/**
+		 * Format request args for a GET request so auth occurs
+		 *
+		 * @since 0.8
+		 *
+		 * @param  array  $args
+		 * @param  array  $context optional array of information about the request
+		 * @param  object $this The authentication class.
+		 */
 		return apply_filters( 'dt_auth_format_get_args', $args, $context, $this );
 	}
 
@@ -49,6 +58,15 @@ abstract class Authentication {
 	 * @return array
 	 */
 	public function format_post_args( $args, $context = array() ) {
+		/**
+		 * Format request args for a POST request so auth occurs
+		 *
+		 * @since 0.8
+		 *
+		 * @param  array  $args
+		 * @param  array  $context optional array of information about the request
+		 * @param  object $this The authentication class.
+		 */
 		return apply_filters( 'dt_auth_format_post_args', $args, $context, $this );
 	}
 

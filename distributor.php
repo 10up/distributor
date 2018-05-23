@@ -111,6 +111,10 @@ add_action(
 		if (
 			/**
 			 * Filter whether the network connection type is enabled. Enabled by default, return false to disable.
+			 *
+			 * @since 1.0.0
+			 *
+			 * @param bool true Whether the network connection should be enabled.
 			 */
 			apply_filters( 'dt_network_site_connection_enabled', true )
 		) {
