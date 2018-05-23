@@ -736,8 +736,8 @@ class WordPressExternalConnection extends ExternalConnection {
 		 *
 		 * @since 1.0
 		 *
-		 * @param  object $obj  The WP_Post that is being pushed.
-		 * @param  object $this The class.
+		 * @param  object             $obj  The WP_Post that is being pushed.
+		 * @param  ExternalConnection $this The external connection the post concerns.
 		 */
 		return apply_filters( 'dt_item_mapping', new \WP_Post( $obj ), $post, $this );
 	}
