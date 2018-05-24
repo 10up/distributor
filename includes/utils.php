@@ -128,6 +128,9 @@ function prepare_meta( $post_id ) {
 		foreach ( $meta_array as $meta_value ) {
 			if ( ! in_array( $meta_key, $blacklisted_meta, true ) ) {
 				$meta_value                 = maybe_unserialize( $meta_value );
+				if( false === apply_filters( 'dt_sync_meta', true, $meta_key, $meta_value, $post_id ) ) {
+					continue;
+				}
 				$prepared_meta[ $meta_key ] = $meta_value;
 			}
 		}
@@ -389,12 +392,12 @@ function format_media_post( $media_post ) {
 	$media_item['alt_text']      = get_post_meta( $media_post->ID, '_wp_attachment_image_alt', true );
 	$media_item['media_type']    = wp_attachment_is_image( $media_post->ID ) ? 'image' : 'file';
 	$media_item['mime_type']     = $media_post->post_mime_type;
-	$media_item['media_details'] = wp_get_attachment_metadata( $media_post->ID );
+	$media_item['media_details'] = apply_filters( 'dt_get_media_details', wp_get_attachment_metadata( $media_post->ID ), $media_post->ID );
 	$media_item['post']          = $media_post->post_parent;
 	$media_item['source_url']    = wp_get_attachment_url( $media_post->ID );
 	$media_item['meta']          = get_post_meta( $media_post->ID );
 
-	return $media_item;
+	return apply_filters( 'dt_media_item_formatted', $media_item, $media_post->ID );
 }
 
 /**
