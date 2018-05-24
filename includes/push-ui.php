@@ -33,6 +33,13 @@ function syndicatable() {
 	}
 
 	// Only published posts can be distributed.
+	/**
+	 * Filter whether drafts are distributable.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param bool false Whether drafts can be distributed.
+	 */
 	if ( 'publish' !== get_post_status() && ! apply_filters( 'dt_drafts_can_be_distributed', false ) ) {
 		return false;
 	}
@@ -231,6 +238,10 @@ function enqueue_scripts( $hook ) {
 			 * Front end ajax requests may require xhrFields with credentials when the front end and
 			 * back end domains do not match. This filter lets themes opt in.
 			 * See https://vip.wordpress.com/documentation/handling-frontend-file-uploads/#handling-ajax-requests
+			 *
+			 * @since 1.0.0
+			 *
+			 * @param bool false Whether front end ajax requests should use xhrFields credentials:true.
 			 */
 			'usexhr'  => apply_filters( 'dt_ajax_requires_with_credentials', false ),
 		)

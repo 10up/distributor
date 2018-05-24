@@ -163,6 +163,13 @@ function distributor_get_original_site_link( $post_id = null ) {
 		return;
 	}
 
+	/**
+	 * Filter the original site link for a distributed post.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param string A formatted version of the original site link.
+	 */
 	return apply_filters( 'distributor_get_original_site_link', __( sprintf( 'By <a href="%s">%s</a>', esc_url( $site_url ), esc_html( $site_name ) ), 'distributor' ) );
 }
 

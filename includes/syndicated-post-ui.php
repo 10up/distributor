@@ -278,8 +278,15 @@ function unlink() {
 	/**
 	 * Todo: Do we delete subscriptions for external posts?
 	 */
-
-	do_action( 'dt_unlink_post' );
+	/**
+	 * Action fired when a post is unlinked.
+	 *
+	 * @since 1.0
+	 *
+	 * @param int $post_id ID of the post being unlinked.
+	 *
+	 */
+	do_action( 'dt_unlink_post', $post_id );
 
 	wp_safe_redirect( admin_url( 'post.php?action=edit&post=' . intval( $_GET['post'] ) ) );
 	exit;
@@ -348,7 +355,15 @@ function link() {
 		}
 	}
 
-	do_action( 'dt_link_post' );
+	/**
+	 * Action fired when a post is linked.
+	 *
+	 * @since 1.0
+	 *
+	 * @param int $post_id ID of the post being unlinked.
+	 *
+	 */
+	do_action( 'dt_link_post', $post_id );
 
 	wp_safe_redirect( admin_url( 'post.php?action=edit&post=' . $post_id ) );
 	exit;

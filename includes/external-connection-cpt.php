@@ -563,6 +563,13 @@ function add_menu_item() {
 	$hook = add_menu_page(
 		'Distributor',
 		'Distributor',
+		/**
+		 * Filter Distributor capabilities allowed to view external connections.
+		 *
+		 * @since 1.0.0
+		 *
+		 * @param string manage_options The capability allowed to view external connections.
+		 */
 		apply_filters( 'dt_capabilities', 'manage_options' ),
 		'distributor',
 		__NAMESPACE__ . '\dashboard',
@@ -580,7 +587,18 @@ function add_menu_item() {
 function add_submenu_item() {
 	global $submenu;
 	unset( $submenu['distributor'][0] );
-	add_submenu_page( 'distributor', esc_html__( 'External Connections', 'distributor' ), esc_html__( 'External Connections', 'distributor' ), apply_filters( 'dt_external_capabilities', 'manage_options' ), 'distributor' );
+	add_submenu_page( 'distributor',
+	                 esc_html__( 'External Connections', 'distributor' ),
+	                 esc_html__( 'External Connections', 'distributor' ),
+	                 /**
+	                  * Filter Distributor capabilities allowed to manage external connections.
+	                  *
+	                  * @since 1.0.0
+	                  *
+	                  * @param string manage_options The capability allowed to manage external connections.
+	                  */
+	                 apply_filters( 'dt_external_capabilities', 'manage_options' ),
+	                 'distributor' );
 }
 
 /**

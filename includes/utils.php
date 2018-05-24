@@ -89,10 +89,24 @@ function distributable_post_types() {
 		unset( $post_types['attachment'] );
 	}
 
+	/**
+	 * Filter post types that are distributable.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param array Post types that are distributable. Default 'all post types except dt_ext_connection and dt_subscription'.
+	 */
 	return apply_filters( 'distributable_post_types', array_diff( $post_types, [ 'dt_ext_connection', 'dt_subscription' ] ) );
 }
 
 function blacklisted_meta() {
+	/**
+	 * Filter meta keys that are blacklisted.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param array Post types that are distributable. Default 'dt_unlinked, dt_connection_map, dt_subscription_update, dt_subscriptions, dt_subscription_signature, dt_original_post_id, dt_original_post_url, dt_original_blog_id, dt_syndicate_time, _wp_attached_file, _edit_lock, _edit_last'.
+	 */
 	return apply_filters( 'dt_blacklisted_meta', [ 'dt_unlinked', 'dt_connection_map', 'dt_subscription_update', 'dt_subscriptions', 'dt_subscription_signature', 'dt_original_post_id', 'dt_original_post_url', 'dt_original_blog_id', 'dt_syndicate_time', '_wp_attached_file', '_edit_lock', '_edit_last' ] );
 }
 
@@ -174,8 +188,8 @@ function prepare_taxonomy_terms( $post_id ) {
 	 *
 	 * @since 1.0
 	 *
-	 * @param array taxonomies  Associative array list of taxonomies supported by current post
-	 * @param object $post      The Post Object
+	 * @param array  $taxonomies  Associative array list of taxonomies supported by current post
+	 * @param object $post        The Post Object
 	 */
 	$taxonomies = apply_filters( 'dt_syncable_taxonomies', $taxonomies, $post );
 
@@ -213,6 +227,13 @@ function set_taxonomy_terms( $post_id, $taxonomy_terms ) {
 			$term = get_term_by( 'slug', $term_array['slug'], $taxonomy );
 
 			// Create terms on remote site if they don't exist
+			/**
+			 * Filter whether missing terms should be created.
+			 *
+			 * @since 1.0.0
+			 *
+			 * @param bool true Controls whether missing terms should be created. Default 'true'.
+			 */
 			$create_missing_terms = apply_filters( 'dt_create_missing_terms', true );
 
 			if ( empty( $term ) ) {
@@ -235,6 +256,13 @@ function set_taxonomy_terms( $post_id, $taxonomy_terms ) {
 		}
 
 		// Handle hierarchical terms if they exist
+		/**
+		 * Filter whether term hierarchy should be updated.
+		 *
+		 * @since 1.0.0
+		 *
+		 * @param bool true Controls whether term hierarchy should be updated. Default 'true'.
+		 */
 		$update_term_hierachy = apply_filters( 'dt_update_term_hierarchy', true );
 
 		if ( ! empty( $update_term_hierachy ) ) {
@@ -281,6 +309,14 @@ function set_media( $post_id, $media ) {
 	foreach ( $media as $media_item ) {
 
 		// Delete duplicate if it exists (unless filter says otherwise)
+		/**
+		 * Filter whether media should be deleted and replaced if it already exists.
+		 *
+		 * @since 1.0.0
+		 *
+		 * @param bool   true     Controls whether pre-existing media should be deleted and replaced. Default 'true'.
+		 * @param int    $post_id The post ID.
+		 */
 		if ( apply_filters( 'dt_sync_media_delete_and_replace', true, $post_id ) ) {
 			if ( ! empty( $current_media[ $media_item['source_url'] ] ) ) {
 				wp_delete_attachment( $current_media[ $media_item['source_url'] ], true );
