@@ -222,7 +222,7 @@ class WordPressExternalConnection extends ExternalConnection {
 				false, 3, 3, 10, $this->auth_handler->format_get_args()
 			);
 		} else {
-			$posts_response = wp_remote_get( apply_filters( 'dt_remote_get_url', $posts_url, $args, $this ), $this->auth_handler->format_get_args( array( 'timeout' => self::$timeout ) ) );
+			$posts_response = wp_remote_get( apply_filters( 'dt_remote_get_url', $posts_url, $args, $this ), $this->auth_handler->format_get_args( array( 'timeout' => 45 ) ) );
 		}
 
 		if ( is_wp_error( $posts_response ) ) {
@@ -484,7 +484,7 @@ class WordPressExternalConnection extends ExternalConnection {
 					 * @param int $timeout The timeout to use for the remote post. Default 5.
 					 * @param object $post The post object
 					 */
-					'timeout' => apply_filters( 'dt_push_post_timeout', 5, $post ),
+					'timeout' => apply_filters( 'dt_push_post_timeout', 45, $post ),
 					/**
 					 * Filter the arguments sent to the remote server during a push.
 					 *
