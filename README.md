@@ -1,11 +1,13 @@
 Distributor
 =============
 
-Distributor is a WordPress plugin that makes it easy to syndicate and reuse content across your websites — whether in a single multisite or across the web. Check out the [website](https://distributorplugin.com) for more information.
+Distributor is a WordPress plugin that makes it easy to syndicate and reuse content across your websites — whether in a single multisite or across the web. 
 
-<p align="center">
-<a href="http://10up.com/contact/"><img src="https://10updotcom-wpengine.s3.amazonaws.com/uploads/2016/10/10up-Github-Banner.png" width="850"></a>
-</p>
+*You can learn more about Distributor's features at [DistributorPlugin.com](https://distributorplugin.com).*
+
+<a href="http://distributorplugin.com/"><img src="https://distributorplugin.com/wp-content/themes/distributor-theme/assets/img/push-screenshot.jpg" alt="Push the content you’re editing or viewing to any of your other sites from the admin bar" width="600"></a>
+
+<a href="http://distributorplugin.com/"><img alt="Distributor intuitively presents the origin and status of any reused content" class="browser-frame" src="https://distributorplugin.com/wp-content/themes/distributor-theme/assets/img/syndicated-screenshot.jpg" width="600"></a>
 
 ## Requirements
 
@@ -50,3 +52,7 @@ You can define a constant `DISTRIBUTOR_DEBUG` to `true` to increase the ease of 
 * 1.1.0 - Enable WordPress.com Oauth2 authentication.
 
 * 1.0 - Initial release.
+
+<p align="center">
+<a href="http://10up.com/contact/"><img src="https://10updotcom-wpengine.s3.amazonaws.com/uploads/2016/10/10up-Github-Banner.png" width="850"></a>
+</p>
