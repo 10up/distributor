@@ -44,6 +44,8 @@ You can define a constant `DISTRIBUTOR_DEBUG` to `true` to increase the ease of 
 
 ## Changelog
 
+* 1.2.0 - Gutenberg support, public release.
+
 * 1.1.0 - Enable WordPress.com Oauth2 authentication.
 
 * 1.0 - Initial release.
