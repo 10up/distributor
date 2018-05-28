@@ -18,12 +18,13 @@ Distributor is a WordPress plugin that makes it easy to syndicate and reuse cont
 
 ## Install
 
-1. [Download](https://github.com/10up/distributor/archive/master.zip) the plugin and upload via the WordPress dashboard or manually add to `wp-content/plugins` directory.
-1. Activate the plugin via the dashboard or WP-CLI.
+For production use, we recommend officially [registering for and downloading the plugin from DistributorPlugin.com](https://distributorplugin.com/#cta) – it's 100% free. You will be emailed a direct link to download the latest, production-ready build. Alternatively, you can [download the latest master build from GitHub](https://github.com/10up/distributor/archive/master.zip). 
 
-## Testing
+You can upload and install the archived (zip) plugin via the WordPress dashboard (Plugins > Add New -> Upload Plugin) or manually inside of the `wp-content/plugins` directory, and activate on the Plugins dashboard.
 
-The plugin contains a standard test suite compatible with PHPUnit. If you want to test across multiple PHP versions, a [Dockunit](https://github.com/dockunit/dockunit) file is included.
+### Registration
+
+To help inform our roadmap, keep adopters apprised of major updates and changes that could impact their websites, and solicit opportunities for beta testing and feedback, we’re asking for a little bit of information in exchange for a free key that unlocks update notifications and 1-click upgrades inside the WordPress dashboard. Your information is kept confidential. You can [register here](https://distributorplugin.com/#cta) and input your key in Distributor settings in the dashboard (network dashboard for multisite users).
 
 ## Plugin Usage
 
@@ -41,17 +42,23 @@ __Deleting Distributed Posts__ - When a post that has been distributed is delete
 
 __Remote Request Timeouts__ - With external connections, HTTP requests are sent back and forth - creating posts, transfering images, syncing post updates, etc. In certain situations e.g. large amounts of images, poorly configured servers, and issues with other plugins, Distributor requests can fail. Although we do some error handling, there are certain cases in which Distributor can fail silently. If requests are taking a long time to load and failing, take a look at upping the timeout for that request. You can filter the timeout for pushing external posts [here](https://github.com/10up/distributor/blob/master/includes/classes/ExternalConnections/WordPressExternalConnection.php#L487).
 
-## Debugging
-
-You can define a constant `DISTRIBUTOR_DEBUG` to `true` to increase the ease of debugging in Distributor. This will make all remote requests blocking and expose the subscription post type.
-
 ## Changelog
 
 * 1.2.0 - Gutenberg support, public release.
-
 * 1.1.0 - Enable WordPress.com Oauth2 authentication.
+* 1.0 - Initial closed release.
 
-* 1.0 - Initial release.
+## Developers
+
+### Testing
+
+The plugin contains a standard test suite compatible with PHPUnit. If you want to test across multiple PHP versions, a [Dockunit](https://github.com/dockunit/dockunit) file is included.
+
+### Debugging
+
+You can define a constant `DISTRIBUTOR_DEBUG` to `true` to increase the ease of debugging in Distributor. This will make all remote requests blocking and expose the subscription post type.
+
+### Work with us
 
 <p align="center">
 <a href="http://10up.com/contact/"><img src="https://10updotcom-wpengine.s3.amazonaws.com/uploads/2016/10/10up-Github-Banner.png" width="850"></a>
