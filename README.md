@@ -11,7 +11,8 @@ Distributor is a WordPress plugin that makes it easy to syndicate and reuse cont
 
 * PHP 5.6+
 * [WordPress](http://wordpress.org) 4.7+
-* External connections require HTTP Basic Authentication be set up on the remote website. We recommend the [Application Passwords](https://wordpress.org/plugins/application-passwords/) plugin. Also, for full functionality Distributor will need to be installed on BOTH sides of the connection.
+* External connections require HTTP Basic Authentication be set up on the remote website. We recommend the [Application Passwords](https://wordpress.org/plugins/application-passwords/) plugin.
+* For external connections, Distributor needs to be installed on BOTH sides of the connection.
 
 ## Install
 
