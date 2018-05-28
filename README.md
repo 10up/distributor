@@ -15,7 +15,7 @@ Distributor is a WordPress plugin allowing you to syndicate content to and from 
 
 ## Install
 
-1. Clone or [download](https://github.com/10up/distributor/archive/master.zip) and extract the plugin into `wp-content/plugins`. Make sure you use the `master` branch which contains the latest stable release.
+1. [Download](https://github.com/10up/distributor/archive/master.zip) the plugin and upload via the WordPress dashboard or manually add to `wp-content/plugins` directory.
 1. Activate the plugin via the dashboard or WP-CLI.
 
 ## Testing
