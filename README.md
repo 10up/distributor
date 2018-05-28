@@ -36,6 +36,8 @@ __Post Meta Associations__ - A distributed post will contain all the post meta f
 
 __Deleting Distributed Posts__ - When a post that has been distributed is deleted, the distributed copies will become unlinked from the original post and thus become editable.
 
+__Remote Request Timeouts__ - With external connections, HTTP requests are sent back and forth - creating posts, transfering images, syncing post updates, etc. In certain situations e.g. large amounts of images, poorly configured servers, and issues with other plugins, Distributor requests can fail. Although we do some error handling, there are certain cases in which Distributor can fail silently. If requests are taking a long time to load and failing, take a look at upping the timeout for that request. You can filter the timeout for pushing external posts [here](https://github.com/10up/distributor/blob/master/includes/classes/ExternalConnections/WordPressExternalConnection.php#L487).
+
 ## Debugging
 
 You can define a constant `DISTRIBUTOR_DEBUG` to `true` to increase the ease of debugging in Distributor. This will make all remote requests blocking and expose the subscription post type.
