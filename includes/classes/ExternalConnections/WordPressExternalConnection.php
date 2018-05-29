@@ -12,7 +12,7 @@ class WordPressExternalConnection extends ExternalConnection {
 	static $auth_handler_class = '\Distributor\Authentications\WordPressBasicAuth';
 	static $namespace          = 'wp/v2';
 
-	static $timeout            = 5;
+	static $timeout = 5;
 
 	/**
 	 * This is a utility function for parsing annoying API link headers returned by the types endpoint
@@ -65,6 +65,18 @@ class WordPressExternalConnection extends ExternalConnection {
 			if ( isset( $args['post__in'] ) ) {
 				if ( empty( $args['post__in'] ) ) {
 					// If post__in is empty, we can just stop right here
+					/**
+					 * Filter the remote_get request
+					 *
+					 * @since 1.0
+					 *
+					 * @param array  $args {
+					 * 		@type array Items to get.
+					 * 		@type int Total number of items to get.
+					 * }
+					 * @param  array  $args The arguments originally passed to .remote_get'.
+					 * @param  object $this The authentication class.
+					 */
 					return apply_filters(
 						'dt_remote_get', [
 							'items'       => array(),
@@ -107,7 +119,7 @@ class WordPressExternalConnection extends ExternalConnection {
 			} else {
 				$types_response = wp_remote_get(
 					$types_path, $this->auth_handler->format_get_args( array( 'timeout' => self::$timeout ) )
-			);
+				);
 			}
 
 			if ( is_wp_error( $types_response ) ) {
@@ -143,6 +155,15 @@ class WordPressExternalConnection extends ExternalConnection {
 			$args_str .= 'per_page=' . (int) $posts_per_page;
 		}
 
+		/**
+		 * Filter the remote_get query arguments
+		 *
+		 * @since 1.0
+		 *
+		 * @param  array  $query_args The existing query arguments.
+		 * @param  array  $args       The arguments originally passed to .remote_get'.
+		 * @param  object $this       The authentication class.
+		 */
 		$query_args = apply_filters( 'dt_remote_get_query_args', $query_args, $args, $this );
 
 		foreach ( $query_args as $arg_key => $arg_value ) {
@@ -188,11 +209,20 @@ class WordPressExternalConnection extends ExternalConnection {
 
 		if ( function_exists( 'vip_safe_wp_remote_get' ) && \Distributor\Utils\is_vip_com() ) {
 			$posts_response = vip_safe_wp_remote_get(
+				/**
+				 * Filter the URL that remote_get will use
+				 *
+				 * @since 1.0
+				 *
+				 * @param  string $posts_url  The posts URL
+				 * @param  string $args       The arguments originally passed to .remote_get'.
+				 * @param  object $this       The authentication class.
+				 */
 				apply_filters( 'dt_remote_get_url', $posts_url, $args, $this ),
 				false, 3, 3, 10, $this->auth_handler->format_get_args()
 			);
 		} else {
-			$posts_response = wp_remote_get( apply_filters( 'dt_remote_get_url', $posts_url, $args, $this ), $this->auth_handler->format_get_args( array( 'timeout' => self::$timeout ) ) );
+			$posts_response = wp_remote_get( apply_filters( 'dt_remote_get_url', $posts_url, $args, $this ), $this->auth_handler->format_get_args( array( 'timeout' => 45 ) ) );
 		}
 
 		if ( is_wp_error( $posts_response ) ) {
@@ -287,6 +317,16 @@ class WordPressExternalConnection extends ExternalConnection {
 			unset( $post_array['post_modified'] );
 			unset( $post_array['post_modified_gmt'] );
 
+			/**
+			 * Filter the arguments passed into wp_insert_post during a pull.
+			 *
+			 * @since 1.0
+			 *
+			 * @param  array              $post_array                     The post to be inserted.
+			 * @param  array              $item_array['remote_post_id']   The remote post ID.
+			 * @param  object             $post                           The request that got the post.
+			 * @param  ExternalConnection $this                           The distributor connection pulling the post.
+			 */
 			$new_post = wp_insert_post( apply_filters( 'dt_pull_post_args', $post_array, $item_array['remote_post_id'], $post, $this ) );
 
 			update_post_meta( $new_post, 'dt_original_post_id', (int) $item_array['remote_post_id'] );
@@ -314,7 +354,14 @@ class WordPressExternalConnection extends ExternalConnection {
 				\Distributor\Utils\set_media( $new_post, $post_array['media'] );
 			}
 
-			do_action( 'dt_pull_post', $new_post, $this );
+			/**
+			 * Action triggered when a post is pulled via distributor.
+			 *
+			 * @param array              $new_post   The new post that was pulled.
+			 * @param ExternalConnection $this       The distributor connection pulling the post.
+			 * @param array              $post_array The original post data retrieved via the connection.
+			 */
+			do_action( 'dt_pull_post', $new_post, $this, $post_array );
 
 			$created_posts[] = $new_post;
 		}
@@ -354,9 +401,11 @@ class WordPressExternalConnection extends ExternalConnection {
 			);
 		} else {
 			$response = wp_remote_get(
-				$types_path, $this->auth_handler->format_get_args( array(
-					'timeout' => self::$timeout,
-				) )
+				$types_path, $this->auth_handler->format_get_args(
+					array(
+						'timeout' => self::$timeout,
+					)
+				)
 			);
 		}
 
@@ -430,14 +479,36 @@ class WordPressExternalConnection extends ExternalConnection {
 					/**
 					 * Filter the timeout used when calling WordPressExternalConnection::push.
 					 *
-					 * int $timeout The timeout to use for the remote post. Default is 5.
+					 * @since 1.0
+					 *
+					 * @param int $timeout The timeout to use for the remote post. Default 5.
+					 * @param object $post The post object
 					 */
-					'timeout' => apply_filters( 'dt_push_post_timeout', 5, $post ),
+					'timeout' => apply_filters( 'dt_push_post_timeout', 45, $post ),
+					/**
+					 * Filter the arguments sent to the remote server during a push.
+					 *
+					 * @since 1.0
+					 *
+					 * @param  array              $post_body                      The request body to send.
+					 * @param  object             $post                           The WP_Post that is being pushed.
+					 * @param  ExternalConnection $this                           The distributor connection being pushed to.
+					 */
 					'body'    => apply_filters( 'dt_push_post_args', $post_body, $post, $this ),
 				)
 			)
 		);
 
+		/**
+		 * Action triggered when a post is pushed via distributor.
+		 *
+		 * @param array              $response   The HTTP response of the push.
+		 * @param array              $post_body  The body that was POSTed.
+		 * @param string             $type_url   The URL that was POSTed to.
+		 * @param int                $post_id    The post ID that was pushed.
+		 * @param array              $args       The arguments sent with the POST.
+		 * @param ExternalConnection $this       The distributor connection being pushed to.
+		 */
 		do_action( 'dt_push_post', $response, $post_body, $type_url, $post_id, $args, $this );
 
 		if ( is_wp_error( $response ) ) {
@@ -537,8 +608,8 @@ class WordPressExternalConnection extends ExternalConnection {
 		if ( function_exists( 'vip_safe_wp_remote_get' ) && \Distributor\Utils\is_vip_com() ) {
 			$types_response = vip_safe_wp_remote_get(
 				$types_path,
-					false, 3, 3, 10, $this->auth_handler->format_get_args()
-				);
+				false, 3, 3, 10, $this->auth_handler->format_get_args()
+			);
 		} else {
 			$types_response = wp_remote_get( $types_path, $this->auth_handler->format_get_args( array( 'timeout' => self::$timeout ) ) );
 		}
@@ -629,9 +700,9 @@ class WordPressExternalConnection extends ExternalConnection {
 	private function to_wp_post( $post ) {
 		$obj = new \stdClass();
 
-		$obj->ID                = $post['id'];
-		$obj->post_title        = $post['title']['rendered'];
-		$obj->post_content      = $post['content']['rendered'];
+		$obj->ID           = $post['id'];
+		$obj->post_title   = $post['title']['rendered'];
+		$obj->post_content = $post['content']['rendered'];
 
 		if ( isset( $post['excerpt']['raw'] ) ) {
 			$obj->post_excerpt = $post['excerpt']['raw'];
@@ -660,6 +731,14 @@ class WordPressExternalConnection extends ExternalConnection {
 
 		$obj->full_connection = ( ! empty( $post['full_connection'] ) );
 
+		/**
+		 * Filter the post item.
+		 *
+		 * @since 1.0
+		 *
+		 * @param  object             $obj  The WP_Post that is being pushed.
+		 * @param  ExternalConnection $this The external connection the post concerns.
+		 */
 		return apply_filters( 'dt_item_mapping', new \WP_Post( $obj ), $post, $this );
 	}
 
@@ -736,7 +815,7 @@ class WordPressExternalConnection extends ExternalConnection {
 		}
 
 		$original_source_id = get_post_meta( $post->ID, 'dt_original_source_id', true );
-		$original_site_name  = get_post_meta( $post->ID, 'dt_original_site_name', true );
+		$original_site_name = get_post_meta( $post->ID, 'dt_original_site_name', true );
 		$original_site_url  = get_post_meta( $post->ID, 'dt_original_site_url', true );
 		$unlinked           = (bool) get_post_meta( $post->ID, 'dt_unlinked', true );
 

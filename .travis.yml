@@ -1,0 +1,25 @@
+language: php
+
+php:
+  - 5.6
+  - 7.0
+  - 7.2
+
+env:
+  global:
+    - WP_VERSION=master
+    - WP_VERSION=4.7
+
+before_script:
+  - composer install
+
+script:
+  - ./vendor/bin/phpcs
+  - ./vendor/bin/phpunit
+
+cache:
+  directories:
+    - vendor/
+
+notifications:
+  email: false

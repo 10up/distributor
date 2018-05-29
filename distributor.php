@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Plugin Name:       Distributor
  * Description:       Distributor is a WordPress plugin allowing you to syndicate content to and from external websites and within multisite blogs.
@@ -10,6 +9,8 @@
  * Text Domain:       distributor
  * Domain Path:       /lang/
  * GitHub Plugin URI: https://github.com/10up/distributor
+ *
+ * @package distributor
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -29,9 +30,27 @@ if ( is_multisite() && isset( $plugins[ plugin_basename( __FILE__ ) ] ) ) {
 }
 
 /**
- * Load dependencies
+ * PSR-4 autoloading
  */
-require_once __DIR__ . '/vendor/autoload.php';
+spl_autoload_register(
+	function( $class ) {
+			// Project-specific namespace prefix.
+			$prefix = 'Distributor\\';
+			// Base directory for the namespace prefix.
+			$base_dir = __DIR__ . '/includes/classes/';
+			// Does the class use the namespace prefix?
+			$len = strlen( $prefix );
+		if ( strncmp( $prefix, $class, $len ) !== 0 ) {
+			return;
+		}
+			$relative_class = substr( $class, $len );
+			$file = $base_dir . str_replace( '\\', '/', $relative_class ) . '.php';
+			// If the file exists, require it.
+		if ( file_exists( $file ) ) {
+			require $file;
+		}
+	}
+);
 
 /**
  * Require PHP version 5.6 - throw an error if the plugin is activated on an older version.
@@ -59,7 +78,7 @@ add_action(
 );
 
 /**
- * Set Distributor header in all API responses
+ * Set Distributor header in all API responses.
  */
 add_filter(
 	'rest_post_dispatch', function( $response ) {
@@ -118,6 +137,10 @@ add_action(
 		if (
 			/**
 			 * Filter whether the network connection type is enabled. Enabled by default, return false to disable.
+			 *
+			 * @since 1.0.0
+			 *
+			 * @param bool true Whether the network connection should be enabled.
 			 */
 			apply_filters( 'dt_network_site_connection_enabled', true )
 		) {

@@ -50,18 +50,18 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 		$saved_access_token = self::get_authentication_option_by_key( self::ACCESS_TOKEN_KEY );
 
 		// Do we have a valid token?
-		$is_valid_token     = self::is_valid_token();
+		$is_valid_token = self::is_valid_token();
 
 		// Grab the existing id & secret if any.
-		$client_id          = isset( $args[ self::API_CLIENT_ID ] ) ? $args[ self::API_CLIENT_ID ] : '';
-		$client_secret      = isset( $args[ self::API_CLIENT_SECRET ] ) ? $args[ self::API_CLIENT_SECRET ] : '';
+		$client_id     = isset( $args[ self::API_CLIENT_ID ] ) ? $args[ self::API_CLIENT_ID ] : '';
+		$client_secret = isset( $args[ self::API_CLIENT_SECRET ] ) ? $args[ self::API_CLIENT_SECRET ] : '';
 
 		// Check if we are on the new connection screen.
 		$screen                = get_current_screen();
 		$adding_new_connection = isset( $screen->action ) && 'add' === $screen->action;
 
 		// Calculate the redirect_uri to use for authorization (the current admin url & query vars).
-		$redirect_uri          = esc_url(
+		$redirect_uri                   = esc_url(
 			( is_ssl() ? 'https://' : 'http://' ) .
 			sanitize_text_field( isset( $_SERVER['HTTP_HOST'] ) ? $_SERVER['HTTP_HOST'] : '' ) . // Input var okay. WPCS: CSRF ok.
 			sanitize_text_field( isset( $_SERVER['SCRIPT_NAME'] ) ? $_SERVER['SCRIPT_NAME'] : '' ) . // WPCS: input var ok.
@@ -106,7 +106,7 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 			self::credentials_partial( $args, $adding_new_connection );
 
 		} else {
-		// The connection is already authorized and we have a valid token. Show the green connection status and
+			// The connection is already authorized and we have a valid token. Show the green connection status and
 		?>
 		<div id="message" class="oauth-connection-established"><p><span class="message-header">&#10003 <?php esc_html_e( 'Connection Authorized', 'distributor' ); ?></span><br/><a id="oauth-authentication-change-credentials" href="#"><?php esc_html_e( 'Change credentials.', 'distributor' ); ?></a></p></div>
 		<?php
@@ -227,7 +227,7 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 		}
 
 		if ( ! empty( $args['dt_created_post_id'] ) ) {
-			$auth[ 'dt_created_post_id' ] = sanitize_text_field( $args['dt_created_post_id'] );
+			$auth['dt_created_post_id'] = sanitize_text_field( $args['dt_created_post_id'] );
 		}
 
 		return apply_filters( 'dt_auth_prepare_credentials', $auth, $args, self::$slug );
@@ -256,8 +256,8 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 			return;
 		}
 
-		$access_token = isset( $current_values[ self::ACCESS_TOKEN_KEY ] ) ? $current_values[ self::ACCESS_TOKEN_KEY ] : '';
-		$created_id = isset( $args['dt_created_post_id'] ) ? $args['dt_created_post_id'] : false;
+		$access_token               = isset( $current_values[ self::ACCESS_TOKEN_KEY ] ) ? $current_values[ self::ACCESS_TOKEN_KEY ] : '';
+		$created_id                 = isset( $args['dt_created_post_id'] ) ? $args['dt_created_post_id'] : false;
 		$args['dt_created_post_id'] = false;
 		if (
 			empty( $access_token ) ||
@@ -319,7 +319,6 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 	 * Authorize the request using the code and secret key. If successful, save the access token.
 	 *
 	 * @since 1.1.0
-	 *
 	 */
 	public static function fetch_access_token( $code ) {
 		global $post;
@@ -389,7 +388,6 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 	 * Begin the authorization process which retrieves an authorization code.
 	 *
 	 * @since 1.1.0
-	 *
 	 */
 	public static function get_authorization_code( $options ) {
 		$client_id    = $options[ self::API_CLIENT_ID ];
@@ -412,10 +410,12 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 			$authorize_url = self::AUTHORIZE_URL . '?' . $query_param;
 
 			// Allow wp_safe_redirect to redirect to the .com authorization endpoint.
-			add_filter( 'allowed_redirect_hosts' , function( $content ){
-				$content[] = 'public-api.wordpress.com';
-				return $content;
-			} );
+			add_filter(
+				'allowed_redirect_hosts', function( $content ) {
+					$content[] = 'public-api.wordpress.com';
+					return $content;
+				}
+			);
 
 			// Redirect to the wordpress.com oauth authorize URL (https://public-api.wordpress.com/oauth2/authorize).
 			wp_safe_redirect( esc_url_raw( $authorize_url ) );
@@ -435,7 +435,6 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 	 * @since 1.1.0
 	 *
 	 * @return boolean Is the token valid?
-	 *
 	 */
 	public static function is_valid_token( $count = 1 ) {
 

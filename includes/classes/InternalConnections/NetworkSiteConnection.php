@@ -91,6 +91,14 @@ class NetworkSiteConnection extends Connection {
 			\Distributor\Utils\set_media( $new_post, $media );
 		}
 
+		/**
+		 * Action triggered when a post is pushed via distributor.
+		 *
+		 * @param WP_Post            $new_post   The newly created post.
+		 * @param int                $post_id    The original post ID.
+		 * @param array              $args       The arguments passed into wp_insert_post.
+		 * @param ExternalConnection $this       The distributor connection being pushed to.
+		 */
 		do_action( 'dt_push_post', $new_post, $post_id, $args, $this );
 
 		restore_current_blog();
@@ -185,7 +193,16 @@ class NetworkSiteConnection extends Connection {
 
 			restore_current_blog();
 
-			do_action( 'dt_pull_post', $new_post, $this );
+			/**
+			 * Action triggered when a post is pulled via distributor.
+			 *
+			 * @since 1.0
+			 *
+			 * @param array              $new_post   The new post that was pulled.
+			 * @param ExternalConnection $this       The distributor connection pulling the post.
+			 * @param array              $post_array The original post data retrieved via the connection.
+			 */
+			do_action( 'dt_pull_post', $new_post, $this, $post_array );
 
 			$created_posts[] = $new_post;
 		}
@@ -213,6 +230,16 @@ class NetworkSiteConnection extends Connection {
 
 		update_site_option( 'dt_sync_log_' . $this->site->blog_id, $sync_log );
 
+		/**
+		 * Action fired when a sync is being logged.
+		 *
+		 * @since 1.0
+		 *
+		 * @param array $item_id_mappings Item ID mappings.
+		 * @param array $sync_log The sync log
+		 * @param object $this This class.
+		 *
+		 */
 		do_action( 'dt_log_sync', $item_id_mappings, $sync_log, $this );
 	}
 
@@ -632,7 +659,6 @@ class NetworkSiteConnection extends Connection {
 		}
 
 		$blog_details = get_blog_details( $original_blog_id );
-
 
 		return $blog_details->blogname;
 	}
