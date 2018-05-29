@@ -124,14 +124,10 @@ function maybe_notice() {
 			return;
 		}
 
-		if( 'distributor-settings' === $_GET['page'] ) {
-			$notice_url = 'https://distributorplugin.com/#cta';
+		if ( DT_IS_NETWORK ) {
+			$notice_url = network_admin_url( 'admin.php?page=distributor-settings' );
 		} else {
-			if ( DT_IS_NETWORK ) {
-				$notice_url = network_admin_url( 'admin.php?page=distributor-settings' );
-			} else {
-				$notice_url = admin_url( 'admin.php?page=distributor-settings' );
-			}
+			$notice_url = admin_url( 'admin.php?page=distributor-settings' );
 		}
 		?>
 		<div data-notice="auto-upgrade-disabled" class="notice notice-warning">
@@ -271,12 +267,6 @@ function network_settings_screen() {
 
 	$license_key = ( ! empty( $settings['license_key'] ) ) ? $settings['license_key'] : '';
 	$email = ( ! empty( $settings['email'] ) ) ? $settings['email'] : '';
-
-	if ( DT_IS_NETWORK ) {
-		$notice_url = network_admin_url( 'admin.php?page=distributor-settings' );
-	} else {
-		$notice_url = admin_url( 'admin.php?page=distributor-settings' );
-	}
 	?>
 
 	<div class="wrap">
@@ -298,7 +288,7 @@ function network_settings_screen() {
 						</div>
 
 						<p class="description">
-							<?php echo wp_kses_post( sprintf( __( 'Registration is 100% free and provides update notifications and upgrades inside the dashboard; <a href="%s">Register for your key</a>.', 'distributor' ), esc_url( $notice_url ) ) ); ?>
+							<?php echo wp_kses_post( __( 'Registration is 100% free and provides update notifications and upgrades inside the dashboard; <a href="https://distributorplugin.com/#cta">Register for your key</a>.', 'distributor' ) ); ?>
 						</p>
 					</td>
 				</tr>
