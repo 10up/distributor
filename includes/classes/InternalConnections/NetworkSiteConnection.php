@@ -88,7 +88,19 @@ class NetworkSiteConnection extends Connection {
 
 			\Distributor\Utils\set_meta( $new_post, $meta );
 			\Distributor\Utils\set_taxonomy_terms( $new_post, $terms );
-			\Distributor\Utils\set_media( $new_post, $media );
+
+			/**
+			 * Allow plugins to override of the default {@see \Distributor\Utils\set_media()} function.
+			 *
+			 * @param WP_Post            $new_post The newly created post.
+			 * @param array              $media    List of media items attached to the post, formatted by {@see \Distributor\Utils\prepare_media()}.
+			 * @param int                $post_id  The original post ID.
+			 * @param array              $args     The arguments passed into wp_insert_post.
+			 * @param ExternalConnection $this     The distributor connection being pushed to.
+			 */
+			if ( apply_filters( 'dt_push_post_media', true, $new_post, $media, $post_id, $args, $this ) ) {
+				\Distributor\Utils\set_media( $new_post, $media );
+			};
 		}
 
 		/**
