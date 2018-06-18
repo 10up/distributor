@@ -90,8 +90,9 @@ class NetworkSiteConnection extends Connection {
 			\Distributor\Utils\set_taxonomy_terms( $new_post, $terms );
 
 			/**
-			 * Allow plugins to override of the default {@see \Distributor\Utils\set_media()} function.
+			 * Allow plugins to override the default {@see \Distributor\Utils\set_media()} function.
 			 *
+			 * @param bool               true      If Distributor should set the post media.
 			 * @param WP_Post            $new_post The newly created post.
 			 * @param array              $media    List of media items attached to the post, formatted by {@see \Distributor\Utils\prepare_media()}.
 			 * @param int                $post_id  The original post ID.
