@@ -128,7 +128,6 @@ if ( class_exists( 'Puc_v4_Factory' ) ) {
 		);
 
 		$updateChecker->setBranch( 'master' );
-		$updateChecker->setAuthentication( 'c63e57ffa5bb7b8ba23394c00f4c1918e5870543' );
 	}
 }
 
