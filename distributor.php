@@ -90,6 +90,9 @@ add_filter(
 
 \Distributor\Connections::factory();
 
+// Include in case we have composer issues.
+include_once __DIR__ . '/vendor/yahnis-elsts/plugin-update-checker/plugin-update-checker.php';
+
 require_once __DIR__ . '/includes/utils.php';
 require_once __DIR__ . '/includes/external-connection-cpt.php';
 require_once __DIR__ . '/includes/push-ui.php';
@@ -105,26 +108,28 @@ if ( \Distributor\Utils\is_vip_com() ) {
 	add_filter( 'dt_network_site_connection_enabled', '__return_false', 9 );
 }
 
-/**
- * Enable updates if we have a valid license
- */
-$valid_license = false;
+if ( class_exists( 'Puc_v4_Factory' ) ) {
+	/**
+	 * Enable updates if we have a valid license
+	 */
+	$valid_license = false;
 
-if ( ! DT_IS_NETWORK ) {
-	$valid_license = \Distributor\Utils\get_settings()['valid_license'];
-} else {
-	$valid_license = \Distributor\Utils\get_network_settings()['valid_license'];
-}
+	if ( ! DT_IS_NETWORK ) {
+		$valid_license = \Distributor\Utils\get_settings()['valid_license'];
+	} else {
+		$valid_license = \Distributor\Utils\get_network_settings()['valid_license'];
+	}
 
-if ( $valid_license ) {
-	$updateChecker = Puc_v4_Factory::buildUpdateChecker(
-		'https://github.com/10up/distributor/',
-		__FILE__,
-		'distributor'
-	);
+	if ( $valid_license ) {
+		$updateChecker = Puc_v4_Factory::buildUpdateChecker(
+			'https://github.com/10up/distributor/',
+			__FILE__,
+			'distributor'
+		);
 
-	$updateChecker->setBranch( 'master' );
-	$updateChecker->setAuthentication( 'c63e57ffa5bb7b8ba23394c00f4c1918e5870543' );
+		$updateChecker->setBranch( 'master' );
+		$updateChecker->setAuthentication( 'c63e57ffa5bb7b8ba23394c00f4c1918e5870543' );
+	}
 }
 
 /**

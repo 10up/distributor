@@ -2,4 +2,5 @@ composer.lock
 node_modules
 .DS_Store
 .idea*
-vendor
+vendor/*
+!vendor/yahnis-elsts
