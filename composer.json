@@ -17,10 +17,11 @@
   	}
   },
   "require-dev": {
-    "10up/wp_mock": "dev-dev"
+    "10up/wp_mock": "dev-dev",
+    "10up/phpcs-composer": "dev-master"
   },
   "scripts": {
-    "lint": "./vendor/bin/phpcs",
-    "lint-fix": "./vendor/bin/phpcbf"
+    "lint": "phpcs .",
+    "lint-fix": "phpcbf ."
   }
 }
