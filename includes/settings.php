@@ -359,7 +359,7 @@ function sanitize_settings( $settings ) {
 		$new_settings['email'] = sanitize_text_field( $settings['email'] );
 	}
 
-	if ( DT_IS_NETWORK && ! empty( $settings['email'] ) && ! empty( $settings['license_key'] ) ) {
+	if ( ! DT_IS_NETWORK && ! empty( $settings['email'] ) && ! empty( $settings['license_key'] ) ) {
 		$new_settings['valid_license'] = (bool) Utils\check_license_key( $settings['email'], $settings['license_key'] );
 	} else {
 		$new_settings['valid_license'] = null;
