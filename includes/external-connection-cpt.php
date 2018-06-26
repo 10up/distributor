@@ -287,8 +287,6 @@ function admin_enqueue_scripts( $hook ) {
 	if ( ! empty( $_GET['page'] ) && 'distributor' === $_GET['page'] ) {
 		wp_enqueue_style( 'dt-admin-external-connections', plugins_url( '/dist/css/admin-external-connections.min.css', __DIR__ ), array(), DT_VERSION );
 	}
-
-	wp_enqueue_style( 'dt-admin', plugins_url( '/dist/css/admin.min.css', __DIR__ ), array(), DT_VERSION );
 }
 
 /**

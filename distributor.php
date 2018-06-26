@@ -1,7 +1,7 @@
 <?php
 /**
  * Plugin Name:       Distributor
- * Description:       Syndicate content to and from external websites and within multisite blogs.
+ * Description:       Distributor is a WordPress plugin allowing you to syndicate content to and from external websites and within multisite blogs.
  * Version:           1.1.0
  * Author:            Taylor Lovett, 10up
  * Author URI:        http://10up.com
@@ -18,6 +18,16 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 define( 'DT_VERSION', '1.1.0-1' );
+define( 'DT_PLUGIN_FILE', preg_replace( '#^.*plugins/(.*)$#i', '$1', __FILE__ ) );
+
+// Define a constant if we're network activated to allow plugin to respond accordingly.
+$plugins = get_site_option( 'active_sitewide_plugins' );
+
+if ( is_multisite() && isset( $plugins[ plugin_basename( __FILE__ ) ] ) ) {
+	define( 'DT_IS_NETWORK', true );
+} else {
+	define( 'DT_IS_NETWORK', false );
+}
 
 /**
  * PSR-4 autoloading
@@ -26,21 +36,15 @@ spl_autoload_register(
 	function( $class ) {
 			// Project-specific namespace prefix.
 			$prefix = 'Distributor\\';
-
 			// Base directory for the namespace prefix.
 			$base_dir = __DIR__ . '/includes/classes/';
-
 			// Does the class use the namespace prefix?
 			$len = strlen( $prefix );
-
 		if ( strncmp( $prefix, $class, $len ) !== 0 ) {
 			return;
 		}
-
 			$relative_class = substr( $class, $len );
-
 			$file = $base_dir . str_replace( '\\', '/', $relative_class ) . '.php';
-
 			// If the file exists, require it.
 		if ( file_exists( $file ) ) {
 			require $file;
@@ -86,6 +90,9 @@ add_filter(
 
 \Distributor\Connections::factory();
 
+// Include in case we have composer issues.
+include_once __DIR__ . '/vendor/yahnis-elsts/plugin-update-checker/plugin-update-checker.php';
+
 require_once __DIR__ . '/includes/utils.php';
 require_once __DIR__ . '/includes/external-connection-cpt.php';
 require_once __DIR__ . '/includes/push-ui.php';
@@ -99,6 +106,30 @@ require_once __DIR__ . '/includes/template-tags.php';
 
 if ( \Distributor\Utils\is_vip_com() ) {
 	add_filter( 'dt_network_site_connection_enabled', '__return_false', 9 );
+}
+
+if ( class_exists( 'Puc_v4_Factory' ) ) {
+	/**
+	 * Enable updates if we have a valid license
+	 */
+	$valid_license = false;
+
+	if ( ! DT_IS_NETWORK ) {
+		$valid_license = \Distributor\Utils\get_settings()['valid_license'];
+	} else {
+		$valid_license = \Distributor\Utils\get_network_settings()['valid_license'];
+	}
+
+	if ( $valid_license ) {
+		$updateChecker = Puc_v4_Factory::buildUpdateChecker(
+			'https://github.com/10up/distributor/',
+			__FILE__,
+			'distributor'
+		);
+
+		$updateChecker->setBranch( 'master' );
+		$updateChecker->setAuthentication( 'c63e57ffa5bb7b8ba23394c00f4c1918e5870543' );
+	}
 }
 
 /**
