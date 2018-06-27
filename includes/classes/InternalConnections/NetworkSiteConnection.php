@@ -544,8 +544,11 @@ class NetworkSiteConnection extends Connection {
 			return array();
 		}
 
+		$authorized_sites = apply_filters( 'dt_get_sites', array() );
+		if ( !empty( $authorized_sites ) )
+			return $authorized_sites;
+		
 		$sites            = get_sites();
-		$authorized_sites = array();
 
 		$current_blog_id = (int) get_current_blog_id();
 
@@ -596,7 +599,7 @@ class NetworkSiteConnection extends Connection {
 			}
 		}
 
-		return $authorized_sites;
+		return apply_filters( 'dt_authorized_sites', $authorized_sites );
 	}
 
 	/**
