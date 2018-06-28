@@ -58,6 +58,16 @@ abstract class ExternalConnection extends Connection {
 
 		update_post_meta( $this->id, 'dt_sync_log', $sync_log );
 
+		/**
+		 * Action fired when a sync is being logged.
+		 *
+		 * @since 1.0
+		 *
+		 * @param array $item_id_mappings Item ID mappings.
+		 * @param array $sync_log The sync log
+		 * @param object $this This class.
+		 *
+		 */
 		do_action( 'dt_log_sync', $item_id_mappings, $sync_log, $this );
 	}
 

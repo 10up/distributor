@@ -76,9 +76,9 @@ function output_distributor_column( $column_name, $post_id ) {
 		if ( ( empty( $original_blog_id ) && empty( $original_source_id ) ) || $original_deleted ) {
 			echo '—';
 		} else {
-			$unlinked = (bool) get_post_meta( $post_id, 'dt_unlinked', true );
+			$unlinked         = (bool) get_post_meta( $post_id, 'dt_unlinked', true );
 			$post_type_object = get_post_type_object( get_post_type( $post_id ) );
-			$post_url = get_post_meta( $post_id, 'dt_original_post_url', true );
+			$post_url         = get_post_meta( $post_id, 'dt_original_post_url', true );
 
 			if ( $unlinked ) {
 				echo '<a href="' . esc_url( $post_url ) . '"><img class="dt-unlinked" src="' . esc_url( plugins_url( 'assets/img/icon.svg', __DIR__ ) ) . '" alt="' . esc_html__( 'Unlinked', 'distributor' ) . '" title="' . esc_html__( 'Unlinked', 'distributor' ) . '"></a>';
@@ -269,7 +269,17 @@ function unlink() {
 
 	$post_id = intval( $_GET['post'] );
 
-	if ( empty( $_GET['_wpnonce'] ) || ! wp_verify_nonce( $_GET['_wpnonce'], 'unlink-post_' . $post_id ) ) {
+	if ( empty( $_GET['_wpnonce'] ) ||
+	    ! wp_verify_nonce( $_GET['_wpnonce'], 'unlink-post_' . $post_id ) ||
+	    /**
+	     * Filters whether the post can be unlinked.
+	     *
+	     * @since 1.0
+	     *
+	     * @param bool true       Whether the post is allowed to be unlinked. Default true.
+	     * @param int  $post_id   The ID of the post attempting to be unlinked.
+	     */
+	    ! apply_filters( 'dt_allow_post_unlink', true, $post_id) ) {
 		return;
 	}
 
@@ -278,8 +288,15 @@ function unlink() {
 	/**
 	 * Todo: Do we delete subscriptions for external posts?
 	 */
-
-	do_action( 'dt_unlink_post' );
+	/**
+	 * Action fired when a post is unlinked.
+	 *
+	 * @since 1.0
+	 *
+	 * @param int $post_id ID of the post being unlinked.
+	 *
+	 */
+	do_action( 'dt_unlink_post', $post_id );
 
 	wp_safe_redirect( admin_url( 'post.php?action=edit&post=' . intval( $_GET['post'] ) ) );
 	exit;
@@ -300,8 +317,6 @@ function link() {
 	if ( empty( $_GET['_wpnonce'] ) || ! wp_verify_nonce( $_GET['_wpnonce'], 'link-post_' . $post_id ) ) {
 		return;
 	}
-
-
 
 	update_post_meta( $post_id, 'dt_unlinked', false );
 
@@ -350,7 +365,15 @@ function link() {
 		}
 	}
 
-	do_action( 'dt_link_post' );
+	/**
+	 * Action fired when a post is linked.
+	 *
+	 * @since 1.0
+	 *
+	 * @param int $post_id ID of the post being unlinked.
+	 *
+	 */
+	do_action( 'dt_link_post', $post_id );
 
 	wp_safe_redirect( admin_url( 'post.php?action=edit&post=' . $post_id ) );
 	exit;
@@ -404,7 +427,9 @@ function syndicated_message( $post ) {
 		<?php elseif ( ! $unlinked ) : ?>
 			<p>
 				<?php echo wp_kses_post( sprintf( __( 'Distributed from <a href="%1$s">%2$s</a>.', 'distributor' ), esc_url( $post_url ), esc_html( $original_location_name ) ) ); ?>
-				<span><?php echo wp_kses_post( sprintf( __( 'The original %1$s will update this version unless you <a href="%2$s">unlink from the original.</a>', 'distributor' ), esc_html( strtolower( $post_type_singular ) ), wp_nonce_url( add_query_arg( 'action', 'unlink', admin_url( sprintf( $post_type_object->_edit_link, $post->ID ) ) ), "unlink-post_{$post->ID}" ) ) ); ?></span>
+				<?php if(apply_filters( 'dt_allow_post_unlink', true, $post->ID)) : ?>
+					<span><?php echo wp_kses_post( sprintf( __( 'The original %1$s will update this version unless you <a href="%2$s">unlink from the original.</a>', 'distributor' ), esc_html( strtolower( $post_type_singular ) ), wp_nonce_url( add_query_arg( 'action', 'unlink', admin_url( sprintf( $post_type_object->_edit_link, $post->ID ) ) ), "unlink-post_{$post->ID}" ) ) ); ?></span>
+				<?php endif; ?>
 			</p>
 		<?php else : ?>
 			<p>
@@ -491,22 +516,24 @@ function enqueue_gutenberg_edit_scripts() {
 
 	wp_enqueue_script( 'dt-gutenberg-syndicated-post', plugins_url( '/dist/js/gutenberg-syndicated-post.min.js', __DIR__ ), [ 'wp-blocks' ], DT_VERSION, true );
 	wp_enqueue_script( 'dt-gutenberg-syndicated-status-plugin', plugins_url( '/dist/js/gutenberg-status-plugin.min.js', __DIR__ ), [ 'wp-blocks' ], DT_VERSION, true );
-	wp_localize_script( 'dt-gutenberg-syndicated-post', 'dtGutenberg', [
-		'i18n'                 => gutenberg_get_jed_locale_data( 'distributor' ),
-		'originalBlogId'       => (int) $original_blog_id,
-		'originalPostId'       => (int) $original_post_id,
-		'originalSourceId'     => (int) $original_source_id,
-		'originalDelete'       => (int) $original_deleted,
-		'unlinked'             => (int) $unlinked,
-		'postTypeSingular'     => sanitize_text_field( $post_type_singular ),
-		'postUrl'              => sanitize_text_field( $post_url ),
-		'originalSiteName'     => sanitize_text_field( $original_site_name ),
-		'syndicationTime'      => ( ! empty( $syndication_time ) ) ? esc_html( date( 'M j, Y @ h:i', ( $syndication_time + ( get_option( 'gmt_offset' ) * HOUR_IN_SECONDS ) ) ) ) : 0,
-		'syndicationCount'     => $total_connections,
-		'originalLocationName' => sanitize_text_field( $original_location_name ),
-		'unlinkNonceUrl'       => wp_nonce_url( add_query_arg( 'action', 'unlink', admin_url( sprintf( $post_type_object->_edit_link, $post->ID ) ) ), "unlink-post_{$post->ID}" ),
-		'linkNonceUrl'         => wp_nonce_url( add_query_arg( 'action', 'link', admin_url( sprintf( $post_type_object->_edit_link, $post->ID ) ) ), "link-post_{$post->ID}" ),
-	] );
+	wp_localize_script(
+		'dt-gutenberg-syndicated-post', 'dtGutenberg', [
+			'i18n'                 => gutenberg_get_jed_locale_data( 'distributor' ),
+			'originalBlogId'       => (int) $original_blog_id,
+			'originalPostId'       => (int) $original_post_id,
+			'originalSourceId'     => (int) $original_source_id,
+			'originalDelete'       => (int) $original_deleted,
+			'unlinked'             => (int) $unlinked,
+			'postTypeSingular'     => sanitize_text_field( $post_type_singular ),
+			'postUrl'              => sanitize_text_field( $post_url ),
+			'originalSiteName'     => sanitize_text_field( $original_site_name ),
+			'syndicationTime'      => ( ! empty( $syndication_time ) ) ? esc_html( date( 'M j, Y @ h:i', ( $syndication_time + ( get_option( 'gmt_offset' ) * HOUR_IN_SECONDS ) ) ) ) : 0,
+			'syndicationCount'     => $total_connections,
+			'originalLocationName' => sanitize_text_field( $original_location_name ),
+			'unlinkNonceUrl'       => wp_nonce_url( add_query_arg( 'action', 'unlink', admin_url( sprintf( $post_type_object->_edit_link, $post->ID ) ) ), "unlink-post_{$post->ID}" ),
+			'linkNonceUrl'         => wp_nonce_url( add_query_arg( 'action', 'link', admin_url( sprintf( $post_type_object->_edit_link, $post->ID ) ) ), "link-post_{$post->ID}" ),
+		]
+	);
 }
 
 /**

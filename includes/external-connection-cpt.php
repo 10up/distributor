@@ -39,7 +39,7 @@ function setup() {
  */
 function add_status_column( $columns ) {
 	unset( $columns['date'] );
-	$columns['dt_status'] = esc_html__( 'Status', 'distributor' )/*'<span class="connection-status green"></span>'*/;
+	$columns['dt_status'] = esc_html__( 'Status', 'distributor' );/*'<span class="connection-status green"></span>'*/
 
 	$columns['date'] = esc_html__( 'Date', 'distributor' );
 
@@ -56,7 +56,7 @@ function add_status_column( $columns ) {
 function output_status_column( $column_name, $post_id ) {
 	if ( 'dt_status' === $column_name ) {
 		$external_connection_status = get_post_meta( $post_id, 'dt_external_connections', true );
-		$last_checked = get_post_meta( $post_id, 'dt_external_connection_check_time', true );
+		$last_checked               = get_post_meta( $post_id, 'dt_external_connection_check_time', true );
 
 		$status = 'valid';
 
@@ -287,8 +287,6 @@ function admin_enqueue_scripts( $hook ) {
 	if ( ! empty( $_GET['page'] ) && 'distributor' === $_GET['page'] ) {
 		wp_enqueue_style( 'dt-admin-external-connections', plugins_url( '/dist/css/admin-external-connections.min.css', __DIR__ ), array(), DT_VERSION );
 	}
-
-	wp_enqueue_style( 'dt-admin', plugins_url( '/dist/css/admin.min.css', __DIR__ ), array(), DT_VERSION );
 }
 
 /**
@@ -454,12 +452,12 @@ function meta_box_external_connection_details( $post ) {
 		$auth_handler_class_again = $external_connection_class::$auth_handler_class;
 		if ( ! $auth_handler_class_again::$requires_credentials ) {
 			continue; }
-		$selected = $external_connection_class::$slug === $external_connection_type ||
+		$selected  = $external_connection_class::$slug === $external_connection_type ||
 			( '' === $external_connection_type && 1 === $index );
 		$is_hidden = ! $selected;
 		$index++;
 		?>
-		<div class="auth-credentials <?php echo ( $is_hidden ? 'hidden ': '' ); ?><?php echo esc_attr( $auth_handler_class_again::$slug ); ?> <?php echo esc_attr( $external_connection_class::$slug ); ?>">
+		<div class="auth-credentials <?php echo ( $is_hidden ? 'hidden ' : '' ); ?><?php echo esc_attr( $auth_handler_class_again::$slug ); ?> <?php echo esc_attr( $external_connection_class::$slug ); ?>">
 			<?php $auth_handler_class_again::credentials_form( $auth ); ?>
 		</div>
 	<?php endforeach; ?>
@@ -563,6 +561,13 @@ function add_menu_item() {
 	$hook = add_menu_page(
 		'Distributor',
 		'Distributor',
+		/**
+		 * Filter Distributor capabilities allowed to view external connections.
+		 *
+		 * @since 1.0.0
+		 *
+		 * @param string manage_options The capability allowed to view external connections.
+		 */
 		apply_filters( 'dt_capabilities', 'manage_options' ),
 		'distributor',
 		__NAMESPACE__ . '\dashboard',
@@ -580,7 +585,18 @@ function add_menu_item() {
 function add_submenu_item() {
 	global $submenu;
 	unset( $submenu['distributor'][0] );
-	add_submenu_page( 'distributor', esc_html__( 'External Connections', 'distributor' ), esc_html__( 'External Connections', 'distributor' ), apply_filters( 'dt_external_capabilities', 'manage_options' ), 'distributor' );
+	add_submenu_page( 'distributor',
+	                 esc_html__( 'External Connections', 'distributor' ),
+	                 esc_html__( 'External Connections', 'distributor' ),
+	                 /**
+	                  * Filter Distributor capabilities allowed to manage external connections.
+	                  *
+	                  * @since 1.0.0
+	                  *
+	                  * @param string manage_options The capability allowed to manage external connections.
+	                  */
+	                 apply_filters( 'dt_external_capabilities', 'manage_options' ),
+	                 'distributor' );
 }
 
 /**

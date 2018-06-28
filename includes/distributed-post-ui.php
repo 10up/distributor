@@ -46,7 +46,7 @@ function add_help_tab() {
 		array(
 			'id'      => 'distributer',
 			'title'   => esc_html__( 'Distributor', 'distributor' ),
-			'content' => '<p>' . sprintf( esc_html__( 'The number of connections this %s has been distributed to is shown in the publish meta box. If this %s is deleted, it could have ramifications across all those %s.', 'distributor' ), esc_html( strtolower( $post_type_object->labels->singular_name ) ), esc_html( strtolower( $post_type_object->labels->singular_name ) ), esc_html( strtolower( $post_type_object->labels->name ) ) ) . '</p>',
+			'content' => '<p>' . sprintf( esc_html__( 'The number of connections this %1$s has been distributed to is shown in the publish meta box. If this %2$s is deleted, it could have ramifications across all those %3$s.', 'distributor' ), esc_html( strtolower( $post_type_object->labels->singular_name ) ), esc_html( strtolower( $post_type_object->labels->singular_name ) ), esc_html( strtolower( $post_type_object->labels->name ) ) ) . '</p>',
 		)
 	);
 }

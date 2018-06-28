@@ -4,7 +4,7 @@ const { registerPlugin } = wp.plugins;
 
 wp.i18n.setLocaleData( dtGutenberg.i18n, 'distributor' )
 
-if ( '0' !== dtGutenberg.originalSourceId ) {
+if ( '0' !== dtGutenberg.originalSourceId || '0' !== dtGutenberg.originalBlogId ) {
 
 	const messages = []
 
