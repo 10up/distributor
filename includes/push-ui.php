@@ -269,39 +269,6 @@ function menu_button( $wp_admin_bar ) {
 }
 
 /**
- * Determines whether a plugin is active. From wp core.
- *
- * @param string $plugin Path to the plugin file relative to the plugins directory.
- * @return bool True, if in the active plugins list. False, not in the list.
- */
-function is_plugin_active( $plugin ) {
-	return in_array( $plugin, (array) get_option( 'active_plugins', array() ) ) || is_plugin_active_for_network( $plugin );
-}
-
-/**
- * Determines whether the plugin is active for the entire network. From wp core.
- *
- * @param string $plugin Path to the plugin file relative to the plugins directory.
- * @return bool True if active for the network, otherwise false.
- */
-function is_plugin_active_for_network( $plugin ) {
-	if ( ! is_multisite() ) {
-		return false;
-	}
-
-	$plugins = get_site_option( 'active_sitewide_plugins' );
-	if ( isset( $plugins[ $plugin ] ) ) {
-		return true;
-	}
-
-	return false;
-}
-
-function is_gutenberg_enabled() {
-	return is_plugin_active( 'gutenberg/gutenberg.php' );
-}
-
-/**
  * Build distributor push menu dropdown HTML
  *
  * @since 0.8
@@ -360,24 +327,22 @@ function menu_content() {
 					$connection = new \Distributor\InternalConnections\NetworkSiteConnection( $site_array['site'] );
 
 					$syndicated = false;
-					$gutenberg_enabled = false;
-					switch_to_blog( $connection->site->blog_id );
-					$gutenberg_enabled = is_gutenberg_enabled();
 					if ( ! empty( $connection_map['internal'][ (int) $connection->site->blog_id ] ) ) {
+						switch_to_blog( $connection->site->blog_id );
 						$syndicated = get_permalink( $connection_map['internal'][ (int) $connection->site->blog_id ]['post_id'] );
+						restore_current_blog();
+
 						if ( empty( $syndicated ) ) {
 							$syndicated = true; // In case it was deleted
 						}
 					}
-					restore_current_blog();
 
 					$dom_connections[ 'internal' . $connection->site->blog_id ] = [
-						'type'              => 'internal',
-						'id'                => $connection->site->blog_id,
-						'url'               => untrailingslashit( preg_replace( '#(https?:\/\/|www\.)#i', '', get_site_url( $connection->site->blog_id ) ) ),
-						'name'              => $connection->site->blogname,
-						'syndicated'        => $syndicated,
-						'gutenberg_enabled' => $gutenberg_enabled,
+						'type'       => 'internal',
+						'id'         => $connection->site->blog_id,
+						'url'        => untrailingslashit( preg_replace( '#(https?:\/\/|www\.)#i', '', get_site_url( $connection->site->blog_id ) ) ),
+						'name'       => $connection->site->blogname,
+						'syndicated' => $syndicated,
 					];
 				}
 			}
