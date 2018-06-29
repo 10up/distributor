@@ -317,6 +317,7 @@ function menu_content() {
 	$original_blog_id = get_post_meta( $post->ID, 'dt_original_blog_id', true );
 	$original_post_id = get_post_meta( $post->ID, 'dt_original_post_id', true );
 
+	// If this is a distributed, linked post, grab the original post information.
 	if ( ! empty( $original_blog_id ) && ! empty( $original_post_id ) && ! $unlinked ) {
 		switch_to_blog( $original_blog_id );
 		$post_url  = get_permalink( $original_post_id );
@@ -354,22 +355,23 @@ function menu_content() {
 
 		if ( ! empty( \Distributor\Connections::factory()->get_registered()['networkblog'] ) ) {
 			$sites = \Distributor\InternalConnections\NetworkSiteConnection::get_available_authorized_sites();
-
+			$local_gutenberg_enabled = is_gutenberg_enabled();
 			foreach ( $sites as $site_array ) {
 				if ( in_array( $post->post_type, $site_array['post_types'], true ) ) {
 					$connection = new \Distributor\InternalConnections\NetworkSiteConnection( $site_array['site'] );
 
 					$syndicated = false;
 					$gutenberg_enabled = false;
-					switch_to_blog( $connection->site->blog_id );
-					$gutenberg_enabled = is_gutenberg_enabled();
-					if ( ! empty( $connection_map['internal'][ (int) $connection->site->blog_id ] ) ) {
+
+					if ( $local_gutenberg_enabled || ! empty( $connection_map['internal'][ (int) $connection->site->blog_id ] ) ) {
+						switch_to_blog( $connection->site->blog_id );
+						$gutenberg_enabled = is_gutenberg_enabled();
 						$syndicated = get_permalink( $connection_map['internal'][ (int) $connection->site->blog_id ]['post_id'] );
 						if ( empty( $syndicated ) ) {
 							$syndicated = true; // In case it was deleted
 						}
+						restore_current_blog();
 					}
-					restore_current_blog();
 
 					$dom_connections[ 'internal' . $connection->site->blog_id ] = [
 						'type'              => 'internal',
