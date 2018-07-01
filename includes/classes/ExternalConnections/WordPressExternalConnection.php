@@ -551,6 +551,7 @@ class WordPressExternalConnection extends ExternalConnection {
 			'can_post'            => array(),
 			'can_get'             => array(),
 			'endpoint_suggestion' => false,
+			'gutenberg_enabled'   => false,
 		);
 
 		if ( function_exists( 'vip_safe_wp_remote_get' ) && \Distributor\Utils\is_vip_com() ) {
@@ -599,6 +600,10 @@ class WordPressExternalConnection extends ExternalConnection {
 
 		if ( empty( $response_headers['X-Distributor'] ) ) {
 			$output['errors']['no_distributor'] = 'no_distributor';
+		}
+
+		if ( ! empty( $response_headers['X-Distributor-Gutenberg'] ) ) {
+			$output['gutenberg_enabled'] = true;
 		}
 
 		$routes = $data['routes'];

@@ -73,6 +73,9 @@ add_action(
 	'send_headers', function() {
 		if ( ! headers_sent() ) {
 			header( 'X-Distributor: yes' );
+			if ( \Distributor\Utils\is_using_gutenberg() ) {
+				header( 'X-Distributor-Gutenberg: yes' );
+			}
 		}
 	}
 );
