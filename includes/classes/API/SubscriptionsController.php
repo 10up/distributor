@@ -221,7 +221,7 @@ class SubscriptionsController extends \WP_REST_Controller {
 				[
 					'ID'           => $request['post_id'],
 					'post_title'   => $request['post_data']['title'],
-					'post_content' => $request['post_data']['content'],
+					'post_content' => $content,
 					'post_excerpt' => $request['post_data']['excerpt'],
 					'post_name'    => $request['post_data']['slug'],
 				]

@@ -246,22 +246,22 @@ function send_notifications( $post_id ) {
 			continue;
 		}
 
-		$gutenberg_enabled = \Distributor\Utils\is_using_gutenberg();
-			$post_body = [
-				'post_id'   => $remote_post_id,
-				'signature' => $signature,
-				'post_data' => [
-					'title'             => get_the_title( $post_id ),
-					'slug'              => $post->post_name,
-					'content'           => apply_filters( 'the_content', $post->post_content ),
-					'raw_content'       => $post->post_content,
-					'excerpt'           => $post->post_excerpt,
-					'distributor_media' => \Distributor\Utils\prepare_media( $post_id ),
-					'distributor_terms' => \Distributor\Utils\prepare_taxonomy_terms( $post_id ),
-					'distributor_meta'  => \Distributor\Utils\prepare_meta( $post_id ),
-					'gutenberg_enabled' => $gutenberg_enabled(),
-				],
-			];
+		$post_body = [
+			'post_id'   => $remote_post_id,
+			'signature' => $signature,
+			'post_data' => [
+				'title'             => get_the_title( $post_id ),
+				'slug'              => $post->post_name,
+				'content'           => apply_filters( 'the_content', $post->post_content ),
+				'raw_content'       => $post->post_content,
+				'excerpt'           => $post->post_excerpt,
+				'distributor_media' => \Distributor\Utils\prepare_media( $post_id ),
+				'distributor_terms' => \Distributor\Utils\prepare_taxonomy_terms( $post_id ),
+				'distributor_meta'  => \Distributor\Utils\prepare_meta( $post_id ),
+				'gutenberg_enabled' => \Distributor\Utils\is_using_gutenberg(),
+			],
+		];
+
 		$request = wp_remote_post(
 			untrailingslashit( $target_url ) . '/wp/v2/dt_subscription/receive', [
 				'timeout' => 5,
