@@ -246,6 +246,9 @@ function send_notifications( $post_id ) {
 			continue;
 		}
 
+		$using_gutenberg = \Distributor\Utils\is_using_gutenberg();
+		$content = apply_filters( 'the_content', $post->post_content );
+
 		$request = wp_remote_post(
 			untrailingslashit( $target_url ) . '/wp/v2/dt_subscription/receive', [
 				'timeout' => 5,
@@ -255,11 +258,31 @@ function send_notifications( $post_id ) {
 					'post_data' => [
 						'title'             => get_the_title( $post_id ),
 						'slug'              => $post->post_name,
-						'content'           => apply_filters( 'the_content', $post->post_content ),
+						/**
+						 * Filter content sent by distributor during subscription updates.
+						 *
+						 * @since 1.3.0
+						 *
+						 * @param string $content The post content to be distributed.
+						 * @param int    $post_id The origin post id.
+						 */
+						'content'           => apply_filters( 'dt_subscription_the_content', $content, $post_id ),
+						/**
+						 * Filter raw content sent by distributor during subscription updates. The raw content
+						 * is used for post updates when both ends of the connection support Gutenberg.
+						 *
+						 * @since 1.3.0
+						 *
+						 * @param string $post_content The post content to be distributed.
+						 * @param int    $post_id      The origin post id.
+						 */
+						'content'           => apply_filters( 'dt_subscription_the_raw_content', $post->post_content, $post_id ),
+						'raw_content'       => $post->post_content,
 						'excerpt'           => $post->post_excerpt,
 						'distributor_media' => \Distributor\Utils\prepare_media( $post_id ),
 						'distributor_terms' => \Distributor\Utils\prepare_taxonomy_terms( $post_id ),
 						'distributor_meta'  => \Distributor\Utils\prepare_meta( $post_id ),
+						'using_gutenberg'   => $using_gutenberg(),
 					],
 				],
 			]
