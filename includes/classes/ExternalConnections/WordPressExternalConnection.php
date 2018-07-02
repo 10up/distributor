@@ -447,8 +447,9 @@ class WordPressExternalConnection extends ExternalConnection {
 			 *
 			 * @param string $content The post content to be distributed.
 			 * @param int    $post_id The origin post id.
+			 * @param array  $args    Arguments sent to the push command.
 			 */
-			'content'                        => apply_filters( 'dt_the_content', $content, $post_id ),
+			'content'                        => apply_filters( 'dt_the_content', $content, $post_id, $args ),
 			'type'                           => $post->post_type,
 			'status'                         => ( ! empty( $args['post_status'] ) ) ? $args['post_status'] : 'publish',
 			'excerpt'                        => $post->post_excerpt,

@@ -53,8 +53,9 @@ class NetworkSiteConnection extends Connection {
 			 *
 			 * @param string $content The post content to be distributed.
 			 * @param int    $post_id The origin post id.
+			 * @param array  $args    Arguments sent to the push command.
 			 */
-			'post_content' => apply_filters( 'dt_the_content', $content, $post_id ),
+			'post_content' => apply_filters( 'dt_the_content', $content, $post_id, $args ),
 			'post_excerpt' => $post->post_excerpt,
 			'post_type'    => $post->post_type,
 			'post_author'  => get_current_user_id(),
