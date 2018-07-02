@@ -430,7 +430,7 @@ class WordPressExternalConnection extends ExternalConnection {
 		$signature = \Distributor\Subscriptions\generate_signature();
 
 		// If the local and remote sites both support Gutenberg, distribute the raw content.
-		$content   = ( ! empty( $args['gutenberg_enabled'] && \Distributor\Utils\is_using_gutenberg() ) ?
+		$content   = ( ! empty( $args['gutenberg_enabled'] ) && \Distributor\Utils\is_using_gutenberg() ) ?
 						$post->post_content :
 						apply_filters( 'the_content', $post->post_content );
 
