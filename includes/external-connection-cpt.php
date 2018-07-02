@@ -358,8 +358,10 @@ function save_post( $post_id ) {
 		$external_connection = new $external_connection_class( get_the_title( $post_id ), $_POST['dt_external_connection_url'], $post_id, $auth_handler );
 
 		$external_connections = $external_connection->check_connections();
-		if ( '1' === $external_connections['gutenberg_enabled'] ) {
-			update_post_meta( $post_id, 'gutenberg_enabled', '1' );
+
+		// Does the remote site support Gutenberg?
+		if ( $external_connections['gutenberg_enabled'] ) {
+			update_post_meta( $post_id, 'dt_gutenberg_enabled', '1' );
 		}
 
 		update_post_meta( $post_id, 'dt_external_connections', $external_connections );
