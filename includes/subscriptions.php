@@ -246,7 +246,7 @@ function send_notifications( $post_id ) {
 			continue;
 		}
 
-		$using_gutenberg = \Distributor\Utils\is_using_gutenberg();
+		$gutenberg_enabled = \Distributor\Utils\is_using_gutenberg();
 			$post_body = [
 				'post_id'   => $remote_post_id,
 				'signature' => $signature,
@@ -259,7 +259,7 @@ function send_notifications( $post_id ) {
 					'distributor_media' => \Distributor\Utils\prepare_media( $post_id ),
 					'distributor_terms' => \Distributor\Utils\prepare_taxonomy_terms( $post_id ),
 					'distributor_meta'  => \Distributor\Utils\prepare_meta( $post_id ),
-					'using_gutenberg'   => $using_gutenberg(),
+					'gutenberg_enabled' => $gutenberg_enabled(),
 				],
 			];
 		$request = wp_remote_post(
