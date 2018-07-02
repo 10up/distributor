@@ -38,10 +38,23 @@ class NetworkSiteConnection extends Connection {
 		$original_post_url = get_permalink( $post_id );
 		$using_gutenberg   = \Distributor\Utils\is_using_gutenberg();
 
+		$content = ( $using_gutenberg && $remote_using_gutenberg ) ?
+					$post->post_content :
+					apply_filters( 'the_content', $post->post_content );
+
+
 		$new_post_args = array(
 			'post_title'   => get_the_title( $post_id ),
 			'post_name'    => $post->post_name,
-			'post_content' => apply_filters( 'the_content', $post->post_content ),
+			/**
+			 * Filter content sent by distributor.
+			 *
+			 * @since 1.3.0
+			 *
+			 * @param string $content The post content to be distributed.
+			 * @param int    $post_id The origin post id.
+			 */
+			'post_content' => apply_filters( 'dt_the_content', $content, $post_id ),
 			'post_excerpt' => $post->post_excerpt,
 			'post_type'    => $post->post_type,
 			'post_author'  => get_current_user_id(),
@@ -57,9 +70,6 @@ class NetworkSiteConnection extends Connection {
 
 		// Distribute raw HTML when going from Gutenberg enabled to Gutenberg enabled.
 		$remote_using_gutenberg = \Distributor\Utils\is_using_gutenberg();
-		if ( $using_gutenberg && $remote_using_gutenberg ) {
-			$new_post_args['post_content'] = $post->post_content;
-		}
 
 		// Handle existing posts.
 		if ( ! empty( $args['remote_post_id'] ) && get_post( $args['remote_post_id'] ) ) {

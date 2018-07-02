@@ -440,7 +440,15 @@ class WordPressExternalConnection extends ExternalConnection {
 		$post_body = [
 			'title'                          => get_the_title( $post_id ),
 			'slug'                           => $post->post_name,
-			'content'                        => $content,
+			/**
+			 * Filter content sent by distributor.
+			 *
+			 * @since 1.3.0
+			 *
+			 * @param string $content The post content to be distributed.
+			 * @param int    $post_id The origin post id.
+			 */
+			'content'                        => apply_filters( 'dt_the_content', $content, $post_id ),
 			'type'                           => $post->post_type,
 			'status'                         => ( ! empty( $args['post_status'] ) ) ? $args['post_status'] : 'publish',
 			'excerpt'                        => $post->post_excerpt,
