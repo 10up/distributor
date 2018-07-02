@@ -164,6 +164,10 @@ class NetworkSiteConnection extends Connection {
 			} else {
 				unset( $post_array['ID'] );
 			}
+			
+			if ( isset( $post_array['post_parent'] ) ) {
+				unset( $post_array['post_parent'] );
+			}
 
 			add_filter( 'wp_insert_post_data', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'maybe_set_modified_date' ), 10, 2 );
 
