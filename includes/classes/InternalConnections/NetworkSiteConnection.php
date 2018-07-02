@@ -46,16 +46,7 @@ class NetworkSiteConnection extends Connection {
 		$new_post_args = array(
 			'post_title'   => get_the_title( $post_id ),
 			'post_name'    => $post->post_name,
-			/**
-			 * Filter content sent by distributor.
-			 *
-			 * @since 1.3.0
-			 *
-			 * @param string $content The post content to be distributed.
-			 * @param int    $post_id The origin post id.
-			 * @param array  $args    Arguments sent to the push command.
-			 */
-			'post_content' => apply_filters( 'dt_network_push_the_content', $content, $post_id, $args ),
+			'post_content' => $content,
 			'post_excerpt' => $post->post_excerpt,
 			'post_type'    => $post->post_type,
 			'post_author'  => get_current_user_id(),
