@@ -106,9 +106,10 @@ function ajax_push() {
 
 	foreach ( $_POST['connections'] as $connection ) {
 		if ( 'external' === $connection['type'] ) {
-			$external_connection_type = get_post_meta( $connection['id'], 'dt_external_connection_type', true );
-			$external_connection_url  = get_post_meta( $connection['id'], 'dt_external_connection_url', true );
-			$external_connection_auth = get_post_meta( $connection['id'], 'dt_external_connection_auth', true );
+			$external_connection_type   = get_post_meta( $connection['id'], 'dt_external_connection_type', true );
+			$external_connection_url    = get_post_meta( $connection['id'], 'dt_external_connection_url', true );
+			$external_connection_auth   = get_post_meta( $connection['id'], 'dt_external_connection_auth', true );
+			$external_gutenberg_enabled = get_post_meta( $connection['id'], 'dt_gutenberg_enabled', true );
 
 			if ( empty( $external_connection_auth ) ) {
 				$external_connection_auth = array();
@@ -129,6 +130,10 @@ function ajax_push() {
 
 				if ( ! empty( $_POST['draft'] ) ) {
 					$push_args['post_status'] = 'draft';
+				}
+
+				if ( $external_gutenberg_enabled ) {
+					$push_args['gutenberg_enabled'] = true;
 				}
 
 				$remote_id = $external_connection->push( intval( $_POST['post_id'] ), $push_args );
