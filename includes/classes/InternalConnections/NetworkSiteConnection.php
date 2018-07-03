@@ -548,6 +548,7 @@ class NetworkSiteConnection extends Connection {
 		$authorized_sites = array();
 
 		$current_blog_id = (int) get_current_blog_id();
+		$current_user = wp_get_current_user();
 
 		foreach ( $sites as $site ) {
 			$blog_id = (int) $site->blog_id;
@@ -561,9 +562,7 @@ class NetworkSiteConnection extends Connection {
 			if ( empty( $base_url ) ) {
 				continue;
 			}
-
-			$current_user = wp_get_current_user();
-
+			
 			$response = wp_remote_post(
 				untrailingslashit( $base_url ) . '/wp-admin/admin-ajax.php', array(
 					'body'    => array(
