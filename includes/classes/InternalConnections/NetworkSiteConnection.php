@@ -164,6 +164,10 @@ class NetworkSiteConnection extends Connection {
 			} else {
 				unset( $post_array['ID'] );
 			}
+			
+			if ( isset( $post_array['post_parent'] ) ) {
+				unset( $post_array['post_parent'] );
+			}
 
 			add_filter( 'wp_insert_post_data', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'maybe_set_modified_date' ), 10, 2 );
 
@@ -211,7 +215,7 @@ class NetworkSiteConnection extends Connection {
 			 *
 			 * @since 1.0
 			 *
-			 * @param array              $new_post   The new post that was pulled.
+			 * @param int                $new_post   The new post that was pulled.
 			 * @param ExternalConnection $this       The distributor connection pulling the post.
 			 * @param array              $post_array The original post data retrieved via the connection.
 			 */
