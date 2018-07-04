@@ -38,7 +38,7 @@ abstract class Connection {
 	/**
 	 * Log a sync
 	 *
-	 * @param  array $item_id_mappings Array with $key = origin post, value = new post.
+	 * @param  array $item_id_mappings Array with key = origin post ID, value = new post ID.
 	 * @param  int   $connection_id          Source blog ID.
 	 * @since  0.8
 	 */
