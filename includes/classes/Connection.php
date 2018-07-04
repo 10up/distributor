@@ -38,10 +38,11 @@ abstract class Connection {
 	/**
 	 * Log a sync
 	 *
-	 * @param  array $item_id_mappings
+	 * @param  array $item_id_mappings Array with $key = origin post, value = new post.
+	 * @param  int   $connection_id          Source blog ID.
 	 * @since  0.8
 	 */
-	abstract public function log_sync( array $item_id_mappings );
+	abstract public function log_sync( array $item_id_mappings, $connection_id );
 
 	/**
 	 * This method is called on every page load. It's helpful for canonicalization
