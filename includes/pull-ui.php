@@ -206,8 +206,8 @@ function process_actions() {
 			);
 
 			if ( 'external' === $_GET['connection_type'] ) {
-				$connection    = \Distributor\ExternalConnection::instantiate( $connection_id );
-				$new_posts     = $connection->pull( $posts );
+				$connection = \Distributor\ExternalConnection::instantiate( $connection_id );
+				$new_posts  = $connection->pull( $posts );
 
 				foreach ( $posts as $key => $post_array ) {
 					\Distributor\Subscriptions\create_remote_subscription( $connection, $post_array['remote_post_id'], $new_posts[ $key ] );
