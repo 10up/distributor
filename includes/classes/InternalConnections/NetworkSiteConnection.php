@@ -359,18 +359,18 @@ class NetworkSiteConnection extends Connection {
 		add_action( 'wp_ajax_dt_auth_check', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'auth_check' ) );
 		add_action( 'save_post', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'update_syndicated' ) );
 		add_action( 'before_delete_post', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'separate_syndicated_on_delete' ) );
-		add_action( 'before_delete_post', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'remove_distributor_post_form_original' ) );
+		add_action( 'before_delete_post', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'remove_distributor_post_from_original' ) );
 		add_action( 'wp_trash_post', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'separate_syndicated_on_delete' ) );
 		add_action( 'untrash_post', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'connect_syndicated_on_untrash' ) );
 	}
 
 	/**
-	 * Mark original post such that this post does not appear distributed
+	 * Make the original post available for distribution when deleting a post.
 	 *
-	 * @param  int $post_id
+	 * @param  int $post_id Post ID.
 	 * @since  1.2
 	 */
-	public static function remove_distributor_post_form_original( $post_id ) {
+	public static function remove_distributor_post_from_original( $post_id ) {
 		$original_blog_id = get_post_meta( $post_id, 'dt_original_blog_id', true );
 		$original_post_id = get_post_meta( $post_id, 'dt_original_post_id', true );
 
@@ -391,6 +391,14 @@ class NetworkSiteConnection extends Connection {
 		}
 
 		restore_current_blog();
+
+		// Remove deleted post from the sync log.
+		$sync_log = get_site_option( 'dt_sync_log_' . $original_blog_id, array() );
+
+		if ( isset( $sync_log[ $original_post_id ] ) ) {
+			unset( $sync_log[ $original_post_id ] );
+			update_site_option( 'dt_sync_log_' . $original_blog_id, $sync_log );
+		}
 	}
 
 	/**
@@ -562,7 +570,7 @@ class NetworkSiteConnection extends Connection {
 			if ( empty( $base_url ) ) {
 				continue;
 			}
-			
+
 			$response = wp_remote_post(
 				untrailingslashit( $base_url ) . '/wp-admin/admin-ajax.php', array(
 					'body'    => array(
