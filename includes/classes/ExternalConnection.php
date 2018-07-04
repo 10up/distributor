@@ -38,11 +38,12 @@ abstract class ExternalConnection extends Connection {
 	/**
 	 * Log a sync
 	 *
-	 * @param  array $item_id_mappings
+	 * @param  array $item_id_mappings Array with key = origin post ID, value = new post ID.
+	 * @param  int   $blog_id          Source blog ID.
 	 * @since  0.8
 	 */
-	public function log_sync( array $item_id_mappings ) {
-		$sync_log = get_post_meta( $this->id, 'dt_sync_log', true );
+	public function log_sync( array $item_id_mappings, $connection_id ) {
+		$sync_log = get_post_meta( $connection_id, 'dt_sync_log', true );
 
 		if ( empty( $sync_log ) ) {
 			$sync_log = array();
@@ -56,7 +57,7 @@ abstract class ExternalConnection extends Connection {
 			}
 		}
 
-		update_post_meta( $this->id, 'dt_sync_log', $sync_log );
+		update_post_meta( $connection_id, 'dt_sync_log', $sync_log );
 
 		/**
 		 * Action fired when a sync is being logged.

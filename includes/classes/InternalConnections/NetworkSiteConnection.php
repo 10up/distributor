@@ -226,12 +226,12 @@ class NetworkSiteConnection extends Connection {
 	/**
 	 * Log a sync. Unfortunately have to use options
 	 *
-	 * @param  array       $item_id_mappings
-	 * @param  string|bool $status
+	 * @param  array $item_id_mappings Array with key = origin post ID, value = new post ID.
+	 * @param  int   $blog_id          Source blog ID.
 	 * @since  0.8
 	 */
-	public function log_sync( array $item_id_mappings ) {
-		$sync_log = get_site_option( 'dt_sync_log_' . $this->site->blog_id, array() );
+	public function log_sync( array $item_id_mappings, $connection_id ) {
+		$sync_log = get_site_option( 'dt_sync_log_' . $connection_id, array() );
 
 		foreach ( $item_id_mappings as $old_item_id => $new_item_id ) {
 			if ( empty( $new_item_id ) || is_wp_error( $new_item_id ) ) {
@@ -241,7 +241,7 @@ class NetworkSiteConnection extends Connection {
 			}
 		}
 
-		update_site_option( 'dt_sync_log_' . $this->site->blog_id, $sync_log );
+		update_site_option( 'dt_sync_log_' . $connection_id, $sync_log );
 
 		/**
 		 * Action fired when a sync is being logged.

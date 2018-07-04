@@ -176,6 +176,8 @@ function process_actions() {
 	global $connection_list_table;
 	global $dt_pull_messages;
 
+	$connection_id = intval( $_GET['connection_id'] );
+
 	switch ( $connection_list_table->current_action() ) {
 		case 'syndicate':
 		case 'bulk-syndicate':
@@ -204,14 +206,14 @@ function process_actions() {
 			);
 
 			if ( 'external' === $_GET['connection_type'] ) {
-				$connection = \Distributor\ExternalConnection::instantiate( intval( $_GET['connection_id'] ) );
-				$new_posts  = $connection->pull( $posts );
+				$connection    = \Distributor\ExternalConnection::instantiate( $connection_id );
+				$new_posts     = $connection->pull( $posts );
 
 				foreach ( $posts as $key => $post_array ) {
 					\Distributor\Subscriptions\create_remote_subscription( $connection, $post_array['remote_post_id'], $new_posts[ $key ] );
 				}
 			} else {
-				$site       = get_site( intval( $_GET['connection_id'] ) );
+				$site       = get_site( $connection_id );
 				$connection = new \Distributor\InternalConnections\NetworkSiteConnection( $site );
 				$new_posts  = $connection->pull( $posts );
 			}
@@ -222,7 +224,7 @@ function process_actions() {
 				$post_id_mappings[ $post_array['remote_post_id'] ] = $new_posts[ $key ];
 			}
 
-			$connection->log_sync( $post_id_mappings );
+			$connection->log_sync( $post_id_mappings, $connection_id );
 
 			if ( empty( $dt_pull_messages['duplicated'] ) ) {
 				setcookie( 'dt-syndicated', 1, time() + DAY_IN_SECONDS, ADMIN_COOKIE_PATH, COOKIE_DOMAIN, is_ssl() );
@@ -255,9 +257,9 @@ function process_actions() {
 			}
 
 			if ( 'external' === $_GET['connection_type'] ) {
-				$connection = \Distributor\ExternalConnection::instantiate( intval( $_GET['connection_id'] ) );
+				$connection = \Distributor\ExternalConnection::instantiate( $connection_id );
 			} else {
-				$site       = get_site( intval( $_GET['connection_id'] ) );
+				$site       = get_site( $connection_id );
 				$connection = new \Distributor\InternalConnections\NetworkSiteConnection( $site );
 			}
 
@@ -272,7 +274,7 @@ function process_actions() {
 				$post_mapping[ $post_id ] = false;
 			}
 
-			$connection->log_sync( $post_mapping );
+			$connection->log_sync( $post_mapping, $connection_id );
 
 			setcookie( 'dt-skipped', 1, time() + DAY_IN_SECONDS, ADMIN_COOKIE_PATH, COOKIE_DOMAIN, is_ssl() );
 
