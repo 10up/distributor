@@ -543,10 +543,24 @@ class NetworkSiteConnection extends Connection {
 		if ( ! is_multisite() ) {
 			return array();
 		}
-
-		$sites            = get_sites();
-		$authorized_sites = array();
-
+		
+		/**
+		 * Allow plugins to whitelist an array of sites before get_sites() is called
+		 *
+		 * @since 1.2
+		 *
+		 * @param array  $authorized_sites {
+		 * 		@type array {
+		 *			'site'       => $site,  // WP_Site object
+		 * 			'post_types' => $array, // List of post type objects the user can edit.
+		 * }
+		 */
+		$authorized_sites = apply_filters( 'dt_pre_get_authorized_sites', array() );
+		if ( ! empty( $authorized_sites ) ) {
+			return $authorized_sites;
+		}
+		
+		$sites = get_sites();
 		$current_blog_id = (int) get_current_blog_id();
 
 		foreach ( $sites as $site ) {
@@ -596,7 +610,18 @@ class NetworkSiteConnection extends Connection {
 			}
 		}
 
-		return $authorized_sites;
+		/**
+		 * Allow plugins to modify the array of authorized sites
+		 *
+		 * @since 1.2
+		 *
+		 * @param array  $authorized_sites {
+		 * 		@type array {
+		 *			'site'       => $site,  // WP_Site object
+		 * 			'post_types' => $array, // List of post type objects the user can edit.
+		 * }
+		 */
+		return apply_filters( 'dt_authorized_sites', $authorized_sites );
 	}
 
 	/**
