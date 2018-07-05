@@ -2,7 +2,7 @@
 /**
  * We will extend this test case to make WP_Mock set up easier
  */
-class TestCase extends \PHPUnit_Framework_TestCase {
+class TestCase extends \PHPUnit\Framework\TestCase {
 
 	/**
 	 * Set up with WP_Mock

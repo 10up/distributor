@@ -210,71 +210,6 @@ class WordPressExternalConnectionTest extends \TestCase {
 			]
 		);
 
-		\WP_Mock::userFunction(
-			'update_post_meta', [
-				'times'  => 1,
-				'args'   => [ \WP_Mock\Functions::type( 'int' ), 'dt_original_post_id', $post_id ],
-				'return' => [],
-			]
-		);
-
-		\WP_Mock::userFunction(
-			'update_post_meta', [
-				'times'  => 1,
-				'args'   => [ \WP_Mock\Functions::type( 'int' ), 'dt_original_source_id', 1 ],
-				'return' => [],
-			]
-		);
-
-		\WP_Mock::userFunction(
-			'update_post_meta', [
-				'times'  => 1,
-				'args'   => [ \WP_Mock\Functions::type( 'int' ), 'dt_syndicate_time', time() ],
-				'return' => [],
-			]
-		);
-
-		\WP_Mock::userFunction(
-			'update_post_meta', [
-				'times'  => 1,
-				'args'   => [ \WP_Mock\Functions::type( 'int' ), 'dt_original_post_url', '' ],
-				'return' => [],
-			]
-		);
-
-		\WP_Mock::userFunction(
-			'update_post_meta', [
-				'times'  => 1,
-				'args'   => [ \WP_Mock\Functions::type( 'int' ), 'dt_original_site_name', '' ],
-				'return' => [],
-			]
-		);
-
-		\WP_Mock::userFunction(
-			'update_post_meta', [
-				'times'  => 1,
-				'args'   => [ \WP_Mock\Functions::type( 'int' ), 'dt_original_site_url', '' ],
-				'return' => [],
-			]
-		);
-
-		\WP_Mock::userFunction(
-			'update_post_meta', [
-				'times'  => 1,
-				'args'   => [ \WP_Mock\Functions::type( 'int' ), 'dt_full_connection', false ],
-				'return' => [],
-			]
-		);
-
-		\WP_Mock::userFunction(
-			'wp_remote_retrieve_headers', [
-				'times'  => 1,
-				'return' => [
-					'X-Distributor' => true,
-				],
-			]
-		);
-
 		$this->assertTrue(
 			is_array(
 				$this->connection->pull(
@@ -302,7 +237,7 @@ class WordPressExternalConnectionTest extends \TestCase {
 
 		\WP_Mock::userFunction(
 			'wp_remote_retrieve_response_code', [
-				'times'  => 1,
+				'times'  => 2,
 				'return' => 200,
 			]
 		);
