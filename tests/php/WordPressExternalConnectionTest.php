@@ -20,13 +20,6 @@ class WordPressExternalConnectionTest extends \TestCase {
 	 * @runInSeparateProcess
 	 */
 	public function test_construct() {
-		try {
-			$connection = new WordPressExternalConnection();
-		} catch ( \Exception $e ) {
-			// Requires arguments
-			$this->assertTrue( true );
-		}
-
 		// Now test a successful creation
 		$auth = new WordPressBasicAuth( array() );
 
