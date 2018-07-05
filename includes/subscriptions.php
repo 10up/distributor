@@ -253,14 +253,15 @@ function send_notifications( $post_id ) {
 				'title'             => get_the_title( $post_id ),
 				'slug'              => $post->post_name,
 				'content'           => apply_filters( 'the_content', $post->post_content ),
-				'raw_content'       => $post->post_content,
 				'excerpt'           => $post->post_excerpt,
 				'distributor_media' => \Distributor\Utils\prepare_media( $post_id ),
 				'distributor_terms' => \Distributor\Utils\prepare_taxonomy_terms( $post_id ),
 				'distributor_meta'  => \Distributor\Utils\prepare_meta( $post_id ),
-				'gutenberg_enabled' => \Distributor\Utils\is_using_gutenberg(),
 			],
 		];
+		if ( \Distributor\Utils\is_using_gutenberg() ) {
+			$post_body['post_data']['distributor_raw_content'] = $post->post_content;
+		}
 
 		$request = wp_remote_post(
 			untrailingslashit( $target_url ) . '/wp/v2/dt_subscription/receive', [
