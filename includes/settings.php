@@ -1,4 +1,9 @@
 <?php
+/**
+ * Admin settings screen
+ *
+ * @package  distributor
+ */
 
 namespace Distributor\Settings;
 

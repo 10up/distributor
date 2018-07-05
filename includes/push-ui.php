@@ -1,4 +1,9 @@
 <?php
+/**
+ * Push UI functionality
+ *
+ * @package  distributor
+ */
 
 namespace Distributor\PushUI;
 

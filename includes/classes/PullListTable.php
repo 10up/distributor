@@ -1,4 +1,9 @@
 <?php
+/**
+ * Admin list table for pulled posted
+ *
+ * @package  distributor
+ */
 
 namespace Distributor;
 

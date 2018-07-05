@@ -1,4 +1,9 @@
 <?php
+/**
+ * REST API functionality
+ *
+ * @package  distributor
+ */
 
 namespace Distributor\RestApi;
 

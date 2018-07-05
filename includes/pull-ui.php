@@ -1,4 +1,9 @@
 <?php
+/**
+ * Pull UI functionality
+ *
+ * @package  distributor
+ */
 
 namespace Distributor\PullUI;
 

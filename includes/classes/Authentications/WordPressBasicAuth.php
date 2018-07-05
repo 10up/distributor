@@ -1,4 +1,9 @@
 <?php
+/**
+ * WP basic auth functionality
+ *
+ * @package  distributor
+ */
 
 namespace Distributor\Authentications;
 

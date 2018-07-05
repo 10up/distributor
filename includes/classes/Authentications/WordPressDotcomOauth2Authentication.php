@@ -1,4 +1,9 @@
 <?php
+/**
+ * WP.com OAuth functionality
+ *
+ * @package  distributor
+ */
 
 namespace Distributor\Authentications;
 

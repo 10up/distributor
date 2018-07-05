@@ -1,4 +1,9 @@
 <?php
+/**
+ * Network site functionality
+ *
+ * @package  distributor
+ */
 
 namespace Distributor\InternalConnections;
 
@@ -561,7 +566,7 @@ class NetworkSiteConnection extends Connection {
 			if ( empty( $base_url ) ) {
 				continue;
 			}
-			
+
 			$response = wp_remote_post(
 				untrailingslashit( $base_url ) . '/wp-admin/admin-ajax.php', array(
 					'body'    => array(

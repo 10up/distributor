@@ -1,4 +1,9 @@
 <?php
+/**
+ * Subscription functionality
+ *
+ * @package  distributor
+ */
 
 namespace Distributor\Subscriptions;
 

@@ -1,4 +1,9 @@
 <?php
+/**
+ * External connections functionality
+ *
+ * @package  distributor
+ */
 
 namespace Distributor\ExternalConnectionCPT;
 

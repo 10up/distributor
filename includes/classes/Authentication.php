@@ -1,4 +1,9 @@
 <?php
+/**
+ * Authentication base class
+ *
+ * @package  distributor
+ */
 
 namespace Distributor;
 

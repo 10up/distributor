@@ -1,4 +1,9 @@
 <?php
+/**
+ * UI functionality for distributed posts
+ *
+ * @package  distributor
+ */
 
 namespace Distributor\SyndicatedPostUI;
 

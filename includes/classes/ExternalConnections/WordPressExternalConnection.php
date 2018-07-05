@@ -1,4 +1,9 @@
 <?php
+/**
+ * WP external connection functionality
+ *
+ * @package  distributor
+ */
 
 namespace Distributor\ExternalConnections;
 

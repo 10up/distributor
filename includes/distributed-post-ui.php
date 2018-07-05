@@ -1,4 +1,9 @@
 <?php
+/**
+ * Distributed post UI
+ *
+ * @package  distributor
+ */
 
 namespace Distributor\DistributedPostUI;
 

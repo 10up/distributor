@@ -1,4 +1,9 @@
 <?php
+/**
+ * Utility functions
+ *
+ * @package distributor
+ */
 
 namespace Distributor\Utils;
 
@@ -64,8 +69,8 @@ function get_network_settings() {
 /**
  * Hit license API to see if key/email is valid
  *
- * @param  string $email
- * @param  string $license_key
+ * @param  string $email Email address.
+ * @param  string $license_key License key.
  * @since  1.2
  * @return bool
  */
@@ -105,8 +110,8 @@ function is_dt_debug() {
 /**
  * Given an array of meta, set meta to another post. Don't copy in blackisted (Distributor) meta.
  *
- * @param int   $post_id
- * @param array $meta
+ * @param int   $post_id Post ID.
+ * @param array $meta Array of meta as key => value
  */
 function set_meta( $post_id, $meta ) {
 	$blacklisted_meta = blacklisted_meta();
@@ -146,12 +151,17 @@ function distributable_post_types() {
 	 * Filter post types that are distributable.
 	 *
 	 * @since 1.0.0
-	 *
 	 * @param array Post types that are distributable. Default 'all post types except dt_ext_connection and dt_subscription'.
 	 */
 	return apply_filters( 'distributable_post_types', array_diff( $post_types, [ 'dt_ext_connection', 'dt_subscription' ] ) );
 }
 
+/**
+ * Returns list of blacklisted meta keys
+ *
+ * @since  1.2
+ * @return array
+ */
 function blacklisted_meta() {
 	/**
 	 * Filter meta keys that are blacklisted.
@@ -166,7 +176,7 @@ function blacklisted_meta() {
 /**
  * Prepare meta for consumption
  *
- * @param  int $post_id
+ * @param  int $post_id Post ID.
  * @since  1.0
  * @return array
  */
@@ -195,7 +205,7 @@ function prepare_meta( $post_id ) {
 /**
  * Format media items for consumption
  *
- * @param  int $post_id
+ * @param  int $post_id Post ID.
  * @since  1.0
  * @return array
  */
@@ -229,7 +239,7 @@ function prepare_media( $post_id ) {
 /**
  * Format taxonomy terms for consumption
  *
- * @param  int $post_id
+ * @param  int $post_id Post ID.
  * @since  1.0
  * @return array
  */
@@ -260,8 +270,8 @@ function prepare_taxonomy_terms( $post_id ) {
  * Given an array of terms by taxonomy, set those terms to another post. This function will cleverly merge
  * terms into the post and create terms that don't exist.
  *
- * @param int   $post_id
- * @param array $taxonomy_terms
+ * @param int   $post_id Post ID.
+ * @param array $taxonomy_terms Array with taxonomy as key and array of terms as values.
  * @since 1.0
  */
 function set_taxonomy_terms( $post_id, $taxonomy_terms ) {
@@ -346,8 +356,8 @@ function set_taxonomy_terms( $post_id, $taxonomy_terms ) {
  * Given an array of media, set the media to a new post. This function will cleverly merge media into the
  * new post deleting duplicates. Meta and featured image information for each image will be copied as well.
  *
- * @param int   $post_id
- * @param array $media
+ * @param int   $post_id Post ID.
+ * @param array $media Array of media posts.
  * @since 1.0
  */
 function set_media( $post_id, $media ) {
@@ -417,7 +427,7 @@ function set_media( $post_id, $media ) {
 /**
  * This is a helper function for transporting/formatting data about a media post
  *
- * @param  WP_Post $media_post
+ * @param  WP_Post $media_post Media post.
  * @since  1.0
  * @return array
  */
@@ -429,7 +439,7 @@ function format_media_post( $media_post ) {
 
 	$media_item['featured'] = false;
 
-	if ( $media_post->ID === (int) get_post_thumbnail_id( $media_post->post_parent ) ) {
+	if ( (int) get_post_thumbnail_id( $media_post->post_parent ) === $media_post->ID ) {
 		$media_item['featured'] = true;
 	}
 
@@ -456,8 +466,8 @@ function format_media_post( $media_post ) {
 /**
  * Simple function for sideloading media and returning the media id
  *
- * @param  string $url
- * @param  int    $post_id
+ * @param  string $url URL of media.
+ * @param  int    $post_id Post ID.
  * @since  1.0
  * @return int|bool
  */

@@ -1,13 +1,14 @@
 <?php
-
 /**
  * These functions are intended to be used within themes and plugins
+ *
+ * @package  distributor
  */
 
 /**
  * Determine if post is unlinked
  *
- * @param  int $post_id
+ * @param  int $post_id Post ID.
  * @since  1.0
  * @return bool
  */
@@ -60,6 +61,7 @@ function distributor_get_original_post_link( $post_id = null ) {
 /**
  * See docblock for distributor_get_original_post_link
  *
+ * @param  int $post_id Post ID.
  * @since 1.0
  */
 function distributor_the_original_post_link( $post_id = null ) {
@@ -101,6 +103,7 @@ function distributor_get_original_site_name( $post_id = null ) {
 /**
  * See docblock for distributor_get_original_site_name
  *
+ * @param  int $post_id Post ID.
  * @since 1.0
  */
 function distributor_the_original_site_name( $post_id = null ) {
@@ -142,6 +145,7 @@ function distributor_get_original_site_url( $post_id = null ) {
 /**
  * See docblock for distributor_get_original_site_url
  *
+ * @param  int $post_id Post ID.
  * @since 1.0
  */
 function distributor_the_original_site_url( $post_id = null ) {
@@ -151,7 +155,7 @@ function distributor_the_original_site_url( $post_id = null ) {
 /**
  * Get pretty link for outputting original distributor site link
  *
- * @param  int $post_id
+ * @param  int $post_id Post ID.
  * @since  1.0
  * @return string
  */
@@ -177,6 +181,7 @@ function distributor_get_original_site_link( $post_id = null ) {
 /**
  * See docblock for distributor_get_original_site_link
  *
+ * @param  int $post_id Post ID
  * @since 1.0
  */
 function distributor_the_original_site_link( $post_id = null ) {
@@ -187,7 +192,7 @@ function distributor_the_original_site_link( $post_id = null ) {
 /**
  * Generate a list of information about a given post.
  *
- * @param null $post_id The Post ID.
+ * @param int $post_id The Post ID.
  * @return array
  */
 function distributor_get_the_connection_source( $post_id = null ) {

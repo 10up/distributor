@@ -1,4 +1,9 @@
 <?php
+/**
+ * External connection base
+ *
+ * @package  distributor
+ */
 
 namespace Distributor;
 
