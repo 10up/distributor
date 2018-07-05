@@ -429,18 +429,13 @@ class WordPressExternalConnection extends ExternalConnection {
 
 		$signature = \Distributor\Subscriptions\generate_signature();
 
-		// If the local and remote sites both support Gutenberg, distribute the raw content.
-		$content   = ( ! empty( $args['gutenberg_enabled'] ) && \Distributor\Utils\is_using_gutenberg() ) ?
-						$post->post_content :
-						apply_filters( 'the_content', $post->post_content );
-
 		/**
 		 * Now let's push
 		 */
 		$post_body = [
 			'title'                          => get_the_title( $post_id ),
 			'slug'                           => $post->post_name,
-			'content'                        => $content,
+			'content'                        => apply_filters( 'the_content', $post->post_content ),
 			'type'                           => $post->post_type,
 			'status'                         => ( ! empty( $args['post_status'] ) ) ? $args['post_status'] : 'publish',
 			'excerpt'                        => $post->post_excerpt,
@@ -454,6 +449,11 @@ class WordPressExternalConnection extends ExternalConnection {
 			'distributor_terms'              => \Distributor\Utils\prepare_taxonomy_terms( $post_id ),
 			'distributor_meta'               => \Distributor\Utils\prepare_meta( $post_id ),
 		];
+
+		// Gutenberg posts also distribute raw content.
+		if ( \Distributor\Utils\is_using_gutenberg() ) {
+			$post_body['distributor_raw_content'] = $post->post_content;
+		}
 
 		// Map to remote ID if a push has already happened
 		if ( ! empty( $args['remote_post_id'] ) ) {
