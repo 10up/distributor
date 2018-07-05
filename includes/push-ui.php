@@ -106,9 +106,9 @@ function ajax_push() {
 
 	foreach ( $_POST['connections'] as $connection ) {
 		if ( 'external' === $connection['type'] ) {
-			$external_connection_type   = get_post_meta( $connection['id'], 'dt_external_connection_type', true );
-			$external_connection_url    = get_post_meta( $connection['id'], 'dt_external_connection_url', true );
-			$external_connection_auth   = get_post_meta( $connection['id'], 'dt_external_connection_auth', true );
+			$external_connection_type = get_post_meta( $connection['id'], 'dt_external_connection_type', true );
+			$external_connection_url  = get_post_meta( $connection['id'], 'dt_external_connection_url', true );
+			$external_connection_auth = get_post_meta( $connection['id'], 'dt_external_connection_auth', true );
 
 			if ( empty( $external_connection_auth ) ) {
 				$external_connection_auth = array();
