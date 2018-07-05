@@ -83,7 +83,7 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 				empty( $code )
 			)
 		) {
-		?>
+			?>
 			<p>
 			<?php esc_html_e( 'To connect, first ', 'distributor' ); ?>
 			<a href="https://developer.wordpress.com/apps/"><?php esc_html_e( 'create an application with the WordPress.com applications manager', 'distributor' ); ?></a>.<br />
@@ -107,12 +107,12 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 
 		} else {
 			// The connection is already authorized and we have a valid token. Show the green connection status and
-		?>
+			?>
 		<div id="message" class="oauth-connection-established"><p><span class="message-header">&#10003 <?php esc_html_e( 'Connection Authorized', 'distributor' ); ?></span><br/><a id="oauth-authentication-change-credentials" href="#"><?php esc_html_e( 'Change credentials.', 'distributor' ); ?></a></p></div>
-		<?php
+			<?php
 			// Render the credentials field in a hidden div so they can be shown when clicking 'Change credentials'.
 			self::credentials_partial( $args, true );
-		?>
+			?>
 		<script type="text/javascript">
 
 			// Remove the code credentials from the URL to prevent refresh from initiating a new flow.
@@ -120,7 +120,7 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 				window.history.pushState( {}, window.location.title, window.location.href.split( '&code=' )[0] );
 			}
 		</script>
-		<?php
+			<?php
 		}
 	}
 
@@ -138,7 +138,7 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 		$client_id     = isset( $args[ self::API_CLIENT_ID ] ) ? $args[ self::API_CLIENT_ID ] : '';
 		$client_secret = isset( $args[ self::API_CLIENT_SECRET ] ) ? $args[ self::API_CLIENT_SECRET ] : '';
 		$redirect_uri  = isset( $args[ self::API_REDIRECT_URI ] ) ? $args[ self::API_REDIRECT_URI ] : '';
-	?>
+		?>
 			<div class="oauth-authentication-details-wrapper<?php echo ( $hidden ? ' hidden' : '' ); ?>">
 				<h3 >
 					<?php esc_html_e( 'WordPress.com Application Client ID and Client Secret: ', 'distributor' ); ?>
@@ -154,7 +154,7 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 					<input type="hidden" id="dt_created_post_id" name="dt_external_connection_auth[dt_created_post_id]">
 				<input name="save" type="submit" class="button button-primary button-large" id="create-oauth-connection" value="<?php esc_attr_e( 'Authorize Connection with WordPress.com', 'distributor' ); ?>">
 			</div>
-	<?php
+		<?php
 	}
 
 	/**

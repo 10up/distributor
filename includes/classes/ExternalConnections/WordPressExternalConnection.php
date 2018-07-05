@@ -71,8 +71,8 @@ class WordPressExternalConnection extends ExternalConnection {
 					 * @since 1.0
 					 *
 					 * @param array  $args {
-					 * 		@type array Items to get.
-					 * 		@type int Total number of items to get.
+					 *      @type array Items to get.
+					 *      @type int Total number of items to get.
 					 * }
 					 * @param  array  $args The arguments originally passed to .remote_get'.
 					 * @param  object $this The authentication class.

@@ -104,7 +104,7 @@ abstract class Authentication {
 		self::$error_message = $error_message;
 		add_action(
 			'auth_admin_notices', function() {
-			?>
+				?>
 		<div class="notice notice-error is-dismissible">
 			<p>
 				<strong>
@@ -112,7 +112,7 @@ abstract class Authentication {
 				</strong> <?php echo esc_html( self::$error_message ); ?>
 			</p>
 		</div>
-		<?php
+				<?php
 			}
 		);
 		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {

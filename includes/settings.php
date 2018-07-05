@@ -1,6 +1,7 @@
 <?php
 
 namespace Distributor\Settings;
+
 use Distributor\Utils;
 
 /**
@@ -77,11 +78,11 @@ function update_notice( $plugin_file, $plugin_data, $status ) {
 	}
 
 	if ( DT_IS_NETWORK ) {
-		$settings = Utils\get_network_settings();
+		$settings   = Utils\get_network_settings();
 		$notice_url = network_admin_url( 'admin.php?page=distributor-settings' );
 	} else {
 		$notice_url = admin_url( 'admin.php?page=distributor-settings' );
-		$settings = Utils\get_settings();
+		$settings   = Utils\get_settings();
 	}
 
 	if ( true === $settings['valid_license'] ) {
@@ -131,8 +132,8 @@ function maybe_notice() {
 		}
 		?>
 		<div data-notice="auto-upgrade-disabled" class="notice notice-warning">
-	        <p><?php echo wp_kses_post( sprintf( __( '<a href="%s">Register Distributor</a> to receive important plugin update notices and other Distributor news.', 'elasticpress' ), esc_url( $notice_url ) ) ); ?></p>
-	    </div>
+			<p><?php echo wp_kses_post( sprintf( __( '<a href="%s">Register Distributor</a> to receive important plugin update notices and other Distributor news.', 'elasticpress' ), esc_url( $notice_url ) ) ); ?></p>
+		</div>
 		<?php
 	}
 }
@@ -197,7 +198,7 @@ function license_key_callback() {
 	$settings = Utils\get_settings();
 
 	$license_key = ( ! empty( $settings['license_key'] ) ) ? $settings['license_key'] : '';
-	$email = ( ! empty( $settings['email'] ) ) ? $settings['email'] : '';
+	$email       = ( ! empty( $settings['email'] ) ) ? $settings['email'] : '';
 	?>
 	<div class="license-wrap <?php if ( true === $settings['valid_license'] ) : ?>valid<?php elseif ( false === $settings['valid_license'] ) : ?>invalid<?php endif; ?>">
 		<input name="dt_settings[email]" type="email" placeholder="<?php esc_html_e( 'Email', 'distributor' ); ?>" value="<?php echo esc_attr( $email ); ?>"> <input name="dt_settings[license_key]" type="text" placeholder="<?php esc_html_e( 'Registration Key', 'distributor' ); ?>" value="<?php echo esc_attr( $license_key ); ?>">
@@ -266,7 +267,7 @@ function network_settings_screen() {
 	$settings = Utils\get_network_settings();
 
 	$license_key = ( ! empty( $settings['license_key'] ) ) ? $settings['license_key'] : '';
-	$email = ( ! empty( $settings['email'] ) ) ? $settings['email'] : '';
+	$email       = ( ! empty( $settings['email'] ) ) ? $settings['email'] : '';
 	?>
 
 	<div class="wrap">

@@ -44,7 +44,7 @@ spl_autoload_register(
 			return;
 		}
 			$relative_class = substr( $class, $len );
-			$file = $base_dir . str_replace( '\\', '/', $relative_class ) . '.php';
+			$file           = $base_dir . str_replace( '\\', '/', $relative_class ) . '.php';
 			// If the file exists, require it.
 		if ( file_exists( $file ) ) {
 			require $file;
@@ -91,7 +91,7 @@ add_filter(
 \Distributor\Connections::factory();
 
 // Include in case we have composer issues.
-include_once __DIR__ . '/vendor/yahnis-elsts/plugin-update-checker/plugin-update-checker.php';
+require_once __DIR__ . '/vendor/yahnis-elsts/plugin-update-checker/plugin-update-checker.php';
 
 require_once __DIR__ . '/includes/utils.php';
 require_once __DIR__ . '/includes/external-connection-cpt.php';

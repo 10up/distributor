@@ -432,7 +432,7 @@ function meta_box_external_connection_details( $post ) {
 	<?php
 	if ( 1 === count( $registered_external_connection_types ) ) :
 		$registered_connection_types_keys = array_keys( $registered_external_connection_types );
-?>
+		?>
 		<input id="dt_external_connection_type" class="external-connection-type-field" type="hidden" name="dt_external_connection_type" value="<?php echo esc_attr( $registered_connection_types_keys[0] ); ?>">
 	<?php else : ?>
 		<p>
@@ -585,18 +585,20 @@ function add_menu_item() {
 function add_submenu_item() {
 	global $submenu;
 	unset( $submenu['distributor'][0] );
-	add_submenu_page( 'distributor',
-	                 esc_html__( 'External Connections', 'distributor' ),
-	                 esc_html__( 'External Connections', 'distributor' ),
-	                 /**
-	                  * Filter Distributor capabilities allowed to manage external connections.
-	                  *
-	                  * @since 1.0.0
-	                  *
-	                  * @param string manage_options The capability allowed to manage external connections.
-	                  */
-	                 apply_filters( 'dt_external_capabilities', 'manage_options' ),
-	                 'distributor' );
+	add_submenu_page(
+		'distributor',
+		esc_html__( 'External Connections', 'distributor' ),
+		esc_html__( 'External Connections', 'distributor' ),
+		/**
+					  * Filter Distributor capabilities allowed to manage external connections.
+					  *
+					  * @since 1.0.0
+					  *
+					  * @param string manage_options The capability allowed to manage external connections.
+					  */
+					 apply_filters( 'dt_external_capabilities', 'manage_options' ),
+		'distributor'
+	);
 }
 
 /**

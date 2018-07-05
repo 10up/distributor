@@ -464,7 +464,6 @@ class PullListTable extends \WP_List_Table {
 		 * Action fired when extra table nav is generated.
 		 *
 		 * @since 1.0
-		 *
 		 */
 		do_action( 'dt_pull_filters' );
 	}

@@ -451,7 +451,7 @@ function menu_content() {
 										<div class="add-connection
 										<?php
 										if ( ! empty( $connection['syndicated'] ) ) :
-?>
+											?>
 syndicated<?php endif; ?>" data-connection-type="external" data-connection-id="<?php echo (int) $connection['id']; ?>">
 											<span><?php echo wp_kses_post( get_the_title( $connection['id'] ) ); ?></span>
 										</div>
@@ -459,7 +459,7 @@ syndicated<?php endif; ?>" data-connection-type="external" data-connection-id="<
 										<div class="add-connection
 										<?php
 										if ( ! empty( $connection['syndicated'] ) ) :
-?>
+											?>
 syndicated<?php endif; ?>" data-connection-type="internal" data-connection-id="<?php echo (int) $connection['id']; ?>">
 											<span><?php echo esc_html( $connection['url'] ); ?></span>
 											<?php if ( ! empty( $connection['syndicated'] ) ) : ?>
@@ -485,7 +485,7 @@ syndicated<?php endif; ?>" data-connection-type="internal" data-connection-id="<
 							 * distribute as drafts.
 							 */
 							if ( ! apply_filters( 'dt_drafts_can_be_distributed', false ) || 'draft' !== get_post_status() ) :
-							?>
+								?>
 								<button class="syndicate-button"><?php esc_html_e( 'Distribute', 'distributor' ); ?></button> <label class="as-draft" for="dt-as-draft"><input type="checkbox" id="dt-as-draft" checked> <?php esc_html_e( 'As draft', 'distributor' ); ?></label>
 							<?php endif; ?>
 						</div>
