@@ -2,7 +2,7 @@
 /**
  * Plugin Name:       Distributor
  * Description:       Distributor is a WordPress plugin allowing you to syndicate content to and from external websites and within multisite blogs.
- * Version:           1.2.0
+ * Version:           1.2.1
  * Author:            Taylor Lovett, 10up
  * Author URI:        http://10up.com
  * License:           GPLv2 or later
