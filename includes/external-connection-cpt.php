@@ -359,13 +359,6 @@ function save_post( $post_id ) {
 
 		$external_connections = $external_connection->check_connections();
 
-		// Does the remote site support Gutenberg?
-		if ( $external_connections['gutenberg_enabled'] ) {
-			update_post_meta( $post_id, 'dt_gutenberg_enabled', '1' );
-		} else {
-			delete_post_meta( $post_id, 'dt_gutenberg_enabled' );
-		}
-
 		update_post_meta( $post_id, 'dt_external_connections', $external_connections );
 		update_post_meta( $post_id, 'dt_external_connection_check_time', time() );
 	}
