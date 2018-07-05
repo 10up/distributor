@@ -128,7 +128,7 @@ if ( class_exists( 'Puc_v4_Factory' ) ) {
 			'distributor'
 		);
 
-		$updateChecker->setBranch( 'master' );
+		$updateChecker->setBranch( 'stable' );
 		// @codingStandardsIgnoreEnd
 	}
 }
