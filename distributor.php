@@ -83,9 +83,6 @@ add_action(
 add_filter(
 	'rest_post_dispatch', function( $response ) {
 		$response->header( 'X-Distributor', 'yes' );
-		if ( \Distributor\Utils\is_using_gutenberg() ) {
-			$response->header( 'X-Distributor-Gutenberg', 'yes' );
-		}
 
 		return $response;
 	}
