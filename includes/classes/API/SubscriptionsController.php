@@ -187,9 +187,13 @@ class SubscriptionsController extends \WP_REST_Controller {
 			}
 
 			// When both sides of a subscription connection support Gutenberg, update with the raw content.
-			$content = ( \Distributor\Utils\is_using_gutenberg() && $request['post_data']['gutenberg_enabled'] ) ?
-						$request['post_data']['raw_content'] :
-						$request['post_data']['content'];
+			$content = $request['post_data']['content'];
+			if ( \Distributor\Utils\is_using_gutenberg() && $request['post_data']['gutenberg_enabled'] ) {
+				$content = $request['post_data']['raw_content'];
+
+				// Remove filters that may alter content updates.
+				remove_all_filters( 'content_save_pre' );
+			}
 
 			/**
 			 * We save the update in meta in case the post is unlinked. If the post is re-linked, we'll
