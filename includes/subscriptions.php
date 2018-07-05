@@ -252,6 +252,7 @@ function send_notifications( $post_id ) {
 			'post_data' => [
 				'title'             => get_the_title( $post_id ),
 				'slug'              => $post->post_name,
+				'post_type'         => $post->post_type,
 				'content'           => apply_filters( 'the_content', $post->post_content ),
 				'excerpt'           => $post->post_excerpt,
 				'distributor_media' => \Distributor\Utils\prepare_media( $post_id ),
@@ -260,7 +261,9 @@ function send_notifications( $post_id ) {
 			],
 		];
 		if ( \Distributor\Utils\is_using_gutenberg() ) {
-			$post_body['post_data']['distributor_raw_content'] = $post->post_content;
+			if ( gutenberg_can_edit_post_type( $post->post_type ) ) {
+				$post_body['post_data']['distributor_raw_content'] = $post->post_content;
+			}
 		}
 
 		$request = wp_remote_post(

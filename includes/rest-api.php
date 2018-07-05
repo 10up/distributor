@@ -40,7 +40,9 @@ function setup() {
 function filter_distributor_content( $prepared_post, $request ) {
 
 	if ( \Distributor\Utils\is_using_gutenberg() && isset( $request['distributor_raw_content'] ) ) {
-		$prepared_post->post_content = $request['distributor_raw_content'];
+		if ( gutenberg_can_edit_post_type( $prepared_post['post_type'] ) ) {
+			$prepared_post->post_content = $request['distributor_raw_content'];
+		}
 	}
 	return $prepared_post;
 }

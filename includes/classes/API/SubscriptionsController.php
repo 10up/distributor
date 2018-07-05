@@ -189,10 +189,12 @@ class SubscriptionsController extends \WP_REST_Controller {
 			// When both sides of a subscription connection support Gutenberg, update with the raw content.
 			$content = $request['post_data']['content'];
 			if ( \Distributor\Utils\is_using_gutenberg() && $request['post_data']['distributor_raw_content'] ) {
-				$content = $request['post_data']['distributor_raw_content'];
+				if( gutenberg_can_edit_post_type( $request['post_data']['post_type'] ) ) {
+					$content = $request['post_data']['distributor_raw_content'];
 
-				// Remove filters that may alter content updates.
-				remove_all_filters( 'content_save_pre' );
+					// Remove filters that may alter content updates.
+					remove_all_filters( 'content_save_pre' );
+				}
 			}
 
 			/**

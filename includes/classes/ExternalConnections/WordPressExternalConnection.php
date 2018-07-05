@@ -452,7 +452,9 @@ class WordPressExternalConnection extends ExternalConnection {
 
 		// Gutenberg posts also distribute raw content.
 		if ( \Distributor\Utils\is_using_gutenberg() ) {
-			$post_body['distributor_raw_content'] = $post->post_content;
+			if ( gutenberg_can_edit_post_type( $post->post_type ) ) {
+				$post_body['distributor_raw_content'] = $post->post_content;
+			}
 		}
 
 		// Map to remote ID if a push has already happened
