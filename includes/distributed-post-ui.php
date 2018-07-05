@@ -64,8 +64,15 @@ function distributed_to( $post ) {
 		return;
 	}
 
-	$total_connections = count( $connection_map['internal'] ) + count( $connection_map['external'] );
+	$total_connections = 0;
 
+	if ( ! empty( $connection_map['internal'] ) )	{
+		$total_connections = $total_connections + count( $connection_map['internal'] );
+	}
+
+	if ( ! empty( $connection_map['external'] ) ) {
+		$total_connections = $total_connections + count( $connection_map['external'] );
+	}
 	?>
 
 	<div class="misc-pub-section curtime misc-pub-curtime">
