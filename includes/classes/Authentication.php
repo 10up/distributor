@@ -17,7 +17,7 @@ use \Distributor\ExternalConnection as ExternalConnection;
  */
 abstract class Authentication {
 
-	static $error_message;
+	static public $error_message;
 
 	/**
 	 * Set associative arguments as instance variables

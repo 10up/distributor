@@ -13,10 +13,14 @@ use \Distributor\Authentication as Authentication;
  * This auth type is simple username/password WP style
  */
 class WordPressBasicAuth extends Authentication {
-	static $slug                 = 'user-pass';
-	static $requires_credentials = true;
-	static $label                = 'Username/Password';
+	public static $slug                 = 'user-pass';
+	public static $requires_credentials = true;
+	public static $label                = 'Username/Password';
 
+	/**
+	 * Setup class
+	 * @param array $args Assoc array of args.
+	 */
 	public function __construct( $args ) {
 		parent::__construct( $args );
 
@@ -35,7 +39,7 @@ class WordPressBasicAuth extends Authentication {
 	 * @param  array $args
 	 * @since  0.8
 	 */
-	static function credentials_form( $args = array() ) {
+	public static function credentials_form( $args = array() ) {
 		if ( empty( $args['username'] ) ) {
 			$args['username'] = '';
 		}
@@ -69,7 +73,7 @@ class WordPressBasicAuth extends Authentication {
 	 * @since  0.8
 	 * @return array
 	 */
-	static function prepare_credentials( $args ) {
+	public static function prepare_credentials( $args ) {
 		$auth = array();
 
 		if ( ! empty( $args['username'] ) ) {

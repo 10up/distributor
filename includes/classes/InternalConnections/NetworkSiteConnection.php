@@ -17,7 +17,7 @@ class NetworkSiteConnection extends Connection {
 
 	public $site;
 
-	static $slug = 'networkblog';
+	static public $slug = 'networkblog';
 
 	/**
 	 * Set up network site connection
@@ -552,7 +552,7 @@ class NetworkSiteConnection extends Connection {
 		$authorized_sites = array();
 
 		$current_blog_id = (int) get_current_blog_id();
-		$current_user = wp_get_current_user();
+		$current_user    = wp_get_current_user();
 
 		foreach ( $sites as $site ) {
 			$blog_id = (int) $site->blog_id;

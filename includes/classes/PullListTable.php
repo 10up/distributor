@@ -107,7 +107,8 @@ class PullListTable extends \WP_List_Table {
 	 */
 	protected function bulk_actions( $which = '' ) {
 		if ( is_null( $this->_actions ) ) {
-			$no_new_actions = $this->_actions = $this->get_bulk_actions();
+			$no_new_actions = $this->get_bulk_actions();
+			$this->_actions = $this->get_bulk_actions();
 			/**
 			 * Filters the list table Bulk Actions drop-down.
 			 *
@@ -179,7 +180,8 @@ class PullListTable extends \WP_List_Table {
 			}
 		} else {
 			if ( '0000-00-00 00:00:00' === $post->post_date ) {
-				$t_time    = $h_time = esc_html__( 'Unpublished', 'distributor' );
+				$t_time    = esc_html__( 'Unpublished', 'distributor' );
+				$h_time    = esc_html__( 'Unpublished', 'distributor' );
 				$time_diff = 0;
 			} else {
 				$t_time = get_the_time( esc_html__( 'Y/m/d g:i:s a', 'distributor' ) );
@@ -261,7 +263,7 @@ class PullListTable extends \WP_List_Table {
 	protected function _column_name( $item, $classes, $data, $primary ) {
 		echo '<td class="' . esc_attr( $classes ) . ' page-title">';
 		$this->column_name( $item );
-		echo $this->handle_row_actions( $item, 'title', $primary );
+		echo wp_kses_post( $this->handle_row_actions( $item, 'title', $primary ) );
 		echo '</td>';
 	}
 
@@ -314,7 +316,7 @@ class PullListTable extends \WP_List_Table {
 		}
 
 		echo '<strong>' . esc_html( $title ) . '</strong>';
-		echo $this->row_actions( $actions );
+		echo wp_kses_post( $this->row_actions( $actions ) );
 	}
 
 	/**

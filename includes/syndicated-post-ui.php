@@ -425,7 +425,7 @@ function syndicated_message( $post ) {
 	<div class="updated syndicate-status">
 		<?php if ( $original_deleted ) : ?>
 			<p>
-				<?php echo wp_kses_post( sprintf( __( 'This %s was distributed from <a href="%2$s">%3$s</a>. However, the original has been deleted.', 'distributor' ), esc_html( strtolower( $post_type_singular ) ), esc_url( $post_url ), esc_html( $original_location_name ) ) ); ?>
+				<?php echo wp_kses_post( sprintf( __( 'This %1$s was distributed from <a href="%2$s">%3$s</a>. However, the original has been deleted.', 'distributor' ), esc_html( strtolower( $post_type_singular ) ), esc_url( $post_url ), esc_html( $original_location_name ) ) ); ?>
 			</p>
 		<?php elseif ( ! $unlinked ) : ?>
 			<p>

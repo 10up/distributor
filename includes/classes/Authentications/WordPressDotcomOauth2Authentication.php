@@ -13,9 +13,9 @@ use \Distributor\Authentication as Authentication;
  * Enables WordPress.com Oauth2 authentication.
  */
 class WordPressDotcomOauth2Authentication extends Authentication {
-	static $slug                 = 'dotcom-oauth2';
-	static $requires_credentials = true;
-	static $label                = 'WordPress.com Oauth2';
+	public static $slug                 = 'dotcom-oauth2';
+	public static $requires_credentials = true;
+	public static $label                = 'WordPress.com Oauth2';
 
 	const REQUEST_TOKEN_URL  = 'https://public-api.wordpress.com/oauth2/token';
 	const AUTHORIZE_URL      = 'https://public-api.wordpress.com/oauth2/authorize';
@@ -35,7 +35,7 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 	 * @param  array $args
 	 * @since  1.1.0
 	 */
-	static function credentials_form( $args = array() ) {
+	public static function credentials_form( $args = array() ) {
 
 		// Check if we need to display the form, or request a token?
 		$code = isset( $_GET['code'] ) ? sanitize_text_field( wp_unslash( $_GET['code'] ) ) : false; // Input var okay. WPCS: CSRF ok.
@@ -135,7 +135,7 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 	 * @param array   $args        The authentication arguments.
 	 * @param boolean $hidden      Should the entire section be hidden?
 	 */
-	static function credentials_partial( $args, $hidden = false ) {
+	public static function credentials_partial( $args, $hidden = false ) {
 
 		/**
 		 * Grab the existing credentials.
@@ -165,7 +165,7 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 	/**
 	 * Helper function extract a single option by key.
 	 */
-	static function get_authentication_option_by_key( $key ) {
+	public static function get_authentication_option_by_key( $key ) {
 		global $post;
 		$external_connection_id = $post ? $post->ID : false;
 
@@ -182,7 +182,7 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 	/**
 	 * Helper function gets all options.
 	 */
-	static function get_authentication_options() {
+	public static function get_authentication_options() {
 		global $post;
 		$external_connection_id = $post ? $post->ID : false;
 		if ( $external_connection_id ) {
@@ -194,7 +194,7 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 	/**
 	 * Helper function to set a single option by key.
 	 */
-	static function set_authentication_option_by_key( $key, $value ) {
+	public static function set_authentication_option_by_key( $key, $value ) {
 		global $post;
 		$external_connection_id = $post ? $post->ID : false;
 
@@ -212,7 +212,7 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 	 * @since  1.1.0
 	 * @return array
 	 */
-	static function prepare_credentials( $args ) {
+	public static function prepare_credentials( $args ) {
 		$auth = array();
 
 		if ( ! empty( $args['client_id'] ) ) {

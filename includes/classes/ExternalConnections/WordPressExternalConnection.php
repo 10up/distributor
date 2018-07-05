@@ -12,12 +12,12 @@ use \Distributor\Utils;
 
 class WordPressExternalConnection extends ExternalConnection {
 
-	static $slug               = 'wp';
-	static $label              = 'WordPress REST API';
-	static $auth_handler_class = '\Distributor\Authentications\WordPressBasicAuth';
-	static $namespace          = 'wp/v2';
+	static public $slug               = 'wp';
+	static public $label              = 'WordPress REST API';
+	static public $auth_handler_class = '\Distributor\Authentications\WordPressBasicAuth';
+	static public $namespace          = 'wp/v2';
 
-	static $timeout = 5;
+	static public $timeout = 5;
 
 	/**
 	 * This is a utility function for parsing annoying API link headers returned by the types endpoint

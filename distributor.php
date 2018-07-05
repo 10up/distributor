@@ -121,6 +121,7 @@ if ( class_exists( 'Puc_v4_Factory' ) ) {
 	}
 
 	if ( $valid_license ) {
+		// @codingStandardsIgnoreStart
 		$updateChecker = Puc_v4_Factory::buildUpdateChecker(
 			'https://github.com/10up/distributor/',
 			__FILE__,
@@ -128,6 +129,7 @@ if ( class_exists( 'Puc_v4_Factory' ) ) {
 		);
 
 		$updateChecker->setBranch( 'master' );
+		// @codingStandardsIgnoreEnd
 	}
 }
 

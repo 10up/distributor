@@ -65,7 +65,7 @@ function distributor_get_original_post_link( $post_id = null ) {
  * @since 1.0
  */
 function distributor_the_original_post_link( $post_id = null ) {
-	echo distributor_get_original_post_link( $post_id );
+	echo esc_url( distributor_get_original_post_link( $post_id ) );
 }
 
 /**
@@ -107,7 +107,7 @@ function distributor_get_original_site_name( $post_id = null ) {
  * @since 1.0
  */
 function distributor_the_original_site_name( $post_id = null ) {
-	echo distributor_get_original_site_name( $post_id );
+	echo esc_html( distributor_get_original_site_name( $post_id ) );
 }
 
 /**
@@ -174,7 +174,7 @@ function distributor_get_original_site_link( $post_id = null ) {
 	 *
 	 * @param string A formatted version of the original site link.
 	 */
-	return apply_filters( 'distributor_get_original_site_link', __( sprintf( 'By <a href="%s">%s</a>', esc_url( $site_url ), esc_html( $site_name ) ), 'distributor' ) );
+	return apply_filters( 'distributor_get_original_site_link', sprintf( __( 'By <a href="%1$s">%2$s</a>', 'distributor' ), esc_url( $site_url ), esc_html( $site_name ) ) );
 }
 
 

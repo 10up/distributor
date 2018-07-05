@@ -53,7 +53,7 @@ abstract class Connection {
 	 *
 	 * @since  0.8
 	 */
-	static function bootstrap() {
+	public static function bootstrap() {
 		// Extend me?
 	}
 }
