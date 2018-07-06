@@ -1,4 +1,9 @@
 <?php
+/**
+ * Subscription REST API endpoint
+ *
+ * @package  distributor
+ */
 
 namespace Distributor\API;
 

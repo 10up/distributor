@@ -1,4 +1,9 @@
 <?php
+/**
+ * REST API functionality
+ *
+ * @package  distributor
+ */
 
 namespace Distributor\RestApi;
 
@@ -28,9 +33,9 @@ function setup() {
 /**
  * When an API push is being received, handle Distributor specific attributes
  *
- * @param WP_Post         $post
- * @param WP_REST_Request $request
- * @param bool            $update
+ * @param WP_Post         $post Post object.
+ * @param WP_REST_Request $request Request object.
+ * @param bool            $update Update or create.
  * @since 1.0
  */
 function process_distributor_attributes( $post, $request, $update ) {
