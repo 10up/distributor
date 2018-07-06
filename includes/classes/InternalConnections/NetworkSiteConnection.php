@@ -92,12 +92,12 @@ class NetworkSiteConnection extends Connection {
 			/**
 			 * Allow plugins to override the default {@see \Distributor\Utils\set_media()} function.
 			 *
-			 * @param bool               true      		If Distributor should set the post media.
-			 * @param int		         $new_post_id 	The newly created post ID.
-			 * @param array              $media    		List of media items attached to the post, formatted by {@see \Distributor\Utils\prepare_media()}.
-			 * @param int                $post_id  		The original post ID.
-			 * @param array              $args     		The arguments passed into wp_insert_post.
-			 * @param ExternalConnection $this     		The distributor connection being pushed to.
+			 * @param bool               true           If Distributor should set the post media.
+			 * @param int                $new_post_id   The newly created post ID.
+			 * @param array              $media         List of media items attached to the post, formatted by {@see \Distributor\Utils\prepare_media()}.
+			 * @param int                $post_id       The original post ID.
+			 * @param array              $args          The arguments passed into wp_insert_post.
+			 * @param ExternalConnection $this          The distributor connection being pushed to.
 			 */
 			if ( apply_filters( 'dt_push_post_media', true, $new_post_id, $media, $post_id, $args, $this ) ) {
 				\Distributor\Utils\set_media( $new_post_id, $media );
@@ -107,10 +107,10 @@ class NetworkSiteConnection extends Connection {
 		/**
 		 * Action triggered when a post is pushed via distributor.
 		 *
-		 * @param int		         $new_post_id   The newly created post ID.
-		 * @param int                $post_id    	The original post ID.
-		 * @param array              $args       	The arguments passed into wp_insert_post.
-		 * @param ExternalConnection $this       	The distributor connection being pushed to.
+		 * @param int                $new_post_id   The newly created post ID.
+		 * @param int                $post_id       The original post ID.
+		 * @param array              $args          The arguments passed into wp_insert_post.
+		 * @param ExternalConnection $this          The distributor connection being pushed to.
 		 */
 		do_action( 'dt_push_post', $new_post_id, $post_id, $args, $this );
 
@@ -211,9 +211,9 @@ class NetworkSiteConnection extends Connection {
 			 *
 			 * @since 1.0
 			 *
-			 * @param int	             $new_post_id   The new post ID that was pulled.
-			 * @param ExternalConnection $this       	The distributor connection pulling the post.
-			 * @param array              $post_array 	The original post data retrieved via the connection.
+			 * @param int                $new_post_id   The new post ID that was pulled.
+			 * @param ExternalConnection $this          The distributor connection pulling the post.
+			 * @param array              $post_array    The original post data retrieved via the connection.
 			 */
 			do_action( 'dt_pull_post', $new_post_id, $this, $post_array );
 
