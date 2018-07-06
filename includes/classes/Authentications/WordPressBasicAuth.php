@@ -19,6 +19,7 @@ class WordPressBasicAuth extends Authentication {
 
 	/**
 	 * Setup class
+	 *
 	 * @param array $args Assoc array of args.
 	 */
 	public function __construct( $args ) {

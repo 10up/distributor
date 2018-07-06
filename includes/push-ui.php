@@ -221,7 +221,7 @@ function ajax_push() {
 /**
  * Enqueue scripts/styles for push
  *
- * @param  string $hook
+ * @param  string $hook WP hook.
  * @since  0.8
  */
 function enqueue_scripts( $hook ) {
@@ -256,7 +256,7 @@ function enqueue_scripts( $hook ) {
 /**
  * Let's setup our distributor menu in the toolbar
  *
- * @param object $wp_admin_bar
+ * @param object $wp_admin_bar Admin bar object.
  * @since  0.8
  */
 function menu_button( $wp_admin_bar ) {

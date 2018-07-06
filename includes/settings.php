@@ -74,7 +74,9 @@ function plugin_update_styles() {
 /**
  * Under plugin row update notice
  *
- * @param  string $plugin_file
+ * @param  string $plugin_file Plugin file path.
+ * @param  string $plugin_data Plugin data.
+ * @param  string $status Plugin status.
  * @since  1.2
  */
 function update_notice( $plugin_file, $plugin_data, $status ) {
@@ -146,7 +148,7 @@ function maybe_notice() {
 /**
  * Enqueue admin scripts/styles for settings
  *
- * @param  string $hook
+ * @param  string $hook WP hook.
  * @since  1.2
  */
 function admin_enqueue_scripts( $hook ) {
@@ -346,6 +348,7 @@ function handle_network_settings() {
 /**
  * Sanitize settings for DB
  *
+ * @param  array $settings Array of settings.
  * @since  1.0
  */
 function sanitize_settings( $settings ) {

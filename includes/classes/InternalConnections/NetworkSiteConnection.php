@@ -9,31 +9,42 @@ namespace Distributor\InternalConnections;
 
 use \Distributor\Connection as Connection;
 use Distributor\Utils;
+use \WP_Site as WP_Site;
 
 /**
  * A network site connection let's you push and pull content within your blog
  */
 class NetworkSiteConnection extends Connection {
 
+	/**
+	 * Current site
+	 *
+	 * @var WP_Site
+	 */
 	public $site;
 
+	/**
+	 * Connection slug
+	 *
+	 * @var string
+	 */
 	static public $slug = 'networkblog';
 
 	/**
 	 * Set up network site connection
 	 *
-	 * @param WP_Site $site
+	 * @param WP_Site $site Site object.
 	 * @since  0.8
 	 */
-	public function __construct( \WP_Site $site ) {
+	public function __construct( WP_Site $site ) {
 		$this->site = $site;
 	}
 
 	/**
 	 * Push post to another internal site
 	 *
-	 * @param  int   $post_id
-	 * @param  array $args
+	 * @param  int   $post_id Post ID.
+	 * @param  array $args Push args.
 	 * @since  0.8
 	 * @return int|WP_Error
 	 */
@@ -128,7 +139,7 @@ class NetworkSiteConnection extends Connection {
 	 * Pull items. Pass array of posts, each post should look like:
 	 * [ 'remote_post_id' => POST ID TO GET, 'post_id' (optional) => POST ID TO MAP TO ]
 	 *
-	 * @param  array $items
+	 * @param  array $items Array of items to pull.
 	 * @since  0.8
 	 * @return array
 	 */
@@ -231,8 +242,7 @@ class NetworkSiteConnection extends Connection {
 	/**
 	 * Log a sync. Unfortunately have to use options
 	 *
-	 * @param  array       $item_id_mappings
-	 * @param  string|bool $status
+	 * @param  array       $item_id_mappings Mapping to log.
 	 * @since  0.8
 	 */
 	public function log_sync( array $item_id_mappings ) {
@@ -263,7 +273,7 @@ class NetworkSiteConnection extends Connection {
 	/**
 	 * Remotely get posts so we can list them for pulling
 	 *
-	 * @param  array $args
+	 * @param  array $args Array of args for getting.
 	 * @since  0.8
 	 * @return array|WP_Post|bool
 	 */
@@ -371,7 +381,7 @@ class NetworkSiteConnection extends Connection {
 	/**
 	 * Mark original post such that this post does not appear distributed
 	 *
-	 * @param  int $post_id
+	 * @param  int $post_id Post ID.
 	 * @since  1.2
 	 */
 	public static function remove_distributor_post_form_original( $post_id ) {
@@ -400,7 +410,7 @@ class NetworkSiteConnection extends Connection {
 	/**
 	 * When an original is deleted, we need to let internal syndicated posts know
 	 *
-	 * @param  int $post_id
+	 * @param  int $post_id Post ID.
 	 * @since 1.0
 	 */
 	public static function separate_syndicated_on_delete( $post_id ) {
@@ -431,7 +441,7 @@ class NetworkSiteConnection extends Connection {
 	/**
 	 * When an original is untrashed, we need to let internal syndicated posts know
 	 *
-	 * @param  int $post_id
+	 * @param  int $post_id Post ID.
 	 * @since 1.0
 	 */
 	public static function connect_syndicated_on_untrash( $post_id ) {
@@ -454,7 +464,7 @@ class NetworkSiteConnection extends Connection {
 	/**
 	 * Update syndicated post when original changes
 	 *
-	 * @param  int $post_id
+	 * @param  int $post_id Post ID.
 	 */
 	public static function update_syndicated( $post_id ) {
 		if ( ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) || wp_is_post_revision( $post_id ) || ! current_user_can( 'edit_post', $post_id ) ) {
@@ -492,8 +502,8 @@ class NetworkSiteConnection extends Connection {
 	 *
 	 * https://core.trac.wordpress.org/browser/tags/4.7.2/src/wp-includes/post.php#L3151
 	 *
-	 * @param array $data
-	 * @param array $postarr
+	 * @param array $data Post data.
+	 * @param array $postarr Post args.
 	 * @since 0.8.1
 	 * @return array
 	 */
@@ -618,7 +628,9 @@ class NetworkSiteConnection extends Connection {
 	/**
 	 * Override author with site name on distributed post
 	 *
-	 * @param  string $author
+	 * @param  string $link Author link
+	 * @param  int $author_id Author id.
+	 * @param  string $author_nicename Author name.
 	 * @since  1.0
 	 * @return string
 	 */
@@ -649,7 +661,7 @@ class NetworkSiteConnection extends Connection {
 	/**
 	 * Override author with site name on distributed post
 	 *
-	 * @param  string $author
+	 * @param  string $author Author name.
 	 * @since  1.0
 	 * @return string
 	 */
@@ -682,8 +694,8 @@ class NetworkSiteConnection extends Connection {
 	/**
 	 * Make sure canonical url header is outputted
 	 *
-	 * @param  string $canonical_url
-	 * @param  object $post
+	 * @param  string $canonical_url Canonical url.
+	 * @param  object $post Post object.
 	 * @since  0.8
 	 * @return string
 	 */
