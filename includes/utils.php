@@ -153,7 +153,7 @@ function distributable_post_types() {
 	 * @since 1.0.0
 	 * @param array Post types that are distributable. Default 'all post types except dt_ext_connection and dt_subscription'.
 	 */
-	return apply_filters( 'distributable_post_types', array_diff( $post_types, [ 'dt_ext_connection', 'dt_subscription' ] ) );
+	return apply_filters( 'dt_distributable_post_types', array_diff( $post_types, [ 'dt_ext_connection', 'dt_subscription' ] ) );
 }
 
 /**
