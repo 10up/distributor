@@ -13,9 +13,26 @@ use \Distributor\Authentication as Authentication;
  * Enables WordPress.com Oauth2 authentication.
  */
 class WordPressDotcomOauth2Authentication extends Authentication {
-	public static $slug                 = 'dotcom-oauth2';
+	/**
+	 * Auth handler slug
+	 *
+	 * @var string
+	 */
+	public static $slug = 'dotcom-oauth2';
+
+	/**
+	 * Does the auth handler require creds
+	 *
+	 * @var boolean
+	 */
 	public static $requires_credentials = true;
-	public static $label                = 'WordPress.com Oauth2';
+
+	/**
+	 * Auth hanlder pretty label
+	 *
+	 * @var string
+	 */
+	public static $label = 'WordPress.com Oauth2';
 
 	const REQUEST_TOKEN_URL  = 'https://public-api.wordpress.com/oauth2/token';
 	const AUTHORIZE_URL      = 'https://public-api.wordpress.com/oauth2/authorize';
@@ -25,14 +42,10 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 	const API_CLIENT_SECRET  = 'rest_api_client_secret';
 	const API_REDIRECT_URI   = 'rest_api_redirect_uri';
 
-	public function __construct( $args ) {
-		parent::__construct( $args );
-	}
-
 	/**
 	 * Output the credentials form.
 	 *
-	 * @param  array $args
+	 * @param  array $args Array of creds.
 	 * @since  1.1.0
 	 */
 	public static function credentials_form( $args = array() ) {
@@ -164,6 +177,10 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 
 	/**
 	 * Helper function extract a single option by key.
+	 *
+	 * @param  string $key Key to get.
+	 * @since  1.2
+	 * @return  bool|string
 	 */
 	public static function get_authentication_option_by_key( $key ) {
 		global $post;
@@ -181,6 +198,9 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 
 	/**
 	 * Helper function gets all options.
+	 *
+	 * @since  1.2
+	 * @return  bool|string
 	 */
 	public static function get_authentication_options() {
 		global $post;
@@ -193,6 +213,10 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 
 	/**
 	 * Helper function to set a single option by key.
+	 *
+	 * @param  string $key Key to set.
+	 * @param  string $value Value to set.
+	 * @since  1.2
 	 */
 	public static function set_authentication_option_by_key( $key, $value ) {
 		global $post;
@@ -208,7 +232,7 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 	/**
 	 * Prepare credentials saving.
 	 *
-	 * @param  array $args
+	 * @param  array $args Array of creds.
 	 * @since  1.1.0
 	 * @return array
 	 */
@@ -243,8 +267,8 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 	 *
 	 * If the credentials are new, start the authorization process.
 	 *
-	 * @param int   $external_connection_id
-	 * @param array $args
+	 * @param int   $external_connection_id External connection ID.
+	 * @param array $args Array of creds to store.
 	 * @since 1.1.0
 	 */
 	public static function store_credentials( $external_connection_id, $args ) {
@@ -280,8 +304,8 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 	/**
 	 * Add the Bearer: {Token} authorization header for get requests.
 	 *
-	 * @param  array $args
-	 * @param  array $context
+	 * @param  array $args Array of creds to format.
+	 * @param  array $context Current context.
 	 * @since  1.1.0
 	 * @return array
 	 */
@@ -302,8 +326,8 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 	/**
 	 * Add the Bearer: {Token} authorization header for post requests.
 	 *
-	 * @param  array $args
-	 * @param  array $context
+	 * @param  array $args Array of creds to format.
+	 * @param  array $context Current context.
 	 * @since  1.1.0
 	 * @return array
 	 */
@@ -323,6 +347,7 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 	/**
 	 * Authorize the request using the code and secret key. If successful, save the access token.
 	 *
+	 * @param  string $code Code used to fetch access token.
 	 * @since 1.1.0
 	 */
 	public static function fetch_access_token( $code ) {
@@ -392,7 +417,9 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 	/**
 	 * Begin the authorization process which retrieves an authorization code.
 	 *
+	 * @param  array $options Array of options.
 	 * @since 1.1.0
+	 * @return  bool|string
 	 */
 	public static function get_authorization_code( $options ) {
 		$client_id    = $options[ self::API_CLIENT_ID ];
@@ -438,7 +465,7 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 	 * Check if the saved token is valid or not.
 	 *
 	 * @since 1.1.0
-	 *
+	 * @param  int $count Count.
 	 * @return boolean Is the token valid?
 	 */
 	public static function is_valid_token( $count = 1 ) {

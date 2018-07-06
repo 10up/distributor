@@ -7,6 +7,9 @@
 
 namespace Distributor\API;
 
+/**
+ * Subscription controller REST API class
+ */
 class SubscriptionsController extends \WP_REST_Controller {
 
 	/**
@@ -263,7 +266,7 @@ class SubscriptionsController extends \WP_REST_Controller {
 	/**
 	 * Helper function to build response array for a subscription
 	 *
-	 * @param  int $post_id
+	 * @param  int $post_id Post ID.
 	 * @since  1.0
 	 */
 	protected function get_response_array( $post_id ) {

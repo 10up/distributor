@@ -12,6 +12,11 @@ namespace Distributor;
  */
 class Connections {
 
+	/**
+	 * Array of connections
+	 *
+	 * @var array
+	 */
 	public $connections = array();
 
 	/**
@@ -24,7 +29,7 @@ class Connections {
 	/**
 	 * Register a connection class for use
 	 *
-	 * @param  string $class_name
+	 * @param  string $class_name Class name to register.
 	 * @since  0.8
 	 */
 	public function register( $class_name ) {

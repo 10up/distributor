@@ -249,7 +249,7 @@ class NetworkSiteConnection extends Connection {
 	/**
 	 * Log a sync. Unfortunately have to use options
 	 *
-	 * @param  array       $item_id_mappings Mapping to log.
+	 * @param  array $item_id_mappings Mapping to log.
 	 * @since  0.8
 	 */
 	public function log_sync( array $item_id_mappings ) {
@@ -636,7 +636,7 @@ class NetworkSiteConnection extends Connection {
 	 * Override author with site name on distributed post
 	 *
 	 * @param  string $link Author link
-	 * @param  int $author_id Author id.
+	 * @param  int    $author_id Author id.
 	 * @param  string $author_nicename Author name.
 	 * @since  1.0
 	 * @return string
