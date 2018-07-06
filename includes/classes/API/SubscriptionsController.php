@@ -194,6 +194,17 @@ class SubscriptionsController extends \WP_REST_Controller {
 				return new \WP_Error( 'rest_post_no_data', esc_html__( 'No post data for update.', 'distributor' ), array( 'status' => 400 ) );
 			}
 
+			// When both sides of a subscription connection support Gutenberg, update with the raw content.
+			$content = $request['post_data']['content'];
+			if ( \Distributor\Utils\is_using_gutenberg() && $request['post_data']['distributor_raw_content'] ) {
+				if( gutenberg_can_edit_post_type( $request['post_data']['post_type'] ) ) {
+					$content = $request['post_data']['distributor_raw_content'];
+
+					// Remove filters that may alter content updates.
+					remove_all_filters( 'content_save_pre' );
+				}
+			}
+
 			/**
 			 * We save the update in meta in case the post is unlinked. If the post is re-linked, we'll
 			 * apply the update
@@ -201,7 +212,7 @@ class SubscriptionsController extends \WP_REST_Controller {
 			$update = [
 				'post_title'   => sanitize_text_field( $request['post_data']['title'] ),
 				'post_name'    => sanitize_text_field( $request['post_data']['slug'] ),
-				'post_content' => wp_kses_post( $request['post_data']['content'] ),
+				'post_content' => wp_kses_post( $content ),
 				'post_excerpt' => wp_kses_post( $request['post_data']['excerpt'] ),
 				// Todo: how do we properly sanitize this?
 				'meta'         => ( isset( $request['post_data']['distributor_meta'] ) ) ? $request['post_data']['distributor_meta'] : [],
@@ -224,7 +235,7 @@ class SubscriptionsController extends \WP_REST_Controller {
 				[
 					'ID'           => $request['post_id'],
 					'post_title'   => $request['post_data']['title'],
-					'post_content' => $request['post_data']['content'],
+					'post_content' => $content,
 					'post_excerpt' => $request['post_data']['excerpt'],
 					'post_name'    => $request['post_data']['slug'],
 				]

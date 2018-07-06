@@ -52,6 +52,7 @@ class NetworkSiteConnection extends Connection {
 		$post              = get_post( $post_id );
 		$original_blog_id  = get_current_blog_id();
 		$original_post_url = get_permalink( $post_id );
+		$using_gutenberg   = \Distributor\Utils\is_using_gutenberg();
 
 		$new_post_args = array(
 			'post_title'   => get_the_title( $post_id ),
@@ -69,6 +70,12 @@ class NetworkSiteConnection extends Connection {
 		$meta  = \Distributor\Utils\prepare_meta( $post_id );
 
 		switch_to_blog( $this->site->blog_id );
+
+		// Distribute raw HTML when going from Gutenberg enabled to Gutenberg enabled.
+		$remote_using_gutenberg = \Distributor\Utils\is_using_gutenberg();
+		if ( $using_gutenberg && $remote_using_gutenberg ) {
+			$new_post_args['post_content'] = $post->post_content;
+		}
 
 		// Handle existing posts.
 		if ( ! empty( $args['remote_post_id'] ) && get_post( $args['remote_post_id'] ) ) {

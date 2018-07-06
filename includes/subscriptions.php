@@ -254,22 +254,40 @@ function send_notifications( $post_id ) {
 			continue;
 		}
 
+		$post_body = [
+			'post_id'   => $remote_post_id,
+			'signature' => $signature,
+			'post_data' => [
+				'title'             => get_the_title( $post_id ),
+				'slug'              => $post->post_name,
+				'post_type'         => $post->post_type,
+				'content'           => apply_filters( 'the_content', $post->post_content ),
+				'excerpt'           => $post->post_excerpt,
+				'distributor_media' => \Distributor\Utils\prepare_media( $post_id ),
+				'distributor_terms' => \Distributor\Utils\prepare_taxonomy_terms( $post_id ),
+				'distributor_meta'  => \Distributor\Utils\prepare_meta( $post_id ),
+			],
+		];
+		if ( \Distributor\Utils\is_using_gutenberg() ) {
+			if ( gutenberg_can_edit_post_type( $post->post_type ) ) {
+				$post_body['post_data']['distributor_raw_content'] = $post->post_content;
+			}
+		}
+
 		$request = wp_remote_post(
 			untrailingslashit( $target_url ) . '/wp/v2/dt_subscription/receive', [
 				'timeout' => 5,
-				'body'    => [
-					'post_id'   => $remote_post_id,
-					'signature' => $signature,
-					'post_data' => [
-						'title'             => get_the_title( $post_id ),
-						'slug'              => $post->post_name,
-						'content'           => apply_filters( 'the_content', $post->post_content ),
-						'excerpt'           => $post->post_excerpt,
-						'distributor_media' => \Distributor\Utils\prepare_media( $post_id ),
-						'distributor_terms' => \Distributor\Utils\prepare_taxonomy_terms( $post_id ),
-						'distributor_meta'  => \Distributor\Utils\prepare_meta( $post_id ),
-					],
-				],
+				/**
+				 * Filter the arguments sent to the remote server during a subscription update.
+				 *
+				 * @since 1.3.0
+				 *
+				 * @param  array  $post_body The request body to send.
+				 * @param  object $post      The WP_Post that is being pushed.
+				 *
+				 *
+				 */
+				'body'    => apply_filters( 'dt_subscription_post_args', $post_body, $post ),
 			]
 		);
 
