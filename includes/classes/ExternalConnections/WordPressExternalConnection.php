@@ -346,7 +346,7 @@ class WordPressExternalConnection extends ExternalConnection {
 			} else {
 				unset( $post_array['ID'] );
 			}
-			
+
 			if ( isset( $post_array['post_parent'] ) ) {
 				unset( $post_array['post_parent'] );
 			}
