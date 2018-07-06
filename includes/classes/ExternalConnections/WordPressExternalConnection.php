@@ -10,19 +10,50 @@ namespace Distributor\ExternalConnections;
 use \Distributor\ExternalConnection as ExternalConnection;
 use \Distributor\Utils;
 
+/**
+ * Class handling WP external connections
+ */
 class WordPressExternalConnection extends ExternalConnection {
 
-	static public $slug               = 'wp';
-	static public $label              = 'WordPress REST API';
-	static public $auth_handler_class = '\Distributor\Authentications\WordPressBasicAuth';
-	static public $namespace          = 'wp/v2';
+	/**
+	 * Connection slug
+	 *
+	 * @var string
+	 */
+	static public $slug = 'wp';
 
+	/**
+	 * Connection pretty label
+	 *
+	 * @var string
+	 */
+	static public $label = 'WordPress REST API';
+
+	/**
+	 * Auth handler to use
+	 *
+	 * @var string
+	 */
+	static public $auth_handler_class = '\Distributor\Authentications\WordPressBasicAuth';
+
+	/**
+	 * REST API namespace
+	 *
+	 * @var string
+	 */
+	static public $namespace = 'wp/v2';
+
+	/**
+	 * Remote request timeout
+	 *
+	 * @var integer
+	 */
 	static public $timeout = 5;
 
 	/**
 	 * This is a utility function for parsing annoying API link headers returned by the types endpoint
 	 *
-	 * @param  array $type
+	 * @param  array $type Types array.
 	 * @since  0.8
 	 * @return string|bool
 	 */
@@ -51,7 +82,7 @@ class WordPressExternalConnection extends ExternalConnection {
 	/**
 	 * Remotely get posts
 	 *
-	 * @param  array $args
+	 * @param  array $args Remote get args.
 	 * @since  0.8
 	 * @return array|\WP_Post|\WP_Error
 	 */
@@ -288,7 +319,7 @@ class WordPressExternalConnection extends ExternalConnection {
 	 * Pull items. Pass array of posts, each post should look like:
 	 * [ 'remote_post_id' => POST ID TO GET, 'post_id' (optional) => POST ID TO MAP TO ]
 	 *
-	 * @param  array $items
+	 * @param  array $items Posts to pull.
 	 * @since  0.8
 	 * @return array
 	 */
@@ -377,8 +408,8 @@ class WordPressExternalConnection extends ExternalConnection {
 	/**
 	 * Push a post to an external connection
 	 *
-	 * @param  int   $post_id
-	 * @param  array $args
+	 * @param  int   $post_id Post id
+	 * @param  array $args Post args to push.
 	 * @since  0.8
 	 * @return bool|\WP_Error
 	 */
@@ -696,9 +727,9 @@ class WordPressExternalConnection extends ExternalConnection {
 	}
 
 	/**
-	 * Convert object to WP_Post
+	 * Convert array to WP_Post
 	 *
-	 * @param  array
+	 * @param  array $post Post as array.
 	 * @since  0.8
 	 * @return \WP_Post
 	 */
@@ -771,7 +802,9 @@ class WordPressExternalConnection extends ExternalConnection {
 	/**
 	 * Override author with site name on distributed post
 	 *
-	 * @param  string $author
+	 * @param  string $link Author link.
+	 * @param  int    $author_id Author ID.
+	 * @param  string $author_nicename Author name.
 	 * @since  1.0
 	 * @return string
 	 */
@@ -802,7 +835,7 @@ class WordPressExternalConnection extends ExternalConnection {
 	/**
 	 * Override author with site name on distributed post
 	 *
-	 * @param  string $author
+	 * @param  string $author Author name.
 	 * @since  1.0
 	 * @return string
 	 */
@@ -834,8 +867,8 @@ class WordPressExternalConnection extends ExternalConnection {
 	/**
 	 * Make sure canonical url header is outputted
 	 *
-	 * @param  string $canonical_url
-	 * @param  object $post
+	 * @param  string $canonical_url Canonical URL.
+	 * @param  object $post Post object.
 	 * @since  1.0
 	 * @return string
 	 */
