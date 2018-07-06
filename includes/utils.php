@@ -149,6 +149,24 @@ function distributable_post_types() {
 	return apply_filters( 'distributable_post_types', array_diff( $post_types, [ 'dt_ext_connection', 'dt_subscription' ] ) );
 }
 
+/**
+ * Return post statuses that are allowed to be distributed.
+ *
+ * @since  1.0
+ * @return array
+ */
+function distributable_post_statuses() {
+
+	/**
+	 * Filter the post statuses that are allowed to be distributed.
+	 *
+	 * By default only published posts can be distributed.
+	 *
+	 * @param array Post statuses.
+	 */
+	return apply_filters( 'dt_distributable_post_statuses', array( 'publish' ) );
+}
+
 function blacklisted_meta() {
 	/**
 	 * Filter meta keys that are blacklisted.
