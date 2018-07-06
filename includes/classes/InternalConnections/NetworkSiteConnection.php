@@ -545,7 +545,7 @@ class NetworkSiteConnection extends Connection {
 		}
 		
 		/**
-		 * Allow plugins to whitelist an array of sites before get_sites() is called
+		 * Allow plugins to override the default {@see \Distributor\InternalConnections\get_available_authorized_sites()} function.
 		 *
 		 * @since 1.2
 		 *
