@@ -20,7 +20,6 @@ function setup() {
 	);
 }
 
-
 /**
  * Check if post is syndicatable
  *
@@ -32,15 +31,9 @@ function syndicatable() {
 		return false;
 	}
 
-	// Only published posts can be distributed.
-	/**
-	 * Filter whether drafts are distributable.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @param bool false Whether drafts can be distributed.
-	 */
-	if ( 'publish' !== get_post_status() && ! apply_filters( 'dt_drafts_can_be_distributed', false ) ) {
+	global $post;
+
+	if ( ! in_array( $post->post_status, \Distributor\Utils\distributable_post_statuses(), true ) ) {
 		return false;
 	}
 
@@ -56,10 +49,6 @@ function syndicatable() {
 		}
 	} else {
 		if ( ! is_single() ) {
-			return false;
-		}
-
-		if ( ! in_array( get_post_type(), \Distributor\Utils\distributable_post_types(), true ) ) {
 			return false;
 		}
 	}
