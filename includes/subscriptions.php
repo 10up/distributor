@@ -1,6 +1,13 @@
 <?php
+/**
+ * Subscription functionality
+ *
+ * @package  distributor
+ */
 
 namespace Distributor\Subscriptions;
+
+use Distributor\ExternalConnection as ExternalConnection;
 
 /**
  * Setup actions and filters
@@ -20,10 +27,10 @@ function setup() {
 /**
  * Create a subscription locally for a post.
  *
- * @param  int    $post_id
- * @param  int    $remote_post_id
- * @param  string $target_url
- * @param  string $signature
+ * @param  int    $post_id Post ID.
+ * @param  int    $remote_post_id Remote post ID.
+ * @param  string $target_url Target URL.
+ * @param  string $signature Auth signature.
  * @since  1.0
  * @return int|WP_Error
  */
@@ -73,12 +80,12 @@ function generate_signature() {
  * Create a remote subscription for a post. This is done by sending an HTTP request to the original
  * post's site
  *
- * @param ExternalConnection $connection
- * @param int                $remote_post_id
- * @param int                $post_id
+ * @param ExternalConnection $connection External connection object.
+ * @param int                $remote_post_id Remote post ID.
+ * @param int                $post_id Post ID.
  * @since 1.0
  */
-function create_remote_subscription( \Distributor\ExternalConnection $connection, $remote_post_id, $post_id ) {
+function create_remote_subscription( ExternalConnection $connection, $remote_post_id, $post_id ) {
 
 	/**
 	 * What is a signature? Why do we need it?
@@ -121,11 +128,12 @@ function create_remote_subscription( \Distributor\ExternalConnection $connection
 /**
  * Delete a remote subscription by sending an HTTP request to the dt_subscription/delete endpoint
  *
- * @param  int $remote_post_id
- * @param  int $post_id
+ * @param ExternalConnection $connection External connection object.
+ * @param  int                $remote_post_id Remote post ID.
+ * @param  int                $post_id Post ID.
  * @since 1.0
  */
-function delete_remote_subscription( \Distributor\ExternalConnection $connection, $remote_post_id, $post_id ) {
+function delete_remote_subscription( ExternalConnection $connection, $remote_post_id, $post_id ) {
 	$signature = get_post_meta( $post_id, 'dt_subscription_signature', true );
 
 	$post_body = [
@@ -149,8 +157,8 @@ function delete_remote_subscription( \Distributor\ExternalConnection $connection
 /**
  * Delete a local subscription for a post given a signature
  *
- * @param int    $post_id
- * @param string $signature
+ * @param int    $post_id Post ID.
+ * @param string $signature Auth signature.
  * @since 1.0
  */
 function delete_subscription( $post_id, $signature ) {
@@ -168,7 +176,7 @@ function delete_subscription( $post_id, $signature ) {
 /**
  * Delete subscriptions, both remotely and locally
  *
- * @param int $post_id
+ * @param int $post_id Post ID.
  * @since 1.0
  */
 function delete_subscriptions( $post_id ) {
@@ -219,7 +227,7 @@ function delete_subscriptions( $post_id ) {
 /**
  * Send notifications on post update to each subscription for that post
  *
- * @param  int $post_id
+ * @param  int $post_id Post ID.
  * @since  1.0
  */
 function send_notifications( $post_id ) {

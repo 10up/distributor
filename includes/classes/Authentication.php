@@ -1,4 +1,9 @@
 <?php
+/**
+ * Authentication base class
+ *
+ * @package  distributor
+ */
 
 namespace Distributor;
 
@@ -12,7 +17,7 @@ use \Distributor\ExternalConnection as ExternalConnection;
  */
 abstract class Authentication {
 
-	static $error_message;
+	static public $error_message;
 
 	/**
 	 * Set associative arguments as instance variables
@@ -104,7 +109,7 @@ abstract class Authentication {
 		self::$error_message = $error_message;
 		add_action(
 			'auth_admin_notices', function() {
-			?>
+				?>
 		<div class="notice notice-error is-dismissible">
 			<p>
 				<strong>
@@ -112,7 +117,7 @@ abstract class Authentication {
 				</strong> <?php echo esc_html( self::$error_message ); ?>
 			</p>
 		</div>
-		<?php
+				<?php
 			}
 		);
 		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {

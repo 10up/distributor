@@ -1,4 +1,9 @@
 <?php
+/**
+ * Connection base class
+ *
+ * @package  distributor
+ */
 
 namespace Distributor;
 
@@ -48,7 +53,7 @@ abstract class Connection {
 	 *
 	 * @since  0.8
 	 */
-	static function bootstrap() {
+	public static function bootstrap() {
 		// Extend me?
 	}
 }

@@ -1,4 +1,9 @@
 <?php
+/**
+ * Distributed post UI
+ *
+ * @package  distributor
+ */
 
 namespace Distributor\DistributedPostUI;
 
@@ -54,7 +59,7 @@ function add_help_tab() {
 /**
  * Output distributed to number
  *
- * @param  WP_Post $post
+ * @param  WP_Post $post Post object.
  * @since  0.8
  */
 function distributed_to( $post ) {
@@ -64,8 +69,15 @@ function distributed_to( $post ) {
 		return;
 	}
 
-	$total_connections = count( $connection_map['internal'] ) + count( $connection_map['external'] );
+	$total_connections = 0;
 
+	if ( ! empty( $connection_map['internal'] ) ) {
+		$total_connections = $total_connections + count( $connection_map['internal'] );
+	}
+
+	if ( ! empty( $connection_map['external'] ) ) {
+		$total_connections = $total_connections + count( $connection_map['external'] );
+	}
 	?>
 
 	<div class="misc-pub-section curtime misc-pub-curtime">
@@ -82,7 +94,7 @@ function distributed_to( $post ) {
 /**
  * Enqueue admin scripts/styles for post.php
  *
- * @param  string $hook
+ * @param  string $hook WP hook.
  * @since  0.8
  */
 function enqueue_post_scripts_styles( $hook ) {

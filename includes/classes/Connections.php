@@ -1,4 +1,9 @@
 <?php
+/**
+ * Store connections
+ *
+ * @package  distributor
+ */
 
 namespace Distributor;
 

@@ -1,4 +1,9 @@
 <?php
+/**
+ * Admin list table for external connections
+ *
+ * @package  distributor
+ */
 
 namespace Distributor;
 
