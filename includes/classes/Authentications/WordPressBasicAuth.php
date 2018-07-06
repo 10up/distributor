@@ -13,12 +13,30 @@ use \Distributor\Authentication as Authentication;
  * This auth type is simple username/password WP style
  */
 class WordPressBasicAuth extends Authentication {
-	public static $slug                 = 'user-pass';
+	/**
+	 * Auth handler slug
+	 *
+	 * @var string
+	 */
+	public static $slug = 'user-pass';
+
+	/**
+	 * Does auth require creds or not
+	 *
+	 * @var boolean
+	 */
 	public static $requires_credentials = true;
-	public static $label                = 'Username/Password';
+
+	/**
+	 * Pretty auth label to use
+	 *
+	 * @var string
+	 */
+	public static $label = 'Username/Password';
 
 	/**
 	 * Setup class
+	 *
 	 * @param array $args Assoc array of args.
 	 */
 	public function __construct( $args ) {
@@ -36,7 +54,7 @@ class WordPressBasicAuth extends Authentication {
 	/**
 	 * Output credentials form for this auth type
 	 *
-	 * @param  array $args
+	 * @param  array $args Array of args.
 	 * @since  0.8
 	 */
 	public static function credentials_form( $args = array() ) {
@@ -69,7 +87,7 @@ class WordPressBasicAuth extends Authentication {
 	/**
 	 * Prepare credentials for this auth type
 	 *
-	 * @param  array $args
+	 * @param  array $args Creds to prepare.
 	 * @since  0.8
 	 * @return array
 	 */
@@ -103,8 +121,8 @@ class WordPressBasicAuth extends Authentication {
 	/**
 	 * Add basic auth headers to get args
 	 *
-	 * @param  array $args
-	 * @param  array $context
+	 * @param  array $args Args to format.
+	 * @param  array $context Current context.
 	 * @since  0.8
 	 * @return array
 	 */
@@ -123,8 +141,8 @@ class WordPressBasicAuth extends Authentication {
 	/**
 	 * Add basic auth headers to post args
 	 *
-	 * @param  array $args
-	 * @param  array $context
+	 * @param  array $args Args to format.
+	 * @param  array $context Current context.
 	 * @since  0.8
 	 * @return array
 	 */

@@ -25,17 +25,39 @@ function setup() {
 
 			foreach ( $post_types as $post_type ) {
 				add_action( "rest_insert_{$post_type}", __NAMESPACE__ . '\process_distributor_attributes', 10, 3 );
+				add_filter( "rest_pre_insert_{$post_type}", __NAMESPACE__ . '\filter_distributor_content', 1, 2 );
 			}
 		}, 100
 	);
 }
 
 /**
+ * Filter the data inserted by the REST API when a post is pushed.
+ *
+ * Use the raw content for Gutenberg->Gutenberg posts. Note: `distributor_raw_content`
+ * is only sent when the origin supports Gutenberg.
+ *
+ * @param stdClass        $prepared_post An object representing a single post prepared.
+ * @param WP_REST_Request $request       Request object.
+ *
+ * @return stdClass $prepared_post The filtered post object.
+ */
+function filter_distributor_content( $prepared_post, $request ) {
+
+	if ( \Distributor\Utils\is_using_gutenberg() && isset( $request['distributor_raw_content'] ) ) {
+		if ( gutenberg_can_edit_post_type( $prepared_post['post_type'] ) ) {
+			$prepared_post->post_content = $request['distributor_raw_content'];
+		}
+	}
+	return $prepared_post;
+}
+
+/**
  * When an API push is being received, handle Distributor specific attributes
  *
- * @param WP_Post         $post
- * @param WP_REST_Request $request
- * @param bool            $update
+ * @param WP_Post         $post Post object.
+ * @param WP_REST_Request $request Request object.
+ * @param bool            $update Update or create.
  * @since 1.0
  */
 function process_distributor_attributes( $post, $request, $update ) {

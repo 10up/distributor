@@ -7,6 +7,9 @@
 
 namespace Distributor;
 
+/**
+ * List table class for pull screen
+ */
 class PullListTable extends \WP_List_Table {
 
 	/**
@@ -220,8 +223,8 @@ class PullListTable extends \WP_List_Table {
 	/**
 	 * Output standard table columns (not name)
 	 *
-	 * @param  array  $item
-	 * @param  string $column_name
+	 * @param  array  $item Item to output.
+	 * @param  string $column_name Column name.
 	 * @since  0.8
 	 */
 	public function column_default( $item, $column_name ) {
@@ -253,12 +256,10 @@ class PullListTable extends \WP_List_Table {
 	 * Output name column wrapper
 	 *
 	 * @since 4.3.0
-	 * @access protected
-	 *
-	 * @param WP_Post $post
-	 * @param string  $classes
-	 * @param string  $data
-	 * @param string  $primary
+	 * @param WP_Post $item Post object.
+	 * @param string  $classes CSS classes.
+	 * @param string  $data Column data.
+	 * @param string  $primary Whether primary or not.
 	 */
 	protected function _column_name( $item, $classes, $data, $primary ) {
 		echo '<td class="' . esc_attr( $classes ) . ' page-title">';
@@ -270,7 +271,7 @@ class PullListTable extends \WP_List_Table {
 	/**
 	 * Output inner name column with actions
 	 *
-	 * @param  WP_Post $item
+	 * @param  WP_Post $item Post object.
 	 * @since  0.8
 	 */
 	public function column_name( $item ) {
@@ -424,8 +425,6 @@ class PullListTable extends \WP_List_Table {
 	 * Handles the checkbox column output.
 	 *
 	 * @since 4.3.0
-	 * @access public
-	 *
 	 * @param WP_Post $post The current WP_Post object.
 	 */
 	public function column_cb( $post ) {
@@ -464,7 +463,7 @@ class PullListTable extends \WP_List_Table {
 	/**
 	 * Adds a hook after the bulk actions dropdown above and below the list table
 	 *
-	 * @param string $which
+	 * @param string $which Whether above or below the table.
 	 */
 	public function extra_tablenav( $which ) {
 		/**

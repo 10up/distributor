@@ -39,7 +39,7 @@ function setup() {
  * Add status column to post table to indicate a connections status
  *
  * @since  1.0
- * @param  array $columns
+ * @param  array $columns Admin columns.
  * @return array
  */
 function add_status_column( $columns ) {
@@ -54,8 +54,8 @@ function add_status_column( $columns ) {
 /**
  * Output status column
  *
- * @param  string $column_name
- * @param  int    $post_id
+ * @param  string $column_name Column name.
+ * @param  int    $post_id Post ID.
  * @since  1.0
  */
 function output_status_column( $column_name, $post_id ) {
@@ -133,9 +133,9 @@ function ajax_begin_authorization() {
 /**
  * Set screen option for posts per page
  *
- * @param  string $status
- * @param  string $option
- * @param  mixed  $value
+ * @param  string $status Option status.
+ * @param  string $option Option.
+ * @param  mixed  $value Option value.
  * @since  0.8
  * @return mixed
  */
@@ -184,7 +184,7 @@ function setup_list_table() {
 /**
  * Add url column to posts table
  *
- * @param  array $columns
+ * @param  array $columns Admin columns.
  * @since  0.8
  * @return array
  */
@@ -198,8 +198,8 @@ function filter_columns( $columns ) {
 /**
  * Output url column
  *
- * @param  string $column
- * @param  int    $post_id
+ * @param  string $column Column name.
+ * @param  int    $post_id Post ID.
  * @since  0.8
  */
 function action_custom_columns( $column, $post_id ) {
@@ -258,7 +258,7 @@ function ajax_verify_external_connection() {
 /**
  * Enqueue admin scripts for external connection editor
  *
- * @param  string $hook
+ * @param  string $hook WP hook.
  * @since  0.8
  */
 function admin_enqueue_scripts( $hook ) {
@@ -297,8 +297,8 @@ function admin_enqueue_scripts( $hook ) {
 /**
  * Change title text box label
  *
- * @param  string $label
- * @param  int    $post
+ * @param  string $label Title text.
+ * @param  int    $post Post object.
  * @since  0.8
  * @return string
  */
@@ -313,7 +313,7 @@ function filter_enter_title_here( $label, $post = 0 ) {
 /**
  * Save external connection stuff
  *
- * @param int $post_id
+ * @param int $post_id Post ID.
  * @since 0.8
  */
 function save_post( $post_id ) {
@@ -396,7 +396,7 @@ function add_meta_boxes() {
  * Output connection options meta box
  *
  * @since 0.8
- * @param $post
+ * @param WP_Post $post Post object.
  */
 function meta_box_external_connection_details( $post ) {
 	wp_nonce_field( 'dt_external_connection_details_action', 'dt_external_connection_details' );
@@ -649,7 +649,7 @@ function setup_cpt() {
 /**
  * Filter CPT messages
  *
- * @param  array $messages
+ * @param  array $messages Messages array.
  * @since  0.8
  * @return array
  */

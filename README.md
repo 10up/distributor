@@ -1,4 +1,4 @@
-Distributor [![Build Status](https://travis-ci.org/10up/distributor.svg?branch=master)](https://travis-ci.org/10up/distributor)
+Distributor [![Build Status](https://travis-ci.org/10up/distributor.svg?branch=master)](https://travis-ci.org/10up/distributor) [Download Latest Stable Version](https://github.com/10up/distributor/archive/stable.zip)
 =============
 <img alt="distributor icon" src="https://github.com/10up/distributor/blob/master/assets/img/icon.svg" height="45" width="45" align="left"> Distributor is a WordPress plugin that makes it easy to syndicate and reuse content across your websites — whether in a single multisite or across the web.
 
@@ -7,6 +7,8 @@ Distributor [![Build Status](https://travis-ci.org/10up/distributor.svg?branch=m
 <a href="http://distributorplugin.com/"><img src="https://distributorplugin.com/wp-content/themes/distributor-theme/assets/img/push-screenshot.jpg" alt="Push the content you’re editing or viewing to any of your other sites from the admin bar" width="600"></a>
 
 <a href="http://distributorplugin.com/"><img alt="Distributor intuitively presents the origin and status of any reused content" class="browser-frame" src="https://distributorplugin.com/wp-content/themes/distributor-theme/assets/img/syndicated-screenshot.jpg" width="600"></a>
+
+_Note:_ The latest stable version of the plugin is the _stable_ branch. [Download the stable branch]((https://github.com/10up/distributor/archive/stable.zip)) if you are intending to use the plugin in production.
 
 ## Requirements
 
@@ -50,6 +52,8 @@ __Post Meta Associations__ - A distributed post includes all of the post meta fr
 __Deleting Distributed Posts__ - When a post that has been distributed is deleted, the distributed copies will become unlinked ("forked") from the original and thus become editable. Similarly, when a distributed post is unpublished, distributed copies will not be unpublished. More sophisticated "removal" workflow is on the road map for a future update.
 
 __Gutenberg Block Mismatch__ - When distributing a Gutenberg post to another site that supports Gutenberg, if a block in the post does not exist on the receiving site, the block will be converted to a "Classic" HTML block.
+
+__Parent Posts__ - Distributor does not "bring along" parent (or child posts). If your post (or custom post type) has a parent or a child, it will distribute it as if it's an orphan.
 
 ## Changelog
 

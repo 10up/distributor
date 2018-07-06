@@ -17,12 +17,17 @@ use \Distributor\ExternalConnection as ExternalConnection;
  */
 abstract class Authentication {
 
+	/**
+	 * Error message
+	 *
+	 * @var string
+	 */
 	static public $error_message;
 
 	/**
 	 * Set associative arguments as instance variables
 	 *
-	 * @param array $args
+	 * @param array $args Array of arguments to set.
 	 * @since       0.8
 	 */
 	public function __construct( $args ) {
@@ -36,7 +41,7 @@ abstract class Authentication {
 	/**
 	 * Format request args for a GET request so auth occurs
 	 *
-	 * @param  array $args
+	 * @param  array $args Arguments to format.
 	 * @param  array $context optional array of information about the request
 	 * @since  0.8
 	 * @return array
@@ -57,7 +62,7 @@ abstract class Authentication {
 	/**
 	 * Format request args for a POST request so auth occurs
 	 *
-	 * @param  array $args
+	 * @param  array $args Arguments to format.
 	 * @param  array $context optional array of information about the request
 	 * @since  0.8
 	 * @return array
@@ -90,8 +95,8 @@ abstract class Authentication {
 	/**
 	 * Store pre-sanizited auth credentials in DB
 	 *
-	 * @param int   $external_connection_id
-	 * @param array $args
+	 * @param int   $external_connection_id External connection ID.
+	 * @param array $args Array of creds to store. Should be pre-sanitized.
 	 * @since 0.8
 	 */
 	public static function store_credentials( $external_connection_id, $args ) {

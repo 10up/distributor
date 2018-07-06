@@ -105,7 +105,7 @@ function setup_list_table() {
 /**
  * Enqueue admin scripts for pull
  *
- * @param  string $hook
+ * @param  string $hook WP hook.
  * @since  0.8
  */
 function admin_enqueue_scripts( $hook ) {
@@ -145,9 +145,9 @@ function action_admin_menu() {
 /**
  * Set screen option for posts per page
  *
- * @param  string $status
- * @param  string $option
- * @param  mixed  $value
+ * @param  string $status Option status.
+ * @param  string $option Option.
+ * @param  mixed  $value New value.
  * @since  0.8
  * @return mixed
  */

@@ -53,7 +53,7 @@ function setup_columns() {
  * Add Distributor column to post table to indicate a posts link status
  *
  * @since  1.0
- * @param  array $columns
+ * @param  array $columns Array of columns
  * @return array
  */
 function add_distributor_column( $columns ) {
@@ -68,8 +68,8 @@ function add_distributor_column( $columns ) {
 /**
  * Output Distributor post table column. Tell users if a post is linked.
  *
- * @param  string $column_name
- * @param  int    $post_id
+ * @param  string $column_name Column name
+ * @param  int    $post_id Post ID
  * @since  1.0
  */
 function output_distributor_column( $column_name, $post_id ) {
@@ -97,8 +97,8 @@ function output_distributor_column( $column_name, $post_id ) {
 /**
  * Remove quick edit for linked posts
  *
- * @param  array   $actions
- * @param  WP_Post $post
+ * @param  array   $actions Array of current actions
+ * @param  WP_Post $post Post object
  * @since  0.8
  * @return array
  */
@@ -131,7 +131,7 @@ function remove_quick_edit( $actions, $post ) {
 /**
  * Add linked class to body
  *
- * @param  string $classes
+ * @param  string $classes CSS classes string
  * @since  0.8
  * @return string
  */
@@ -167,7 +167,7 @@ function add_linked_class( $classes ) {
 /**
  * Output syndicated on date
  *
- * @param  WP_Post $post
+ * @param  WP_Post $post Post object
  * @since  0.8
  */
 function syndication_date( $post ) {
@@ -198,9 +198,6 @@ function syndication_date( $post ) {
 /**
  * Remove old revisions meta box
  *
- * @param  string  $post_type
- * @param  string  $context
- * @param  WP_Post $post
  * @since  1.0
  */
 function add_revisions_meta_box() {
@@ -223,6 +220,12 @@ function add_revisions_meta_box() {
 	add_meta_box( 'revisionsdiv2', esc_html__( 'Revisions', 'distributor' ), __NAMESPACE__ . '\new_revisions_meta_box', $post->post_type );
 }
 
+/**
+ * New revisions meta box
+ *
+ * @param  int $post_id Post ID
+ * @since  1.2
+ */
 function new_revisions_meta_box( $post_id ) {
 	$post_type = get_post_type_object( get_post_type( $post_id ) );
 	?>
@@ -235,9 +238,9 @@ function new_revisions_meta_box( $post_id ) {
 /**
  * Remove old revisions meta box
  *
- * @param  string  $post_type
- * @param  string  $context
- * @param  WP_Post $post
+ * @param  string  $post_type Post type
+ * @param  string  $context Meta box context
+ * @param  WP_Post $post Post object
  * @since  1.0
  */
 function replace_revisions_meta_box( $post_type, $context, $post ) {
@@ -385,7 +388,7 @@ function link() {
 /**
  * Show syndicated post message
  *
- * @param  WP_Post $post
+ * @param  WP_Post $post Post object.
  * @since  0.8
  */
 function syndicated_message( $post ) {
@@ -447,7 +450,7 @@ function syndicated_message( $post ) {
 /**
  * Enqueue admin scripts/styles for post.php
  *
- * @param  string $hook
+ * @param  string $hook WP hook.
  * @since  0.8
  */
 function enqueue_post_scripts( $hook ) {
@@ -478,6 +481,11 @@ function enqueue_post_scripts( $hook ) {
 	}
 }
 
+/**
+ * Output gutenberg JS
+ *
+ * @since 1.2
+ */
 function enqueue_gutenberg_edit_scripts() {
 	global $post;
 
@@ -542,7 +550,7 @@ function enqueue_gutenberg_edit_scripts() {
 /**
  * Enqueue admin scripts/styles for edit.php
  *
- * @param  string $hook
+ * @param  string $hook WP hook.
  * @since  0.8
  */
 function enqueue_edit_scripts( $hook ) {
