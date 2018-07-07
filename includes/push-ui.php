@@ -482,16 +482,8 @@ syndicated<?php endif; ?>" data-connection-type="internal" data-connection-id="<
 						<div class="selected-connections-list"></div>
 
 						<div class="action-wrapper">
-							<?php
-							/**
-							 * Only show the "As Draft" checkbox If draft distribution is enabled and the post
-							 * status is not draft, posts can only be pushed as drafts. Draft posts always
-							 * distribute as drafts.
-							 */
-							if ( ! apply_filters( 'dt_drafts_can_be_distributed', false ) || 'draft' !== get_post_status() ) :
-								?>
-								<button class="syndicate-button"><?php esc_html_e( 'Distribute', 'distributor' ); ?></button> <label class="as-draft" for="dt-as-draft"><input type="checkbox" id="dt-as-draft" checked> <?php esc_html_e( 'As draft', 'distributor' ); ?></label>
-							<?php endif; ?>
+							<input type="hidden" id="dt-post-status" value="<?php echo esc_attr( $post->post_status ); ?>">
+							<button class="syndicate-button"><?php esc_html_e( 'Distribute', 'distributor' ); ?></button> <?php if ( 'draft' !== $post->post_status ) : ?><label class="as-draft" for="dt-as-draft"><input type="checkbox" id="dt-as-draft" checked> <?php esc_html_e( 'As draft', 'distributor' ); ?></label><?php endif; ?>
 						</div>
 					</div>
 
