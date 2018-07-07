@@ -26,7 +26,7 @@ function setup() {
 }
 
 /**
- * Check if post is syndicatable
+ * Check if we're on a syndicatable admin post edit view or single post template.
  *
  * @since   0.8
  * @return  bool
