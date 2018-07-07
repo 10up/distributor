@@ -1,4 +1,9 @@
 <?php
+/**
+ * UI functionality for distributed posts
+ *
+ * @package  distributor
+ */
 
 namespace Distributor\SyndicatedPostUI;
 
@@ -48,7 +53,7 @@ function setup_columns() {
  * Add Distributor column to post table to indicate a posts link status
  *
  * @since  1.0
- * @param  array $columns
+ * @param  array $columns Array of columns
  * @return array
  */
 function add_distributor_column( $columns ) {
@@ -63,8 +68,8 @@ function add_distributor_column( $columns ) {
 /**
  * Output Distributor post table column. Tell users if a post is linked.
  *
- * @param  string $column_name
- * @param  int    $post_id
+ * @param  string $column_name Column name
+ * @param  int    $post_id Post ID
  * @since  1.0
  */
 function output_distributor_column( $column_name, $post_id ) {
@@ -92,8 +97,8 @@ function output_distributor_column( $column_name, $post_id ) {
 /**
  * Remove quick edit for linked posts
  *
- * @param  array   $actions
- * @param  WP_Post $post
+ * @param  array   $actions Array of current actions
+ * @param  WP_Post $post Post object
  * @since  0.8
  * @return array
  */
@@ -126,7 +131,7 @@ function remove_quick_edit( $actions, $post ) {
 /**
  * Add linked class to body
  *
- * @param  string $classes
+ * @param  string $classes CSS classes string
  * @since  0.8
  * @return string
  */
@@ -162,7 +167,7 @@ function add_linked_class( $classes ) {
 /**
  * Output syndicated on date
  *
- * @param  WP_Post $post
+ * @param  WP_Post $post Post object
  * @since  0.8
  */
 function syndication_date( $post ) {
@@ -193,9 +198,6 @@ function syndication_date( $post ) {
 /**
  * Remove old revisions meta box
  *
- * @param  string  $post_type
- * @param  string  $context
- * @param  WP_Post $post
  * @since  1.0
  */
 function add_revisions_meta_box() {
@@ -218,6 +220,12 @@ function add_revisions_meta_box() {
 	add_meta_box( 'revisionsdiv2', esc_html__( 'Revisions', 'distributor' ), __NAMESPACE__ . '\new_revisions_meta_box', $post->post_type );
 }
 
+/**
+ * New revisions meta box
+ *
+ * @param  int $post_id Post ID
+ * @since  1.2
+ */
 function new_revisions_meta_box( $post_id ) {
 	$post_type = get_post_type_object( get_post_type( $post_id ) );
 	?>
@@ -230,9 +238,9 @@ function new_revisions_meta_box( $post_id ) {
 /**
  * Remove old revisions meta box
  *
- * @param  string  $post_type
- * @param  string  $context
- * @param  WP_Post $post
+ * @param  string  $post_type Post type
+ * @param  string  $context Meta box context
+ * @param  WP_Post $post Post object
  * @since  1.0
  */
 function replace_revisions_meta_box( $post_type, $context, $post ) {
@@ -270,16 +278,16 @@ function unlink() {
 	$post_id = intval( $_GET['post'] );
 
 	if ( empty( $_GET['_wpnonce'] ) ||
-	    ! wp_verify_nonce( $_GET['_wpnonce'], 'unlink-post_' . $post_id ) ||
-	    /**
-	     * Filters whether the post can be unlinked.
-	     *
-	     * @since 1.0
-	     *
-	     * @param bool true       Whether the post is allowed to be unlinked. Default true.
-	     * @param int  $post_id   The ID of the post attempting to be unlinked.
-	     */
-	    ! apply_filters( 'dt_allow_post_unlink', true, $post_id) ) {
+		! wp_verify_nonce( $_GET['_wpnonce'], 'unlink-post_' . $post_id ) ||
+		/**
+		 * Filters whether the post can be unlinked.
+		 *
+		 * @since 1.0
+		 *
+		 * @param bool true       Whether the post is allowed to be unlinked. Default true.
+		 * @param int  $post_id   The ID of the post attempting to be unlinked.
+		 */
+		! apply_filters( 'dt_allow_post_unlink', true, $post_id ) ) {
 		return;
 	}
 
@@ -294,7 +302,6 @@ function unlink() {
 	 * @since 1.0
 	 *
 	 * @param int $post_id ID of the post being unlinked.
-	 *
 	 */
 	do_action( 'dt_unlink_post', $post_id );
 
@@ -371,7 +378,6 @@ function link() {
 	 * @since 1.0
 	 *
 	 * @param int $post_id ID of the post being unlinked.
-	 *
 	 */
 	do_action( 'dt_link_post', $post_id );
 
@@ -382,7 +388,7 @@ function link() {
 /**
  * Show syndicated post message
  *
- * @param  WP_Post $post
+ * @param  WP_Post $post Post object.
  * @since  0.8
  */
 function syndicated_message( $post ) {
@@ -422,12 +428,12 @@ function syndicated_message( $post ) {
 	<div class="updated syndicate-status">
 		<?php if ( $original_deleted ) : ?>
 			<p>
-				<?php echo wp_kses_post( sprintf( __( 'This %s was distributed from <a href="%2$s">%3$s</a>. However, the original has been deleted.', 'distributor' ), esc_html( strtolower( $post_type_singular ) ), esc_url( $post_url ), esc_html( $original_location_name ) ) ); ?>
+				<?php echo wp_kses_post( sprintf( __( 'This %1$s was distributed from <a href="%2$s">%3$s</a>. However, the original has been deleted.', 'distributor' ), esc_html( strtolower( $post_type_singular ) ), esc_url( $post_url ), esc_html( $original_location_name ) ) ); ?>
 			</p>
 		<?php elseif ( ! $unlinked ) : ?>
 			<p>
 				<?php echo wp_kses_post( sprintf( __( 'Distributed from <a href="%1$s">%2$s</a>.', 'distributor' ), esc_url( $post_url ), esc_html( $original_location_name ) ) ); ?>
-				<?php if(apply_filters( 'dt_allow_post_unlink', true, $post->ID)) : ?>
+				<?php if ( apply_filters( 'dt_allow_post_unlink', true, $post->ID ) ) : ?>
 					<span><?php echo wp_kses_post( sprintf( __( 'The original %1$s will update this version unless you <a href="%2$s">unlink from the original.</a>', 'distributor' ), esc_html( strtolower( $post_type_singular ) ), wp_nonce_url( add_query_arg( 'action', 'unlink', admin_url( sprintf( $post_type_object->_edit_link, $post->ID ) ) ), "unlink-post_{$post->ID}" ) ) ); ?></span>
 				<?php endif; ?>
 			</p>
@@ -444,7 +450,7 @@ function syndicated_message( $post ) {
 /**
  * Enqueue admin scripts/styles for post.php
  *
- * @param  string $hook
+ * @param  string $hook WP hook.
  * @since  0.8
  */
 function enqueue_post_scripts( $hook ) {
@@ -475,6 +481,11 @@ function enqueue_post_scripts( $hook ) {
 	}
 }
 
+/**
+ * Output gutenberg JS
+ *
+ * @since 1.2
+ */
 function enqueue_gutenberg_edit_scripts() {
 	global $post;
 
@@ -539,7 +550,7 @@ function enqueue_gutenberg_edit_scripts() {
 /**
  * Enqueue admin scripts/styles for edit.php
  *
- * @param  string $hook
+ * @param  string $hook WP hook.
  * @since  0.8
  */
 function enqueue_edit_scripts( $hook ) {

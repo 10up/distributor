@@ -1,4 +1,9 @@
 <?php
+/**
+ * Push UI functionality
+ *
+ * @package  distributor
+ */
 
 namespace Distributor\PushUI;
 
@@ -205,7 +210,7 @@ function ajax_push() {
 /**
  * Enqueue scripts/styles for push
  *
- * @param  string $hook
+ * @param  string $hook WP hook.
  * @since  0.8
  */
 function enqueue_scripts( $hook ) {
@@ -240,7 +245,7 @@ function enqueue_scripts( $hook ) {
 /**
  * Let's setup our distributor menu in the toolbar
  *
- * @param object $wp_admin_bar
+ * @param object $wp_admin_bar Admin bar object.
  * @since  0.8
  */
 function menu_button( $wp_admin_bar ) {
@@ -440,7 +445,7 @@ function menu_content() {
 										<div class="add-connection
 										<?php
 										if ( ! empty( $connection['syndicated'] ) ) :
-?>
+											?>
 syndicated<?php endif; ?>" data-connection-type="external" data-connection-id="<?php echo (int) $connection['id']; ?>">
 											<span><?php echo wp_kses_post( get_the_title( $connection['id'] ) ); ?></span>
 										</div>
@@ -448,7 +453,7 @@ syndicated<?php endif; ?>" data-connection-type="external" data-connection-id="<
 										<div class="add-connection
 										<?php
 										if ( ! empty( $connection['syndicated'] ) ) :
-?>
+											?>
 syndicated<?php endif; ?>" data-connection-type="internal" data-connection-id="<?php echo (int) $connection['id']; ?>">
 											<span><?php echo esc_html( $connection['url'] ); ?></span>
 											<?php if ( ! empty( $connection['syndicated'] ) ) : ?>
@@ -474,7 +479,7 @@ syndicated<?php endif; ?>" data-connection-type="internal" data-connection-id="<
 							 * distribute as drafts.
 							 */
 							if ( ! apply_filters( 'dt_drafts_can_be_distributed', false ) || 'draft' !== get_post_status() ) :
-							?>
+								?>
 								<button class="syndicate-button"><?php esc_html_e( 'Distribute', 'distributor' ); ?></button> <label class="as-draft" for="dt-as-draft"><input type="checkbox" id="dt-as-draft" checked> <?php esc_html_e( 'As draft', 'distributor' ); ?></label>
 							<?php endif; ?>
 						</div>

@@ -79,7 +79,7 @@ class NetworkSiteConnectionsTest extends \TestCase {
 		\WP_Mock::userFunction(
 			'update_post_meta', [
 				'times'  => 1,
-				'args'   => [ $new_post_id, 'dt_syndicate_time', time() ],
+				'args'   => [ $new_post_id, 'dt_syndicate_time', \WP_Mock\Functions::type( 'int' ) ],
 				'return' => [],
 			]
 		);
@@ -186,7 +186,7 @@ class NetworkSiteConnectionsTest extends \TestCase {
 		\WP_Mock::userFunction(
 			'update_post_meta', [
 				'times'  => 1,
-				'args'   => [ \WP_Mock\Functions::type( 'int' ), 'dt_syndicate_time', time() ],
+				'args'   => [ \WP_Mock\Functions::type( 'int' ), 'dt_syndicate_time', \WP_Mock\Functions::type( 'int' ) ],
 				'return' => [],
 			]
 		);
