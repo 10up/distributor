@@ -37,7 +37,6 @@ function syndicatable() {
 		return false;
 	}
 
-	// Only published posts can be distributed.
 	/**
 	 * Filter whether drafts are distributable.
 	 *
