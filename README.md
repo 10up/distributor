@@ -57,6 +57,7 @@ __Parent Posts__ - Distributor does not "bring along" parent (or child posts). I
 
 ## Changelog
 
+* 1.2.1 - Gutenberg bug fixes; fix parent post bug.
 * 1.2.0 - Gutenberg support, public release.
 * 1.1.0 - Enable WordPress.com Oauth2 authentication.
 * 1.0 - Initial closed release.
