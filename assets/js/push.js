@@ -148,7 +148,7 @@ jQuery( window ).load( () => {
 			post_id: dt.post_id
 		}
 
-		data.post_status = asDraftInput.checked ? 'draft' : postStatusInput.value
+		data.post_status = ( asDraftInput !== null && asDraftInput.checked ) ? 'draft' : postStatusInput.value
 
 		const xhr = dt.usexhr ? { withCredentials: true } : false
 
