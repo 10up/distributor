@@ -51,8 +51,8 @@ jQuery( window ).load( () => {
 	}
 
 	/**
-		 * Handle UI success changes
-		 */
+	 * Handle UI success changes
+	 */
 	function doSuccess( results ) {
 		let error = false
 
