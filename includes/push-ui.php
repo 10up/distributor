@@ -32,30 +32,33 @@ function setup() {
  * @return  bool
  */
 function syndicatable() {
+
 	if ( ! is_user_logged_in() || ! current_user_can( 'edit_posts' ) ) {
 		return false;
 	}
 
 	if ( is_admin() ) {
+
 		global $pagenow;
 
 		if ( 'post.php' !== $pagenow ) {
 			return false;
 		}
 
-		global $post;
-
-		if ( ! in_array( $post->post_status, \Distributor\Utils\distributable_post_statuses(), true ) ) {
-			return false;
-		}
-
-		if ( ! in_array( get_post_type(), \Distributor\Utils\distributable_post_types(), true ) || ( ! empty( $_GET['post_type'] ) && 'dt_ext_connection' === $_GET['post_type'] ) ) {
-			return false;
-		}
 	} else {
 		if ( ! is_single() ) {
 			return false;
 		}
+	}
+
+	global $post;
+
+	if ( ! in_array( $post->post_status, \Distributor\Utils\distributable_post_statuses(), true ) ) {
+		return false;
+	}
+
+	if ( ! in_array( get_post_type(), \Distributor\Utils\distributable_post_types(), true ) || ( ! empty( $_GET['post_type'] ) && 'dt_ext_connection' === $_GET['post_type'] ) ) {
+		return false;
 	}
 
 	return true;
