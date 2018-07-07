@@ -36,16 +36,16 @@ function syndicatable() {
 		return false;
 	}
 
-	global $post;
-
-	if ( ! in_array( $post->post_status, \Distributor\Utils\distributable_post_statuses(), true ) ) {
-		return false;
-	}
-
 	if ( is_admin() ) {
 		global $pagenow;
 
 		if ( 'post.php' !== $pagenow ) {
+			return false;
+		}
+
+		global $post;
+
+		if ( ! in_array( $post->post_status, \Distributor\Utils\distributable_post_statuses(), true ) ) {
 			return false;
 		}
 
@@ -121,7 +121,7 @@ function ajax_push() {
 					$push_args['remote_post_id'] = (int) $connection_map['external'][ (int) $connection['id'] ]['post_id'];
 				}
 
-				if ( ! empty( $_POST['post_status'] ) ) {
+				if ( ! empty( $_POST['post_status'] ) && in_array( $_POST['post_status'], \Distributor\Utils\distributable_post_statuses(), true ) ) {
 					$push_args['post_status'] = $_POST['post_status'];
 				}
 
@@ -158,8 +158,8 @@ function ajax_push() {
 				$push_args['remote_post_id'] = (int) $connection_map['internal'][ (int) $connection['id'] ]['post_id'];
 			}
 
-			if ( ! empty( $_POST['draft'] ) ) {
-				$push_args['post_status'] = 'draft';
+			if ( ! empty( $_POST['post_status'] ) && in_array( $_POST['post_status'], \Distributor\Utils\distributable_post_statuses(), true ) ) {
+				$push_args['post_status'] = esc_attr( $_POST['post_status'] );
 			}
 
 			$remote_id = $internal_connection->push( intval( $_POST['post_id'] ), $push_args );
