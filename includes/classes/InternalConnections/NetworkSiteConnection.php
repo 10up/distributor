@@ -551,7 +551,7 @@ class NetworkSiteConnection extends Connection {
 		 *
 		 * @param array  $authorized_sites {
 		 *     @type array {
-		 *         'site'       => $site,  // WP_Site object
+		 *         'site'       => $site,  // WP_Site object.
 		 *         'post_types' => $array, // List of post type objects the user can edit.
 		 * }
 		 */
@@ -617,7 +617,7 @@ class NetworkSiteConnection extends Connection {
 		 *
 		 * @param array  $authorized_sites {
 		 *     @type array {
-		 *         'site'       => $site,  // WP_Site object
+		 *         'site'       => $site,  // WP_Site object.
 		 *         'post_types' => $array, // List of post type objects the user can edit.
 		 * }
 		 */
