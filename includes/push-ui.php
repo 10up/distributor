@@ -476,7 +476,8 @@ syndicated<?php endif; ?>" data-connection-type="internal" data-connection-id="<
 
 						<div class="action-wrapper">
 							<input type="hidden" id="dt-post-status" value="<?php echo esc_attr( $post->post_status ); ?>">
-							<button class="syndicate-button"><?php esc_html_e( 'Distribute', 'distributor' ); ?></button> <?php if ( 'draft' !== $post->post_status ) : ?><label class="as-draft" for="dt-as-draft"><input type="checkbox" id="dt-as-draft" checked> <?php esc_html_e( 'As draft', 'distributor' ); ?></label><?php endif; ?>
+							<?php $as_draft = ( 'draft' !== $post->post_status && in_array( 'draft', \Distributor\Utils\distributable_post_statuses() ) ) ? true : false; ?>
+							<button class="syndicate-button"><?php esc_html_e( 'Distribute', 'distributor' ); ?></button> <?php if ( $as_draft ) : ?><label class="as-draft" for="dt-as-draft"><input type="checkbox" id="dt-as-draft" checked> <?php esc_html_e( 'As draft', 'distributor' ); ?></label><?php endif; ?>
 						</div>
 					</div>
 
