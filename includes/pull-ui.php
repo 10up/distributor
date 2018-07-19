@@ -346,7 +346,7 @@ function dashboard() {
 								$name     = untrailingslashit( $connection->site->domain . $connection->site->path );
 								$id       = $connection->site->blog_id;
 
-								if ( is_a( $connection_now, '\Distributor\InternalConnection' ) && (int) $connection_now->site->blog_id === (int) $id ) {
+								if ( !is_a( $connection_now, '\Distributor\ExternalConnection' ) && (int) $connection_now->site->blog_id === (int) $id ) {
 									$selected = true;
 								}
 								?>
