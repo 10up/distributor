@@ -65,9 +65,7 @@ class NetworkSiteConnection extends Connection {
 			'post_name'    => $post->post_name,
 		);
 
-		$media = \Distributor\Utils\prepare_media( $post_id );
-		$terms = \Distributor\Utils\prepare_taxonomy_terms( $post_id );
-		$meta  = \Distributor\Utils\prepare_meta( $post_id );
+		$post = \Distributor\Utils\prepare_post( $post );
 
 		switch_to_blog( $this->site->blog_id );
 
@@ -109,8 +107,8 @@ class NetworkSiteConnection extends Connection {
 			update_post_meta( $new_post_id, 'dt_syndicate_time', time() );
 			update_post_meta( $new_post_id, 'dt_original_post_url', esc_url_raw( $original_post_url ) );
 
-			\Distributor\Utils\set_meta( $new_post_id, $meta );
-			\Distributor\Utils\set_taxonomy_terms( $new_post_id, $terms );
+			\Distributor\Utils\set_meta( $new_post_id, $post->meta );
+			\Distributor\Utils\set_taxonomy_terms( $new_post_id, $post->terms );
 
 			/**
 			 * Allow plugins to override the default {@see \Distributor\Utils\set_media()} function.
@@ -122,8 +120,8 @@ class NetworkSiteConnection extends Connection {
 			 * @param array              $args          The arguments passed into wp_insert_post.
 			 * @param ExternalConnection $this          The distributor connection being pushed to.
 			 */
-			if ( apply_filters( 'dt_push_post_media', true, $new_post_id, $media, $post_id, $args, $this ) ) {
-				\Distributor\Utils\set_media( $new_post_id, $media );
+			if ( apply_filters( 'dt_push_post_media', true, $new_post_id, $post->media, $post_id, $args, $this ) ) {
+				\Distributor\Utils\set_media( $new_post_id, $post->media );
 			};
 		}
 
@@ -352,12 +350,7 @@ class NetworkSiteConnection extends Connection {
 			$formatted_posts = [];
 
 			foreach ( $posts as $post ) {
-				$post->link  = get_permalink( $post->ID );
-				$post->meta  = \Distributor\Utils\prepare_meta( $post->ID );
-				$post->terms = \Distributor\Utils\prepare_taxonomy_terms( $post->ID );
-				$post->media = \Distributor\Utils\prepare_media( $post->ID );
-
-				$formatted_posts[] = $post;
+				$formatted_posts[] = \Distributor\Utils\prepare_post( $post );
 			}
 
 			restore_current_blog();
@@ -375,12 +368,7 @@ class NetworkSiteConnection extends Connection {
 			if ( empty( $post ) ) {
 				$formatted_post = false;
 			} else {
-				$post->link  = get_permalink( $id );
-				$post->meta  = \Distributor\Utils\prepare_meta( $id );
-				$post->terms = \Distributor\Utils\prepare_taxonomy_terms( $id );
-				$post->media = \Distributor\Utils\prepare_media( $id );
-
-				$formatted_post = $post;
+				$formatted_post = \Distributor\Utils\prepare_post( $post );
 			}
 
 			restore_current_blog();
