@@ -570,7 +570,7 @@ class NetworkSiteConnection extends Connection {
 		}
 
 		/**
-		 * Allow plugins to override the default {@see \Distributor\InternalConnections\get_available_authorized_sites()} function.
+		 * Allow plugins to override the default {@see \Distributor\InternalConnections\NetworkSiteConnection::get_available_authorized_sites()} function.
 		 *
 		 * @since 1.2
 		 *
