@@ -89,7 +89,7 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 		$args[ self::API_REDIRECT_URI ] = $redirect_uri;
 
 		// Display any authorization or token errors.
-		do_action( 'oauth_admin_notices' );
+		do_action( 'dt_oauth_admin_notices' );
 
 		// If anything is missing, we aren't authorized - show the credentials form.
 		if (
