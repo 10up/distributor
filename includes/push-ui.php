@@ -38,6 +38,14 @@ function syndicatable() {
 
 	global $post;
 
+	/**
+	 * We could do better with this check. Issues could happen if we aren't referrencing the correct
+	 * global post object.
+	 */
+	if ( empty( $post ) ) {
+		return false;
+	}
+
 	if ( ! in_array( $post->post_status, \Distributor\Utils\distributable_post_statuses(), true ) ) {
 		return false;
 	}
