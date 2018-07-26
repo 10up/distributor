@@ -65,12 +65,15 @@ function process_distributor_attributes( $post, $request, $update ) {
 		return;
 	}
 
-	if ( ! empty( $request['distributor_remote_post_id'] ) ) {
-		update_post_meta( $post->ID, 'dt_original_post_id', (int) $request['distributor_remote_post_id'] );
+	/**
+	 * Not Distributor push so ignore it. Other things use the REST API besides Distributor.
+	 */
+	if ( empty( $request['distributor_original_source_id'] ) ) {
+		return;
 	}
 
-	if ( ! empty( $request['distributor_original_source_id'] ) ) {
-		update_post_meta( $post->ID, 'dt_original_source_id', (int) $request['distributor_original_source_id'] );
+	if ( ! empty( $request['distributor_remote_post_id'] ) ) {
+		update_post_meta( $post->ID, 'dt_original_post_id', (int) $request['distributor_remote_post_id'] );
 	}
 
 	if ( ! empty( $request['distributor_original_site_name'] ) ) {
@@ -92,6 +95,8 @@ function process_distributor_attributes( $post, $request, $update ) {
 	update_post_meta( $post->ID, 'dt_syndicate_time', time() );
 
 	update_post_meta( $post->ID, 'dt_full_connection', true );
+
+	update_post_meta( $post->ID, 'dt_original_source_id', (int) $request['distributor_original_source_id'] );
 
 	if ( isset( $request['distributor_meta'] ) ) {
 		\Distributor\Utils\set_meta( $post->ID, $request['distributor_meta'] );
