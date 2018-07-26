@@ -43,7 +43,6 @@ function syndicatable() {
 		if ( 'post.php' !== $pagenow ) {
 			return false;
 		}
-
 	} else {
 		if ( ! is_single() ) {
 			return false;
