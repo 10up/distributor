@@ -32,7 +32,6 @@ function setup() {
  * @return  bool
  */
 function syndicatable() {
-
 	if ( ! is_user_logged_in() || ! current_user_can( 'edit_posts' ) ) {
 		return false;
 	}
@@ -52,6 +51,10 @@ function syndicatable() {
 	}
 
 	global $post;
+
+	if ( empty( $post ) ) {
+		return;
+	}
 
 	if ( ! in_array( $post->post_status, \Distributor\Utils\distributable_post_statuses(), true ) ) {
 		return false;
