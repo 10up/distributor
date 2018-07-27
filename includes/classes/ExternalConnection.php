@@ -64,7 +64,7 @@ abstract class ExternalConnection extends Connection {
 	 * Log a sync.
 	 *
 	 * {
-	 * 	old_post_id: new_post_id (false means skipped)
+	 *  old_post_id: new_post_id (false means skipped)
 	 * }
 	 *
 	 * This let's us grab all the IDs of posts we've PULLED from a given connection

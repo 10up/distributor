@@ -254,9 +254,9 @@ class NetworkSiteConnection extends Connection {
 	 * Log a sync. Unfortunately have to use options. We store like this:
 	 *
 	 * {
-	 * 	original_connection_id: {
-	 * 		old_post_id: new_post_id (false means skipped)
-	 * 	}
+	 *  original_connection_id: {
+	 *      old_post_id: new_post_id (false means skipped)
+	 *  }
 	 * }
 	 *
 	 * This let's us grab all the IDs of posts we've PULLED from a given site
