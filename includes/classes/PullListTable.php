@@ -370,18 +370,10 @@ class PullListTable extends \WP_List_Table {
 		} else {
 			$this->sync_log = [];
 
-			/**
-			 * Backwards compat code for dealing with old style sync log in site options
-			 */
-			$old_sync_log = get_site_option( 'dt_sync_log_' . $connection_now->site->blog_id, array() );
 			$sync_log = get_option( 'dt_sync_log', [] );
 
 			if ( ! empty( $sync_log[ $connection_now->site->blog_id ] ) ) {
-				$this->sync_log = $connection_now->site->blog_id;
-			}
-
-			foreach ( $old_sync_log as $remote_post_id => $post_id ) {
-
+				$this->sync_log = $sync_log[ $connection_now->site->blog_id ];
 			}
 		}
 
