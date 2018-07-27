@@ -61,7 +61,13 @@ abstract class ExternalConnection extends Connection {
 	}
 
 	/**
-	 * Log a sync
+	 * Log a sync.
+	 *
+	 * {
+	 * 	old_post_id: new_post_id (false means skipped)
+	 * }
+	 *
+	 * This let's us grab all the IDs of posts we've PULLED from a given connection
 	 *
 	 * @param  array $item_id_mappings Mapping array to store.
 	 * @since  0.8

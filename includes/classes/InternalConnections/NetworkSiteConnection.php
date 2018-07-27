@@ -251,23 +251,38 @@ class NetworkSiteConnection extends Connection {
 	}
 
 	/**
-	 * Log a sync. Unfortunately have to use options
+	 * Log a sync. Unfortunately have to use options. We store like this:
+	 *
+	 * {
+	 * 	original_connection_id: {
+	 * 		old_post_id: new_post_id (false means skipped)
+	 * 	}
+	 * }
+	 *
+	 * This let's us grab all the IDs of posts we've PULLED from a given site
 	 *
 	 * @param  array $item_id_mappings Mapping to log.
 	 * @since  0.8
 	 */
 	public function log_sync( array $item_id_mappings ) {
-		$sync_log = get_site_option( 'dt_sync_log_' . $this->site->blog_id, array() );
+		$sync_log = get_option( 'dt_sync_log', array() );
+
+		$current_site_log = [];
+		if ( ! empty( $sync_log[ $this->site->blog_id ] ) ) {
+			$current_site_log = $sync_log[ $this->site->blog_id ];
+		}
 
 		foreach ( $item_id_mappings as $old_item_id => $new_item_id ) {
 			if ( empty( $new_item_id ) || is_wp_error( $new_item_id ) ) {
-				$sync_log[ $old_item_id ] = false;
+				$current_site_log[ $old_item_id ] = false;
 			} else {
-				$sync_log[ $old_item_id ] = (int) $new_item_id;
+				$current_site_log[ $old_item_id ] = (int) $new_item_id;
 			}
 		}
 
-		update_site_option( 'dt_sync_log_' . $this->site->blog_id, $sync_log );
+		$sync_log[ $this->site->blog_id ] = $current_site_log;
+
+		update_option( 'dt_sync_log', $sync_log );
 
 		/**
 		 * Action fired when a sync is being logged.
