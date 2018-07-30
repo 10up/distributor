@@ -300,7 +300,6 @@ class WordPressExternalConnection extends ExternalConnection {
 
 			$post_props = get_object_vars( $post );
 			$post_array = array();
-			$original_post_parent = wp_get_post_parent_id( $item_array['post_id'] );
 
 			foreach ( $post_props as $key => $value ) {
 				$post_array[ $key ] = $value;
@@ -336,7 +335,10 @@ class WordPressExternalConnection extends ExternalConnection {
 			update_post_meta( $new_post, 'dt_original_post_url', esc_url_raw( $post_array['link'] ) );
 			update_post_meta( $new_post, 'dt_original_site_name', sanitize_text_field( $post_array['original_site_name'] ) );
 			update_post_meta( $new_post, 'dt_original_site_url', sanitize_text_field( $post_array['original_site_url'] ) );
-			update_post_meta( $new_post, 'dt_original_post_parent', (int) $original_post_parent );
+
+			if ( ! empty( $post->post_parent ) ) {
+				update_post_meta( $new_post, 'dt_original_post_parent', (int) $post->post_parent );
+			}
 
 			if ( empty( $post_array['full_connection'] ) ) {
 				update_post_meta( $new_post, 'dt_full_connection', false );
@@ -445,13 +447,16 @@ class WordPressExternalConnection extends ExternalConnection {
 			'distributor_original_site_name' => get_bloginfo( 'name' ),
 			'distributor_original_site_url'  => home_url(),
 			'distributor_original_post_url'  => get_permalink( $post_id ),
-			'distributor_original_post_parent'  => wp_get_post_parent_id( $post_id ),
 			'distributor_remote_post_id'     => $post_id,
 			'distributor_signature'          => $signature,
 			'distributor_media'              => \Distributor\Utils\prepare_media( $post_id ),
 			'distributor_terms'              => \Distributor\Utils\prepare_taxonomy_terms( $post_id ),
 			'distributor_meta'               => \Distributor\Utils\prepare_meta( $post_id ),
 		];
+
+		if ( ! empty( $post->post_parent ) ) {
+			$post_body['distributor_original_post_parent'] = (int) $post->post_parent;
+		}
 
 		// Map to remote ID if a push has already happened
 		if ( ! empty( $args['remote_post_id'] ) ) {
@@ -732,7 +737,7 @@ class WordPressExternalConnection extends ExternalConnection {
 		$obj->original_site_name = ( ! empty( $post['distributor_original_site_name'] ) ) ? $post['distributor_original_site_name'] : null;
 		$obj->original_site_url  = ( ! empty( $post['distributor_original_site_url'] ) ) ? $post['distributor_original_site_url'] : null;
 		$obj->original_post_parent  = ( ! empty( $post['distributor_original_post_parent'] ) ) ? $post['distributor_original_post_parent'] : null;
-		
+
 		$obj->full_connection = ( ! empty( $post['full_connection'] ) );
 
 		/**
