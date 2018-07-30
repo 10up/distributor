@@ -36,7 +36,6 @@ class NetworkSiteConnection extends Connection {
 		$post              = get_post( $post_id );
 		$original_blog_id  = get_current_blog_id();
 		$original_post_url = get_permalink( $post_id );
-		$original_post_parent = wp_get_post_parent_id( $post_id );
 
 		$new_post_args = array(
 			'post_title'   => get_the_title( $post_id ),
@@ -86,7 +85,10 @@ class NetworkSiteConnection extends Connection {
 			update_post_meta( $new_post, 'dt_original_blog_id', (int) $original_blog_id );
 			update_post_meta( $new_post, 'dt_syndicate_time', time() );
 			update_post_meta( $new_post, 'dt_original_post_url', esc_url_raw( $original_post_url ) );
-			update_post_meta( $new_post, 'dt_original_post_parent', (int) $original_post_parent );
+
+			if ( ! empty( $post->post_parent ) ) {
+				update_post_meta( $new_post, 'dt_original_post_parent', (int) $post->post_parent );
+			}
 
 			\Distributor\Utils\set_meta( $new_post, $meta );
 			\Distributor\Utils\set_taxonomy_terms( $new_post, $terms );
@@ -179,7 +181,10 @@ class NetworkSiteConnection extends Connection {
 				update_post_meta( $new_post, 'dt_original_blog_id', (int) $this->site->blog_id );
 				update_post_meta( $new_post, 'dt_syndicate_time', time() );
 				update_post_meta( $new_post, 'dt_original_post_url', esc_url_raw( $post->link ) );
-				update_post_meta( $new_post, 'dt_original_post_parent', (int) $original_post_parent );
+
+				if ( ! empty( $post->post_id ) ) {
+					update_post_meta( $new_post, 'dt_original_post_parent', (int) $post->post_id );
+				}
 
 				\Distributor\Utils\set_meta( $new_post, $post->meta );
 				\Distributor\Utils\set_taxonomy_terms( $new_post, $post->terms );
