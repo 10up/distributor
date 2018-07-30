@@ -20,7 +20,8 @@ gulp.task( 'cssnext', ( cb ) => {
 		'./assets/css/admin-pull-table.css',
 		'./assets/css/admin-edit-table.css',
 		'./assets/css/admin-syndicated-post.css',
-		'./assets/css/admin.css',
+		'./assets/css/admin-settings.css',
+		'./assets/css/gutenberg-syndicated-post.css',
 		'./assets/css/push.css'
 	];
 	const fileDest = './dist';

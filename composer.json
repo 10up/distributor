@@ -8,7 +8,8 @@
   	}
   ],
   "require": {
-  	"php": ">=5.6"
+  	"php": ">=5.6",
+    "yahnis-elsts/plugin-update-checker": "^4.4"
   },
   "autoload": {
   	"psr-4": {
@@ -16,6 +17,12 @@
   	}
   },
   "require-dev": {
-    "10up/wp_mock": "dev-dev"
+    "10up/wp_mock": "dev-dev",
+    "10up/phpcs-composer": "dev-master",
+    "phpunit/phpunit": "^6.5"
+  },
+  "scripts": {
+    "lint": "phpcs .",
+    "lint-fix": "phpcbf ."
   }
 }

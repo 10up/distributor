@@ -1,4 +1,9 @@
 <?php
+/**
+ * Pull UI functionality
+ *
+ * @package  distributor
+ */
 
 namespace Distributor\PullUI;
 
@@ -100,7 +105,7 @@ function setup_list_table() {
 /**
  * Enqueue admin scripts for pull
  *
- * @param  string $hook
+ * @param  string $hook WP hook.
  * @since  0.8
  */
 function admin_enqueue_scripts( $hook ) {
@@ -122,6 +127,13 @@ function action_admin_menu() {
 		'distributor',
 		esc_html__( 'Pull Content', 'distributor' ),
 		esc_html__( 'Pull Content', 'distributor' ),
+		/**
+		 * Filter Distributor capabilities allowed to pull content.
+		 *
+		 * @since 1.0.0
+		 *
+		 * @param string manage_options The capability allowed to pull content.
+		 */
 		apply_filters( 'dt_pull_capabilities', 'manage_options' ),
 		'pull',
 		__NAMESPACE__ . '\dashboard'
@@ -133,9 +145,9 @@ function action_admin_menu() {
 /**
  * Set screen option for posts per page
  *
- * @param  string $status
- * @param  string $option
- * @param  mixed  $value
+ * @param  string $status Option status.
+ * @param  string $option Option.
+ * @param  mixed  $value New value.
  * @since  0.8
  * @return mixed
  */
@@ -334,7 +346,7 @@ function dashboard() {
 								$name     = untrailingslashit( $connection->site->domain . $connection->site->path );
 								$id       = $connection->site->blog_id;
 
-								if ( is_a( $connection_now, '\Distributor\InternalConnection' ) && (int) $connection_now->site->blog_id === (int) $id ) {
+								if ( is_a( $connection_now, '\Distributor\InternalConnections\NetworkSiteConnection' ) && (int) $connection_now->site->blog_id === (int) $id ) {
 									$selected = true;
 								}
 								?>

@@ -1,7 +1,15 @@
 <?php
+/**
+ * Admin list table for pulled posted
+ *
+ * @package  distributor
+ */
 
 namespace Distributor;
 
+/**
+ * List table class for pull screen
+ */
 class PullListTable extends \WP_List_Table {
 
 	/**
@@ -102,7 +110,8 @@ class PullListTable extends \WP_List_Table {
 	 */
 	protected function bulk_actions( $which = '' ) {
 		if ( is_null( $this->_actions ) ) {
-			$no_new_actions = $this->_actions = $this->get_bulk_actions();
+			$no_new_actions = $this->get_bulk_actions();
+			$this->_actions = $this->get_bulk_actions();
 			/**
 			 * Filters the list table Bulk Actions drop-down.
 			 *
@@ -127,7 +136,7 @@ class PullListTable extends \WP_List_Table {
 		}
 
 		echo '<label for="bulk-action-selector-' . esc_attr( $which ) . '" class="screen-reader-text">' . esc_html__( 'Select bulk action', 'distributor' ) . '</label>';
-		echo '<select name="'.esc_attr( 'action' . $two ) . '" id="bulk-action-selector-' . esc_attr( $which ) . "\">\n";
+		echo '<select name="' . esc_attr( 'action' . $two ) . '" id="bulk-action-selector-' . esc_attr( $which ) . "\">\n";
 
 		foreach ( $this->_actions as $name => $title ) {
 			echo "\t" . '<option value="' . esc_attr( $name ) . '"' . ( 'edit' === $name ? ' class="hide-if-no-js"' : '' ) . '>' . esc_html( $title ) . "</option>\n";
@@ -174,7 +183,8 @@ class PullListTable extends \WP_List_Table {
 			}
 		} else {
 			if ( '0000-00-00 00:00:00' === $post->post_date ) {
-				$t_time    = $h_time = esc_html__( 'Unpublished', 'distributor' );
+				$t_time    = esc_html__( 'Unpublished', 'distributor' );
+				$h_time    = esc_html__( 'Unpublished', 'distributor' );
 				$time_diff = 0;
 			} else {
 				$t_time = get_the_time( esc_html__( 'Y/m/d g:i:s a', 'distributor' ) );
@@ -213,8 +223,8 @@ class PullListTable extends \WP_List_Table {
 	/**
 	 * Output standard table columns (not name)
 	 *
-	 * @param  array  $item
-	 * @param  string $column_name
+	 * @param  array  $item Item to output.
+	 * @param  string $column_name Column name.
 	 * @since  0.8
 	 */
 	public function column_default( $item, $column_name ) {
@@ -246,24 +256,22 @@ class PullListTable extends \WP_List_Table {
 	 * Output name column wrapper
 	 *
 	 * @since 4.3.0
-	 * @access protected
-	 *
-	 * @param WP_Post $post
-	 * @param string  $classes
-	 * @param string  $data
-	 * @param string  $primary
+	 * @param WP_Post $item Post object.
+	 * @param string  $classes CSS classes.
+	 * @param string  $data Column data.
+	 * @param string  $primary Whether primary or not.
 	 */
 	protected function _column_name( $item, $classes, $data, $primary ) {
 		echo '<td class="' . esc_attr( $classes ) . ' page-title">';
 		$this->column_name( $item );
-		echo $this->handle_row_actions( $item, 'title', $primary );
+		echo wp_kses_post( $this->handle_row_actions( $item, 'title', $primary ) );
 		echo '</td>';
 	}
 
 	/**
 	 * Output inner name column with actions
 	 *
-	 * @param  WP_Post $item
+	 * @param  WP_Post $item Post object.
 	 * @since  0.8
 	 */
 	public function column_name( $item ) {
@@ -309,7 +317,7 @@ class PullListTable extends \WP_List_Table {
 		}
 
 		echo '<strong>' . esc_html( $title ) . '</strong>';
-		echo $this->row_actions( $actions );
+		echo wp_kses_post( $this->row_actions( $actions ) );
 	}
 
 	/**
@@ -417,8 +425,6 @@ class PullListTable extends \WP_List_Table {
 	 * Handles the checkbox column output.
 	 *
 	 * @since 4.3.0
-	 * @access public
-	 *
 	 * @param WP_Post $post The current WP_Post object.
 	 */
 	public function column_cb( $post ) {
@@ -457,9 +463,14 @@ class PullListTable extends \WP_List_Table {
 	/**
 	 * Adds a hook after the bulk actions dropdown above and below the list table
 	 *
-	 * @param string $which
+	 * @param string $which Whether above or below the table.
 	 */
 	public function extra_tablenav( $which ) {
+		/**
+		 * Action fired when extra table nav is generated.
+		 *
+		 * @since 1.0
+		 */
 		do_action( 'dt_pull_filters' );
 	}
 }

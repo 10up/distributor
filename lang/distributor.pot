@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Distributor 1.1.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/distributor\n"
-"POT-Creation-Date: 2018-03-20 20:23:00+00:00\n"
+"POT-Creation-Date: 2018-04-10 15:58:13+00:00\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -13,11 +13,11 @@ msgstr ""
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "X-Generator: node-wp-i18n 1.0.5\n"
 
-#: distributor.php:57
+#: distributor.php:43
 msgid "Distributor requires PHP version 5.6."
 msgstr ""
 
-#: distributor.php:58
+#: distributor.php:44
 msgid "Error Activating"
 msgstr ""
 
@@ -391,137 +391,137 @@ msgid ""
 "inherit the capabilities of the user on the remote site."
 msgstr ""
 
-#: includes/external-connection-cpt.php:307
+#: includes/external-connection-cpt.php:305
 msgid "Enter external connection name"
 msgstr ""
 
-#: includes/external-connection-cpt.php:389
+#: includes/external-connection-cpt.php:387
 msgid "External Connection Details"
 msgstr ""
 
-#: includes/external-connection-cpt.php:441
+#: includes/external-connection-cpt.php:439
 msgid "External Connection Type"
 msgstr ""
 
-#: includes/external-connection-cpt.php:447
+#: includes/external-connection-cpt.php:445
 msgid "We need to know what type of API we are communicating with."
 msgstr ""
 
-#: includes/external-connection-cpt.php:467
+#: includes/external-connection-cpt.php:465
 msgid "External Connection URL"
 msgstr ""
 
-#: includes/external-connection-cpt.php:477
+#: includes/external-connection-cpt.php:475
 msgid "Roles Allowed to Push"
 msgstr ""
 
-#: includes/external-connection-cpt.php:490
+#: includes/external-connection-cpt.php:488
 msgid ""
 "Please be warned all these users will inherit the permissions of the user "
 "on the remote site"
 msgstr ""
 
-#: includes/external-connection-cpt.php:499
+#: includes/external-connection-cpt.php:497
 msgid "Update Connection"
 msgstr ""
 
-#: includes/external-connection-cpt.php:501
+#: includes/external-connection-cpt.php:499
 msgid "Move to Trash"
 msgstr ""
 
-#: includes/external-connection-cpt.php:503
+#: includes/external-connection-cpt.php:501
 msgid "Create Connection"
 msgstr ""
 
-#: includes/external-connection-cpt.php:523
-#: includes/external-connection-cpt.php:583
-#: includes/external-connection-cpt.php:594 includes/pull-ui.php:350
+#: includes/external-connection-cpt.php:521
+#: includes/external-connection-cpt.php:581
+#: includes/external-connection-cpt.php:592 includes/pull-ui.php:350
 msgid "External Connections"
 msgstr ""
 
-#: includes/external-connection-cpt.php:523
-#: includes/external-connection-cpt.php:596
+#: includes/external-connection-cpt.php:521
+#: includes/external-connection-cpt.php:594
 msgid "Add New"
 msgstr ""
 
-#: includes/external-connection-cpt.php:549
+#: includes/external-connection-cpt.php:547
 msgid "External connections per page: "
 msgstr ""
 
-#: includes/external-connection-cpt.php:595
+#: includes/external-connection-cpt.php:593
 msgid "External Connection"
 msgstr ""
 
-#: includes/external-connection-cpt.php:597
+#: includes/external-connection-cpt.php:595
 msgid "Add New External Connection"
 msgstr ""
 
-#: includes/external-connection-cpt.php:598
+#: includes/external-connection-cpt.php:596
 msgid "Edit External Connection"
 msgstr ""
 
-#: includes/external-connection-cpt.php:599
+#: includes/external-connection-cpt.php:597
 msgid "New External Connection"
 msgstr ""
 
-#: includes/external-connection-cpt.php:600
+#: includes/external-connection-cpt.php:598
 msgid "All External Connections"
 msgstr ""
 
-#: includes/external-connection-cpt.php:601
+#: includes/external-connection-cpt.php:599
 msgid "View External Connection"
 msgstr ""
 
-#: includes/external-connection-cpt.php:602
+#: includes/external-connection-cpt.php:600
 msgid "Search External Connections"
 msgstr ""
 
-#: includes/external-connection-cpt.php:603
+#: includes/external-connection-cpt.php:601
 msgid "No external connections found."
 msgstr ""
 
-#: includes/external-connection-cpt.php:604
+#: includes/external-connection-cpt.php:602
 msgid "No external connections found in trash."
 msgstr ""
 
-#: includes/external-connection-cpt.php:638
-#: includes/external-connection-cpt.php:641
+#: includes/external-connection-cpt.php:636
+#: includes/external-connection-cpt.php:639
 msgid "External connection updated."
 msgstr ""
 
-#: includes/external-connection-cpt.php:639
+#: includes/external-connection-cpt.php:637
 msgid "Custom field updated."
 msgstr ""
 
-#: includes/external-connection-cpt.php:640
+#: includes/external-connection-cpt.php:638
 msgid "Custom field deleted."
 msgstr ""
 
-#: includes/external-connection-cpt.php:642
+#: includes/external-connection-cpt.php:640
 msgid " External connection restored to revision from %s"
 msgstr ""
 
-#: includes/external-connection-cpt.php:643
+#: includes/external-connection-cpt.php:641
 msgid "External connection created."
 msgstr ""
 
-#: includes/external-connection-cpt.php:644
+#: includes/external-connection-cpt.php:642
 msgid "External connection saved."
 msgstr ""
 
-#: includes/external-connection-cpt.php:645
+#: includes/external-connection-cpt.php:643
 msgid "External connection submitted."
 msgstr ""
 
-#: includes/external-connection-cpt.php:647
+#: includes/external-connection-cpt.php:645
 msgid "External connection scheduled for: <strong>%1$s</strong>."
 msgstr ""
 
-#: includes/external-connection-cpt.php:648
+#: includes/external-connection-cpt.php:646
 msgid "M j, Y @ G:i"
 msgstr ""
 
-#: includes/external-connection-cpt.php:650
+#: includes/external-connection-cpt.php:648
 msgid "External connection draft updated."
 msgstr ""
 
@@ -645,22 +645,63 @@ msgstr ""
 msgid "Original site url for Distributor."
 msgstr ""
 
-#: includes/settings.php:29
+#: includes/settings.php:102
+msgid "<a href=\"%s\">Register</a> for a free Distributor key to receive updates."
+msgstr ""
+
+#: includes/settings.php:136
+msgid ""
+"<a href=\"%s\">Register Distributor</a> to receive important plugin update "
+"notices and other Distributor news."
+msgstr ""
+
+#: includes/settings.php:162
 msgid "Override Author Byline"
 msgstr ""
 
-#: includes/settings.php:51
+#: includes/settings.php:165 includes/settings.php:205
+#: includes/settings.php:286 includes/settings.php:289
+msgid "Registration Key"
+msgstr ""
+
+#: includes/settings.php:187
 msgid ""
 "For linked distributed posts, replace the author name and link with the "
 "original site name and link."
 msgstr ""
 
-#: includes/settings.php:71
+#: includes/settings.php:205 includes/settings.php:289
+msgid "Email"
+msgstr ""
+
+#: includes/settings.php:209
+msgid ""
+"Registration is 100% free and provides update notifications and upgrades "
+"inside the dashboard; <a "
+"href=\"https://distributorplugin.com/#cta\">Register for your key</a>."
+msgstr ""
+
+#: includes/settings.php:229
 msgid "Settings"
 msgstr ""
 
-#: includes/settings.php:82
+#: includes/settings.php:248
 msgid "Distributor Settings"
+msgstr ""
+
+#: includes/settings.php:275
+msgid "Distributor Network Settings"
+msgstr ""
+
+#: includes/settings.php:293
+msgid ""
+"Registration is 100% free and provides update notifications and upgrades "
+"inside the dashboard; <a href=\"https://distributorplugin.com\">Register "
+"for your key</a>."
+msgstr ""
+
+#: includes/settings.php:319
+msgid "Security error!"
 msgstr ""
 
 #: includes/subscriptions.php:297
@@ -721,13 +762,24 @@ msgid ""
 "href='%2$s'>restore it.</a>"
 msgstr ""
 
-#: vendor/10up/wp_mock/tests/FunctionMocksTest.php:65
-msgid "Test"
+#: vendor/yahnis-elsts/plugin-update-checker/Puc/v4p4/Plugin/UpdateChecker.php:395
+msgid "Check for updates"
 msgstr ""
 
-#: vendor/10up/wp_mock/tests/FunctionMocksTest.php:75
-#: vendor/10up/wp_mock/tests/FunctionMocksTest.php:77
-msgid "Input"
+#: vendor/yahnis-elsts/plugin-update-checker/Puc/v4p4/Plugin/UpdateChecker.php:432
+msgid "View details"
+msgstr ""
+
+#: vendor/yahnis-elsts/plugin-update-checker/Puc/v4p4/Plugin/UpdateChecker.php:455
+msgid "More information about %s"
+msgstr ""
+
+#: vendor/yahnis-elsts/plugin-update-checker/Puc/v4p4/Plugin/UpdateChecker.php:558
+msgid "Unknown update checker status \"%s\""
+msgstr ""
+
+#: vendor/yahnis-elsts/plugin-update-checker/Puc/v4p4/Vcs/PluginUpdateChecker.php:98
+msgid "There is no changelog available."
 msgstr ""
 
 #. Plugin URI of the plugin/theme
@@ -735,7 +787,9 @@ msgid "https://github.com/10up/distributor"
 msgstr ""
 
 #. Description of the plugin/theme
-msgid "Syndicate content to and from external websites and within multisite blogs."
+msgid ""
+"Distributor is a WordPress plugin allowing you to syndicate content to and "
+"from external websites and within multisite blogs."
 msgstr ""
 
 #. Author of the plugin/theme
@@ -749,4 +803,19 @@ msgstr ""
 #: includes/classes/ExternalConnectionListTable.php:87
 msgctxt "verb"
 msgid "Trash"
+msgstr ""
+
+#: vendor/yahnis-elsts/plugin-update-checker/Puc/v4p4/Plugin/UpdateChecker.php:548
+msgctxt "the plugin title"
+msgid "The %s plugin is up to date."
+msgstr ""
+
+#: vendor/yahnis-elsts/plugin-update-checker/Puc/v4p4/Plugin/UpdateChecker.php:550
+msgctxt "the plugin title"
+msgid "A new version of the %s plugin is available."
+msgstr ""
+
+#: vendor/yahnis-elsts/plugin-update-checker/Puc/v4p4/Plugin/UpdateChecker.php:552
+msgctxt "the plugin title"
+msgid "Could not determine if updates are available for %s."
 msgstr ""

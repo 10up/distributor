@@ -1,4 +1,9 @@
 <?php
+/**
+ * Admin list table for external connections
+ *
+ * @package  distributor
+ */
 
 namespace Distributor;
 
@@ -38,7 +43,7 @@ class ExternalConnectionListTable extends \WP_Posts_List_Table {
 	/**
 	 * We don't want to show extra table actions
 	 *
-	 * @param string $which
+	 * @param string $which Above or below nav.
 	 * @since 0.8
 	 */
 	public function extra_tablenav( $which ) { }

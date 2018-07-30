@@ -1,4 +1,9 @@
 <?php
+/**
+ * Utility functions
+ *
+ * @package distributor
+ */
 
 namespace Distributor\Utils;
 
@@ -13,6 +18,16 @@ function is_vip_com() {
 }
 
 /**
+ * Determine if Gutenberg is being used
+ *
+ * @since  1.2
+ * @return boolean
+ */
+function is_using_gutenberg() {
+	return ( function_exists( 'the_gutenberg_project' ) );
+}
+
+/**
  * Get Distributor settings with defaults
  *
  * @since  1.0
@@ -21,12 +36,65 @@ function is_vip_com() {
 function get_settings() {
 	$defaults = [
 		'override_author_byline' => true,
+		'email'                  => '',
+		'license_key'            => '',
+		'valid_license'          => null,
 	];
 
 	$settings = get_option( 'dt_settings', [] );
 	$settings = wp_parse_args( $settings, $defaults );
 
 	return $settings;
+}
+
+/**
+ * Get Distributor network settings with defaults
+ *
+ * @since  1.2
+ * @return array
+ */
+function get_network_settings() {
+	$defaults = [
+		'email'         => '',
+		'license_key'   => '',
+		'valid_license' => null,
+	];
+
+	$settings = get_site_option( 'dt_settings', [] );
+	$settings = wp_parse_args( $settings, $defaults );
+
+	return $settings;
+}
+
+/**
+ * Hit license API to see if key/email is valid
+ *
+ * @param  string $email Email address.
+ * @param  string $license_key License key.
+ * @since  1.2
+ * @return bool
+ */
+function check_license_key( $email, $license_key ) {
+
+	$request = wp_remote_post(
+		'https://distributorplugin.com/wp-json/distributor-theme/v1/validate-license', [
+			'timeout' => 10,
+			'body'    => [
+				'license_key' => $license_key,
+				'email'       => $email,
+			],
+		]
+	);
+
+	if ( is_wp_error( $request ) ) {
+		return false;
+	}
+
+	if ( 200 === wp_remote_retrieve_response_code( $request ) ) {
+		return true;
+	}
+
+	return false;
 }
 
 /**
@@ -42,8 +110,8 @@ function is_dt_debug() {
 /**
  * Given an array of meta, set meta to another post. Don't copy in blackisted (Distributor) meta.
  *
- * @param int   $post_id
- * @param array $meta
+ * @param int   $post_id Post ID.
+ * @param array $meta Array of meta as key => value
  */
 function set_meta( $post_id, $meta ) {
 	$blacklisted_meta = blacklisted_meta();
@@ -79,17 +147,54 @@ function distributable_post_types() {
 		unset( $post_types['attachment'] );
 	}
 
+	/**
+	 * Filter post types that are distributable.
+	 *
+	 * @since 1.0.0
+	 * @param array Post types that are distributable. Default 'all post types except dt_ext_connection and dt_subscription'.
+	 */
 	return apply_filters( 'distributable_post_types', array_diff( $post_types, [ 'dt_ext_connection', 'dt_subscription' ] ) );
 }
 
+/**
+ * Return post statuses that are allowed to be distributed.
+ *
+ * @since  1.0
+ * @return array
+ */
+function distributable_post_statuses() {
+
+	/**
+	 * Filter the post statuses that are allowed to be distributed.
+	 *
+	 * By default only published posts can be distributed.
+	 *
+	 * @param array Post statuses.
+	 */
+	return apply_filters( 'dt_distributable_post_statuses', array( 'publish' ) );
+}
+
+/**
+ * Returns list of blacklisted meta keys
+ *
+ * @since  1.2
+ * @return array
+ */
 function blacklisted_meta() {
-	return apply_filters( 'dt_blacklisted_meta', [ 'dt_unlinked', 'dt_connection_map', 'dt_subscription_update', 'dt_subscriptions', 'dt_subscription_signature', 'dt_original_post_id', 'dt_original_post_url', 'dt_original_blog_id', 'dt_syndicate_time', '_wp_attached_file', '_edit_lock', '_edit_last' ] );
+	/**
+	 * Filter meta keys that are blacklisted.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param array Blacklisted meta keys. Default 'dt_unlinked, dt_connection_map, dt_subscription_update, dt_subscriptions, dt_subscription_signature, dt_original_post_id, dt_original_post_url, dt_original_blog_id, dt_syndicate_time, _wp_attached_file, _edit_lock, _edit_last, _wp_old_slug, _wp_old_date.
+	 */
+	return apply_filters( 'dt_blacklisted_meta', [ 'dt_unlinked', 'dt_connection_map', 'dt_subscription_update', 'dt_subscriptions', 'dt_subscription_signature', 'dt_original_post_id', 'dt_original_post_url', 'dt_original_blog_id', 'dt_syndicate_time', '_wp_attached_file', '_edit_lock', '_edit_last', '_wp_old_slug', '_wp_old_date' ] );
 }
 
 /**
  * Prepare meta for consumption
  *
- * @param  int $post_id
+ * @param  int $post_id Post ID.
  * @since  1.0
  * @return array
  */
@@ -103,7 +208,10 @@ function prepare_meta( $post_id ) {
 	foreach ( $meta as $meta_key => $meta_array ) {
 		foreach ( $meta_array as $meta_value ) {
 			if ( ! in_array( $meta_key, $blacklisted_meta, true ) ) {
-				$meta_value                 = maybe_unserialize( $meta_value );
+				$meta_value = maybe_unserialize( $meta_value );
+				if ( false === apply_filters( 'dt_sync_meta', true, $meta_key, $meta_value, $post_id ) ) {
+					continue;
+				}
 				$prepared_meta[ $meta_key ] = $meta_value;
 			}
 		}
@@ -115,7 +223,7 @@ function prepare_meta( $post_id ) {
 /**
  * Format media items for consumption
  *
- * @param  int $post_id
+ * @param  int $post_id Post ID.
  * @since  1.0
  * @return array
  */
@@ -149,7 +257,7 @@ function prepare_media( $post_id ) {
 /**
  * Format taxonomy terms for consumption
  *
- * @param  int $post_id
+ * @param  int $post_id Post ID.
  * @since  1.0
  * @return array
  */
@@ -164,8 +272,8 @@ function prepare_taxonomy_terms( $post_id ) {
 	 *
 	 * @since 1.0
 	 *
-	 * @param array taxonomies  Associative array list of taxonomies supported by current post
-	 * @param object $post      The Post Object
+	 * @param array  $taxonomies  Associative array list of taxonomies supported by current post
+	 * @param object $post        The Post Object
 	 */
 	$taxonomies = apply_filters( 'dt_syncable_taxonomies', $taxonomies, $post );
 
@@ -180,8 +288,8 @@ function prepare_taxonomy_terms( $post_id ) {
  * Given an array of terms by taxonomy, set those terms to another post. This function will cleverly merge
  * terms into the post and create terms that don't exist.
  *
- * @param int   $post_id
- * @param array $taxonomy_terms
+ * @param int   $post_id Post ID.
+ * @param array $taxonomy_terms Array with taxonomy as key and array of terms as values.
  * @since 1.0
  */
 function set_taxonomy_terms( $post_id, $taxonomy_terms ) {
@@ -203,6 +311,13 @@ function set_taxonomy_terms( $post_id, $taxonomy_terms ) {
 			$term = get_term_by( 'slug', $term_array['slug'], $taxonomy );
 
 			// Create terms on remote site if they don't exist
+			/**
+			 * Filter whether missing terms should be created.
+			 *
+			 * @since 1.0.0
+			 *
+			 * @param bool true Controls whether missing terms should be created. Default 'true'.
+			 */
 			$create_missing_terms = apply_filters( 'dt_create_missing_terms', true );
 
 			if ( empty( $term ) ) {
@@ -225,6 +340,13 @@ function set_taxonomy_terms( $post_id, $taxonomy_terms ) {
 		}
 
 		// Handle hierarchical terms if they exist
+		/**
+		 * Filter whether term hierarchy should be updated.
+		 *
+		 * @since 1.0.0
+		 *
+		 * @param bool true Controls whether term hierarchy should be updated. Default 'true'.
+		 */
 		$update_term_hierachy = apply_filters( 'dt_update_term_hierarchy', true );
 
 		if ( ! empty( $update_term_hierachy ) ) {
@@ -252,8 +374,8 @@ function set_taxonomy_terms( $post_id, $taxonomy_terms ) {
  * Given an array of media, set the media to a new post. This function will cleverly merge media into the
  * new post deleting duplicates. Meta and featured image information for each image will be copied as well.
  *
- * @param int   $post_id
- * @param array $media
+ * @param int   $post_id Post ID.
+ * @param array $media Array of media posts.
  * @since 1.0
  */
 function set_media( $post_id, $media ) {
@@ -271,6 +393,14 @@ function set_media( $post_id, $media ) {
 	foreach ( $media as $media_item ) {
 
 		// Delete duplicate if it exists (unless filter says otherwise)
+		/**
+		 * Filter whether media should be deleted and replaced if it already exists.
+		 *
+		 * @since 1.0.0
+		 *
+		 * @param bool   true     Controls whether pre-existing media should be deleted and replaced. Default 'true'.
+		 * @param int    $post_id The post ID.
+		 */
 		if ( apply_filters( 'dt_sync_media_delete_and_replace', true, $post_id ) ) {
 			if ( ! empty( $current_media[ $media_item['source_url'] ] ) ) {
 				wp_delete_attachment( $current_media[ $media_item['source_url'] ], true );
@@ -315,7 +445,7 @@ function set_media( $post_id, $media ) {
 /**
  * This is a helper function for transporting/formatting data about a media post
  *
- * @param  WP_Post $media_post
+ * @param  WP_Post $media_post Media post.
  * @since  1.0
  * @return array
  */
@@ -327,7 +457,7 @@ function format_media_post( $media_post ) {
 
 	$media_item['featured'] = false;
 
-	if ( $media_post->ID === (int) get_post_thumbnail_id( $media_post->post_parent ) ) {
+	if ( (int) get_post_thumbnail_id( $media_post->post_parent ) === $media_post->ID ) {
 		$media_item['featured'] = true;
 	}
 
@@ -343,19 +473,19 @@ function format_media_post( $media_post ) {
 	$media_item['alt_text']      = get_post_meta( $media_post->ID, '_wp_attachment_image_alt', true );
 	$media_item['media_type']    = wp_attachment_is_image( $media_post->ID ) ? 'image' : 'file';
 	$media_item['mime_type']     = $media_post->post_mime_type;
-	$media_item['media_details'] = wp_get_attachment_metadata( $media_post->ID );
+	$media_item['media_details'] = apply_filters( 'dt_get_media_details', wp_get_attachment_metadata( $media_post->ID ), $media_post->ID );
 	$media_item['post']          = $media_post->post_parent;
 	$media_item['source_url']    = wp_get_attachment_url( $media_post->ID );
 	$media_item['meta']          = get_post_meta( $media_post->ID );
 
-	return $media_item;
+	return apply_filters( 'dt_media_item_formatted', $media_item, $media_post->ID );
 }
 
 /**
  * Simple function for sideloading media and returning the media id
  *
- * @param  string $url
- * @param  int    $post_id
+ * @param  string $url URL of media.
+ * @param  int    $post_id Post ID.
  * @since  1.0
  * @return int|bool
  */

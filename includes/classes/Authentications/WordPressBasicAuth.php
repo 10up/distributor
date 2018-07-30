@@ -1,4 +1,9 @@
 <?php
+/**
+ * WP basic auth functionality
+ *
+ * @package  distributor
+ */
 
 namespace Distributor\Authentications;
 
@@ -8,10 +13,32 @@ use \Distributor\Authentication as Authentication;
  * This auth type is simple username/password WP style
  */
 class WordPressBasicAuth extends Authentication {
-	static $slug                 = 'user-pass';
-	static $requires_credentials = true;
-	static $label                = 'Username/Password';
+	/**
+	 * Auth handler slug
+	 *
+	 * @var string
+	 */
+	public static $slug = 'user-pass';
 
+	/**
+	 * Does auth require creds or not
+	 *
+	 * @var boolean
+	 */
+	public static $requires_credentials = true;
+
+	/**
+	 * Pretty auth label to use
+	 *
+	 * @var string
+	 */
+	public static $label = 'Username/Password';
+
+	/**
+	 * Setup class
+	 *
+	 * @param array $args Assoc array of args.
+	 */
 	public function __construct( $args ) {
 		parent::__construct( $args );
 
@@ -27,10 +54,10 @@ class WordPressBasicAuth extends Authentication {
 	/**
 	 * Output credentials form for this auth type
 	 *
-	 * @param  array $args
+	 * @param  array $args Array of args.
 	 * @since  0.8
 	 */
-	static function credentials_form( $args = array() ) {
+	public static function credentials_form( $args = array() ) {
 		if ( empty( $args['username'] ) ) {
 			$args['username'] = '';
 		}
@@ -45,7 +72,7 @@ class WordPressBasicAuth extends Authentication {
 		<p>
 			<label for="dt_username"><?php esc_html_e( 'Password', 'distributor' ); ?> <?php
 			if ( ! empty( $args['base64_encoded'] ) ) :
-?>
+				?>
 <a class="change-password" href="#"><?php esc_html_e( '(Change)', 'distributor' ); ?></a><?php endif; ?></label><br>
 
 			<?php if ( ! empty( $args['base64_encoded'] ) ) : ?>
@@ -60,11 +87,11 @@ class WordPressBasicAuth extends Authentication {
 	/**
 	 * Prepare credentials for this auth type
 	 *
-	 * @param  array $args
+	 * @param  array $args Creds to prepare.
 	 * @since  0.8
 	 * @return array
 	 */
-	static function prepare_credentials( $args ) {
+	public static function prepare_credentials( $args ) {
 		$auth = array();
 
 		if ( ! empty( $args['username'] ) ) {
@@ -82,6 +109,8 @@ class WordPressBasicAuth extends Authentication {
 		/**
 		 * Filter the authorization credentials prepared before saving.
 		 *
+		 * @since 1.0
+		 *
 		 * @param array  $auth The credentials to be saved.
 		 * @param array  $args The arguments originally passed to .prepare_credentials'.
 		 * @param string $slug The authorization handler type slug.
@@ -92,8 +121,8 @@ class WordPressBasicAuth extends Authentication {
 	/**
 	 * Add basic auth headers to get args
 	 *
-	 * @param  array $args
-	 * @param  array $context
+	 * @param  array $args Args to format.
+	 * @param  array $context Current context.
 	 * @since  0.8
 	 * @return array
 	 */
@@ -112,8 +141,8 @@ class WordPressBasicAuth extends Authentication {
 	/**
 	 * Add basic auth headers to post args
 	 *
-	 * @param  array $args
-	 * @param  array $context
+	 * @param  array $args Args to format.
+	 * @param  array $context Current context.
 	 * @since  0.8
 	 * @return array
 	 */
