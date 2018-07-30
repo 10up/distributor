@@ -147,7 +147,6 @@ class NetworkSiteConnection extends Connection {
 			$post_props      = get_object_vars( $post );
 			$post_array      = array();
 			$current_blog_id = get_current_blog_id();
-			$original_post_parent = wp_get_post_parent_id( $item_array['post_id'] );
 
 			if ( ! empty( $post_props['meta']['dt_connection_map'] ) ) {
 				foreach ( $post_props['meta']['dt_connection_map'] as $distributed ) {
