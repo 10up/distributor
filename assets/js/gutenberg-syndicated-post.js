@@ -1,10 +1,10 @@
 import { wp, dtGutenberg } from 'window'
-const { registerPlugin } = wp.plugins;
+const { registerPlugin } = wp.plugins
 
 
 wp.i18n.setLocaleData( dtGutenberg.i18n, 'distributor' )
 
-if ( '0' !== dtGutenberg.originalSourceId || '0' !== dtGutenberg.originalBlogId ) {
+if ( dtGutenberg.originalSourceId !== '0' || dtGutenberg.originalBlogId !== '0' ) {
 
 	const messages = []
 
@@ -29,11 +29,10 @@ if ( '0' !== dtGutenberg.originalSourceId || '0' !== dtGutenberg.originalBlogId 
 
 		messages.push( '.' )
 
-		messages.push(
-			wp.element.createElement( 'span', {
-				key: 'message-span'
-			}, [
-			wp.i18n.sprintf( wp.i18n.__( " The original %1$s will update this version unless you ", 'distributor' ), dtGutenberg.postTypeSingular.toLowerCase() ),
+		messages.push( wp.element.createElement( 'span', {
+			key: 'message-span'
+		}, [
+			wp.i18n.sprintf( wp.i18n.__( ' The original %1$s will update this version unless you ', 'distributor' ), dtGutenberg.postTypeSingular.toLowerCase() ),
 			wp.element.createElement( 'a', {
 				href: dtGutenberg.unlinkNonceUrl,
 				key: 'original-unlink'
@@ -54,9 +53,9 @@ if ( '0' !== dtGutenberg.originalSourceId || '0' !== dtGutenberg.originalBlogId 
 		messages.push( '.' )
 
 		messages.push( wp.element.createElement( 'span', {
-				key: 'message-span'
+			key: 'message-span'
 		}, [
-			wp.i18n.sprintf( wp.i18n.__( " This %1$s has been unlinked from the original. However, you can always ", 'distributor' ), dtGutenberg.postTypeSingular.toLowerCase() ),
+			wp.i18n.sprintf( wp.i18n.__( ' This %1$s has been unlinked from the original. However, you can always ', 'distributor' ), dtGutenberg.postTypeSingular.toLowerCase() ),
 			wp.element.createElement( 'a', {
 				href: dtGutenberg.linkNonceUrl,
 				key: 'original-restore-link'

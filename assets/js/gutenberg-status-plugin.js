@@ -1,18 +1,18 @@
-import { wp, dtGutenberg } from 'window';
+import { wp, dtGutenberg } from 'window'
 
-if ( 'undefined' !== typeof wp.editPost.PluginPostStatusInfo ) {
-	const { registerPlugin } = wp.plugins;
-	const { PluginPostStatusInfo } = wp.editPost;
-	const { __ } = wp.i18n;
-	const { PanelRow } =  wp.components;
+if ( typeof wp.editPost.PluginPostStatusInfo !== 'undefined' ) {
+	const { registerPlugin } = wp.plugins
+	const { PluginPostStatusInfo } = wp.editPost
+	const { __ } = wp.i18n
+	const { PanelRow } =  wp.components
 
 	const renderDistributedFrom = () => {
 		return(
 			<PluginPostStatusInfo>
-					<span id='distributed-from'>
-						{ __( 'Distributed on: ' ) }
-						<strong> { dtGutenberg.syndicationTime } </strong>
-					</span>
+				<span id='distributed-from'>
+					{ __( 'Distributed on: ' ) }
+					<strong> { dtGutenberg.syndicationTime } </strong>
+				</span>
 			</PluginPostStatusInfo>
 		)
 	}
@@ -21,11 +21,9 @@ if ( 'undefined' !== typeof wp.editPost.PluginPostStatusInfo ) {
 		return(
 			<PluginPostStatusInfo>
 				<span id='distributed-to'>
-					{ wp.i18n.sprintf(
-						wp.i18n.__( "Distributed to %1$s connection%2$s.", 'distributor' ),
+					{ wp.i18n.sprintf( wp.i18n.__( 'Distributed to %1$s connection%2$s.', 'distributor' ),
 						dtGutenberg.syndicationCount,
-						'1' === dtGutenberg.syndicationCount ? '' : 's'
-					) }
+						dtGutenberg.syndicationCount === '1' ? '' : 's' ) }
 				</span>
 			</PluginPostStatusInfo>
 		)
@@ -35,7 +33,7 @@ if ( 'undefined' !== typeof wp.editPost.PluginPostStatusInfo ) {
 
 	if ( parseInt( dtGutenberg.syndicationCount ) > 0 ) {
 		registerPlugin( 'distributor-status-panel', { render: renderDistributedTo } )
-	} else if ( 0 !== parseInt( dtGutenberg.syndicationTime ) ) {
+	} else if ( parseInt( dtGutenberg.syndicationTime ) !== 0 ) {
 		registerPlugin( 'distributor-status-panel', { render: renderDistributedFrom } )
 	}
 }
