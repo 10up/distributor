@@ -55,18 +55,18 @@ __Gutenberg Block Mismatch__ - When distributing a Gutenberg post to another sit
 
 __Parent Posts__ - Distributor does not "bring along" parent (or child posts). If your post (or custom post type) has a parent or a child, it will distribute it as if it's an orphan.
 
-__External Connection Post Type Support__ - Currently, when pulling content from external connections, only items that are in the "Post" post type will show up. This means you won't be able to pull other types of content from external connections. We have it on our roadmap to add support for other post types soon.
+__External Connection Post Type Support__ - When _pulling_ content from an external connection, only "Posts" (post type) content will appear. _Pulling_ other post types from _external_ connections is not currently supported. Internal connections (multisite) support multiple post types, and other post types can still be _pushed_ to external connections that support the post type. This will be addressed in an upcoming release, including an improved interface for navigating available content by post types supported on both sides.
 
 ## Changelog
 
 * 1.2.2
-	* Fix the sync log for internal connections. **Backwards compatibility break**: all internal posts that were previously skipped or pulled will show as available for pull again
-	* Don’t set Distributor meta on REST API post creation unless it's a Distributor push
+	* Fixed an issue where content pulled or skipped from an internal connection (in the Pull interface) would show up as "pulled" across all internal sites / connections. **Backwards compatibility break**: internal posts that were previously skipped or pulled will show as available for pull again in all internal sites.
+	* Don’t set Distributor meta data on REST API post creation unless post was created by Distributor
 	* Add helper function to return post statuses that are allowed to be distributed
 	* Utilize the og:url from Yoast for external connections
 	* Blacklist the `_wp_old_slug` and `_wp_old_date` meta
-	* Disable pull UI when switching connections
-	* Add new filters around authorized sites for internal connections
+	* Disable pull UI while switching between pull connections
+	* Add new filters for authorized sites for internal connections
 	* Documentation and formatting updates
 * 1.2.1 - Gutenberg bug fixes; fix parent post bug.
 * 1.2.0 - Gutenberg support, public release.
