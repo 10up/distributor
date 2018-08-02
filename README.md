@@ -55,8 +55,19 @@ __Gutenberg Block Mismatch__ - When distributing a Gutenberg post to another sit
 
 __Parent Posts__ - Distributor does not "bring along" parent (or child posts). If your post (or custom post type) has a parent or a child, it will distribute it as if it's an orphan.
 
+__External Connection Post Type Support__ - Currently, when pulling content from external connections, only items that are in the "Post" post type will show up. This means you won't be able to pull other types of content from external connections. We have it on our roadmap to add support for other post types soon.
+
 ## Changelog
 
+* 1.2.2
+	* Fix the sync log for internal connections. **Backwards compatibility break**: all internal posts that were previously skipped or pulled will show as available for pull again
+	* Don’t set Distributor meta on REST API post creation unless it's a Distributor push
+	* Add helper function to return post statuses that are allowed to be distributed
+	* Utilize the og:url from Yoast for external connections
+	* Blacklist the `_wp_old_slug` and `_wp_old_date` meta
+	* Disable pull UI when switching connections
+	* Add new filters around authorized sites for internal connections
+	* Documentation and formatting updates
 * 1.2.1 - Gutenberg bug fixes; fix parent post bug.
 * 1.2.0 - Gutenberg support, public release.
 * 1.1.0 - Enable WordPress.com Oauth2 authentication.
