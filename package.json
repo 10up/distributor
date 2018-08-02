@@ -4,6 +4,8 @@
   "author": "Taylor Lovett, 10up",
   "scripts": {
     "build": "./node_modules/.bin/gulp",
+    "lint": "./node_modules/.bin/eslint assets/js",
+    "lint-fix": "./node_modules/.bin/eslint assets/js --fix",
     "js": "./node_modules/.bin/gulp",
     "watch": "./node_modules/.bin/gulp watch",
     "css": "./node_modules/.bin/gulp css",

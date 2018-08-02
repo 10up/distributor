@@ -25,9 +25,8 @@ function setup() {
 	);
 }
 
-
 /**
- * Check if post is syndicatable
+ * Check if we're on a syndicatable admin post edit view or single post template.
  *
  * @since   0.8
  * @return  bool
@@ -37,36 +36,31 @@ function syndicatable() {
 		return false;
 	}
 
-	// Only published posts can be distributed.
-	/**
-	 * Filter whether drafts are distributable.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @param bool false Whether drafts can be distributed.
-	 */
-	if ( 'publish' !== get_post_status() && ! apply_filters( 'dt_drafts_can_be_distributed', false ) ) {
-		return false;
-	}
-
 	if ( is_admin() ) {
+
 		global $pagenow;
 
 		if ( 'post.php' !== $pagenow ) {
-			return false;
-		}
-
-		if ( ! in_array( get_post_type(), \Distributor\Utils\distributable_post_types(), true ) || ( ! empty( $_GET['post_type'] ) && 'dt_ext_connection' === $_GET['post_type'] ) ) {
 			return false;
 		}
 	} else {
 		if ( ! is_single() ) {
 			return false;
 		}
+	}
 
-		if ( ! in_array( get_post_type(), \Distributor\Utils\distributable_post_types(), true ) ) {
-			return false;
-		}
+	global $post;
+
+	if ( empty( $post ) ) {
+		return;
+	}
+
+	if ( ! in_array( $post->post_status, \Distributor\Utils\distributable_post_statuses(), true ) ) {
+		return false;
+	}
+
+	if ( ! in_array( get_post_type(), \Distributor\Utils\distributable_post_types(), true ) || ( ! empty( $_GET['post_type'] ) && 'dt_ext_connection' === $_GET['post_type'] ) ) {
+		return false;
 	}
 
 	return true;
@@ -132,8 +126,8 @@ function ajax_push() {
 					$push_args['remote_post_id'] = (int) $connection_map['external'][ (int) $connection['id'] ]['post_id'];
 				}
 
-				if ( ! empty( $_POST['draft'] ) ) {
-					$push_args['post_status'] = 'draft';
+				if ( ! empty( $_POST['post_status'] ) && in_array( $_POST['post_status'], \Distributor\Utils\distributable_post_statuses(), true ) ) {
+					$push_args['post_status'] = $_POST['post_status'];
 				}
 
 				$remote_id = $external_connection->push( intval( $_POST['post_id'] ), $push_args );
@@ -169,8 +163,8 @@ function ajax_push() {
 				$push_args['remote_post_id'] = (int) $connection_map['internal'][ (int) $connection['id'] ]['post_id'];
 			}
 
-			if ( ! empty( $_POST['draft'] ) ) {
-				$push_args['post_status'] = 'draft';
+			if ( ! empty( $_POST['post_status'] ) && in_array( $_POST['post_status'], \Distributor\Utils\distributable_post_statuses(), true ) ) {
+				$push_args['post_status'] = esc_attr( $_POST['post_status'] );
 			}
 
 			$remote_id = $internal_connection->push( intval( $_POST['post_id'] ), $push_args );
@@ -483,16 +477,9 @@ syndicated<?php endif; ?>" data-connection-type="internal" data-connection-id="<
 						<div class="selected-connections-list"></div>
 
 						<div class="action-wrapper">
-							<?php
-							/**
-							 * Only show the "As Draft" checkbox If draft distribution is enabled and the post
-							 * status is not draft, posts can only be pushed as drafts. Draft posts always
-							 * distribute as drafts.
-							 */
-							if ( ! apply_filters( 'dt_drafts_can_be_distributed', false ) || 'draft' !== get_post_status() ) :
-								?>
-								<button class="syndicate-button"><?php esc_html_e( 'Distribute', 'distributor' ); ?></button> <label class="as-draft" for="dt-as-draft"><input type="checkbox" id="dt-as-draft" checked> <?php esc_html_e( 'As draft', 'distributor' ); ?></label>
-							<?php endif; ?>
+							<input type="hidden" id="dt-post-status" value="<?php echo esc_attr( $post->post_status ); ?>">
+							<?php $as_draft = ( 'draft' !== $post->post_status && in_array( 'draft', \Distributor\Utils\distributable_post_statuses() ) ) ? true : false; ?>
+							<button class="syndicate-button"><?php esc_html_e( 'Distribute', 'distributor' ); ?></button> <?php if ( $as_draft ) : ?><label class="as-draft" for="dt-as-draft"><input type="checkbox" id="dt-as-draft" checked> <?php esc_html_e( 'As draft', 'distributor' ); ?></label><?php endif; ?>
 						</div>
 					</div>
 

@@ -157,6 +157,24 @@ function distributable_post_types() {
 }
 
 /**
+ * Return post statuses that are allowed to be distributed.
+ *
+ * @since  1.0
+ * @return array
+ */
+function distributable_post_statuses() {
+
+	/**
+	 * Filter the post statuses that are allowed to be distributed.
+	 *
+	 * By default only published posts can be distributed.
+	 *
+	 * @param array Post statuses.
+	 */
+	return apply_filters( 'dt_distributable_post_statuses', array( 'publish' ) );
+}
+
+/**
  * Returns list of blacklisted meta keys
  *
  * @since  1.2
@@ -168,9 +186,9 @@ function blacklisted_meta() {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param array Post types that are distributable. Default 'dt_unlinked, dt_connection_map, dt_subscription_update, dt_subscriptions, dt_subscription_signature, dt_original_post_id, dt_original_post_url, dt_original_blog_id, dt_syndicate_time, _wp_attached_file, _edit_lock, _edit_last'.
+	 * @param array Blacklisted meta keys. Default 'dt_unlinked, dt_connection_map, dt_subscription_update, dt_subscriptions, dt_subscription_signature, dt_original_post_id, dt_original_post_url, dt_original_blog_id, dt_syndicate_time, _wp_attached_file, _edit_lock, _edit_last, _wp_old_slug, _wp_old_date.
 	 */
-	return apply_filters( 'dt_blacklisted_meta', [ 'dt_unlinked', 'dt_connection_map', 'dt_subscription_update', 'dt_subscriptions', 'dt_subscription_signature', 'dt_original_post_id', 'dt_original_post_url', 'dt_original_blog_id', 'dt_syndicate_time', '_wp_attached_file', '_edit_lock', '_edit_last' ] );
+	return apply_filters( 'dt_blacklisted_meta', [ 'dt_unlinked', 'dt_connection_map', 'dt_subscription_update', 'dt_subscriptions', 'dt_subscription_signature', 'dt_original_post_id', 'dt_original_post_url', 'dt_original_blog_id', 'dt_syndicate_time', '_wp_attached_file', '_edit_lock', '_edit_last', '_wp_old_slug', '_wp_old_date' ] );
 }
 
 /**

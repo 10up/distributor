@@ -6,7 +6,7 @@ import livereload from 'gulp-livereload';
 requireDir( './gulp-tasks' );
 
 /**
- * Gulp task to run all SVG processes in a sequenctial order.
+ * Gulp task to run all JS processes in a sequenctial order.
 */
 gulp.task( 'js', () => {
 	runSequence(

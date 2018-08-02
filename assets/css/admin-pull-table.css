@@ -1,3 +1,16 @@
+.distributor_page_pull {
+
+	&.dt-loading {
+
+		& #posts-filter,
+		& .subsubsub {
+			opacity: .5;
+			pointer-events: none;
+			cursor: default;
+		}
+	}
+}
+
 .status-sync .check-column {
 	display: none;
 }
