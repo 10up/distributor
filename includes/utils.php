@@ -415,12 +415,17 @@ function set_media( $post_id, $media ) {
 			}
 		}
 
+		// Exit if the image ID is not valid.
+		if ( ! $image_id ) {
+			continue;
+		}
+
 		update_post_meta( $image_id, 'dt_original_media_url', $media_item['source_url'] );
 		update_post_meta( $image_id, 'dt_original_media_id', $media_item['id'] );
 
 		if ( $media_item['featured'] ) {
 			$found_featured_image = true;
-			update_post_meta( $post_id, '_thumbnail_id', $image_id );
+			set_post_thumbnail( $post_id, $image_id );
 		}
 
 		// Transfer all meta
@@ -511,5 +516,9 @@ function process_media( $url, $post_id ) {
 	}
 
 	// Do the validation and storage stuff.
-	return media_handle_sideload( $file_array, $post_id );
+	$result = media_handle_sideload( $file_array, $post_id );
+	if ( is_wp_error( $result ) ) {
+		return false;
+	}
+	return (int) $result;
 }

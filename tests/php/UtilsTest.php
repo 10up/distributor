@@ -486,9 +486,9 @@ class UtilsTest extends \TestCase {
 		);
 
 		\WP_Mock::userFunction(
-			'update_post_meta', [
+			'set_post_thumbnail', [
 				'times' => 1,
-				'args'  => [ $post_id, '_thumbnail_id', $new_image_id ],
+				'args'  => [ $post_id, $new_image_id ],
 			]
 		);
 
