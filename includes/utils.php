@@ -101,14 +101,14 @@ function get_featured_image( $post_id ) {
 function get_media( $post_id, $featured_image ) {
 
 	/**
-	 * Don't process media by default.
+	 * Determine if we should process media items or not.
 	 *
 	 * @param bool true     If Distributor should bypass grabbing media.
 	 *                      Default true.
 	 * @param int  $post_id The post ID.
 	 * @since 1.2.2
 	 */
-	if ( $bypass = apply_filters( 'dt_process_media', true, $post_id ) ) {
+	if ( $bypass = apply_filters( 'dt_bypass_media_processing', true, $post_id ) ) {
 		return array();
 	}
 
