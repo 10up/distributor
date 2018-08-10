@@ -99,6 +99,19 @@ function get_featured_image( $post_id ) {
  * @return array
  */
 function get_media( $post_id, $featured_image ) {
+
+	/**
+	 * Don't process media by default.
+	 *
+	 * @param bool true     If Distributor should bypass grabbing media.
+	 *                      Default true.
+	 * @param int  $post_id The post ID.
+	 * @since 1.2.2
+	 */
+	if ( $bypass = apply_filters( 'dt_process_media', true, $post_id ) ) {
+		return array();
+	}
+
 	$raw_media   = get_attached_media( get_allowed_mime_types(), $post_id );
 	$media_array = array();
 

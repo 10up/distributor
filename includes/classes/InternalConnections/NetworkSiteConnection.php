@@ -115,12 +115,12 @@ class NetworkSiteConnection extends Connection {
 			/**
 			 * Allow plugins to override the default {@see \Distributor\Utils\set_media()} function.
 			 *
-			 * @param bool               true           If Distributor should set the post media.
-			 * @param int                $new_post_id   The newly created post ID.
-			 * @param array              $media         List of media items attached to the post, formatted by {@see \Distributor\Utils\prepare_media()}.
-			 * @param int                $post_id       The original post ID.
-			 * @param array              $args          The arguments passed into wp_insert_post.
-			 * @param ExternalConnection $this          The distributor connection being pushed to.
+			 * @param bool                  true           If Distributor should set the post media.
+			 * @param int                   $new_post_id   The newly created post ID.
+			 * @param array                 $media         List of media items attached to the post, formatted by {@see \Distributor\Utils\prepare_media()}.
+			 * @param int                   $post_id       The original post ID.
+			 * @param array                 $args          The arguments passed into wp_insert_post.
+			 * @param NetworkSiteConnection $this          The distributor connection being pushed to.
 			 */
 			if ( apply_filters( 'dt_push_post_media', true, $new_post_id, $media, $post_id, $args, $this ) ) {
 				\Distributor\Utils\set_media( $new_post_id, $media );
@@ -206,7 +206,20 @@ class NetworkSiteConnection extends Connection {
 
 				\Distributor\Utils\set_meta( $new_post_id, $post->meta );
 				\Distributor\Utils\set_taxonomy_terms( $new_post_id, $post->terms );
-				\Distributor\Utils\set_media( $new_post_id, $post->media );
+
+				/**
+				 * Allow plugins to override the default {@see \Distributor\Utils\set_media()} function.
+				 *
+				 * @param bool                  true           If Distributor should set the post media.
+				 * @param int                   $new_post_id   The newly created post ID.
+				 * @param array                 $post->media   List of media items attached to the post, formatted by {@see \Distributor\Utils\prepare_media()}.
+				 * @param int                   $post_id       The original post ID.
+				 * @param array                 $post_array    The arguments passed into wp_insert_post.
+				 * @param NetworkSiteConnection $this          The distributor connection being pushed to.
+				 */
+				if ( apply_filters( 'dt_pull_post_media', true, $new_post_id, $post->media, $item_array['remote_post_id'], $post_array, $this ) ) {
+					\Distributor\Utils\set_media( $new_post_id, $post->media );
+				};
 			}
 
 			switch_to_blog( $this->site->blog_id );
