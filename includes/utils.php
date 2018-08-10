@@ -67,6 +67,54 @@ function get_network_settings() {
 }
 
 /**
+ * Get the featured image.
+ *
+ * @param  int $post_id Post ID.
+ * @since  1.2.2
+ * @return array
+ */
+function get_featured_image( $post_id ) {
+	// Make sure we have a featured image set
+	if ( ! $featured_image_id = get_post_thumbnail_id( $post_id ) ) {
+		return array();
+	}
+
+	// Make sure this featured image exists
+	if ( ! $featured_image = get_post( $featured_image_id ) ) {
+		return array();
+	}
+
+	$featured_image             = format_media_post( $featured_image );
+	$featured_image['featured'] = true;
+
+	return $featured_image;
+}
+
+/**
+ * Get media associated with a post.
+ *
+ * @param int $post_id Post ID.
+ * @param array $featured_image Featured image data.
+ * @since 1.2.2
+ * @return array
+ */
+function get_media( $post_id, $featured_image ) {
+	$raw_media   = get_attached_media( get_allowed_mime_types(), $post_id );
+	$media_array = array();
+
+	foreach ( $raw_media as $media_post ) {
+		// If this media item is the featured image we already have, skip it
+		if ( isset( $featured_image['id'] ) && $media_post->ID === $featured_image['id'] ) {
+			continue;
+		}
+
+		$media_array[] = format_media_post( $media_post );
+	}
+
+	return $media_array;
+}
+
+/**
  * Hit license API to see if key/email is valid
  *
  * @param  string $email Email address.
@@ -228,30 +276,10 @@ function prepare_meta( $post_id ) {
  * @return array
  */
 function prepare_media( $post_id ) {
-	$raw_media   = get_attached_media( get_allowed_mime_types(), $post_id );
-	$media_array = array();
+	$featured_image = get_featured_image( $post_id );
+	$media          = get_media( $post_id, $featured_image );
 
-	$featured_image_id = get_post_thumbnail_id( $post_id );
-	$found_featured    = false;
-
-	foreach ( $raw_media as $media_post ) {
-		$media_item = format_media_post( $media_post );
-
-		if ( $media_item['featured'] ) {
-			$found_featured = true;
-		}
-
-		$media_array[] = $media_item;
-	}
-
-	if ( ! empty( $featured_image_id ) && ! $found_featured ) {
-		$featured_image             = format_media_post( get_post( $featured_image_id ) );
-		$featured_image['featured'] = true;
-
-		$media_array[] = $featured_image;
-	}
-
-	return $media_array;
+	return array_merge( $featured_image, $media );
 }
 
 /**
