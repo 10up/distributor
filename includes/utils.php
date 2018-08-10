@@ -36,6 +36,7 @@ function is_using_gutenberg() {
 function get_settings() {
 	$defaults = [
 		'override_author_byline' => true,
+		'media_handling'         => 'featured',
 		'email'                  => '',
 		'license_key'            => '',
 		'valid_license'          => null,

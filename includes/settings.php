@@ -24,6 +24,7 @@ function setup() {
 				add_action( 'admin_init', __NAMESPACE__ . '\handle_network_settings' );
 			}
 
+			add_action( 'init', __NAMESPACE__ . '\set_media_filter' );
 			add_action( 'admin_init', __NAMESPACE__ . '\setup_fields_sections' );
 			add_action( 'admin_init', __NAMESPACE__ . '\register_settings' );
 			add_action( 'admin_notices', __NAMESPACE__ . '\maybe_notice' );
@@ -33,6 +34,19 @@ function setup() {
 			add_action( 'admin_enqueue_scripts', __NAMESPACE__ . '\admin_enqueue_scripts' );
 		}
 	);
+}
+
+/**
+ * If we want all attached images, set the proper filter.
+ *
+ * @since 1.2.2
+ */
+function set_media_filter() {
+	$settings = Utils\get_settings();
+
+	if ( 'attached' === $settings['media_handling'] ) {
+		add_filter( 'dt_bypass_media_processing', '__return_false' );
+	}
 }
 
 /**
@@ -167,6 +181,8 @@ function setup_fields_sections() {
 
 	add_settings_field( 'override_author_byline', esc_html__( 'Override Author Byline', 'distributor' ), __NAMESPACE__ . '\override_author_byline_callback', 'distributor', 'dt-section-1' );
 
+	add_settings_field( 'media_handling', esc_html__( 'Media Handling', 'distributor' ), __NAMESPACE__ . '\media_handling_callback', 'distributor', 'dt-section-1' );
+
 	if ( false === DT_IS_NETWORK ) {
 		add_settings_field( 'registation_key', esc_html__( 'Registration Key', 'distributor' ), __NAMESPACE__ . '\license_key_callback', 'distributor', 'dt-section-1' );
 	}
@@ -218,6 +234,33 @@ function license_key_callback() {
 }
 
 /**
+ * Output media handling options.
+ *
+ * @since 1.2.2
+ */
+function media_handling_callback() {
+	$settings = Utils\get_settings();
+?>
+
+	<ul class="media-handling">
+		<li>
+			<input <?php checked( $settings['media_handling'], 'featured' ); ?> type="radio" value="featured" name="dt_settings[media_handling]">
+			<span class="description">
+		<?php esc_html_e( 'Process the featured image only (default).', 'distributor' ); ?>
+	</span>
+		</li>
+		<li>
+			<input <?php checked( $settings['media_handling'], 'attached' ); ?> type="radio" value="attached" name="dt_settings[media_handling]">
+			<span class="description">
+		<?php esc_html_e( 'Process the featured image and any attached images.', 'distributor' ); ?>
+	</span>
+		</li>
+	</ul>
+
+<?php
+}
+
+/**
  * Register settings for options table
  *
  * @since  1.0
@@ -234,6 +277,7 @@ function register_settings() {
 function admin_menu() {
 	add_submenu_page( 'distributor', esc_html__( 'Settings', 'distributor' ), esc_html__( 'Settings', 'distributor' ), 'manage_options', 'distributor-settings', __NAMESPACE__ . '\settings_screen' );
 }
+
 /**
  * Output network setting menu option
  *
@@ -358,6 +402,12 @@ function sanitize_settings( $settings ) {
 		$new_settings['override_author_byline'] = false;
 	} else {
 		$new_settings['override_author_byline'] = true;
+	}
+
+	if ( ! isset( $settings['media_handling'] ) || ! in_array( $settings['media_handling'], array( 'featured', 'attached' ), true ) ) {
+		$new_settings['media_handling'] = 'featured';
+	} else {
+		$new_settings['media_handling'] = sanitize_text_field( $settings['media_handling'] );
 	}
 
 	if ( isset( $settings['license_key'] ) ) {
