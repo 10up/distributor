@@ -167,11 +167,11 @@ function distributable_post_statuses() {
 	/**
 	 * Filter the post statuses that are allowed to be distributed.
 	 *
-	 * By default only published and draft posts can be distributed.
+	 * By default only published posts can be distributed.
 	 *
 	 * @param array Post statuses.
 	 */
-	return apply_filters( 'dt_distributable_post_statuses', array( 'publish', 'draft' ) );
+	return apply_filters( 'dt_distributable_post_statuses', array( 'publish' ) );
 }
 
 /**
