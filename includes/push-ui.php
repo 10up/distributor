@@ -126,8 +126,8 @@ function ajax_push() {
 					$push_args['remote_post_id'] = (int) $connection_map['external'][ (int) $connection['id'] ]['post_id'];
 				}
 
-				if ( ! empty( $_POST['postStatus'] ) && in_array( $_POST['postStatus'], \Distributor\Utils\distributable_post_statuses(), true ) ) {
-					$push_args['post_status'] = $_POST['postStatus'];
+				if ( ! empty( $_POST['post_status'] ) ) {
+					$push_args['post_status'] = $_POST['post_status'];
 				}
 
 				$remote_id = $external_connection->push( intval( $_POST['postId'] ), $push_args );
@@ -163,8 +163,8 @@ function ajax_push() {
 				$push_args['remote_post_id'] = (int) $connection_map['internal'][ (int) $connection['id'] ]['post_id'];
 			}
 
-			if ( ! empty( $_POST['postStatus'] ) && in_array( $_POST['postStatus'], \Distributor\Utils\distributable_post_statuses(), true ) ) {
-				$push_args['post_status'] = esc_attr( $_POST['postStatus'] );
+			if ( ! empty( $_POST['post_status'] ) ) {
+				$push_args['post_status'] = esc_attr( $_POST['post_status'] );
 			}
 
 			$remote_id = $internal_connection->push( intval( $_POST['postId'] ), $push_args );
@@ -478,7 +478,17 @@ syndicated<?php endif; ?>" data-connection-type="internal" data-connection-id="<
 
 						<div class="action-wrapper">
 							<input type="hidden" id="dt-post-status" value="<?php echo esc_attr( $post->post_status ); ?>">
-							<?php $as_draft = ( 'draft' !== $post->post_status && in_array( 'draft', \Distributor\Utils\distributable_post_statuses() ) ) ? true : false; ?>
+							<?php
+								$as_draft = ( 'draft' !== $post->post_status ) ? true : false;
+								/**
+								 * Filter whether the 'As Draft' option appears in the push ui.
+								 *
+								 * @param bool    $as_draft   Whether the 'As Draft' option should appear.
+								 * @param object  $connection The connection being used to push.
+								 * @param WP_Post $post       The post being pushed.
+								 */
+								$as_draft = apply_filters( 'dt_allow_as_draft_distribute', $as_draft, $connection, $post );
+							?>
 							<button class="syndicate-button"><?php esc_html_e( 'Distribute', 'distributor' ); ?></button> <?php if ( $as_draft ) : ?><label class="as-draft" for="dt-as-draft"><input type="checkbox" id="dt-as-draft" checked> <?php esc_html_e( 'As draft', 'distributor' ); ?></label><?php endif; ?>
 						</div>
 					</div>
