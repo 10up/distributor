@@ -36,9 +36,8 @@
     "require-dir": "^1.0.0",
     "run-sequence": "^2.2.1",
     "webpack": "^3.11.0",
-    "webpack-stream": "^4.0.1"
-  },
-  "devDependencies": {
-    "babel-register": "^6.26.0"
+    "webpack-stream": "^4.0.1",
+    "babel-register": "^6.26.0",
+    "@10up/eslint-config": "^1.0.6"
   }
 }

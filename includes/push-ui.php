@@ -77,7 +77,7 @@ function ajax_push() {
 		exit;
 	}
 
-	if ( empty( $_POST['post_id'] ) ) {
+	if ( empty( $_POST['postId'] ) ) {
 		wp_send_json_error();
 		exit;
 	}
@@ -87,7 +87,7 @@ function ajax_push() {
 		exit;
 	}
 
-	$connection_map = get_post_meta( intval( $_POST['post_id'] ), 'dt_connection_map', true );
+	$connection_map = get_post_meta( intval( $_POST['postId'] ), 'dt_connection_map', true );
 	if ( empty( $connection_map ) ) {
 		$connection_map = array();
 	}
@@ -126,11 +126,11 @@ function ajax_push() {
 					$push_args['remote_post_id'] = (int) $connection_map['external'][ (int) $connection['id'] ]['post_id'];
 				}
 
-				if ( ! empty( $_POST['post_status'] ) && in_array( $_POST['post_status'], \Distributor\Utils\distributable_post_statuses(), true ) ) {
-					$push_args['post_status'] = $_POST['post_status'];
+				if ( ! empty( $_POST['postStatus'] ) && in_array( $_POST['postStatus'], \Distributor\Utils\distributable_post_statuses(), true ) ) {
+					$push_args['post_status'] = $_POST['postStatus'];
 				}
 
-				$remote_id = $external_connection->push( intval( $_POST['post_id'] ), $push_args );
+				$remote_id = $external_connection->push( intval( $_POST['postId'] ), $push_args );
 
 				/**
 				 * Record the external connection id's remote post id for this local post
@@ -163,11 +163,11 @@ function ajax_push() {
 				$push_args['remote_post_id'] = (int) $connection_map['internal'][ (int) $connection['id'] ]['post_id'];
 			}
 
-			if ( ! empty( $_POST['post_status'] ) && in_array( $_POST['post_status'], \Distributor\Utils\distributable_post_statuses(), true ) ) {
-				$push_args['post_status'] = esc_attr( $_POST['post_status'] );
+			if ( ! empty( $_POST['postStatus'] ) && in_array( $_POST['postStatus'], \Distributor\Utils\distributable_post_statuses(), true ) ) {
+				$push_args['post_status'] = esc_attr( $_POST['postStatus'] );
 			}
 
-			$remote_id = $internal_connection->push( intval( $_POST['post_id'] ), $push_args );
+			$remote_id = $internal_connection->push( intval( $_POST['postId'] ), $push_args );
 
 			/**
 			 * Record the internal connection id's remote post id for this local post
@@ -198,7 +198,7 @@ function ajax_push() {
 		}
 	}
 
-	update_post_meta( intval( $_POST['post_id'] ), 'dt_connection_map', $connection_map );
+	update_post_meta( intval( $_POST['postId'] ), 'dt_connection_map', $connection_map );
 
 	wp_send_json_success(
 		array(
@@ -228,7 +228,7 @@ function enqueue_scripts( $hook ) {
 	wp_localize_script(
 		'dt-push', 'dt', array(
 			'nonce'   => wp_create_nonce( 'dt-push' ),
-			'post_id' => (int) get_the_ID(),
+			'postId'  => (int) get_the_ID(),
 			'ajaxurl' => esc_url( admin_url( 'admin-ajax.php' ) ),
 
 			/**
