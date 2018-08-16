@@ -240,7 +240,7 @@ function license_key_callback() {
  */
 function media_handling_callback() {
 	$settings = Utils\get_settings();
-?>
+	?>
 
 	<ul class="media-handling">
 		<li>
@@ -257,7 +257,7 @@ function media_handling_callback() {
 		</li>
 	</ul>
 
-<?php
+	<?php
 }
 
 /**

@@ -76,12 +76,14 @@ function get_network_settings() {
  */
 function get_featured_image( $post_id ) {
 	// Make sure we have a featured image set
-	if ( ! $featured_image_id = get_post_thumbnail_id( $post_id ) ) {
+	$featured_image_id = get_post_thumbnail_id( $post_id );
+	if ( ! $featured_image_id ) {
 		return array();
 	}
 
 	// Make sure this featured image exists
-	if ( ! $featured_image = get_post( $featured_image_id ) ) {
+	$featured_image = get_post( $featured_image_id );
+	if ( ! $featured_image ) {
 		return array();
 	}
 
@@ -94,7 +96,7 @@ function get_featured_image( $post_id ) {
 /**
  * Get media associated with a post.
  *
- * @param int $post_id Post ID.
+ * @param int   $post_id Post ID.
  * @param array $featured_image Featured image data.
  * @since 1.2.2
  * @return array
@@ -109,7 +111,8 @@ function get_media( $post_id, $featured_image ) {
 	 * @param int  $post_id The post ID.
 	 * @since 1.2.2
 	 */
-	if ( $bypass = apply_filters( 'dt_bypass_media_processing', true, $post_id ) ) {
+	$bypass = apply_filters( 'dt_bypass_media_processing', true, $post_id );
+	if ( $bypass ) {
 		return array();
 	}
 
