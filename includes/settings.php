@@ -24,7 +24,6 @@ function setup() {
 				add_action( 'admin_init', __NAMESPACE__ . '\handle_network_settings' );
 			}
 
-			add_action( 'init', __NAMESPACE__ . '\set_media_filter' );
 			add_action( 'admin_init', __NAMESPACE__ . '\setup_fields_sections' );
 			add_action( 'admin_init', __NAMESPACE__ . '\register_settings' );
 			add_action( 'admin_notices', __NAMESPACE__ . '\maybe_notice' );
@@ -34,19 +33,6 @@ function setup() {
 			add_action( 'admin_enqueue_scripts', __NAMESPACE__ . '\admin_enqueue_scripts' );
 		}
 	);
-}
-
-/**
- * If we want all attached images, set the proper filter.
- *
- * @since 1.2.2
- */
-function set_media_filter() {
-	$settings = Utils\get_settings();
-
-	if ( 'attached' === $settings['media_handling'] ) {
-		add_filter( 'dt_bypass_media_processing', '__return_false' );
-	}
 }
 
 /**

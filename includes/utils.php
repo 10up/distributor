@@ -68,70 +68,6 @@ function get_network_settings() {
 }
 
 /**
- * Get the featured image.
- *
- * @param  int $post_id Post ID.
- * @since  1.2.2
- * @return array
- */
-function get_featured_image( $post_id ) {
-	// Make sure we have a featured image set
-	$featured_image_id = get_post_thumbnail_id( $post_id );
-	if ( ! $featured_image_id ) {
-		return array();
-	}
-
-	// Make sure this featured image exists
-	$featured_image = get_post( $featured_image_id );
-	if ( ! $featured_image ) {
-		return array();
-	}
-
-	$featured_image             = format_media_post( $featured_image );
-	$featured_image['featured'] = true;
-
-	return $featured_image;
-}
-
-/**
- * Get media associated with a post.
- *
- * @param int   $post_id Post ID.
- * @param array $featured_image Featured image data.
- * @since 1.2.2
- * @return array
- */
-function get_media( $post_id, $featured_image ) {
-
-	/**
-	 * Determine if we should process media items or not.
-	 *
-	 * @param bool true     If Distributor should bypass grabbing media.
-	 *                      Default true.
-	 * @param int  $post_id The post ID.
-	 * @since 1.2.2
-	 */
-	$bypass = apply_filters( 'dt_bypass_media_processing', true, $post_id );
-	if ( $bypass ) {
-		return array();
-	}
-
-	$raw_media   = get_attached_media( get_allowed_mime_types(), $post_id );
-	$media_array = array();
-
-	foreach ( $raw_media as $media_post ) {
-		// If this media item is the featured image we already have, skip it
-		if ( isset( $featured_image['id'] ) && $media_post->ID === $featured_image['id'] ) {
-			continue;
-		}
-
-		$media_array[] = format_media_post( $media_post );
-	}
-
-	return $media_array;
-}
-
-/**
  * Hit license API to see if key/email is valid
  *
  * @param  string $email Email address.
@@ -293,10 +229,30 @@ function prepare_meta( $post_id ) {
  * @return array
  */
 function prepare_media( $post_id ) {
-	$featured_image = get_featured_image( $post_id );
-	$media          = get_media( $post_id, $featured_image );
+	$raw_media   = get_attached_media( get_allowed_mime_types(), $post_id );
+	$media_array = array();
 
-	return array_merge( $featured_image, $media );
+	$featured_image_id = get_post_thumbnail_id( $post_id );
+	$found_featured    = false;
+
+	foreach ( $raw_media as $media_post ) {
+		$media_item = format_media_post( $media_post );
+
+		if ( $media_item['featured'] ) {
+			$found_featured = true;
+		}
+
+		$media_array[] = $media_item;
+	}
+
+	if ( ! empty( $featured_image_id ) && ! $found_featured ) {
+		$featured_image             = format_media_post( get_post( $featured_image_id ) );
+		$featured_image['featured'] = true;
+
+		$media_array[] = $featured_image;
+	}
+
+	return $media_array;
 }
 
 /**
@@ -424,6 +380,7 @@ function set_taxonomy_terms( $post_id, $taxonomy_terms ) {
  * @since 1.0
  */
 function set_media( $post_id, $media ) {
+	$settings            = get_settings(); // phpcs:ignore
 	$current_media_posts = get_attached_media( get_allowed_mime_types(), $post_id );
 	$current_media       = [];
 
@@ -434,6 +391,16 @@ function set_media( $post_id, $media ) {
 	}
 
 	$found_featured_image = false;
+
+	// If we only want to process the featured image, remove all other media
+	if ( 'featured' === $settings['media_handling'] ) {
+		$featured_keys = wp_list_pluck( $media, 'featured' );
+		$featured_key  = array_search( true, $featured_keys, true );
+
+		if ( $featured_key ) {
+			$media = array( $media[ $featured_key ] );
+		}
+	}
 
 	foreach ( $media as $media_item ) {
 
