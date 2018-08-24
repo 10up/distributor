@@ -350,16 +350,8 @@ class PullListTable extends \WP_List_Table {
 		$remote_get_args = [
 			'posts_per_page' => $per_page,
 			'paged'          => $current_page,
-			'post_type'      => \Distributor\Utils\distributable_post_types(),
+			'post_type'      => $connection_now->pull_post_type ?: 'post',
 		];
-
-		/**
-		 * Todo: Support pulling more than one post type from external connections. This is hard since
-		 * each endpoint can only return one post type.
-		 */
-		if ( is_a( $connection_now, '\Distributor\ExternalConnection' ) ) {
-			$remote_get_args['post_type'] = 'post';
-		}
 
 		if ( ! empty( $_GET['s'] ) ) {
 			$remote_get_args['s'] = sanitize_key( $_GET['s'] );

@@ -135,6 +135,39 @@ function set_meta( $post_id, $meta ) {
 }
 
 /**
+ * Get post types available for pulling.
+ *
+ * This will compare the public post types from a remote site
+ * against the public post types from the origin site and return
+ * an array of post types supported on both.
+ *
+ * @param \Distributor\Connection $connection Connection object
+ * @param string $type Connection type
+ * @since 1.3
+ * @return array
+ */
+function available_pull_post_types( $connection, $type ) {
+	$post_types        = array();
+	$remote_post_types = $connection->get_post_types();
+
+	if ( ! empty( $remote_post_types ) && ! is_wp_error( $remote_post_types ) ) {
+		$local_post_types = array_diff_key( get_post_types( [ 'public' => true ], 'objects' ), array_flip( [ 'attachment', 'dt_ext_connection', 'dt_subscription' ] ) );
+		$available_post_types = array_intersect_key( $remote_post_types, $local_post_types );
+
+		if ( ! empty( $available_post_types ) ) {
+			foreach ( $available_post_types as $post_type ) {
+				$post_types[] = array(
+					'name' => 'external' === $type ? $post_type['name'] : $post_type->label,
+					'slug' => 'external' === $type ? $post_type['slug'] : $post_type->name,
+				);
+			}
+		}
+	}
+
+	return $post_types;
+}
+
+/**
  * Return post types that are allowed to be distributed
  *
  * @since  1.0

@@ -298,8 +298,6 @@ function dashboard() {
 	global $connection_now;
 	global $dt_pull_messages;
 
-	$connection_list_table->prepare_items();
-
 	if ( ! empty( $connection_now ) ) {
 		if ( is_a( $connection_now, '\Distributor\ExternalConnection' ) ) {
 			$connection_type = 'external';
@@ -379,6 +377,31 @@ function dashboard() {
 						<?php endif; ?>
 					<?php endif; ?>
 				</select>
+
+				<?php
+				$post_types = \Distributor\Utils\available_pull_post_types( $connection_now, $connection_type );
+				$selected_post_type = '';
+				if ( ! empty( $post_types ) ) : ?>
+
+					<?php esc_html_e( 'Content to Pull', 'distributor' ); ?>
+					<select id="pull_post_type" name="post_type">
+						<?php foreach ( $post_types as $post_type ) : ?>
+							<?php if ( isset( $_GET['pull_post_type'] ) && $_GET['pull_post_type'] === $post_type['slug'] ) {
+								$selected_post_type = true;
+								$connection_now->pull_post_type = $post_type['slug'];
+							} ?>
+							<option <?php selected( $connection_now->pull_post_type, $post_type['slug'] ); ?> value="<?php echo esc_attr( $post_type['slug'] ); ?>">
+								<?php echo esc_html( $post_type['name'] ); ?>
+							</option>
+						<?php endforeach; ?>
+					</select>
+
+					<?php if ( ! $selected_post_type ) {
+						$connection_now->pull_post_type = $post_types[0]['slug'];
+					}  ?>
+
+				<?php endif; ?>
+
 			<?php endif; ?>
 		</h1>
 
@@ -399,6 +422,8 @@ function dashboard() {
 				<p><?php esc_html_e( 'Post(s) have been already distributed.', 'distributor' ); ?></p>
 			</div>
 		<?php endif; ?>
+
+		<?php $connection_list_table->prepare_items(); ?>
 
 		<?php if ( ! empty( $connection_list_table->pull_error ) ) : ?>
 			<p><?php esc_html_e( 'Could not pull content from connection due to error.', 'distributor' ); ?></p>
