@@ -142,7 +142,7 @@ function set_meta( $post_id, $meta ) {
  * an array of post types supported on both.
  *
  * @param \Distributor\Connection $connection Connection object
- * @param string $type Connection type
+ * @param string                  $type Connection type
  * @since 1.3
  * @return array
  */
@@ -151,7 +151,7 @@ function available_pull_post_types( $connection, $type ) {
 	$remote_post_types = $connection->get_post_types();
 
 	if ( ! empty( $remote_post_types ) && ! is_wp_error( $remote_post_types ) ) {
-		$local_post_types = array_diff_key( get_post_types( [ 'public' => true ], 'objects' ), array_flip( [ 'attachment', 'dt_ext_connection', 'dt_subscription' ] ) );
+		$local_post_types     = array_diff_key( get_post_types( [ 'public' => true ], 'objects' ), array_flip( [ 'attachment', 'dt_ext_connection', 'dt_subscription' ] ) );
 		$available_post_types = array_intersect_key( $remote_post_types, $local_post_types );
 
 		if ( ! empty( $available_post_types ) ) {

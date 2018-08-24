@@ -379,26 +379,31 @@ function dashboard() {
 				</select>
 
 				<?php
-				$post_types = \Distributor\Utils\available_pull_post_types( $connection_now, $connection_type );
+				$post_types         = \Distributor\Utils\available_pull_post_types( $connection_now, $connection_type );
 				$selected_post_type = '';
-				if ( ! empty( $post_types ) ) : ?>
+				if ( ! empty( $post_types ) ) :
+					?>
 
 					<?php esc_html_e( 'Content to Pull', 'distributor' ); ?>
 					<select id="pull_post_type" name="post_type">
 						<?php foreach ( $post_types as $post_type ) : ?>
-							<?php if ( isset( $_GET['pull_post_type'] ) && $_GET['pull_post_type'] === $post_type['slug'] ) {
-								$selected_post_type = true;
+							<?php
+							if ( isset( $_GET['pull_post_type'] ) && $_GET['pull_post_type'] === $post_type['slug'] ) {
+								$selected_post_type             = true;
 								$connection_now->pull_post_type = $post_type['slug'];
-							} ?>
+							}
+							?>
 							<option <?php selected( $connection_now->pull_post_type, $post_type['slug'] ); ?> value="<?php echo esc_attr( $post_type['slug'] ); ?>">
 								<?php echo esc_html( $post_type['name'] ); ?>
 							</option>
 						<?php endforeach; ?>
 					</select>
 
-					<?php if ( ! $selected_post_type ) {
+					<?php
+					if ( ! $selected_post_type ) {
 						$connection_now->pull_post_type = $post_types[0]['slug'];
-					}  ?>
+					}
+					?>
 
 				<?php endif; ?>
 
