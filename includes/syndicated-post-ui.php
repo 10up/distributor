@@ -526,7 +526,7 @@ function enqueue_gutenberg_edit_scripts() {
 	$post_type_singular = $post_type_object->labels->singular_name;
 
 	wp_enqueue_script( 'dt-gutenberg-syndicated-post', plugins_url( '/dist/js/gutenberg-syndicated-post.min.js', __DIR__ ), [ 'wp-blocks' ], DT_VERSION, true );
-	wp_enqueue_script( 'dt-gutenberg-syndicated-status-plugin', plugins_url( '/dist/js/gutenberg-status-plugin.min.js', __DIR__ ), [ 'wp-blocks' ], DT_VERSION, true );
+	wp_enqueue_script( 'dt-gutenberg-syndicated-status-plugin', plugins_url( '/dist/js/gutenberg-status-plugin.min.js', __DIR__ ), [ 'wp-blocks', 'wp-edit-post' ], DT_VERSION, true );
 	wp_localize_script(
 		'dt-gutenberg-syndicated-post', 'dtGutenberg', [
 			'i18n'                 => gutenberg_get_jed_locale_data( 'distributor' ),
