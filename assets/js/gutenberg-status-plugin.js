@@ -3,6 +3,7 @@ import { wp, dtGutenberg } from 'window';
 if ( 'undefined' !== typeof wp.editPost.PluginPostStatusInfo ) {
 	const { registerPlugin } = wp.plugins;
 	const { __ } = wp.i18n;
+	const { PluginPostStatusInfo } = wp.editPost; // eslint-disable-line no-unused-vars
 
 	const renderDistributedFrom = () => {
 		return(
