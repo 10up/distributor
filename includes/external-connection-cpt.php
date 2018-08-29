@@ -140,7 +140,7 @@ function ajax_begin_authorization() {
  * @return mixed
  */
 function set_screen_option( $status, $option, $value ) {
-	return $value;
+	return 'per_page' === $option ? $value : $status;
 }
 
 /**
