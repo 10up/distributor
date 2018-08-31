@@ -487,7 +487,7 @@ class UtilsTest extends \TestCase {
 			'wp_list_pluck', [
 				'times'  => 1,
 				'args'   => [ [ $media_item ], 'featured' ],
-				'return' => [ [ 0 => true ] ],
+				'return' => [ 0 => true ],
 			]
 		);
 

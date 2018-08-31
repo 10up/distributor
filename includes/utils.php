@@ -397,11 +397,7 @@ function set_media( $post_id, $media ) {
 		$featured_keys = wp_list_pluck( $media, 'featured' );
 		$featured_key  = array_search( true, $featured_keys, true );
 
-		if ( $featured_key !== false ) {
-			$media = array( $media[ $featured_key ] );
-		} else {
-			$media = array();
-		}
+		$media = ( false !== $featured_key ) ? array( $media[ $featured_key ] ) : array();
 	}
 
 	foreach ( $media as $media_item ) {
