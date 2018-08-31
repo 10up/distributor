@@ -392,7 +392,7 @@ function set_media( $post_id, $media ) {
 
 	$found_featured_image = false;
 
-	// If we only want to distribute the featured image, remove all other media
+	// If we only want to process the featured image, remove all other media
 	if ( 'featured' === $settings['media_handling'] ) {
 		$featured_keys = wp_list_pluck( $media, 'featured' );
 		$featured_key  = array_search( true, $featured_keys, true );
