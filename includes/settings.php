@@ -232,13 +232,13 @@ function media_handling_callback() {
 		<li>
 			<input <?php checked( $settings['media_handling'], 'featured' ); ?> type="radio" value="featured" name="dt_settings[media_handling]">
 			<span class="description">
-		<?php esc_html_e( 'Process the featured image only (default).', 'distributor' ); ?>
+		<?php esc_html_e( 'Distribute the featured image only (default).', 'distributor' ); ?>
 	</span>
 		</li>
 		<li>
 			<input <?php checked( $settings['media_handling'], 'attached' ); ?> type="radio" value="attached" name="dt_settings[media_handling]">
 			<span class="description">
-		<?php esc_html_e( 'Process the featured image and any attached images.', 'distributor' ); ?>
+		<?php esc_html_e( 'Distribute the featured image and any attached images.', 'distributor' ); ?>
 	</span>
 		</li>
 	</ul>
