@@ -38,6 +38,13 @@ class NetworkSiteConnection extends Connection {
 	public $pull_post_type;
 
 	/**
+	 * Default post types supported.
+	 *
+	 * @var string
+	 */
+	public $pull_post_types;
+
+	/**
 	 * Set up network site connection
 	 *
 	 * @param WP_Site $site Site object.

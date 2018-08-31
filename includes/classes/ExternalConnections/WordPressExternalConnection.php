@@ -58,6 +58,13 @@ class WordPressExternalConnection extends ExternalConnection {
 	public $pull_post_type;
 
 	/**
+	 * Default post types supported.
+	 *
+	 * @var string
+	 */
+	public $pull_post_types;
+
+	/**
 	 * This is a utility function for parsing annoying API link headers returned by the types endpoint
 	 *
 	 * @param  array $type Types array.

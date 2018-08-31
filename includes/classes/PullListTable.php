@@ -464,6 +464,26 @@ class PullListTable extends \WP_List_Table {
 	 * @param string $which Whether above or below the table.
 	 */
 	public function extra_tablenav( $which ) {
+		global $connection_now;
+
+		if ( $connection_now->pull_post_types && $connection_now->pull_post_type ) :
+			?>
+
+			<div class="alignleft actions">
+				<label for="pull_post_type" class="screen-reader-text">Content to Pull</label>
+				<select id="pull_post_type" name="post_type">
+					<?php foreach ( $connection_now->pull_post_types as $post_type ) : ?>
+						<option <?php selected( $connection_now->pull_post_type, $post_type['slug'] ); ?> value="<?php echo esc_attr( $post_type['slug'] ); ?>">
+							<?php echo esc_html( $post_type['name'] ); ?>
+						</option>
+					<?php endforeach; ?>
+				</select>
+				<input type="submit" name="filter_action" id="pull_post_type_submit" class="button" value="Filter">
+			</div>
+
+			<?php
+		endif;
+
 		/**
 		 * Action fired when extra table nav is generated.
 		 *
