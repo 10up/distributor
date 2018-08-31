@@ -54,10 +54,9 @@ class PullListTable extends \WP_List_Table {
 	 */
 	public function get_columns() {
 		$columns = [
-			'cb'           => '<input type="checkbox" />',
-			'name'         => esc_html__( 'Name', 'distributor' ),
-			'content_type' => esc_html__( 'Content Type', 'distributor' ),
-			'date'         => esc_html__( 'Date', 'distributor' ),
+			'cb'   => '<input type="checkbox" />',
+			'name' => esc_html__( 'Name', 'distributor' ),
+			'date' => esc_html__( 'Date', 'distributor' ),
 		];
 
 		return $columns;
@@ -231,14 +230,6 @@ class PullListTable extends \WP_List_Table {
 		switch ( $column_name ) {
 			case 'name':
 				return $item['post_title'];
-				break;
-			case 'content_type':
-				$post_type_object = get_post_type_object( $item->post_type );
-				if ( empty( $post_type_object ) ) {
-					return $item->post_type;
-				}
-
-				return $post_type_object->labels->singular_name;
 				break;
 			case 'url':
 				$url = get_post_meta( $item->ID, 'dt_external_connection_url', true );
