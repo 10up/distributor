@@ -125,7 +125,7 @@ function set_meta( $post_id, $meta ) {
 				update_post_meta( $post_id, $meta_key, $meta_value );
 			}
 		} else {
-			$meta_array = (array) $meta_value;
+			$meta_array  = (array) $meta_value;
 			$meta_values = array();
 			foreach ( $meta_array as $meta_item_value ) {
 				if ( ! in_array( $meta_key, $blacklisted_meta, true ) ) {
@@ -498,7 +498,7 @@ function format_media_post( $media_post ) {
 	$media_item['meta']          = get_post_meta( $media_post->ID );
 
 	// Convert media meta items back into single values.
-	foreach( $media_item['meta'] as $key => $media_item_value ) {
+	foreach ( $media_item['meta'] as $key => $media_item_value ) {
 		$media_item['meta'][ $key ] = $media_item_value[0];
 	}
 
