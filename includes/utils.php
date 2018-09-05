@@ -496,6 +496,11 @@ function format_media_post( $media_post ) {
 	$media_item['source_url']    = wp_get_attachment_url( $media_post->ID );
 	$media_item['meta']          = get_post_meta( $media_post->ID );
 
+	// Convert media meta items back into single values.
+	foreach( $media_item['meta'] as $key => $media_item_value ) {
+		$media_item['meta'][ $key ] = $media_item_value[0];
+	}
+
 	return apply_filters( 'dt_media_item_formatted', $media_item, $media_post->ID );
 }
 
