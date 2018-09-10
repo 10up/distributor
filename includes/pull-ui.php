@@ -152,7 +152,7 @@ function action_admin_menu() {
  * @return mixed
  */
 function set_screen_option( $status, $option, $value ) {
-	return $value;
+	return 'pull_posts_per_page' === $option ? $value : $status;
 }
 
 /**
