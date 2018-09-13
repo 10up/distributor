@@ -189,11 +189,9 @@ function override_author_byline_callback() {
 	}
 
 	?>
-	<input <?php checked( $value, true ); ?> type="checkbox" value="1" name="dt_settings[override_author_byline]">
-
-	<span class="description">
-		<?php esc_html_e( 'For linked distributed posts, replace the author name and link with the original site name and link.', 'distributor' ); ?>
-	</span>
+	<label><input <?php checked( $value, true ); ?> type="checkbox" value="1" name="dt_settings[override_author_byline]">
+	<?php esc_html_e( 'For linked distributed posts, replace the author name and link with the original site name and link.', 'distributor' ); ?>
+	</label>
 	<?php
 }
 
@@ -230,16 +228,14 @@ function media_handling_callback() {
 
 	<ul class="media-handling">
 		<li>
-			<input <?php checked( $settings['media_handling'], 'featured' ); ?> type="radio" value="featured" name="dt_settings[media_handling]">
-			<span class="description">
-		<?php esc_html_e( 'Process the featured image only (default).', 'distributor' ); ?>
-	</span>
+			<label><input <?php checked( $settings['media_handling'], 'featured' ); ?> type="radio" value="featured" name="dt_settings[media_handling]">
+			<?php esc_html_e( 'Process the featured image only (default).', 'distributor' ); ?>
+			</label>
 		</li>
 		<li>
-			<input <?php checked( $settings['media_handling'], 'attached' ); ?> type="radio" value="attached" name="dt_settings[media_handling]">
-			<span class="description">
-		<?php esc_html_e( 'Process the featured image and any attached images.', 'distributor' ); ?>
-	</span>
+			<label><input <?php checked( $settings['media_handling'], 'attached' ); ?> type="radio" value="attached" name="dt_settings[media_handling]">
+			<?php esc_html_e( 'Process the featured image and any attached images.', 'distributor' ); ?>
+			</label>
 		</li>
 	</ul>
 
