@@ -14,7 +14,8 @@ namespace Distributor\PushUI;
  */
 function setup() {
 	add_action(
-		'plugins_loaded', function() {
+		'plugins_loaded',
+		function() {
 			add_action( 'admin_enqueue_scripts', __NAMESPACE__ . '\enqueue_scripts' );
 			add_action( 'wp_enqueue_scripts', __NAMESPACE__ . '\enqueue_scripts' );
 			add_action( 'wp_ajax_dt_push', __NAMESPACE__ . '\ajax_push' );
@@ -226,7 +227,9 @@ function enqueue_scripts( $hook ) {
 	wp_enqueue_style( 'dt-push', plugins_url( '/dist/css/push.min.css', __DIR__ ), array(), DT_VERSION );
 	wp_enqueue_script( 'dt-push', plugins_url( '/dist/js/push.min.js', __DIR__ ), array( 'jquery', 'underscore', 'hoverIntent' ), DT_VERSION, true );
 	wp_localize_script(
-		'dt-push', 'dt', array(
+		'dt-push',
+		'dt',
+		array(
 			'nonce'   => wp_create_nonce( 'dt-push' ),
 			'postId'  => (int) get_the_ID(),
 			'ajaxurl' => esc_url( admin_url( 'admin-ajax.php' ) ),

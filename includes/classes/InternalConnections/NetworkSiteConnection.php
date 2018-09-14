@@ -320,10 +320,13 @@ class NetworkSiteConnection extends Connection {
 					restore_current_blog();
 
 					return apply_filters(
-						'dt_remote_get', [
+						'dt_remote_get',
+						[
 							'items'       => array(),
 							'total_items' => 0,
-						], $args, $this
+						],
+						$args,
+						$this
 					);
 				}
 
@@ -363,10 +366,13 @@ class NetworkSiteConnection extends Connection {
 			restore_current_blog();
 
 			return apply_filters(
-				'dt_remote_get', [
+				'dt_remote_get',
+				[
 					'items'       => $formatted_posts,
 					'total_items' => $posts_query->found_posts,
-				], $args, $this
+				],
+				$args,
+				$this
 			);
 
 		} else {
@@ -618,7 +624,8 @@ class NetworkSiteConnection extends Connection {
 			}
 
 			$response = wp_remote_post(
-				untrailingslashit( $base_url ) . '/wp-admin/admin-ajax.php', array(
+				untrailingslashit( $base_url ) . '/wp-admin/admin-ajax.php',
+				array(
 					'body'    => array(
 						'nonce'    => wp_create_nonce( 'dt-auth-check' ),
 						'username' => $current_user->user_login,
