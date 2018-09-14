@@ -57,6 +57,8 @@ __Parent Posts__ - Distributor does not "bring along" parent (or child posts). I
 
 __External Connection Post Type Support__ - When _pulling_ content from an external connection, only "Posts" (post type) content will appear. _Pulling_ other post types from _external_ connections is not currently supported. Internal connections (multisite) support multiple post types, and other post types can still be _pushed_ to external connections that support the post type. This will be addressed in an upcoming release, including an improved interface for navigating available content by post types supported on both sides.
 
+In addition, in order for distribution to work with external connections that have custom post type content, that post type needs to be registered with the argument `show_in_rest => true` on the external site.
+
 ## Changelog
 
 * 1.2.3
