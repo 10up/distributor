@@ -107,6 +107,10 @@ class NetworkSiteConnection extends Connection {
 			update_post_meta( $new_post_id, 'dt_original_blog_id', (int) $original_blog_id );
 			update_post_meta( $new_post_id, 'dt_syndicate_time', time() );
 			update_post_meta( $new_post_id, 'dt_original_post_url', esc_url_raw( $original_post_url ) );
+			
+			if ( ! empty( $post->post_parent ) ) {
+				update_post_meta( $new_post, 'dt_original_post_parent', (int) $post->post_parent );
+			}
 
 			\Distributor\Utils\set_meta( $new_post_id, $meta );
 			\Distributor\Utils\set_taxonomy_terms( $new_post_id, $terms );
@@ -202,6 +206,10 @@ class NetworkSiteConnection extends Connection {
 				update_post_meta( $new_post_id, 'dt_original_blog_id', (int) $this->site->blog_id );
 				update_post_meta( $new_post_id, 'dt_syndicate_time', time() );
 				update_post_meta( $new_post_id, 'dt_original_post_url', esc_url_raw( $post->link ) );
+				
+				if ( ! empty( $post->post_parent ) ) {
+					update_post_meta( $new_post, 'dt_original_post_parent', (int) $post->post_parent );
+				}
 
 				\Distributor\Utils\set_meta( $new_post_id, $post->meta );
 				\Distributor\Utils\set_taxonomy_terms( $new_post_id, $post->terms );

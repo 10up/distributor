@@ -391,6 +391,10 @@ class WordPressExternalConnection extends ExternalConnection {
 			update_post_meta( $new_post, 'dt_original_site_name', sanitize_text_field( $post_array['original_site_name'] ) );
 			update_post_meta( $new_post, 'dt_original_site_url', sanitize_text_field( $post_array['original_site_url'] ) );
 
+			if ( ! empty( $post->post_parent ) ) {
+				update_post_meta( $new_post, 'dt_original_post_parent', (int) $post->post_parent );
+			}
+			
 			if ( empty( $post_array['full_connection'] ) ) {
 				update_post_meta( $new_post, 'dt_full_connection', false );
 			} else {
@@ -528,6 +532,10 @@ class WordPressExternalConnection extends ExternalConnection {
 			if ( gutenberg_can_edit_post_type( $post->post_type ) ) {
 				$post_body['distributor_raw_content'] = $post->post_content;
 			}
+		}
+		
+		if ( ! empty( $post->post_parent ) ) {
+			$post_body['distributor_original_post_parent'] = (int) $post->post_parent;
 		}
 
 		// Map to remote ID if a push has already happened
