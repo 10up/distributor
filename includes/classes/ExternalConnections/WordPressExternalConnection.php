@@ -406,7 +406,20 @@ class WordPressExternalConnection extends ExternalConnection {
 			}
 
 			if ( ! empty( $post_array['media'] ) ) {
-				\Distributor\Utils\set_media( $new_post, $post_array['media'] );
+
+				/**
+				 * Allow bypassing of all media processing.
+				 *
+				 * @param bool                  true                          If Distributor should set the post media.
+				 * @param int                   $new_post                     The newly created post ID.
+				 * @param array                 $post_array['media']          List of media items attached to the post, formatted by {@see \Distributor\Utils\prepare_media()}.
+				 * @param int                   $item_array['remote_post_id'] The original post ID.
+				 * @param array                 $post_array                   The arguments passed into wp_insert_post.
+				 * @param ExternalConnection    $this                         The distributor connection being pulled from.
+				 */
+				if ( apply_filters( 'dt_pull_post_media', true, $new_post, $post_array['media'], $item_array['remote_post_id'], $post_array, $this ) ) {
+					\Distributor\Utils\set_media( $new_post, $post_array['media'] );
+				}
 			}
 
 			/**
