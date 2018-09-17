@@ -14,7 +14,8 @@ namespace Distributor\PullUI;
  */
 function setup() {
 	add_action(
-		'plugins_loaded', function() {
+		'plugins_loaded',
+		function() {
 			add_action( 'admin_menu', __NAMESPACE__ . '\action_admin_menu' );
 			add_action( 'admin_enqueue_scripts', __NAMESPACE__ . '\admin_enqueue_scripts' );
 			add_action( 'load-distributor_page_pull', __NAMESPACE__ . '\setup_list_table' );
@@ -152,7 +153,7 @@ function action_admin_menu() {
  * @return mixed
  */
 function set_screen_option( $status, $option, $value ) {
-	return $value;
+	return 'pull_posts_per_page' === $option ? $value : $status;
 }
 
 /**
@@ -205,7 +206,8 @@ function process_actions() {
 			$posts = array_map(
 				function( $remote_post_id ) {
 						return [ 'remote_post_id' => $remote_post_id ];
-				}, $posts
+				},
+				$posts
 			);
 
 			if ( 'external' === $_GET['connection_type'] ) {

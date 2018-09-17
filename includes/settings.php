@@ -16,7 +16,8 @@ use Distributor\Utils;
  */
 function setup() {
 	add_action(
-		'plugins_loaded', function() {
+		'plugins_loaded',
+		function() {
 			add_action( 'admin_menu', __NAMESPACE__ . '\admin_menu', 20 );
 
 			if ( DT_IS_NETWORK ) {
