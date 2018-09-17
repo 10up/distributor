@@ -221,7 +221,7 @@ function license_key_callback() {
 /**
  * Output media handling options.
  *
- * @since 1.2.2
+ * @since 1.3.0
  */
 function media_handling_callback() {
 	$settings = Utils\get_settings();
