@@ -14,7 +14,8 @@ namespace Distributor\DistributedPostUI;
  */
 function setup() {
 	add_action(
-		'plugins_loaded', function() {
+		'plugins_loaded',
+		function() {
 			add_action( 'admin_enqueue_scripts', __NAMESPACE__ . '\enqueue_post_scripts_styles' );
 			add_action( 'post_submitbox_misc_actions', __NAMESPACE__ . '\distributed_to' );
 			add_action( 'in_admin_header', __NAMESPACE__ . '\add_help_tab' );

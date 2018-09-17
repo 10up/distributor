@@ -77,7 +77,8 @@ function get_network_settings() {
 function check_license_key( $email, $license_key ) {
 
 	$request = wp_remote_post(
-		'https://distributorplugin.com/wp-json/distributor-theme/v1/validate-license', [
+		'https://distributorplugin.com/wp-json/distributor-theme/v1/validate-license',
+		[
 			'timeout' => 10,
 			'body'    => [
 				'license_key' => $license_key,
@@ -357,7 +358,9 @@ function set_taxonomy_terms( $post_id, $taxonomy_terms ) {
 
 				if ( ! empty( $term_array['parent'] ) ) {
 					wp_update_term(
-						$term_id_mapping[ $term_array['term_id'] ], $taxonomy, [
+						$term_id_mapping[ $term_array['term_id'] ],
+						$taxonomy,
+						[
 							'parent' => $term_id_mapping[ $term_array['parent'] ],
 						]
 					);
