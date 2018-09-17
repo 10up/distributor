@@ -1,6 +1,12 @@
 <?php
+/**
+ * Admin settings screen
+ *
+ * @package  distributor
+ */
 
 namespace Distributor\Settings;
+
 use Distributor\Utils;
 
 /**
@@ -10,7 +16,8 @@ use Distributor\Utils;
  */
 function setup() {
 	add_action(
-		'plugins_loaded', function() {
+		'plugins_loaded',
+		function() {
 			add_action( 'admin_menu', __NAMESPACE__ . '\admin_menu', 20 );
 
 			if ( DT_IS_NETWORK ) {
@@ -68,7 +75,9 @@ function plugin_update_styles() {
 /**
  * Under plugin row update notice
  *
- * @param  string $plugin_file
+ * @param  string $plugin_file Plugin file path.
+ * @param  string $plugin_data Plugin data.
+ * @param  string $status Plugin status.
  * @since  1.2
  */
 function update_notice( $plugin_file, $plugin_data, $status ) {
@@ -77,11 +86,11 @@ function update_notice( $plugin_file, $plugin_data, $status ) {
 	}
 
 	if ( DT_IS_NETWORK ) {
-		$settings = Utils\get_network_settings();
+		$settings   = Utils\get_network_settings();
 		$notice_url = network_admin_url( 'admin.php?page=distributor-settings' );
 	} else {
 		$notice_url = admin_url( 'admin.php?page=distributor-settings' );
-		$settings = Utils\get_settings();
+		$settings   = Utils\get_settings();
 	}
 
 	if ( true === $settings['valid_license'] ) {
@@ -131,8 +140,8 @@ function maybe_notice() {
 		}
 		?>
 		<div data-notice="auto-upgrade-disabled" class="notice notice-warning">
-	        <p><?php echo wp_kses_post( sprintf( __( '<a href="%s">Register Distributor</a> to receive important plugin update notices and other Distributor news.', 'elasticpress' ), esc_url( $notice_url ) ) ); ?></p>
-	    </div>
+			<p><?php echo wp_kses_post( sprintf( __( '<a href="%s">Register Distributor</a> to receive important plugin update notices and other Distributor news.', 'elasticpress' ), esc_url( $notice_url ) ) ); ?></p>
+		</div>
 		<?php
 	}
 }
@@ -140,7 +149,7 @@ function maybe_notice() {
 /**
  * Enqueue admin scripts/styles for settings
  *
- * @param  string $hook
+ * @param  string $hook WP hook.
  * @since  1.2
  */
 function admin_enqueue_scripts( $hook ) {
@@ -158,6 +167,8 @@ function setup_fields_sections() {
 	add_settings_section( 'dt-section-1', '', '', 'distributor' );
 
 	add_settings_field( 'override_author_byline', esc_html__( 'Override Author Byline', 'distributor' ), __NAMESPACE__ . '\override_author_byline_callback', 'distributor', 'dt-section-1' );
+
+	add_settings_field( 'media_handling', esc_html__( 'Media Handling', 'distributor' ), __NAMESPACE__ . '\media_handling_callback', 'distributor', 'dt-section-1' );
 
 	if ( false === DT_IS_NETWORK ) {
 		add_settings_field( 'registation_key', esc_html__( 'Registration Key', 'distributor' ), __NAMESPACE__ . '\license_key_callback', 'distributor', 'dt-section-1' );
@@ -179,11 +190,9 @@ function override_author_byline_callback() {
 	}
 
 	?>
-	<input <?php checked( $value, true ); ?> type="checkbox" value="1" name="dt_settings[override_author_byline]">
-
-	<span class="description">
-		<?php esc_html_e( 'For linked distributed posts, replace the author name and link with the original site name and link.', 'distributor' ); ?>
-	</span>
+	<label><input <?php checked( $value, true ); ?> type="checkbox" value="1" name="dt_settings[override_author_byline]">
+	<?php esc_html_e( 'For linked distributed posts, replace the author name and link with the original site name and link.', 'distributor' ); ?>
+	</label>
 	<?php
 }
 
@@ -197,7 +206,7 @@ function license_key_callback() {
 	$settings = Utils\get_settings();
 
 	$license_key = ( ! empty( $settings['license_key'] ) ) ? $settings['license_key'] : '';
-	$email = ( ! empty( $settings['email'] ) ) ? $settings['email'] : '';
+	$email       = ( ! empty( $settings['email'] ) ) ? $settings['email'] : '';
 	?>
 	<div class="license-wrap <?php if ( true === $settings['valid_license'] ) : ?>valid<?php elseif ( false === $settings['valid_license'] ) : ?>invalid<?php endif; ?>">
 		<input name="dt_settings[email]" type="email" placeholder="<?php esc_html_e( 'Email', 'distributor' ); ?>" value="<?php echo esc_attr( $email ); ?>"> <input name="dt_settings[license_key]" type="text" placeholder="<?php esc_html_e( 'Registration Key', 'distributor' ); ?>" value="<?php echo esc_attr( $license_key ); ?>">
@@ -206,6 +215,31 @@ function license_key_callback() {
 	<p class="description">
 		<?php echo wp_kses_post( __( 'Registration is 100% free and provides update notifications and upgrades inside the dashboard; <a href="https://distributorplugin.com/#cta">Register for your key</a>.', 'distributor' ) ); ?>
 	</p>
+	<?php
+}
+
+/**
+ * Output media handling options.
+ *
+ * @since 1.3.0
+ */
+function media_handling_callback() {
+	$settings = Utils\get_settings();
+	?>
+
+	<ul class="media-handling">
+		<li>
+			<label><input <?php checked( $settings['media_handling'], 'featured' ); ?> type="radio" value="featured" name="dt_settings[media_handling]">
+			<?php esc_html_e( 'Process the featured image only (default).', 'distributor' ); ?>
+			</label>
+		</li>
+		<li>
+			<label><input <?php checked( $settings['media_handling'], 'attached' ); ?> type="radio" value="attached" name="dt_settings[media_handling]">
+			<?php esc_html_e( 'Process the featured image and any attached images.', 'distributor' ); ?>
+			</label>
+		</li>
+	</ul>
+
 	<?php
 }
 
@@ -226,6 +260,7 @@ function register_settings() {
 function admin_menu() {
 	add_submenu_page( 'distributor', esc_html__( 'Settings', 'distributor' ), esc_html__( 'Settings', 'distributor' ), 'manage_options', 'distributor-settings', __NAMESPACE__ . '\settings_screen' );
 }
+
 /**
  * Output network setting menu option
  *
@@ -266,7 +301,7 @@ function network_settings_screen() {
 	$settings = Utils\get_network_settings();
 
 	$license_key = ( ! empty( $settings['license_key'] ) ) ? $settings['license_key'] : '';
-	$email = ( ! empty( $settings['email'] ) ) ? $settings['email'] : '';
+	$email       = ( ! empty( $settings['email'] ) ) ? $settings['email'] : '';
 	?>
 
 	<div class="wrap">
@@ -340,6 +375,7 @@ function handle_network_settings() {
 /**
  * Sanitize settings for DB
  *
+ * @param  array $settings Array of settings.
  * @since  1.0
  */
 function sanitize_settings( $settings ) {
@@ -349,6 +385,12 @@ function sanitize_settings( $settings ) {
 		$new_settings['override_author_byline'] = false;
 	} else {
 		$new_settings['override_author_byline'] = true;
+	}
+
+	if ( ! isset( $settings['media_handling'] ) || ! in_array( $settings['media_handling'], array( 'featured', 'attached' ), true ) ) {
+		$new_settings['media_handling'] = 'featured';
+	} else {
+		$new_settings['media_handling'] = sanitize_text_field( $settings['media_handling'] );
 	}
 
 	if ( isset( $settings['license_key'] ) ) {

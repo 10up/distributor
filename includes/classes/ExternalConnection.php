@@ -1,4 +1,9 @@
 <?php
+/**
+ * External connection base
+ *
+ * @package  distributor
+ */
 
 namespace Distributor;
 
@@ -11,21 +16,41 @@ use \Distributor\Connection as Connection;
  */
 abstract class ExternalConnection extends Connection {
 
+	/**
+	 * Title of external connection
+	 *
+	 * @var string
+	 */
 	public $name;
 
+	/**
+	 * API url for external connection
+	 *
+	 * @var string
+	 */
 	public $base_url;
 
+	/**
+	 * External connection ID
+	 *
+	 * @var int
+	 */
 	public $id;
 
+	/**
+	 * Auth handler class
+	 *
+	 * @var string
+	 */
 	public $auth_handler;
 
 	/**
 	 * Initialize an external connection given a name, url, auth handler, and mapping handler
 	 *
-	 * @param string         $name
-	 * @param string         $base_url
-	 * @param Authentication $auth_handler
-	 * @param Mapping        $mapping_handler
+	 * @param string         $name Pretty name of connection.
+	 * @param string         $base_url URL to connection API.
+	 * @param int            $id ID of external connection.
+	 * @param Authentication $auth_handler Auth handler class.
 	 * @since  0.8
 	 */
 	public function __construct( $name, $base_url, $id, Authentication $auth_handler ) {
@@ -36,9 +61,15 @@ abstract class ExternalConnection extends Connection {
 	}
 
 	/**
-	 * Log a sync
+	 * Log a sync.
 	 *
-	 * @param  array $item_id_mappings
+	 * {
+	 *  old_post_id: new_post_id (false means skipped)
+	 * }
+	 *
+	 * This let's us grab all the IDs of posts we've PULLED from a given connection
+	 *
+	 * @param  array $item_id_mappings Mapping array to store.
 	 * @since  0.8
 	 */
 	public function log_sync( array $item_id_mappings ) {
@@ -66,7 +97,6 @@ abstract class ExternalConnection extends Connection {
 		 * @param array $item_id_mappings Item ID mappings.
 		 * @param array $sync_log The sync log
 		 * @param object $this This class.
-		 *
 		 */
 		do_action( 'dt_log_sync', $item_id_mappings, $sync_log, $this );
 	}
@@ -82,7 +112,7 @@ abstract class ExternalConnection extends Connection {
 	/**
 	 * This is a static factory method for initializing an external connection
 	 *
-	 * @param  int|WP_Post $external_connection
+	 * @param  int|WP_Post $external_connection External connection reference.
 	 * @since  0.8
 	 * @return Connection
 	 */

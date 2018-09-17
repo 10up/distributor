@@ -1,10 +1,10 @@
 <?php
 /**
  * Plugin Name:       Distributor
- * Description:       Distributor is a WordPress plugin allowing you to syndicate content to and from external websites and within multisite blogs.
- * Version:           1.2.0
- * Author:            Taylor Lovett, 10up
- * Author URI:        http://10up.com
+ * Description:       Makes it easy to syndicate and reuse content across your websites, whether inside of a multisite or across the web.
+ * Version:           1.2.3
+ * Author:            10up Inc.
+ * Author URI:        https://distributorplugin.com
  * License:           GPLv2 or later
  * Text Domain:       distributor
  * Domain Path:       /lang/
@@ -17,13 +17,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly.
 }
 
-define( 'DT_VERSION', '1.2.0' );
+define( 'DT_VERSION', '1.2.3' );
 define( 'DT_PLUGIN_FILE', preg_replace( '#^.*plugins/(.*)$#i', '$1', __FILE__ ) );
 
 // Define a constant if we're network activated to allow plugin to respond accordingly.
-$plugins = get_site_option( 'active_sitewide_plugins' );
+$active_plugins = get_site_option( 'active_sitewide_plugins' );
 
-if ( is_multisite() && isset( $plugins[ plugin_basename( __FILE__ ) ] ) ) {
+if ( is_multisite() && isset( $active_plugins[ plugin_basename( __FILE__ ) ] ) ) {
 	define( 'DT_IS_NETWORK', true );
 } else {
 	define( 'DT_IS_NETWORK', false );
@@ -44,7 +44,7 @@ spl_autoload_register(
 			return;
 		}
 			$relative_class = substr( $class, $len );
-			$file = $base_dir . str_replace( '\\', '/', $relative_class ) . '.php';
+			$file           = $base_dir . str_replace( '\\', '/', $relative_class ) . '.php';
 			// If the file exists, require it.
 		if ( file_exists( $file ) ) {
 			require $file;
@@ -56,7 +56,8 @@ spl_autoload_register(
  * Require PHP version 5.6 - throw an error if the plugin is activated on an older version.
  */
 register_activation_hook(
-	__FILE__, function() {
+	__FILE__,
+	function() {
 		if ( version_compare( PHP_VERSION, '5.6.0', '<' ) ) {
 			wp_die(
 				esc_html__( 'Distributor requires PHP version 5.6.', 'distributor' ),
@@ -70,7 +71,8 @@ register_activation_hook(
  * Tell the world this site supports Distributor. We need this for external connections.
  */
 add_action(
-	'send_headers', function() {
+	'send_headers',
+	function() {
 		if ( ! headers_sent() ) {
 			header( 'X-Distributor: yes' );
 		}
@@ -81,7 +83,8 @@ add_action(
  * Set Distributor header in all API responses.
  */
 add_filter(
-	'rest_post_dispatch', function( $response ) {
+	'rest_post_dispatch',
+	function( $response ) {
 		$response->header( 'X-Distributor', 'yes' );
 
 		return $response;
@@ -91,7 +94,7 @@ add_filter(
 \Distributor\Connections::factory();
 
 // Include in case we have composer issues.
-include_once __DIR__ . '/vendor/yahnis-elsts/plugin-update-checker/plugin-update-checker.php';
+require_once __DIR__ . '/vendor/yahnis-elsts/plugin-update-checker/plugin-update-checker.php';
 
 require_once __DIR__ . '/includes/utils.php';
 require_once __DIR__ . '/includes/external-connection-cpt.php';
@@ -121,13 +124,15 @@ if ( class_exists( 'Puc_v4_Factory' ) ) {
 	}
 
 	if ( $valid_license ) {
+		// @codingStandardsIgnoreStart
 		$updateChecker = Puc_v4_Factory::buildUpdateChecker(
 			'https://github.com/10up/distributor/',
 			__FILE__,
 			'distributor'
 		);
 
-		$updateChecker->setBranch( 'master' );
+		$updateChecker->setBranch( 'stable' );
+		// @codingStandardsIgnoreEnd
 	}
 }
 
@@ -135,7 +140,8 @@ if ( class_exists( 'Puc_v4_Factory' ) ) {
  * Register connections
  */
 add_action(
-	'init', function() {
+	'init',
+	function() {
 		\Distributor\Connections::factory()->register( '\Distributor\ExternalConnections\WordPressExternalConnection' );
 		\Distributor\Connections::factory()->register( '\Distributor\ExternalConnections\WordPressDotcomExternalConnection' );
 		if (
@@ -150,7 +156,8 @@ add_action(
 		) {
 			\Distributor\Connections::factory()->register( '\Distributor\InternalConnections\NetworkSiteConnection' );
 		}
-	}, 1
+	},
+	1
 );
 
 /**
