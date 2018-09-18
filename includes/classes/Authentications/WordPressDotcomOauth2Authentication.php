@@ -1,4 +1,9 @@
 <?php
+/**
+ * WP.com OAuth functionality
+ *
+ * @package  distributor
+ */
 
 namespace Distributor\Authentications;
 
@@ -8,9 +13,26 @@ use \Distributor\Authentication as Authentication;
  * Enables WordPress.com Oauth2 authentication.
  */
 class WordPressDotcomOauth2Authentication extends Authentication {
-	static $slug                 = 'dotcom-oauth2';
-	static $requires_credentials = true;
-	static $label                = 'WordPress.com Oauth2';
+	/**
+	 * Auth handler slug
+	 *
+	 * @var string
+	 */
+	public static $slug = 'dotcom-oauth2';
+
+	/**
+	 * Does the auth handler require creds
+	 *
+	 * @var boolean
+	 */
+	public static $requires_credentials = true;
+
+	/**
+	 * Auth hanlder pretty label
+	 *
+	 * @var string
+	 */
+	public static $label = 'WordPress.com Oauth2';
 
 	const REQUEST_TOKEN_URL  = 'https://public-api.wordpress.com/oauth2/token';
 	const AUTHORIZE_URL      = 'https://public-api.wordpress.com/oauth2/authorize';
@@ -20,17 +42,13 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 	const API_CLIENT_SECRET  = 'rest_api_client_secret';
 	const API_REDIRECT_URI   = 'rest_api_redirect_uri';
 
-	public function __construct( $args ) {
-		parent::__construct( $args );
-	}
-
 	/**
 	 * Output the credentials form.
 	 *
-	 * @param  array $args
+	 * @param  array $args Array of creds.
 	 * @since  1.1.0
 	 */
-	static function credentials_form( $args = array() ) {
+	public static function credentials_form( $args = array() ) {
 
 		// Check if we need to display the form, or request a token?
 		$code = isset( $_GET['code'] ) ? sanitize_text_field( wp_unslash( $_GET['code'] ) ) : false; // Input var okay. WPCS: CSRF ok.
@@ -71,7 +89,7 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 		$args[ self::API_REDIRECT_URI ] = $redirect_uri;
 
 		// Display any authorization or token errors.
-		do_action( 'oauth_admin_notices' );
+		do_action( 'dt_oauth_admin_notices' );
 
 		// If anything is missing, we aren't authorized - show the credentials form.
 		if (
@@ -83,7 +101,7 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 				empty( $code )
 			)
 		) {
-		?>
+			?>
 			<p>
 			<?php esc_html_e( 'To connect, first ', 'distributor' ); ?>
 			<a href="https://developer.wordpress.com/apps/"><?php esc_html_e( 'create an application with the WordPress.com applications manager', 'distributor' ); ?></a>.<br />
@@ -107,12 +125,12 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 
 		} else {
 			// The connection is already authorized and we have a valid token. Show the green connection status and
-		?>
+			?>
 		<div id="message" class="oauth-connection-established"><p><span class="message-header">&#10003 <?php esc_html_e( 'Connection Authorized', 'distributor' ); ?></span><br/><a id="oauth-authentication-change-credentials" href="#"><?php esc_html_e( 'Change credentials.', 'distributor' ); ?></a></p></div>
-		<?php
+			<?php
 			// Render the credentials field in a hidden div so they can be shown when clicking 'Change credentials'.
 			self::credentials_partial( $args, true );
-		?>
+			?>
 		<script type="text/javascript">
 
 			// Remove the code credentials from the URL to prevent refresh from initiating a new flow.
@@ -120,7 +138,7 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 				window.history.pushState( {}, window.location.title, window.location.href.split( '&code=' )[0] );
 			}
 		</script>
-		<?php
+			<?php
 		}
 	}
 
@@ -130,7 +148,7 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 	 * @param array   $args        The authentication arguments.
 	 * @param boolean $hidden      Should the entire section be hidden?
 	 */
-	static function credentials_partial( $args, $hidden = false ) {
+	public static function credentials_partial( $args, $hidden = false ) {
 
 		/**
 		 * Grab the existing credentials.
@@ -138,7 +156,7 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 		$client_id     = isset( $args[ self::API_CLIENT_ID ] ) ? $args[ self::API_CLIENT_ID ] : '';
 		$client_secret = isset( $args[ self::API_CLIENT_SECRET ] ) ? $args[ self::API_CLIENT_SECRET ] : '';
 		$redirect_uri  = isset( $args[ self::API_REDIRECT_URI ] ) ? $args[ self::API_REDIRECT_URI ] : '';
-	?>
+		?>
 			<div class="oauth-authentication-details-wrapper<?php echo ( $hidden ? ' hidden' : '' ); ?>">
 				<h3 >
 					<?php esc_html_e( 'WordPress.com Application Client ID and Client Secret: ', 'distributor' ); ?>
@@ -154,13 +172,17 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 					<input type="hidden" id="dt_created_post_id" name="dt_external_connection_auth[dt_created_post_id]">
 				<input name="save" type="submit" class="button button-primary button-large" id="create-oauth-connection" value="<?php esc_attr_e( 'Authorize Connection with WordPress.com', 'distributor' ); ?>">
 			</div>
-	<?php
+		<?php
 	}
 
 	/**
 	 * Helper function extract a single option by key.
+	 *
+	 * @param  string $key Key to get.
+	 * @since  1.2
+	 * @return  bool|string
 	 */
-	static function get_authentication_option_by_key( $key ) {
+	public static function get_authentication_option_by_key( $key ) {
 		global $post;
 		$external_connection_id = $post ? $post->ID : false;
 
@@ -176,8 +198,11 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 
 	/**
 	 * Helper function gets all options.
+	 *
+	 * @since  1.2
+	 * @return  bool|string
 	 */
-	static function get_authentication_options() {
+	public static function get_authentication_options() {
 		global $post;
 		$external_connection_id = $post ? $post->ID : false;
 		if ( $external_connection_id ) {
@@ -188,8 +213,12 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 
 	/**
 	 * Helper function to set a single option by key.
+	 *
+	 * @param  string $key Key to set.
+	 * @param  string $value Value to set.
+	 * @since  1.2
 	 */
-	static function set_authentication_option_by_key( $key, $value ) {
+	public static function set_authentication_option_by_key( $key, $value ) {
 		global $post;
 		$external_connection_id = $post ? $post->ID : false;
 
@@ -203,11 +232,11 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 	/**
 	 * Prepare credentials saving.
 	 *
-	 * @param  array $args
+	 * @param  array $args Array of creds.
 	 * @since  1.1.0
 	 * @return array
 	 */
-	static function prepare_credentials( $args ) {
+	public static function prepare_credentials( $args ) {
 		$auth = array();
 
 		if ( ! empty( $args['client_id'] ) ) {
@@ -238,8 +267,8 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 	 *
 	 * If the credentials are new, start the authorization process.
 	 *
-	 * @param int   $external_connection_id
-	 * @param array $args
+	 * @param int   $external_connection_id External connection ID.
+	 * @param array $args Array of creds to store.
 	 * @since 1.1.0
 	 */
 	public static function store_credentials( $external_connection_id, $args ) {
@@ -275,8 +304,8 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 	/**
 	 * Add the Bearer: {Token} authorization header for get requests.
 	 *
-	 * @param  array $args
-	 * @param  array $context
+	 * @param  array $args Array of creds to format.
+	 * @param  array $context Current context.
 	 * @since  1.1.0
 	 * @return array
 	 */
@@ -297,8 +326,8 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 	/**
 	 * Add the Bearer: {Token} authorization header for post requests.
 	 *
-	 * @param  array $args
-	 * @param  array $context
+	 * @param  array $args Array of creds to format.
+	 * @param  array $context Current context.
 	 * @since  1.1.0
 	 * @return array
 	 */
@@ -318,6 +347,7 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 	/**
 	 * Authorize the request using the code and secret key. If successful, save the access token.
 	 *
+	 * @param  string $code Code used to fetch access token.
 	 * @since 1.1.0
 	 */
 	public static function fetch_access_token( $code ) {
@@ -387,7 +417,9 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 	/**
 	 * Begin the authorization process which retrieves an authorization code.
 	 *
+	 * @param  array $options Array of options.
 	 * @since 1.1.0
+	 * @return  bool|string
 	 */
 	public static function get_authorization_code( $options ) {
 		$client_id    = $options[ self::API_CLIENT_ID ];
@@ -411,7 +443,8 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 
 			// Allow wp_safe_redirect to redirect to the .com authorization endpoint.
 			add_filter(
-				'allowed_redirect_hosts', function( $content ) {
+				'allowed_redirect_hosts',
+				function( $content ) {
 					$content[] = 'public-api.wordpress.com';
 					return $content;
 				}
@@ -433,7 +466,7 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 	 * Check if the saved token is valid or not.
 	 *
 	 * @since 1.1.0
-	 *
+	 * @param  int $count Count.
 	 * @return boolean Is the token valid?
 	 */
 	public static function is_valid_token( $count = 1 ) {

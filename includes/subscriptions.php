@@ -1,6 +1,13 @@
 <?php
+/**
+ * Subscription functionality
+ *
+ * @package  distributor
+ */
 
 namespace Distributor\Subscriptions;
+
+use Distributor\ExternalConnection as ExternalConnection;
 
 /**
  * Setup actions and filters
@@ -9,7 +16,8 @@ namespace Distributor\Subscriptions;
  */
 function setup() {
 	add_action(
-		'plugins_loaded', function() {
+		'plugins_loaded',
+		function() {
 			add_action( 'init', __NAMESPACE__ . '\register_cpt' );
 			add_action( 'save_post', __NAMESPACE__ . '\send_notifications' );
 			add_action( 'before_delete_post', __NAMESPACE__ . '\delete_subscriptions' );
@@ -20,10 +28,10 @@ function setup() {
 /**
  * Create a subscription locally for a post.
  *
- * @param  int    $post_id
- * @param  int    $remote_post_id
- * @param  string $target_url
- * @param  string $signature
+ * @param  int    $post_id Post ID.
+ * @param  int    $remote_post_id Remote post ID.
+ * @param  string $target_url Target URL.
+ * @param  string $signature Auth signature.
  * @since  1.0
  * @return int|WP_Error
  */
@@ -73,12 +81,12 @@ function generate_signature() {
  * Create a remote subscription for a post. This is done by sending an HTTP request to the original
  * post's site
  *
- * @param ExternalConnection $connection
- * @param int                $remote_post_id
- * @param int                $post_id
+ * @param ExternalConnection $connection External connection object.
+ * @param int                $remote_post_id Remote post ID.
+ * @param int                $post_id Post ID.
  * @since 1.0
  */
-function create_remote_subscription( \Distributor\ExternalConnection $connection, $remote_post_id, $post_id ) {
+function create_remote_subscription( ExternalConnection $connection, $remote_post_id, $post_id ) {
 
 	/**
 	 * What is a signature? Why do we need it?
@@ -121,11 +129,12 @@ function create_remote_subscription( \Distributor\ExternalConnection $connection
 /**
  * Delete a remote subscription by sending an HTTP request to the dt_subscription/delete endpoint
  *
- * @param  int $remote_post_id
- * @param  int $post_id
+ * @param ExternalConnection $connection External connection object.
+ * @param  int                $remote_post_id Remote post ID.
+ * @param  int                $post_id Post ID.
  * @since 1.0
  */
-function delete_remote_subscription( \Distributor\ExternalConnection $connection, $remote_post_id, $post_id ) {
+function delete_remote_subscription( ExternalConnection $connection, $remote_post_id, $post_id ) {
 	$signature = get_post_meta( $post_id, 'dt_subscription_signature', true );
 
 	$post_body = [
@@ -149,8 +158,8 @@ function delete_remote_subscription( \Distributor\ExternalConnection $connection
 /**
  * Delete a local subscription for a post given a signature
  *
- * @param int    $post_id
- * @param string $signature
+ * @param int    $post_id Post ID.
+ * @param string $signature Auth signature.
  * @since 1.0
  */
 function delete_subscription( $post_id, $signature ) {
@@ -168,7 +177,7 @@ function delete_subscription( $post_id, $signature ) {
 /**
  * Delete subscriptions, both remotely and locally
  *
- * @param int $post_id
+ * @param int $post_id Post ID.
  * @since 1.0
  */
 function delete_subscriptions( $post_id ) {
@@ -202,7 +211,8 @@ function delete_subscriptions( $post_id ) {
 
 			// We need to ensure any remote post is unlinked to this post
 			wp_remote_post(
-				untrailingslashit( $target_url ) . '/wp/v2/dt_subscription/receive', [
+				untrailingslashit( $target_url ) . '/wp/v2/dt_subscription/receive',
+				[
 					'timeout'  => 5,
 					'blocking' => \Distributor\Utils\is_dt_debug(),
 					'body'     => [
@@ -219,7 +229,7 @@ function delete_subscriptions( $post_id ) {
 /**
  * Send notifications on post update to each subscription for that post
  *
- * @param  int $post_id
+ * @param  int $post_id Post ID.
  * @since  1.0
  */
 function send_notifications( $post_id ) {
@@ -246,22 +256,39 @@ function send_notifications( $post_id ) {
 			continue;
 		}
 
+		$post_body = [
+			'post_id'   => $remote_post_id,
+			'signature' => $signature,
+			'post_data' => [
+				'title'             => get_the_title( $post_id ),
+				'slug'              => $post->post_name,
+				'post_type'         => $post->post_type,
+				'content'           => apply_filters( 'the_content', $post->post_content ),
+				'excerpt'           => $post->post_excerpt,
+				'distributor_media' => \Distributor\Utils\prepare_media( $post_id ),
+				'distributor_terms' => \Distributor\Utils\prepare_taxonomy_terms( $post_id ),
+				'distributor_meta'  => \Distributor\Utils\prepare_meta( $post_id ),
+			],
+		];
+		if ( \Distributor\Utils\is_using_gutenberg() ) {
+			if ( gutenberg_can_edit_post_type( $post->post_type ) ) {
+				$post_body['post_data']['distributor_raw_content'] = $post->post_content;
+			}
+		}
+
 		$request = wp_remote_post(
-			untrailingslashit( $target_url ) . '/wp/v2/dt_subscription/receive', [
+			untrailingslashit( $target_url ) . '/wp/v2/dt_subscription/receive',
+			[
 				'timeout' => 5,
-				'body'    => [
-					'post_id'   => $remote_post_id,
-					'signature' => $signature,
-					'post_data' => [
-						'title'             => get_the_title( $post_id ),
-						'slug'              => $post->post_name,
-						'content'           => apply_filters( 'the_content', $post->post_content ),
-						'excerpt'           => $post->post_excerpt,
-						'distributor_media' => \Distributor\Utils\prepare_media( $post_id ),
-						'distributor_terms' => \Distributor\Utils\prepare_taxonomy_terms( $post_id ),
-						'distributor_meta'  => \Distributor\Utils\prepare_meta( $post_id ),
-					],
-				],
+				/**
+				 * Filter the arguments sent to the remote server during a subscription update.
+				 *
+				 * @since 1.3.0
+				 *
+				 * @param  array  $post_body The request body to send.
+				 * @param  object $post      The WP_Post that is being pushed.
+				 */
+				'body'    => apply_filters( 'dt_subscription_post_args', $post_body, $post ),
 			]
 		);
 

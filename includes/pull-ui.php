@@ -1,4 +1,9 @@
 <?php
+/**
+ * Pull UI functionality
+ *
+ * @package  distributor
+ */
 
 namespace Distributor\PullUI;
 
@@ -9,7 +14,8 @@ namespace Distributor\PullUI;
  */
 function setup() {
 	add_action(
-		'plugins_loaded', function() {
+		'plugins_loaded',
+		function() {
 			add_action( 'admin_menu', __NAMESPACE__ . '\action_admin_menu' );
 			add_action( 'admin_enqueue_scripts', __NAMESPACE__ . '\admin_enqueue_scripts' );
 			add_action( 'load-distributor_page_pull', __NAMESPACE__ . '\setup_list_table' );
@@ -100,7 +106,7 @@ function setup_list_table() {
 /**
  * Enqueue admin scripts for pull
  *
- * @param  string $hook
+ * @param  string $hook WP hook.
  * @since  0.8
  */
 function admin_enqueue_scripts( $hook ) {
@@ -140,14 +146,14 @@ function action_admin_menu() {
 /**
  * Set screen option for posts per page
  *
- * @param  string $status
- * @param  string $option
- * @param  mixed  $value
+ * @param  string $status Option status.
+ * @param  string $option Option.
+ * @param  mixed  $value New value.
  * @since  0.8
  * @return mixed
  */
 function set_screen_option( $status, $option, $value ) {
-	return $value;
+	return 'pull_posts_per_page' === $option ? $value : $status;
 }
 
 /**
@@ -202,7 +208,8 @@ function process_actions() {
 			$posts = array_map(
 				function( $remote_post_id ) {
 						return [ 'remote_post_id' => $remote_post_id ];
-				}, $posts
+				},
+				$posts
 			);
 
 			if ( 'external' === $_GET['connection_type'] ) {
@@ -343,7 +350,7 @@ function dashboard() {
 								$name     = untrailingslashit( $connection->site->domain . $connection->site->path );
 								$id       = $connection->site->blog_id;
 
-								if ( is_a( $connection_now, '\Distributor\InternalConnection' ) && (int) $connection_now->site->blog_id === (int) $id ) {
+								if ( is_a( $connection_now, '\Distributor\InternalConnections\NetworkSiteConnection' ) && (int) $connection_now->site->blog_id === (int) $id ) {
 									$selected = true;
 								}
 								?>
