@@ -14,7 +14,8 @@ namespace Distributor\RestApi;
  */
 function setup() {
 	add_action(
-		'init', function() {
+		'init',
+		function() {
 			add_action( 'rest_api_init', __NAMESPACE__ . '\register_endpoints' );
 
 			$post_types = get_post_types(
@@ -27,7 +28,8 @@ function setup() {
 				add_action( "rest_insert_{$post_type}", __NAMESPACE__ . '\process_distributor_attributes', 10, 3 );
 				add_filter( "rest_pre_insert_{$post_type}", __NAMESPACE__ . '\filter_distributor_content', 1, 2 );
 			}
-		}, 100
+		},
+		100
 	);
 }
 
@@ -136,7 +138,9 @@ function register_endpoints() {
 	);
 
 	register_rest_field(
-		$post_types, 'distributor_meta', array(
+		$post_types,
+		'distributor_meta',
+		array(
 			'get_callback'    => function( $post_array ) {
 				if ( ! current_user_can( 'edit_post', $post_array['id'] ) ) {
 					return false;
@@ -153,7 +157,9 @@ function register_endpoints() {
 	);
 
 	register_rest_field(
-		$post_types, 'distributor_terms', array(
+		$post_types,
+		'distributor_terms',
+		array(
 			'get_callback'    => function( $post_array ) {
 				if ( ! current_user_can( 'edit_post', $post_array['id'] ) ) {
 					return false;
@@ -170,7 +176,9 @@ function register_endpoints() {
 	);
 
 	register_rest_field(
-		$post_types, 'distributor_media', array(
+		$post_types,
+		'distributor_media',
+		array(
 			'get_callback'    => function( $post_array ) {
 				if ( ! current_user_can( 'edit_post', $post_array['id'] ) ) {
 					return false;
@@ -187,7 +195,9 @@ function register_endpoints() {
 	);
 
 	register_rest_field(
-		$post_types, 'distributor_original_site_name', array(
+		$post_types,
+		'distributor_original_site_name',
+		array(
 			'get_callback'    => function( $post_array ) {
 				return get_bloginfo( 'name' );
 			},
@@ -200,7 +210,9 @@ function register_endpoints() {
 	);
 
 	register_rest_field(
-		$post_types, 'distributor_original_site_url', array(
+		$post_types,
+		'distributor_original_site_url',
+		array(
 			'get_callback'    => function( $post_array ) {
 				return home_url();
 			},

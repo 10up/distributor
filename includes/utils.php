@@ -36,6 +36,7 @@ function is_using_gutenberg() {
 function get_settings() {
 	$defaults = [
 		'override_author_byline' => true,
+		'media_handling'         => 'featured',
 		'email'                  => '',
 		'license_key'            => '',
 		'valid_license'          => null,
@@ -77,7 +78,8 @@ function get_network_settings() {
 function check_license_key( $email, $license_key ) {
 
 	$request = wp_remote_post(
-		'https://distributorplugin.com/wp-json/distributor-theme/v1/validate-license', [
+		'https://distributorplugin.com/wp-json/distributor-theme/v1/validate-license',
+		[
 			'timeout' => 10,
 			'body'    => [
 				'license_key' => $license_key,
@@ -390,7 +392,9 @@ function set_taxonomy_terms( $post_id, $taxonomy_terms ) {
 
 				if ( ! empty( $term_array['parent'] ) ) {
 					wp_update_term(
-						$term_id_mapping[ $term_array['term_id'] ], $taxonomy, [
+						$term_id_mapping[ $term_array['term_id'] ],
+						$taxonomy,
+						[
 							'parent' => $term_id_mapping[ $term_array['parent'] ],
 						]
 					);
@@ -412,6 +416,7 @@ function set_taxonomy_terms( $post_id, $taxonomy_terms ) {
  * @since 1.0
  */
 function set_media( $post_id, $media ) {
+	$settings            = get_settings(); // phpcs:ignore
 	$current_media_posts = get_attached_media( get_allowed_mime_types(), $post_id );
 	$current_media       = [];
 
@@ -422,6 +427,14 @@ function set_media( $post_id, $media ) {
 	}
 
 	$found_featured_image = false;
+
+	// If we only want to process the featured image, remove all other media
+	if ( 'featured' === $settings['media_handling'] ) {
+		$featured_keys = wp_list_pluck( $media, 'featured' );
+		$featured_key  = array_search( true, $featured_keys, true );
+
+		$media = ( false !== $featured_key ) ? array( $media[ $featured_key ] ) : array();
+	}
 
 	foreach ( $media as $media_item ) {
 

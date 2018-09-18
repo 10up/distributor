@@ -44,7 +44,9 @@ class SubscriptionsController extends \WP_REST_Controller {
 	public function register_routes() {
 
 		register_rest_route(
-			$this->namespace, '/' . $this->rest_base, array(
+			$this->namespace,
+			'/' . $this->rest_base,
+			array(
 				array(
 					'methods'             => \WP_REST_Server::CREATABLE,
 					'callback'            => array( $this, 'create_item' ),
@@ -76,7 +78,9 @@ class SubscriptionsController extends \WP_REST_Controller {
 		);
 
 		register_rest_route(
-			$this->namespace, '/' . $this->rest_base . '/receive', array(
+			$this->namespace,
+			'/' . $this->rest_base . '/receive',
+			array(
 				array(
 					'methods'             => \WP_REST_Server::CREATABLE,
 					'callback'            => array( $this, 'receive_item' ),
@@ -98,7 +102,9 @@ class SubscriptionsController extends \WP_REST_Controller {
 		);
 
 		register_rest_route(
-			$this->namespace, '/' . $this->rest_base . '/delete', array(
+			$this->namespace,
+			'/' . $this->rest_base . '/delete',
+			array(
 				array(
 					'methods'             => \WP_REST_Server::DELETABLE,
 					'callback'            => array( $this, 'delete_item' ),

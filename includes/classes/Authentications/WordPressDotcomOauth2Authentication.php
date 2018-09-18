@@ -443,7 +443,8 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 
 			// Allow wp_safe_redirect to redirect to the .com authorization endpoint.
 			add_filter(
-				'allowed_redirect_hosts', function( $content ) {
+				'allowed_redirect_hosts',
+				function( $content ) {
 					$content[] = 'public-api.wordpress.com';
 					return $content;
 				}

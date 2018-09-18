@@ -14,7 +14,8 @@ namespace Distributor\ExternalConnectionCPT;
  */
 function setup() {
 	add_action(
-		'plugins_loaded', function() {
+		'plugins_loaded',
+		function() {
 			add_action( 'init', __NAMESPACE__ . '\setup_cpt' );
 			add_filter( 'enter_title_here', __NAMESPACE__ . '\filter_enter_title_here', 10, 2 );
 			add_filter( 'post_updated_messages', __NAMESPACE__ . '\filter_post_updated_messages' );
@@ -140,7 +141,7 @@ function ajax_begin_authorization() {
  * @return mixed
  */
 function set_screen_option( $status, $option, $value ) {
-	return $value;
+	return 'connections_per_page' === $option ? $value : $status;
 }
 
 /**
@@ -268,7 +269,9 @@ function admin_enqueue_scripts( $hook ) {
 		wp_enqueue_script( 'dt-admin-external-connection', plugins_url( '/dist/js/admin-external-connection.min.js', __DIR__ ), array( 'jquery', 'underscore' ), DT_VERSION, true );
 
 		wp_localize_script(
-			'dt-admin-external-connection', 'dt', array(
+			'dt-admin-external-connection',
+			'dt',
+			array(
 				'nonce'                     => wp_create_nonce( 'dt-verify-ext-conn' ),
 				'bad_connection'            => esc_html__( 'No connection found.', 'distributor' ),
 				'good_connection'           => esc_html__( 'Connection established.', 'distributor' ),
