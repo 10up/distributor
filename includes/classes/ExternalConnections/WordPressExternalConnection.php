@@ -652,11 +652,16 @@ class WordPressExternalConnection extends ExternalConnection {
 		if ( function_exists( 'vip_safe_wp_remote_get' ) && \Distributor\Utils\is_vip_com() ) {
 			$types_response = vip_safe_wp_remote_get(
 				$types_path,
-				false, 3, 3, 10, $this->auth_handler->format_get_args()
+				false,
+				3,
+				3,
+				10,
+				$this->auth_handler->format_get_args()
 			);
 		} else {
 			$types_response = wp_remote_get(
-				$types_path, $this->auth_handler->format_get_args( array( 'timeout' => self::$timeout ) )
+				$types_path,
+				$this->auth_handler->format_get_args( array( 'timeout' => self::$timeout ) )
 			);
 		}
 
