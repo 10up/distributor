@@ -448,15 +448,15 @@ class NetworkSiteConnection extends Connection {
 			update_post_meta( $original_post_id, 'dt_connection_map', $connection_map );
 		}
 
-		// Remove deleted post from the sync log.
+		restore_current_blog();
+
+		// Mark deleted post as being skipped in the sync log.
 		$sync_log = get_option( 'dt_sync_log', array() );
 
-		if ( isset( $sync_log[ $original_post_id ] ) ) {
-			unset( $sync_log[ $original_post_id ] );
+		if ( isset( $sync_log[ $original_blog_id ][ $original_post_id ] ) ) {
+			$sync_log[ $original_blog_id ][ $original_post_id ] = false;
 			update_option( 'dt_sync_log', $sync_log );
 		}
-
-		restore_current_blog();
 	}
 
 	/**
