@@ -273,11 +273,10 @@ class NetworkSiteConnection extends Connection {
 	 *
 	 * This let's us grab all the IDs of posts we've PULLED from a given site
 	 *
-	 * @param  array $item_id_mappings Mapping to log; key = origin post ID, value = new post ID.
-	 * @param  int   $connection_id    Source connection ID.
-	 * @since  0.8
+	 * @param array $item_id_mappings Mapping to log; key = origin post ID, value = new post ID.
+	 * @since 0.8
 	 */
-	public function log_sync( array $item_id_mappings, $connection_id ) {
+	public function log_sync( array $item_id_mappings ) {
 		$sync_log = get_option( 'dt_sync_log', array() );
 
 		$current_site_log = [];
@@ -449,15 +448,15 @@ class NetworkSiteConnection extends Connection {
 			update_post_meta( $original_post_id, 'dt_connection_map', $connection_map );
 		}
 
-		restore_current_blog();
-
 		// Remove deleted post from the sync log.
-		$sync_log = get_site_option( 'dt_sync_log_' . $original_blog_id, array() );
+		$sync_log = get_option( 'dt_sync_log', array() );
 
 		if ( isset( $sync_log[ $original_post_id ] ) ) {
 			unset( $sync_log[ $original_post_id ] );
-			update_site_option( 'dt_sync_log_' . $original_blog_id, $sync_log );
+			update_option( 'dt_sync_log', $sync_log );
 		}
+
+		restore_current_blog();
 	}
 
 	/**

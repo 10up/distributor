@@ -148,9 +148,6 @@ function ajax_push() {
 						'date'    => date( 'F j, Y g:i a' ),
 						'status'  => 'success',
 					);
-
-					$external_connection->log_sync( array( $remote_id => $_POST['post_id'] ), get_current_blog_id() );
-
 				} else {
 					$external_push_results[ (int) $connection['id'] ] = array(
 						'post_id' => (int) $remote_id,
@@ -192,9 +189,6 @@ function ajax_push() {
 					'date'    => date( 'F j, Y g:i a' ),
 					'status'  => 'success',
 				);
-
-				$internal_connection->log_sync( array( $_POST['post_id'] => $remote_id ), get_current_blog_id() );
-
 			} else {
 				$internal_push_results[ (int) $connection['id'] ] = array(
 					'post_id' => (int) $remote_id,
