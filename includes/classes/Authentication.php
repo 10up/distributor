@@ -113,7 +113,8 @@ abstract class Authentication {
 		// Store the message for output at the top of the authorization form
 		self::$error_message = $error_message;
 		add_action(
-			'auth_admin_notices', function() {
+			'auth_admin_notices',
+			function() {
 				?>
 		<div class="notice notice-error is-dismissible">
 			<p>

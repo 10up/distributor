@@ -114,10 +114,13 @@ class WordPressExternalConnection extends ExternalConnection {
 					 * @param  object $this The authentication class.
 					 */
 					return apply_filters(
-						'dt_remote_get', [
+						'dt_remote_get',
+						[
 							'items'       => array(),
 							'total_items' => 0,
-						], $args, $this
+						],
+						$args,
+						$this
 					);
 				}
 
@@ -150,11 +153,16 @@ class WordPressExternalConnection extends ExternalConnection {
 			if ( function_exists( 'vip_safe_wp_remote_get' ) && \Distributor\Utils\is_vip_com() ) {
 				$types_response = vip_safe_wp_remote_get(
 					$types_path,
-					false, 3, 3, 10, $this->auth_handler->format_get_args()
+					false,
+					3,
+					3,
+					10,
+					$this->auth_handler->format_get_args()
 				);
 			} else {
 				$types_response = wp_remote_get(
-					$types_path, $this->auth_handler->format_get_args( array( 'timeout' => self::$timeout ) )
+					$types_path,
+					$this->auth_handler->format_get_args( array( 'timeout' => self::$timeout ) )
 				);
 			}
 
@@ -255,7 +263,11 @@ class WordPressExternalConnection extends ExternalConnection {
 				 * @param  object $this       The authentication class.
 				 */
 				apply_filters( 'dt_remote_get_url', $posts_url, $args, $this ),
-				false, 3, 3, 10, $this->auth_handler->format_get_args()
+				false,
+				3,
+				3,
+				10,
+				$this->auth_handler->format_get_args()
 			);
 		} else {
 			$posts_response = wp_remote_get( apply_filters( 'dt_remote_get_url', $posts_url, $args, $this ), $this->auth_handler->format_get_args( array( 'timeout' => 45 ) ) );
@@ -305,10 +317,13 @@ class WordPressExternalConnection extends ExternalConnection {
 			}
 
 			return apply_filters(
-				'dt_remote_get', [
+				'dt_remote_get',
+				[
 					'items'       => $formatted_posts,
 					'total_items' => $total_posts,
-				], $args, $this
+				],
+				$args,
+				$this
 			);
 		} else {
 			return apply_filters( 'dt_remote_get', $this->to_wp_post( $posts ), $args, $this );
@@ -391,7 +406,20 @@ class WordPressExternalConnection extends ExternalConnection {
 			}
 
 			if ( ! empty( $post_array['media'] ) ) {
-				\Distributor\Utils\set_media( $new_post, $post_array['media'] );
+
+				/**
+				 * Allow bypassing of all media processing.
+				 *
+				 * @param bool                  true                          If Distributor should set the post media.
+				 * @param int                   $new_post                     The newly created post ID.
+				 * @param array                 $post_array['media']          List of media items attached to the post, formatted by {@see \Distributor\Utils\prepare_media()}.
+				 * @param int                   $item_array['remote_post_id'] The original post ID.
+				 * @param array                 $post_array                   The arguments passed into wp_insert_post.
+				 * @param ExternalConnection    $this                         The distributor connection being pulled from.
+				 */
+				if ( apply_filters( 'dt_pull_post_media', true, $new_post, $post_array['media'], $item_array['remote_post_id'], $post_array, $this ) ) {
+					\Distributor\Utils\set_media( $new_post, $post_array['media'] );
+				}
 			}
 
 			/**
@@ -437,11 +465,16 @@ class WordPressExternalConnection extends ExternalConnection {
 		if ( function_exists( 'vip_safe_wp_remote_get' ) && \Distributor\Utils\is_vip_com() ) {
 			$response = vip_safe_wp_remote_get(
 				$types_path,
-				false, 3, 3, 10, $this->auth_handler->format_get_args()
+				false,
+				3,
+				3,
+				10,
+				$this->auth_handler->format_get_args()
 			);
 		} else {
 			$response = wp_remote_get(
-				$types_path, $this->auth_handler->format_get_args(
+				$types_path,
+				$this->auth_handler->format_get_args(
 					array(
 						'timeout' => self::$timeout,
 					)
@@ -505,7 +538,11 @@ class WordPressExternalConnection extends ExternalConnection {
 			if ( function_exists( 'vip_safe_wp_remote_get' ) && \Distributor\Utils\is_vip_com() ) {
 				$post_exists_response = vip_safe_wp_remote_get(
 					$existing_post_url,
-					false, 3, 3, 10, $this->auth_handler->format_get_args()
+					false,
+					3,
+					3,
+					10,
+					$this->auth_handler->format_get_args()
 				);
 			} else {
 				$post_exists_response = wp_remote_get( $existing_post_url, $this->auth_handler->format_get_args( array( 'timeout' => self::$timeout ) ) );
@@ -521,7 +558,8 @@ class WordPressExternalConnection extends ExternalConnection {
 		}
 
 		$response = wp_remote_post(
-			$type_url, $this->auth_handler->format_post_args(
+			$type_url,
+			$this->auth_handler->format_post_args(
 				array(
 					/**
 					 * Filter the timeout used when calling WordPressExternalConnection::push.
@@ -603,7 +641,11 @@ class WordPressExternalConnection extends ExternalConnection {
 		if ( function_exists( 'vip_safe_wp_remote_get' ) && \Distributor\Utils\is_vip_com() ) {
 			$response = vip_safe_wp_remote_get(
 				untrailingslashit( $this->base_url ),
-				false, 3, 3, 10, $this->auth_handler->format_get_args()
+				false,
+				3,
+				3,
+				10,
+				$this->auth_handler->format_get_args()
 			);
 		} else {
 			$response = wp_remote_get( untrailingslashit( $this->base_url ), $this->auth_handler->format_get_args( array( 'timeout' => self::$timeout ) ) );
@@ -655,7 +697,11 @@ class WordPressExternalConnection extends ExternalConnection {
 		if ( function_exists( 'vip_safe_wp_remote_get' ) && \Distributor\Utils\is_vip_com() ) {
 			$types_response = vip_safe_wp_remote_get(
 				$types_path,
-				false, 3, 3, 10, $this->auth_handler->format_get_args()
+				false,
+				3,
+				3,
+				10,
+				$this->auth_handler->format_get_args()
 			);
 		} else {
 			$types_response = wp_remote_get( $types_path, $this->auth_handler->format_get_args( array( 'timeout' => self::$timeout ) ) );
@@ -693,7 +739,11 @@ class WordPressExternalConnection extends ExternalConnection {
 							if ( function_exists( 'vip_safe_wp_remote_get' ) && \Distributor\Utils\is_vip_com() ) {
 								$type_response = vip_safe_wp_remote_get(
 									$link,
-									false, 3, 3, 10, $this->auth_handler->format_get_args()
+									false,
+									3,
+									3,
+									10,
+									$this->auth_handler->format_get_args()
 								);
 							} else {
 								$type_response = wp_remote_get( $link, $this->auth_handler->format_get_args( array( 'timeout' => self::$timeout ) ) );
@@ -710,7 +760,8 @@ class WordPressExternalConnection extends ExternalConnection {
 
 						if ( in_array( 'POST', $routes[ $route ]['methods'], true ) ) {
 							$type_response = wp_remote_post(
-								$link, $this->auth_handler->format_post_args(
+								$link,
+								$this->auth_handler->format_post_args(
 									array(
 										'timeout' => self::$timeout,
 										'body'    => array( 'test' => 1 ),
