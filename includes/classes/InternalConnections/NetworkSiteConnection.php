@@ -31,6 +31,20 @@ class NetworkSiteConnection extends Connection {
 	static public $slug = 'networkblog';
 
 	/**
+	 * Default post type to pull.
+	 *
+	 * @var string
+	 */
+	public $pull_post_type;
+
+	/**
+	 * Default post types supported.
+	 *
+	 * @var string
+	 */
+	public $pull_post_types;
+
+	/**
 	 * Set up network site connection
 	 *
 	 * @param WP_Site $site Site object.
@@ -306,6 +320,20 @@ class NetworkSiteConnection extends Connection {
 		 * @param object $this This class.
 		 */
 		do_action( 'dt_log_sync', $item_id_mappings, $sync_log, $this );
+	}
+
+	/**
+	 * Get the available post types.
+	 *
+	 * @since 1.3
+	 * @return array
+	 */
+	public function get_post_types() {
+		switch_to_blog( $this->site->blog_id );
+		$post_types = get_post_types( [ 'public' => true ], 'objects' );
+		restore_current_blog();
+
+		return $post_types;
 	}
 
 	/**

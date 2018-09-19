@@ -51,6 +51,20 @@ class WordPressExternalConnection extends ExternalConnection {
 	static public $timeout = 5;
 
 	/**
+	 * Default post type to pull.
+	 *
+	 * @var string
+	 */
+	public $pull_post_type;
+
+	/**
+	 * Default post types supported.
+	 *
+	 * @var string
+	 */
+	public $pull_post_types;
+
+	/**
 	 * This is a utility function for parsing annoying API link headers returned by the types endpoint
 	 *
 	 * @param  array $type Types array.
@@ -622,6 +636,52 @@ class WordPressExternalConnection extends ExternalConnection {
 		}
 
 		return $remote_id;
+	}
+
+	/**
+	 * Get the available post types.
+	 *
+	 * @since 1.3
+	 * @return array|\WP_Error
+	 */
+	public function get_post_types() {
+		$path = self::$namespace;
+
+		$types_path = untrailingslashit( $this->base_url ) . '/' . $path . '/types';
+
+		if ( function_exists( 'vip_safe_wp_remote_get' ) && \Distributor\Utils\is_vip_com() ) {
+			$types_response = vip_safe_wp_remote_get(
+				$types_path,
+				false,
+				3,
+				3,
+				10,
+				$this->auth_handler->format_get_args()
+			);
+		} else {
+			$types_response = wp_remote_get(
+				$types_path,
+				$this->auth_handler->format_get_args( array( 'timeout' => self::$timeout ) )
+			);
+		}
+
+		if ( is_wp_error( $types_response ) ) {
+			return $types_response;
+		}
+
+		if ( 404 === wp_remote_retrieve_response_code( $types_response ) ) {
+			return new \WP_Error( 'bad-endpoint', esc_html__( 'Could not connect to API endpoint.', 'distributor' ) );
+		}
+
+		$types_body = wp_remote_retrieve_body( $types_response );
+
+		if ( empty( $types_body ) ) {
+			return new \WP_Error( 'no-response-body', esc_html__( 'Response body is empty', 'distributor' ) );
+		}
+
+		$types_body_array = json_decode( $types_body, true );
+
+		return $types_body_array;
 	}
 
 	/**

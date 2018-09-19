@@ -49,6 +49,14 @@ abstract class Connection {
 	abstract public function log_sync( array $item_id_mappings );
 
 	/**
+	 * Get available post types from a connection
+	 *
+	 * @since 1.3
+	 * @return array|\WP_Error
+	 */
+	abstract public function get_post_types();
+
+	/**
 	 * This method is called on every page load. It's helpful for canonicalization
 	 *
 	 * @since  0.8
