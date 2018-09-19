@@ -271,5 +271,5 @@ class TestInternalConnection extends \Distributor\Connection {
 
 	public function remote_get( $args ) { }
 
-	public function log_sync( array $item_id_mappings ) { }
+	public function log_sync( array $item_id_mappings, $id ) { }
 }
