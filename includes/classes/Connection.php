@@ -43,10 +43,11 @@ abstract class Connection {
 	/**
 	 * Log a sync
 	 *
-	 * @param  array $item_id_mappings Mapping to store.
-	 * @since  0.8
+	 * @param array $item_id_mappings Mapping to store; key = origin post ID, value = new post ID.
+	 * @param int   $id Blog or Connection ID. Optional.
+	 * @since 0.8
 	 */
-	abstract public function log_sync( array $item_id_mappings );
+	abstract public function log_sync( array $item_id_mappings, $id );
 
 	/**
 	 * Get available post types from a connection

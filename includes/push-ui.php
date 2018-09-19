@@ -148,6 +148,8 @@ function ajax_push() {
 						'date'    => date( 'F j, Y g:i a' ),
 						'status'  => 'success',
 					);
+
+					$external_connection->log_sync( array( $remote_id => $_POST['postId'] ) );
 				} else {
 					$external_push_results[ (int) $connection['id'] ] = array(
 						'post_id' => (int) $remote_id,
@@ -174,8 +176,10 @@ function ajax_push() {
 			 * Record the internal connection id's remote post id for this local post
 			 */
 			if ( ! is_wp_error( $remote_id ) ) {
+				$origin_site = get_current_blog_id();
 				switch_to_blog( intval( $connection['id'] ) );
 				$remote_url = get_permalink( $remote_id );
+				$internal_connection->log_sync( array( $_POST['postId'] => $remote_id ), $origin_site );
 				restore_current_blog();
 
 				$connection_map['internal'][ (int) $connection['id'] ] = array(
