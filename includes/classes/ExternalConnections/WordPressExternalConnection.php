@@ -253,15 +253,15 @@ class WordPressExternalConnection extends ExternalConnection {
 
 		if ( function_exists( 'vip_safe_wp_remote_get' ) && \Distributor\Utils\is_vip_com() ) {
 			$posts_response = vip_safe_wp_remote_get(
-			/**
-			 * Filter the URL that remote_get will use
-			 *
-			 * @since 1.0
-			 *
-			 * @param  string $posts_url  The posts URL
-			 * @param  string $args       The arguments originally passed to .remote_get'.
-			 * @param  object $this       The authentication class.
-			 */
+				/**
+				 * Filter the URL that remote_get will use
+				 *
+				 * @since 1.0
+				 *
+				 * @param  string $posts_url  The posts URL
+				 * @param  string $args       The arguments originally passed to .remote_get'.
+				 * @param  object $this       The authentication class.
+				 */
 				apply_filters( 'dt_remote_get_url', $posts_url, $args, $this ),
 				false,
 				3,
@@ -394,7 +394,7 @@ class WordPressExternalConnection extends ExternalConnection {
 			if ( ! empty( $post->post_parent ) ) {
 				update_post_meta( $new_post, 'dt_original_post_parent', (int) $post->post_parent );
 			}
-			
+
 			if ( empty( $post_array['full_connection'] ) ) {
 				update_post_meta( $new_post, 'dt_full_connection', false );
 			} else {
@@ -533,7 +533,7 @@ class WordPressExternalConnection extends ExternalConnection {
 				$post_body['distributor_raw_content'] = $post->post_content;
 			}
 		}
-		
+
 		if ( ! empty( $post->post_parent ) ) {
 			$post_body['distributor_original_post_parent'] = (int) $post->post_parent;
 		}
