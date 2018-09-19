@@ -469,7 +469,7 @@ class PullListTable extends \WP_List_Table {
 						</option>
 					<?php endforeach; ?>
 				</select>
-				<input type="submit" name="filter_action" id="pull_post_type_submit" class="button" value="Filter">
+				<input type="submit" name="filter_action" id="pull_post_type_submit" class="button" value="<?php esc_attr_e( 'Filter', 'distributor' ); ?>">
 			</div>
 
 			<?php
