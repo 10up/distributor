@@ -119,19 +119,20 @@ function set_meta( $post_id, $meta ) {
 	$blacklisted_meta = blacklisted_meta();
 
 	foreach ( $meta as $meta_key => $meta_value ) {
-		if ( is_string( $meta_value ) ) {
+		if ( ! is_array( $meta_value ) ) {
 			if ( ! in_array( $meta_key, $blacklisted_meta, true ) ) {
 				$meta_value = maybe_unserialize( $meta_value );
 				update_post_meta( $post_id, $meta_key, $meta_value );
 			}
 		} else {
-			$meta_array = (array) $meta_value;
+			$meta_array  = (array) $meta_value;
+			$meta_values = array();
 			foreach ( $meta_array as $meta_item_value ) {
 				if ( ! in_array( $meta_key, $blacklisted_meta, true ) ) {
-					$meta_item_value = maybe_unserialize( $meta_item_value );
-					update_post_meta( $post_id, $meta_key, $meta_item_value );
+					$meta_values[] = maybe_unserialize( $meta_item_value );
 				}
 			}
+			update_post_meta( $post_id, $meta_key, $meta_values );
 		}
 	}
 }
@@ -528,6 +529,11 @@ function format_media_post( $media_post ) {
 	$media_item['post']          = $media_post->post_parent;
 	$media_item['source_url']    = wp_get_attachment_url( $media_post->ID );
 	$media_item['meta']          = get_post_meta( $media_post->ID );
+
+	// Convert media meta items back into single values.
+	foreach ( $media_item['meta'] as $key => $media_item_value ) {
+		$media_item['meta'][ $key ] = $media_item_value[0];
+	}
 
 	return apply_filters( 'dt_media_item_formatted', $media_item, $media_post->ID );
 }

@@ -14,8 +14,16 @@ class UtilsTest extends \TestCase {
 	public function test_set_meta_simple() {
 		\WP_Mock::userFunction(
 			'update_post_meta', [
-				'times'  => 2,
+				'times'  => 1,
 				'args'   => [ 1, 'key', 'value' ],
+				'return' => [],
+			]
+		);
+
+		\WP_Mock::userFunction(
+			'update_post_meta', [
+				'times'  => 1,
+				'args'   => [ 1, 'key', [ 'value' ] ],
 				'return' => [],
 			]
 		);
@@ -413,8 +421,8 @@ class UtilsTest extends \TestCase {
 				'times'  => 1,
 				'args'   => [ $media_post->ID ],
 				'return' => [
-					'meta1' => true,
-					'meta2' => false,
+					'meta1' => [ true ],
+					'meta2' => [ false ],
 				],
 			]
 		);
