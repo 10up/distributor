@@ -1,33 +1,32 @@
-import { wp, dtGutenberg } from 'window'
-const { registerPlugin } = wp.plugins
+import { wp, dtGutenberg } from 'window';
 
 
-wp.i18n.setLocaleData( dtGutenberg.i18n, 'distributor' )
+wp.i18n.setLocaleData( dtGutenberg.i18n, 'distributor' );
 
-if ( dtGutenberg.originalSourceId !== '0' || dtGutenberg.originalBlogId !== '0' ) {
+if ( '0' !== dtGutenberg.originalSourceId || '0' !== dtGutenberg.originalBlogId ) {
 
-	const messages = []
+	const messages = [];
 
 	if ( parseInt( dtGutenberg.originalDeleted ) ) {
-		messages.push( wp.i18n.sprintf( wp.i18n.__( 'This %s was distributed from ' ), dtGutenberg.postTypeSingular ) )
+		messages.push( wp.i18n.sprintf( wp.i18n.__( 'This %s was distributed from ' ), dtGutenberg.postTypeSingular ) );
 		messages.push( wp.element.createElement( 'a', {
 			href: dtGutenberg.postUrl,
 			key: 'original-location-link'
 		}, [
 			dtGutenberg.originalLocationName
-		] ) )
-		messages.push( wp.i18n.__( '. However, the original has been deleted.' ) )
+		] ) );
+		messages.push( wp.i18n.__( '. However, the original has been deleted.' ) );
 	} else if ( ! parseInt( dtGutenberg.unlinked ) ) {
-		messages.push( wp.i18n.__( 'Distributed from ', 'distributor' ) )
+		messages.push( wp.i18n.__( 'Distributed from ', 'distributor' ) );
 
 		messages.push( wp.element.createElement( 'a', {
 			href: dtGutenberg.postUrl,
 			key: 'original-location-link'
 		}, [
 			dtGutenberg.originalLocationName
-		] ) )
+		] ) );
 
-		messages.push( '.' )
+		messages.push( '.' );
 
 		messages.push( wp.element.createElement( 'span', {
 			key: 'message-span'
@@ -39,18 +38,18 @@ if ( dtGutenberg.originalSourceId !== '0' || dtGutenberg.originalBlogId !== '0' 
 			}, [
 				wp.i18n.__( 'unlink from the original.', 'distributor' )
 			] )
-		] ) )
+		] ) );
 	} else {
-		messages.push( wp.i18n.__( 'Originally distributed from ', 'distributor' ) )
+		messages.push( wp.i18n.__( 'Originally distributed from ', 'distributor' ) );
 
 		messages.push( wp.element.createElement( 'a', {
 			href: dtGutenberg.postUrl,
 			key: 'original-location-link'
 		}, [
 			dtGutenberg.originalLocationName
-		] ) )
+		] ) );
 
-		messages.push( '.' )
+		messages.push( '.' );
 
 		messages.push( wp.element.createElement( 'span', {
 			key: 'message-span'
@@ -62,14 +61,14 @@ if ( dtGutenberg.originalSourceId !== '0' || dtGutenberg.originalBlogId !== '0' 
 			}, [
 				wp.i18n.__( 'restore it.', 'distributor' )
 			] )
-		] ) )
+		] ) );
 	}
 
 	const messageElement = wp.element.createElement( 'p', {
 		className: 'dt-message-wrapper'
-	}, messages )
+	}, messages );
 
 	wp.data.dispatch( 'core/editor' ).createWarningNotice( messageElement, {
 		isDismissible: false
-	} )
+	} );
 }

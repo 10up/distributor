@@ -14,7 +14,8 @@ namespace Distributor\PushUI;
  */
 function setup() {
 	add_action(
-		'plugins_loaded', function() {
+		'plugins_loaded',
+		function() {
 			add_action( 'admin_enqueue_scripts', __NAMESPACE__ . '\enqueue_scripts' );
 			add_action( 'wp_enqueue_scripts', __NAMESPACE__ . '\enqueue_scripts' );
 			add_action( 'wp_ajax_dt_push', __NAMESPACE__ . '\ajax_push' );
@@ -77,7 +78,7 @@ function ajax_push() {
 		exit;
 	}
 
-	if ( empty( $_POST['post_id'] ) ) {
+	if ( empty( $_POST['postId'] ) ) {
 		wp_send_json_error();
 		exit;
 	}
@@ -87,7 +88,7 @@ function ajax_push() {
 		exit;
 	}
 
-	$connection_map = get_post_meta( intval( $_POST['post_id'] ), 'dt_connection_map', true );
+	$connection_map = get_post_meta( intval( $_POST['postId'] ), 'dt_connection_map', true );
 	if ( empty( $connection_map ) ) {
 		$connection_map = array();
 	}
@@ -126,11 +127,11 @@ function ajax_push() {
 					$push_args['remote_post_id'] = (int) $connection_map['external'][ (int) $connection['id'] ]['post_id'];
 				}
 
-				if ( ! empty( $_POST['post_status'] ) ) {
-					$push_args['post_status'] = $_POST['post_status'];
+				if ( ! empty( $_POST['postStatus'] ) ) {
+					$push_args['post_status'] = $_POST['postStatus'];
 				}
 
-				$remote_id = $external_connection->push( intval( $_POST['post_id'] ), $push_args );
+				$remote_id = $external_connection->push( intval( $_POST['postId'] ), $push_args );
 
 				/**
 				 * Record the external connection id's remote post id for this local post
@@ -147,6 +148,8 @@ function ajax_push() {
 						'date'    => date( 'F j, Y g:i a' ),
 						'status'  => 'success',
 					);
+
+					$external_connection->log_sync( array( $remote_id => $_POST['postId'] ) );
 				} else {
 					$external_push_results[ (int) $connection['id'] ] = array(
 						'post_id' => (int) $remote_id,
@@ -163,18 +166,20 @@ function ajax_push() {
 				$push_args['remote_post_id'] = (int) $connection_map['internal'][ (int) $connection['id'] ]['post_id'];
 			}
 
-			if ( ! empty( $_POST['post_status'] ) ) {
-				$push_args['post_status'] = esc_attr( $_POST['post_status'] );
+			if ( ! empty( $_POST['postStatus'] ) ) {
+				$push_args['post_status'] = esc_attr( $_POST['postStatus'] );
 			}
 
-			$remote_id = $internal_connection->push( intval( $_POST['post_id'] ), $push_args );
+			$remote_id = $internal_connection->push( intval( $_POST['postId'] ), $push_args );
 
 			/**
 			 * Record the internal connection id's remote post id for this local post
 			 */
 			if ( ! is_wp_error( $remote_id ) ) {
+				$origin_site = get_current_blog_id();
 				switch_to_blog( intval( $connection['id'] ) );
 				$remote_url = get_permalink( $remote_id );
+				$internal_connection->log_sync( array( $_POST['postId'] => $remote_id ), $origin_site );
 				restore_current_blog();
 
 				$connection_map['internal'][ (int) $connection['id'] ] = array(
@@ -198,7 +203,7 @@ function ajax_push() {
 		}
 	}
 
-	update_post_meta( intval( $_POST['post_id'] ), 'dt_connection_map', $connection_map );
+	update_post_meta( intval( $_POST['postId'] ), 'dt_connection_map', $connection_map );
 
 	wp_send_json_success(
 		array(
@@ -226,9 +231,11 @@ function enqueue_scripts( $hook ) {
 	wp_enqueue_style( 'dt-push', plugins_url( '/dist/css/push.min.css', __DIR__ ), array(), DT_VERSION );
 	wp_enqueue_script( 'dt-push', plugins_url( '/dist/js/push.min.js', __DIR__ ), array( 'jquery', 'underscore', 'hoverIntent' ), DT_VERSION, true );
 	wp_localize_script(
-		'dt-push', 'dt', array(
+		'dt-push',
+		'dt',
+		array(
 			'nonce'   => wp_create_nonce( 'dt-push' ),
-			'post_id' => (int) get_the_ID(),
+			'postId'  => (int) get_the_ID(),
 			'ajaxurl' => esc_url( admin_url( 'admin-ajax.php' ) ),
 
 			/**

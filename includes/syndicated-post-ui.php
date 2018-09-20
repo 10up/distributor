@@ -14,7 +14,8 @@ namespace Distributor\SyndicatedPostUI;
  */
 function setup() {
 	add_action(
-		'plugins_loaded', function() {
+		'plugins_loaded',
+		function() {
 			add_action( 'edit_form_top', __NAMESPACE__ . '\syndicated_message', 9, 1 );
 			add_action( 'admin_enqueue_scripts', __NAMESPACE__ . '\enqueue_post_scripts' );
 			add_action( 'admin_enqueue_scripts', __NAMESPACE__ . '\enqueue_edit_scripts' );
@@ -526,9 +527,11 @@ function enqueue_gutenberg_edit_scripts() {
 	$post_type_singular = $post_type_object->labels->singular_name;
 
 	wp_enqueue_script( 'dt-gutenberg-syndicated-post', plugins_url( '/dist/js/gutenberg-syndicated-post.min.js', __DIR__ ), [ 'wp-blocks' ], DT_VERSION, true );
-	wp_enqueue_script( 'dt-gutenberg-syndicated-status-plugin', plugins_url( '/dist/js/gutenberg-status-plugin.min.js', __DIR__ ), [ 'wp-blocks' ], DT_VERSION, true );
+	wp_enqueue_script( 'dt-gutenberg-syndicated-status-plugin', plugins_url( '/dist/js/gutenberg-status-plugin.min.js', __DIR__ ), [ 'wp-blocks', 'wp-edit-post' ], DT_VERSION, true );
 	wp_localize_script(
-		'dt-gutenberg-syndicated-post', 'dtGutenberg', [
+		'dt-gutenberg-syndicated-post',
+		'dtGutenberg',
+		[
 			'i18n'                 => gutenberg_get_jed_locale_data( 'distributor' ),
 			'originalBlogId'       => (int) $original_blog_id,
 			'originalPostId'       => (int) $original_post_id,

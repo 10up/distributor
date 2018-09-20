@@ -54,10 +54,9 @@ class PullListTable extends \WP_List_Table {
 	 */
 	public function get_columns() {
 		$columns = [
-			'cb'           => '<input type="checkbox" />',
-			'name'         => esc_html__( 'Name', 'distributor' ),
-			'content_type' => esc_html__( 'Content Type', 'distributor' ),
-			'date'         => esc_html__( 'Date', 'distributor' ),
+			'cb'   => '<input type="checkbox" />',
+			'name' => esc_html__( 'Name', 'distributor' ),
+			'date' => esc_html__( 'Date', 'distributor' ),
 		];
 
 		return $columns;
@@ -232,14 +231,6 @@ class PullListTable extends \WP_List_Table {
 			case 'name':
 				return $item['post_title'];
 				break;
-			case 'content_type':
-				$post_type_object = get_post_type_object( $item->post_type );
-				if ( empty( $post_type_object ) ) {
-					return $item->post_type;
-				}
-
-				return $post_type_object->labels->singular_name;
-				break;
 			case 'url':
 				$url = get_post_meta( $item->ID, 'dt_external_connection_url', true );
 
@@ -350,16 +341,8 @@ class PullListTable extends \WP_List_Table {
 		$remote_get_args = [
 			'posts_per_page' => $per_page,
 			'paged'          => $current_page,
-			'post_type'      => \Distributor\Utils\distributable_post_types(),
+			'post_type'      => $connection_now->pull_post_type ?: 'post',
 		];
-
-		/**
-		 * Todo: Support pulling more than one post type from external connections. This is hard since
-		 * each endpoint can only return one post type.
-		 */
-		if ( is_a( $connection_now, '\Distributor\ExternalConnection' ) ) {
-			$remote_get_args['post_type'] = 'post';
-		}
 
 		if ( ! empty( $_GET['s'] ) ) {
 			$remote_get_args['s'] = sanitize_key( $_GET['s'] );
@@ -472,6 +455,26 @@ class PullListTable extends \WP_List_Table {
 	 * @param string $which Whether above or below the table.
 	 */
 	public function extra_tablenav( $which ) {
+		global $connection_now;
+
+		if ( $connection_now->pull_post_types && $connection_now->pull_post_type ) :
+			?>
+
+			<div class="alignleft actions">
+				<label for="pull_post_type" class="screen-reader-text">Content to Pull</label>
+				<select id="pull_post_type" name="pull_post_type">
+					<?php foreach ( $connection_now->pull_post_types as $post_type ) : ?>
+						<option <?php selected( $connection_now->pull_post_type, $post_type['slug'] ); ?> value="<?php echo esc_attr( $post_type['slug'] ); ?>">
+							<?php echo esc_html( $post_type['name'] ); ?>
+						</option>
+					<?php endforeach; ?>
+				</select>
+				<input type="submit" name="filter_action" id="pull_post_type_submit" class="button" value="<?php esc_attr_e( 'Filter', 'distributor' ); ?>">
+			</div>
+
+			<?php
+		endif;
+
 		/**
 		 * Action fired when extra table nav is generated.
 		 *
