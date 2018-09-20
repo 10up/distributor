@@ -4,8 +4,14 @@ All notable changes to this project will be documented in this file, per [the Ke
 
 ## [ 1.3.0 ] - 2018-09-20
 ### Added
-* Support pulling multiple post types for external connections. This adds a post type selector when viewing the Pull Content list for both external and internal connections, which is both easier to use and more performant.
-* Add a media processing option to only distribute the featured image instead of the featured image and all attached media (children attachments). This is now the default option, as in-content media URLs are not rewritten and attached media is often loosely correlated with media use, making local copies of most attached media unnecessary in default setups, even as they add significant overhead to distribution.
+* Add a media processing option to only distribute the featured image instead of the featured image and all attached media.
+
+**Important note**: This is now the default option **for all sites**. Attached media is often loosely correlated with media use and in-content media URLs are not rewritten on distribution, making local copies of most attached media unnecessary in default setups, even as they add significant overhead to distribution. To retain the previous behavior of distributing all attached media (children attachments), change the setting on the **receiving** site to `Process the featured image and any attached images.`
+
+* Support pulling multiple post types for external connections.
+
+This adds a post type selector when viewing the Pull Content list for both external and internal connections, which is both easier to use and more performant.
+
 * Distributed copies of posts that are later permanently deleted are now marked as `skipped` in the Pull Content list, making them available for pull again while not appearing as new content.
 * Add `dt_original_post_parent` to post meta, allowing developers to better manage post parent handling.
 
