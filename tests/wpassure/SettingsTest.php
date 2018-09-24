@@ -8,7 +8,7 @@
 /**
  * PHPUnit test class
  */
-class SettingsTest extends \WPAssure\PHPUnit\TestCase {
+class SettingsTest extends \TestCase {
 
 	/**
 	 * Test that settings actually save
@@ -66,41 +66,12 @@ class SettingsTest extends \WPAssure\PHPUnit\TestCase {
 
 		$I->waitUntilElementVisible( '#wpadminbar' );
 
-		// Now distribute a published post
-		$I->moveTo( 'wp-admin/post.php?post=40&action=edit' );
+		$post_info = $this->distributePost( $I, 40, 2 );
 
-		$I->waitUntilElementVisible( '#wp-admin-bar-distributor a' );
+		// Check front end
+		$I->moveTo( $post_info['distributed_front_url'] );
 
-		$I->moveMouse( '#wp-admin-bar-distributor a' );
-
-		$I->click( '#wp-admin-bar-distributor a' );
-
-		// Distribute post
-
-		$I->click( '#distributor-push-wrapper .new-connections-list .add-connection[data-connection-id="2"]' );
-
-		usleep( 500 );
-
-		$I->click( '#dt-as-draft' ); // Uncheck for publish, draft is checked by default
-
-		$I->click( '#distributor-push-wrapper .syndicate-button' );
-
-		$I->waitUntilElementVisible( '#distributor-push-wrapper .dt-success' );
-
-		// Now let's navigate to the new post
-
-		$I->moveTo( '/two/wp-admin/edit.php' );
-
-		$I->waitUntilElementVisible( '.wp-list-table' );
-
-		$I->click( '.wp-list-table tbody tr:nth-child(1) a.row-title' );
-
-		$I->waitUntilElementVisible( '#title' );
-
-		// Now let's check in the front end
-		$I->click( '#wp-admin-bar-view a' );
-
-		$post_url = $I->getCurrentUrl();
+		$I->waitUntilElementVisible( '#wpadminbar' );
 
 		// Site One byline is shown
 		$I->seeText( 'Site One', '.byline .author' );
@@ -117,7 +88,7 @@ class SettingsTest extends \WPAssure\PHPUnit\TestCase {
 		$I->waitUntilElementVisible( '#wpadminbar' );
 
 		// Verify byline is normal
-		$I->moveTo( $post_url );
+		$I->moveTo( $post_info['distributed_front_url'] );
 
 		$I->seeText( 'wpsnapshots', '.byline .author' );
 	}
