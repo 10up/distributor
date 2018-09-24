@@ -8,7 +8,7 @@
 /**
  * PHPUnit test class
  */
-class IntenralPullTest extends \TestCase {
+class InternalPullTest extends \TestCase {
 
 	/**
 	 * Test the correct posts show in "new", "pulled", "skipped"
