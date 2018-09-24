@@ -7,7 +7,7 @@
 /**
  * PHPUnit test class
  */
-class PushMenuTest extends \WPAssure\PHPUnit\TestCase {
+class PushMenuTest extends \TestCase {
 
 	/**
 	 * Test that the menu shows on hover
