@@ -59,4 +59,31 @@ class IntenralPullTest extends \TestCase {
 
 		$I->seeText( 'Test Post', '.wp-list-table .page-title' );
 	}
+
+	/**
+	 * Test skipping a post
+	 */
+	public function testSkipPost() {
+		$I = $this->getAnonymousUser();
+
+		$I->loginAs( 'wpsnapshots' );
+
+		$I->moveTo( 'two/wp-admin/admin.php?page=pull' );
+
+		$I->waitUntilElementVisible( '.wp-list-table' );
+
+		$I->selectOptions( '#bulk-action-selector-top', 'bulk-skip' );
+
+		$I->checkOptions( '.wp-list-table #cb-select-40');
+
+		$I->click( '#doaction' );
+
+		$I->waitUntilElementVisible( '.wp-list-table' );
+
+		$I->moveTo( 'two/wp-admin/admin.php?page=pull&status=skipped' );
+
+		$I->waitUntilElementVisible( '.wp-list-table' );
+
+		$I->seeText( 'Test Post', '.wp-list-table .page-title' );
+	}
 }
