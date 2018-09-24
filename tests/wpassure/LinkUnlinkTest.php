@@ -18,7 +18,7 @@ class LinkUnlinkTest extends \TestCase {
 
 		$I->loginAs( 'wpsnapshots' );
 
-		$post_info = $this->distributePost( $I, 40, 2 );
+		$post_info = $this->pushPost( $I, 40, 2 );
 
 		// Now let's navigate to the new post
 
