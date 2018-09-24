@@ -1,0 +1,12 @@
+{
+  "name": "distributor",
+  "snapshot_id": "af5d5c26467ac1fa910be754a2974dcc",
+  "tests": [
+    "tests/wpassure/*"
+  ],
+  "exclude": [
+    "./node_modules",
+    "./vendor"
+  ],
+  "test_clean_db": true
+}
