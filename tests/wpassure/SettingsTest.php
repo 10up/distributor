@@ -66,7 +66,7 @@ class SettingsTest extends \TestCase {
 
 		$I->waitUntilElementVisible( '#wpadminbar' );
 
-		$post_info = $this->distributePost( $I, 40, 2 );
+		$post_info = $this->pushPost( $I, 40, 2 );
 
 		// Check front end
 		$I->moveTo( $post_info['distributed_front_url'] );

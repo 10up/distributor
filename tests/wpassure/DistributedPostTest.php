@@ -20,7 +20,7 @@ class DistributedPost extends \TestCase {
 		$I->loginAs( 'wpsnapshots' );
 
 		// Distribute post
-		$post_info = $this->distributePost( $I, 40, 2 );
+		$post_info = $this->pushPost( $I, 40, 2 );
 
 		$I->moveTo( $post_info['original_edit_url'] );
 
@@ -29,7 +29,7 @@ class DistributedPost extends \TestCase {
 		$I->seeText( '1', '#distributed-to strong' );
 
 		// Distribute post
-		$post_info = $this->distributePost( $I, 40, 3 );
+		$post_info = $this->pushPost( $I, 40, 3 );
 
 		$I->moveTo( $post_info['original_edit_url'] );
 
@@ -46,7 +46,7 @@ class DistributedPost extends \TestCase {
 
 		$I->loginAs( 'wpsnapshots' );
 
-		$post_info = $this->distributePost( $I, 40, 2 );
+		$post_info = $this->pushPost( $I, 40, 2 );
 
 		// Now let's navigate to the new post
 

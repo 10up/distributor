@@ -18,7 +18,7 @@ class InternalPushTest extends \TestCase {
 
 		$I->loginAs( 'wpsnapshots' );
 
-		$this->distributePost( $I, 40, 2, '', 'draft' );
+		$this->pushPost( $I, 40, 2, '', 'draft' );
 
 		$I->moveTo( '/two/wp-admin/edit.php' );
 
@@ -36,7 +36,7 @@ class InternalPushTest extends \TestCase {
 
 		$I->loginAs( 'wpsnapshots' );
 
-		$this->distributePost( $I, 40, 2 );
+		$this->pushPost( $I, 40, 2 );
 
 		$I->moveTo( '/two/wp-admin/edit.php' );
 
