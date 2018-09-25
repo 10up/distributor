@@ -122,7 +122,7 @@ function update_notice( $plugin_file, $plugin_data, $status ) {
  * @since 1.2
  */
 function maybe_notice() {
-	if ( ! empty( $_GET['page'] ) && ( 'distributor-settings' === $_GET['page'] || 'pull' === $_GET['page'] || 'distributor' === $_GET['page'] ) ) {
+	if ( 'distributor' === get_current_screen()->parent_base ) {
 		if ( DT_IS_NETWORK ) {
 			$settings = Utils\get_network_settings();
 		} else {
