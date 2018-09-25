@@ -140,7 +140,7 @@ function maybe_notice() {
 		}
 		?>
 		<div data-notice="auto-upgrade-disabled" class="notice notice-warning">
-			<p><?php echo wp_kses_post( sprintf( __( '<a href="%s">Register Distributor</a> to receive important plugin update notices and other Distributor news.', 'elasticpress' ), esc_url( $notice_url ) ) ); ?></p>
+			<p><?php echo wp_kses_post( sprintf( __( '<a href="%s">Register Distributor</a> to receive important plugin update notices and other Distributor news.', 'distributor' ), esc_url( $notice_url ) ) ); ?></p>
 		</div>
 		<?php
 	}
