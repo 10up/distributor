@@ -10,10 +10,10 @@ env:
 before_script:
 - composer install
 script:
+- ./vendor/bin/wpsnapshots configure 10up --aws_key=$AWS_ACCESS_KEY --aws_secret=$SECRET_ACCESS_KEY --user_name=Travis --user_email=travis@10up.com
+- ./vendor/bin/wpassure run
 - composer run-script lint
-- "./vendor/bin/phpunit"
-- "./vendor/bin/wpsnapshots configure 10up --aws_key=$AWS_ACCESS_KEY --aws_secret=$SECRET_ACCESS_KEY --user_name=Travis --user_email=travis@10up.com"
-- "./vendor/bin/wpassure run"
+- ./vendor/bin/phpunit
 cache:
   directories:
   - vendor/
