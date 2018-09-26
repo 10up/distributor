@@ -1,7 +1,6 @@
 language: php
 
 php:
-  - 7.0
   - 7.2
 
 env:
@@ -15,6 +14,7 @@ before_script:
 script:
   - composer run-script lint
   - ./vendor/bin/phpunit
+  - ./vendor/bin/wpassure run
 
 cache:
   directories:
@@ -22,3 +22,8 @@ cache:
 
 notifications:
   email: false
+
+sudo: required
+
+services:
+  docker
