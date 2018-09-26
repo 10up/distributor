@@ -77,6 +77,8 @@ class DistributedPost extends \TestCase {
 
 		$I->click( '#wp-admin-bar-distributor a' );
 
+		usleep( 500 );
+
 		// Make sure the distributed admin bar menu shows the post has been distributed
 		$I->seeText( 'This post has been distributed', '#distributor-push-wrapper .syndicated-notice');
 
