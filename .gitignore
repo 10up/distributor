@@ -4,3 +4,4 @@ node_modules
 .idea*
 vendor/*
 !vendor/yahnis-elsts
+dist/*
