@@ -35,6 +35,17 @@ gulp.task( 'watch', () => {
 } );
 
 /**
+ * Gulp task to run the default release processes in a sequenctial order.
+ */
+gulp.task( 'release', () => {
+	runSequence(
+		'css',
+		'js',
+		'copy'
+	);
+} );
+
+/**
  * Gulp task to run the default build processes in a sequenctial order.
  */
 gulp.task( 'default', () => {

@@ -10,7 +10,8 @@
     "watch": "./node_modules/.bin/gulp watch",
     "css": "./node_modules/.bin/gulp css",
     "postinstall": "./node_modules/.bin/gulp",
-    "makepot": "./node_modules/.bin/wpi18n makepot && echo '.pot file updated'"
+    "makepot": "./node_modules/.bin/wpi18n makepot && echo '.pot file updated'",
+    "release": "rm -rf release/ && git worktree prune && npm run makepot && git worktree add release origin/stable && ./node_modules/.bin/gulp release"
   },
   "dependencies": {
     "babel-cli": "^6.26.0",
