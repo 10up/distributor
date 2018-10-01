@@ -127,9 +127,9 @@ function set_meta( $post_id, $meta ) {
 		} else {
 			$meta_array  = (array) $meta_value;
 			$meta_values = array();
-			foreach ( $meta_array as $meta_item_value ) {
+			foreach ( $meta_array as $meta_item_key => $meta_item_value ) {
 				if ( ! in_array( $meta_key, $blacklisted_meta, true ) ) {
-					$meta_values[] = maybe_unserialize( $meta_item_value );
+					$meta_values[$meta_item_key] = maybe_unserialize( $meta_item_value ); // We need keys from array. Example when we mapping product attributes
 				}
 			}
 			update_post_meta( $post_id, $meta_key, $meta_values );
