@@ -140,12 +140,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/10up/wpassure.git",
-                "reference": "c5cd39a50c10454b036055a8627dc0464f70ea9d"
+                "reference": "4c9d26c1d52c2e876b0c6c6cab676d937393b5bb"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/10up/wpassure/zipball/c5cd39a50c10454b036055a8627dc0464f70ea9d",
-                "reference": "c5cd39a50c10454b036055a8627dc0464f70ea9d",
+                "url": "https://api.github.com/repos/10up/wpassure/zipball/4c9d26c1d52c2e876b0c6c6cab676d937393b5bb",
+                "reference": "4c9d26c1d52c2e876b0c6c6cab676d937393b5bb",
                 "shasum": ""
             },
             "require": {
@@ -187,7 +187,7 @@
                 "testing",
                 "wordpress"
             ],
-            "time": "2018-10-02T18:52:30+00:00"
+            "time": "2018-10-02T22:25:52+00:00"
         },
         {
             "name": "10up/wpsnapshots",
@@ -285,16 +285,16 @@
         },
         {
             "name": "aws/aws-sdk-php",
-            "version": "3.68.0",
+            "version": "3.68.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/aws/aws-sdk-php.git",
-                "reference": "86fe79d78ea28a8b914b83e9ea919b01b0bfbdcf"
+                "reference": "2986beb07a14bcde94608e940ee7e5cba1ed4e38"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/86fe79d78ea28a8b914b83e9ea919b01b0bfbdcf",
-                "reference": "86fe79d78ea28a8b914b83e9ea919b01b0bfbdcf",
+                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/2986beb07a14bcde94608e940ee7e5cba1ed4e38",
+                "reference": "2986beb07a14bcde94608e940ee7e5cba1ed4e38",
                 "shasum": ""
             },
             "require": {
@@ -361,7 +361,7 @@
                 "s3",
                 "sdk"
             ],
-            "time": "2018-10-01T22:08:44+00:00"
+            "time": "2018-10-02T21:11:29+00:00"
         },
         {
             "name": "clue/stream-filter",
@@ -1095,16 +1095,16 @@
         },
         {
             "name": "mockery/mockery",
-            "version": "1.1.0",
+            "version": "1.2.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/mockery/mockery.git",
-                "reference": "99e29d3596b16dabe4982548527d5ddf90232e99"
+                "reference": "100633629bf76d57430b86b7098cd6beb996a35a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/mockery/mockery/zipball/99e29d3596b16dabe4982548527d5ddf90232e99",
-                "reference": "99e29d3596b16dabe4982548527d5ddf90232e99",
+                "url": "https://api.github.com/repos/mockery/mockery/zipball/100633629bf76d57430b86b7098cd6beb996a35a",
+                "reference": "100633629bf76d57430b86b7098cd6beb996a35a",
                 "shasum": ""
             },
             "require": {
@@ -1113,8 +1113,7 @@
                 "php": ">=5.6.0"
             },
             "require-dev": {
-                "phpdocumentor/phpdocumentor": "^2.9",
-                "phpunit/phpunit": "~5.7.10|~6.5"
+                "phpunit/phpunit": "~5.7.10|~6.5|~7.0"
             },
             "type": "library",
             "extra": {
@@ -1157,7 +1156,7 @@
                 "test double",
                 "testing"
             ],
-            "time": "2018-05-08T08:54:48+00:00"
+            "time": "2018-10-02T21:52:37+00:00"
         },
         {
             "name": "mtdowling/jmespath.php",
