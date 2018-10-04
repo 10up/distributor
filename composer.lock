@@ -140,12 +140,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/10up/wpassure.git",
-                "reference": "3e9c5340a62d7a8bb9a7b8f8cd6c0499c25b8e1e"
+                "reference": "57a46a31622c4c5e26ceae9a037bafc3c8af90a3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/10up/wpassure/zipball/3e9c5340a62d7a8bb9a7b8f8cd6c0499c25b8e1e",
-                "reference": "3e9c5340a62d7a8bb9a7b8f8cd6c0499c25b8e1e",
+                "url": "https://api.github.com/repos/10up/wpassure/zipball/57a46a31622c4c5e26ceae9a037bafc3c8af90a3",
+                "reference": "57a46a31622c4c5e26ceae9a037bafc3c8af90a3",
                 "shasum": ""
             },
             "require": {
@@ -187,7 +187,7 @@
                 "testing",
                 "wordpress"
             ],
-            "time": "2018-10-03T18:08:43+00:00"
+            "time": "2018-10-04T02:55:27+00:00"
         },
         {
             "name": "10up/wpsnapshots",
