@@ -356,10 +356,12 @@ class WordPressExternalConnection extends ExternalConnection {
 		$created_posts = array();
 
 		foreach ( $items as $item_array ) {
-			$post = $this->remote_get( [
-				'id'        => $item_array['remote_post_id'],
-				'post_type' => $item_array['post_type'],
-			] );
+			$post = $this->remote_get(
+				[
+					'id'        => $item_array['remote_post_id'],
+					'post_type' => $item_array['post_type'],
+				]
+			);
 
 			if ( is_wp_error( $post ) ) {
 				$created_posts[] = $post;
