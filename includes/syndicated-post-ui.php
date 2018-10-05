@@ -59,7 +59,7 @@ function setup_columns() {
  */
 function add_distributor_column( $columns ) {
 	unset( $columns['date'] );
-	$columns['distributor'] = '<img src="' . esc_url( plugins_url( 'assets/img/icon.svg', __DIR__ ) ) . '" alt="' . esc_html__( 'Posts distributed from another site.', 'distributor' ) . '" title="' . esc_html__( 'Posts distributed from another site.', 'distributor' ) . '"> <span class="dt-column-header">Distributor</span>';
+	$columns['distributor'] = '<img src="' . esc_url( plugins_url( 'assets/img/icon.svg', __DIR__ ) ) . '" alt="' . esc_attr__( 'Posts distributed from another site.', 'distributor' ) . '" title="' . esc_attr__( 'Posts distributed from another site.', 'distributor' ) . '"> <span class="dt-column-header">Distributor</span>';
 
 	$columns['date'] = esc_html__( 'Date', 'distributor' );
 
@@ -87,9 +87,9 @@ function output_distributor_column( $column_name, $post_id ) {
 			$post_url         = get_post_meta( $post_id, 'dt_original_post_url', true );
 
 			if ( $unlinked ) {
-				echo '<a href="' . esc_url( $post_url ) . '"><img class="dt-unlinked" src="' . esc_url( plugins_url( 'assets/img/icon.svg', __DIR__ ) ) . '" alt="' . esc_html__( 'Unlinked', 'distributor' ) . '" title="' . esc_html__( 'Unlinked', 'distributor' ) . '"></a>';
+				echo '<a href="' . esc_url( $post_url ) . '"><img class="dt-unlinked" src="' . esc_url( plugins_url( 'assets/img/icon.svg', __DIR__ ) ) . '" alt="' . esc_attr__( 'Unlinked', 'distributor' ) . '" title="' . esc_attr__( 'Unlinked', 'distributor' ) . '"></a>';
 			} else {
-				echo '<a href="' . esc_url( $post_url ) . '"><img src="' . esc_url( plugins_url( 'assets/img/icon.svg', __DIR__ ) ) . '" alt="' . esc_html__( 'Linked', 'distributor' ) . '" title="' . esc_html__( 'Linked', 'distributor' ) . '"></a>';
+				echo '<a href="' . esc_url( $post_url ) . '"><img src="' . esc_url( plugins_url( 'assets/img/icon.svg', __DIR__ ) ) . '" alt="' . esc_attr__( 'Linked', 'distributor' ) . '" title="' . esc_attr__( 'Linked', 'distributor' ) . '"></a>';
 			}
 		}
 	}
