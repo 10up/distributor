@@ -2,6 +2,7 @@ import gulp from 'gulp';
 import del from 'del';
 
 gulp.task( 'copy', () => {
+	del( ['./release/**/*'] );
 	gulp.src(
 		[
 			'composer.json',
@@ -10,7 +11,7 @@ gulp.task( 'copy', () => {
 			'dist/**/*',
 			'includes/**/*',
 			'lang/**/*',
-			'vendor/yanhis-elsts/**/*',
+			'vendor/yahnis-elsts/plugin-update-checker/**/*',
 		],
 		{ base: '.' } )
 		.pipe( gulp.dest( 'release' ) );
