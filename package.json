@@ -3,14 +3,14 @@
   "description": "Syndicate content to and from external websites and within multisite blogs.",
   "author": "Taylor Lovett, 10up",
   "scripts": {
-    "build": "./node_modules/.bin/gulp",
-    "lint": "./node_modules/.bin/eslint assets/js",
-    "lint-fix": "./node_modules/.bin/eslint assets/js --fix",
-    "js": "./node_modules/.bin/gulp",
-    "watch": "./node_modules/.bin/gulp watch",
-    "css": "./node_modules/.bin/gulp css",
-    "postinstall": "./node_modules/.bin/gulp",
-    "makepot": "./node_modules/.bin/wpi18n makepot && echo '.pot file updated'"
+    "build": "gulp",
+    "lint": "eslint assets/js",
+    "lint-fix": "eslint assets/js --fix",
+    "js": "gulp js",
+    "watch": "gulp watch",
+    "css": "gulp css",
+    "postinstall": "gulp",
+    "makepot": "wpi18n makepot && echo '.pot file updated'",
   },
   "dependencies": {
     "babel-cli": "^6.26.0",
