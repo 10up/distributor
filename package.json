@@ -10,7 +10,7 @@
     "watch": "gulp watch",
     "css": "gulp css",
     "postinstall": "gulp",
-    "makepot": "wpi18n makepot && echo '.pot file updated'",
+    "makepot": "wpi18n makepot && echo '.pot file updated'"
   },
   "dependencies": {
     "babel-cli": "^6.26.0",
