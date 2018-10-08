@@ -443,12 +443,12 @@ function menu_content() {
 			<div class="inner">
 
 				<?php if ( ! empty( $dom_connections ) ) : ?>
-					<p><?php echo sprintf( esc_html__( 'Distribute &quot;%s&quot; to other connections.', 'distributor' ), get_the_title( $post->ID ) ); ?></p>
+					<p><?php echo sprintf( esc_html__( 'Distribute &quot;%s&quot; to other connections.', 'distributor' ), esc_html( get_the_title( $post->ID ) ) ); ?></p>
 
 					<div class="connections-selector">
 						<div>
 							<?php if ( 5 < count( $dom_connections ) ) : ?>
-								<input type="text" id="dt-connection-search" placeholder="<?php esc_html_e( 'Search available connections', 'distributor' ); ?>">
+								<input type="text" id="dt-connection-search" placeholder="<?php esc_attr_e( 'Search available connections', 'distributor' ); ?>">
 							<?php endif; ?>
 
 							<div class="new-connections-list">
