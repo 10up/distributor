@@ -22,7 +22,8 @@ gulp.task( 'css', () => {
 	runSequence(
 		'cssclean',
 		'cssnext',
-		'cssnano'
+		'cssnano',
+		'csscomplete'
 	);
 } );
 
