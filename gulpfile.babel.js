@@ -41,6 +41,6 @@ gulp.task( 'watch', () => {
 gulp.task( 'default', () => {
 	runSequence(
 		'css',
-		'webpack'
+		'js'
 	);
 } );
