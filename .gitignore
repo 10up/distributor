@@ -5,3 +5,4 @@ node_modules
 vendor/*
 !vendor/yahnis-elsts
 release/*
+dist/*
