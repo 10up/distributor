@@ -110,29 +110,47 @@ function is_dt_debug() {
 }
 
 /**
- * Given an array of meta, set meta to another post. Don't copy in blackisted (Distributor) meta.
+ * Given an array of meta, set meta to another post.
+ *
+ * Don't copy in blacklisted (Distributor) meta.
  *
  * @param int   $post_id Post ID.
  * @param array $meta Array of meta as key => value
  */
 function set_meta( $post_id, $meta ) {
+	$existing_meta    = get_post_meta( $post_id );
 	$blacklisted_meta = blacklisted_meta();
 
-	foreach ( $meta as $meta_key => $meta_value ) {
-		if ( ! is_array( $meta_value ) ) {
-			if ( ! in_array( $meta_key, $blacklisted_meta, true ) ) {
-				$meta_value = maybe_unserialize( $meta_value );
-				update_post_meta( $post_id, $meta_key, $meta_value );
-			}
-		} else {
-			$meta_array  = (array) $meta_value;
-			$meta_values = array();
-			foreach ( $meta_array as $meta_item_key => $meta_item_value ) {
+	foreach ( $meta as $meta_key => $meta_values ) {
+		foreach ( $meta_values as $meta_placement => $meta_value ) {
+			if ( ! is_array( $meta_value ) ) {
 				if ( ! in_array( $meta_key, $blacklisted_meta, true ) ) {
-					$meta_values[ $meta_item_key ] = maybe_unserialize( $meta_item_value );
+					$meta_value = maybe_unserialize( $meta_value );
+					$prev_value = isset( $existing_meta[ $meta_key ][ $meta_placement ] ) ? $existing_meta[ $meta_key ][ $meta_placement ] : '';
+
+					if ( '' !== $prev_value ) {
+						update_post_meta( $post_id, $meta_key, $meta_value, $prev_value );
+					} else {
+						add_post_meta( $post_id, $meta_key, $meta_value );
+					}
+				}
+			} else {
+				$meta_array = (array) $meta_value;
+				$new_values = array();
+				$prev_value = isset( $existing_meta[ $meta_key ][ $meta_placement ] ) ? $existing_meta[ $meta_key ][ $meta_placement ] : '';
+
+				foreach ( $meta_array as $meta_item_key => $meta_item_value ) {
+					if ( ! in_array( $meta_key, $blacklisted_meta, true ) ) {
+						$new_values[ $meta_item_key ] = maybe_unserialize( $meta_item_value );
+					}
+				}
+
+				if ( '' !== $prev_value ) {
+					update_post_meta( $post_id, $meta_key, $meta_value, $prev_value );
+				} else {
+					add_post_meta( $post_id, $meta_key, $meta_value );
 				}
 			}
-			update_post_meta( $post_id, $meta_key, $meta_values );
 		}
 	}
 }
@@ -267,7 +285,7 @@ function prepare_meta( $post_id ) {
 				if ( false === apply_filters( 'dt_sync_meta', true, $meta_key, $meta_value, $post_id ) ) {
 					continue;
 				}
-				$prepared_meta[ $meta_key ] = $meta_value;
+				$prepared_meta[ $meta_key ][] = $meta_value;
 			}
 		}
 	}
