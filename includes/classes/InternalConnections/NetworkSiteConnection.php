@@ -573,7 +573,21 @@ class NetworkSiteConnection extends Connection {
 		}
 
 		foreach ( $connection_map['internal'] as $blog_id => $syndicated_post ) {
-			$connection = new self( get_site( $blog_id ) );
+			// Make sure this site is still available
+			$site = get_site( (int) $blog_id );
+			if ( null === $site ) {
+
+				// If the site isn't available anymore, remove this item from the connection map
+				if ( ! empty( $connection_map['internal'][ (int) $blog_id ] ) ) {
+					unset( $connection_map['internal'][ (int) $blog_id ] );
+
+					update_post_meta( $post_id, 'dt_connection_map', $connection_map );
+				}
+
+				continue;
+			}
+
+			$connection = new self( $site );
 
 			switch_to_blog( $blog_id );
 

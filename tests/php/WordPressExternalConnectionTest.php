@@ -207,7 +207,10 @@ class WordPressExternalConnectionTest extends \TestCase {
 			is_array(
 				$this->connection->pull(
 					[
-						[ 'remote_post_id' => $post_id ],
+						[
+							'remote_post_id' => $post_id,
+							'post_type'      => 'post',
+						],
 					]
 				)
 			)

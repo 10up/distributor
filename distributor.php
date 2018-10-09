@@ -2,7 +2,7 @@
 /**
  * Plugin Name:       Distributor
  * Description:       Makes it easy to syndicate and reuse content across your websites, whether inside of a multisite or across the web.
- * Version:           1.3.0
+ * Version:           1.3.1
  * Author:            10up Inc.
  * Author URI:        https://distributorplugin.com
  * License:           GPLv2 or later
@@ -17,7 +17,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly.
 }
 
-define( 'DT_VERSION', '1.3.0' );
+define( 'DT_VERSION', '1.3.1-dev' );
 define( 'DT_PLUGIN_FILE', preg_replace( '#^.*plugins/(.*)$#i', '$1', __FILE__ ) );
 
 // Define a constant if we're network activated to allow plugin to respond accordingly.
@@ -130,8 +130,6 @@ if ( class_exists( 'Puc_v4_Factory' ) ) {
 			__FILE__,
 			'distributor'
 		);
-
-		$updateChecker->setBranch( 'stable' );
 		// @codingStandardsIgnoreEnd
 	}
 }
