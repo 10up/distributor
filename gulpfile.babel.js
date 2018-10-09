@@ -20,9 +20,9 @@ gulp.task( 'js', () => {
 */
 gulp.task( 'css', () => {
 	runSequence(
+		'cssclean',
 		'cssnext',
-		'cssnano',
-		'cssclean'
+		'cssnano'
 	);
 } );
 
