@@ -10,7 +10,8 @@ requireDir( './gulp-tasks' );
 */
 gulp.task( 'js', () => {
 	runSequence(
-		'webpack',
+		'jsclean',
+		'webpack'
 	);
 } );
 
