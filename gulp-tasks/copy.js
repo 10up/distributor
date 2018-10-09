@@ -6,10 +6,12 @@ import filter from 'gulp-filter';
 gulp.task( 'copy', () => {
 	const f = filter( 'distributor.php', { restore: true } );
 
-	del( ['./release/**/*'] );
+	del.sync( ['./release/**/*'] );
 
 	gulp.src(
 		[
+			'README.md',
+			'CHANGELOG.md',
 			'composer.json',
 			'distributor.php',
 			'assets/img/*',
