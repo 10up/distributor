@@ -140,12 +140,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/10up/wpassure.git",
-                "reference": "57a46a31622c4c5e26ceae9a037bafc3c8af90a3"
+                "reference": "6ee42c069c741524ee079b227a47f3f16265d12c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/10up/wpassure/zipball/57a46a31622c4c5e26ceae9a037bafc3c8af90a3",
-                "reference": "57a46a31622c4c5e26ceae9a037bafc3c8af90a3",
+                "url": "https://api.github.com/repos/10up/wpassure/zipball/6ee42c069c741524ee079b227a47f3f16265d12c",
+                "reference": "6ee42c069c741524ee079b227a47f3f16265d12c",
                 "shasum": ""
             },
             "require": {
@@ -187,7 +187,7 @@
                 "testing",
                 "wordpress"
             ],
-            "time": "2018-10-04T02:55:27+00:00"
+            "time": "2018-10-09T13:57:01+00:00"
         },
         {
             "name": "10up/wpsnapshots",
@@ -195,12 +195,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/10up/wpsnapshots.git",
-                "reference": "29a08660fa66d5c8eb6e1db3797beb96da2aea63"
+                "reference": "f68eac8a826cda3b3984869d8de53b5340b9155a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/10up/wpsnapshots/zipball/29a08660fa66d5c8eb6e1db3797beb96da2aea63",
-                "reference": "29a08660fa66d5c8eb6e1db3797beb96da2aea63",
+                "url": "https://api.github.com/repos/10up/wpsnapshots/zipball/f68eac8a826cda3b3984869d8de53b5340b9155a",
+                "reference": "f68eac8a826cda3b3984869d8de53b5340b9155a",
                 "shasum": ""
             },
             "require": {
@@ -240,7 +240,7 @@
                 "snapshots",
                 "wordpress"
             ],
-            "time": "2018-10-03T21:49:04+00:00"
+            "time": "2018-10-08T04:22:35+00:00"
         },
         {
             "name": "antecedent/patchwork",
