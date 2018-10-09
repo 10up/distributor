@@ -117,32 +117,41 @@ function update_notice( $plugin_file, $plugin_data, $status ) {
 }
 
 /**
- * Maybe show license notice
+ * Maybe show license or dev version notice
  *
  * @since 1.2
  */
 function maybe_notice() {
-	if ( ! empty( $_GET['page'] ) && ( 'distributor-settings' === $_GET['page'] || 'pull' === $_GET['page'] || 'distributor' === $_GET['page'] ) ) {
-		if ( DT_IS_NETWORK ) {
-			$settings = Utils\get_network_settings();
+	if ( 0 === strpos( get_current_screen()->parent_base, 'distributor' ) ) {
+		if ( preg_match( '/-dev$/', DT_VERSION ) ) {
+			?>
+			<div class="notice notice-warning">
+			<p><?php echo wp_kses_post( sprintf( __( 'You appear to be running a development version of Distributor. Certain features may not work correctly without regularly running %1$s. If you&rsquo;re not sure what this means, you may want to <a href="%2$s">download and install</a> the stable version of Distributor instead.', 'distributor' ), '<code>npm install && npm run build</code>', 'https://distributorplugin.com/' ) ); ?></p>
+			</div>
+			<?php
 		} else {
-			$settings = Utils\get_settings();
-		}
+			// Don't bother with the registration notice if this is a dev version
+			if ( DT_IS_NETWORK ) {
+				$settings = Utils\get_network_settings();
+			} else {
+				$settings = Utils\get_settings();
+			}
 
-		if ( true === $settings['valid_license'] ) {
-			return;
-		}
+			if ( true === $settings['valid_license'] ) {
+				return;
+			}
 
-		if ( DT_IS_NETWORK ) {
-			$notice_url = network_admin_url( 'admin.php?page=distributor-settings' );
-		} else {
-			$notice_url = admin_url( 'admin.php?page=distributor-settings' );
+			if ( DT_IS_NETWORK ) {
+				$notice_url = network_admin_url( 'admin.php?page=distributor-settings' );
+			} else {
+				$notice_url = admin_url( 'admin.php?page=distributor-settings' );
+			}
+			?>
+			<div data-notice="auto-upgrade-disabled" class="notice notice-warning">
+				<p><?php echo wp_kses_post( sprintf( __( '<a href="%s">Register Distributor</a> to receive important plugin update notices and other Distributor news.', 'distributor' ), esc_url( $notice_url ) ) ); ?></p>
+			</div>
+			<?php
 		}
-		?>
-		<div data-notice="auto-upgrade-disabled" class="notice notice-warning">
-			<p><?php echo wp_kses_post( sprintf( __( '<a href="%s">Register Distributor</a> to receive important plugin update notices and other Distributor news.', 'elasticpress' ), esc_url( $notice_url ) ) ); ?></p>
-		</div>
-		<?php
 	}
 }
 

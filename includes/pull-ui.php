@@ -201,11 +201,15 @@ function process_actions() {
 				break;
 			}
 
-			$posts = (array) $_GET['post'];
+			$posts     = (array) $_GET['post'];
+			$post_type = sanitize_text_field( $_GET['pull_post_type'] );
 
 			$posts = array_map(
-				function( $remote_post_id ) {
-						return [ 'remote_post_id' => $remote_post_id ];
+				function( $remote_post_id ) use ( $post_type ) {
+						return [
+							'remote_post_id' => $remote_post_id,
+							'post_type'      => $post_type,
+						];
 				},
 				$posts
 			);
@@ -215,6 +219,9 @@ function process_actions() {
 				$new_posts  = $connection->pull( $posts );
 
 				foreach ( $posts as $key => $post_array ) {
+					if ( is_wp_error( $new_posts[ $key ] ) ) {
+						continue;
+					}
 					\Distributor\Subscriptions\create_remote_subscription( $connection, $post_array['remote_post_id'], $new_posts[ $key ] );
 				}
 			} else {
@@ -226,6 +233,9 @@ function process_actions() {
 			$post_id_mappings = array();
 
 			foreach ( $posts as $key => $post_array ) {
+				if ( is_wp_error( $new_posts[ $key ] ) ) {
+					continue;
+				}
 				$post_id_mappings[ $post_array['remote_post_id'] ] = $new_posts[ $key ];
 			}
 
