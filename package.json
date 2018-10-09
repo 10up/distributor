@@ -10,7 +10,8 @@
     "watch": "gulp watch",
     "css": "gulp css",
     "postinstall": "gulp",
-    "makepot": "wpi18n makepot && echo '.pot file updated'"
+    "makepot": "wpi18n makepot && echo '.pot file updated'",
+    "release": "rm -rf release/ && git worktree prune && git worktree add release origin/stable && npm run build && npm run makepot && gulp copy"
   },
   "dependencies": {
     "babel-cli": "^6.26.0",
@@ -27,6 +28,7 @@
     "gulp-livereload": "^3.8.1",
     "gulp-postcss": "^7.0.1",
     "gulp-rename": "^1.2.2",
+    "gulp-replace": "^1.0.0",
     "gulp-sourcemaps": "^2.6.4",
     "imports-loader": "^0.7.1",
     "node-wp-i18n": "^1.0.5",

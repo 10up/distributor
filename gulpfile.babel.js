@@ -6,7 +6,7 @@ import livereload from 'gulp-livereload';
 requireDir( './gulp-tasks' );
 
 /**
- * Gulp task to run all JS processes in a sequenctial order.
+ * Gulp task to run all JS processes in a sequential order.
 */
 gulp.task( 'js', () => {
 	runSequence(
@@ -16,7 +16,7 @@ gulp.task( 'js', () => {
 } );
 
 /**
- * Gulp task to run all Sass/CSS processes in a sequenctial order.
+ * Gulp task to run all Sass/CSS processes in a sequential order.
 */
 gulp.task( 'css', () => {
 	runSequence(
@@ -37,7 +37,18 @@ gulp.task( 'watch', () => {
 } );
 
 /**
- * Gulp task to run the default build processes in a sequenctial order.
+ * Gulp task to run the default release processes in a sequential order.
+ */
+gulp.task( 'release', () => {
+	runSequence(
+		'css',
+		'js',
+		'copy'
+	);
+} );
+
+/**
+ * Gulp task to run the default build processes in a sequential order.
  */
 gulp.task( 'default', () => {
 	runSequence(
