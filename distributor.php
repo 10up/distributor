@@ -130,8 +130,6 @@ if ( class_exists( 'Puc_v4_Factory' ) ) {
 			__FILE__,
 			'distributor'
 		);
-
-		$updateChecker->setBranch( 'stable' );
 		// @codingStandardsIgnoreEnd
 	}
 }
