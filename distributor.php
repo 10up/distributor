@@ -134,7 +134,7 @@ if ( class_exists( 'Puc_v4_Factory' ) ) {
 		$updateChecker->addResultFilter(
 			function( $plugin_info, $http_response = null ) {
 				$plugin_info->icons = array(
-					'svg' => plugins_url( '/assets/img/tenup.svg', __FILE__ ),
+					'svg' => plugins_url( '/assets/img/icon.svg', __FILE__ ),
 				);
 				return $plugin_info;
 			}
