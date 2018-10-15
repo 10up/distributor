@@ -130,6 +130,15 @@ if ( class_exists( 'Puc_v4_Factory' ) ) {
 			__FILE__,
 			'distributor'
 		);
+
+		$updateChecker->addResultFilter(
+			function( $plugin_info, $http_response = null ) {
+				$plugin_info->icons = array(
+					'svg' => plugins_url( '/assets/img/icon.svg', __FILE__ ),
+				);
+				return $plugin_info;
+			}
+		);
 		// @codingStandardsIgnoreEnd
 	}
 }
