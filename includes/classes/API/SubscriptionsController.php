@@ -140,19 +140,33 @@ class SubscriptionsController extends \WP_REST_Controller {
 			return $status;
 		}
 
-		// Authenticate by signature, if available.
-		if ( ! empty( $request['signature'] ) && ! empty( $request['post_id'] ) ) {
+		$request = new \WP_REST_Request( $_SERVER['REQUEST_METHOD'], '/' . $this->rest_base . '/receive' );
+		$request->set_body_params( wp_unslash( $_POST ) );
+
+		// If this is not a subscription request, return the original value.
+		if ( '/dt_subscription/receive' !== $request->get_route() && '/dt_subscription/delete' !== $request->get_route() ) {
+			return $status;
+		}
+
+		// If the signature is unset or empty, throw an error.
+		if ( ( ! isset( $request['signature'] ) ) || empty( $request['signature'] ) ) {
+			return new \WP_Error( 'rest_post_invalid_signature', esc_html__( 'Signature invalid or missing.', 'distributor' ), array( 'status' => 403 ) );
+		}
+
+		// If the post id is missing, throw an error.
+		if ( empty( $request['post_id'] ) ) {
+			return new \WP_Error( 'rest_post_invalid_post_id', esc_html__( 'Invalid post id.', 'distributor' ), array( 'status' => 403 ) );
+		} else {
+
 			$signature = get_post_meta( $request['post_id'], 'dt_subscription_signature', true );
 
 			if ( $request['signature'] === $signature ) {
 				return true;
-			} else {
-				return new \WP_Error( 'rest_post_invalid_signature', esc_html__( 'Signature invalid.', 'distributor' ), array( 'status' => 403 ) );
 			}
 		}
 
-		// No check was performed.
-		return null;
+		// No check was performed, return the original value.
+		return $status;
 	}
 
 	/**
