@@ -11,7 +11,7 @@
     "css": "gulp css",
     "postinstall": "gulp",
     "makepot": "wpi18n makepot && echo '.pot file updated'",
-    "release": "rm -rf release/ && git worktree prune && npm run build && npm run makepot && git worktree add release origin/stable && gulp copy"
+    "release": "rm -rf release/ && git worktree prune && npm run build && npm run makepot && git worktree add -B stable release origin/stable && gulp copy"
   },
   "dependencies": {
     "babel-cli": "^6.26.0",
