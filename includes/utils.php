@@ -432,7 +432,9 @@ function set_media( $post_id, $media ) {
 	// If we only want to process the featured image, remove all other media
 	if ( 'featured' === $settings['media_handling'] ) {
 		$featured_keys = wp_list_pluck( $media, 'featured' );
-		$featured_key  = array_search( true, $featured_keys, true );
+
+		// Note: this is not a strict search because of issues with typecasting in some setups
+		$featured_key  = array_search( true, $featured_keys );
 
 		$media = ( false !== $featured_key ) ? array( $media[ $featured_key ] ) : array();
 	}
