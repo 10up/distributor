@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file, per [the Keep a Changelog standard](http://keepachangelog.com/).
 
+## [ 1.3.2 ] - 2018-10-16
+### Fixed
+* Correctly encode search query in the pull list.
+* Properly check the key for subscription updates.
+* Ensure featured images are properly detected from environments that type juggle.
+* Add plugin icon to plugin update UI.
+
 ## [ 1.3.1 ] - 2018-10-09
 ### Fixed
 * Retain keys for associative array meta.
