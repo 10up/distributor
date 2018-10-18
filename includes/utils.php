@@ -224,7 +224,25 @@ function blacklisted_meta() {
 	 *
 	 * @param array Blacklisted meta keys. Default 'dt_unlinked, dt_connection_map, dt_subscription_update, dt_subscriptions, dt_subscription_signature, dt_original_post_id, dt_original_post_url, dt_original_blog_id, dt_syndicate_time, _wp_attached_file, _edit_lock, _edit_last, _wp_old_slug, _wp_old_date.
 	 */
-	return apply_filters( 'dt_blacklisted_meta', [ 'dt_unlinked', 'dt_connection_map', 'dt_subscription_update', 'dt_subscriptions', 'dt_subscription_signature', 'dt_original_post_id', 'dt_original_post_url', 'dt_original_blog_id', 'dt_syndicate_time', '_wp_attached_file', '_edit_lock', '_edit_last', '_wp_old_slug', '_wp_old_date' ] );
+	return apply_filters(
+		'dt_blacklisted_meta',
+		[
+			'dt_unlinked',
+			'dt_connection_map',
+			'dt_subscription_update',
+			'dt_subscriptions',
+			'dt_subscription_signature',
+			'dt_original_post_id',
+			'dt_original_post_url',
+			'dt_original_blog_id',
+			'dt_syndicate_time',
+			'_wp_attached_file',
+			'_edit_lock',
+			'_edit_last',
+			'_wp_old_slug',
+			'_wp_old_date',
+		]
+	);
 }
 
 /**
