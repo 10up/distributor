@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file, per [the Keep a Changelog standard](http://keepachangelog.com/).
 
+## [ 1.3.3 ] - 2018-10-19
+### Fixed
+* Do not interfere with non-subscription REST API requests.
+* Retain generated image size info after media distribution.
+
 ## [ 1.3.2 ] - 2018-10-16
 ### Fixed
 * Correctly encode search query in the pull list.
