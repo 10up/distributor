@@ -140,7 +140,13 @@ class SubscriptionsController extends \WP_REST_Controller {
 			return $status;
 		}
 
-		$request = new \WP_REST_Request( $_SERVER['REQUEST_METHOD'], '/' . $this->rest_base . '/receive' );
+		if ( ! empty( $GLOBALS['wp']->query_vars['rest_route'] ) ) {
+			$path = $GLOBALS['wp']->query_vars['rest_route'];
+		} else {
+			$path = $_SERVER['REQUEST_URI'];
+		}
+
+		$request = new \WP_REST_Request( $_SERVER['REQUEST_METHOD'], $path );
 		$request->set_body_params( wp_unslash( $_POST ) ); // phpcs:ignore
 
 		// If this is not a subscription request, return the original value.
