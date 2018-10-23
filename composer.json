@@ -19,10 +19,13 @@
   "require-dev": {
     "10up/wp_mock": "dev-dev",
     "10up/phpcs-composer": "dev-master",
-    "phpunit/phpunit": "^6.5"
+    "phpunit/phpunit": "^6.5",
+    "10up/wpassure": "dev-master"
   },
   "scripts": {
     "lint": "phpcs .",
     "lint-fix": "phpcbf ."
-  }
+  },
+  "minimum-stability": "dev",
+  "prefer-stable": true
 }
