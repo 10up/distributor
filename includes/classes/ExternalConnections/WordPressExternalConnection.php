@@ -448,7 +448,7 @@ class WordPressExternalConnection extends ExternalConnection {
 			/**
 			 * Action triggered when a post is pulled via distributor.
 			 *
-			 * @param array              $new_post   The new post that was pulled.
+			 * @param int                $new_post   The newly created post ID.
 			 * @param ExternalConnection $this       The distributor connection pulling the post.
 			 * @param array              $post_array The original post data retrieved via the connection.
 			 */
