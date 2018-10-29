@@ -792,64 +792,28 @@ class WordPressExternalConnection extends ExternalConnection {
 				$can_get  = array();
 				$can_post = array();
 
-				$blacklisted_types = [ 'dt_subscription' ];
+				$permission_url          = untrailingslashit( $this->base_url ) . '/' . self::$namespace . '/distributor/permissions';
+				$permission_auth_handler = $this->auth_handler->format_get_args(
+					array(
+						'timeout' => self::$timeout,
+					)
+				);
 
-				foreach ( $types as $type_key => $type ) {
-
-					if ( in_array( $type_key, $blacklisted_types, true ) ) {
-						continue;
+				$permission_response = wp_remote_get( $permission_url, $permission_auth_handler );
+				$permission_body     = wp_remote_retrieve_body( $permission_response );
+				if ( is_wp_error( $permission_response ) || empty( $permission_body ) ) {
+					$output['errors']['no_permissions'] = 'no_permissions';
+				} else {
+					$permissions          = json_decode( $permission_body );
+					$can_get              = $permissions->can_get;
+					$can_post             = $permissions->can_post;
+					$blacklisted_get_key  = array_search( 'dt_subscription', $can_get, true );
+					$blacklisted_post_key = array_search( 'dt_subscription', $can_post, true );
+					if ( false !== $blacklisted_get_key ) {
+						unset( $can_get[ $blacklisted_get_key ] );
 					}
-
-					$link = $this->parse_type_items_link( $type );
-					if ( empty( $link ) ) {
-						continue;
-					}
-
-					$route = str_replace( untrailingslashit( $this->base_url ), '', $link );
-
-					if ( ! empty( $routes[ $route ] ) ) {
-						if ( in_array( 'GET', $routes[ $route ]['methods'], true ) ) {
-							if ( function_exists( 'vip_safe_wp_remote_get' ) && \Distributor\Utils\is_vip_com() ) {
-								$type_response = vip_safe_wp_remote_get(
-									$link,
-									false,
-									3,
-									3,
-									10,
-									$this->auth_handler->format_get_args()
-								);
-							} else {
-								$type_response = wp_remote_get( $link, $this->auth_handler->format_get_args( array( 'timeout' => self::$timeout ) ) );
-							}
-
-							if ( ! is_wp_error( $type_response ) ) {
-								$code = (int) wp_remote_retrieve_response_code( $type_response );
-
-								if ( 401 !== $code ) {
-									$can_get[] = $type_key;
-								}
-							}
-						}
-
-						if ( in_array( 'POST', $routes[ $route ]['methods'], true ) ) {
-							$type_response = wp_remote_post(
-								$link,
-								$this->auth_handler->format_post_args(
-									array(
-										'timeout' => self::$timeout,
-										'body'    => array( 'test' => 1 ),
-									)
-								)
-							);
-
-							if ( ! is_wp_error( $type_response ) ) {
-								$code = (int) wp_remote_retrieve_response_code( $type_response );
-
-								if ( 401 !== $code ) {
-									$can_post[] = $type_key;
-								}
-							}
-						}
+					if ( false !== $blacklisted_post_key ) {
+						unset( $can_post[ $blacklisted_post_key ] );
 					}
 				}
 
