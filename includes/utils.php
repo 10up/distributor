@@ -36,6 +36,7 @@ function is_using_gutenberg() {
 function get_settings() {
 	$defaults = [
 		'override_author_byline' => true,
+		'media_handling'         => 'featured',
 		'email'                  => '',
 		'license_key'            => '',
 		'valid_license'          => null,
@@ -77,7 +78,8 @@ function get_network_settings() {
 function check_license_key( $email, $license_key ) {
 
 	$request = wp_remote_post(
-		'https://distributorplugin.com/wp-json/distributor-theme/v1/validate-license', [
+		'https://distributorplugin.com/wp-json/distributor-theme/v1/validate-license',
+		[
 			'timeout' => 10,
 			'body'    => [
 				'license_key' => $license_key,
@@ -117,21 +119,55 @@ function set_meta( $post_id, $meta ) {
 	$blacklisted_meta = blacklisted_meta();
 
 	foreach ( $meta as $meta_key => $meta_value ) {
-		if ( is_string( $meta_value ) ) {
+		if ( ! is_array( $meta_value ) ) {
 			if ( ! in_array( $meta_key, $blacklisted_meta, true ) ) {
 				$meta_value = maybe_unserialize( $meta_value );
 				update_post_meta( $post_id, $meta_key, $meta_value );
 			}
 		} else {
-			$meta_array = (array) $meta_value;
-			foreach ( $meta_array as $meta_item_value ) {
+			$meta_array  = (array) $meta_value;
+			$meta_values = array();
+			foreach ( $meta_array as $meta_item_key => $meta_item_value ) {
 				if ( ! in_array( $meta_key, $blacklisted_meta, true ) ) {
-					$meta_item_value = maybe_unserialize( $meta_item_value );
-					update_post_meta( $post_id, $meta_key, $meta_item_value );
+					$meta_values[ $meta_item_key ] = maybe_unserialize( $meta_item_value );
 				}
+			}
+			update_post_meta( $post_id, $meta_key, $meta_values );
+		}
+	}
+}
+
+/**
+ * Get post types available for pulling.
+ *
+ * This will compare the public post types from a remote site
+ * against the public post types from the origin site and return
+ * an array of post types supported on both.
+ *
+ * @param \Distributor\Connection $connection Connection object
+ * @param string                  $type Connection type
+ * @since 1.3
+ * @return array
+ */
+function available_pull_post_types( $connection, $type ) {
+	$post_types        = array();
+	$remote_post_types = $connection->get_post_types();
+
+	if ( ! empty( $remote_post_types ) && ! is_wp_error( $remote_post_types ) ) {
+		$local_post_types     = array_diff_key( get_post_types( [ 'public' => true ], 'objects' ), array_flip( [ 'attachment', 'dt_ext_connection', 'dt_subscription' ] ) );
+		$available_post_types = array_intersect_key( $remote_post_types, $local_post_types );
+
+		if ( ! empty( $available_post_types ) ) {
+			foreach ( $available_post_types as $post_type ) {
+				$post_types[] = array(
+					'name' => 'external' === $type ? $post_type['name'] : $post_type->label,
+					'slug' => 'external' === $type ? $post_type['slug'] : $post_type->name,
+				);
 			}
 		}
 	}
+
+	return $post_types;
 }
 
 /**
@@ -186,9 +222,28 @@ function blacklisted_meta() {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param array Blacklisted meta keys. Default 'dt_unlinked, dt_connection_map, dt_subscription_update, dt_subscriptions, dt_subscription_signature, dt_original_post_id, dt_original_post_url, dt_original_blog_id, dt_syndicate_time, _wp_attached_file, _edit_lock, _edit_last, _wp_old_slug, _wp_old_date.
+	 * @param array Blacklisted meta keys. Default 'dt_unlinked, dt_connection_map, dt_subscription_update, dt_subscriptions, dt_subscription_signature, dt_original_post_id, dt_original_post_url, dt_original_blog_id, dt_syndicate_time, _wp_attached_file, _wp_attachment_metadata, _edit_lock, _edit_last, _wp_old_slug, _wp_old_date.
 	 */
-	return apply_filters( 'dt_blacklisted_meta', [ 'dt_unlinked', 'dt_connection_map', 'dt_subscription_update', 'dt_subscriptions', 'dt_subscription_signature', 'dt_original_post_id', 'dt_original_post_url', 'dt_original_blog_id', 'dt_syndicate_time', '_wp_attached_file', '_edit_lock', '_edit_last', '_wp_old_slug', '_wp_old_date' ] );
+	return apply_filters(
+		'dt_blacklisted_meta',
+		[
+			'dt_unlinked',
+			'dt_connection_map',
+			'dt_subscription_update',
+			'dt_subscriptions',
+			'dt_subscription_signature',
+			'dt_original_post_id',
+			'dt_original_post_url',
+			'dt_original_blog_id',
+			'dt_syndicate_time',
+			'_wp_attached_file',
+			'_wp_attachment_metadata',
+			'_edit_lock',
+			'_edit_last',
+			'_wp_old_slug',
+			'_wp_old_date',
+		]
+	);
 }
 
 /**
@@ -357,7 +412,9 @@ function set_taxonomy_terms( $post_id, $taxonomy_terms ) {
 
 				if ( ! empty( $term_array['parent'] ) ) {
 					wp_update_term(
-						$term_id_mapping[ $term_array['term_id'] ], $taxonomy, [
+						$term_id_mapping[ $term_array['term_id'] ],
+						$taxonomy,
+						[
 							'parent' => $term_id_mapping[ $term_array['parent'] ],
 						]
 					);
@@ -379,6 +436,7 @@ function set_taxonomy_terms( $post_id, $taxonomy_terms ) {
  * @since 1.0
  */
 function set_media( $post_id, $media ) {
+	$settings            = get_settings(); // phpcs:ignore
 	$current_media_posts = get_attached_media( get_allowed_mime_types(), $post_id );
 	$current_media       = [];
 
@@ -389,6 +447,16 @@ function set_media( $post_id, $media ) {
 	}
 
 	$found_featured_image = false;
+
+	// If we only want to process the featured image, remove all other media
+	if ( 'featured' === $settings['media_handling'] ) {
+		$featured_keys = wp_list_pluck( $media, 'featured' );
+
+		// Note: this is not a strict search because of issues with typecasting in some setups
+		$featured_key  = array_search( true, $featured_keys );
+
+		$media = ( false !== $featured_key ) ? array( $media[ $featured_key ] ) : array();
+	}
 
 	foreach ( $media as $media_item ) {
 
@@ -482,6 +550,11 @@ function format_media_post( $media_post ) {
 	$media_item['post']          = $media_post->post_parent;
 	$media_item['source_url']    = wp_get_attachment_url( $media_post->ID );
 	$media_item['meta']          = get_post_meta( $media_post->ID );
+
+	// Convert media meta items back into single values.
+	foreach ( $media_item['meta'] as $key => $media_item_value ) {
+		$media_item['meta'][ $key ] = $media_item_value[0];
+	}
 
 	return apply_filters( 'dt_media_item_formatted', $media_item, $media_post->ID );
 }

@@ -14,8 +14,16 @@ class UtilsTest extends \TestCase {
 	public function test_set_meta_simple() {
 		\WP_Mock::userFunction(
 			'update_post_meta', [
-				'times'  => 2,
+				'times'  => 1,
 				'args'   => [ 1, 'key', 'value' ],
+				'return' => [],
+			]
+		);
+
+		\WP_Mock::userFunction(
+			'update_post_meta', [
+				'times'  => 1,
+				'args'   => [ 1, 'key', [ 'value' ] ],
 				'return' => [],
 			]
 		);
@@ -413,8 +421,8 @@ class UtilsTest extends \TestCase {
 				'times'  => 1,
 				'args'   => [ $media_post->ID ],
 				'return' => [
-					'meta1' => true,
-					'meta2' => false,
+					'meta1' => [ true ],
+					'meta2' => [ false ],
 				],
 			]
 		);
@@ -448,6 +456,19 @@ class UtilsTest extends \TestCase {
 		$attached_media_post->post_mime_type = 'image/png';
 
 		\WP_Mock::userFunction(
+			'Distributor\Utils\get_settings', [
+				'times'  => 1,
+				'return' => [
+					'override_author_byline' => true,
+					'media_handling'         => 'featured',
+					'email'                  => '',
+					'license_key'            => '',
+					'valid_license'          => null,
+				],
+			]
+		);
+
+		\WP_Mock::userFunction(
 			'get_attached_media', [
 				'times'  => 1,
 				'args'   => [ get_allowed_mime_types(), $post_id ],
@@ -467,6 +488,14 @@ class UtilsTest extends \TestCase {
 				'times'  => 1,
 				'args'   => [ $attached_media_post->ID, 'dt_original_media_url', true ],
 				'return' => 'http://mediaitem.com',
+			]
+		);
+
+		\WP_Mock::userFunction(
+			'wp_list_pluck', [
+				'times'  => 1,
+				'args'   => [ [ $media_item ], 'featured' ],
+				'return' => [ 0 => true ],
 			]
 		);
 

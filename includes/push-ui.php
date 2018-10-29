@@ -14,7 +14,8 @@ namespace Distributor\PushUI;
  */
 function setup() {
 	add_action(
-		'plugins_loaded', function() {
+		'plugins_loaded',
+		function() {
 			add_action( 'admin_enqueue_scripts', __NAMESPACE__ . '\enqueue_scripts' );
 			add_action( 'wp_enqueue_scripts', __NAMESPACE__ . '\enqueue_scripts' );
 			add_action( 'wp_ajax_dt_push', __NAMESPACE__ . '\ajax_push' );
@@ -147,6 +148,8 @@ function ajax_push() {
 						'date'    => date( 'F j, Y g:i a' ),
 						'status'  => 'success',
 					);
+
+					$external_connection->log_sync( array( $remote_id => $_POST['postId'] ) );
 				} else {
 					$external_push_results[ (int) $connection['id'] ] = array(
 						'post_id' => (int) $remote_id,
@@ -173,8 +176,10 @@ function ajax_push() {
 			 * Record the internal connection id's remote post id for this local post
 			 */
 			if ( ! is_wp_error( $remote_id ) ) {
+				$origin_site = get_current_blog_id();
 				switch_to_blog( intval( $connection['id'] ) );
 				$remote_url = get_permalink( $remote_id );
+				$internal_connection->log_sync( array( $_POST['postId'] => $remote_id ), $origin_site );
 				restore_current_blog();
 
 				$connection_map['internal'][ (int) $connection['id'] ] = array(
@@ -226,7 +231,9 @@ function enqueue_scripts( $hook ) {
 	wp_enqueue_style( 'dt-push', plugins_url( '/dist/css/push.min.css', __DIR__ ), array(), DT_VERSION );
 	wp_enqueue_script( 'dt-push', plugins_url( '/dist/js/push.min.js', __DIR__ ), array( 'jquery', 'underscore', 'hoverIntent' ), DT_VERSION, true );
 	wp_localize_script(
-		'dt-push', 'dt', array(
+		'dt-push',
+		'dt',
+		array(
 			'nonce'   => wp_create_nonce( 'dt-push' ),
 			'postId'  => (int) get_the_ID(),
 			'ajaxurl' => esc_url( admin_url( 'admin-ajax.php' ) ),
@@ -436,12 +443,12 @@ function menu_content() {
 			<div class="inner">
 
 				<?php if ( ! empty( $dom_connections ) ) : ?>
-					<p><?php echo sprintf( esc_html__( 'Distribute &quot;%s&quot; to other connections.', 'distributor' ), get_the_title( $post->ID ) ); ?></p>
+					<p><?php echo sprintf( esc_html__( 'Distribute &quot;%s&quot; to other connections.', 'distributor' ), esc_html( get_the_title( $post->ID ) ) ); ?></p>
 
 					<div class="connections-selector">
 						<div>
 							<?php if ( 5 < count( $dom_connections ) ) : ?>
-								<input type="text" id="dt-connection-search" placeholder="<?php esc_html_e( 'Search available connections', 'distributor' ); ?>">
+								<input type="text" id="dt-connection-search" placeholder="<?php esc_attr_e( 'Search available connections', 'distributor' ); ?>">
 							<?php endif; ?>
 
 							<div class="new-connections-list">

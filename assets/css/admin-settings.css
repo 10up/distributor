@@ -1,3 +1,7 @@
+.media-handling {
+	margin: 0;
+}
+
 .license-wrap.valid:after {
 	content: "\f147";
 	font-family: dashicons;
@@ -8,7 +12,6 @@
 	position: relative;
 	color: #49da49;
 }
-
 
 .license-wrap.invalid:after {
 	content: "\f335";

@@ -16,7 +16,8 @@ use Distributor\ExternalConnection as ExternalConnection;
  */
 function setup() {
 	add_action(
-		'plugins_loaded', function() {
+		'plugins_loaded',
+		function() {
 			add_action( 'init', __NAMESPACE__ . '\register_cpt' );
 			add_action( 'save_post', __NAMESPACE__ . '\send_notifications' );
 			add_action( 'before_delete_post', __NAMESPACE__ . '\delete_subscriptions' );
@@ -210,7 +211,8 @@ function delete_subscriptions( $post_id ) {
 
 			// We need to ensure any remote post is unlinked to this post
 			wp_remote_post(
-				untrailingslashit( $target_url ) . '/wp/v2/dt_subscription/receive', [
+				untrailingslashit( $target_url ) . '/wp/v2/dt_subscription/receive',
+				[
 					'timeout'  => 5,
 					'blocking' => \Distributor\Utils\is_dt_debug(),
 					'body'     => [
@@ -275,7 +277,8 @@ function send_notifications( $post_id ) {
 		}
 
 		$request = wp_remote_post(
-			untrailingslashit( $target_url ) . '/wp/v2/dt_subscription/receive', [
+			untrailingslashit( $target_url ) . '/wp/v2/dt_subscription/receive',
+			[
 				'timeout' => 5,
 				/**
 				 * Filter the arguments sent to the remote server during a subscription update.
