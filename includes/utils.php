@@ -240,9 +240,28 @@ function blacklisted_meta() {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param array Blacklisted meta keys. Default 'dt_unlinked, dt_connection_map, dt_subscription_update, dt_subscriptions, dt_subscription_signature, dt_original_post_id, dt_original_post_url, dt_original_blog_id, dt_syndicate_time, _wp_attached_file, _edit_lock, _edit_last, _wp_old_slug, _wp_old_date.
+	 * @param array Blacklisted meta keys. Default 'dt_unlinked, dt_connection_map, dt_subscription_update, dt_subscriptions, dt_subscription_signature, dt_original_post_id, dt_original_post_url, dt_original_blog_id, dt_syndicate_time, _wp_attached_file, _wp_attachment_metadata, _edit_lock, _edit_last, _wp_old_slug, _wp_old_date.
 	 */
-	return apply_filters( 'dt_blacklisted_meta', [ 'dt_unlinked', 'dt_connection_map', 'dt_subscription_update', 'dt_subscriptions', 'dt_subscription_signature', 'dt_original_post_id', 'dt_original_post_url', 'dt_original_blog_id', 'dt_syndicate_time', '_wp_attached_file', '_edit_lock', '_edit_last', '_wp_old_slug', '_wp_old_date' ] );
+	return apply_filters(
+		'dt_blacklisted_meta',
+		[
+			'dt_unlinked',
+			'dt_connection_map',
+			'dt_subscription_update',
+			'dt_subscriptions',
+			'dt_subscription_signature',
+			'dt_original_post_id',
+			'dt_original_post_url',
+			'dt_original_blog_id',
+			'dt_syndicate_time',
+			'_wp_attached_file',
+			'_wp_attachment_metadata',
+			'_edit_lock',
+			'_edit_last',
+			'_wp_old_slug',
+			'_wp_old_date',
+		]
+	);
 }
 
 /**
@@ -450,7 +469,9 @@ function set_media( $post_id, $media ) {
 	// If we only want to process the featured image, remove all other media
 	if ( 'featured' === $settings['media_handling'] ) {
 		$featured_keys = wp_list_pluck( $media, 'featured' );
-		$featured_key  = array_search( true, $featured_keys, true );
+
+		// Note: this is not a strict search because of issues with typecasting in some setups
+		$featured_key  = array_search( true, $featured_keys );
 
 		$media = ( false !== $featured_key ) ? array( $media[ $featured_key ] ) : array();
 	}

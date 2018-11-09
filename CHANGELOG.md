@@ -2,6 +2,27 @@
 
 All notable changes to this project will be documented in this file, per [the Keep a Changelog standard](http://keepachangelog.com/).
 
+## [ 1.3.3 ] - 2018-10-19
+### Fixed
+* Do not interfere with non-subscription REST API requests.
+* Retain generated image size info after media distribution.
+
+## [ 1.3.2 ] - 2018-10-16
+### Fixed
+* Correctly encode search query in the pull list.
+* Properly check the key for subscription updates.
+* Ensure featured images are properly detected from environments that type juggle.
+* Add plugin icon to plugin update UI.
+
+## [ 1.3.1 ] - 2018-10-09
+### Fixed
+* Retain keys for associative array meta.
+* Properly pass CPT slugs to external connections.
+* Don't push updates to network sites that no longer exist.
+* Escaping improvements.
+* Stable build now only contains files necessary for production.
+
+
 ## [ 1.3.0 ] - 2018-09-20
 ### Added
 * Add a media processing option to only distribute the featured image instead of the featured image and all attached media.

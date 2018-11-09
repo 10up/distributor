@@ -345,7 +345,7 @@ class PullListTable extends \WP_List_Table {
 		];
 
 		if ( ! empty( $_GET['s'] ) ) {
-			$remote_get_args['s'] = sanitize_key( $_GET['s'] );
+			$remote_get_args['s'] = rawurlencode( $_GET['s'] );
 		}
 
 		if ( is_a( $connection_now, '\Distributor\ExternalConnection' ) ) {
