@@ -869,7 +869,7 @@ class WordPressExternalConnection extends ExternalConnection {
 	 * @return \WP_Post
 	 */
 	private function to_wp_post( $post ) {
-		$obj = new \stdClass();
+		$obj = (object) $post;
 
 		$obj->ID           = $post['id'];
 		$obj->post_title   = $post['title']['rendered'];
@@ -888,7 +888,6 @@ class WordPressExternalConnection extends ExternalConnection {
 		$obj->post_modified     = $post['modified'];
 		$obj->post_modified_gmt = $post['modified_gmt'];
 		$obj->post_type         = $post['type'];
-		$obj->link              = $post['link'];
 		$obj->post_author       = get_current_user_id();
 
 		/**
