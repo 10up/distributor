@@ -74,6 +74,14 @@ class UtilsTest extends \TestCase {
 		);
 
 		\WP_Mock::userFunction(
+			'get_post_meta', [
+				'times'  => 1,
+				'args'   => [ 1 ],
+				'return' => [ 'key' => [ 'value', 'value2' ], 'key2' => [ 'value3' ] ],
+			]
+		);
+
+		\WP_Mock::userFunction(
 			'update_post_meta', [
 				'times'  => 1,
 				'args'   => [ 1, 'key', 'value', 'value' ],
@@ -89,10 +97,44 @@ class UtilsTest extends \TestCase {
 			]
 		);
 
+		\WP_Mock::userFunction(
+			'update_post_meta', [
+				'times'  => 1,
+				'args'   => [ 1, 'key', 'value', 'value' ],
+				'return' => [],
+			]
+		);
+
+		\WP_Mock::userFunction(
+			'update_post_meta', [
+				'times'  => 1,
+				'args'   => [ 1, 'key', 'value2', 'value2' ],
+				'return' => [],
+			]
+		);
+
+		\WP_Mock::userFunction(
+			'update_post_meta', [
+				'times'  => 1,
+				'args'   => [ 1, 'key2', 'value3', 'value3' ],
+				'return' => [],
+			]
+		);
+
 		Utils\set_meta(
 			1, [
 				'key'  => [ 'value' ],
 				'key2' => [ 'value2' ],
+			]
+		);
+
+		Utils\set_meta(
+			1, [
+				'key'  => [
+					'value',
+					'value2'
+				],
+				'key2' => [ 'value3' ],
 			]
 		);
 	}
