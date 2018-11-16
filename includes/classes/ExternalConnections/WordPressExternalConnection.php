@@ -862,8 +862,11 @@ class WordPressExternalConnection extends ExternalConnection {
 	}
 
 	/**
-	 * Convert array to WP_Post
+	 * Convert array to WP_Post object suitable for insert/update.
+	 * 
+	 * Some field names in the REST API response object do not match DB field names.
 	 *
+	 * @see    \WP_REST_Posts_Controller::prepare_item_for_database()
 	 * @param  array $post Post as array.
 	 * @since  0.8
 	 * @return \WP_Post
@@ -882,6 +885,7 @@ class WordPressExternalConnection extends ExternalConnection {
 		}
 
 		$obj->post_status       = 'draft';
+		$obj->post_password     = $post['password'];
 		$obj->post_date         = $post['date'];
 		$obj->post_date_gmt     = $post['date_gmt'];
 		$obj->guid              = $post['guid']['rendered'];
