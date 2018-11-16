@@ -252,6 +252,7 @@ class WordPressExternalConnectionTest extends \TestCase {
 				[
 					'id'        => 111,
 					'post_type' => 'post',
+					'password'  => '',
 				]
 			)
 		);

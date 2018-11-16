@@ -863,7 +863,7 @@ class WordPressExternalConnection extends ExternalConnection {
 
 	/**
 	 * Convert array to WP_Post object suitable for insert/update.
-	 * 
+	 *
 	 * Some field names in the REST API response object do not match DB field names.
 	 *
 	 * @see    \WP_REST_Posts_Controller::prepare_item_for_database()
