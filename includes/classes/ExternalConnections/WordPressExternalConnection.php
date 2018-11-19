@@ -885,6 +885,9 @@ class WordPressExternalConnection extends ExternalConnection {
 		}
 
 		$obj->post_status       = 'draft';
+		$obj->post_author       = get_current_user_id();
+
+		$obj->post_password     = $post['password'];
 		$obj->post_date         = $post['date'];
 		$obj->post_date_gmt     = $post['date_gmt'];
 		$obj->guid              = $post['guid']['rendered'];
@@ -894,11 +897,6 @@ class WordPressExternalConnection extends ExternalConnection {
 		$obj->link              = $post['link'];
 		$obj->comment_status    = $post['comment_status'];
 		$obj->ping_status       = $post['ping_status'];
-		$obj->post_author       = get_current_user_id();
-
-		if ( ! empty( $post['password'] ) ) {
-			$obj->post_password = $post['password'];
-		}
 
 		/**
 		 * These will only be set if Distributor is active on the other side
