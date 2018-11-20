@@ -13,7 +13,23 @@ class UtilsTest extends \TestCase {
 	 */
 	public function test_set_meta_simple() {
 		\WP_Mock::userFunction(
-			'update_post_meta', [
+			'get_post_meta', [
+				'times'  => 1,
+				'args'   => [ 1 ],
+				'return' => [],
+			]
+		);
+
+		\WP_Mock::userFunction(
+			'get_post_meta', [
+				'times'  => 1,
+				'args'   => [ 1 ],
+				'return' => [ 'key' => [ 'value' ] ],
+			]
+		);
+
+		\WP_Mock::userFunction(
+			'add_post_meta', [
 				'times'  => 1,
 				'args'   => [ 1, 'key', 'value' ],
 				'return' => [],
@@ -23,20 +39,20 @@ class UtilsTest extends \TestCase {
 		\WP_Mock::userFunction(
 			'update_post_meta', [
 				'times'  => 1,
-				'args'   => [ 1, 'key', [ 'value' ] ],
+				'args'   => [ 1, 'key', [ 'value' ], 'value' ],
 				'return' => [],
 			]
 		);
 
 		Utils\set_meta(
 			1, [
-				'key' => 'value',
+				'key' => [ 'value' ]
 			]
 		);
 
 		Utils\set_meta(
 			1, [
-				'key' => [ 'value' ],
+				'key' => [ [ 'value' ] ],
 			]
 		);
 	}
@@ -50,9 +66,25 @@ class UtilsTest extends \TestCase {
 	 */
 	public function test_set_meta_multi() {
 		\WP_Mock::userFunction(
+			'get_post_meta', [
+				'times'  => 1,
+				'args'   => [ 1 ],
+				'return' => [ 'key' => [ 'value' ], 'key2' => [ 'value2' ] ],
+			]
+		);
+
+		\WP_Mock::userFunction(
+			'get_post_meta', [
+				'times'  => 1,
+				'args'   => [ 1 ],
+				'return' => [ 'key' => [ 'value', 'value2' ], 'key2' => [ 'value3' ] ],
+			]
+		);
+
+		\WP_Mock::userFunction(
 			'update_post_meta', [
 				'times'  => 1,
-				'args'   => [ 1, 'key', 'value' ],
+				'args'   => [ 1, 'key', 'value', 'value' ],
 				'return' => [],
 			]
 		);
@@ -60,15 +92,49 @@ class UtilsTest extends \TestCase {
 		\WP_Mock::userFunction(
 			'update_post_meta', [
 				'times'  => 1,
-				'args'   => [ 1, 'key2', 'value2' ],
+				'args'   => [ 1, 'key2', 'value2', 'value2' ],
+				'return' => [],
+			]
+		);
+
+		\WP_Mock::userFunction(
+			'update_post_meta', [
+				'times'  => 1,
+				'args'   => [ 1, 'key', 'value', 'value' ],
+				'return' => [],
+			]
+		);
+
+		\WP_Mock::userFunction(
+			'update_post_meta', [
+				'times'  => 1,
+				'args'   => [ 1, 'key', 'value2', 'value2' ],
+				'return' => [],
+			]
+		);
+
+		\WP_Mock::userFunction(
+			'update_post_meta', [
+				'times'  => 1,
+				'args'   => [ 1, 'key2', 'value3', 'value3' ],
 				'return' => [],
 			]
 		);
 
 		Utils\set_meta(
 			1, [
-				'key'  => 'value',
-				'key2' => 'value2',
+				'key'  => [ 'value' ],
+				'key2' => [ 'value2' ],
+			]
+		);
+
+		Utils\set_meta(
+			1, [
+				'key'  => [
+					'value',
+					'value2'
+				],
+				'key2' => [ 'value3' ],
 			]
 		);
 	}
@@ -82,9 +148,17 @@ class UtilsTest extends \TestCase {
 	 */
 	public function test_set_meta_serialize() {
 		\WP_Mock::userFunction(
+			'get_post_meta', [
+				'times'  => 1,
+				'args'   => [ 1 ],
+				'return' => [ 'key' => [ 'value' ], 'key2' => [ [ 0 => 'test' ] ] ],
+			]
+		);
+
+		\WP_Mock::userFunction(
 			'update_post_meta', [
 				'times'  => 1,
-				'args'   => [ 1, 'key', 'value' ],
+				'args'   => [ 1, 'key', 'value', 'value' ],
 				'return' => [],
 			]
 		);
@@ -92,15 +166,15 @@ class UtilsTest extends \TestCase {
 		\WP_Mock::userFunction(
 			'update_post_meta', [
 				'times'  => 1,
-				'args'   => [ 1, 'key2', [ 0 => 'test' ] ],
+				'args'   => [ 1, 'key2', [ 0 => 'test' ], [ 0 => 'test' ] ],
 				'return' => [],
 			]
 		);
 
 		Utils\set_meta(
 			1, [
-				'key'  => 'value',
-				'key2' => 'a:1:{i:0;s:4:"test";}',
+				'key'  => [ 'value' ],
+				'key2' => [ 'a:1:{i:0;s:4:"test";}' ],
 			]
 		);
 	}
@@ -529,16 +603,24 @@ class UtilsTest extends \TestCase {
 		);
 
 		\WP_Mock::userFunction(
-			'update_post_meta', [
-				'times' => 1,
-				'args'  => [ $new_image_id, 'meta1', true ],
+			'get_post_meta', [
+				'times'  => 1,
+				'args'   => [ $new_image_id ],
+				'return' => [ 'meta1' => [ true ], 'meta2' => [ false ] ],
 			]
 		);
 
 		\WP_Mock::userFunction(
 			'update_post_meta', [
 				'times' => 1,
-				'args'  => [ $new_image_id, 'meta2', false ],
+				'args'  => [ $new_image_id, 'meta1', true, true ],
+			]
+		);
+
+		\WP_Mock::userFunction(
+			'update_post_meta', [
+				'times' => 1,
+				'args'  => [ $new_image_id, 'meta2', false, false ],
 			]
 		);
 
