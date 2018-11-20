@@ -20,7 +20,7 @@
     "10up/wp_mock": "dev-dev",
     "10up/phpcs-composer": "dev-master",
     "phpunit/phpunit": "^6.5",
-    "10up/wpassure": "dev-master"
+    "10up/wpassure": "~1.0"
   },
   "scripts": {
     "lint": "phpcs .",
