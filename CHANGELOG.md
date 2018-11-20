@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file, per [the Keep a Changelog standard](http://keepachangelog.com/).
 
+## [ 1.3.4 ] - 2018-10-19
+### Added
+* Provide `$taxonomy` to the `dt_update_term_hierarchy` filter.
+
+### Fixed
+* Enable distribution of multiple meta values stored using the same key.
+* Retain comment status, pingback status, and post passwords on pull.
+
 ## [ 1.3.3 ] - 2018-10-19
 ### Fixed
 * Do not interfere with non-subscription REST API requests.
