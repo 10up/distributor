@@ -418,9 +418,10 @@ function set_taxonomy_terms( $post_id, $taxonomy_terms ) {
 		 *
 		 * @since 1.0.0
 		 *
-		 * @param bool true Controls whether term hierarchy should be updated. Default 'true'.
+		 * @param bool   true      Controls whether term hierarchy should be updated. Default 'true'.
+		 * @param string $taxonomy The taxonomy slug for the current term.
 		 */
-		$update_term_hierachy = apply_filters( 'dt_update_term_hierarchy', true );
+		$update_term_hierachy = apply_filters( 'dt_update_term_hierarchy', true, $taxonomy );
 
 		if ( ! empty( $update_term_hierachy ) ) {
 			foreach ( $terms as $term_array ) {

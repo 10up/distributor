@@ -195,6 +195,9 @@ function remote_get_setup() {
 					'distributor_terms' => [],
 					'distributor_media' => [],
 					$post_type          => $links,
+					'comment_status'    => 'open',
+					'ping_status'       => 'open',
+					'password'          => '',
 				]
 			),
 		]

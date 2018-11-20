@@ -448,7 +448,7 @@ class WordPressExternalConnection extends ExternalConnection {
 			/**
 			 * Action triggered when a post is pulled via distributor.
 			 *
-			 * @param array              $new_post   The new post that was pulled.
+			 * @param int                $new_post   The newly created post ID.
 			 * @param ExternalConnection $this       The distributor connection pulling the post.
 			 * @param array              $post_array The original post data retrieved via the connection.
 			 */
@@ -862,8 +862,11 @@ class WordPressExternalConnection extends ExternalConnection {
 	}
 
 	/**
-	 * Convert array to WP_Post
+	 * Convert array to WP_Post object suitable for insert/update.
 	 *
+	 * Some field names in the REST API response object do not match DB field names.
+	 *
+	 * @see    \WP_REST_Posts_Controller::prepare_item_for_database()
 	 * @param  array $post Post as array.
 	 * @since  0.8
 	 * @return \WP_Post
@@ -882,6 +885,9 @@ class WordPressExternalConnection extends ExternalConnection {
 		}
 
 		$obj->post_status       = 'draft';
+		$obj->post_author       = get_current_user_id();
+
+		$obj->post_password     = $post['password'];
 		$obj->post_date         = $post['date'];
 		$obj->post_date_gmt     = $post['date_gmt'];
 		$obj->guid              = $post['guid']['rendered'];
@@ -889,7 +895,8 @@ class WordPressExternalConnection extends ExternalConnection {
 		$obj->post_modified_gmt = $post['modified_gmt'];
 		$obj->post_type         = $post['type'];
 		$obj->link              = $post['link'];
-		$obj->post_author       = get_current_user_id();
+		$obj->comment_status    = $post['comment_status'];
+		$obj->ping_status       = $post['ping_status'];
 
 		/**
 		 * These will only be set if Distributor is active on the other side
