@@ -128,7 +128,8 @@ function set_meta( $post_id, $meta ) {
 		
 		foreach ( $meta_values as $meta_placement => $meta_value ) {
 			/* Even if previous value is NULL, we don't need to add new one. */
-			$has_prev_value = is_array( $existing_meta[ $meta_key ] ) && array_key_exists( $meta_placement, $existing_meta[ $meta_key ] ) ? true : false;
+			$has_prev_value = isset( $existing_meta[ $meta_key ] ) && is_array( $existing_meta[ $meta_key ] ) 
+								&& array_key_exists( $meta_placement, $existing_meta[ $meta_key ] ) ? true : false;
 			if( $has_prev_value ) {
 				$prev_value = maybe_unserialize( $existing_meta[ $meta_key ][ $meta_placement ] );
 			}
