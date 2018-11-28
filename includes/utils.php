@@ -436,7 +436,15 @@ function set_taxonomy_terms( $post_id, $taxonomy_terms ) {
 					$term_array = (array) $term_array;
 				}
 
-				if ( ! empty( $term_array['parent'] ) ) {
+				if ( empty ( $term_array['parent'] ) ) {
+					$r = wp_update_term(
+						$term_id_mapping[ $term_array['term_id'] ],
+						$taxonomy,
+						[
+							'parent' => '',
+						]
+					);
+				} elseif ( isset ( $term_id_mapping[ $term_array['parent'] ] ) ) {
 					wp_update_term(
 						$term_id_mapping[ $term_array['term_id'] ],
 						$taxonomy,
