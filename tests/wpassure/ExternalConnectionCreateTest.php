@@ -34,7 +34,7 @@ class ExternalConnectionCreateTest extends \TestCase {
 
 		$I->fillField( '#dt_username', 'wpsnapshots' );
 
-		$I->fillField( '#dt_external_connection_url', EnvironmentFactory::get()->getWpHomepageURL() . '/two/wp-json' );
+		$I->fillField( '#dt_external_connection_url', $this->getWPHomeUrl() . '/two/wp-json' );
 
 		$I->waitUntilElementContainsText( 'Limited connection', '.endpoint-result' );
 
