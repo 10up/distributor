@@ -185,7 +185,20 @@ function available_pull_post_types( $connection, $type ) {
 		}
 	}
 
-	return $post_types;
+	/**
+	 * Filter the post types that should be available for pull.
+	 *
+	 * Helpful for sites that want to pull custom post type content from another site into a different existing post type on the receiving end.
+	 *
+	 * @since 1.3.5
+	 *
+	 * @param array                   $post_types        Post types available for pull with name and slug
+	 * @param array                   $remote_post_types Post types available from the remote connection
+	 * @param array                   $local_post_types  Post types registered as public on the local site
+	 * @param \Distributor\Connection $connection        Distributor connection object
+	 * @param string                  $type              Distributor connection type
+	 */
+	return apply_filters( 'dt_available_pull_post_types', $post_types, $remote_post_types, $local_post_types, $connection, $type );
 }
 
 /**
