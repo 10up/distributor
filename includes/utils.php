@@ -126,7 +126,7 @@ function set_meta( $post_id, $meta ) {
 			continue;
 		}
 
-		foreach ( $meta_values as $meta_placement => $meta_value ) {
+		foreach ( (array) $meta_values as $meta_placement => $meta_value ) {
 			$has_prev_value = isset( $existing_meta[ $meta_key ] )
 								&& is_array( $existing_meta[ $meta_key ] )
 								&& array_key_exists( $meta_placement, $existing_meta[ $meta_key ] )
