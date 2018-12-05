@@ -14,7 +14,7 @@ if ( '0' !== dtGutenberg.originalSourceId || '0' !== dtGutenberg.originalBlogId 
 		message = wp.i18n.sprintf( wp.i18n.__( 'Distributed from %s. The original will update this unless you', 'distributor' ), dtGutenberg.originalLocationName );
 
 		actions.push( {
-			label: wp.i18n. __( 'unlink from original. ', 'distributor' ),
+			label: wp.i18n. __( 'unlink from original.', 'distributor' ),
 			url: dtGutenberg.unlinkNonceUrl
 		} );
 
@@ -30,6 +30,11 @@ if ( '0' !== dtGutenberg.originalSourceId || '0' !== dtGutenberg.originalBlogId 
 		actions.push( {
 			label: wp.i18n. __( 'restore it.', 'distributor' ),
 			url: dtGutenberg.linkNonceUrl
+		} );
+
+		actions.push( {
+			label: wp.i18n. __( 'View Original', 'distributor' ),
+			url: dtGutenberg.postUrl
 		} );
 	}
 
