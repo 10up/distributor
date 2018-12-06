@@ -25,7 +25,7 @@ function is_vip_com() {
  */
 function is_using_gutenberg() {
 	global $wp_version;
-	return ( function_exists( 'the_gutenberg_project' ) || DT_WP_5_PLUS );
+	return ( function_exists( 'the_gutenberg_project' ) || version_compare( $wp_version, '5', '>=' ) );
 }
 
 /**
