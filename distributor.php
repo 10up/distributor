@@ -16,9 +16,10 @@
 if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly.
 }
-
+global $wp_version;
 define( 'DT_VERSION', '1.3.4-dev' );
 define( 'DT_PLUGIN_FILE', preg_replace( '#^.*plugins/(.*)$#i', '$1', __FILE__ ) );
+define( 'DT_WP_5_PLUS',  version_compare( $wp_version, '5', '>=' ) );
 
 // Define a constant if we're network activated to allow plugin to respond accordingly.
 $active_plugins = get_site_option( 'active_sitewide_plugins' );
