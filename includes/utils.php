@@ -123,34 +123,27 @@ function set_meta( $post_id, $meta ) {
 	$blacklisted_meta = blacklisted_meta();
 
 	foreach ( $meta as $meta_key => $meta_values ) {
-		foreach ( $meta_values as $meta_placement => $meta_value ) {
+		if ( in_array( $meta_key, $blacklisted_meta, true ) ) {
+			continue;
+		}
+
+		foreach ( (array) $meta_values as $meta_placement => $meta_value ) {
+			$has_prev_value = isset( $existing_meta[ $meta_key ] )
+								&& is_array( $existing_meta[ $meta_key ] )
+								&& array_key_exists( $meta_placement, $existing_meta[ $meta_key ] )
+								? true : false;
+			if ( $has_prev_value ) {
+				$prev_value = maybe_unserialize( $existing_meta[ $meta_key ][ $meta_placement ] );
+			}
+
 			if ( ! is_array( $meta_value ) ) {
-				if ( ! in_array( $meta_key, $blacklisted_meta, true ) ) {
-					$meta_value = maybe_unserialize( $meta_value );
-					$prev_value = isset( $existing_meta[ $meta_key ][ $meta_placement ] ) ? $existing_meta[ $meta_key ][ $meta_placement ] : '';
+				$meta_value = maybe_unserialize( $meta_value );
+			}
 
-					if ( '' !== $prev_value ) {
-						update_post_meta( $post_id, $meta_key, $meta_value, $prev_value );
-					} else {
-						add_post_meta( $post_id, $meta_key, $meta_value );
-					}
-				}
+			if ( $has_prev_value ) {
+				update_post_meta( $post_id, $meta_key, $meta_value, $prev_value );
 			} else {
-				$meta_array = (array) $meta_value;
-				$new_values = array();
-				$prev_value = isset( $existing_meta[ $meta_key ][ $meta_placement ] ) ? $existing_meta[ $meta_key ][ $meta_placement ] : '';
-
-				foreach ( $meta_array as $meta_item_key => $meta_item_value ) {
-					if ( ! in_array( $meta_key, $blacklisted_meta, true ) ) {
-						$new_values[ $meta_item_key ] = maybe_unserialize( $meta_item_value );
-					}
-				}
-
-				if ( '' !== $prev_value ) {
-					update_post_meta( $post_id, $meta_key, $meta_value, $prev_value );
-				} else {
-					add_post_meta( $post_id, $meta_key, $meta_value );
-				}
+				add_post_meta( $post_id, $meta_key, $meta_value );
 			}
 		}
 	}
