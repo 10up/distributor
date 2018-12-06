@@ -2,7 +2,15 @@
 
 All notable changes to this project will be documented in this file, per [the Keep a Changelog standard](http://keepachangelog.com/).
 
-## [ 1.3.4 ] - 2018-10-19
+## [ 1.3.5 ] - 2018-12-05
+### Added
+* Add a `dt_available_pull_post_types` filter to enable pulling of post types not registered on the destination site. NOTE: This requires custom handling to pull into an existing post type.
+
+### Fixed
+* Avoid duplicating empty meta values.
+* Align with JS i18n coming in WordPress 5.0.
+
+## [ 1.3.4 ] - 2018-11-20
 ### Added
 * Provide `$taxonomy` to the `dt_update_term_hierarchy` filter.
 
