@@ -68,6 +68,9 @@ class NetworkSiteConnection extends Connection {
 		$original_post_url = get_permalink( $post_id );
 		$using_gutenberg   = \Distributor\Utils\is_using_gutenberg();
 
+		global $wp_embed;
+		remove_filter( 'the_content', [ $wp_embed, 'autoembed' ], 8 );
+
 		$new_post_args = array(
 			'post_title'   => get_the_title( $post_id ),
 			'post_name'    => $post->post_name,
@@ -77,6 +80,8 @@ class NetworkSiteConnection extends Connection {
 			'post_author'  => get_current_user_id(),
 			'post_status'  => 'publish',
 		);
+
+		add_filter( 'the_content', [ $wp_embed, 'autoembed' ], 8 );
 
 		$media = \Distributor\Utils\prepare_media( $post_id );
 		$terms = \Distributor\Utils\prepare_taxonomy_terms( $post_id );
