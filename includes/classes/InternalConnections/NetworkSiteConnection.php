@@ -69,6 +69,9 @@ class NetworkSiteConnection extends Connection {
 		$using_gutenberg   = \Distributor\Utils\is_using_gutenberg();
 
 		global $wp_embed;
+		/**
+		 * Remove autoembed filter so that actual URL will be pushed and not the generated markup.
+		 */
 		remove_filter( 'the_content', [ $wp_embed, 'autoembed' ], 8 );
 
 		$new_post_args = array(
