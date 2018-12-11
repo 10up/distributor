@@ -3,19 +3,23 @@
   "description": "Syndicate content to and from external websites and within multisite blogs.",
   "author": "Taylor Lovett, 10up",
   "scripts": {
-    "build": "./node_modules/.bin/gulp",
-    "js": "./node_modules/.bin/gulp",
-    "watch": "./node_modules/.bin/gulp watch",
-    "css": "./node_modules/.bin/gulp css",
-    "postinstall": "./node_modules/.bin/gulp",
-    "makepot": "./node_modules/.bin/wpi18n makepot && echo '.pot file updated'"
+    "build": "gulp",
+    "lint": "eslint assets/js",
+    "lint-fix": "eslint assets/js --fix",
+    "js": "gulp js",
+    "watch": "gulp watch",
+    "css": "gulp css",
+    "postinstall": "gulp",
+    "makepot": "wpi18n makepot && echo '.pot file updated'",
+    "release": "rm -rf release/ && git worktree prune && npm run build && npm run makepot && git worktree add -B stable release origin/stable && gulp copy"
   },
   "dependencies": {
+    "babel-cli": "^6.26.0",
     "babel-core": "^6.26.0",
     "babel-eslint": "^8.2.1",
     "babel-loader": "^7.1.2",
     "babel-preset-env": "^1.6.1",
-    "babel-register": "^6.26.0",
+    "babel-preset-react": "^6.24.1",
     "eslint": "^4.17.0",
     "eslint-loader": "^1.9.0",
     "gulp": "^3.9.1",
@@ -24,6 +28,7 @@
     "gulp-livereload": "^3.8.1",
     "gulp-postcss": "^7.0.1",
     "gulp-rename": "^1.2.2",
+    "gulp-replace": "^1.0.0",
     "gulp-sourcemaps": "^2.6.4",
     "imports-loader": "^0.7.1",
     "node-wp-i18n": "^1.0.5",
@@ -33,6 +38,8 @@
     "require-dir": "^1.0.0",
     "run-sequence": "^2.2.1",
     "webpack": "^3.11.0",
-    "webpack-stream": "^4.0.1"
+    "webpack-stream": "^4.0.1",
+    "babel-register": "^6.26.0",
+    "@10up/eslint-config": "^1.0.6"
   }
 }

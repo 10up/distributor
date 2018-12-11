@@ -1,4 +1,9 @@
 <?php
+/**
+ * Pull UI functionality
+ *
+ * @package  distributor
+ */
 
 namespace Distributor\PullUI;
 
@@ -9,7 +14,8 @@ namespace Distributor\PullUI;
  */
 function setup() {
 	add_action(
-		'plugins_loaded', function() {
+		'plugins_loaded',
+		function() {
 			add_action( 'admin_menu', __NAMESPACE__ . '\action_admin_menu' );
 			add_action( 'admin_enqueue_scripts', __NAMESPACE__ . '\admin_enqueue_scripts' );
 			add_action( 'load-distributor_page_pull', __NAMESPACE__ . '\setup_list_table' );
@@ -100,7 +106,7 @@ function setup_list_table() {
 /**
  * Enqueue admin scripts for pull
  *
- * @param  string $hook
+ * @param  string $hook WP hook.
  * @since  0.8
  */
 function admin_enqueue_scripts( $hook ) {
@@ -122,6 +128,13 @@ function action_admin_menu() {
 		'distributor',
 		esc_html__( 'Pull Content', 'distributor' ),
 		esc_html__( 'Pull Content', 'distributor' ),
+		/**
+		 * Filter Distributor capabilities allowed to pull content.
+		 *
+		 * @since 1.0.0
+		 *
+		 * @param string manage_options The capability allowed to pull content.
+		 */
 		apply_filters( 'dt_pull_capabilities', 'manage_options' ),
 		'pull',
 		__NAMESPACE__ . '\dashboard'
@@ -133,14 +146,14 @@ function action_admin_menu() {
 /**
  * Set screen option for posts per page
  *
- * @param  string $status
- * @param  string $option
- * @param  mixed  $value
+ * @param  string $status Option status.
+ * @param  string $option Option.
+ * @param  mixed  $value New value.
  * @since  0.8
  * @return mixed
  */
 function set_screen_option( $status, $option, $value ) {
-	return $value;
+	return 'pull_posts_per_page' === $option ? $value : $status;
 }
 
 /**
@@ -188,12 +201,17 @@ function process_actions() {
 				break;
 			}
 
-			$posts = (array) $_GET['post'];
+			$posts     = (array) $_GET['post'];
+			$post_type = sanitize_text_field( $_GET['pull_post_type'] );
 
 			$posts = array_map(
-				function( $remote_post_id ) {
-						return [ 'remote_post_id' => $remote_post_id ];
-				}, $posts
+				function( $remote_post_id ) use ( $post_type ) {
+						return [
+							'remote_post_id' => $remote_post_id,
+							'post_type'      => $post_type,
+						];
+				},
+				$posts
 			);
 
 			if ( 'external' === $_GET['connection_type'] ) {
@@ -201,6 +219,9 @@ function process_actions() {
 				$new_posts  = $connection->pull( $posts );
 
 				foreach ( $posts as $key => $post_array ) {
+					if ( is_wp_error( $new_posts[ $key ] ) ) {
+						continue;
+					}
 					\Distributor\Subscriptions\create_remote_subscription( $connection, $post_array['remote_post_id'], $new_posts[ $key ] );
 				}
 			} else {
@@ -212,6 +233,9 @@ function process_actions() {
 			$post_id_mappings = array();
 
 			foreach ( $posts as $key => $post_array ) {
+				if ( is_wp_error( $new_posts[ $key ] ) ) {
+					continue;
+				}
 				$post_id_mappings[ $post_array['remote_post_id'] ] = $new_posts[ $key ];
 			}
 
@@ -231,7 +255,7 @@ function process_actions() {
 			break;
 		case 'bulk-skip':
 		case 'skip':
-			if ( ! wp_verify_nonce( $_GET['_wpnonce'], 'dt_skip' ) && ! wp_verify_nonce( $_GET['_wpnonce'], 'bulk-syndicate_page_pull' ) ) {
+			if ( ! wp_verify_nonce( $_GET['_wpnonce'], 'dt_skip' ) && ! wp_verify_nonce( $_GET['_wpnonce'], 'bulk-distributor_page_pull' ) ) {
 				exit;
 			}
 
@@ -286,8 +310,6 @@ function dashboard() {
 	global $connection_now;
 	global $dt_pull_messages;
 
-	$connection_list_table->prepare_items();
-
 	if ( ! empty( $connection_now ) ) {
 		if ( is_a( $connection_now, '\Distributor\ExternalConnection' ) ) {
 			$connection_type = 'external';
@@ -334,7 +356,7 @@ function dashboard() {
 								$name     = untrailingslashit( $connection->site->domain . $connection->site->path );
 								$id       = $connection->site->blog_id;
 
-								if ( (int) $connection_now->site->blog_id === (int) $id ) {
+								if ( is_a( $connection_now, '\Distributor\InternalConnections\NetworkSiteConnection' ) && (int) $connection_now->site->blog_id === (int) $id ) {
 									$selected = true;
 								}
 								?>
@@ -356,7 +378,7 @@ function dashboard() {
 								$name     = $connection->name;
 								$id       = $connection->id;
 
-								if ( (int) $connection_now->id === (int) $id ) {
+								if ( is_a( $connection_now, '\Distributor\ExternalConnection' ) && (int) $connection_now->id === (int) $id ) {
 									$selected = true;
 								}
 								?>
@@ -367,6 +389,28 @@ function dashboard() {
 						<?php endif; ?>
 					<?php endif; ?>
 				</select>
+
+				<?php
+				$connection_now->pull_post_types = \Distributor\Utils\available_pull_post_types( $connection_now, $connection_type );
+
+				// Set the post type we want to pull
+				// This is either from a query param, "post" post type, or the first in the list
+				$connection_now->pull_post_type = $connection_now->pull_post_types[0]['slug'];
+				foreach ( $connection_now->pull_post_types as $post_type ) {
+					if ( isset( $_GET['pull_post_type'] ) ) {
+						if ( $_GET['pull_post_type'] === $post_type['slug'] ) {
+							$connection_now->pull_post_type = $post_type['slug'];
+							break;
+						}
+					} else {
+						if ( 'post' === $post_type['slug'] ) {
+							$connection_now->pull_post_type = $post_type['slug'];
+							break;
+						}
+					}
+				}
+				?>
+
 			<?php endif; ?>
 		</h1>
 
@@ -387,6 +431,8 @@ function dashboard() {
 				<p><?php esc_html_e( 'Post(s) have been already distributed.', 'distributor' ); ?></p>
 			</div>
 		<?php endif; ?>
+
+		<?php $connection_list_table->prepare_items(); ?>
 
 		<?php if ( ! empty( $connection_list_table->pull_error ) ) : ?>
 			<p><?php esc_html_e( 'Could not pull content from connection due to error.', 'distributor' ); ?></p>

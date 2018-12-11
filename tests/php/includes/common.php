@@ -195,6 +195,9 @@ function remote_get_setup() {
 					'distributor_terms' => [],
 					'distributor_media' => [],
 					$post_type          => $links,
+					'comment_status'    => 'open',
+					'ping_status'       => 'open',
+					'password'          => '',
 				]
 			),
 		]
@@ -260,6 +263,8 @@ class TestExternalConnection extends \Distributor\ExternalConnection {
 	public function check_connections() { }
 
 	public function remote_get( $args ) { }
+
+	public function get_post_types() { }
 }
 
 class TestInternalConnection extends \Distributor\Connection {
@@ -271,5 +276,7 @@ class TestInternalConnection extends \Distributor\Connection {
 
 	public function remote_get( $args ) { }
 
-	public function log_sync( array $item_id_mappings ) { }
+	public function log_sync( array $item_id_mappings, $id ) { }
+
+	public function get_post_types() { }
 }

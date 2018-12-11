@@ -1,7 +1,15 @@
 <?php
+/**
+ * Admin list table for pulled posted
+ *
+ * @package  distributor
+ */
 
 namespace Distributor;
 
+/**
+ * List table class for pull screen
+ */
 class PullListTable extends \WP_List_Table {
 
 	/**
@@ -46,10 +54,9 @@ class PullListTable extends \WP_List_Table {
 	 */
 	public function get_columns() {
 		$columns = [
-			'cb'           => '<input type="checkbox" />',
-			'name'         => esc_html__( 'Name', 'distributor' ),
-			'content_type' => esc_html__( 'Content Type', 'distributor' ),
-			'date'         => esc_html__( 'Date', 'distributor' ),
+			'cb'   => '<input type="checkbox" />',
+			'name' => esc_html__( 'Name', 'distributor' ),
+			'date' => esc_html__( 'Date', 'distributor' ),
 		];
 
 		return $columns;
@@ -102,7 +109,8 @@ class PullListTable extends \WP_List_Table {
 	 */
 	protected function bulk_actions( $which = '' ) {
 		if ( is_null( $this->_actions ) ) {
-			$no_new_actions = $this->_actions = $this->get_bulk_actions();
+			$no_new_actions = $this->get_bulk_actions();
+			$this->_actions = $this->get_bulk_actions();
 			/**
 			 * Filters the list table Bulk Actions drop-down.
 			 *
@@ -127,7 +135,7 @@ class PullListTable extends \WP_List_Table {
 		}
 
 		echo '<label for="bulk-action-selector-' . esc_attr( $which ) . '" class="screen-reader-text">' . esc_html__( 'Select bulk action', 'distributor' ) . '</label>';
-		echo '<select name="'.esc_attr( 'action' . $two ) . '" id="bulk-action-selector-' . esc_attr( $which ) . "\">\n";
+		echo '<select name="' . esc_attr( 'action' . $two ) . '" id="bulk-action-selector-' . esc_attr( $which ) . "\">\n";
 
 		foreach ( $this->_actions as $name => $title ) {
 			echo "\t" . '<option value="' . esc_attr( $name ) . '"' . ( 'edit' === $name ? ' class="hide-if-no-js"' : '' ) . '>' . esc_html( $title ) . "</option>\n";
@@ -174,7 +182,8 @@ class PullListTable extends \WP_List_Table {
 			}
 		} else {
 			if ( '0000-00-00 00:00:00' === $post->post_date ) {
-				$t_time    = $h_time = esc_html__( 'Unpublished', 'distributor' );
+				$t_time    = esc_html__( 'Unpublished', 'distributor' );
+				$h_time    = esc_html__( 'Unpublished', 'distributor' );
 				$time_diff = 0;
 			} else {
 				$t_time = get_the_time( esc_html__( 'Y/m/d g:i:s a', 'distributor' ) );
@@ -213,22 +222,14 @@ class PullListTable extends \WP_List_Table {
 	/**
 	 * Output standard table columns (not name)
 	 *
-	 * @param  array  $item
-	 * @param  string $column_name
+	 * @param  array  $item Item to output.
+	 * @param  string $column_name Column name.
 	 * @since  0.8
 	 */
 	public function column_default( $item, $column_name ) {
 		switch ( $column_name ) {
 			case 'name':
 				return $item['post_title'];
-				break;
-			case 'content_type':
-				$post_type_object = get_post_type_object( $item->post_type );
-				if ( empty( $post_type_object ) ) {
-					return $item->post_type;
-				}
-
-				return $post_type_object->labels->singular_name;
 				break;
 			case 'url':
 				$url = get_post_meta( $item->ID, 'dt_external_connection_url', true );
@@ -246,24 +247,22 @@ class PullListTable extends \WP_List_Table {
 	 * Output name column wrapper
 	 *
 	 * @since 4.3.0
-	 * @access protected
-	 *
-	 * @param WP_Post $post
-	 * @param string  $classes
-	 * @param string  $data
-	 * @param string  $primary
+	 * @param WP_Post $item Post object.
+	 * @param string  $classes CSS classes.
+	 * @param string  $data Column data.
+	 * @param string  $primary Whether primary or not.
 	 */
 	protected function _column_name( $item, $classes, $data, $primary ) {
 		echo '<td class="' . esc_attr( $classes ) . ' page-title">';
 		$this->column_name( $item );
-		echo $this->handle_row_actions( $item, 'title', $primary );
+		echo wp_kses_post( $this->handle_row_actions( $item, 'title', $primary ) );
 		echo '</td>';
 	}
 
 	/**
 	 * Output inner name column with actions
 	 *
-	 * @param  WP_Post $item
+	 * @param  WP_Post $item Post object.
 	 * @since  0.8
 	 */
 	public function column_name( $item ) {
@@ -309,7 +308,7 @@ class PullListTable extends \WP_List_Table {
 		}
 
 		echo '<strong>' . esc_html( $title ) . '</strong>';
-		echo $this->row_actions( $actions );
+		echo wp_kses_post( $this->row_actions( $actions ) );
 	}
 
 	/**
@@ -342,25 +341,23 @@ class PullListTable extends \WP_List_Table {
 		$remote_get_args = [
 			'posts_per_page' => $per_page,
 			'paged'          => $current_page,
-			'post_type'      => \Distributor\Utils\distributable_post_types(),
+			'post_type'      => $connection_now->pull_post_type ?: 'post',
 		];
 
-		/**
-		 * Todo: Support pulling more than one post type from external connections. This is hard since
-		 * each endpoint can only return one post type.
-		 */
-		if ( is_a( $connection_now, '\Distributor\ExternalConnection' ) ) {
-			$remote_get_args['post_type'] = 'post';
-		}
-
 		if ( ! empty( $_GET['s'] ) ) {
-			$remote_get_args['s'] = sanitize_key( $_GET['s'] );
+			$remote_get_args['s'] = rawurlencode( $_GET['s'] );
 		}
 
 		if ( is_a( $connection_now, '\Distributor\ExternalConnection' ) ) {
 			$this->sync_log = get_post_meta( $connection_now->id, 'dt_sync_log', true );
 		} else {
-			$this->sync_log = get_site_option( 'dt_sync_log_' . $connection_now->site->blog_id, array() );
+			$this->sync_log = [];
+
+			$sync_log = get_option( 'dt_sync_log', [] );
+
+			if ( ! empty( $sync_log[ $connection_now->site->blog_id ] ) ) {
+				$this->sync_log = $sync_log[ $connection_now->site->blog_id ];
+			}
 		}
 
 		if ( empty( $this->sync_log ) ) {
@@ -417,8 +414,6 @@ class PullListTable extends \WP_List_Table {
 	 * Handles the checkbox column output.
 	 *
 	 * @since 4.3.0
-	 * @access public
-	 *
 	 * @param WP_Post $post The current WP_Post object.
 	 */
 	public function column_cb( $post ) {
@@ -457,9 +452,34 @@ class PullListTable extends \WP_List_Table {
 	/**
 	 * Adds a hook after the bulk actions dropdown above and below the list table
 	 *
-	 * @param string $which
+	 * @param string $which Whether above or below the table.
 	 */
 	public function extra_tablenav( $which ) {
+		global $connection_now;
+
+		if ( $connection_now->pull_post_types && $connection_now->pull_post_type ) :
+			?>
+
+			<div class="alignleft actions">
+				<label for="pull_post_type" class="screen-reader-text">Content to Pull</label>
+				<select id="pull_post_type" name="pull_post_type">
+					<?php foreach ( $connection_now->pull_post_types as $post_type ) : ?>
+						<option <?php selected( $connection_now->pull_post_type, $post_type['slug'] ); ?> value="<?php echo esc_attr( $post_type['slug'] ); ?>">
+							<?php echo esc_html( $post_type['name'] ); ?>
+						</option>
+					<?php endforeach; ?>
+				</select>
+				<input type="submit" name="filter_action" id="pull_post_type_submit" class="button" value="<?php esc_attr_e( 'Filter', 'distributor' ); ?>">
+			</div>
+
+			<?php
+		endif;
+
+		/**
+		 * Action fired when extra table nav is generated.
+		 *
+		 * @since 1.0
+		 */
 		do_action( 'dt_pull_filters' );
 	}
 }

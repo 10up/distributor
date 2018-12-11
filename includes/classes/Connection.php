@@ -1,4 +1,9 @@
 <?php
+/**
+ * Connection base class
+ *
+ * @package  distributor
+ */
 
 namespace Distributor;
 
@@ -10,8 +15,8 @@ abstract class Connection {
 	/**
 	 * Push an item to a external connection
 	 *
-	 * @param  int   $item_id
-	 * @param  array $args
+	 * @param  int   $item_id Item ID to push if an update.
+	 * @param  array $args Array of args to push.
 	 * @since  0.8
 	 * @return bool|WP_Error
 	 */
@@ -20,7 +25,7 @@ abstract class Connection {
 	/**
 	 * Pull items
 	 *
-	 * @param  array $items
+	 * @param  array $items Array of items to pull.
 	 * @since  0.8
 	 * @return bool|WP_Error
 	 */
@@ -29,7 +34,7 @@ abstract class Connection {
 	/**
 	 * Get content from a connection
 	 *
-	 * @param  array $args
+	 * @param  array $args Query args for getting.
 	 * @since  0.8
 	 * @return array|WP_Error
 	 */
@@ -38,17 +43,26 @@ abstract class Connection {
 	/**
 	 * Log a sync
 	 *
-	 * @param  array $item_id_mappings
-	 * @since  0.8
+	 * @param array $item_id_mappings Mapping to store; key = origin post ID, value = new post ID.
+	 * @param int   $id Blog or Connection ID. Optional.
+	 * @since 0.8
 	 */
-	abstract public function log_sync( array $item_id_mappings );
+	abstract public function log_sync( array $item_id_mappings, $id );
+
+	/**
+	 * Get available post types from a connection
+	 *
+	 * @since 1.3
+	 * @return array|\WP_Error
+	 */
+	abstract public function get_post_types();
 
 	/**
 	 * This method is called on every page load. It's helpful for canonicalization
 	 *
 	 * @since  0.8
 	 */
-	static function bootstrap() {
+	public static function bootstrap() {
 		// Extend me?
 	}
 }

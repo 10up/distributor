@@ -1,7 +1,15 @@
 <?php
+/**
+ * Subscription REST API endpoint
+ *
+ * @package  distributor
+ */
 
 namespace Distributor\API;
 
+/**
+ * Subscription controller REST API class
+ */
 class SubscriptionsController extends \WP_REST_Controller {
 
 	/**
@@ -36,7 +44,9 @@ class SubscriptionsController extends \WP_REST_Controller {
 	public function register_routes() {
 
 		register_rest_route(
-			$this->namespace, '/' . $this->rest_base, array(
+			$this->namespace,
+			'/' . $this->rest_base,
+			array(
 				array(
 					'methods'             => \WP_REST_Server::CREATABLE,
 					'callback'            => array( $this, 'create_item' ),
@@ -68,7 +78,9 @@ class SubscriptionsController extends \WP_REST_Controller {
 		);
 
 		register_rest_route(
-			$this->namespace, '/' . $this->rest_base . '/receive', array(
+			$this->namespace,
+			'/' . $this->rest_base . '/receive',
+			array(
 				array(
 					'methods'             => \WP_REST_Server::CREATABLE,
 					'callback'            => array( $this, 'receive_item' ),
@@ -90,7 +102,9 @@ class SubscriptionsController extends \WP_REST_Controller {
 		);
 
 		register_rest_route(
-			$this->namespace, '/' . $this->rest_base . '/delete', array(
+			$this->namespace,
+			'/' . $this->rest_base . '/delete',
+			array(
 				array(
 					'methods'             => \WP_REST_Server::DELETABLE,
 					'callback'            => array( $this, 'delete_item' ),
@@ -126,19 +140,39 @@ class SubscriptionsController extends \WP_REST_Controller {
 			return $status;
 		}
 
-		// Authenticate by signature, if available.
-		if ( ! empty( $request['signature'] ) && ! empty( $request['post_id'] ) ) {
+		if ( ! empty( $GLOBALS['wp']->query_vars['rest_route'] ) ) {
+			$path = $GLOBALS['wp']->query_vars['rest_route'];
+		} else {
+			$path = $_SERVER['REQUEST_URI'];
+		}
+
+		$request = new \WP_REST_Request( $_SERVER['REQUEST_METHOD'], $path );
+		$request->set_body_params( wp_unslash( $_POST ) ); // phpcs:ignore
+
+		// If this is not a subscription request, return the original value.
+		if ( '/dt_subscription/receive' !== $request->get_route() && '/dt_subscription/delete' !== $request->get_route() ) {
+			return $status;
+		}
+
+		// If the signature is unset or empty, throw an error.
+		if ( ( ! isset( $request['signature'] ) ) || empty( $request['signature'] ) ) {
+			return new \WP_Error( 'rest_post_invalid_signature', esc_html__( 'Signature invalid or missing.', 'distributor' ), array( 'status' => 403 ) );
+		}
+
+		// If the post id is missing, throw an error.
+		if ( empty( $request['post_id'] ) ) {
+			return new \WP_Error( 'rest_post_invalid_post_id', esc_html__( 'Invalid post id.', 'distributor' ), array( 'status' => 403 ) );
+		} else {
+
 			$signature = get_post_meta( $request['post_id'], 'dt_subscription_signature', true );
 
 			if ( $request['signature'] === $signature ) {
 				return true;
-			} else {
-				return new \WP_Error( 'rest_post_invalid_signature', esc_html__( 'Signature invalid.', 'distributor' ), array( 'status' => 403 ) );
 			}
 		}
 
-		// No check was performed.
-		return null;
+		// No check was performed, return the original value.
+		return $status;
 	}
 
 	/**
@@ -186,6 +220,17 @@ class SubscriptionsController extends \WP_REST_Controller {
 				return new \WP_Error( 'rest_post_no_data', esc_html__( 'No post data for update.', 'distributor' ), array( 'status' => 400 ) );
 			}
 
+			// When both sides of a subscription connection support Gutenberg, update with the raw content.
+			$content = $request['post_data']['content'];
+			if ( \Distributor\Utils\is_using_gutenberg() && $request['post_data']['distributor_raw_content'] ) {
+				if ( gutenberg_can_edit_post_type( $request['post_data']['post_type'] ) ) {
+					$content = $request['post_data']['distributor_raw_content'];
+
+					// Remove filters that may alter content updates.
+					remove_all_filters( 'content_save_pre' );
+				}
+			}
+
 			/**
 			 * We save the update in meta in case the post is unlinked. If the post is re-linked, we'll
 			 * apply the update
@@ -193,7 +238,7 @@ class SubscriptionsController extends \WP_REST_Controller {
 			$update = [
 				'post_title'   => sanitize_text_field( $request['post_data']['title'] ),
 				'post_name'    => sanitize_text_field( $request['post_data']['slug'] ),
-				'post_content' => wp_kses_post( $request['post_data']['content'] ),
+				'post_content' => wp_kses_post( $content ),
 				'post_excerpt' => wp_kses_post( $request['post_data']['excerpt'] ),
 				// Todo: how do we properly sanitize this?
 				'meta'         => ( isset( $request['post_data']['distributor_meta'] ) ) ? $request['post_data']['distributor_meta'] : [],
@@ -216,7 +261,7 @@ class SubscriptionsController extends \WP_REST_Controller {
 				[
 					'ID'           => $request['post_id'],
 					'post_title'   => $request['post_data']['title'],
-					'post_content' => $request['post_data']['content'],
+					'post_content' => $content,
 					'post_excerpt' => $request['post_data']['excerpt'],
 					'post_name'    => $request['post_data']['slug'],
 				]
@@ -247,7 +292,7 @@ class SubscriptionsController extends \WP_REST_Controller {
 	/**
 	 * Helper function to build response array for a subscription
 	 *
-	 * @param  int $post_id
+	 * @param  int $post_id Post ID.
 	 * @since  1.0
 	 */
 	protected function get_response_array( $post_id ) {
@@ -315,7 +360,7 @@ class SubscriptionsController extends \WP_REST_Controller {
 		 *
 		 * @Todo: Find a way around this
 		 */
-		$connection_map['external'][ -1 ] = [
+		$connection_map['external'][-1] = [
 			'post_id' => (int) $request['remote_post_id'],
 			'time'    => time(),
 		];

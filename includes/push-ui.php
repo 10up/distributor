@@ -1,4 +1,9 @@
 <?php
+/**
+ * Push UI functionality
+ *
+ * @package  distributor
+ */
 
 namespace Distributor\PushUI;
 
@@ -9,7 +14,8 @@ namespace Distributor\PushUI;
  */
 function setup() {
 	add_action(
-		'plugins_loaded', function() {
+		'plugins_loaded',
+		function() {
 			add_action( 'admin_enqueue_scripts', __NAMESPACE__ . '\enqueue_scripts' );
 			add_action( 'wp_enqueue_scripts', __NAMESPACE__ . '\enqueue_scripts' );
 			add_action( 'wp_ajax_dt_push', __NAMESPACE__ . '\ajax_push' );
@@ -20,9 +26,8 @@ function setup() {
 	);
 }
 
-
 /**
- * Check if post is syndicatable
+ * Check if we're on a syndicatable admin post edit view or single post template.
  *
  * @since   0.8
  * @return  bool
@@ -33,19 +38,30 @@ function syndicatable() {
 	}
 
 	if ( is_admin() ) {
+
 		global $pagenow;
 
 		if ( 'post.php' !== $pagenow ) {
-			return false;
-		}
-
-		if ( ! in_array( get_post_type(), \Distributor\Utils\distributable_post_types(), true ) || ( ! empty( $_GET['post_type'] ) && 'dt_ext_connection' === $_GET['post_type'] ) ) {
 			return false;
 		}
 	} else {
 		if ( ! is_single() ) {
 			return false;
 		}
+	}
+
+	global $post;
+
+	if ( empty( $post ) ) {
+		return;
+	}
+
+	if ( ! in_array( $post->post_status, \Distributor\Utils\distributable_post_statuses(), true ) ) {
+		return false;
+	}
+
+	if ( ! in_array( get_post_type(), \Distributor\Utils\distributable_post_types(), true ) || ( ! empty( $_GET['post_type'] ) && 'dt_ext_connection' === $_GET['post_type'] ) ) {
+		return false;
 	}
 
 	return true;
@@ -62,7 +78,7 @@ function ajax_push() {
 		exit;
 	}
 
-	if ( empty( $_POST['post_id'] ) ) {
+	if ( empty( $_POST['postId'] ) ) {
 		wp_send_json_error();
 		exit;
 	}
@@ -72,7 +88,7 @@ function ajax_push() {
 		exit;
 	}
 
-	$connection_map = get_post_meta( intval( $_POST['post_id'] ), 'dt_connection_map', true );
+	$connection_map = get_post_meta( intval( $_POST['postId'] ), 'dt_connection_map', true );
 	if ( empty( $connection_map ) ) {
 		$connection_map = array();
 	}
@@ -111,11 +127,11 @@ function ajax_push() {
 					$push_args['remote_post_id'] = (int) $connection_map['external'][ (int) $connection['id'] ]['post_id'];
 				}
 
-				if ( ! empty( $_POST['draft'] ) ) {
-					$push_args['post_status'] = 'draft';
+				if ( ! empty( $_POST['postStatus'] ) ) {
+					$push_args['post_status'] = $_POST['postStatus'];
 				}
 
-				$remote_id = $external_connection->push( intval( $_POST['post_id'] ), $push_args );
+				$remote_id = $external_connection->push( intval( $_POST['postId'] ), $push_args );
 
 				/**
 				 * Record the external connection id's remote post id for this local post
@@ -132,6 +148,8 @@ function ajax_push() {
 						'date'    => date( 'F j, Y g:i a' ),
 						'status'  => 'success',
 					);
+
+					$external_connection->log_sync( array( $remote_id => $_POST['postId'] ) );
 				} else {
 					$external_push_results[ (int) $connection['id'] ] = array(
 						'post_id' => (int) $remote_id,
@@ -148,18 +166,20 @@ function ajax_push() {
 				$push_args['remote_post_id'] = (int) $connection_map['internal'][ (int) $connection['id'] ]['post_id'];
 			}
 
-			if ( ! empty( $_POST['draft'] ) ) {
-				$push_args['post_status'] = 'draft';
+			if ( ! empty( $_POST['postStatus'] ) ) {
+				$push_args['post_status'] = esc_attr( $_POST['postStatus'] );
 			}
 
-			$remote_id = $internal_connection->push( intval( $_POST['post_id'] ), $push_args );
+			$remote_id = $internal_connection->push( intval( $_POST['postId'] ), $push_args );
 
 			/**
 			 * Record the internal connection id's remote post id for this local post
 			 */
 			if ( ! is_wp_error( $remote_id ) ) {
+				$origin_site = get_current_blog_id();
 				switch_to_blog( intval( $connection['id'] ) );
 				$remote_url = get_permalink( $remote_id );
+				$internal_connection->log_sync( array( $_POST['postId'] => $remote_id ), $origin_site );
 				restore_current_blog();
 
 				$connection_map['internal'][ (int) $connection['id'] ] = array(
@@ -183,7 +203,7 @@ function ajax_push() {
 		}
 	}
 
-	update_post_meta( intval( $_POST['post_id'] ), 'dt_connection_map', $connection_map );
+	update_post_meta( intval( $_POST['postId'] ), 'dt_connection_map', $connection_map );
 
 	wp_send_json_success(
 		array(
@@ -200,7 +220,7 @@ function ajax_push() {
 /**
  * Enqueue scripts/styles for push
  *
- * @param  string $hook
+ * @param  string $hook WP hook.
  * @since  0.8
  */
 function enqueue_scripts( $hook ) {
@@ -211,9 +231,11 @@ function enqueue_scripts( $hook ) {
 	wp_enqueue_style( 'dt-push', plugins_url( '/dist/css/push.min.css', __DIR__ ), array(), DT_VERSION );
 	wp_enqueue_script( 'dt-push', plugins_url( '/dist/js/push.min.js', __DIR__ ), array( 'jquery', 'underscore', 'hoverIntent' ), DT_VERSION, true );
 	wp_localize_script(
-		'dt-push', 'dt', array(
+		'dt-push',
+		'dt',
+		array(
 			'nonce'   => wp_create_nonce( 'dt-push' ),
-			'post_id' => (int) get_the_ID(),
+			'postId'  => (int) get_the_ID(),
 			'ajaxurl' => esc_url( admin_url( 'admin-ajax.php' ) ),
 
 			/**
@@ -222,6 +244,10 @@ function enqueue_scripts( $hook ) {
 			 * Front end ajax requests may require xhrFields with credentials when the front end and
 			 * back end domains do not match. This filter lets themes opt in.
 			 * See https://vip.wordpress.com/documentation/handling-frontend-file-uploads/#handling-ajax-requests
+			 *
+			 * @since 1.0.0
+			 *
+			 * @param bool false Whether front end ajax requests should use xhrFields credentials:true.
 			 */
 			'usexhr'  => apply_filters( 'dt_ajax_requires_with_credentials', false ),
 		)
@@ -231,7 +257,7 @@ function enqueue_scripts( $hook ) {
 /**
  * Let's setup our distributor menu in the toolbar
  *
- * @param object $wp_admin_bar
+ * @param object $wp_admin_bar Admin bar object.
  * @since  0.8
  */
 function menu_button( $wp_admin_bar ) {
@@ -417,12 +443,12 @@ function menu_content() {
 			<div class="inner">
 
 				<?php if ( ! empty( $dom_connections ) ) : ?>
-					<p><?php echo sprintf( esc_html__( 'Distribute &quot;%s&quot; to other connections.', 'distributor' ), get_the_title( $post->ID ) ); ?></p>
+					<p><?php echo sprintf( esc_html__( 'Distribute &quot;%s&quot; to other connections.', 'distributor' ), esc_html( get_the_title( $post->ID ) ) ); ?></p>
 
 					<div class="connections-selector">
 						<div>
 							<?php if ( 5 < count( $dom_connections ) ) : ?>
-								<input type="text" id="dt-connection-search" placeholder="<?php esc_html_e( 'Search available connections', 'distributor' ); ?>">
+								<input type="text" id="dt-connection-search" placeholder="<?php esc_attr_e( 'Search available connections', 'distributor' ); ?>">
 							<?php endif; ?>
 
 							<div class="new-connections-list">
@@ -431,7 +457,7 @@ function menu_content() {
 										<div class="add-connection
 										<?php
 										if ( ! empty( $connection['syndicated'] ) ) :
-?>
+											?>
 syndicated<?php endif; ?>" data-connection-type="external" data-connection-id="<?php echo (int) $connection['id']; ?>">
 											<span><?php echo wp_kses_post( get_the_title( $connection['id'] ) ); ?></span>
 										</div>
@@ -439,7 +465,7 @@ syndicated<?php endif; ?>" data-connection-type="external" data-connection-id="<
 										<div class="add-connection
 										<?php
 										if ( ! empty( $connection['syndicated'] ) ) :
-?>
+											?>
 syndicated<?php endif; ?>" data-connection-type="internal" data-connection-id="<?php echo (int) $connection['id']; ?>">
 											<span><?php echo esc_html( $connection['url'] ); ?></span>
 											<?php if ( ! empty( $connection['syndicated'] ) ) : ?>
@@ -458,7 +484,19 @@ syndicated<?php endif; ?>" data-connection-type="internal" data-connection-id="<
 						<div class="selected-connections-list"></div>
 
 						<div class="action-wrapper">
-							<button class="syndicate-button"><?php esc_html_e( 'Distribute', 'distributor' ); ?></button> <label class="as-draft" for="dt-as-draft"><input type="checkbox" id="dt-as-draft" checked> <?php esc_html_e( 'As draft', 'distributor' ); ?></label>
+							<input type="hidden" id="dt-post-status" value="<?php echo esc_attr( $post->post_status ); ?>">
+							<?php
+								$as_draft = ( 'draft' !== $post->post_status ) ? true : false;
+								/**
+								 * Filter whether the 'As Draft' option appears in the push ui.
+								 *
+								 * @param bool    $as_draft   Whether the 'As Draft' option should appear.
+								 * @param object  $connection The connection being used to push.
+								 * @param WP_Post $post       The post being pushed.
+								 */
+								$as_draft = apply_filters( 'dt_allow_as_draft_distribute', $as_draft, $connection, $post );
+							?>
+							<button class="syndicate-button"><?php esc_html_e( 'Distribute', 'distributor' ); ?></button> <?php if ( $as_draft ) : ?><label class="as-draft" for="dt-as-draft"><input type="checkbox" id="dt-as-draft" checked> <?php esc_html_e( 'As draft', 'distributor' ); ?></label><?php endif; ?>
 						</div>
 					</div>
 

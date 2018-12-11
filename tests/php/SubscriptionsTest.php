@@ -291,6 +291,7 @@ class SubscriptionsTest extends \TestCase {
 					$post->post_content = 'content';
 					$post->post_excerpt = 'excerpt';
 					$post->post_name    = 'slug';
+					$post->post_type    = 'post';
 
 					return $post;
 				},
@@ -311,6 +312,7 @@ class SubscriptionsTest extends \TestCase {
 								'title'             => 'title',
 								'content'           => 'content',
 								'excerpt'           => 'excerpt',
+								'post_type'         => 'post',
 								'slug'              => 'slug',
 								'distributor_media' => [],
 								'distributor_terms' => [],
@@ -448,6 +450,7 @@ class SubscriptionsTest extends \TestCase {
 					$post->post_content = 'content';
 					$post->post_excerpt = 'excerpt';
 					$post->post_name    = 'slug';
+					$post->post_type    = 'post';
 
 					return $post;
 				},
@@ -469,6 +472,7 @@ class SubscriptionsTest extends \TestCase {
 								'slug'              => 'slug',
 								'content'           => 'content',
 								'excerpt'           => 'excerpt',
+								'post_type'         => 'post',
 								'distributor_media' => [],
 								'distributor_terms' => [],
 								'distributor_meta'  => [],
