@@ -574,7 +574,7 @@ function format_media_post( $media_post ) {
 	$media_item['media_details'] = apply_filters( 'dt_get_media_details', wp_get_attachment_metadata( $media_post->ID ), $media_post->ID );
 	$media_item['post']          = $media_post->post_parent;
 	$media_item['source_url']    = wp_get_attachment_url( $media_post->ID );
-	$media_item['meta']          = \Distributor\Utils\prepare_meta( $post_id );
+	$media_item['meta']          = \Distributor\Utils\prepare_meta( $media_post->ID );
 
 	return apply_filters( 'dt_media_item_formatted', $media_item, $media_post->ID );
 }
