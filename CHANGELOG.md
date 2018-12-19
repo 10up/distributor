@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file, per [the Keep a Changelog standard](http://keepachangelog.com/).
 
+## [ 1.3.6 ] - 2018-12-19
+### Fixed (for WP 5.0 block editor)
+* Properly detect block editor content.
+* Show notices with actions.
+* Ensure distributed posts can be published.
+* Fully disable editing of classic blocks in distributed posts.
+* Clean up distribution status display in side panel.
+* Not block editor: Avoid notices on the pull content screen when no connections are set up yet.
+
 ## [ 1.3.5 ] - 2018-12-05
 ### Added
 * Add a `dt_available_pull_post_types` filter to enable pulling of post types not registered on the destination site. NOTE: This requires custom handling to pull into an existing post type.
