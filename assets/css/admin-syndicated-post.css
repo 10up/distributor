@@ -76,7 +76,6 @@ body.dt-linked-post {
 }
 
 #distributed-from,
-#distributed-from strong,
 #distributed-from a {
 	vertical-align: top;
 }
@@ -84,8 +83,8 @@ body.dt-linked-post {
 #distributed-from:before {
 	content: ' ';
 	display: inline-block;
-	top: -1px;
-	padding-right: 2px;
+	top: 5px;
+	padding-right: 25px;
 	width: 20px;
 	height: 20px;
 	background: url(../../assets/img/icon.svg) no-repeat top left;

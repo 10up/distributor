@@ -272,7 +272,7 @@ function send_notifications( $post_id ) {
 			],
 		];
 		if ( \Distributor\Utils\is_using_gutenberg() ) {
-			if ( gutenberg_can_edit_post_type( $post->post_type ) ) {
+			if ( \Distributor\Utils\dt_use_block_editor_for_post_type( $post->post_type ) ) {
 				$post_body['post_data']['distributor_raw_content'] = $post->post_content;
 			}
 		}
