@@ -265,6 +265,9 @@ class WordPressExternalConnection extends ExternalConnection {
 			$posts_url = untrailingslashit( $types_urls[ $post_type ] ) . '/?' . $args_str;
 		}
 
+		// Add request parameter to specify Distributor request
+		$posts_url = add_query_arg( 'distributor_request', '1', $posts_url );
+
 		if ( function_exists( 'vip_safe_wp_remote_get' ) && \Distributor\Utils\is_vip_com() ) {
 			$posts_response = vip_safe_wp_remote_get(
 				/**
@@ -531,7 +534,7 @@ class WordPressExternalConnection extends ExternalConnection {
 		$post_body = [
 			'title'                          => get_the_title( $post_id ),
 			'slug'                           => $post->post_name,
-			'content'                        => apply_filters( 'the_content', $post->post_content ),
+			'content'                        => Utils\get_processed_content( $post->post_content ),
 			'type'                           => $post->post_type,
 			'status'                         => ( ! empty( $args['post_status'] ) ) ? $args['post_status'] : 'publish',
 			'excerpt'                        => $post->post_excerpt,

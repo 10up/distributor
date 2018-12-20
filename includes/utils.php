@@ -561,7 +561,7 @@ function format_media_post( $media_post ) {
 
 	$media_item['description'] = array(
 		'raw'      => $media_post->post_content,
-		'rendered' => apply_filters( 'the_content', $media_post->post_content ),
+		'rendered' => get_processed_content( $media_post->post_content ),
 	);
 
 	$media_item['caption'] = array(
@@ -614,4 +614,24 @@ function process_media( $url, $post_id ) {
 		return false;
 	}
 	return (int) $result;
+}
+
+/**
+ * Helper function to process post content
+ *
+ * @param $post_content
+ *
+ * @return mixed|void
+ */
+function get_processed_content( $post_content ) {
+
+	global $wp_embed;
+	/**
+	 * Remove autoembed filter so that actual URL will be pushed and not the generated markup.
+	 */
+	remove_filter( 'the_content', [ $wp_embed, 'autoembed' ], 8 );
+	$post_content = apply_filters( 'the_content', $post_content );
+	add_filter( 'the_content', [ $wp_embed, 'autoembed' ], 8 );
+
+	return $post_content;
 }
