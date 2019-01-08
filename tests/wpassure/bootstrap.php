@@ -1,6 +1,6 @@
 <?php
 /**
- * Bootstrap WP Assure tests
+ * Bootstrap WP Acceptance tests
  *
  * @package  distributor
  */
