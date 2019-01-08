@@ -5,7 +5,7 @@
  * @package distributor
  */
 
-use WPAssure\EnvironmentFactory;
+use WPAcceptance\EnvironmentFactory;
 
 /**
  * PHPUnit test class
