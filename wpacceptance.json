@@ -6,8 +6,7 @@
         "tests\/wpacceptance\/*Test.php"
     ],
     "exclude": [
-        ".\/node_modules",
-        ".\/vendor"
+        ".\/node_modules"
     ],
     "enforce_clean_db": true,
     "bootstrap": "tests\/wpacceptance\/bootstrap.php",

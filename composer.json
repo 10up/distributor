@@ -2,25 +2,25 @@
   "name": "10up/distributor",
   "type": "wordpress-plugin",
   "authors": [
-  	{
-  		"name": "Taylor Lovett",
-  		"email": "taylor.lovett@10up.com"
-  	}
+    {
+      "name": "Taylor Lovett",
+      "email": "taylor.lovett@10up.com"
+    }
   ],
   "require": {
-  	"php": ">=5.6",
+    "php": ">=5.6",
     "yahnis-elsts/plugin-update-checker": "^4.4"
   },
   "autoload": {
-  	"psr-4": {
-  		"Distributor\\": "includes/classes/"
-  	}
+    "psr-4": {
+      "Distributor\\": "includes/classes/"
+    }
   },
   "require-dev": {
     "10up/wp_mock": "dev-dev",
     "10up/phpcs-composer": "dev-master",
     "phpunit/phpunit": "^6.5",
-    "10up/wpacceptance": "~0.9"
+    "10up/wpacceptance": "~0.10.0"
   },
   "scripts": {
     "lint": "phpcs .",
