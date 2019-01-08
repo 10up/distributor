@@ -1,14 +1,12 @@
 {
-    "host_repo_path": "\/Users\/taylor\/projects\/distributor-test\/wordpress\/wp-content\/plugins\/distributor\/",
-    "snapshot_id": "631ea9a6d146c8e729dd641fb7c4a756",
-    "name": "distributor",
-    "tests": [
-        "tests\/wpacceptance\/*Test.php"
-    ],
-    "exclude": [
-        ".\/node_modules"
-    ],
-    "enforce_clean_db": true,
-    "bootstrap": "tests\/wpacceptance\/bootstrap.php",
-    "repository": "10up"
+  "snapshot_id": "bfe526a64bd6aaae52b0f6175318c383",
+  "name": "distributor",
+  "exclude": [
+      ".\/node_modules"
+  ],
+  "tests": [
+      "tests\/wpacceptance\/*Test.php"
+  ],
+  "enforce_clean_db": true,
+  "bootstrap": "tests\/wpacceptance\/bootstrap.php"
 }
