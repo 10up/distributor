@@ -124,6 +124,9 @@ jQuery( window ).load( () => {
 		document.body.classList.toggle( 'distributor-show' );
 	}
 
+	/**
+	 * Handle exiting the distributor menu.
+	 */
 	function distributorMenuExited() {
 		distributorMenuItem.blur();
 		document.body.classList.toggle( 'distributor-show' );
