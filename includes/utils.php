@@ -479,7 +479,7 @@ function set_media( $post_id, $media ) {
 		$featured_keys = wp_list_pluck( $media, 'featured' );
 
 		// Note: this is not a strict search because of issues with typecasting in some setups
-		$featured_key  = array_search( true, $featured_keys );
+		$featured_key = array_search( true, $featured_keys );
 
 		$media = ( false !== $featured_key ) ? array( $media[ $featured_key ] ) : array();
 	}
@@ -500,12 +500,12 @@ function set_media( $post_id, $media ) {
 				wp_delete_attachment( $current_media[ $media_item['source_url'] ], true );
 			}
 
-			$image_id = process_media( $media_item['source_url'], $post_id );
+			$image_id = 'image' === $media_item['media_type'] ? process_media( $media_item['source_url'], $post_id ) : apply_filters( 'dt_file_processing', false, $media_item, $post_id );
 		} else {
 			if ( ! empty( $current_media[ $media_item['source_url'] ] ) ) {
 				$image_id = $current_media[ $media_item['source_url'] ];
 			} else {
-				$image_id = process_media( $media_item['source_url'], $post_id );
+				$image_id = 'image' === $media_item['media_type'] ? process_media( $media_item['source_url'], $post_id ) : apply_filters( 'dt_file_processing', false, $media_item, $post_id );
 			}
 		}
 
@@ -590,7 +590,12 @@ function format_media_post( $media_post ) {
  */
 function process_media( $url, $post_id ) {
 	preg_match( '/[^\?]+\.(jpe?g|jpe|gif|png)\b/i', $url, $matches );
+	$allow_processing = true;
 	if ( ! $matches ) {
+		$allow_processing = false;
+	}
+
+	if ( ! apply_filters( 'dt_allow_media_processing', $allow_processing, $url, $post_id ) ) {
 		return false;
 	}
 
