@@ -128,11 +128,11 @@ function process_distributor_attributes( $post, $request, $update ) {
 }
 
 /**
- * Filter the data requested over REST API when a post is pulled
+ * Filter the data requested over REST API when a post is pulled.
  *
  * @param $response \WP_REST_Response Response object
- * @param $post     \WP_Post Post object
- * @param $request  \WP_REST_Request Request object.
+ * @param $post     \WP_Post          Post object
+ * @param $request  \WP_REST_Request  Request object.
  *
  * @return \WP_REST_Response $response
  */
