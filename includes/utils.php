@@ -654,7 +654,7 @@ function dt_use_block_editor_for_post_type( $post_type ) {
 }
 
 /**
- * Helper function to process post content
+ * Helper function to process post content.
  *
  * @param $post_content
  *
