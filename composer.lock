@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "0a1fef036cbe10e15343e89af30f0133",
+    "content-hash": "8aa029e6e924ae44a425030f73928577",
     "packages": [
         {
             "name": "yahnis-elsts/plugin-update-checker",
@@ -135,24 +135,24 @@
             "time": "2017-12-03T19:27:57+00:00"
         },
         {
-            "name": "10up/wpassure",
-            "version": "0.9",
+            "name": "10up/wpacceptance",
+            "version": "0.10.1",
             "source": {
                 "type": "git",
-                "url": "https://github.com/10up/wpassure.git",
-                "reference": "23776fa83b698ea49239a918bc8c1c0efdf2b06f"
+                "url": "https://github.com/10up/wpacceptance.git",
+                "reference": "4458e327ba515946173475f4f3c67d9aeeebcad5"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/10up/wpassure/zipball/23776fa83b698ea49239a918bc8c1c0efdf2b06f",
-                "reference": "23776fa83b698ea49239a918bc8c1c0efdf2b06f",
+                "url": "https://api.github.com/repos/10up/wpacceptance/zipball/4458e327ba515946173475f4f3c67d9aeeebcad5",
+                "reference": "4458e327ba515946173475f4f3c67d9aeeebcad5",
                 "shasum": ""
             },
             "require": {
                 "10up/wpsnapshots": "~1.5",
                 "docker-php/docker-php": "^2.0",
                 "facebook/webdriver": "^1.6",
-                "php": ">=7.0",
+                "php": ">=7.1",
                 "phpunit/phpunit": "^6.5",
                 "symfony/console": "^3.3"
             },
@@ -160,7 +160,7 @@
                 "10up/phpcs-composer": "dev-master"
             },
             "bin": [
-                "bin/wpassure"
+                "bin/wpacceptance"
             ],
             "type": "library",
             "autoload": {
@@ -168,7 +168,7 @@
                     "src/utils.php"
                 ],
                 "psr-4": {
-                    "WPAssure\\": "./src/classes"
+                    "WPAcceptance\\": "./src/classes"
                 }
             },
             "notification-url": "https://packagist.org/downloads/",
@@ -187,7 +187,7 @@
                 "testing",
                 "wordpress"
             ],
-            "time": "2018-12-05T05:05:02+00:00"
+            "time": "2019-01-08T15:32:20+00:00"
         },
         {
             "name": "10up/wpsnapshots",
@@ -4345,6 +4345,7 @@
                 "phpcs",
                 "standards"
             ],
+            "abandoned": "phpcompatibility/php-compatibility",
             "time": "2018-10-07T17:38:02+00:00"
         },
         {

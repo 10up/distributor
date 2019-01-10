@@ -6,21 +6,21 @@
  */
 
 /**
- * Class extends \WPAssure\PHPUnit\TestCase
+ * Class extends \WPAcceptance\PHPUnit\TestCase
  */
-class TestCase extends \WPAssure\PHPUnit\TestCase {
+class TestCase extends \WPAcceptance\PHPUnit\TestCase {
 
 	/**
 	 * Push a post
 	 *
-	 * @param  \WPAssure\PHPUnit\Actor $actor            WP Assure actor
+	 * @param  \WPAcceptance\PHPUnit\Actor $actor            WP Acceptance actor
 	 * @param  int                     $post_id          Post ID to distributor
 	 * @param  int                     $to_connection_id Connection ID to distribute from
 	 * @param  string                  $from_blog_slug   Blog where original post lives. Empty string is main blog.
 	 * @param  string                  $post_status      New post status
 	 * @return array
 	 */
-	protected function pushPost( \WPAssure\PHPUnit\Actor $I, $post_id, $to_connection_id, $from_blog_slug = '', $post_status = 'publish' ) {
+	protected function pushPost( \WPAcceptance\PHPUnit\Actor $I, $post_id, $to_connection_id, $from_blog_slug = '', $post_status = 'publish' ) {
 		$info = [
 			'original_edit_url' => $from_blog_slug . '/wp-admin/post.php?post=' . $post_id . '&action=edit',
 		];
@@ -76,13 +76,13 @@ class TestCase extends \WPAssure\PHPUnit\TestCase {
 	/**
 	 * Pull a post
 	 *
-	 * @param  \WPAssure\PHPUnit\Actor $actor            WP Assure actor
+	 * @param  \WPAcceptance\PHPUnit\Actor $actor            WP Acceptance actor
 	 * @param  int                     $original_post_id Original post id
 	 * @param  int                     $to_blog_slug     Blog slug where post is being pulled in
 	 * @param  string                  $from_blog_slug   Blog we are pulling from. Empty string is main blog
 	 * @return array
 	 */
-	protected function pullPost( \WPAssure\PHPUnit\Actor $I, $original_post_id, $to_blog_slug, $from_blog_slug = '' ) {
+	protected function pullPost( \WPAcceptance\PHPUnit\Actor $I, $original_post_id, $to_blog_slug, $from_blog_slug = '' ) {
 		if ( ! empty( $to_blog_slug ) ) {
 			$to_blog_slug .= '/';
 		}
