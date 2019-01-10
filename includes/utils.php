@@ -500,12 +500,12 @@ function set_media( $post_id, $media ) {
 				wp_delete_attachment( $current_media[ $media_item['source_url'] ], true );
 			}
 
-			$image_id = 'image' === $media_item['media_type'] ? process_media( $media_item['source_url'], $post_id ) : apply_filters( 'dt_file_processing', false, $media_item, $post_id );
+			$image_id = process_media( $media_item['source_url'], $post_id );
 		} else {
 			if ( ! empty( $current_media[ $media_item['source_url'] ] ) ) {
 				$image_id = $current_media[ $media_item['source_url'] ];
 			} else {
-				$image_id = 'image' === $media_item['media_type'] ? process_media( $media_item['source_url'], $post_id ) : apply_filters( 'dt_file_processing', false, $media_item, $post_id );
+				$image_id = process_media( $media_item['source_url'], $post_id );
 			}
 		}
 
