@@ -599,6 +599,7 @@ function process_media( $url, $post_id ) {
 	 * Filter whether media can be processed.
 	 *
 	 * @param bool $allow_processing  Whether the media can be processed?
+	 * @param string $url Media url.
 	 * @param int $post_id Post ID.
 	 */
 	if ( ! apply_filters( 'dt_allow_media_processing', $allow_processing, $url, $post_id ) ) {
