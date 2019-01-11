@@ -656,9 +656,12 @@ class NetworkSiteConnection extends Connection {
 	 * Find out which sites user can create post type on
 	 *
 	 * @since  0.8
+	 *
+	 * @param string $context The context of the authorization.
+	 *
 	 * @return array
 	 */
-	public static function get_available_authorized_sites() {
+	public static function get_available_authorized_sites( $context = null ) {
 		if ( ! is_multisite() ) {
 			return array();
 		}
@@ -673,8 +676,9 @@ class NetworkSiteConnection extends Connection {
 		 *         'site'       => $site,  // WP_Site object.
 		 *         'post_types' => $array, // List of post type objects the user can edit.
 		 * }
+		 * @param string $context The context of the authorization.
 		 */
-		$authorized_sites = apply_filters( 'dt_pre_get_authorized_sites', array() );
+		$authorized_sites = apply_filters( 'dt_pre_get_authorized_sites', array(), $context );
 		if ( ! empty( $authorized_sites ) ) {
 			return $authorized_sites;
 		}
@@ -739,8 +743,9 @@ class NetworkSiteConnection extends Connection {
 		 *         'site'       => $site,  // WP_Site object.
 		 *         'post_types' => $array, // List of post type objects the user can edit.
 		 * }
+		 * @param string $context The context of the authorization.
 		 */
-		return apply_filters( 'dt_authorized_sites', $authorized_sites );
+		return apply_filters( 'dt_authorized_sites', $authorized_sites, $context );
 	}
 
 	/**
