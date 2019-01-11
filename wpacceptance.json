@@ -1,0 +1,12 @@
+{
+  "snapshot_id": "bfe526a64bd6aaae52b0f6175318c383",
+  "name": "distributor",
+  "exclude": [
+      ".\/node_modules"
+  ],
+  "tests": [
+      "tests\/wpacceptance\/*Test.php"
+  ],
+  "enforce_clean_db": true,
+  "bootstrap": "tests\/wpacceptance\/bootstrap.php"
+}
