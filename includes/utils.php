@@ -590,28 +590,27 @@ function format_media_post( $media_post ) {
  */
 function process_media( $url, $post_id ) {
 	preg_match( '/[^\?]+\.(jpe?g|jpe|gif|png)\b/i', $url, $matches );
-	$allow_processing = true;
 	if ( ! $matches ) {
-		$allow_processing = false;
+		$media_name = null;
+	} else {
+		$media_name = basename( $matches[0] );
 	}
 
 	/**
-	 * Filter whether media can be processed.
+	 * Filter name of the processing media.
 	 *
-	 * @param bool $allow_processing  Whether the media can be processed?
+	 * @param string $media_name  Name of the processing media.
 	 * @param string $url Media url.
 	 * @param int $post_id Post ID.
 	 */
-	if ( ! apply_filters( 'dt_allow_media_processing', $allow_processing, $url, $post_id ) ) {
+	$media_name = apply_filters( 'dt_processing_media_filename', $media_name, $url, $post_id );
+
+	if ( is_null( $media_name ) ) {
 		return false;
 	}
 
-	require_once ABSPATH . 'wp-admin/includes/image.php';
-	require_once ABSPATH . 'wp-admin/includes/file.php';
-	require_once ABSPATH . 'wp-admin/includes/media.php';
-
 	$file_array         = array();
-	$file_array['name'] = basename( $matches[0] );
+	$file_array['name'] = $media_name;
 
 	// Download file to temp location.
 	$file_array['tmp_name'] = download_url( $url );
