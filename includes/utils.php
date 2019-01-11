@@ -603,7 +603,7 @@ function process_media( $url, $post_id ) {
 	 * @param string $url Media url.
 	 * @param int $post_id Post ID.
 	 */
-	$media_name = apply_filters( 'dt_processing_media_filename', $media_name, $url, $post_id );
+	$media_name = apply_filters( 'dt_media_processing_filename', $media_name, $url, $post_id );
 
 	if ( is_null( $media_name ) ) {
 		return false;
@@ -611,6 +611,10 @@ function process_media( $url, $post_id ) {
 
 	$file_array         = array();
 	$file_array['name'] = $media_name;
+
+	require_once ABSPATH . 'wp-admin/includes/image.php';
+	require_once ABSPATH . 'wp-admin/includes/file.php';
+	require_once ABSPATH . 'wp-admin/includes/media.php';
 
 	// Download file to temp location.
 	$file_array['tmp_name'] = download_url( $url );
