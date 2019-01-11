@@ -1,5 +1,5 @@
 for i in 1 2 3; do
-	./vendor/bin/wpassure run
+	./vendor/bin/wpacceptance run
 
 	EXIT_CODE=$?
 
