@@ -28,7 +28,7 @@ class OembedTests extends \TestCase {
 		switch_to_blog( 3 );
 		$post = get_post( (int) $post_info['distributed_post_id'] );
 
-		// Make sure we see distributed time in publish box
+		// Test the distributed post content.
 		$I->assertTrue( $post['post_content'] === 'https:\/\/twitter.com\/10up\/status\/1067517868441387008\r\n\r\n&nbsp;', 'oEmbed was sent properly, without being expanded.' );
 	}
 
@@ -40,7 +40,12 @@ class OembedTests extends \TestCase {
 
 		$I->loginAs( 'wpsnapshots' );
 
-		// Pull post to site 2
+		$post_info = $this->pullPost( $I, 48, 'two', '' );
+		switch_to_blog( 2 );
+		$post = get_post( (int) $post_info['distributed_post_id'] );
+
+		// Test the distributed post content.
+		$I->assertTrue( $post['post_content'] === 'https:\/\/twitter.com\/10up\/status\/1067517868441387008\r\n\r\n&nbsp;', 'oEmbed was sent properly, without being expanded.' );
 	}
 
 }
