@@ -22,7 +22,7 @@ class InternalPullTest extends \TestCase {
 
 		$I->waitUntilElementVisible( '.wp-list-table' );
 
-		$I->seeText( 'Test Post', '.wp-list-table .page-title' );
+		$I->seeText( 'Test Post', '.wp-list-table .page-title:last' );
 
 		$I->moveTo( 'two/wp-admin/admin.php?page=pull&status=pulled' );
 
