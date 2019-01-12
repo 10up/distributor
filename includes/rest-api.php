@@ -7,6 +7,8 @@
 
 namespace Distributor\RestApi;
 
+use Distributor\Utils;
+
 /**
  * Setup actions and filters
  *
@@ -27,6 +29,7 @@ function setup() {
 			foreach ( $post_types as $post_type ) {
 				add_action( "rest_insert_{$post_type}", __NAMESPACE__ . '\process_distributor_attributes', 10, 3 );
 				add_filter( "rest_pre_insert_{$post_type}", __NAMESPACE__ . '\filter_distributor_content', 1, 2 );
+				add_filter( "rest_prepare_{$post_type}", __NAMESPACE__ . '\prepare_distributor_content', 10, 3 );
 			}
 		},
 		100
@@ -122,6 +125,28 @@ function process_distributor_attributes( $post, $request, $update ) {
 	 * @param bool            $update  True when creating a post, false when updating.
 	 */
 	do_action( 'dt_process_distributor_attributes', $post, $request, $update );
+}
+
+/**
+ * Filter the data requested over REST API when a post is pulled.
+ *
+ * @param $response \WP_REST_Response Response object
+ * @param $post     \WP_Post          Post object
+ * @param $request  \WP_REST_Request  Request object.
+ *
+ * @return \WP_REST_Response $response
+ */
+function prepare_distributor_content( $response, $post, $request ) {
+	if ( '1' === $request->get_param( 'distributor_request' ) && intval( $request->get_param( 'id' ) ) ) {
+
+		$post_data = $response->get_data();
+		if ( ! empty( $post_data ) ) {
+			$post_data['content']['rendered'] = Utils\get_processed_content( $post_data['content']['raw'] );
+			$response->set_data( $post_data );
+		}
+	}
+
+	return $response;
 }
 
 /**
