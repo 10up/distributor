@@ -31,7 +31,7 @@ class OembedTests extends \TestCase {
 		$content = $I->getElement( '.wp-editor-area' );
 
 		// Test the distributed post content.
-		$this->assertEquals( $content->getText(),  'https:\/\/twitter.com\/10up\/status\/1067517868441387008\r\n\r\n&nbsp;', 'oEmbed was not pushed properly' );
+		$this->assertEquals( "<p>https://twitter.com/10up/status/1067517868441387008</p>\n<p>&nbsp;</p>", $content->getText(), 'oEmbed was not pushed properly' );
 	}
 
 	/**
@@ -54,7 +54,7 @@ class OembedTests extends \TestCase {
 		$content = $I->getElement( '.wp-editor-area' );
 
 		// Test the distributed post content.
-		$this->assertEquals( $content->getText(),  'https:\/\/twitter.com\/10up\/status\/1067517868441387008\r\n\r\n&nbsp;', 'oEmbed was not pulled properly' );
+		$this->assertEquals( "https://twitter.com/10up/status/1067517868441387008\n\n&nbsp;", $content->getText(), 'oEmbed was not pulled properly' );
 	}
 
 }
