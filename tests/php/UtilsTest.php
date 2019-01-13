@@ -427,6 +427,12 @@ class UtilsTest extends \TestCase {
 			]
 		);
 
+		\WP_Mock::userFunction(
+			'remove_filter', [
+				'times' => 1,
+			]
+		);
+
 		$formatted_media = Utils\format_media_post( $media_post );
 
 		$this->assertFalse( $formatted_media['featured'] );
@@ -498,6 +504,12 @@ class UtilsTest extends \TestCase {
 					'meta1' => [ true ],
 					'meta2' => [ false ],
 				],
+			]
+		);
+
+		\WP_Mock::userFunction(
+			'remove_filter', [
+				'times' => 1,
 			]
 		);
 
