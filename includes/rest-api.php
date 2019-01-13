@@ -130,11 +130,11 @@ function process_distributor_attributes( $post, $request, $update ) {
 /**
  * Filter the data requested over REST API when a post is pulled.
  *
- * @param $response \WP_REST_Response Response object
- * @param $post     \WP_Post          Post object
- * @param $request  \WP_REST_Request  Request object.
+ * @param WP_REST_Response $response Response object.
+ * @param WP_Post          $post     Post object.
+ * @param WP_REST_Request  $request  Request object.
  *
- * @return \WP_REST_Response $response
+ * @return WP_REST_Response $response The filtered response object.
  */
 function prepare_distributor_content( $response, $post, $request ) {
 	if ( '1' === $request->get_param( 'distributor_request' ) && intval( $request->get_param( 'id' ) ) ) {
