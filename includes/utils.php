@@ -656,9 +656,9 @@ function dt_use_block_editor_for_post_type( $post_type ) {
 /**
  * Helper function to process post content.
  *
- * @param $post_content
+ * @param string $post_content The post content.
  *
- * @return mixed|void
+ * @return string $post_content The processed post content.
  */
 function get_processed_content( $post_content ) {
 
