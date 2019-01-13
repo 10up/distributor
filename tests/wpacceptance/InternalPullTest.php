@@ -22,7 +22,9 @@ class InternalPullTest extends \TestCase {
 
 		$I->waitUntilElementVisible( '.wp-list-table' );
 
-		$I->seeText( 'Test Post', '.wp-list-table .page-title:last' );
+		$titles = $I->getElements( '.wp-list-table .page-title' );
+
+		$I->seeText( 'Test Post', $titles[1] );
 
 		$I->moveTo( 'two/wp-admin/admin.php?page=pull&status=pulled' );
 
@@ -51,7 +53,9 @@ class InternalPullTest extends \TestCase {
 
 		$I->waitUntilElementVisible( '.wp-list-table' );
 
-		$I->dontSeeText( 'Test Post', '.wp-list-table .page-title' );
+		$titles = $I->getElements( '.wp-list-table .page-title' );
+
+		$I->seeText( 'oEmbed Test', '.wp-list-table .page-title' );
 
 		$I->moveTo( 'two/wp-admin/admin.php?page=pull&status=pulled' );
 
