@@ -589,12 +589,22 @@ function format_media_post( $media_post ) {
  * @return int|bool
  */
 function process_media( $url, $post_id ) {
-	preg_match( '/[^\?]+\.(jpe?g|jpe|gif|png)\b/i', $url, $matches );
+
+	/**
+	 * Filter allowed media extensions to be processed
+	 *
+	 * @param array $allowed_extensions Allowed extensions array.
+	 * @param string $url Media url.
+	 * @param int $post_id Post ID.
+	 */
+	$allowed_extensions = apply_filters( 'dt_allowed_media_extensions', array( 'jpg', 'jpeg', 'jpe', 'gif', 'png' ), $url, $post_id );
+	preg_match( '/[^\?]+\.(' . implode( '|', $allowed_extensions ) . ')\b/i', $url, $matches );
 	if ( ! $matches ) {
 		$media_name = null;
 	} else {
 		$media_name = basename( $matches[0] );
 	}
+
 
 	/**
 	 * Filter name of the processing media.
