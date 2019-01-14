@@ -656,6 +656,7 @@ class NetworkSiteConnection extends Connection {
 	 * Find out which sites user can create post type on
 	 *
 	 * @since  0.8
+	 * @since  1.3.7 Added the `$context` parameter.
 	 *
 	 * @param string $context The context of the authorization.
 	 *
