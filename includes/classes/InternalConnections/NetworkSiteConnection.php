@@ -671,6 +671,7 @@ class NetworkSiteConnection extends Connection {
 		 * Allow plugins to override the default {@see \Distributor\InternalConnections\NetworkSiteConnection::get_available_authorized_sites()} function.
 		 *
 		 * @since 1.2
+		 * @since 1.3.7 Added the `$context` parameter.
 		 *
 		 * @param array  $authorized_sites {
 		 *     @type array {
@@ -738,6 +739,7 @@ class NetworkSiteConnection extends Connection {
 		 * Allow plugins to modify the array of authorized sites.
 		 *
 		 * @since 1.2
+		 * @since 1.3.7 Added the `$context` parameter.
 		 *
 		 * @param array  $authorized_sites {
 		 *     @type array {
