@@ -34,7 +34,7 @@ class OembedTests extends \TestCase {
 		$this->assertEquals(
 			"<p>https://twitter.com/10up/status/1067517868441387008</p>\n<p>&nbsp;</p>",
 			$content->getText(),
-			'oEmbed was not pushed properly'
+			'oEmbed was not pushed properly over a network connection'
 		);
 	}
 
@@ -61,7 +61,7 @@ class OembedTests extends \TestCase {
 		$this->assertEquals(
 			"https://twitter.com/10up/status/1067517868441387008\n\n&nbsp;",
 			$content->getText(),
-			'oEmbed was not pulled properly'
+			'oEmbed was not pulled properly over a network connection'
 		);
 	}
 
@@ -110,7 +110,7 @@ class OembedTests extends \TestCase {
 		$this->assertEquals(
 			"<p>https://twitter.com/10up/status/1067517868441387008</p>\n<p>&nbsp;</p>",
 			$content->getText(),
-			'oEmbed was not pushed properly'
+			'oEmbed was not pushed properly over an external connection'
 		);
 	}
 
@@ -157,7 +157,7 @@ class OembedTests extends \TestCase {
 		$this->assertEquals(
 			"https://twitter.com/10up/status/1067517868441387008\n\n&nbsp;",
 			$content->getText(),
-			'oEmbed was not pulled properly'
+			'oEmbed was not pulled properly over an external connection'
 		);
 	}
 }
