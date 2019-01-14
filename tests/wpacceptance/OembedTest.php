@@ -155,7 +155,7 @@ class OembedTests extends \TestCase {
 
 		// Test the distributed post content.
 		$this->assertEquals(
-			"https://twitter.com/10up/status/1067517868441387008\n\n&nbsp;",
+			"<p>https://twitter.com/10up/status/1067517868441387008</p>\n<p>&nbsp;</p>",
 			$content->getText(),
 			'oEmbed was not pulled properly over an external connection'
 		);
