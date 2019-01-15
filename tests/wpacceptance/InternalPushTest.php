@@ -70,6 +70,7 @@ class InternalPushTest extends \TestCase {
 
 		$I->checkOptions( '#postcustom-hide' );
 
+		$I->click( '#enternew' );
 		$I->fillField( '#metakeyinput', 'custom_meta_key' );
 		$I->fillField( '#metavalue', 'custom_meta_value' );
 		$I->click( '#newmeta-submit' );
