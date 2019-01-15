@@ -593,6 +593,8 @@ function process_media( $url, $post_id ) {
 	/**
 	 * Filter allowed media extensions to be processed
 	 *
+	 * @since 1.3.7
+	 *
 	 * @param array $allowed_extensions Allowed extensions array.
 	 * @param string $url Media url.
 	 * @param int $post_id Post ID.
@@ -605,9 +607,10 @@ function process_media( $url, $post_id ) {
 		$media_name = basename( $matches[0] );
 	}
 
-
 	/**
 	 * Filter name of the processing media.
+	 *
+	 * @since 1.3.7
 	 *
 	 * @param string $media_name  Name of the processing media.
 	 * @param string $url Media url.
