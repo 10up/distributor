@@ -879,7 +879,11 @@ class WordPressExternalConnection extends ExternalConnection {
 
 		$obj->ID           = $post['id'];
 		$obj->post_title   = $post['title']['rendered'];
-		$obj->post_content = $post['content']['rendered'];
+
+		// Use raw content if both remote and local are using Gutenberg.
+		$obj->post_content = \Distributor\Utils\is_using_gutenberg() && isset( $post['is_using_gutenberg'] ) ?
+			$post['content']['raw'] :
+			Utils\get_processed_content( $post['content']['raw'] );
 
 		if ( isset( $post['excerpt']['raw'] ) ) {
 			$obj->post_excerpt = $post['excerpt']['raw'];
