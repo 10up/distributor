@@ -143,7 +143,7 @@ function prepare_distributor_content( $response, $post, $request ) {
 		return $response;
 	}
 	// Is the local site is running Gutenberg?
-	if (  \Distributor\Utils\is_using_gutenberg() ) {
+	if ( \Distributor\Utils\is_using_gutenberg() ) {
 		$post_data = $response->get_data();
 		$post_data['is_using_gutenberg'] = true;
 		$response->set_data( $post_data );
