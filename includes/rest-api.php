@@ -137,13 +137,16 @@ function process_distributor_attributes( $post, $request, $update ) {
  * @return WP_REST_Response $response The filtered response object.
  */
 function prepare_distributor_content( $response, $post, $request ) {
-	if ( '1' === $request->get_param( 'distributor_request' ) && intval( $request->get_param( 'id' ) ) ) {
 
+	// Only adjust distributor requests.
+	if ( '1' !== $request->get_param( 'distributor_request' ) ) {
+		return $response;
+	}
+	// Is the local site is running Gutenberg?
+	if ( \Distributor\Utils\is_using_gutenberg() ) {
 		$post_data = $response->get_data();
-		if ( ! empty( $post_data ) ) {
-			$post_data['content']['rendered'] = Utils\get_processed_content( $post_data['content']['raw'] );
-			$response->set_data( $post_data );
-		}
+		$post_data['is_using_gutenberg'] = true;
+		$response->set_data( $post_data );
 	}
 
 	return $response;

@@ -60,7 +60,7 @@ function setup_list_table() {
 	$connection_list_table = new \Distributor\PullListTable();
 
 	if ( ! empty( \Distributor\Connections::factory()->get_registered()['networkblog'] ) ) {
-		$sites = \Distributor\InternalConnections\NetworkSiteConnection::get_available_authorized_sites();
+		$sites = \Distributor\InternalConnections\NetworkSiteConnection::get_available_authorized_sites( 'pull' );
 
 		foreach ( $sites as $site_array ) {
 			$internal_connection                         = new \Distributor\InternalConnections\NetworkSiteConnection( $site_array['site'] );

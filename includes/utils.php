@@ -479,7 +479,7 @@ function set_media( $post_id, $media ) {
 		$featured_keys = wp_list_pluck( $media, 'featured' );
 
 		// Note: this is not a strict search because of issues with typecasting in some setups
-		$featured_key  = array_search( true, $featured_keys );
+		$featured_key = array_search( true, $featured_keys );
 
 		$media = ( false !== $featured_key ) ? array( $media[ $featured_key ] ) : array();
 	}
@@ -575,7 +575,7 @@ function format_media_post( $media_post ) {
 	$media_item['media_details'] = apply_filters( 'dt_get_media_details', wp_get_attachment_metadata( $media_post->ID ), $media_post->ID );
 	$media_item['post']          = $media_post->post_parent;
 	$media_item['source_url']    = wp_get_attachment_url( $media_post->ID );
-	$media_item['meta']          = get_post_meta( $media_post->ID );
+	$media_item['meta']          = \Distributor\Utils\prepare_meta( $media_post->ID );
 
 	return apply_filters( 'dt_media_item_formatted', $media_item, $media_post->ID );
 }
@@ -589,17 +589,45 @@ function format_media_post( $media_post ) {
  * @return int|bool
  */
 function process_media( $url, $post_id ) {
-	preg_match( '/[^\?]+\.(jpe?g|jpe|gif|png)\b/i', $url, $matches );
+
+	/**
+	 * Filter allowed media extensions to be processed
+	 *
+	 * @since 1.3.7
+	 *
+	 * @param array $allowed_extensions Allowed extensions array.
+	 * @param string $url Media url.
+	 * @param int $post_id Post ID.
+	 */
+	$allowed_extensions = apply_filters( 'dt_allowed_media_extensions', array( 'jpg', 'jpeg', 'jpe', 'gif', 'png' ), $url, $post_id );
+	preg_match( '/[^\?]+\.(' . implode( '|', $allowed_extensions ) . ')\b/i', $url, $matches );
 	if ( ! $matches ) {
+		$media_name = null;
+	} else {
+		$media_name = basename( $matches[0] );
+	}
+
+	/**
+	 * Filter name of the processing media.
+	 *
+	 * @since 1.3.7
+	 *
+	 * @param string $media_name  Name of the processing media.
+	 * @param string $url Media url.
+	 * @param int $post_id Post ID.
+	 */
+	$media_name = apply_filters( 'dt_media_processing_filename', $media_name, $url, $post_id );
+
+	if ( is_null( $media_name ) ) {
 		return false;
 	}
+
+	$file_array         = array();
+	$file_array['name'] = $media_name;
 
 	require_once ABSPATH . 'wp-admin/includes/image.php';
 	require_once ABSPATH . 'wp-admin/includes/file.php';
 	require_once ABSPATH . 'wp-admin/includes/media.php';
-
-	$file_array         = array();
-	$file_array['name'] = basename( $matches[0] );
 
 	// Download file to temp location.
 	$file_array['tmp_name'] = download_url( $url );
