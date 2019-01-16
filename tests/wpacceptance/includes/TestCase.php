@@ -107,16 +107,6 @@ class TestCase extends \WPAcceptance\PHPUnit\TestCase {
 			$I->waitUntilElementVisible( '.wp-list-table #cb-select-' . $original_post_id );
 		}
 
-		if ( $use_connection ) {
-			$I->selectOptions( '#pull_connections', $use_connection );
-			$I->waitUntilElementVisible( '.wp-list-table #cb-select-' . $original_post_id );
-		}
-
-		if ( $use_connection ) {
-			$I->selectOptions( '#pull_connections', $use_connection );
-			$I->waitUntilElementVisible( '.wp-list-table #cb-select-' . $original_post_id );
-		}
-
 		$I->checkOptions( '.wp-list-table #cb-select-' . $original_post_id );
 
 		$I->click( '#doaction' );
