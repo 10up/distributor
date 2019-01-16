@@ -91,7 +91,7 @@ class OembedTests extends \TestCase {
 
 		$I->moveTo( 'wp-admin/admin.php?page=distributor' );
 
-		$post_info = $this->pushPost( $I, 48, 51, '', 'publish', true );
+		$post_info = $this->pushPost( $I, 48, 52, '', 'publish', true );
 		$I->moveTo( 'two/wp-admin/edit.php' );
 
 		// Switch to the distributed post.
