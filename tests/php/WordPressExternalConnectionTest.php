@@ -138,6 +138,12 @@ class WordPressExternalConnectionTest extends \TestCase {
 
 		\WP_Mock::userFunction( 'get_permalink' );
 
+		\WP_Mock::userFunction(
+			'remove_filter', [
+				'times' => 2,
+			]
+		);
+
 		$this->assertInstanceOf( \WP_Error::class, $this->connection->push( 0 ) );
 		$this->assertTrue( is_int( $this->connection->push( 1 ) ) );
 
@@ -203,6 +209,12 @@ class WordPressExternalConnectionTest extends \TestCase {
 			]
 		);
 
+		\WP_Mock::userFunction(
+			'add_query_arg', [
+				'times' => 1,
+			]
+		);
+
 		$this->assertTrue(
 			is_array(
 				$this->connection->pull(
@@ -247,6 +259,11 @@ class WordPressExternalConnectionTest extends \TestCase {
 			]
 		);
 
+		\WP_Mock::userFunction(
+			'add_query_arg', [
+				'times' => 1,
+			]
+		);
 		$this->assertInstanceOf(
 			\WP_Post::class, $this->connection->remote_get(
 				[
