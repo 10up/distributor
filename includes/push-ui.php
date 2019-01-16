@@ -326,7 +326,7 @@ function menu_content() {
 		}
 
 		if ( ! empty( \Distributor\Connections::factory()->get_registered()['networkblog'] ) ) {
-			$sites = \Distributor\InternalConnections\NetworkSiteConnection::get_available_authorized_sites();
+			$sites = \Distributor\InternalConnections\NetworkSiteConnection::get_available_authorized_sites( 'push' );
 
 			foreach ( $sites as $site_array ) {
 				if ( in_array( $post->post_type, $site_array['post_types'], true ) ) {
