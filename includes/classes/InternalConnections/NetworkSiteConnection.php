@@ -71,7 +71,7 @@ class NetworkSiteConnection extends Connection {
 		$new_post_args = array(
 			'post_title'   => get_the_title( $post_id ),
 			'post_name'    => $post->post_name,
-			'post_content' => apply_filters( 'the_content', $post->post_content ),
+			'post_content' => Utils\get_processed_content( $post->post_content ),
 			'post_excerpt' => $post->post_excerpt,
 			'post_type'    => $post->post_type,
 			'post_author'  => get_current_user_id(),
@@ -656,9 +656,13 @@ class NetworkSiteConnection extends Connection {
 	 * Find out which sites user can create post type on
 	 *
 	 * @since  0.8
+	 * @since  1.3.7 Added the `$context` parameter.
+	 *
+	 * @param string $context The context of the authorization.
+	 *
 	 * @return array
 	 */
-	public static function get_available_authorized_sites() {
+	public static function get_available_authorized_sites( $context = null ) {
 		if ( ! is_multisite() ) {
 			return array();
 		}
@@ -667,14 +671,16 @@ class NetworkSiteConnection extends Connection {
 		 * Allow plugins to override the default {@see \Distributor\InternalConnections\NetworkSiteConnection::get_available_authorized_sites()} function.
 		 *
 		 * @since 1.2
+		 * @since 1.3.7 Added the `$context` parameter.
 		 *
 		 * @param array  $authorized_sites {
 		 *     @type array {
 		 *         'site'       => $site,  // WP_Site object.
 		 *         'post_types' => $array, // List of post type objects the user can edit.
 		 * }
+		 * @param string $context The context of the authorization.
 		 */
-		$authorized_sites = apply_filters( 'dt_pre_get_authorized_sites', array() );
+		$authorized_sites = apply_filters( 'dt_pre_get_authorized_sites', array(), $context );
 		if ( ! empty( $authorized_sites ) ) {
 			return $authorized_sites;
 		}
@@ -733,14 +739,16 @@ class NetworkSiteConnection extends Connection {
 		 * Allow plugins to modify the array of authorized sites.
 		 *
 		 * @since 1.2
+		 * @since 1.3.7 Added the `$context` parameter.
 		 *
 		 * @param array  $authorized_sites {
 		 *     @type array {
 		 *         'site'       => $site,  // WP_Site object.
 		 *         'post_types' => $array, // List of post type objects the user can edit.
 		 * }
+		 * @param string $context The context of the authorization.
 		 */
-		return apply_filters( 'dt_authorized_sites', $authorized_sites );
+		return apply_filters( 'dt_authorized_sites', $authorized_sites, $context );
 	}
 
 	/**

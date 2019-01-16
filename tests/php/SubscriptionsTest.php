@@ -352,6 +352,12 @@ class SubscriptionsTest extends \TestCase {
 			]
 		);
 
+		\WP_Mock::userFunction(
+			'remove_filter', [
+				'times' => 1,
+			]
+		);
+
 		Subscriptions\send_notifications( $post_id );
 	}
 
@@ -504,6 +510,12 @@ class SubscriptionsTest extends \TestCase {
 		\WP_Mock::userFunction(
 			'update_post_meta', [
 				'times' => 0,
+			]
+		);
+
+		\WP_Mock::userFunction(
+			'remove_filter', [
+				'times' => 1,
 			]
 		);
 
