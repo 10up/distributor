@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file, per [the Keep a Changelog standard](http://keepachangelog.com/).
 
+## [ 1.3.7 ] - 2019-01-16
+### Added
+* Distribute plaintext URLs instead of full markup for automatic embeds (oEmbeds). This was causing issues for non-privileged users where the markup was subject to sanitization/kses.
+* Add `push`/`pull` context to `get_available_authorized_sites()`.
+* Add `dt_allowed_media_extensions` and `dt_media_processing_filename` filters so that different media types or specific files can be detected and targeted.
+
+### Fixed
+* Ensure media meta is passed through `prepare_meta()` to apply the blacklist. This completes the generated image size info fix from 1.3.3.
+* Avoid a PHP notice when only using the block editor on the receiving site.
+* Avoid a jQuery Migrate notice.
+
 ## [ 1.3.6 ] - 2018-12-19
 ### Fixed (for WP 5.0 block editor)
 * Properly detect block editor content.
