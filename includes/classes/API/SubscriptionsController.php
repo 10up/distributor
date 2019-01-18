@@ -282,7 +282,7 @@ class SubscriptionsController extends \WP_REST_Controller {
 				\Distributor\Utils\set_media( $request['post_id'], $request['post_data']['distributor_media'] );
 			} else {
 				// remove any previously set featured image
-				delete_post_meta( $post->ID, '_thumbnail_id' );
+				delete_post_meta( (int) $request['post_id'], '_thumbnail_id' );
 			}
 
 			$response = new \WP_REST_Response();
