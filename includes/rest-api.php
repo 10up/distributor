@@ -113,6 +113,9 @@ function process_distributor_attributes( $post, $request, $update ) {
 
 	if ( isset( $request['distributor_media'] ) ) {
 		\Distributor\Utils\set_media( $post->ID, $request['distributor_media'] );
+	} else {
+		// remove any previously set featured image
+		delete_post_meta( $post->ID, '_thumbnail_id' );
 	}
 
 	/**
