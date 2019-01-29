@@ -149,11 +149,16 @@ function set_meta( $post_id, $meta ) {
 	}
 
 	/**
-	 * Action triggered after distributor sets post meta
+	 * Fires after Distributor sets post meta.
 	 *
-	 * @param array $meta          New meta
-	 * @param array $existing_meta Existing meta
+	 * Note: All sent meta is included in the `$meta` array, including blacklisted keys.
+	 * Take care to continue to filter out blacklisted keys in any further meta setting.
+	 *
+	 * @param array $meta          All received meta for the post
+	 * @param array $existing_meta Existing meta for the post
 	 * @param int   $post_id       Post ID
+	 *
+	 * @since 1.3.8
 	 */
 	do_action( 'dt_after_set_meta', $meta, $existing_meta, $post_id );
 }
