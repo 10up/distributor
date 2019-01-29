@@ -282,6 +282,16 @@ class SubscriptionsController extends \WP_REST_Controller {
 				\Distributor\Utils\set_media( $request['post_id'], $request['post_data']['distributor_media'] );
 			}
 
+			/**
+			 * Action fired after receiving a subscription update from Distributor
+			 *
+			 * @since 1.3.8
+			 *
+			 * @param WP_Post         $post    Updated post object.
+			 * @param WP_REST_Request $request Request object.
+			 */
+			do_action( 'dt_process_subscription_attributes', $post, $request );
+
 			$response = new \WP_REST_Response();
 			$response->set_data( array( 'updated' => true ) );
 
