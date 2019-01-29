@@ -44,9 +44,9 @@ class UtilsTest extends \TestCase {
 			]
 		);
 
-		\WP_Mock::expectAction( 'dt_set_meta', [ 'key' => [ 'value' ] ], [], 1 );
+		\WP_Mock::expectAction( 'dt_after_set_meta', [ 'key' => [ 'value' ] ], [], 1 );
 
-		\WP_Mock::expectAction( 'dt_set_meta', [ 'key' => [ [ 'value' ] ] ], [ 'key' => [ 'value' ] ], 1 );
+		\WP_Mock::expectAction( 'dt_after_set_meta', [ 'key' => [ [ 'value' ] ] ], [ 'key' => [ 'value' ] ], 1 );
 
 		Utils\set_meta(
 			1, [

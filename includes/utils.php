@@ -149,13 +149,13 @@ function set_meta( $post_id, $meta ) {
 	}
 
 	/**
-	 * Action triggered when distributor sets post meta
+	 * Action triggered after distributor sets post meta
 	 *
 	 * @param array $meta          New meta
 	 * @param array $existing_meta Existing meta
 	 * @param int   $post_id       Post ID
 	 */
-	do_action( 'dt_set_meta', $meta, $existing_meta, $post_id );
+	do_action( 'dt_after_set_meta', $meta, $existing_meta, $post_id );
 }
 
 /**
