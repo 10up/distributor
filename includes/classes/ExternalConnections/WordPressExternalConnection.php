@@ -880,8 +880,10 @@ class WordPressExternalConnection extends ExternalConnection {
 
 		if ( isset( $post['excerpt']['raw'] ) ) {
 			$obj->post_excerpt = $post['excerpt']['raw'];
-		} else {
+		} elseif ( isset( $post['excerpt']['rendered'] ) ) {
 			$obj->post_excerpt = $post['excerpt']['rendered'];
+		} else {
+			$obj->post_excerpt = '';
 		}
 
 		$obj->post_status       = 'draft';
