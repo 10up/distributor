@@ -648,12 +648,24 @@ function process_media( $url, $post_id ) {
 
 	// If error storing temporarily, return the error.
 	if ( is_wp_error( $file_array['tmp_name'] ) ) {
+
+		// Distributor is in debug mode, display the issue, could be storage related.
+		if ( is_dt_debug() ) {
+			error_log( sprintf( "Distributor: %s", $file_array['tmp_name']->get_error_message() ) );
+		}
+
 		return false;
 	}
 
 	// Do the validation and storage stuff.
 	$result = media_handle_sideload( $file_array, $post_id );
 	if ( is_wp_error( $result ) ) {
+
+		// Distributor is in debug mode, display the issue, could be storage related.
+		if ( is_dt_debug() ) {
+			error_log( sprintf( "Distributor: %s", $file_array['tmp_name']->get_error_message() ) );
+		}
+
 		return false;
 	}
 	return (int) $result;
