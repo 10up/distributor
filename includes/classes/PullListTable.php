@@ -225,8 +225,10 @@ class PullListTable extends \WP_List_Table {
 	/**
 	 * Output standard table columns (not name)
 	 *
-	 * @param  array  $item Item to output.
-	 * @param  string $column_name Column name.
+	 * @param  array|\WP_Post $item Item to output.
+	 * @param  string         $column_name Column name.
+	 *
+	 * @return string Url, post title, or empty string.
 	 * @since  0.8
 	 */
 	public function column_default( $item, $column_name ) {
@@ -242,13 +244,15 @@ class PullListTable extends \WP_List_Table {
 
 				return $url; // no need to break, return will do.
 		}
+
+		return '';
 	}
 
 	/**
 	 * Output name column wrapper
 	 *
 	 * @since 4.3.0
-	 * @param WP_Post $item Post object.
+	 * @param \WP_Post $item Post object.
 	 * @param string  $classes CSS classes.
 	 * @param string  $data Column data.
 	 * @param string  $primary Whether primary or not.
@@ -263,7 +267,7 @@ class PullListTable extends \WP_List_Table {
 	/**
 	 * Output inner name column with actions
 	 *
-	 * @param  WP_Post $item Post object.
+	 * @param  \WP_Post $item Post object.
 	 * @since  0.8
 	 */
 	public function column_name( $item ) {
@@ -415,7 +419,7 @@ class PullListTable extends \WP_List_Table {
 	 * Handles the checkbox column output.
 	 *
 	 * @since 4.3.0
-	 * @param WP_Post $post The current WP_Post object.
+	 * @param \WP_Post $post The current WP_Post object.
 	 */
 	public function column_cb( $post ) {
 		?>
