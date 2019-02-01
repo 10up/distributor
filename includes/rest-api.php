@@ -42,10 +42,10 @@ function setup() {
  * Use the raw content for Gutenberg->Gutenberg posts. Note: `distributor_raw_content`
  * is only sent when the origin supports Gutenberg.
  *
- * @param stdClass        $prepared_post An object representing a single post prepared.
- * @param WP_REST_Request $request       Request object.
+ * @param Object        $prepared_post An object representing a single post prepared.
+ * @param \WP_REST_Request $request       Request object.
  *
- * @return stdClass $prepared_post The filtered post object.
+ * @return Object $prepared_post The filtered post object.
  */
 function filter_distributor_content( $prepared_post, $request ) {
 
@@ -60,8 +60,8 @@ function filter_distributor_content( $prepared_post, $request ) {
 /**
  * When an API push is being received, handle Distributor specific attributes
  *
- * @param WP_Post         $post Post object.
- * @param WP_REST_Request $request Request object.
+ * @param \WP_Post         $post Post object.
+ * @param \WP_REST_Request $request Request object.
  * @param bool            $update Update or create.
  * @since 1.0
  */
@@ -120,8 +120,8 @@ function process_distributor_attributes( $post, $request, $update ) {
 	 *
 	 * @since 1.0
 	 *
-	 * @param WP_Post         $post    Inserted or updated post object.
-	 * @param WP_REST_Request $request Request object.
+	 * @param \WP_Post         $post    Inserted or updated post object.
+	 * @param \WP_REST_Request $request Request object.
 	 * @param bool            $update  True when creating a post, false when updating.
 	 */
 	do_action( 'dt_process_distributor_attributes', $post, $request, $update );
@@ -130,11 +130,11 @@ function process_distributor_attributes( $post, $request, $update ) {
 /**
  * Filter the data requested over REST API when a post is pulled.
  *
- * @param WP_REST_Response $response Response object.
- * @param WP_Post          $post     Post object.
- * @param WP_REST_Request  $request  Request object.
+ * @param \WP_REST_Response $response Response object.
+ * @param \WP_Post          $post     Post object.
+ * @param \WP_REST_Request  $request  Request object.
  *
- * @return WP_REST_Response $response The filtered response object.
+ * @return \WP_REST_Response $response The filtered response object.
  */
 function prepare_distributor_content( $response, $post, $request ) {
 
@@ -144,7 +144,7 @@ function prepare_distributor_content( $response, $post, $request ) {
 	}
 	// Is the local site is running Gutenberg?
 	if ( \Distributor\Utils\is_using_gutenberg() ) {
-		$post_data = $response->get_data();
+		$post_data                       = $response->get_data();
 		$post_data['is_using_gutenberg'] = true;
 		$response->set_data( $post_data );
 	}
