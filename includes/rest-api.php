@@ -42,8 +42,8 @@ function setup() {
  * Use the raw content for Gutenberg->Gutenberg posts. Note: `distributor_raw_content`
  * is only sent when the origin supports Gutenberg.
  *
- * @param Object        $prepared_post An object representing a single post prepared.
- * @param \WP_REST_Request $request       Request object.
+ * @param Object           $prepared_post An object representing a single post prepared.
+ * @param \WP_REST_Request $request Request object.
  *
  * @return Object $prepared_post The filtered post object.
  */
