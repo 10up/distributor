@@ -82,6 +82,7 @@ function output_status_column( $column_name, $post_id ) {
 		<span
 			class="connection-status <?php echo esc_attr( $status ); ?>"
 			<?php if ( ! empty( $last_checked ) ) : ?>
+				<?php /* translators: %s: human readable time difference */ ?>
 				title="<?php printf( esc_html__( 'Last Checked on %s' ), esc_html( date( 'F j, Y, g:i a', ( $last_checked + ( get_option( 'gmt_offset' ) * HOUR_IN_SECONDS ) ) ) ) ); ?>"
 			<?php endif; ?>
 		></span>
