@@ -99,7 +99,7 @@ function output_distributor_column( $column_name, $post_id ) {
  * Remove quick edit for linked posts
  *
  * @param  array   $actions Array of current actions
- * @param  WP_Post $post Post object
+ * @param  \WP_Post $post Post object
  * @since  0.8
  * @return array
  */
@@ -171,7 +171,7 @@ function add_linked_class( $classes ) {
 /**
  * Output syndicated on date
  *
- * @param  WP_Post $post Post object
+ * @param  \WP_Post $post Post object
  * @since  0.8
  */
 function syndication_date( $post ) {
@@ -247,7 +247,7 @@ function new_revisions_meta_box( $post_id ) {
  *
  * @param  string  $post_type Post type
  * @param  string  $context Meta box context
- * @param  WP_Post $post Post object
+ * @param  \WP_Post $post Post object
  * @since  1.0
  */
 function replace_revisions_meta_box( $post_type, $context, $post ) {
@@ -395,7 +395,7 @@ function link() {
 /**
  * Show syndicated post message
  *
- * @param  WP_Post $post Post object.
+ * @param  \WP_Post $post Post object.
  * @since  0.8
  */
 function syndicated_message( $post ) {
