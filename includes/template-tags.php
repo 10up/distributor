@@ -174,6 +174,7 @@ function distributor_get_original_site_link( $post_id = null ) {
 	 *
 	 * @param string A formatted version of the original site link.
 	 */
+	/* translators: %1$s: site url, %2$s; site name*/
 	return apply_filters( 'distributor_get_original_site_link', sprintf( __( 'By <a href="%1$s">%2$s</a>', 'distributor' ), esc_url( $site_url ), esc_html( $site_name ) ) );
 }
 
