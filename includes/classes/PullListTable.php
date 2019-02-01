@@ -89,10 +89,36 @@ class PullListTable extends \WP_List_Table {
 
 		$request_uri = $_SERVER['REQUEST_URI'];
 
+		$url         = add_query_arg(
+			array(
+				'paged' => false,
+				's'     => false,
+			),
+			$request_uri
+		);
+		$new_url     = add_query_arg(
+			array(
+				'status' => 'new',
+			),
+			$url
+		);
+		$pulled_url  = add_query_arg(
+			array(
+				'status' => 'pulled',
+			),
+			$url
+		);
+		$skipped_url = add_query_arg(
+			array(
+				'status' => 'skipped',
+			),
+			$url
+		);
+
 		$status_links = [
-			'new'     => '<a href="' . esc_url( add_query_arg( array( 'status' => 'new', 'paged' => false, 's' => false ), $request_uri ) ) . '" class="' . ( ( 'new' === $current_status ) ? 'current' : '' ) . '">' . esc_html__( 'New', 'distributor' ) . '</a>',
-			'pulled'  => '<a href="' . esc_url( add_query_arg( array( 'status' => 'pulled', 'paged' => false, 's' => false ), $request_uri ) ) . '" class="' . ( ( 'pulled' === $current_status ) ? 'current' : '' ) . '">' . esc_html__( 'Pulled', 'distributor' ) . '</a>',
-			'skipped' => '<a href="' . esc_url( add_query_arg( array( 'status' => 'skipped', 'paged' => false, 's' => false ), $request_uri ) ) . '" class="' . ( ( 'skipped' === $current_status ) ? 'current' : '' ) . '">' . esc_html__( 'Skipped', 'distributor' ) . '</a>',
+			'new'     => '<a href="' . esc_url( $new_url ) . '" class="' . ( ( 'new' === $current_status ) ? 'current' : '' ) . '">' . esc_html__( 'New', 'distributor' ) . '</a>',
+			'pulled'  => '<a href="' . esc_url( $pulled_url ) . '" class="' . ( ( 'pulled' === $current_status ) ? 'current' : '' ) . '">' . esc_html__( 'Pulled', 'distributor' ) . '</a>',
+			'skipped' => '<a href="' . esc_url( $skipped_url ) . '" class="' . ( ( 'skipped' === $current_status ) ? 'current' : '' ) . '">' . esc_html__( 'Skipped', 'distributor' ) . '</a>',
 		];
 
 		return $status_links;
