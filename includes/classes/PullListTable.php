@@ -85,7 +85,7 @@ class PullListTable extends \WP_List_Table {
 	 */
 	protected function get_views() {
 
-		$current_status = ( empty( $_GET['status'] ) ) ? 'new' : sanitize_key( $_GET['status'] );
+		$current_status = ( empty( $_GET['status'] ) ) ? 'new' : sanitize_key( $_GET['status'] ); // @codingStandardsIgnoreLine No nonce needed.
 
 		$request_uri = $_SERVER['REQUEST_URI'];
 
@@ -160,7 +160,7 @@ class PullListTable extends \WP_List_Table {
 	public function column_date( $post ) {
 		global $mode;
 
-		if ( ! empty( $_GET['status'] ) && 'pulled' === $_GET['status'] ) {
+		if ( ! empty( $_GET['status'] ) && 'pulled' === $_GET['status'] ) { // @codingStandardsIgnoreLine Nonce isn't required.
 			if ( ! empty( $this->sync_log[ $post->ID ] ) ) {
 				$syndicated_at = get_post_meta( $this->sync_log[ $post->ID ], 'dt_syndicate_time', true );
 
@@ -172,11 +172,13 @@ class PullListTable extends \WP_List_Table {
 					$time_diff = time() - $syndicated_at;
 
 					if ( $time_diff > 0 && $time_diff < DAY_IN_SECONDS ) {
+						/* translators: %s: a human readable time */
 						$h_time = sprintf( esc_html__( '%s ago', 'distributor' ), human_time_diff( $syndicated_at ) );
 					} else {
 						$h_time = date( 'F j, Y', $syndicated_at );
 					}
 
+					/* translators: %s: time of pull */
 					echo sprintf( esc_html__( 'Pulled %s', 'distributor' ), esc_html( $h_time ) );
 				}
 			}
@@ -193,6 +195,7 @@ class PullListTable extends \WP_List_Table {
 				$time_diff = time() - $time;
 
 				if ( $time_diff > 0 && $time_diff < DAY_IN_SECONDS ) {
+					/* translators: %s: a human readable time */
 					$h_time = sprintf( esc_html__( '%s ago', 'distributor' ), human_time_diff( $time ) );
 				} else {
 					$h_time = mysql2date( esc_html__( 'Y/m/d', 'distributor' ), $m_time );
@@ -229,8 +232,7 @@ class PullListTable extends \WP_List_Table {
 	public function column_default( $item, $column_name ) {
 		switch ( $column_name ) {
 			case 'name':
-				return $item['post_title'];
-				break;
+				return $item['post_title']; // return is just as good as break
 			case 'url':
 				$url = get_post_meta( $item->ID, 'dt_external_connection_url', true );
 
@@ -238,8 +240,7 @@ class PullListTable extends \WP_List_Table {
 					$url = esc_html__( 'None', 'distributor' );
 				}
 
-				return $url;
-				break;
+				return $url; // no need to break, return will do.
 		}
 	}
 
@@ -279,16 +280,16 @@ class PullListTable extends \WP_List_Table {
 
 		$actions = [];
 
-		if ( empty( $_GET['status'] ) || 'new' === $_GET['status'] ) {
+		if ( empty( $_GET['status'] ) || 'new' === $_GET['status'] ) { // @codingStandardsIgnoreLine Nonce not needed.
 			$actions = [
 				'view' => '<a href="' . esc_url( $item->link ) . '">' . esc_html__( 'View', 'distributor' ) . '</a>',
 				'skip' => sprintf( '<a href="%s">%s</a>', esc_url( wp_nonce_url( admin_url( 'admin.php?page=pull&action=skip&_wp_http_referer=' . rawurlencode( $_SERVER['REQUEST_URI'] ) . '&post=' . $item->ID . '&connection_type=' . $connection_type . '&connection_id=' . $connection_id ), 'dt_skip' ) ), esc_html__( 'Skip', 'distributor' ) ),
 			];
-		} elseif ( 'skipped' === $_GET['status'] ) {
+		} elseif ( 'skipped' === $_GET['status'] ) { // @codingStandardsIgnoreLine Nonce not needed.
 			$actions = [
 				'view' => '<a href="' . esc_url( $item->link ) . '">' . esc_html__( 'View', 'distributor' ) . '</a>',
 			];
-		} elseif ( 'pulled' === $_GET['status'] ) {
+		} elseif ( 'pulled' === $_GET['status'] ) { // @codingStandardsIgnoreLine Nonce not needed
 
 			$new_post_id = ( ! empty( $this->sync_log[ (int) $item->ID ] ) ) ? $this->sync_log[ (int) $item->ID ] : 0;
 			$new_post    = get_post( $new_post_id );
@@ -344,8 +345,8 @@ class PullListTable extends \WP_List_Table {
 			'post_type'      => $connection_now->pull_post_type ?: 'post',
 		];
 
-		if ( ! empty( $_GET['s'] ) ) {
-			$remote_get_args['s'] = rawurlencode( $_GET['s'] );
+		if ( ! empty( $_GET['s'] ) ) { // @codingStandardsIgnoreLine Nonce isn't required.
+			$remote_get_args['s'] = rawurlencode( $_GET['s'] ); // @codingStandardsIgnoreLine Nonce isn't required.
 		}
 
 		if ( is_a( $connection_now, '\Distributor\ExternalConnection' ) ) {
@@ -375,7 +376,7 @@ class PullListTable extends \WP_List_Table {
 			}
 		}
 
-		if ( empty( $_GET['status'] ) || 'new' === $_GET['status'] ) {
+		if ( empty( $_GET['status'] ) || 'new' === $_GET['status'] ) { // @codingStandardsIgnoreLine Nonce not required.
 			$remote_get_args['post__not_in'] = array_merge( $skipped, $syndicated );
 
 			$remote_get_args['meta_query'] = [
@@ -384,7 +385,7 @@ class PullListTable extends \WP_List_Table {
 					'compare' => 'NOT EXISTS',
 				],
 			];
-		} elseif ( 'skipped' === $_GET['status'] ) {
+		} elseif ( 'skipped' === $_GET['status'] ) { // @codingStandardsIgnoreLine Nonce not required.
 			$remote_get_args['post__in'] = $skipped;
 		} else {
 			$remote_get_args['post__in'] = $syndicated;
@@ -419,6 +420,7 @@ class PullListTable extends \WP_List_Table {
 	public function column_cb( $post ) {
 		?>
 		<label class="screen-reader-text" for="cb-select-<?php echo (int) $post->ID; ?>">
+		<?php /* translators: %s: the post title or draft */ ?>
 		<?php echo esc_html( sprintf( esc_html__( 'Select %s', 'distributor' ), _draft_or_post_title() ) ); ?>
 		</label>
 		<input id="cb-select-<?php echo (int) $post->ID; ?>" type="checkbox" name="post[]" value="<?php echo (int) $post->ID; ?>" />
@@ -433,12 +435,12 @@ class PullListTable extends \WP_List_Table {
 	 * @return array
 	 */
 	public function get_bulk_actions() {
-		if ( empty( $_GET['status'] ) || 'new' === $_GET['status'] ) {
+		if ( empty( $_GET['status'] ) || 'new' === $_GET['status'] ) { // @codingStandardsIgnoreLine Nonce not required.
 			$actions = [
 				'bulk-syndicate' => esc_html__( 'Pull', 'distributor' ),
 				'bulk-skip'      => esc_html__( 'Skip', 'distributor' ),
 			];
-		} elseif ( 'skipped' === $_GET['status'] ) {
+		} elseif ( 'skipped' === $_GET['status'] ) { // @codingStandardsIgnoreLine Nonce not required.
 			$actions = [
 				'bulk-syndicate' => esc_html__( 'Pull', 'distributor' ),
 			];
