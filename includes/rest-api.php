@@ -62,7 +62,7 @@ function filter_distributor_content( $prepared_post, $request ) {
  *
  * @param \WP_Post         $post Post object.
  * @param \WP_REST_Request $request Request object.
- * @param bool            $update Update or create.
+ * @param bool             $update Update or create.
  * @since 1.0
  */
 function process_distributor_attributes( $post, $request, $update ) {
