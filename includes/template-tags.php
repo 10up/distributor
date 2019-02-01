@@ -164,7 +164,7 @@ function distributor_get_original_site_link( $post_id = null ) {
 	$site_url  = distributor_get_original_site_url( $post_id );
 
 	if ( empty( $site_name ) || empty( $site_url ) ) {
-		return;
+		return '';
 	}
 
 	/**
