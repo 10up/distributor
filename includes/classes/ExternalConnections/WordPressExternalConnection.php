@@ -877,8 +877,8 @@ class WordPressExternalConnection extends ExternalConnection {
 	private function to_wp_post( $post ) {
 		$obj = new \stdClass();
 
-		$obj->ID           = $post['id'];
-		$obj->post_title   = $post['title']['rendered'];
+		$obj->ID         = $post['id'];
+		$obj->post_title = $post['title']['rendered'];
 
 		// Use raw content if both remote and local are using Gutenberg.
 		$obj->post_content = \Distributor\Utils\is_using_gutenberg() && isset( $post['is_using_gutenberg'] ) ?
@@ -893,8 +893,8 @@ class WordPressExternalConnection extends ExternalConnection {
 			$obj->post_excerpt = '';
 		}
 
-		$obj->post_status       = 'draft';
-		$obj->post_author       = get_current_user_id();
+		$obj->post_status = 'draft';
+		$obj->post_author = get_current_user_id();
 
 		$obj->post_password     = $post['password'];
 		$obj->post_date         = $post['date'];
