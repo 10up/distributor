@@ -140,22 +140,25 @@ function add_linked_class( $classes ) {
 	global $post, $pagenow;
 
 	if ( 'post.php' !== $pagenow && 'post-new.php' !== $pagenow ) {
-		return;
+		return ''; // Must stick to docblock, cannot return void.
 	}
 
-	if ( empty( $_GET['post'] ) ) {
+	if ( empty( $_GET['post'] ) ) { // @codingStandardsIgnoreLine No nonce needed.
 		return $classes;
 	}
 
-	$original_blog_id   = get_post_meta( intval( $_GET['post'] ), 'dt_original_blog_id', true );
-	$original_source_id = get_post_meta( intval( $_GET['post'] ), 'dt_original_source_id', true );
-	$original_post_id   = get_post_meta( intval( $_GET['post'] ), 'dt_original_post_id', true );
+	// Create a var since it will be used multiple times.
+	$current_post_id = intval( $_GET['post'] ); // @codingStandardsIgnoreLine No nonce needed.
+
+	$original_blog_id   = get_post_meta( $current_post_id, 'dt_original_blog_id', true );
+	$original_source_id = get_post_meta( $current_post_id, 'dt_original_source_id', true );
+	$original_post_id   = get_post_meta( $current_post_id, 'dt_original_post_id', true );
 
 	if ( empty( $original_post_id ) || ( empty( $original_blog_id ) && empty( $original_source_id ) ) ) {
 		return $classes;
 	}
 
-	$unlinked         = (bool) get_post_meta( intval( $_GET['post'] ), 'dt_unlinked', true );
+	$unlinked         = (bool) get_post_meta( $current_post_id, 'dt_unlinked', true );
 	$original_deleted = (bool) get_post_meta( $post->ID, 'dt_original_post_deleted', true );
 
 	if ( $unlinked || $original_deleted ) {
