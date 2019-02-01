@@ -234,7 +234,10 @@ function new_revisions_meta_box( $post_id ) {
 	$post_type = get_post_type_object( get_post_type( $post_id ) );
 	?>
 	<p>
-		<?php printf( esc_html__( 'Distributed %s do not support revisions unless unlinked.', 'distributor' ), esc_html( strtolower( $post_type->labels->name ) ) ); ?>
+		<?php
+			/* translators: %s the post type name */
+			printf( esc_html__( 'Distributed %s do not support revisions unless unlinked.', 'distributor' ), esc_html( strtolower( $post_type->labels->name ) ) );
+		?>
 	</p>
 	<?php
 }
@@ -275,7 +278,7 @@ function replace_revisions_meta_box( $post_type, $context, $post ) {
  * @since  0.8
  */
 function unlink() {
-	if ( empty( $_GET['action'] ) || 'unlink' !== $_GET['action'] || empty( $_GET['post'] ) ) {
+	if ( empty( $_GET['action'] ) || 'unlink' !== $_GET['action'] || empty( $_GET['post'] ) ) { // @codingStandardsIgnoreLine Nonce isn't needed here.
 		return;
 	}
 
@@ -319,7 +322,7 @@ function unlink() {
  * @since  0.8
  */
 function link() {
-	if ( empty( $_GET['action'] ) || 'link' !== $_GET['action'] || empty( $_GET['post'] ) ) {
+	if ( empty( $_GET['action'] ) || 'link' !== $_GET['action'] || empty( $_GET['post'] ) ) { // @codingStandardsIgnoreLine Nonce isn't needed here.
 		return;
 	}
 
@@ -420,6 +423,7 @@ function syndicated_message( $post ) {
 		restore_current_blog();
 
 		if ( empty( $original_location_name ) ) {
+			/* translators: %d: the blog ID */
 			$original_location_name = sprintf( esc_html__( 'Blog #%d', 'distributor' ), $original_blog_id );
 		}
 	} else {
@@ -432,18 +436,27 @@ function syndicated_message( $post ) {
 	<div class="updated syndicate-status">
 		<?php if ( $original_deleted ) : ?>
 			<p>
-				<?php echo wp_kses_post( sprintf( __( 'This %1$s was distributed from <a href="%2$s">%3$s</a>. However, the original has been deleted.', 'distributor' ), esc_html( strtolower( $post_type_singular ) ), esc_url( $post_url ), esc_html( $original_location_name ) ) ); ?>
+				<?php
+					/* translators: %1$s: post type name, %2$s: site url, %3$s: site name */
+					echo wp_kses_post( sprintf( __( 'This %1$s was distributed from <a href="%2$s">%3$s</a>. However, the original has been deleted.', 'distributor' ), esc_html( strtolower( $post_type_singular ) ), esc_url( $post_url ), esc_html( $original_location_name ) ) );
+				?>
 			</p>
 		<?php elseif ( ! $unlinked ) : ?>
 			<p>
-				<?php echo wp_kses_post( sprintf( __( 'Distributed from <a href="%1$s">%2$s</a>.', 'distributor' ), esc_url( $post_url ), esc_html( $original_location_name ) ) ); ?>
+				<?php
+					/* translators: %1$s: site url, %2$s: site name */
+					echo wp_kses_post( sprintf( __( 'Distributed from <a href="%1$s">%2$s</a>.', 'distributor' ), esc_url( $post_url ), esc_html( $original_location_name ) ) );
+				?>
 				<?php if ( apply_filters( 'dt_allow_post_unlink', true, $post->ID ) ) : ?>
+					<?php /* translators: %1$s: post type name, %2$s: unlink url */ ?>
 					<span><?php echo wp_kses_post( sprintf( __( 'The original %1$s will update this version unless you <a href="%2$s">unlink from the original.</a>', 'distributor' ), esc_html( strtolower( $post_type_singular ) ), wp_nonce_url( add_query_arg( 'action', 'unlink', admin_url( sprintf( $post_type_object->_edit_link, $post->ID ) ) ), "unlink-post_{$post->ID}" ) ) ); ?></span>
 				<?php endif; ?>
 			</p>
 		<?php else : ?>
 			<p>
+				<?php /* translators: %1$s: site url, %2$s: site name */ ?>
 				<?php echo wp_kses_post( sprintf( __( 'Originally distributed from <a href="%1$s">%1$s</a>.', 'distributor' ), esc_url( $post_url ), esc_html( $original_location_name ) ) ); ?>
+				<?php /* translators: %1$s: post type name, %2$s: link url */ ?>
 				<span><?php echo wp_kses_post( sprintf( __( "This %1\$s has been unlinked from the original. However, you can always <a href='%2\$s'>restore it.</a>", 'distributor' ), esc_html( strtolower( $post_type_singular ) ), wp_nonce_url( add_query_arg( 'action', 'link', admin_url( sprintf( $post_type_object->_edit_link, $post->ID ) ) ), "link-post_{$post->ID}" ) ) ); ?></span>
 			</p>
 		<?php endif; ?>
@@ -521,6 +534,7 @@ function enqueue_gutenberg_edit_scripts() {
 		restore_current_blog();
 
 		if ( empty( $original_location_name ) ) {
+			/* translators: %d: the original blog id */
 			$original_location_name = sprintf( esc_html__( 'Blog #%d', 'distributor' ), $original_blog_id );
 		}
 	} else {
