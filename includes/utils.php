@@ -558,7 +558,7 @@ function set_media( $post_id, $media ) {
 /**
  * This is a helper function for transporting/formatting data about a media post
  *
- * @param  WP_Post $media_post Media post.
+ * @param  \WP_Post $media_post Media post.
  * @since  1.0
  * @return array
  */
