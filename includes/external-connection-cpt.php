@@ -399,7 +399,7 @@ function add_meta_boxes() {
  * Output connection options meta box
  *
  * @since 0.8
- * @param WP_Post $post Post object.
+ * @param \WP_Post $post Post object.
  */
 function meta_box_external_connection_details( $post ) {
 	wp_nonce_field( 'dt_external_connection_details_action', 'dt_external_connection_details' );
