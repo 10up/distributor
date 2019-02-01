@@ -253,9 +253,9 @@ class PullListTable extends \WP_List_Table {
 	 *
 	 * @since 4.3.0
 	 * @param \WP_Post $item Post object.
-	 * @param string  $classes CSS classes.
-	 * @param string  $data Column data.
-	 * @param string  $primary Whether primary or not.
+	 * @param string   $classes CSS classes.
+	 * @param string   $data Column data.
+	 * @param string   $primary Whether primary or not.
 	 */
 	protected function _column_name( $item, $classes, $data, $primary ) {
 		echo '<td class="' . esc_attr( $classes ) . ' page-title">';
