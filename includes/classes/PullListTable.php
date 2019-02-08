@@ -123,7 +123,7 @@ class PullListTable extends \WP_List_Table {
 			 *
 			 * @param array $actions An array of the available bulk actions.
 			 */
-			$this->_actions = apply_filters( "bulk_actions-{$this->screen->id}", $this->_actions );
+			$this->_actions = apply_filters( "bulk_actions-{$this->screen->id}", $this->_actions ); // @codingStandardsIgnoreLine valid filter name
 			$this->_actions = array_intersect_assoc( $this->_actions, $no_new_actions );
 			$two            = '';
 		} else {
@@ -257,7 +257,7 @@ class PullListTable extends \WP_List_Table {
 	 * @param string   $data Column data.
 	 * @param string   $primary Whether primary or not.
 	 */
-	protected function _column_name( $item, $classes, $data, $primary ) {
+	protected function _column_name( $item, $classes, $data, $primary ) { // @codingStandardsIgnoreLine valid function name
 		echo '<td class="' . esc_attr( $classes ) . ' page-title">';
 		$this->column_name( $item );
 		echo wp_kses_post( $this->handle_row_actions( $item, 'title', $primary ) );
