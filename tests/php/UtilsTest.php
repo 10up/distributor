@@ -2,7 +2,9 @@
 
 namespace Distributor;
 
-class UtilsTest extends \TestCase {
+use WP_Mock\Tools\TestCase;
+
+class UtilsTest extends TestCase {
 
 	/**
 	 * Test set meta with string value and array value

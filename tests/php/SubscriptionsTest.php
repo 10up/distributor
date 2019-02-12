@@ -2,7 +2,9 @@
 
 namespace Distributor;
 
-class SubscriptionsTest extends \TestCase {
+use WP_Mock\Tools\TestCase;
+
+class SubscriptionsTest extends TestCase {
 
 	/**
 	 * Test delete subscribed to post

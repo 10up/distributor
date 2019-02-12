@@ -2,7 +2,9 @@
 
 namespace Distributor;
 
-class ConnectionsTest extends \TestCase {
+use WP_Mock\Tools\TestCase;
+
+class ConnectionsTest extends TestCase {
 	/**
 	 * Test connection registration
 	 *
