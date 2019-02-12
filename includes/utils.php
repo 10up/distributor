@@ -651,7 +651,7 @@ function process_media( $url, $post_id ) {
 
 		// Distributor is in debug mode, display the issue, could be storage related.
 		if ( is_dt_debug() ) {
-			error_log( sprintf( 'Distributor: %s', $file_array['tmp_name']->get_error_message() ) );
+			error_log( sprintf( 'Distributor: %s', $file_array['tmp_name']->get_error_message() ) ); // @codingStandardsIgnoreLine
 		}
 
 		return false;
@@ -663,7 +663,7 @@ function process_media( $url, $post_id ) {
 
 		// Distributor is in debug mode, display the issue, could be storage related.
 		if ( is_dt_debug() ) {
-			error_log( sprintf( 'Distributor: %s', $file_array['tmp_name']->get_error_message() ) );
+			error_log( sprintf( 'Distributor: %s', $file_array['tmp_name']->get_error_message() ) ); // @codingStandardsIgnoreLine
 		}
 
 		return false;
