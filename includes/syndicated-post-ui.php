@@ -148,9 +148,7 @@ function add_linked_class( $classes ) {
 		return $classes;
 	}
 
-	// Create a var since it will be used multiple times.
-	$current_post_id = intval( $_GET['post'] ); // @codingStandardsIgnoreLine No nonce needed.
-
+	$current_post_id    = intval( $_GET['post'] ); // @codingStandardsIgnoreLine No nonce needed.
 	$original_blog_id   = get_post_meta( $current_post_id, 'dt_original_blog_id', true );
 	$original_source_id = get_post_meta( $current_post_id, 'dt_original_source_id', true );
 	$original_post_id   = get_post_meta( $current_post_id, 'dt_original_post_id', true );

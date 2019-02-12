@@ -234,7 +234,7 @@ class PullListTable extends \WP_List_Table {
 	public function column_default( $item, $column_name ) {
 		switch ( $column_name ) {
 			case 'name':
-				return $item['post_title']; // return is just as good as break
+				return $item['post_title'];
 			case 'url':
 				$url = get_post_meta( $item->ID, 'dt_external_connection_url', true );
 
@@ -242,7 +242,7 @@ class PullListTable extends \WP_List_Table {
 					$url = esc_html__( 'None', 'distributor' );
 				}
 
-				return $url; // no need to break, return will do.
+				return $url;
 		}
 
 		return '';

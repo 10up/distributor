@@ -250,7 +250,7 @@ function process_actions() {
 			}
 
 			wp_safe_redirect( wp_get_referer() );
-			exit; // No need to break here, exit does the job.
+			exit;
 		case 'bulk-skip':
 		case 'skip':
 			if ( ! wp_verify_nonce( $_GET['_wpnonce'], 'dt_skip' ) && ! wp_verify_nonce( $_GET['_wpnonce'], 'bulk-distributor_page_pull' ) ) {
@@ -292,7 +292,7 @@ function process_actions() {
 			setcookie( 'dt-skipped', 1, time() + DAY_IN_SECONDS, ADMIN_COOKIE_PATH, COOKIE_DOMAIN, is_ssl() );
 
 			wp_safe_redirect( wp_get_referer() );
-			exit; // No need to break here, exit does the job.
+			exit;
 	}
 }
 

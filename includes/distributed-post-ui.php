@@ -37,7 +37,6 @@ function add_help_tab() {
 		return;
 	}
 
-	// Set a post ID variable here for use a few times.
 	$post_id = intval( $_GET['post'] ); // @codingStandardsIgnoreLine Nonce not necessary, simply type-casting data here from the admin.
 
 	$connection_map = get_post_meta( $post_id, 'dt_connection_map', true );
