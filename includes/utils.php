@@ -643,8 +643,14 @@ function process_media( $url, $post_id ) {
 	require_once ABSPATH . 'wp-admin/includes/file.php';
 	require_once ABSPATH . 'wp-admin/includes/media.php';
 
+	// Allows to pull media from local IP addresses
+	// Uses a "magic number" for priority so we only unhook our call, just in case
+	add_filter( 'http_request_host_is_external', '__return_true', 88 );
+
 	// Download file to temp location.
 	$file_array['tmp_name'] = download_url( $url );
+
+	remove_filter( 'http_request_host_is_external', '__return_true', 88 );
 
 	// If error storing temporarily, return the error.
 	if ( is_wp_error( $file_array['tmp_name'] ) ) {
