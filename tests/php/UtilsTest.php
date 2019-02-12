@@ -61,6 +61,8 @@ class UtilsTest extends TestCase {
 				'key' => [ [ 'value' ] ],
 			]
 		);
+
+		$this->assertConditionsMet();
 	}
 
 	/**
@@ -143,6 +145,8 @@ class UtilsTest extends TestCase {
 				'key2' => [ 'value3' ],
 			]
 		);
+
+		$this->assertConditionsMet();
 	}
 
 	/**
@@ -183,6 +187,8 @@ class UtilsTest extends TestCase {
 				'key2' => [ 'a:1:{i:0;s:4:"test";}' ],
 			]
 		);
+
+		$this->assertConditionsMet();
 	}
 
 	/**
@@ -252,6 +258,8 @@ class UtilsTest extends TestCase {
 				],
 			]
 		);
+
+		$this->assertConditionsMet();
 	}
 
 	/**
@@ -318,6 +326,8 @@ class UtilsTest extends TestCase {
 				],
 			]
 		);
+
+		$this->assertConditionsMet();
 	}
 
 	/**
@@ -360,6 +370,8 @@ class UtilsTest extends TestCase {
 				],
 			]
 		);
+
+		$this->assertConditionsMet();
 	}
 
 	/**
