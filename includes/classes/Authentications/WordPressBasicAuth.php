@@ -80,6 +80,8 @@ class WordPressBasicAuth extends Authentication {
 			<?php else : ?>
 				<input type="password" name="dt_external_connection_auth[password]" data-auth-field="password" class="auth-field" id="dt_password">
 			<?php endif; ?>
+
+			<span class="description"><?php esc_html_e( 'Important: We strongly recommend using the Application Passwords plugin to create a unique password for this connection to keep your primary password extra safe and in case you need to revoke access in the future.', 'distributor' ); ?>
 		</p>
 		<?php
 	}

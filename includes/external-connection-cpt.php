@@ -310,7 +310,7 @@ function filter_enter_title_here( $label, $post = 0 ) {
 		return $label;
 	}
 
-	return esc_html__( 'Enter external connection name', 'distributor' );
+	return esc_html__( 'Label this external connection', 'distributor' );
 }
 
 /**
