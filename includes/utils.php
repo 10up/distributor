@@ -53,15 +53,15 @@ function is_using_gutenberg() {
  * @return bool
  */
 function is_classic_editor_plugin_active() {
-    if ( ! function_exists( 'is_plugin_active' ) ) {
-        include_once ABSPATH . 'wp-admin/includes/plugin.php';
-    }
+	if ( ! function_exists( 'is_plugin_active' ) ) {
+		include_once ABSPATH . 'wp-admin/includes/plugin.php';
+	}
 
-    if ( is_plugin_active( 'classic-editor/classic-editor.php' ) ) {
-        return true;
-    }
+	if ( is_plugin_active( 'classic-editor/classic-editor.php' ) ) {
+		return true;
+	}
 
-    return false;
+	return false;
 }
 
 /**
