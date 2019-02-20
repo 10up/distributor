@@ -46,7 +46,8 @@ function is_using_gutenberg() {
 
 	// Account for Gutenberg Ramp, used in VIP.
 	if ( function_exists( 'gutenberg_ramp_load_gutenberg' ) ) {
-		return apply_filters( 'use_block_editor_for_post', true );
+		global $post;
+		return apply_filters( 'use_block_editor_for_post', true, $post );
 	}
 
 	return true;
