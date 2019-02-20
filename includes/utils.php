@@ -18,14 +18,50 @@ function is_vip_com() {
 }
 
 /**
- * Determine if Gutenberg is being used
+ * Determine if Gutenberg is being used.
+ *
+ * There are several possible variations that need to be accounted for:
+ *
+ *  - WordPress 4.9, Gutenberg plugin is not active.
+ *  - WordPress 4.9, Gutenberg plugin is active.
+ *  - WordPress 5.0, block editor by default.
+ *  - WordPress 5.0, Classic editor plugin active, using classic editor.
+ *  - WordPress 5.0, Classic editor plugin active, using the block editor.
  *
  * @since  1.2
  * @return boolean
  */
 function is_using_gutenberg() {
 	global $wp_version;
-	return ( function_exists( 'the_gutenberg_project' ) || version_compare( $wp_version, '5', '>=' ) );
+	$gutenberg_available = function_exists( 'the_gutenberg_project' );
+	$version_5_plus      = version_compare( $wp_version, '5', '>=' );
+
+	if ( ! $gutenberg_available && ! $version_5_plus ) {
+		return false;
+	}
+
+	if ( is_classic_editor_plugin_active() ) {
+		return ! isset( $_GET['classic-editor'] );
+	}
+
+	return true;
+}
+
+/**
+ * Check if Classic Editor plugin is active.
+ *
+ * @return bool
+ */
+function is_classic_editor_plugin_active() {
+    if ( ! function_exists( 'is_plugin_active' ) ) {
+        include_once ABSPATH . 'wp-admin/includes/plugin.php';
+    }
+
+    if ( is_plugin_active( 'classic-editor/classic-editor.php' ) ) {
+        return true;
+    }
+
+    return false;
 }
 
 /**
