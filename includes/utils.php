@@ -29,9 +29,11 @@ function is_vip_com() {
  *  - WordPress 5.0, Classic editor plugin active, using the block editor.
  *
  * @since  1.2
+ *
+ * @param object   $post The post object.
  * @return boolean
  */
-function is_using_gutenberg() {
+function is_using_gutenberg( $post ) {
 	global $wp_version;
 	$gutenberg_available = function_exists( 'the_gutenberg_project' );
 	$version_5_plus      = version_compare( $wp_version, '5', '>=' );
@@ -46,7 +48,6 @@ function is_using_gutenberg() {
 
 	// Account for Gutenberg Ramp, used in VIP.
 	if ( function_exists( 'gutenberg_ramp_load_gutenberg' ) ) {
-		global $post;
 		return apply_filters( 'use_block_editor_for_post', true, $post );
 	}
 

@@ -550,7 +550,7 @@ class WordPressExternalConnection extends ExternalConnection {
 		];
 
 		// Gutenberg posts also distribute raw content.
-		if ( \Distributor\Utils\is_using_gutenberg() ) {
+		if ( \Distributor\Utils\is_using_gutenberg( $post ) ) {
 			if ( \Distributor\Utils\dt_use_block_editor_for_post_type( $post->post_type ) ) {
 				$post_body['distributor_raw_content'] = $post->post_content;
 			}
@@ -881,7 +881,7 @@ class WordPressExternalConnection extends ExternalConnection {
 		$obj->post_title   = $post['title']['rendered'];
 
 		// Use raw content if both remote and local are using Gutenberg.
-		$obj->post_content = \Distributor\Utils\is_using_gutenberg() && isset( $post['is_using_gutenberg'] ) ?
+		$obj->post_content = \Distributor\Utils\is_using_gutenberg( get_post( $post['id'] ) ) && isset( $post['is_using_gutenberg'] ) ?
 			$post['content']['raw'] :
 			Utils\get_processed_content( $post['content']['raw'] );
 
