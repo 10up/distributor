@@ -26,9 +26,7 @@ function setup() {
 			add_filter( 'admin_body_class', __NAMESPACE__ . '\add_linked_class' );
 			add_filter( 'post_row_actions', __NAMESPACE__ . '\remove_quick_edit', 10, 2 );
 
-			$post = isset( $_GET['post'] ) ? get_post( (int) $_GET['post'] ) : false;
-
-			if ( $post && ! \Distributor\Utils\is_using_gutenberg( $post ) ) {
+			if ( ! \Distributor\Utils\is_using_gutenberg() ) {
 				add_action( 'do_meta_boxes', __NAMESPACE__ . '\replace_revisions_meta_box', 10, 3 );
 				add_action( 'add_meta_boxes', __NAMESPACE__ . '\add_revisions_meta_box' );
 			}
@@ -471,7 +469,7 @@ function enqueue_post_scripts( $hook ) {
 		return;
 	}
 
-	if ( \Distributor\Utils\is_using_gutenberg( $post ) ) {
+	if ( \Distributor\Utils\is_using_gutenberg() ) {
 		wp_enqueue_style( 'dt-gutenberg-syndicated-post', plugins_url( '/dist/css/gutenberg-syndicated-post.min.css', __DIR__ ), array(), DT_VERSION );
 	} else {
 		wp_enqueue_style( 'dt-admin-syndicated-post', plugins_url( '/dist/css/admin-syndicated-post.min.css', __DIR__ ), array(), DT_VERSION );
