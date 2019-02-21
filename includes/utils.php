@@ -30,7 +30,7 @@ function is_vip_com() {
  *
  * @since  1.2
  *
- * @param object   $post The post object.
+ * @param object $post The post object.
  * @return boolean
  */
 function is_using_gutenberg( $post ) {
