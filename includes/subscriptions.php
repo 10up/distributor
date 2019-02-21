@@ -8,6 +8,7 @@
 namespace Distributor\Subscriptions;
 
 use Distributor\ExternalConnection as ExternalConnection;
+use Distributor\Utils;
 
 /**
  * Setup actions and filters
@@ -263,7 +264,7 @@ function send_notifications( $post_id ) {
 				'title'             => get_the_title( $post_id ),
 				'slug'              => $post->post_name,
 				'post_type'         => $post->post_type,
-				'content'           => apply_filters( 'the_content', $post->post_content ),
+				'content'           => Utils\get_processed_content( $post->post_content ),
 				'excerpt'           => $post->post_excerpt,
 				'distributor_media' => \Distributor\Utils\prepare_media( $post_id ),
 				'distributor_terms' => \Distributor\Utils\prepare_taxonomy_terms( $post_id ),
@@ -271,7 +272,7 @@ function send_notifications( $post_id ) {
 			],
 		];
 		if ( \Distributor\Utils\is_using_gutenberg() ) {
-			if ( gutenberg_can_edit_post_type( $post->post_type ) ) {
+			if ( \Distributor\Utils\dt_use_block_editor_for_post_type( $post->post_type ) ) {
 				$post_body['post_data']['distributor_raw_content'] = $post->post_content;
 			}
 		}

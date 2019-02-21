@@ -13,6 +13,9 @@ const endpointErrors              = document.querySelector( '.endpoint-errors' )
 const postIdField                 = document.getElementById( 'post_ID' );
 let $apiVerify                    = false;
 
+/**
+ * Check the external connection.
+ */
 function checkConnections() {
 	if ( false !== $apiVerify ) {
 		$apiVerify.abort();
@@ -173,7 +176,7 @@ jQuery( rolesAllowed ).on( 'click', '.dt-role-checkbox', ( event ) => {
 	}
 
 	if ( 'administrator' !== event.target.value && 'editor' !== event.target.value ) {
-		alert( dt.roles_warning );
+		alert( dt.roles_warning ); // eslint-disable-line no-alert
 	}
 } );
 

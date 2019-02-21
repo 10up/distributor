@@ -59,6 +59,11 @@ class PullListTable extends \WP_List_Table {
 			'date' => esc_html__( 'Date', 'distributor' ),
 		];
 
+		// Remove checkbox column on the Pulled view
+		if ( isset( $_GET['status'] ) && 'pulled' === $_GET['status'] ) {
+			unset( $columns['cb'] );
+		}
+
 		return $columns;
 	}
 
@@ -457,7 +462,7 @@ class PullListTable extends \WP_List_Table {
 	public function extra_tablenav( $which ) {
 		global $connection_now;
 
-		if ( $connection_now->pull_post_types && $connection_now->pull_post_type ) :
+		if ( $connection_now && $connection_now->pull_post_types && $connection_now->pull_post_type ) :
 			?>
 
 			<div class="alignleft actions">

@@ -5,6 +5,9 @@ if ( 'undefined' !== typeof wp.editPost.PluginPostStatusInfo ) {
 	const { __ } = wp.i18n;
 	const { PluginPostStatusInfo } = wp.editPost; // eslint-disable-line no-unused-vars
 
+	/**
+	 * Render the distributed from component.
+	 */
 	const renderDistributedFrom = () => {
 		return(
 			<PluginPostStatusInfo>
@@ -16,6 +19,9 @@ if ( 'undefined' !== typeof wp.editPost.PluginPostStatusInfo ) {
 		);
 	};
 
+	/**
+	 * Render the distributed to component.
+	 */
 	const renderDistributedTo = () => {
 		return(
 			<PluginPostStatusInfo>
