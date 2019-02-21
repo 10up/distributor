@@ -880,11 +880,6 @@ class WordPressExternalConnection extends ExternalConnection {
 		$obj->ID           = $post['id'];
 		$obj->post_title   = $post['title']['rendered'];
 
-		// Use raw content if both remote and local are using Gutenberg.
-		$obj->post_content = \Distributor\Utils\is_using_gutenberg( get_post( $post['id'] ) ) && isset( $post['is_using_gutenberg'] ) ?
-			$post['content']['raw'] :
-			Utils\get_processed_content( $post['content']['raw'] );
-
 		if ( isset( $post['excerpt']['raw'] ) ) {
 			$obj->post_excerpt = $post['excerpt']['raw'];
 		} elseif ( isset( $post['excerpt']['rendered'] ) ) {
@@ -906,6 +901,11 @@ class WordPressExternalConnection extends ExternalConnection {
 		$obj->link              = $post['link'];
 		$obj->comment_status    = $post['comment_status'];
 		$obj->ping_status       = $post['ping_status'];
+
+		// Use raw content if both remote and local are using Gutenberg.
+		$obj->post_content = \Distributor\Utils\is_using_gutenberg( new \WP_Post( $obj ) ) && isset( $post['is_using_gutenberg'] ) ?
+			$post['content']['raw'] :
+			Utils\get_processed_content( $post['content']['raw'] );
 
 		/**
 		 * These will only be set if Distributor is active on the other side
