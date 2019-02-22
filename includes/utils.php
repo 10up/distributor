@@ -42,34 +42,13 @@ function is_using_gutenberg( $post ) {
 		return false;
 	}
 
-	if ( is_classic_editor_plugin_active() ) {
-		return ! isset( $_GET['classic-editor'] );
+	// We have to use the function here instead of the filter due to differences in the way certain plugins implement this.
+	if ( ! function_exists( 'use_block_editor_for_post' ) ) {
+		include_once ABSPATH . 'wp-admin/includes/post.php';
 	}
-
-	// Account for Gutenberg Ramp, used in VIP.
-	if ( function_exists( 'gutenberg_ramp_load_gutenberg' ) ) {
-		return apply_filters( 'use_block_editor_for_post', true, $post );
-	}
-
-	return true;
+	return use_block_editor_for_post( $post );
 }
 
-/**
- * Check if Classic Editor plugin is active.
- *
- * @return bool
- */
-function is_classic_editor_plugin_active() {
-	if ( ! function_exists( 'is_plugin_active' ) ) {
-		include_once ABSPATH . 'wp-admin/includes/plugin.php';
-	}
-
-	if ( is_plugin_active( 'classic-editor/classic-editor.php' ) ) {
-		return true;
-	}
-
-	return false;
-}
 
 /**
  * Get Distributor settings with defaults
