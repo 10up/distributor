@@ -14,7 +14,7 @@ class OembedTests extends \TestCase {
 	 * Test network pushing content with an oEmbed.
 	 */
 	public function testOembedNetworkPushedContent() {
-		$I = $this->getAnonymousUser();
+		$I = $this->openBrowserPage();
 
 		$I->loginAs( 'wpsnapshots' );
 
@@ -42,7 +42,7 @@ class OembedTests extends \TestCase {
 	 * Test network pulling content with an oEmbed.
 	 */
 	public function testOembedNetworkPulledContent() {
-		$I = $this->getAnonymousUser();
+		$I = $this->openBrowserPage();
 
 		$I->loginAs( 'wpsnapshots' );
 
@@ -69,7 +69,7 @@ class OembedTests extends \TestCase {
 	 * Test external pushing content with an oEmbed.
 	 */
 	public function testOembedExternalPushedContent() {
-		$I = $this->getAnonymousUser();
+		$I = $this->openBrowserPage();
 
 		$I->loginAs( 'wpsnapshots' );
 
@@ -118,7 +118,7 @@ class OembedTests extends \TestCase {
 	 * Test external pulling content with an oEmbed.
 	 */
 	public function testOembedExternalPulledContent() {
-		$I = $this->getAnonymousUser();
+		$I = $this->openBrowserPage();
 
 		$I->loginAs( 'wpsnapshots' );
 

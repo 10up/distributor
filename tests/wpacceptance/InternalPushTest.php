@@ -16,7 +16,7 @@ class InternalPushTest extends \TestCase {
 	 * Test pushing a draft
 	 */
 	public function testPushDraftPost() {
-		$I = $this->getAnonymousUser();
+		$I = $this->openBrowserPage();
 
 		$I->loginAs( 'wpsnapshots' );
 
@@ -34,7 +34,7 @@ class InternalPushTest extends \TestCase {
 	 * Test pushing as published
 	 */
 	public function testPushPublishPost() {
-		$I = $this->getAnonymousUser();
+		$I = $this->openBrowserPage();
 
 		$I->loginAs( 'wpsnapshots' );
 
@@ -52,7 +52,7 @@ class InternalPushTest extends \TestCase {
 	 * Test that all data gets synced on push
 	 */
 	public function testPushDataSync() {
-		$I = $this->getAnonymousUser();
+		$I = $this->openBrowserPage();
 
 		$I->loginAs( 'wpsnapshots' );
 

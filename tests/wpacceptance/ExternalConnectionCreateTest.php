@@ -16,7 +16,7 @@ class ExternalConnectionCreateTest extends \TestCase {
 	 * Test creating an external connection. Test various connection statuses
 	 */
 	public function testCreateExternalConnection() {
-		$I = $this->getAnonymousUser();
+		$I = $this->openBrowserPage();
 
 		$I->loginAs( 'wpsnapshots' );
 

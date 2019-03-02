@@ -30,9 +30,9 @@ class TestCase extends \WPAcceptance\PHPUnit\TestCase {
 		$I->moveTo( $info['original_edit_url'] );
 
 		try {
-			$info['original_front_url'] = $I->getElement( '#wp-admin-bar-view a')->getAttribute( 'href' );
+			$info['original_front_url'] = $I->getElementAttribute( '#wp-admin-bar-view a', 'href' );
 		} catch ( \Exception $e ) {
-			$info['original_front_url'] = $I->getElement( '#wp-admin-bar-preview a')->getAttribute( 'href' );
+			$info['original_front_url'] = $I->getElementAttribute( '#wp-admin-bar-preview a', 'href' );
 		}
 
 		$I->waitUntilElementVisible( '#wp-admin-bar-distributor a' );
@@ -70,7 +70,7 @@ class TestCase extends \WPAcceptance\PHPUnit\TestCase {
 
 			$info['distributed_edit_url'] = $I->getCurrentUrl();
 
-			$info['distributed_post_id'] = (int) $I->getElement( '#post_ID' )->getAttribute( 'value' );
+			$info['distributed_post_id'] = (int) $I->getElementAttribute( '#post_ID', 'value' );
 		}
 
 		return $info;
