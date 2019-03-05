@@ -88,16 +88,16 @@
         },
         {
             "name": "10up/wpacceptance",
-            "version": "0.12",
+            "version": "0.12.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/10up/wpacceptance.git",
-                "reference": "c7c178a533ed7ca9a5fc8611201543f25511fe37"
+                "reference": "0a995e72b23860fb3e1277259fa5536404d905f7"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/10up/wpacceptance/zipball/c7c178a533ed7ca9a5fc8611201543f25511fe37",
-                "reference": "c7c178a533ed7ca9a5fc8611201543f25511fe37",
+                "url": "https://api.github.com/repos/10up/wpacceptance/zipball/0a995e72b23860fb3e1277259fa5536404d905f7",
+                "reference": "0a995e72b23860fb3e1277259fa5536404d905f7",
                 "shasum": ""
             },
             "require": {
@@ -140,7 +140,7 @@
                 "testing",
                 "wordpress"
             ],
-            "time": "2019-03-05T16:32:54+00:00"
+            "time": "2019-03-05T17:26:37+00:00"
         },
         {
             "name": "10up/wpsnapshots",
