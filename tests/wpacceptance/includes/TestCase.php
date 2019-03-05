@@ -41,6 +41,8 @@ class TestCase extends \WPAcceptance\PHPUnit\TestCase {
 
 		$I->click( '#wp-admin-bar-distributor a' );
 
+		$I->waitUntilElementVisible( '#distributor-push-wrapper .new-connections-list' );
+
 		// Distribute post
 
 		$I->click( '#distributor-push-wrapper .new-connections-list .add-connection[data-connection-id="' . $to_connection_id . '"]' );
@@ -103,7 +105,7 @@ class TestCase extends \WPAcceptance\PHPUnit\TestCase {
 		$I->moveTo( $to_blog_slug . 'wp-admin/admin.php?page=pull' );
 
 		if ( $use_connection ) {
-			$I->selectOptions( '#pull_connections', $use_connection );
+			$I->checkOptions( '#pull_connections', $use_connection );
 			$I->waitUntilElementVisible( '.wp-list-table #cb-select-' . $original_post_id );
 		}
 

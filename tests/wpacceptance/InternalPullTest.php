@@ -76,7 +76,7 @@ class InternalPullTest extends \TestCase {
 
 		$I->waitUntilElementVisible( '.wp-list-table' );
 
-		$I->selectOptions( '#bulk-action-selector-top', 'bulk-skip' );
+		$I->selectOptionByValue( '#bulk-action-selector-top', 'bulk-skip' );
 
 		$I->checkOptions( '.wp-list-table #cb-select-40');
 

@@ -28,12 +28,10 @@ class OembedTests extends \TestCase {
 
 		// Grab the post content.
 		$I->waitUntilElementVisible( '.wp-editor-area' );
-		$content = $I->getElement( '.wp-editor-area' );
 
 		// Test the distributed post content.
-		$this->assertEquals(
-			"<p>https://twitter.com/10up/status/1067517868441387008</p>\n<p>&nbsp;</p>",
-			$content->getText(),
+		$this->assertTrue(
+			(bool) preg_match( '#https://twitter.com/10up/status/1067517868441387008#', $I->getElementProperty( '.wp-editor-area', 'value' ) ),
 			'oEmbed was not pushed properly over a network connection'
 		);
 	}
@@ -55,12 +53,10 @@ class OembedTests extends \TestCase {
 
 		// Grab the post content.
 		$I->waitUntilElementVisible( '.wp-editor-area' );
-		$content = $I->getElement( '.wp-editor-area' );
 
 		// Test the distributed post content.
-		$this->assertEquals(
-			"https://twitter.com/10up/status/1067517868441387008\n\n&nbsp;",
-			$content->getText(),
+		$this->assertTrue(
+			(bool) preg_match( '#https://twitter.com/10up/status/1067517868441387008#', $I->getElementProperty( '.wp-editor-area', 'value' ) ),
 			'oEmbed was not pulled properly over a network connection'
 		);
 	}
@@ -96,7 +92,7 @@ class OembedTests extends \TestCase {
 
 		// Switch to the distributed post.
 		$I->waitUntilElementVisible( '#the-list' );
-		$I->jsClick( 'a.row-title' );
+		$I->click( 'a.row-title' );
 
 		// Switch to the text editor.
 		$I->waitUntilElementVisible( '#content-html' );
@@ -104,12 +100,10 @@ class OembedTests extends \TestCase {
 
 		// Grab the post content.
 		$I->waitUntilElementVisible( '.wp-editor-area' );
-		$content = $I->getElement( '.wp-editor-area' );
 
 		// Test the distributed post content.
-		$this->assertEquals(
-			"<p>https://twitter.com/10up/status/1067517868441387008</p>\n<p>&nbsp;</p>",
-			$content->getText(),
+		$this->assertTrue(
+			(bool) preg_match( '#https://twitter.com/10up/status/1067517868441387008#', $I->getElementProperty( '.wp-editor-area', 'value' ) ),
 			'oEmbed was not pushed properly over an external connection'
 		);
 	}
@@ -151,12 +145,10 @@ class OembedTests extends \TestCase {
 
 		// Grab the post content.
 		$I->waitUntilElementVisible( '.wp-editor-area' );
-		$content = $I->getElement( '.wp-editor-area' );
 
 		// Test the distributed post content.
-		$this->assertEquals(
-			"<p>https://twitter.com/10up/status/1067517868441387008</p>\n<p>&nbsp;</p>",
-			$content->getText(),
+		$this->assertTrue(
+			(bool) preg_match( '#https://twitter.com/10up/status/1067517868441387008#', $I->getElementProperty( '.wp-editor-area', 'value' ) ),
 			'oEmbed was not pulled properly over an external connection'
 		);
 	}

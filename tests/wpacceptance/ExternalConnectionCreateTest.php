@@ -22,25 +22,25 @@ class ExternalConnectionCreateTest extends \TestCase {
 
 		$I->moveTo( 'wp-admin/post-new.php?post_type=dt_ext_connection' );
 
-		$I->fillField( '#title', 'Test External Connection' );
+		$I->typeInField( '#title', 'Test External Connection' );
 
 		// First test no connection warning
 
-		$I->fillField( '#dt_external_connection_url', 'badurl' );
+		$I->typeInField( '#dt_external_connection_url', 'badurl' );
 
 		$I->waitUntilElementContainsText( 'No connection found', '.endpoint-result' );
 
 		// Now test limited connection warning
 
-		$I->fillField( '#dt_username', 'wpsnapshots' );
+		$I->typeInField( '#dt_username', 'wpsnapshots' );
 
-		$I->fillField( '#dt_external_connection_url', $this->getWPHomeUrl() . '/two/wp-json' );
+		$I->typeInField( '#dt_external_connection_url', $this->getWPHomeUrl() . '/two/wp-json' );
 
 		$I->waitUntilElementContainsText( 'Limited connection', '.endpoint-result' );
 
 		// Now test good connection
 
-		$I->fillField( '#dt_password', 'password' );
+		$I->typeInField( '#dt_password', 'password' );
 
 		$I->waitUntilElementContainsText( 'Connection established', '.endpoint-result' );
 
