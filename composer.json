@@ -17,10 +17,8 @@
     }
   },
   "require-dev": {
-    "10up/wp_mock": "dev-dev",
     "10up/phpcs-composer": "dev-master",
-    "phpunit/phpunit": "^6.5",
-    "10up/wpacceptance": "~0.10.0"
+    "10up/wpacceptance": "~0.12.0"
   },
   "scripts": {
     "lint": "phpcs .",
