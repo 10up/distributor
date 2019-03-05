@@ -23,8 +23,8 @@
     "phpunit/phpunit": "~7.5"
   },
   "scripts": {
-    "lint": "phpcs .",
-    "lint-fix": "phpcbf ."
+    "lint": "phpcs distributor.php includes/*",
+    "lint-fix": "phpcbf distributor.php includes/*"
   },
   "minimum-stability": "dev",
   "prefer-stable": true
