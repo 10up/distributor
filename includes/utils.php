@@ -46,6 +46,15 @@ function is_using_gutenberg( $post ) {
 	if ( ! function_exists( 'use_block_editor_for_post' ) ) {
 		include_once ABSPATH . 'wp-admin/includes/post.php';
 	}
+
+	// Previous to Gutenberg 5.0, `use_block_editor_for_post` was named `gutenberg_can_edit_post`.
+	if ( ! function_exists( 'use_block_editor_for_post' ) ) {
+		if ( function_exists( 'gutenberg_can_edit_post' ) ) {
+			return gutenberg_can_edit_post( $post );
+		}
+		return false;
+	}
+
 	return use_block_editor_for_post( $post );
 }
 
