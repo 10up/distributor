@@ -506,7 +506,7 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 			self::log_authentication_error( 'Failed to validate token giving error ' . $response->get_error_message() );
 			$count ++;
 			if ( $count <= 3 ) {
-				$this->is_valid_token( $count );
+				self::is_valid_token( $count );
 			}
 
 			return false;

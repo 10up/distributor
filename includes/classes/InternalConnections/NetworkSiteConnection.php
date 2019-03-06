@@ -28,7 +28,7 @@ class NetworkSiteConnection extends Connection {
 	 *
 	 * @var string
 	 */
-	static public $slug = 'networkblog';
+	public static $slug = 'networkblog';
 
 	/**
 	 * Default post type to pull.

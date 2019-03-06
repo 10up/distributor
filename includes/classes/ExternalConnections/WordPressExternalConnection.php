@@ -20,35 +20,35 @@ class WordPressExternalConnection extends ExternalConnection {
 	 *
 	 * @var string
 	 */
-	static public $slug = 'wp';
+	public static $slug = 'wp';
 
 	/**
 	 * Connection pretty label
 	 *
 	 * @var string
 	 */
-	static public $label = 'WordPress REST API';
+	public static $label = 'WordPress REST API';
 
 	/**
 	 * Auth handler to use
 	 *
 	 * @var string
 	 */
-	static public $auth_handler_class = '\Distributor\Authentications\WordPressBasicAuth';
+	public static $auth_handler_class = '\Distributor\Authentications\WordPressBasicAuth';
 
 	/**
 	 * REST API namespace
 	 *
 	 * @var string
 	 */
-	static public $namespace = 'wp/v2';
+	public static $namespace = 'wp/v2';
 
 	/**
 	 * Remote request timeout
 	 *
 	 * @var integer
 	 */
-	static public $timeout = 5;
+	public static $timeout = 5;
 
 	/**
 	 * Default post type to pull.
@@ -877,8 +877,8 @@ class WordPressExternalConnection extends ExternalConnection {
 	private function to_wp_post( $post ) {
 		$obj = new \stdClass();
 
-		$obj->ID           = $post['id'];
-		$obj->post_title   = $post['title']['rendered'];
+		$obj->ID         = $post['id'];
+		$obj->post_title = $post['title']['rendered'];
 
 		if ( isset( $post['excerpt']['raw'] ) ) {
 			$obj->post_excerpt = $post['excerpt']['raw'];
@@ -888,8 +888,8 @@ class WordPressExternalConnection extends ExternalConnection {
 			$obj->post_excerpt = '';
 		}
 
-		$obj->post_status       = 'draft';
-		$obj->post_author       = get_current_user_id();
+		$obj->post_status = 'draft';
+		$obj->post_author = get_current_user_id();
 
 		$obj->post_password     = $post['password'];
 		$obj->post_date         = $post['date'];
