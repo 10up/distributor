@@ -17,10 +17,10 @@
     }
   },
   "require-dev": {
-    "10up/phpcs-composer": "dev-master",
     "10up/wpacceptance": "~0.12.0",
     "10up/wp_mock": "dev-dev",
-    "phpunit/phpunit": "~7.5"
+    "phpunit/phpunit": "~7.5",
+    "10up/phpcs-composer": "dev-master"
   },
   "scripts": {
     "lint": "phpcs distributor.php includes/*",

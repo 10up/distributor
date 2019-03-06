@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "982f0fbadd513142568a088c7b32d000",
+    "content-hash": "c5eed68ac2398e2155227410b428b455",
     "packages": [
         {
             "name": "yahnis-elsts/plugin-update-checker",
@@ -4728,8 +4728,8 @@
     "aliases": [],
     "minimum-stability": "dev",
     "stability-flags": {
-        "10up/phpcs-composer": 20,
-        "10up/wp_mock": 20
+        "10up/wp_mock": 20,
+        "10up/phpcs-composer": 20
     },
     "prefer-stable": true,
     "prefer-lowest": false,
