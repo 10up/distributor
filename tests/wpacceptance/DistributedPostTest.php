@@ -15,9 +15,13 @@ class DistributedPost extends \TestCase {
 	 * locations
 	 */
 	public function testDistributedCount() {
-		$I = $this->getAnonymousUser();
+		$I = $this->openBrowserPage();
 
 		$I->loginAs( 'wpsnapshots' );
+
+		self::assertPostFieldContains( 40, 'post_title', 'Test Post' );
+
+		return;
 
 		// Distribute post
 		$post_info = $this->pushPost( $I, 40, 2 );
@@ -42,7 +46,7 @@ class DistributedPost extends \TestCase {
 	 * Test UI for a post that has been distributed (not original)
 	 */
 	public function testDistributedFrom() {
-		$I = $this->getAnonymousUser();
+		$I = $this->openBrowserPage();
 
 		$I->loginAs( 'wpsnapshots' );
 
