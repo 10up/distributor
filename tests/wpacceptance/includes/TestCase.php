@@ -30,9 +30,9 @@ class TestCase extends \WPAcceptance\PHPUnit\TestCase {
 		$I->moveTo( $info['original_edit_url'] );
 
 		try {
-			$info['original_front_url'] = $I->getElement( '#wp-admin-bar-view a')->getAttribute( 'href' );
+			$info['original_front_url'] = $I->getElementAttribute( '#wp-admin-bar-view a', 'href' );
 		} catch ( \Exception $e ) {
-			$info['original_front_url'] = $I->getElement( '#wp-admin-bar-preview a')->getAttribute( 'href' );
+			$info['original_front_url'] = $I->getElementAttribute( '#wp-admin-bar-preview a', 'href' );
 		}
 
 		$I->waitUntilElementVisible( '#wp-admin-bar-distributor a' );
@@ -40,6 +40,8 @@ class TestCase extends \WPAcceptance\PHPUnit\TestCase {
 		$I->moveMouse( '#wp-admin-bar-distributor a' );
 
 		$I->click( '#wp-admin-bar-distributor a' );
+
+		$I->waitUntilElementVisible( '#distributor-push-wrapper .new-connections-list' );
 
 		// Distribute post
 
@@ -70,7 +72,7 @@ class TestCase extends \WPAcceptance\PHPUnit\TestCase {
 
 			$info['distributed_edit_url'] = $I->getCurrentUrl();
 
-			$info['distributed_post_id'] = (int) $I->getElement( '#post_ID' )->getAttribute( 'value' );
+			$info['distributed_post_id'] = (int) $I->getElementAttribute( '#post_ID', 'value' );
 		}
 
 		return $info;
@@ -103,7 +105,7 @@ class TestCase extends \WPAcceptance\PHPUnit\TestCase {
 		$I->moveTo( $to_blog_slug . 'wp-admin/admin.php?page=pull' );
 
 		if ( $use_connection ) {
-			$I->selectOptions( '#pull_connections', $use_connection );
+			$I->checkOptions( '#pull_connections', $use_connection );
 			$I->waitUntilElementVisible( '.wp-list-table #cb-select-' . $original_post_id );
 		}
 

@@ -22,7 +22,7 @@ abstract class Authentication {
 	 *
 	 * @var string
 	 */
-	static public $error_message;
+	public static $error_message;
 
 	/**
 	 * Set associative arguments as instance variables

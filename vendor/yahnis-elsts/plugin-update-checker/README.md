@@ -20,6 +20,7 @@ From the users' perspective, it works just like with plugins and themes hosted o
     - [How to Release an Update](#how-to-release-an-update-2)
   - [GitLab Integration](#gitlab-integration)
     - [How to Release an Update](#how-to-release-an-update-3)
+- [License Management](#license-management)
 - [Resources](#resources)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
@@ -63,7 +64,7 @@ Getting Started
 	require 'path/to/plugin-update-checker/plugin-update-checker.php';
 	$myUpdateChecker = Puc_v4_Factory::buildUpdateChecker(
 		'http://example.com/path/to/details.json',
-		__FILE__,
+		__FILE__, //Full path to the main plugin file or functions.php.
 		'unique-plugin-or-theme-slug'
 	);
 	```
@@ -114,6 +115,11 @@ This library supports a couple of different ways to release updates on GitHub. P
 - **GitHub releases** 
 	
 	Create a new release using the "Releases" feature on GitHub. The tag name and release title don't matter. The description is optional, but if you do provide one, it will be displayed when the user clicks the "View version x.y.z details" link on the "Plugins" page. Note that PUC ignores releases marked as "This is a pre-release".
+	
+	If you want to use release assets, call the `enableReleaseAssets()` method after creating the update checker instance:
+	```php
+	$myUpdateChecker->getVcsApi()->enableReleaseAssets();
+	```
 	
 - **Tags** 
 	
@@ -229,19 +235,23 @@ BitBucket doesn't have an equivalent to GitHub's releases, so the process is sli
 		'unique-plugin-or-theme-slug'
 	);
 
-	//Note: Self-hosted instances of GitLab must be initialized like this:
-	$myUpdateChecker = new Puc_v4_Vcs_PluginUpdateChecker(
-		new Puc_v4p4_Vcs_GitLabApi('https://myserver.com/user-name/repo-name/'),
-		__FILE__,
-		'unique-plugin-or-theme-slug'
-	);
-
 	//Optional: If you're using a private repository, specify the access token like this:
 	$myUpdateChecker->setAuthentication('your-token-here');
 
 	//Optional: Set the branch that contains the stable release.
 	$myUpdateChecker->setBranch('stable-branch-name');
 	```
+	
+	Alternatively, if you're using a self-hosted GitLab instance, initialize the update checker like this:
+	```php
+    $myUpdateChecker = new Puc_v4p5_Vcs_PluginUpdateChecker(
+        new Puc_v4p5_Vcs_GitLabApi('https://myserver.com/user-name/repo-name/'),
+        __FILE__,
+        'unique-plugin-or-theme-slug'
+    );
+   //Optional: Add setAuthentication(...) and setBranch(...) as shown above.  
+   ```
+	
 3. Plugins only: Add a `readme.txt` file formatted according to the [WordPress.org plugin readme standard](https://wordpress.org/plugins/about/readme.txt) to your repository. The contents of this file will be shown when the user clicks the "View version 1.2.3 details" link.
 
 #### How to Release an Update
@@ -263,6 +273,11 @@ GitLab doesn't have an equivalent to GitHub's releases, so the process is slight
 	 PUC will periodically check the `Version` header in the main plugin file or `style.css` and display a notification if it's greater than the installed version.
 	 
 	 Caveat: If you set the branch to `master` (the default), the update checker will look for recent releases and tags first. It'll only use the `master` branch if it doesn't find anything else suitable.
+
+License Management
+------------------
+
+Currently, the update checker doesn't have any built-in license management features. It only provides some hooks that you can use to, for example, append license keys to update requests (`$updateChecker->addQueryArgFilter()`). If you're looking for ways to manage and verify licenses, please post your feedback in [this issue](https://github.com/YahnisElsts/plugin-update-checker/issues/222).  
 
 Resources
 ---------

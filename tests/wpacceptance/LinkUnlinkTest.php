@@ -14,7 +14,7 @@ class LinkUnlinkTest extends \TestCase {
 	 * Test unlinking
 	 */
 	public function testUnlinkPublishPost() {
-		$I = $this->getAnonymousUser();
+		$I = $this->openBrowserPage();
 
 		$I->loginAs( 'wpsnapshots' );
 
