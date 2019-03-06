@@ -23,8 +23,8 @@
     "10up/phpcs-composer": "dev-master"
   },
   "scripts": {
-    "lint": "phpcs distributor.php includes/*",
-    "lint-fix": "phpcbf distributor.php includes/*"
+    "lint": "phpcs .",
+    "lint-fix": "phpcbf ."
   },
   "minimum-stability": "dev",
   "prefer-stable": true
