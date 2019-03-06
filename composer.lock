@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "c5eed68ac2398e2155227410b428b455",
+    "content-hash": "961d8938d26bcd03aad63064324c81fa",
     "packages": [
         {
             "name": "yahnis-elsts/plugin-update-checker",
@@ -88,27 +88,27 @@
         },
         {
             "name": "10up/wp_mock",
-            "version": "dev-dev",
+            "version": "0.4.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/10up/wp_mock.git",
-                "reference": "0354413d63cbae920ffc0676443c6d9dd330ce40"
+                "reference": "5807261f0d8b89160118e2a1ca6ae134746570ea"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/10up/wp_mock/zipball/0354413d63cbae920ffc0676443c6d9dd330ce40",
-                "reference": "0354413d63cbae920ffc0676443c6d9dd330ce40",
+                "url": "https://api.github.com/repos/10up/wp_mock/zipball/5807261f0d8b89160118e2a1ca6ae134746570ea",
+                "reference": "5807261f0d8b89160118e2a1ca6ae134746570ea",
                 "shasum": ""
             },
             "require": {
                 "antecedent/patchwork": "^2.1",
                 "mockery/mockery": "^1.0",
-                "php": ">=7.0",
-                "phpunit/phpunit": ">=6.0"
+                "php": ">=7.1",
+                "phpunit/phpunit": ">=7.0"
             },
             "require-dev": {
                 "behat/behat": "^3.0",
-                "satooshi/php-coveralls": "^1.0",
+                "php-coveralls/php-coveralls": "^2.1",
                 "sebastian/comparator": ">=1.2.3"
             },
             "type": "library",
@@ -122,10 +122,10 @@
             },
             "notification-url": "https://packagist.org/downloads/",
             "license": [
-                "GPL-2.0+"
+                "GPL-2.0-or-later"
             ],
             "description": "A mocking library to take the pain out of unit testing for WordPress",
-            "time": "2017-12-03T19:27:57+00:00"
+            "time": "2019-02-26T20:54:47+00:00"
         },
         {
             "name": "10up/wpacceptance",
@@ -279,16 +279,16 @@
         },
         {
             "name": "aws/aws-sdk-php",
-            "version": "3.87.23",
+            "version": "3.88.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/aws/aws-sdk-php.git",
-                "reference": "4f042410335c06aa7ab81365194782a30c144bc2"
+                "reference": "ae656560625e3d9f9d9010898b98595918bb00f5"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/4f042410335c06aa7ab81365194782a30c144bc2",
-                "reference": "4f042410335c06aa7ab81365194782a30c144bc2",
+                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/ae656560625e3d9f9d9010898b98595918bb00f5",
+                "reference": "ae656560625e3d9f9d9010898b98595918bb00f5",
                 "shasum": ""
             },
             "require": {
@@ -357,7 +357,7 @@
                 "s3",
                 "sdk"
             ],
-            "time": "2019-03-04T19:19:05+00:00"
+            "time": "2019-03-05T19:14:57+00:00"
         },
         {
             "name": "clue/socket-raw",
@@ -4728,7 +4728,6 @@
     "aliases": [],
     "minimum-stability": "dev",
     "stability-flags": {
-        "10up/wp_mock": 20,
         "10up/phpcs-composer": 20
     },
     "prefer-stable": true,

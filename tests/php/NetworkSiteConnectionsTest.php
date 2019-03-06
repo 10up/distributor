@@ -6,7 +6,7 @@ use WP_Mock\Tools\TestCase;
 
 class NetworkSiteConnectionsTest extends TestCase {
 
-	public function setUp() {
+	public function setUp(): void {
 		$this->site_obj = \Mockery::mock(
 			'\WP_Site', [
 				'args'   => 1,
