@@ -559,7 +559,9 @@ function set_media( $post_id, $media ) {
 		}
 
 		// Transfer all meta
-		set_meta( $image_id, $media_item['meta'] );
+		if ( isset( $media_item['meta'] ) ) {
+			set_meta( $image_id, $media_item['meta'] );
+		}
 
 		// Transfer post properties
 		wp_update_post(
