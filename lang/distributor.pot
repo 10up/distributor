@@ -4,14 +4,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Distributor 1.3.8\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/distributor\n"
-"POT-Creation-Date: 2019-01-29 21:56:52+00:00\n"
+"POT-Creation-Date: 2019-02-21 20:44:53+00:00\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "PO-Revision-Date: 2019-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
-"X-Generator: node-wp-i18n 1.2.1\n"
+"X-Generator: node-wp-i18n 1.1.1\n"
 
 #: distributor.php:63
 msgid "Distributor requires PHP version 5.6."
@@ -226,7 +226,7 @@ msgid "Name"
 msgstr ""
 
 #: includes/classes/PullListTable.php:59
-#: includes/external-connection-cpt.php:50 includes/syndicated-post-ui.php:64
+#: includes/external-connection-cpt.php:50 includes/syndicated-post-ui.php:66
 msgid "Date"
 msgstr ""
 
@@ -742,55 +742,55 @@ msgstr ""
 msgid "Distributor Subscription"
 msgstr ""
 
-#: includes/syndicated-post-ui.php:62
+#: includes/syndicated-post-ui.php:64
 msgid "Posts distributed from another site."
 msgstr ""
 
-#: includes/syndicated-post-ui.php:90
+#: includes/syndicated-post-ui.php:92
 msgid "Unlinked"
 msgstr ""
 
-#: includes/syndicated-post-ui.php:92
+#: includes/syndicated-post-ui.php:94
 msgid "Linked"
 msgstr ""
 
-#: includes/syndicated-post-ui.php:193
+#: includes/syndicated-post-ui.php:195
 msgid "Distributed on: "
 msgstr ""
 
-#: includes/syndicated-post-ui.php:221
+#: includes/syndicated-post-ui.php:223
 msgid "Revisions"
 msgstr ""
 
-#: includes/syndicated-post-ui.php:234
+#: includes/syndicated-post-ui.php:236
 msgid "Distributed %s do not support revisions unless unlinked."
 msgstr ""
 
-#: includes/syndicated-post-ui.php:420 includes/syndicated-post-ui.php:521
+#: includes/syndicated-post-ui.php:422 includes/syndicated-post-ui.php:523
 msgid "Blog #%d"
 msgstr ""
 
-#: includes/syndicated-post-ui.php:432
+#: includes/syndicated-post-ui.php:434
 msgid ""
 "This %1$s was distributed from <a href=\"%2$s\">%3$s</a>. However, the "
 "original has been deleted."
 msgstr ""
 
-#: includes/syndicated-post-ui.php:436
+#: includes/syndicated-post-ui.php:438
 msgid "Distributed from <a href=\"%1$s\">%2$s</a>."
 msgstr ""
 
-#: includes/syndicated-post-ui.php:438
+#: includes/syndicated-post-ui.php:440
 msgid ""
 "The original %1$s will update this version unless you <a "
 "href=\"%2$s\">unlink from the original.</a>"
 msgstr ""
 
-#: includes/syndicated-post-ui.php:443
+#: includes/syndicated-post-ui.php:445
 msgid "Originally distributed from <a href=\"%1$s\">%1$s</a>."
 msgstr ""
 
-#: includes/syndicated-post-ui.php:444
+#: includes/syndicated-post-ui.php:446
 msgid ""
 "This %1$s has been unlinked from the original. However, you can always <a "
 "href='%2$s'>restore it.</a>"

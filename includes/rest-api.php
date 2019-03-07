@@ -49,7 +49,7 @@ function setup() {
  */
 function filter_distributor_content( $prepared_post, $request ) {
 
-	if ( \Distributor\Utils\is_using_gutenberg() && isset( $request['distributor_raw_content'] ) ) {
+	if ( \Distributor\Utils\is_using_gutenberg( get_post( $prepared_post->ID ) ) && isset( $request['distributor_raw_content'] ) ) {
 		if ( \Distributor\Utils\dt_use_block_editor_for_post_type( $prepared_post->post_type ) ) {
 			$prepared_post->post_content = $request['distributor_raw_content'];
 		}
@@ -143,8 +143,8 @@ function prepare_distributor_content( $response, $post, $request ) {
 		return $response;
 	}
 	// Is the local site is running Gutenberg?
-	if ( \Distributor\Utils\is_using_gutenberg() ) {
-		$post_data = $response->get_data();
+	if ( \Distributor\Utils\is_using_gutenberg( $post ) ) {
+		$post_data                       = $response->get_data();
 		$post_data['is_using_gutenberg'] = true;
 		$response->set_data( $post_data );
 	}

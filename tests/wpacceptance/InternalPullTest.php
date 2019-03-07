@@ -14,7 +14,7 @@ class InternalPullTest extends \TestCase {
 	 * Test the correct posts show in "new", "pulled", "skipped"
 	 */
 	public function testPostShowingPerStatus() {
-		$I = $this->getAnonymousUser();
+		$I = $this->openBrowserPage();
 
 		$I->loginAs( 'wpsnapshots' );
 
@@ -43,7 +43,7 @@ class InternalPullTest extends \TestCase {
 	 * Test pulling a post
 	 */
 	public function testPullPost() {
-		$I = $this->getAnonymousUser();
+		$I = $this->openBrowserPage();
 
 		$I->loginAs( 'wpsnapshots' );
 
@@ -68,7 +68,7 @@ class InternalPullTest extends \TestCase {
 	 * Test skipping a post
 	 */
 	public function testSkipPost() {
-		$I = $this->getAnonymousUser();
+		$I = $this->openBrowserPage();
 
 		$I->loginAs( 'wpsnapshots' );
 
@@ -76,7 +76,7 @@ class InternalPullTest extends \TestCase {
 
 		$I->waitUntilElementVisible( '.wp-list-table' );
 
-		$I->selectOptions( '#bulk-action-selector-top', 'bulk-skip' );
+		$I->selectOptionByValue( '#bulk-action-selector-top', 'bulk-skip' );
 
 		$I->checkOptions( '.wp-list-table #cb-select-40');
 
