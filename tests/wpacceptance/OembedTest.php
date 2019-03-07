@@ -20,7 +20,6 @@ class OembedTests extends \TestCase {
 
 		// Push post to connection 2.
 		$post_info = $this->pushPost( $I, 48, 2 );
-		$I->moveTo( $post_info['distributed_edit_url'] );
 
 		// Switch to the text editor.
 		$I->waitUntilElementVisible( '#content-html' );
@@ -71,13 +70,13 @@ class OembedTests extends \TestCase {
 
 		$I->moveTo( 'wp-admin/post-new.php?post_type=dt_ext_connection' );
 
-		$I->fillField( '#title', 'Test External Connection' );
+		$I->typeInField( '#title', 'Test External Connection' );
 
-		$I->fillField( '#dt_username', 'wpsnapshots' );
+		$I->typeInField( '#dt_username', 'wpsnapshots' );
 
-		$I->fillField( '#dt_external_connection_url', $this->getWPHomeUrl() . '/two/wp-json' );
+		$I->typeInField( '#dt_external_connection_url', $this->getWPHomeUrl() . '/two/wp-json' );
 
-		$I->fillField( '#dt_password', 'password' );
+		$I->typeInField( '#dt_password', 'password' );
 
 		$I->waitUntilElementContainsText( 'Connection established', '.endpoint-result' );
 
@@ -94,10 +93,11 @@ class OembedTests extends \TestCase {
 		$I->waitUntilElementVisible( '#the-list' );
 		$I->click( 'a.row-title' );
 
+		$I->waitUntilNavigation();
+
 		// Switch to the text editor.
 		$I->waitUntilElementVisible( '#content-html' );
 		$I->jsClick( '#content-html' );
-
 		// Grab the post content.
 		$I->waitUntilElementVisible( '.wp-editor-area' );
 
@@ -118,14 +118,13 @@ class OembedTests extends \TestCase {
 
 		$I->moveTo( 'two/wp-admin/post-new.php?post_type=dt_ext_connection' );
 
-		$I->fillField( '#title', 'Test External Connection' );
+		$I->typeInField( '#title', 'Test External Connection' );
 
-		$I->fillField( '#dt_username', 'wpsnapshots' );
+		$I->typeInField( '#dt_username', 'wpsnapshots' );
 
-		$I->fillField( '#dt_external_connection_url', $this->getWPHomeUrl() . '/wp-json' );
+		$I->typeInField( '#dt_external_connection_url', $this->getWPHomeUrl() . '/wp-json' );
 
-
-		$I->fillField( '#dt_password', 'password' );
+		$I->typeInField( '#dt_password', 'password' );
 
 		$I->waitUntilElementContainsText( 'Connection established', '.endpoint-result' );
 
