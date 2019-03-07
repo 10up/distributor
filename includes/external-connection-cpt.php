@@ -311,7 +311,7 @@ function filter_enter_title_here( $label, $post = 0 ) {
 		return $label;
 	}
 
-	return esc_html__( 'Enter external connection name', 'distributor' );
+	return esc_html__( 'Label this external connection', 'distributor' );
 }
 
 /**
@@ -445,13 +445,12 @@ function meta_box_external_connection_details( $post ) {
 		<input id="dt_external_connection_type" class="external-connection-type-field" type="hidden" name="dt_external_connection_type" value="<?php echo esc_attr( $registered_connection_types_keys[0] ); ?>">
 	<?php else : ?>
 		<p>
-			<label for="dt_external_connection_type"><?php esc_html_e( 'External Connection Type', 'distributor' ); ?></label><br>
+			<label for="dt_external_connection_type"><?php esc_html_e( 'Authentication Method', 'distributor' ); ?></label><br>
 			<select name="dt_external_connection_type" class="external-connection-type-field" id="dt_external_connection_type">
 				<?php foreach ( $registered_external_connection_types as $slug => $external_connection_class ) : ?>
 					<option <?php selected( $slug, $external_connection_type ); ?> value="<?php echo esc_attr( $slug ); ?>"><?php echo esc_attr( $external_connection_class::$label ); ?></option>
 				<?php endforeach; ?>
 			</select>
-			<span class="description"><?php esc_html_e( 'We need to know what type of API we are communicating with.', 'distributor' ); ?></span>
 		</p>
 	<?php endif; ?>
 
@@ -494,7 +493,7 @@ function meta_box_external_connection_details( $post ) {
 			<?php
 		}
 		?>
-		<span class="description"><?php esc_html_e( 'Please be warned all these users will inherit the permissions of the user on the remote site', 'distributor' ); ?></p>
+		<span class="description"><?php esc_html_e( 'Select the roles of users on this site that will be allowed to push content to this connection. Keep in mind that pushing will use the permissions of the user credentials provided for this connection.', 'distributor' ); ?></p>
 	</p>
 
 	<p class="dt-submit-connection hide-until-authed">
