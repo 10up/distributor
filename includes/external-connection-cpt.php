@@ -493,7 +493,7 @@ function meta_box_external_connection_details( $post ) {
 			<?php
 		}
 		?>
-		<span class="description"><?php esc_html_e( 'Please be warned all these users will inherit the permissions of the user on the remote site', 'distributor' ); ?></p>
+		<span class="description"><?php esc_html_e( 'Select the roles of users on this site that will be allowed to push content to this connection. Keep in mind that pushing will use the permissions of the user credentials provided for this connection.', 'distributor' ); ?></p>
 	</p>
 
 	<p class="dt-submit-connection hide-until-authed">

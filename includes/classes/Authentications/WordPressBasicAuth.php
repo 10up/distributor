@@ -66,7 +66,7 @@ class WordPressBasicAuth extends Authentication {
 			<label for="dt_username"><?php esc_html_e( 'Username', 'distributor' ); ?></label><br>
 			<input type="text" name="dt_external_connection_auth[username]" data-auth-field="username" value="<?php echo esc_attr( $args['username'] ); ?>" class="auth-field" id="dt_username">
 
-			<span class="description"><?php esc_html_e( 'We need a username (preferrably with an Administrator role) to the WordPress site with the API.', 'distributor' ); ?>
+			<span class="description"><?php esc_html_e( 'We need a username (preferably with an Administrator role) for the WordPress site you are connecting to.', 'distributor' ); ?>
 		</p>
 
 		<p>
@@ -81,7 +81,13 @@ class WordPressBasicAuth extends Authentication {
 				<input type="password" name="dt_external_connection_auth[password]" data-auth-field="password" class="auth-field" id="dt_password">
 			<?php endif; ?>
 
-			<span class="description"><?php esc_html_e( 'Important: We strongly recommend using the Application Passwords plugin to create a unique password for this connection to keep your primary password extra safe and in case you need to revoke access in the future.', 'distributor' ); ?>
+			<span class="description">
+				<?php
+				$plugin_link = 'https://wordpress.org/plugins/application-passwords/';
+
+				/* translators: %s: Application Passwords plugin URL */
+				printf( __( '<strong>Important:</strong> We strongly recommend using the <a href="%s">Application Passwords</a> plugin on the site you are connecting to in order to create a unique password for this connection. This helps limit the use of your primary password and will allow you to revoke access in the future if needed.', 'distributor' ), esc_url( $plugin_link ) );
+				?>
 		</p>
 		<?php
 	}
