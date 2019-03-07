@@ -71,6 +71,8 @@ The plugin contains a standard test suite compatible with PHPUnit. If you want t
 
 You can define a constant `DISTRIBUTOR_DEBUG` to `true` to increase the ease of debugging in Distributor. This will make all remote requests blocking and expose the subscription post type.
 
+Enabling this will also provide more debugging information in your error log for image side loading issues. The specific logging method may change in the future.
+
 ### Work with us
 
 <a href="http://10up.com/contact/"><img src="https://10updotcom-wpengine.s3.amazonaws.com/uploads/2016/10/10up-Github-Banner.png" width="850"></a>
