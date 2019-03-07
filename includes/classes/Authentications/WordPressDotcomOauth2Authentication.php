@@ -102,12 +102,12 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 			)
 		) {
 			?>
-			<p>
-			<?php esc_html_e( 'To connect, first ', 'distributor' ); ?>
-			<a href="https://developer.wordpress.com/apps/"><?php esc_html_e( 'create an application with the WordPress.com applications manager', 'distributor' ); ?></a>.<br />
-			<?php esc_html_e( 'Use the following redirect URL when creating your application: ', 'distributor' ); ?>
-			<strong><?php echo esc_url( admin_url( 'post.php' ) ); ?></strong>
-			</p>
+			<div class="card">
+				<p><?php esc_html_e( 'To connect, first ', 'distributor' ); ?>
+				<a href="https://developer.wordpress.com/apps/"><?php esc_html_e( 'create an application with the WordPress.com applications manager', 'distributor' ); ?></a>.</p>
+				<p><?php esc_html_e( 'Use the following redirect URL when creating your application: ', 'distributor' ); ?><br />
+				<strong><?php echo esc_url( admin_url( 'post.php' ) ); ?></strong></p>
+			</div>
 			<?php
 
 			/**
