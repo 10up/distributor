@@ -86,7 +86,7 @@ class WordPressBasicAuth extends Authentication {
 				$plugin_link = 'https://wordpress.org/plugins/application-passwords/';
 
 				/* translators: %s: Application Passwords plugin URL */
-				printf( wp_kses( '<strong>Important:</strong> We strongly recommend using the <a href="%s">Application Passwords</a> plugin on the site you are connecting to in order to create a unique password for this connection. This helps limit the use of your primary password and will allow you to revoke access in the future if needed.', 'distributor' ), esc_url( $plugin_link ) );
+				printf( wp_kses( __( '<strong>Important:</strong> We strongly recommend using the <a href="%s">Application Passwords</a> plugin on the site you are connecting to in order to create a unique password for this connection. This helps limit the use of your primary password and will allow you to revoke access in the future if needed.', 'distributor' ) ), esc_url( $plugin_link ) );
 				?>
 		</p>
 		<?php
