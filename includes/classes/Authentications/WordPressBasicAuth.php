@@ -43,7 +43,7 @@ class WordPressBasicAuth extends Authentication {
 		parent::__construct( $args );
 
 		if ( isset( $this->password ) && isset( $this->username ) ) {
-			$this->base64_encoded = base64_encode( $this->username . ':' . $this->password );
+			$this->base64_encoded = base64_encode( $this->username . ':' . $this->password ); // @codingStandardsIgnoreLine valid use of base64_encode
 		}
 
 		if ( empty( $this->base64_encoded ) ) {
@@ -103,7 +103,7 @@ class WordPressBasicAuth extends Authentication {
 		}
 
 		if ( ! empty( $args['password'] ) ) {
-			$auth['base64_encoded'] = base64_encode( $args['username'] . ':' . $args['password'] );
+			$auth['base64_encoded'] = base64_encode( $args['username'] . ':' . $args['password'] ); // @codingStandardsIgnoreLine valid use of base64_encode
 		}
 
 		/**
