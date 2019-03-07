@@ -4,8 +4,8 @@ All notable changes to this project will be documented in this file, per [the Ke
 
 ## [ 1.4.0 ] - 2019-03-07
 ### Added
-* Clearer instructions and help text when adding a external connection.
-* Log image sideloading failures whe using `DISTRIBUTOR_DEBUG`.
+* Clearer instructions and help text when adding an external connection.
+* Log image sideloading failures when using `DISTRIBUTOR_DEBUG`.
 
 ### Fixed
 * Allow attachments to be distributed from local environments.
