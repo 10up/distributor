@@ -46,6 +46,15 @@ function is_using_gutenberg( $post ) {
 	if ( ! function_exists( 'use_block_editor_for_post' ) ) {
 		include_once ABSPATH . 'wp-admin/includes/post.php';
 	}
+
+	// Previous to Gutenberg 5.0, `use_block_editor_for_post` was named `gutenberg_can_edit_post`.
+	if ( ! function_exists( 'use_block_editor_for_post' ) ) {
+		if ( function_exists( 'gutenberg_can_edit_post' ) ) {
+			return gutenberg_can_edit_post( $post );
+		}
+		return false;
+	}
+
 	return use_block_editor_for_post( $post );
 }
 
@@ -515,7 +524,7 @@ function set_media( $post_id, $media ) {
 		$featured_keys = wp_list_pluck( $media, 'featured' );
 
 		// Note: this is not a strict search because of issues with typecasting in some setups
-		$featured_key = array_search( true, $featured_keys );
+		$featured_key = array_search( true, $featured_keys ); // @codingStandardsIgnoreLine Ignore strict search requirement.
 
 		$media = ( false !== $featured_key ) ? array( $media[ $featured_key ] ) : array();
 	}
@@ -559,7 +568,9 @@ function set_media( $post_id, $media ) {
 		}
 
 		// Transfer all meta
-		set_meta( $image_id, $media_item['meta'] );
+		if ( isset( $media_item['meta'] ) ) {
+			set_meta( $image_id, $media_item['meta'] );
+		}
 
 		// Transfer post properties
 		wp_update_post(
@@ -580,7 +591,7 @@ function set_media( $post_id, $media ) {
 /**
  * This is a helper function for transporting/formatting data about a media post
  *
- * @param  WP_Post $media_post Media post.
+ * @param  \WP_Post $media_post Media post.
  * @since  1.0
  * @return array
  */
@@ -665,17 +676,35 @@ function process_media( $url, $post_id ) {
 	require_once ABSPATH . 'wp-admin/includes/file.php';
 	require_once ABSPATH . 'wp-admin/includes/media.php';
 
+	// Allows to pull media from local IP addresses
+	// Uses a "magic number" for priority so we only unhook our call, just in case
+	add_filter( 'http_request_host_is_external', '__return_true', 88 );
+
 	// Download file to temp location.
 	$file_array['tmp_name'] = download_url( $url );
 
+	remove_filter( 'http_request_host_is_external', '__return_true', 88 );
+
 	// If error storing temporarily, return the error.
 	if ( is_wp_error( $file_array['tmp_name'] ) ) {
+
+		// Distributor is in debug mode, display the issue, could be storage related.
+		if ( is_dt_debug() ) {
+			error_log( sprintf( 'Distributor: %s', $file_array['tmp_name']->get_error_message() ) ); // @codingStandardsIgnoreLine
+		}
+
 		return false;
 	}
 
 	// Do the validation and storage stuff.
 	$result = media_handle_sideload( $file_array, $post_id );
 	if ( is_wp_error( $result ) ) {
+
+		// Distributor is in debug mode, display the issue, could be storage related.
+		if ( is_dt_debug() ) {
+			error_log( sprintf( 'Distributor: %s', $file_array['tmp_name']->get_error_message() ) ); // @codingStandardsIgnoreLine
+		}
+
 		return false;
 	}
 	return (int) $result;

@@ -19,27 +19,33 @@ class WordPressDotcomExternalConnection extends WordPressExternalConnection {
 	 *
 	 * @var string
 	 */
-	static public $slug = 'wpdotcom';
+	public static $slug = 'wpdotcom';
 
 	/**
 	 * Connection pretty label
 	 *
+	 * This is to represent the authentication method,
+	 * not the connection type. This value was previously
+	 * "WordPress.com REST API".
+	 *
+	 * @since 1.4.0 Label as authentication method, not connection type
+	 *
 	 * @var string
 	 */
-	static public $label = 'WordPress.com REST API';
+	public static $label = 'WordPress.com Application';
 
 	/**
 	 * Connection auth class
 	 *
 	 * @var string
 	 */
-	static public $auth_handler_class = '\Distributor\Authentications\WordPressDotcomOauth2Authentication';
+	public static $auth_handler_class = '\Distributor\Authentications\WordPressDotcomOauth2Authentication';
 
 	/**
 	 * Connection REST API namespace
 	 *
 	 * @var string
 	 */
-	static public $namespace = 'wp/v2';
+	public static $namespace = 'wp/v2';
 
 }
