@@ -17,14 +17,14 @@
     }
   },
   "require-dev": {
-    "10up/wp_mock": "dev-dev",
-    "10up/phpcs-composer": "dev-master",
-    "phpunit/phpunit": "^6.5",
-    "10up/wpacceptance": "~0.10.0"
+    "10up/wpacceptance": "~0.12.0",
+    "10up/wp_mock": "~0.4",
+    "phpunit/phpunit": "~7.5",
+    "10up/phpcs-composer": "dev-master"
   },
   "scripts": {
-    "lint": "phpcs .",
-    "lint-fix": "phpcbf ."
+    "lint": "./vendor/bin/phpcs . --runtime-set testVersion 5.6-",
+    "lint-fix": "phpcbf . --runtime-set testVersion 5.6-"
   },
   "minimum-stability": "dev",
   "prefer-stable": true

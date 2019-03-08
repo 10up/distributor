@@ -2,10 +2,11 @@
 namespace Distributor\ExternalConnections;
 
 use \Distributor\Authentications\WordPressBasicAuth as WordPressBasicAuth;
+use WP_Mock\Tools\TestCase;
 
-class WordPressExternalConnectionTest extends \TestCase {
+class WordPressExternalConnectionTest extends TestCase {
 
-	public function setUp() {
+	public function setUp(): void {
 
 		$this->auth       = new WordPressBasicAuth( array() );
 		$this->connection = new WordPressExternalConnection( 'name', 'url', 1, $this->auth );
