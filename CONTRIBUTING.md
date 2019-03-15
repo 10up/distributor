@@ -28,9 +28,10 @@ The `develop` branch is the development branch which means it contains the next 
 
 ## Release instructions
 
-1. Version bump: Bump the version number in `distributor.php` if it does not already reflect the version being released.  Update both the plugin "Version:" property and the plugin `DT_VERSION` constant, ensuring that it is suffixed with `-dev`.
-2. Changelog: Add/update the changelog in `CHANGELOG.md`
-3. Merge: Make a non-fast-forward merge from `develop` to `master`. `master` contains the stable development version.
+1. Starting from `develop` cut a release branches for your changes.
+2. Version bump: Bump the version number in `distributor.php` if it does not already reflect the version being released.  Update both the plugin "Version:" property and the plugin `DT_VERSION` constant, ensuring that it is suffixed with `-dev`.
+3. Changelog: Add/update the changelog in `CHANGELOG.md`
+3. Merge: Make a non-fast-forward merge from your release branch to `master`. `master` contains the stable development version.
 4. Build: In the `master` branch, run `npm run release`. This will create a subfolder called `release` with the `stable` branch cloned into it as a worktree and latest changes copied over. Ensure that any new files are in the `release` folder; if not, you may need to add them to `gulp-tasks/copy.js`.
 5. Check: Are there any modified files, such as `distributor.pot`? If so, head back to `develop`, run all necessary tasks and commit those changes before heading back to step 3.
 6. Test: Switch to running Distributor from the version in the `release` subfolder and run through a few common tasks in the UI to ensure functionality.
