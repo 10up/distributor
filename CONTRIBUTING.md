@@ -38,4 +38,4 @@ The `develop` branch is the development branch which means it contains the next 
 8. Test: Switch to running Distributor from the version in the `release` subfolder and run through a few common tasks in the UI to ensure functionality.
 9. Push: First master: `git push`, then from within the `release` directory, add all files and push them to `origin stable`: `git push origin stable`.
 10. Git tag: Tag the release as `X.Y.Z` on the `stable` branch in Git and push the tag to GitHub. It should now appear under [releases](https://github.com/10up/distributor/releases) as well.
-11. Version bump (again): Bump the version number in `distributor.php` to `X.Y.(Z+1)-dev`. It's okay if the next release might be a different version number; that change can be handled right before release in the first step, as might also be the case with `@since` annotations.
+11. Version bump (again): In the `develop` branch bump the version number in `distributor.php` to `X.Y.(Z+1)-dev`. It's okay if the next release might be a different version number; that change can be handled right before release in the first step, as might also be the case with `@since` annotations.
