@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file, per [the Keep a Changelog standard](http://keepachangelog.com/).
 
+## [ 1.4.1 ] - 2019-03-15
+### Fixed
+* Improve block editor detection, correcting an issue with post saving.
+
 ## [ 1.4.0 ] - 2019-03-07
 ### Added
 * Clearer instructions and help text when adding an external connection.
