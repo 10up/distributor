@@ -1,8 +1,14 @@
 import jQuery from 'jquery';
 import _ from 'underscores';
 import { dt, ajaxurl } from 'window';
+import {
+	addQueryArgs,
+	isURL,
+} from '@wordpress/url';
+
 
 const externalConnectionUrlField  = document.getElementsByClassName( 'external-connection-url-field' )[0];
+const externalSiteUrlField        = document.getElementsByClassName( 'external-site-url-field' )[0];
 const externalConnectionMetaBox   = document.getElementById( 'dt_external_connection_details' );
 const externalConnectionTypeField = document.getElementsByClassName( 'external-connection-type-field' )[0];
 const authFields                  = document.getElementsByClassName( 'auth-field' );
@@ -11,7 +17,49 @@ const titleField                  = document.getElementById( 'title' );
 const endpointResult              = document.querySelector( '.endpoint-result' );
 const endpointErrors              = document.querySelector( '.endpoint-errors' );
 const postIdField                 = document.getElementById( 'post_ID' );
+const authorizeConnectionButton   = document.getElementsByClassName( 'establish-connection-button' );
 let $apiVerify                    = false;
+const passwordField               = document.getElementById( 'dt_password' );
+const usernameField               = document.getElementById( 'dt_username' );
+const changePassword              = document.querySelector( '.change-password' );
+
+// Handle the "Authorize Connection" button.
+jQuery( authorizeConnectionButton ).on( 'click', ( event ) => {
+	event.preventDefault();
+
+	const siteURL =  externalSiteUrlField.value;
+	if ( ! isURL( siteURL ) ) {
+		return false;
+	}
+
+	// @todo check that Distributor available on remote site here.
+
+	const successURL = addQueryArgs( document.location.href,
+		{
+			setupStatus: 'success',
+			titleField: titleField.value,
+			externalSiteUrlField: siteURL,
+		}
+	);
+
+	const failureURL = addQueryArgs( document.location.href,
+		{
+			setupStatus: 'failure'
+		}
+	);
+
+	const authURL = addQueryArgs(
+		`${ siteURL }/wp-admin/admin.php`,
+		{
+			page: 'auth_app',
+			app_name: dt.distributor_from, /*eslint camelcase: 0*/
+			success_url: encodeURI( successURL ), /*eslint camelcase: 0*/
+			reject_url:  encodeURI( failureURL ), /*eslint camelcase: 0*/
+		}
+	);
+	document.location = authURL;
+	return false;
+} );
 
 /**
  * Check the external connection.
@@ -115,7 +163,19 @@ function checkConnections() {
 	} );
 }
 
+// Initialize after load.
 setTimeout( () => {
+	// Repopulate fields on wizard flow.
+	const { wizard_return } = dt;
+	console.log( wizard_return, jQuery( titleField ) );
+	if ( wizard_return ) {
+		if ( '' === titleField.value ) {
+			jQuery( titleField ).val( wizard_return.titleField ).focus().blur();
+		}
+		jQuery( usernameField ).val( wizard_return.user_login );
+		jQuery( passwordField ).val( wizard_return.password );
+		jQuery( externalConnectionUrlField ).val( `${ wizard_return.externalSiteUrlField }/wp-json` );
+	}
 	checkConnections();
 }, 300 );
 
@@ -138,9 +198,7 @@ jQuery( externalConnectionUrlField ).on( 'blur', ( event ) => {
  *
  * @todo  separate
  */
-const passwordField  = document.getElementById( 'dt_password' );
-const usernameField  = document.getElementById( 'dt_username' );
-const changePassword = document.querySelector( '.change-password' );
+
 
 jQuery( usernameField ).on( 'keyup change', _.debounce( () => {
 	if ( changePassword ) {

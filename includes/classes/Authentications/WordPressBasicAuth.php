@@ -64,7 +64,7 @@ class WordPressBasicAuth extends Authentication {
 		?>
 		<p>
 			<label for="dt_username"><?php esc_html_e( 'Username', 'distributor' ); ?></label><br>
-			<input type="text" name="dt_external_connection_auth[username]" data-auth-field="username" value="<?php echo esc_attr( $args['username'] ); ?>" class="auth-field" id="dt_username">
+			<input type="text" name="dt_external_connection_auth[username]" data-auth-field="username" value="<?php echo esc_attr( $args['username'] ); ?>" autocomplete="off" class="auth-field" id="dt_username">
 
 			<span class="description"><?php esc_html_e( 'A username from the external WordPress site to connect with. For full functionality, this needs to be a user with an administrator role.', 'distributor' ); ?>
 		</p>
@@ -76,9 +76,9 @@ class WordPressBasicAuth extends Authentication {
 <a class="change-password" href="#"><?php esc_html_e( '(Change)', 'distributor' ); ?></a><?php endif; ?></label><br>
 
 			<?php if ( ! empty( $args['base64_encoded'] ) ) : ?>
-			<input disabled type="password" name="dt_external_connection_auth[password]" value="ertdfweewefewwe" data-auth-field="password" class="auth-field" id="dt_password">
+			<input disabled type="password" name="dt_external_connection_auth[password]" value="ertdfweewefewwe" data-auth-field="password" class="auth-field" id="dt_password" autocomplete="off">
 			<?php else : ?>
-				<input type="password" name="dt_external_connection_auth[password]" data-auth-field="password" class="auth-field" id="dt_password">
+				<input type="password" name="dt_external_connection_auth[password]" data-auth-field="password" class="auth-field" id="dt_password" autocomplete="off">
 			<?php endif; ?>
 
 			<span class="description">

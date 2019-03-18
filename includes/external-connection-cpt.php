@@ -269,6 +269,8 @@ function admin_enqueue_scripts( $hook ) {
 		wp_enqueue_style( 'dt-admin-external-connection', plugins_url( '/dist/css/admin-external-connection.min.css', __DIR__ ), array(), DT_VERSION );
 		wp_enqueue_script( 'dt-admin-external-connection', plugins_url( '/dist/js/admin-external-connection.min.js', __DIR__ ), array( 'jquery', 'underscore' ), DT_VERSION, true );
 
+		$blog_name = get_bloginfo( 'name ');
+		$wizard_return = get_wizard_return_data();
 		wp_localize_script(
 			'dt-admin-external-connection',
 			'dt',
@@ -287,6 +289,9 @@ function admin_enqueue_scripts( $hook ) {
 				'no_distributor'            => esc_html__( 'Distributor not installed on remote site.', 'distributor' ),
 				'roles_warning'             => esc_html__( 'Be careful assigning less trusted roles push privileges as they will inherit the capabilities of the user on the remote site.', 'distributor' ),
 				'admin_url'                 => admin_url(),
+				/* translators: %s: site name */
+				'distributor_from'          => sprintf( esc_html__( 'Distributor from %s', 'distributor' ), $blog_name ),
+				'wizard_return'             => $wizard_return,
 			)
 		);
 
@@ -296,6 +301,24 @@ function admin_enqueue_scripts( $hook ) {
 	if ( ! empty( $_GET['page'] ) && 'distributor' === $_GET['page'] ) { // @codingStandardsIgnoreLine Nonce not required
 		wp_enqueue_style( 'dt-admin-external-connections', plugins_url( '/dist/css/admin-external-connections.min.css', __DIR__ ), array(), DT_VERSION );
 	}
+}
+
+/**
+ * Get the data returned as part of the external applications passwords flow.
+ *
+ */
+function get_wizard_return_data() {
+	$wizard_return = false;
+	if ( isset( $_GET['setupStatus'] ) && 'success' === sanitize_key( $_GET['setupStatus'] ) ) {
+		$wizard_return = array(
+			'titleField'           =>  isset( $_GET['titleField'] ) ? sanitize_text_field( urldecode( $_GET['titleField'] ) ) : '',
+			'externalSiteUrlField' =>  isset( $_GET['externalSiteUrlField'] ) ? sanitize_text_field( urldecode( $_GET['externalSiteUrlField'] ) ) : '',
+			'user_login'           =>  isset( $_GET['user_login'] ) ? sanitize_text_field( $_GET['user_login'] ) : '',
+			'password'             =>  isset( $_GET['password'] ) ? sanitize_text_field( $_GET['password'] ) : '',
+		);
+	}
+	return $wizard_return;
+
 }
 
 /**
@@ -396,6 +419,7 @@ function add_meta_boxes() {
 	add_meta_box( 'dt_external_connection_details', esc_html__( 'External Connection Details', 'distributor' ), __NAMESPACE__ . '\meta_box_external_connection_details', 'dt_ext_connection', 'normal', 'core' );
 }
 
+
 /**
  * Output connection options meta box
  *
@@ -417,6 +441,15 @@ function meta_box_external_connection_details( $post ) {
 		$external_connection_url = '';
 	}
 
+	// Use the wizard on the new post screen.
+	$new_connection = ! ( isset( $_GET['action'] ) && 'edit' === sanitize_key( $_GET['action'] ) );
+
+	$wizard_return = get_wizard_return_data();
+
+	$hide_non_wizard = ( $wizard_return || ! $new_connection ) ? '' : 'hidden';
+	$hide_in_wizard = ( $wizard_return || ! $new_connection ) ? 'hidden' : '';
+	$hide_when_creating_new = $new_connection ? 'hidden' : '';
+
 	$registered_external_connection_types = \Distributor\Connections::factory()->get_registered();
 
 	foreach ( $registered_external_connection_types as $slug => $class ) {
@@ -437,14 +470,34 @@ function meta_box_external_connection_details( $post ) {
 		$allowed_roles[] = 'administrator';
 	}
 	?>
+	<?php if (  isset( $_GET['setupStatus'] ) && 'failure' === sanitize_key( $_GET['setupStatus'] ) ) {
+	?>
+	<div>
+		<h3>
+			<?php esc_html_e( 'Authorization rejected, please try again.', 'distributor' ); ?>
+		</h3><br/>
+	</div>
+	<?php
+	}?>
+	<div class="<?php echo esc_attr( $hide_in_wizard ); ?>">
+		<label for="dt_external_site_url"><?php esc_html_e( 'External Site URL', 'distributor' ); ?></label><br>
 
+		<input value="" type="text" name="dt_external_site_url" id="dt_external_site_url" class="widefat external-site-url-field" placeholder="https://remotesite.com">
+		<p>
+			<button class="button button-large establish-connection-button button-primary">
+				<?php esc_html_e( 'Authorize Connection', 'distributor' ); ?>
+			</button>
+		</p>
+	</div>
+
+	<div class="<?php echo esc_attr( $hide_non_wizard ); ?>">
 	<?php
 	if ( 1 === count( $registered_external_connection_types ) ) :
 		$registered_connection_types_keys = array_keys( $registered_external_connection_types );
 		?>
 		<input id="dt_external_connection_type" class="external-connection-type-field" type="hidden" name="dt_external_connection_type" value="<?php echo esc_attr( $registered_connection_types_keys[0] ); ?>">
 	<?php else : ?>
-		<p>
+		<p class="<?php echo esc_attr( $hide_in_wizard ); ?>">
 			<label for="dt_external_connection_type"><?php esc_html_e( 'Authentication Method', 'distributor' ); ?></label><br>
 			<select name="dt_external_connection_type" class="external-connection-type-field" id="dt_external_connection_type">
 				<?php foreach ( $registered_external_connection_types as $slug => $external_connection_class ) : ?>
@@ -453,33 +506,38 @@ function meta_box_external_connection_details( $post ) {
 			</select>
 		</p>
 	<?php endif; ?>
-
-	<?php
-	$index = 1;
-	foreach ( $registered_external_connection_types as $external_connection_class ) :
-		$auth_handler_class_again = $external_connection_class::$auth_handler_class;
-		if ( ! $auth_handler_class_again::$requires_credentials ) {
-			continue; }
-		$selected  = $external_connection_class::$slug === $external_connection_type ||
-			( '' === $external_connection_type && 1 === $index );
-		$is_hidden = ! $selected;
-		$index++;
-		?>
-		<div class="auth-credentials <?php echo ( $is_hidden ? 'hidden ' : '' ); ?><?php echo esc_attr( $auth_handler_class_again::$slug ); ?> <?php echo esc_attr( $external_connection_class::$slug ); ?>">
-			<?php $auth_handler_class_again::credentials_form( $auth ); ?>
-		</div>
-	<?php endforeach; ?>
+	<div class="<?php echo esc_attr( $hide_in_wizard ); ?>">
+		<h3>
+			<?php esc_html_e( 'Success! Credentials received from external site.', 'distributor' ); ?>
+		</h3><br/>
+	</div>
+	<div class="<?php echo esc_attr( $hide_in_wizard ); ?>">
+		<?php
+		$index = 1;
+		foreach ( $registered_external_connection_types as $external_connection_class ) :
+			$auth_handler_class_again = $external_connection_class::$auth_handler_class;
+			if ( ! $auth_handler_class_again::$requires_credentials ) {
+				continue; }
+			$selected  = $external_connection_class::$slug === $external_connection_type ||
+				( '' === $external_connection_type && 1 === $index );
+			$is_hidden = ! $selected;
+			$index++;
+			?>
+			<div class="auth-credentials <?php echo ( $is_hidden ? 'hidden ' : '' ); ?><?php echo esc_attr( $auth_handler_class_again::$slug ); ?> <?php echo esc_attr( $external_connection_class::$slug ); ?>">
+				<?php $auth_handler_class_again::credentials_form( $auth ); ?>
+			</div>
+		<?php endforeach; ?>
+	</div>
 	<div class="connection-field-wrap hide-until-authed">
 		<label for="dt_external_connection_url"><?php esc_html_e( 'External Connection URL', 'distributor' ); ?></label><br>
 		<span class="external-connection-url-field-wrapper">
 			<input value="<?php echo esc_url( $external_connection_url ); ?>" type="text" name="dt_external_connection_url" id="dt_external_connection_url" class="widefat external-connection-url-field">
 		</span>
-
 		<span class="description endpoint-result"></span>
 		<ul class="endpoint-errors"></ul>
 	</div>
 
-	<p class="dt-roles-allowed hide-until-authed">
+	<p class="dt-roles-allowed hide-until-authed <?php echo esc_attr( $hide_when_creating_new ); ?>">
 		<label><?php esc_html_e( 'Roles Allowed to Push', 'distributor' ); ?></label><br>
 
 		<?php
@@ -509,6 +567,7 @@ function meta_box_external_connection_details( $post ) {
 			<input name="create-connection" type="submit" class="button button-primary button-large" id="create-connection" value="<?php esc_attr_e( 'Create Connection', 'distributor' ); ?>">
 		<?php endif; ?>
 	</p>
+	</div>
 	<?php
 }
 

@@ -4,8 +4,19 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "961d8938d26bcd03aad63064324c81fa",
+    "content-hash": "914057091d26b37a37b1ab8b875d22d8",
     "packages": [
+        {
+            "name": "georgestephanis/application-passwords",
+            "version": "master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/georgestephanis/application-passwords.git",
+                "reference": "master"
+            },
+            "type": "library",
+            "time": "2018-12-13T17:22:22+00:00"
+        },
         {
             "name": "yahnis-elsts/plugin-update-checker",
             "version": "v4.5.1",
@@ -129,16 +140,16 @@
         },
         {
             "name": "10up/wpacceptance",
-            "version": "0.12.2",
+            "version": "0.12.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/10up/wpacceptance.git",
-                "reference": "a8663ac15763151990489d42c6303ef5cca5dab9"
+                "reference": "c4dca8a3c6cf01722d27f88b23d52751ddd995ee"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/10up/wpacceptance/zipball/a8663ac15763151990489d42c6303ef5cca5dab9",
-                "reference": "a8663ac15763151990489d42c6303ef5cca5dab9",
+                "url": "https://api.github.com/repos/10up/wpacceptance/zipball/c4dca8a3c6cf01722d27f88b23d52751ddd995ee",
+                "reference": "c4dca8a3c6cf01722d27f88b23d52751ddd995ee",
                 "shasum": ""
             },
             "require": {
@@ -181,7 +192,7 @@
                 "testing",
                 "wordpress"
             ],
-            "time": "2019-03-07T14:34:48+00:00"
+            "time": "2019-03-11T15:16:01+00:00"
         },
         {
             "name": "10up/wpsnapshots",
@@ -279,16 +290,16 @@
         },
         {
             "name": "aws/aws-sdk-php",
-            "version": "3.88.0",
+            "version": "3.90.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/aws/aws-sdk-php.git",
-                "reference": "ae656560625e3d9f9d9010898b98595918bb00f5"
+                "reference": "b912d351a44ce0c66c7c69ae937deb3756c61039"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/ae656560625e3d9f9d9010898b98595918bb00f5",
-                "reference": "ae656560625e3d9f9d9010898b98595918bb00f5",
+                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/b912d351a44ce0c66c7c69ae937deb3756c61039",
+                "reference": "b912d351a44ce0c66c7c69ae937deb3756c61039",
                 "shasum": ""
             },
             "require": {
@@ -357,7 +368,7 @@
                 "s3",
                 "sdk"
             ],
-            "time": "2019-03-05T19:14:57+00:00"
+            "time": "2019-03-13T18:07:53+00:00"
         },
         {
             "name": "clue/socket-raw",
@@ -981,16 +992,16 @@
         },
         {
             "name": "jane-php/json-schema-runtime",
-            "version": "v4.0.4",
+            "version": "v4.2.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/janephp/json-schema-runtime.git",
-                "reference": "5e9b63919a89d6d706dbf46f3090e18775e4c9bb"
+                "reference": "7914463d67188ac667ae5ab30a7da76709a25e27"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/janephp/json-schema-runtime/zipball/5e9b63919a89d6d706dbf46f3090e18775e4c9bb",
-                "reference": "5e9b63919a89d6d706dbf46f3090e18775e4c9bb",
+                "url": "https://api.github.com/repos/janephp/json-schema-runtime/zipball/7914463d67188ac667ae5ab30a7da76709a25e27",
+                "reference": "7914463d67188ac667ae5ab30a7da76709a25e27",
                 "shasum": ""
             },
             "require": {
@@ -1029,26 +1040,26 @@
                 }
             ],
             "description": "Jane runtime Library",
-            "time": "2018-10-17T12:37:16+00:00"
+            "time": "2019-03-07T14:28:22+00:00"
         },
         {
             "name": "jane-php/open-api-runtime",
-            "version": "v4.0.4",
+            "version": "v4.2.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/janephp/open-api-runtime.git",
-                "reference": "9662f8820a06a28f8eb5aa30d4ae7f321246767e"
+                "reference": "4f6a3559308f86a5d941204299e253df1f6dcf7a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/janephp/open-api-runtime/zipball/9662f8820a06a28f8eb5aa30d4ae7f321246767e",
-                "reference": "9662f8820a06a28f8eb5aa30d4ae7f321246767e",
+                "url": "https://api.github.com/repos/janephp/open-api-runtime/zipball/4f6a3559308f86a5d941204299e253df1f6dcf7a",
+                "reference": "4f6a3559308f86a5d941204299e253df1f6dcf7a",
                 "shasum": ""
             },
             "require": {
                 "jane-php/json-schema-runtime": "^4.0",
-                "php-http/client-common": "^1.4",
-                "php-http/httplug": "^1.0",
+                "php-http/client-common": "^1.4 || ^2.0",
+                "php-http/httplug": "^1.0 || ^2.0",
                 "php-http/message-factory": "^1.0.2",
                 "php-http/multipart-stream-builder": "^1.0",
                 "symfony/options-resolver": "^3.1|^4.0"
@@ -1078,7 +1089,7 @@
                 }
             ],
             "description": "Jane OpenAPI Runtime Library, dependencies and utility class for a library generated by jane/openapi",
-            "time": "2018-08-07T12:53:20+00:00"
+            "time": "2019-03-08T10:47:16+00:00"
         },
         {
             "name": "league/uri",
