@@ -342,6 +342,13 @@ if ( changeCredentials ) {
 	} );
 }
 
+// Enable the selector before saving.
+jQuery( '.dt-submit-connection #create-connection' ).on( 'click', function() {
+	jQuery( '#dt_external_connection_type' ).removeAttr( 'disabled' );
+	return true;
+} );
+
+
 // Handle the Authorize Connection button.
 const beginAuthorize = document.getElementById( 'begin-authorization' );
 if ( beginAuthorize ) {
