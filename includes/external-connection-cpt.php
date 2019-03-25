@@ -446,8 +446,11 @@ function meta_box_external_connection_details( $post ) {
 
 	$wizard_return = get_wizard_return_data();
 
-	$is_wizard_return = ( $wizard_return  ) ? '' : 'hidden';
+	$show_on_wizard_return = $wizard_return ? '' : 'hidden';
+	$hide_on_wizard_return = ! $wizard_return ? '' : 'hidden';
+	$hide_when_creating_new_and_not_wizard = ( $new_connection && ! $wizard_return ) ? 'hidden' : '';
 	$hide_when_creating_new = $new_connection ? 'hidden' : '';
+	$hide_when_not_new = ! $new_connection ? 'hidden' : '';
 
 	$registered_external_connection_types = \Distributor\Connections::factory()->get_registered();
 
@@ -486,14 +489,14 @@ function meta_box_external_connection_details( $post ) {
 	<?php else : ?>
 		<p>
 			<label for="dt_external_connection_type"><?php esc_html_e( 'Authentication Method', 'distributor' ); ?></label><br>
-			<select name="dt_external_connection_type" class="external-connection-type-field" id="dt_external_connection_type">
+			<select name="dt_external_connection_type" class="external-connection-type-field" id="dt_external_connection_type"<?php echo ( $new_connection && ! $wizard_return ) ? '' : ' disabled="disabled"'; ?>>
 				<?php foreach ( $registered_external_connection_types as $slug => $external_connection_class ) : ?>
 					<option <?php selected( $slug, $external_connection_type ); ?> value="<?php echo esc_attr( $slug ); ?>"><?php echo esc_attr( $external_connection_class::$label ); ?></option>
 				<?php endforeach; ?>
 			</select>
 		</p>
 	<?php endif; ?>
-	<div class="<?php echo esc_attr( $is_wizard_return ); ?> hide-until-authed">
+	<div class="show-on-wp hide-on-wpdotcom <?php echo esc_attr( $hide_when_not_new ); ?> <?php echo esc_attr( $hide_on_wizard_return ); ?>">
 		<label for="dt_external_site_url"><?php esc_html_e( 'External Site URL', 'distributor' ); ?></label><br>
 
 		<input value="" type="text" name="dt_external_site_url" id="dt_external_site_url" class="widefat external-site-url-field" placeholder="https://remotesite.com">
@@ -503,7 +506,7 @@ function meta_box_external_connection_details( $post ) {
 			</button>
 		</p>
 	</div>
-	<div class="<?php echo esc_attr( $is_wizard_return ); ?>">
+	<div class="<?php echo esc_attr( $show_on_wizard_return ); ?>">
 		<h3>
 			<?php esc_html_e( 'Success! Credentials received from external site.', 'distributor' ); ?>
 		</h3><br/>
@@ -525,7 +528,7 @@ function meta_box_external_connection_details( $post ) {
 			</div>
 		<?php endforeach; ?>
 	</div>
-	<div class="connection-field-wrap hide-until-authed">
+	<div class="connection-field-wrap hide-until-authed <?php echo esc_attr( $hide_when_creating_new_and_not_wizard ); ?>">
 		<label for="dt_external_connection_url"><?php esc_html_e( 'External Connection URL', 'distributor' ); ?></label><br>
 		<span class="external-connection-url-field-wrapper">
 			<input value="<?php echo esc_url( $external_connection_url ); ?>" type="text" name="dt_external_connection_url" id="dt_external_connection_url" class="widefat external-connection-url-field">
@@ -551,7 +554,7 @@ function meta_box_external_connection_details( $post ) {
 		<span class="description"><?php esc_html_e( 'Select the roles of users on this site that will be allowed to push content to this connection. Keep in mind that pushing will use the permissions of the user credentials provided for this connection.', 'distributor' ); ?></p>
 	</p>
 
-	<p class="dt-submit-connection hide-until-authed">
+	<p class="dt-submit-connection hide-until-authed <?php echo esc_attr( $hide_when_creating_new_and_not_wizard ); ?>">
 		<input type="hidden" name="post_status" value="publish">
 		<input type="hidden" name="original_post_status" value="<?php echo esc_attr( $post->post_status ); ?>">
 
