@@ -55,7 +55,28 @@ function is_using_gutenberg( $post ) {
 		return false;
 	}
 
-	return use_block_editor_for_post( $post );
+	/**
+	 * WordPress 5.0 will do a check_admin_referrer() inside the use_block_editor_for_posts(),
+	 * and this call would fail, returns a 404 if there's custom meta box, and kills the request.
+	 *
+	 * Unsetting the 'meta-box-loader' in the global request would bypass that check.
+	 */
+	if ( isset( $_GET['meta-box-loader'] ) ) {
+		$meta_box_loader = $_GET['meta-box-loader'];
+		unset( $_GET['meta-box-loader'] );
+	}
+
+	$use_block_editor = use_block_editor_for_post( $post );
+
+	/**
+	 * Set the $meta_box_loader back to the request, if it exists
+	 * so other areas that rely on it would still work.
+	 */
+	if ( isset( $meta_box_loader ) ) {
+		$_GET['meta-box-loader'] = $meta_box_loader;
+	}
+
+	return $use_block_editor;
 }
 
 
