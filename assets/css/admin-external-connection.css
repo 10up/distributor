@@ -189,5 +189,12 @@ input[type="password"].error-required {
 	border: 2px solid red;
 }
 .auth-credentials.user-pass.wp {
+	display: none !important;
+}
+.wp show-on-wp {
+	display: inline-block;
+}
+
+.wpdotcom .hide-on-wpdotcom {
 	display: none;
 }
