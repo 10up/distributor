@@ -22,6 +22,8 @@ let $apiVerify                    = false;
 const passwordField               = document.getElementById( 'dt_password' );
 const usernameField               = document.getElementById( 'dt_username' );
 const changePassword              = document.querySelector( '.change-password' );
+const wrapper                     = document.getElementById( 'wpbody' );
+const titlePrompt                 = document.getElementById( '#title-prompt-text' );
 
 // Handle the "Authorize Connection" button.
 jQuery( authorizeConnectionButton ).on( 'click', ( event ) => {
@@ -167,10 +169,11 @@ function checkConnections() {
 setTimeout( () => {
 	// Repopulate fields on wizard flow.
 	const { wizard_return } = dt;
-	console.log( wizard_return, jQuery( titleField ) );
+
 	if ( wizard_return ) {
 		if ( '' === titleField.value ) {
-			jQuery( titleField ).val( wizard_return.titleField ).focus().blur();
+			jQuery( titleField ).val( wizard_return.titleField );
+			jQuery( titlePrompt ).empty();
 		}
 		jQuery( usernameField ).val( wizard_return.user_login );
 		jQuery( passwordField ).val( wizard_return.password );
@@ -259,7 +262,7 @@ const $hideUntilAuthed = jQuery( '.hide-until-authed' ),
 	hideItemsRequiringAuth = () => {
 		const oauthconnectionestablished = document.getElementsByClassName( 'oauth-connection-established' );
 		if ( 0 === oauthconnectionestablished.length ) {
-			$hideUntilAuthed.hide();
+			$hideUntilAuthed.addClass( 'hide-until-authed' );
 		}
 	},
 
@@ -285,6 +288,8 @@ const $hideUntilAuthed = jQuery( '.hide-until-authed' ),
 jQuery( externalConnectionTypeField ).on( 'change', () => {
 	const slug = externalConnectionTypeField.value;
 
+	wrapper.className = slug;
+
 	$authCredentials.hide();
 	jQuery( '.auth-credentials.' + slug ).show();
 
@@ -294,7 +299,7 @@ jQuery( externalConnectionTypeField ).on( 'change', () => {
 	} else {
 
 		// Otherwise, ensure all areas are showing.
-		$hideUntilAuthed.show();
+		$hideUntilAuthed.removeClass( 'hide-until-authed' );
 	}
 } );
 
