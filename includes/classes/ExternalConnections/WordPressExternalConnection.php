@@ -33,7 +33,7 @@ class WordPressExternalConnection extends ExternalConnection {
 	 *
 	 * @var string
 	 */
-	public static $label = 'Username / Password';
+	public static $label = 'Application Password';
 
 	/**
 	 * Auth handler to use

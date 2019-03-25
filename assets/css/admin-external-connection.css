@@ -188,3 +188,6 @@ input[type="text"].error-required,
 input[type="password"].error-required {
 	border: 2px solid red;
 }
+.auth-credentials.user-pass.wp {
+	display: none;
+}

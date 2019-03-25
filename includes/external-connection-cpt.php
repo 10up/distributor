@@ -446,8 +446,7 @@ function meta_box_external_connection_details( $post ) {
 
 	$wizard_return = get_wizard_return_data();
 
-	$hide_non_wizard = ( $wizard_return || ! $new_connection ) ? '' : 'hidden';
-	$hide_in_wizard = ( $wizard_return || ! $new_connection ) ? 'hidden' : '';
+	$is_wizard_return = ( $wizard_return  ) ? '' : 'hidden';
 	$hide_when_creating_new = $new_connection ? 'hidden' : '';
 
 	$registered_external_connection_types = \Distributor\Connections::factory()->get_registered();
@@ -479,7 +478,22 @@ function meta_box_external_connection_details( $post ) {
 	</div>
 	<?php
 	}?>
-	<div class="<?php echo esc_attr( $hide_in_wizard ); ?>">
+	<?php
+	if ( 1 === count( $registered_external_connection_types ) ) :
+		$registered_connection_types_keys = array_keys( $registered_external_connection_types );
+		?>
+		<input id="dt_external_connection_type" class="external-connection-type-field" type="hidden" name="dt_external_connection_type" value="<?php echo esc_attr( $registered_connection_types_keys[0] ); ?>">
+	<?php else : ?>
+		<p>
+			<label for="dt_external_connection_type"><?php esc_html_e( 'Authentication Method', 'distributor' ); ?></label><br>
+			<select name="dt_external_connection_type" class="external-connection-type-field" id="dt_external_connection_type">
+				<?php foreach ( $registered_external_connection_types as $slug => $external_connection_class ) : ?>
+					<option <?php selected( $slug, $external_connection_type ); ?> value="<?php echo esc_attr( $slug ); ?>"><?php echo esc_attr( $external_connection_class::$label ); ?></option>
+				<?php endforeach; ?>
+			</select>
+		</p>
+	<?php endif; ?>
+	<div class="<?php echo esc_attr( $is_wizard_return ); ?> hide-until-authed">
 		<label for="dt_external_site_url"><?php esc_html_e( 'External Site URL', 'distributor' ); ?></label><br>
 
 		<input value="" type="text" name="dt_external_site_url" id="dt_external_site_url" class="widefat external-site-url-field" placeholder="https://remotesite.com">
@@ -489,29 +503,12 @@ function meta_box_external_connection_details( $post ) {
 			</button>
 		</p>
 	</div>
-
-	<div class="<?php echo esc_attr( $hide_non_wizard ); ?>">
-	<?php
-	if ( 1 === count( $registered_external_connection_types ) ) :
-		$registered_connection_types_keys = array_keys( $registered_external_connection_types );
-		?>
-		<input id="dt_external_connection_type" class="external-connection-type-field" type="hidden" name="dt_external_connection_type" value="<?php echo esc_attr( $registered_connection_types_keys[0] ); ?>">
-	<?php else : ?>
-		<p class="<?php echo esc_attr( $hide_in_wizard ); ?>">
-			<label for="dt_external_connection_type"><?php esc_html_e( 'Authentication Method', 'distributor' ); ?></label><br>
-			<select name="dt_external_connection_type" class="external-connection-type-field" id="dt_external_connection_type">
-				<?php foreach ( $registered_external_connection_types as $slug => $external_connection_class ) : ?>
-					<option <?php selected( $slug, $external_connection_type ); ?> value="<?php echo esc_attr( $slug ); ?>"><?php echo esc_attr( $external_connection_class::$label ); ?></option>
-				<?php endforeach; ?>
-			</select>
-		</p>
-	<?php endif; ?>
-	<div class="<?php echo esc_attr( $hide_in_wizard ); ?>">
+	<div class="<?php echo esc_attr( $is_wizard_return ); ?>">
 		<h3>
 			<?php esc_html_e( 'Success! Credentials received from external site.', 'distributor' ); ?>
 		</h3><br/>
 	</div>
-	<div class="<?php echo esc_attr( $hide_in_wizard ); ?>">
+	<div >
 		<?php
 		$index = 1;
 		foreach ( $registered_external_connection_types as $external_connection_class ) :
