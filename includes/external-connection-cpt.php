@@ -269,7 +269,7 @@ function admin_enqueue_scripts( $hook ) {
 		wp_enqueue_style( 'dt-admin-external-connection', plugins_url( '/dist/css/admin-external-connection.min.css', __DIR__ ), array(), DT_VERSION );
 		wp_enqueue_script( 'dt-admin-external-connection', plugins_url( '/dist/js/admin-external-connection.min.js', __DIR__ ), array( 'jquery', 'underscore' ), DT_VERSION, true );
 
-		$blog_name = get_bloginfo( 'name ');
+		$blog_name     = get_bloginfo( 'name ' );
 		$wizard_return = get_wizard_return_data();
 		wp_localize_script(
 			'dt-admin-external-connection',
@@ -305,16 +305,15 @@ function admin_enqueue_scripts( $hook ) {
 
 /**
  * Get the data returned as part of the external applications passwords flow.
- *
  */
 function get_wizard_return_data() {
 	$wizard_return = false;
 	if ( isset( $_GET['setupStatus'] ) && 'success' === sanitize_key( $_GET['setupStatus'] ) ) {
 		$wizard_return = array(
-			'titleField'           =>  isset( $_GET['titleField'] ) ? sanitize_text_field( urldecode( $_GET['titleField'] ) ) : '',
-			'externalSiteUrlField' =>  isset( $_GET['externalSiteUrlField'] ) ? sanitize_text_field( urldecode( $_GET['externalSiteUrlField'] ) ) : '',
-			'user_login'           =>  isset( $_GET['user_login'] ) ? sanitize_text_field( $_GET['user_login'] ) : '',
-			'password'             =>  isset( $_GET['password'] ) ? sanitize_text_field( $_GET['password'] ) : '',
+			'titleField'           => isset( $_GET['titleField'] ) ? sanitize_text_field( urldecode( $_GET['titleField'] ) ) : '',
+			'externalSiteUrlField' => isset( $_GET['externalSiteUrlField'] ) ? sanitize_text_field( urldecode( $_GET['externalSiteUrlField'] ) ) : '',
+			'user_login'           => isset( $_GET['user_login'] ) ? sanitize_text_field( $_GET['user_login'] ) : '',
+			'password'             => isset( $_GET['password'] ) ? sanitize_text_field( $_GET['password'] ) : '',
 		);
 	}
 	return $wizard_return;
@@ -446,11 +445,11 @@ function meta_box_external_connection_details( $post ) {
 
 	$wizard_return = get_wizard_return_data();
 
-	$show_on_wizard_return = $wizard_return ? '' : 'hidden';
-	$hide_on_wizard_return = ! $wizard_return ? '' : 'hidden';
+	$show_on_wizard_return                 = $wizard_return ? '' : 'hidden';
+	$hide_on_wizard_return                 = ! $wizard_return ? '' : 'hidden';
 	$hide_when_creating_new_and_not_wizard = ( $new_connection && ! $wizard_return ) ? 'hidden' : '';
-	$hide_when_creating_new = $new_connection ? 'hidden' : '';
-	$hide_when_not_new = ! $new_connection ? 'hidden' : '';
+	$hide_when_creating_new                = $new_connection ? 'hidden' : '';
+	$hide_when_not_new                     = ! $new_connection ? 'hidden' : '';
 
 	$registered_external_connection_types = \Distributor\Connections::factory()->get_registered();
 
@@ -472,15 +471,17 @@ function meta_box_external_connection_details( $post ) {
 		$allowed_roles[] = 'administrator';
 	}
 	?>
-	<?php if (  isset( $_GET['setupStatus'] ) && 'failure' === sanitize_key( $_GET['setupStatus'] ) ) {
-	?>
+	<?php
+	if ( isset( $_GET['setupStatus'] ) && 'failure' === sanitize_key( $_GET['setupStatus'] ) ) {
+		?>
 	<div>
 		<h3>
 			<?php esc_html_e( 'Authorization rejected, please try again.', 'distributor' ); ?>
 		</h3><br/>
 	</div>
-	<?php
-	}?>
+		<?php
+	}
+	?>
 	<?php
 	if ( 1 === count( $registered_external_connection_types ) ) :
 		$registered_connection_types_keys = array_keys( $registered_external_connection_types );
