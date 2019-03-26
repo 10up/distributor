@@ -678,8 +678,8 @@ class NetworkSiteConnection extends Connection {
 	 * Build the available sites a specific user is authorized to use.
 	 *
 	 * @param int|string $user_id Current user ID
-	 * @param string $context The context of the authorization. Either push or pull
-	 * @param bool $force Force a cache clear. Default false
+	 * @param string     $context The context of the authorization. Either push or pull
+	 * @param bool       $force Force a cache clear. Default false
 	 *
 	 * @return array
 	 */
