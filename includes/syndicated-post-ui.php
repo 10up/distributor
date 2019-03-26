@@ -26,7 +26,7 @@ function setup() {
 			add_filter( 'admin_body_class', __NAMESPACE__ . '\add_linked_class' );
 			add_filter( 'post_row_actions', __NAMESPACE__ . '\remove_quick_edit', 10, 2 );
 
-			$post = isset( $_GET['post'] ) ? get_post( (int) $_GET['post'] ) : false;
+			$post = isset( $_GET['post'] ) ? get_post( (int) $_GET['post'] ) : false; // @codingStandardsIgnoreLine Nonce isn't needed here.
 
 			if ( $post && ! \Distributor\Utils\is_using_gutenberg( $post ) ) {
 				add_action( 'do_meta_boxes', __NAMESPACE__ . '\replace_revisions_meta_box', 10, 3 );

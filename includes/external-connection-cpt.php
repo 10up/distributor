@@ -308,12 +308,12 @@ function admin_enqueue_scripts( $hook ) {
  */
 function get_wizard_return_data() {
 	$wizard_return = false;
-	if ( isset( $_GET['setupStatus'] ) && 'success' === sanitize_key( $_GET['setupStatus'] ) ) {
+	if ( isset( $_GET['setupStatus'] ) && 'success' === sanitize_key( $_GET['setupStatus'] ) ) { // @codingStandardsIgnoreLine Nonce isn't needed here.
 		$wizard_return = array(
-			'titleField'           => isset( $_GET['titleField'] ) ? sanitize_text_field( urldecode( $_GET['titleField'] ) ) : '',
-			'externalSiteUrlField' => isset( $_GET['externalSiteUrlField'] ) ? sanitize_text_field( urldecode( $_GET['externalSiteUrlField'] ) ) : '',
-			'user_login'           => isset( $_GET['user_login'] ) ? sanitize_text_field( $_GET['user_login'] ) : '',
-			'password'             => isset( $_GET['password'] ) ? sanitize_text_field( $_GET['password'] ) : '',
+			'titleField'           => isset( $_GET['titleField'] ) ? sanitize_text_field( urldecode( $_GET['titleField'] ) ) : '', // @codingStandardsIgnoreLine Nonce isn't needed here.
+			'externalSiteUrlField' => isset( $_GET['externalSiteUrlField'] ) ? sanitize_text_field( urldecode( $_GET['externalSiteUrlField'] ) ) : '', // @codingStandardsIgnoreLine Nonce isn't needed here.
+			'user_login'           => isset( $_GET['user_login'] ) ? sanitize_text_field( $_GET['user_login'] ) : '', // @codingStandardsIgnoreLine Nonce isn't needed here.
+			'password'             => isset( $_GET['password'] ) ? sanitize_text_field( $_GET['password'] ) : '', // @codingStandardsIgnoreLine Nonce isn't needed here.
 		);
 	}
 	return $wizard_return;
@@ -441,7 +441,7 @@ function meta_box_external_connection_details( $post ) {
 	}
 
 	// Use the wizard on the new post screen.
-	$new_connection = ! ( isset( $_GET['action'] ) && 'edit' === sanitize_key( $_GET['action'] ) );
+	$new_connection = ! ( isset( $_GET['action'] ) && 'edit' === sanitize_key( $_GET['action'] ) ); // @codingStandardsIgnoreLine Nonce is checked above.
 
 	$wizard_return = get_wizard_return_data();
 
@@ -472,7 +472,7 @@ function meta_box_external_connection_details( $post ) {
 	}
 	?>
 	<?php
-	if ( isset( $_GET['setupStatus'] ) && 'failure' === sanitize_key( $_GET['setupStatus'] ) ) {
+	if ( isset( $_GET['setupStatus'] ) && 'failure' === sanitize_key( $_GET['setupStatus'] ) ) { // @codingStandardsIgnoreLine Nonce is checked above.
 		?>
 	<div>
 		<h3>

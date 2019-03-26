@@ -61,8 +61,8 @@ function is_using_gutenberg( $post ) {
 	 *
 	 * Unsetting the 'meta-box-loader' in the global request would bypass that check.
 	 */
-	if ( isset( $_GET['meta-box-loader'] ) ) {
-		$meta_box_loader = $_GET['meta-box-loader'];
+	if ( isset( $_GET['meta-box-loader'] ) ) { // @codingStandardsIgnoreLine Nonce isn't needed here.
+		$meta_box_loader = $_GET['meta-box-loader']; // @codingStandardsIgnoreLine Nonce isn't needed here.
 		unset( $_GET['meta-box-loader'] );
 	}
 

@@ -115,7 +115,6 @@ if ( ! class_exists( 'Application_Passwords' ) ) {
 add_action(
 	'admin_enqueue_scripts',
 	function() {
-		error_log( plugins_url( '/dist/css/admin.min.css', __FILE__ ) );
 		wp_enqueue_style( 'dt-admin-settings', plugins_url( '/dist/css/admin.min.css', __FILE__ ), array(), DT_VERSION );
 	}
 );

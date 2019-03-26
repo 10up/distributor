@@ -51,7 +51,7 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 	public static function credentials_form( $args = array() ) {
 
 		// Check if we need to display the form, or request a token?
-		$code = isset( $_GET['code'] ) ? sanitize_text_field( wp_unslash( $_GET['code'] ) ) : false; // Input var okay. WPCS: CSRF ok.
+		$code = isset( $_GET['code'] ) ? sanitize_text_field( wp_unslash( $_GET['code'] ) ) : false; // @codingStandardsIgnoreLine Nonce isn't needed here.
 
 		/**
 		 * A code is present as a query parameter in the URL when the user has authorized the connection

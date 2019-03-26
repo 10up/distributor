@@ -60,7 +60,7 @@ class PullListTable extends \WP_List_Table {
 		];
 
 		// Remove checkbox column on the Pulled view
-		if ( isset( $_GET['status'] ) && 'pulled' === $_GET['status'] ) {
+		if ( isset( $_GET['status'] ) && 'pulled' === $_GET['status'] ) { // @codingStandardsIgnoreLine Nonce isn't needed here.
 			unset( $columns['cb'] );
 		}
 
