@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "3022f91eabb69f1a3f057e9aff3b5a7d",
+    "content-hash": "e6a6fec55044af94f10b1d408856e8ef",
     "packages": [
         {
             "name": "yahnis-elsts/plugin-update-checker",
@@ -129,16 +129,16 @@
         },
         {
             "name": "10up/wpacceptance",
-            "version": "0.13.10",
+            "version": "0.14",
             "source": {
                 "type": "git",
                 "url": "https://github.com/10up/wpacceptance.git",
-                "reference": "0f0b8222df3e476e527d8cdfc5e6ca522cacb1fb"
+                "reference": "a0184a6092662c8e98c824a4ecb23dfc84197ea9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/10up/wpacceptance/zipball/0f0b8222df3e476e527d8cdfc5e6ca522cacb1fb",
-                "reference": "0f0b8222df3e476e527d8cdfc5e6ca522cacb1fb",
+                "url": "https://api.github.com/repos/10up/wpacceptance/zipball/a0184a6092662c8e98c824a4ecb23dfc84197ea9",
+                "reference": "a0184a6092662c8e98c824a4ecb23dfc84197ea9",
                 "shasum": ""
             },
             "require": {
@@ -182,7 +182,7 @@
                 "testing",
                 "wordpress"
             ],
-            "time": "2019-03-27T16:14:29+00:00"
+            "time": "2019-03-28T19:39:50+00:00"
         },
         {
             "name": "10up/wpinstructions",
