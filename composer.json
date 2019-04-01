@@ -17,10 +17,10 @@
     }
   },
   "require-dev": {
-    "10up/wpacceptance": "~0.14.0",
     "10up/wp_mock": "~0.4",
     "phpunit/phpunit": "~7.5",
-    "10up/phpcs-composer": "dev-master"
+    "10up/phpcs-composer": "dev-master",
+    "10up/wpacceptance": "^0.14.0"
   },
   "scripts": {
     "lint": "./vendor/bin/phpcs . --runtime-set testVersion 5.6-",
