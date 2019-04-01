@@ -24,9 +24,15 @@ class WordPressDotcomExternalConnection extends WordPressExternalConnection {
 	/**
 	 * Connection pretty label
 	 *
+	 * This is to represent the authentication method,
+	 * not the connection type. This value was previously
+	 * "WordPress.com REST API".
+	 *
+	 * @since 1.4.0 Label as authentication method, not connection type
+	 *
 	 * @var string
 	 */
-	public static $label = 'WordPress.com REST API';
+	public static $label = 'WordPress.com Application';
 
 	/**
 	 * Connection auth class

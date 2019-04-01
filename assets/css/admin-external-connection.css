@@ -49,7 +49,15 @@
 
 #dt_external_connection_details p,
 #dt_external_connection_details .connection-field-wrap {
-	margin-bottom: 3em;
+	margin-bottom: 2em;
+}
+
+#dt_external_connection_details .card {
+	margin-bottom: 2em;
+}
+
+#dt_external_connection_details .card p {
+	margin-bottom: 1em;
 }
 
 .endpoint-errors {

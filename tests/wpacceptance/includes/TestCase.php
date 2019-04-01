@@ -53,6 +53,8 @@ class TestCase extends \WPAcceptance\PHPUnit\TestCase {
 			$I->click( '#dt-as-draft' ); // Uncheck for publish, draft is checked by default
 		}
 
+		$I->waitUntilElementEnabled( '#distributor-push-wrapper .syndicate-button' );
+
 		$I->click( '#distributor-push-wrapper .syndicate-button' );
 
 		$I->waitUntilElementVisible( '#distributor-push-wrapper .dt-success' );
@@ -62,13 +64,13 @@ class TestCase extends \WPAcceptance\PHPUnit\TestCase {
 
 			$I->click( '#distributor-push-wrapper .new-connections-list .add-connection[data-connection-id="' . $to_connection_id . '"] a' );
 
-			$I->waitUntilElementVisible( '#wp-admin-bar-edit' );
+			$I->waitUntilNavigation();
 
 			$info['distributed_front_url'] = $I->getCurrentUrl();
 
 			$I->click( '#wp-admin-bar-edit a' );
 
-			$I->waitUntilElementVisible( '#title' );
+			$I->waitUntilNavigation();
 
 			$info['distributed_edit_url'] = $I->getCurrentUrl();
 
@@ -113,21 +115,21 @@ class TestCase extends \WPAcceptance\PHPUnit\TestCase {
 
 		$I->click( '#doaction' );
 
-		$I->waitUntilElementVisible( '#wpadminbar' );
+		$I->waitUntilNavigation();
 
 		$I->click( '.pulled > a' );
-		$I->waitUntilElementVisible( '#wpadminbar' );
+		$I->waitUntilNavigation();
 
 		$I->moveMouse( '.wp-list-table tbody tr:nth-child(1) .page-title' );
 		$I->click( '.wp-list-table tbody tr:nth-child(1) .page-title .view a' );
 
-		$I->waitUntilElementVisible( '#wpadminbar' );
+		$I->waitUntilNavigation();
 
 		$info['distributed_view_url'] = $I->getCurrentUrl();
 
 		$I->click( '#wp-admin-bar-edit a' );
 
-		$I->waitUntilElementVisible( '#wpadminbar' );
+		$I->waitUntilNavigation();
 
 		$info['distributed_edit_url'] = $I->getCurrentUrl();
 

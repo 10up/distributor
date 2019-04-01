@@ -186,7 +186,7 @@ class NetworkSiteConnection extends Connection {
 
 			if ( ! empty( $post_props['meta']['dt_connection_map'] ) ) {
 				foreach ( $post_props['meta']['dt_connection_map'] as $distributed ) {
-					$distributed = unserialize( $distributed );
+					$distributed = maybe_unserialize( $distributed );
 
 					if ( array_key_exists( $current_blog_id, $distributed['internal'] ) ) {
 						$dt_pull_messages['duplicated'] = 1;

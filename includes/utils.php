@@ -46,7 +46,37 @@ function is_using_gutenberg( $post ) {
 	if ( ! function_exists( 'use_block_editor_for_post' ) ) {
 		include_once ABSPATH . 'wp-admin/includes/post.php';
 	}
-	return use_block_editor_for_post( $post );
+
+	// Previous to Gutenberg 5.0, `use_block_editor_for_post` was named `gutenberg_can_edit_post`.
+	if ( ! function_exists( 'use_block_editor_for_post' ) ) {
+		if ( function_exists( 'gutenberg_can_edit_post' ) ) {
+			return gutenberg_can_edit_post( $post );
+		}
+		return false;
+	}
+
+	/**
+	 * WordPress 5.0 will do a check_admin_referrer() inside the use_block_editor_for_posts(),
+	 * and this call would fail, returns a 404 if there's custom meta box, and kills the request.
+	 *
+	 * Unsetting the 'meta-box-loader' in the global request would bypass that check.
+	 */
+	if ( isset( $_GET['meta-box-loader'] ) ) {
+		$meta_box_loader = $_GET['meta-box-loader'];
+		unset( $_GET['meta-box-loader'] );
+	}
+
+	$use_block_editor = use_block_editor_for_post( $post );
+
+	/**
+	 * Set the $meta_box_loader back to the request, if it exists
+	 * so other areas that rely on it would still work.
+	 */
+	if ( isset( $meta_box_loader ) ) {
+		$_GET['meta-box-loader'] = $meta_box_loader;
+	}
+
+	return $use_block_editor;
 }
 
 
@@ -515,7 +545,7 @@ function set_media( $post_id, $media ) {
 		$featured_keys = wp_list_pluck( $media, 'featured' );
 
 		// Note: this is not a strict search because of issues with typecasting in some setups
-		$featured_key = array_search( true, $featured_keys );
+		$featured_key = array_search( true, $featured_keys ); // @codingStandardsIgnoreLine Ignore strict search requirement.
 
 		$media = ( false !== $featured_key ) ? array( $media[ $featured_key ] ) : array();
 	}
@@ -559,7 +589,9 @@ function set_media( $post_id, $media ) {
 		}
 
 		// Transfer all meta
-		set_meta( $image_id, $media_item['meta'] );
+		if ( isset( $media_item['meta'] ) ) {
+			set_meta( $image_id, $media_item['meta'] );
+		}
 
 		// Transfer post properties
 		wp_update_post(
@@ -580,7 +612,7 @@ function set_media( $post_id, $media ) {
 /**
  * This is a helper function for transporting/formatting data about a media post
  *
- * @param  WP_Post $media_post Media post.
+ * @param  \WP_Post $media_post Media post.
  * @since  1.0
  * @return array
  */
@@ -676,12 +708,24 @@ function process_media( $url, $post_id ) {
 
 	// If error storing temporarily, return the error.
 	if ( is_wp_error( $file_array['tmp_name'] ) ) {
+
+		// Distributor is in debug mode, display the issue, could be storage related.
+		if ( is_dt_debug() ) {
+			error_log( sprintf( 'Distributor: %s', $file_array['tmp_name']->get_error_message() ) ); // @codingStandardsIgnoreLine
+		}
+
 		return false;
 	}
 
 	// Do the validation and storage stuff.
 	$result = media_handle_sideload( $file_array, $post_id );
 	if ( is_wp_error( $result ) ) {
+
+		// Distributor is in debug mode, display the issue, could be storage related.
+		if ( is_dt_debug() ) {
+			error_log( sprintf( 'Distributor: %s', $file_array['tmp_name']->get_error_message() ) ); // @codingStandardsIgnoreLine
+		}
+
 		return false;
 	}
 	return (int) $result;
