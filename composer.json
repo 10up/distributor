@@ -17,7 +17,7 @@
     }
   },
   "require-dev": {
-    "10up/wpacceptance": "~0.12.0",
+    "10up/wpacceptance": "~0.13.0",
     "10up/wp_mock": "~0.4",
     "phpunit/phpunit": "~7.5",
     "10up/phpcs-composer": "dev-master"
