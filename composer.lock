@@ -129,16 +129,16 @@
         },
         {
             "name": "10up/wpacceptance",
-            "version": "0.12.2",
+            "version": "0.12.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/10up/wpacceptance.git",
-                "reference": "a8663ac15763151990489d42c6303ef5cca5dab9"
+                "reference": "c4dca8a3c6cf01722d27f88b23d52751ddd995ee"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/10up/wpacceptance/zipball/a8663ac15763151990489d42c6303ef5cca5dab9",
-                "reference": "a8663ac15763151990489d42c6303ef5cca5dab9",
+                "url": "https://api.github.com/repos/10up/wpacceptance/zipball/c4dca8a3c6cf01722d27f88b23d52751ddd995ee",
+                "reference": "c4dca8a3c6cf01722d27f88b23d52751ddd995ee",
                 "shasum": ""
             },
             "require": {
@@ -181,7 +181,7 @@
                 "testing",
                 "wordpress"
             ],
-            "time": "2019-03-07T14:34:48+00:00"
+            "time": "2019-03-11T15:16:01+00:00"
         },
         {
             "name": "10up/wpsnapshots",
@@ -1083,6 +1083,11 @@
         {
             "name": "league/uri",
             "version": "5.3.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/thephpleague/uri.git",
+                "reference": "f2bceb755f1108758cf4cf925e4cd7699ce686aa"
+            },
             "require": {
                 "ext-fileinfo": "*",
                 "ext-intl": "*",
