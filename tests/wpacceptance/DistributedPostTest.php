@@ -28,7 +28,7 @@ class DistributedPost extends \TestCase {
 
 		$I->moveTo( $post_info['original_edit_url'] );
 
-		$I->waitUntilElementVisible( '#title' );
+		$I->waitUntilElementVisible( 'body.post-php' );;
 
 		$I->seeText( '1', '#distributed-to strong' );
 
@@ -37,7 +37,7 @@ class DistributedPost extends \TestCase {
 
 		$I->moveTo( $post_info['original_edit_url'] );
 
-		$I->waitUntilElementVisible( '#title' );
+		$I->waitUntilElementVisible( 'body.post-php' );;
 
 		$I->seeText( '2', '#distributed-to strong' );
 	}

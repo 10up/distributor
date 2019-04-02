@@ -24,7 +24,7 @@ class LinkUnlinkTest extends \TestCase {
 
 		$I->moveTo( $post_info['distributed_edit_url'] );
 
-		$I->waitUntilElementVisible( '#title' );
+		$I->waitUntilElementVisible( 'body.post-php' );;
 
 		// I see linked link
 		$I->seeLink( 'unlink from the original' );
@@ -35,7 +35,7 @@ class LinkUnlinkTest extends \TestCase {
 		// Unlink post
 		$I->click( '.syndicate-status span a' );
 
-		$I->waitUntilElementVisible( '#title' );
+		$I->waitUntilElementVisible( 'body.post-php' );;
 
 		// I see unlinked text
 		$I->seeText( 'This post has been unlinked from the original', '.syndicate-status' );
