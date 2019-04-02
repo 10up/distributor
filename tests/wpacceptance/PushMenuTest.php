@@ -39,6 +39,12 @@ class PushMenuTest extends \TestCase {
 		$I->moveTo( 'wp-admin/post.php?post=40&action=edit' );
 
 		$I->waitUntilElementVisible( '#wp-admin-bar-distributor a' );
+		$I->takeScreenshot( 'screenshots/testConnectionCrossOutOnPushClick' );
+		try {
+			if ( $I->getElement( '.nux-dot-tip__disable' ) ) {
+				$I->click( '.nux-dot-tip__disable' );
+			}
+		} catch ( \Exception $e ) {}
 
 		$I->moveMouse( '#wp-admin-bar-distributor a' );
 
@@ -49,17 +55,11 @@ class PushMenuTest extends \TestCase {
 		$I->click( '#distributor-push-wrapper .new-connections-list .add-connection[data-connection-id="2"]' );
 
 		usleep( 500 );
-		try {
-			if ( $I->getElement( '.nux-dot-tip__disable' ) ) {
-				$I->click( '.nux-dot-tip__disable' );
-			}
-		} catch ( \Exception $e ) {}
 
 		$I->takeScreenshot( 'screenshots/testConnectionCrossOutOnPush' );
 
 		// Distribute post (as draft)
 		$I->click( '#distributor-push-wrapper .syndicate-button' );
-
 		$I->waitUntilElementVisible( '#distributor-push-wrapper .dt-success' );
 
 		// See crossed out element
