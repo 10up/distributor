@@ -20,17 +20,15 @@ class OembedTests extends \TestCase {
 
 		// Push post to connection 2.
 		$post_info = $this->pushPost( $I, 48, 2 );
+		$I->moveTo( $post_info['distributed_edit_url'] );
+		$I->waitUntilElementVisible( 'body.post-php' );
 
-		// Switch to the text editor.
-		$I->waitUntilElementVisible( '#content-html' );
-		$I->jsClick( '#content-html' );
-
-		// Grab the post content.
-		$I->waitUntilElementVisible( '.wp-editor-area' );
+		// Get the source.
+		$source = $I->getPageSource();
 
 		// Test the distributed post content.
 		$this->assertTrue(
-			(bool) preg_match( '#https://twitter.com/10up/status/1067517868441387008#', $I->getElementProperty( '.wp-editor-area', 'value' ) ),
+			(bool) preg_match( '#https://twitter.com/10up/status/1067517868441387008#', stripslashes( $source ) ),
 			'oEmbed was not pushed properly over a network connection'
 		);
 	}
@@ -45,17 +43,14 @@ class OembedTests extends \TestCase {
 
 		$post_info = $this->pullPost( $I, 48, 'two', '' );
 		$I->moveTo( $post_info['distributed_edit_url'] );
+		$I->waitUntilElementVisible( 'body.post-php' );
 
-		// Switch to the text editor.
-		$I->waitUntilElementVisible( '#content-html' );
-		$I->jsClick( '#content-html' );
-
-		// Grab the post content.
-		$I->waitUntilElementVisible( '.wp-editor-area' );
+		// Get the source.
+		$source = $I->getPageSource();
 
 		// Test the distributed post content.
 		$this->assertTrue(
-			(bool) preg_match( '#https://twitter.com/10up/status/1067517868441387008#', $I->getElementProperty( '.wp-editor-area', 'value' ) ),
+			(bool) preg_match( '#https://twitter.com/10up/status/1067517868441387008#', stripslashes( $source ) ),
 			'oEmbed was not pulled properly over a network connection'
 		);
 	}
@@ -91,19 +86,19 @@ class OembedTests extends \TestCase {
 
 		// Switch to the distributed post.
 		$I->waitUntilElementVisible( '#the-list' );
-		$I->click( 'a.row-title' );
 
+		$I->click( 'a.row-title' );
 		$I->waitUntilNavigation();
 
-		// Switch to the text editor.
-		$I->waitUntilElementVisible( '#content-html' );
-		$I->jsClick( '#content-html' );
-		// Grab the post content.
-		$I->waitUntilElementVisible( '.wp-editor-area' );
+		$url = $I->getCurrentUrl();
+		$I->moveTo( $url );
+
+		// Get the source.
+		$source = $I->getPageSource();
 
 		// Test the distributed post content.
 		$this->assertTrue(
-			(bool) preg_match( '#https://twitter.com/10up/status/1067517868441387008#', $I->getElementProperty( '.wp-editor-area', 'value' ) ),
+			(bool) preg_match( '#https://twitter.com/10up/status/1067517868441387008#', stripslashes( $source ) ),
 			'oEmbed was not pushed properly over an external connection'
 		);
 	}
@@ -138,16 +133,12 @@ class OembedTests extends \TestCase {
 		$post_info = $this->pullPost( $I, 48, 'two', '', 'Test External Connection' );
 		$I->moveTo( $post_info['distributed_edit_url'] );
 
-		// Switch to the text editor.
-		$I->waitUntilElementVisible( '#content-html' );
-		$I->jsClick( '#content-html' );
-
-		// Grab the post content.
-		$I->waitUntilElementVisible( '.wp-editor-area' );
+		// Get the source.
+		$source = $I->getPageSource();
 
 		// Test the distributed post content.
 		$this->assertTrue(
-			(bool) preg_match( '#https://twitter.com/10up/status/1067517868441387008#', $I->getElementProperty( '.wp-editor-area', 'value' ) ),
+			(bool) preg_match( '#https://twitter.com/10up/status/1067517868441387008#', stripslashes( $source ) ),
 			'oEmbed was not pulled properly over an external connection'
 		);
 	}
