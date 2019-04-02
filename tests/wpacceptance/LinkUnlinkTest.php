@@ -27,20 +27,34 @@ class LinkUnlinkTest extends \TestCase {
 		$I->waitUntilElementVisible( 'body.post-php' );;
 
 		// I see linked link
-		$I->seeLink( 'unlink from the original' );
+		if ( $editor_has_blocks ) {
+			$I->seeLink( 'unlink from the original.' );
+			// Unlink post
+			$I->click( '.components-notice__action' );
 
-		// I cant interact with title field
-		$I->cannotInteractWithField( '#title' );
+			$I->waitUntilElementVisible( 'body.post-php' );;
 
-		// Unlink post
-		$I->click( '.syndicate-status span a' );
+			// I see unlinked text
+			$I->seeText( 'Originally distributed from Site One. This Post has been unlinked from the original. However, you can alwaysrestore it.View Original', '.components-notice__content' );
 
-		$I->waitUntilElementVisible( 'body.post-php' );;
+			// I can interact with title field
+			$I->canInteractWithField( '#post-title-0' );
 
-		// I see unlinked text
-		$I->seeText( 'This post has been unlinked from the original', '.syndicate-status' );
+		} else {
+			$I->seeLink( 'unlink from the original' );
+			// I cant interact with title field
+			$I->cannotInteractWithField( '#title' );
+			// Unlink post
+			$I->click( '.syndicate-status span a' );
 
-		// I can interact with title field
-		$I->canInteractWithField( '#title' );
+			$I->waitUntilElementVisible( 'body.post-php' );;
+
+			// I see unlinked text
+			$I->seeText( 'This post has been unlinked from the original', '.syndicate-status' );
+
+			// I can interact with title field
+			$I->canInteractWithField( '#title' );
+		}
+
 	}
 }
