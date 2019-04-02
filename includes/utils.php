@@ -42,6 +42,11 @@ function is_using_gutenberg( $post ) {
 		return false;
 	}
 
+	// WordPress 5.0 introduces the has_blocks function.
+	if ( function_exists( 'has_blocks' ) ) {
+		return has_blocks( $post );
+	}
+
 	// We have to use the function here instead of the filter due to differences in the way certain plugins implement this.
 	if ( ! function_exists( 'use_block_editor_for_post' ) ) {
 		include_once ABSPATH . 'wp-admin/includes/post.php';
