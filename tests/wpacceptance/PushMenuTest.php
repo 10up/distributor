@@ -39,7 +39,6 @@ class PushMenuTest extends \TestCase {
 		$I->moveTo( 'wp-admin/post.php?post=40&action=edit' );
 
 		$I->waitUntilElementVisible( '#wp-admin-bar-distributor a' );
-		$I->takeScreenshot( 'screenshots/testConnectionCrossOutOnPushClick' );
 		try {
 			if ( $I->getElement( '.nux-dot-tip__disable' ) ) {
 				$I->click( '.nux-dot-tip__disable' );
@@ -55,8 +54,6 @@ class PushMenuTest extends \TestCase {
 		$I->click( '#distributor-push-wrapper .new-connections-list .add-connection[data-connection-id="2"]' );
 
 		usleep( 500 );
-
-		$I->takeScreenshot( 'screenshots/testConnectionCrossOutOnPush' );
 
 		// Distribute post (as draft)
 		$I->click( '#distributor-push-wrapper .syndicate-button' );
