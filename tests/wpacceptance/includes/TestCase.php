@@ -4,6 +4,7 @@
  *
  * @package distributor
  */
+use WPAcceptance\Log;
 
 /**
  * Class extends \WPAcceptance\PHPUnit\TestCase
@@ -36,6 +37,13 @@ class TestCase extends \WPAcceptance\PHPUnit\TestCase {
 		}
 
 		$I->waitUntilElementVisible( '#wp-admin-bar-distributor a' );
+
+		try {
+			if ( $I->getElement( '.nux-dot-tip__disable' ) ) {
+				$I->click( '.nux-dot-tip__disable' );
+			}
+		} catch ( \Exception $e ) {
+		}
 
 		$I->moveMouse( '#wp-admin-bar-distributor a' );
 
@@ -135,4 +143,18 @@ class TestCase extends \WPAcceptance\PHPUnit\TestCase {
 
 		return $info;
 	}
+
+	/**
+	 * Check if the editor is the block editor.
+	 *
+	 * Must be called from the edit page.
+	 *
+	 * @param \WPAcceptance\PHPUnit\Actor $actor The actor.
+	 */
+	protected function editorHasBlocks ( $actor ) {
+		$body = $actor->getElement( 'body' );
+		$msg = $actor->elementToString( $body );
+		return ( strpos( $msg, 'block-editor-page' ) );
+	}
+
 }
