@@ -42,8 +42,7 @@ class TestCase extends \WPAcceptance\PHPUnit\TestCase {
 			if ( $I->getElement( '.nux-dot-tip__disable' ) ) {
 				$I->click( '.nux-dot-tip__disable' );
 			}
-		} catch ( \Exception $e ) {
-		}
+		} catch ( \Exception $e ) {}
 
 		$I->moveMouse( '#wp-admin-bar-distributor a' );
 
