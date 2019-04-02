@@ -14,7 +14,7 @@
       },
       {
         "snapshot_name": "WordPress 4.9.9 plus Gutenberg 4.9",
-        "snapshot_id":  "9ea863cebfcbb416c6334a6bef6552f0"
+        "snapshot_id":  "fbd266d7dab5d169a2b1bd9caba495f6"
       },
       {
         "snapshot_name": "WordPress 5.1.1",
@@ -22,7 +22,7 @@
       },
       {
         "snapshot_name": "WordPress 5.1.1 plus Gutenberg 5.3.0",
-        "snapshot_id":  "fec81ac24227af6554c93d28d9af2bdf"
+        "snapshot_id":  "9ac9a641ad4e53faca9dcd2f0f7318d8"
       }
     ],
     "enforce_clean_db": true,
