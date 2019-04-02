@@ -24,11 +24,13 @@ class LinkUnlinkTest extends \TestCase {
 
 		$I->moveTo( $post_info['distributed_edit_url'] );
 
-		$I->waitUntilElementVisible( 'body.post-php' );;
+		$I->waitUntilElementVisible( 'body.post-php' );
+
+		$editor_has_blocks =  $this->editorHasBlocks( $I );
 
 		// I see linked link
 		if ( $editor_has_blocks ) {
-			$I->seeLink( 'unlink from the original.' );
+			$I->seeLink( 'View Original' );
 			// Unlink post
 			$I->click( '.components-notice__action' );
 
