@@ -38,11 +38,7 @@ class TestCase extends \WPAcceptance\PHPUnit\TestCase {
 
 		$I->waitUntilElementVisible( '#wp-admin-bar-distributor a' );
 
-		try {
-			if ( $I->getElement( '.nux-dot-tip__disable' ) ) {
-				$I->click( '.nux-dot-tip__disable' );
-			}
-		} catch ( \Exception $e ) {}
+		$this->dismissNUXTip( $I );
 
 		$I->moveMouse( '#wp-admin-bar-distributor a' );
 
@@ -154,6 +150,19 @@ class TestCase extends \WPAcceptance\PHPUnit\TestCase {
 		$body = $actor->getElement( 'body' );
 		$msg = $actor->elementToString( $body );
 		return ( strpos( $msg, 'block-editor-page' ) );
+	}
+
+	/**
+	 * Dismiss the Gutenberg NUX tooltip.
+	 *
+	 * @param \WPAcceptance\PHPUnit\Actor $actor The actor.
+	 */
+	protected function dismissNUXTip( $actot ) {
+		try {
+			if ( $actor->getElement( '.nux-dot-tip__disable' ) ) {
+				$actor->click( '.nux-dot-tip__disable' );
+			}
+		} catch ( \Exception $e ) {}
 	}
 
 }

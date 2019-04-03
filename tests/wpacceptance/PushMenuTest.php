@@ -39,11 +39,8 @@ class PushMenuTest extends \TestCase {
 		$I->moveTo( 'wp-admin/post.php?post=40&action=edit' );
 
 		$I->waitUntilElementVisible( '#wp-admin-bar-distributor a' );
-		try {
-			if ( $I->getElement( '.nux-dot-tip__disable' ) ) {
-				$I->click( '.nux-dot-tip__disable' );
-			}
-		} catch ( \Exception $e ) {}
+
+		$this->dismissNUXTip( $I );
 
 		$I->moveMouse( '#wp-admin-bar-distributor a' );
 
@@ -75,11 +72,7 @@ class PushMenuTest extends \TestCase {
 
 		$I->waitUntilElementVisible( '#wp-admin-bar-distributor a' );
 
-		try {
-			if ( $I->getElement( '.nux-dot-tip__disable' ) ) {
-				$I->click( '.nux-dot-tip__disable' );
-			}
-		} catch ( \Exception $e ) {}
+		$this->dismissNUXTip( $I );
 
 		$I->moveMouse( '#wp-admin-bar-distributor a' );
 
