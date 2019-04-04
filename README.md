@@ -43,6 +43,15 @@ There are two connection types: `external` and `internal`.
 
 Distributor supports distributing Gutenberg posts but the functionality is currently in beta (as is Gutenberg itself). We expect this functionality to stabilize when Gutenberg is released into WordPress core.
 
+### Setup External Connections using Application Passwords
+
+1. Ensure Distributor is installed on BOTH sites being connected.  We'll refer to these as mainsite.com and remotesite.com.
+2. On mainsite.com, navigate to `Distributor` > `External Connections` and click `Add New`.
+3. Enter a label for the connection (e.g., `remotesite.com`), select `Username / Password` for the `Authentication Method`, and a username from remotesite.com.
+4. On remotesite.com, ensure that [Application Passwords](https://wordpress.org/plugins/application-passwords/) is installed.  Then navigate to the user profile that will be used to create the Externatal Connection on mainsite.com and then to the `Application Passwords` section of the user profile (not the `Account Management` section).  Add a label for the New Application Password Name (e.g., `mainsite.com`) and click `Add New`.  Now copy the password provided into mainsite.com's External Connections `Password` field.
+5. On mainsite.com, add the `External Connection URL` (e.g., http://remotesite.com/wp-json).  You should see a green circle and "_Connection established._".
+6. Ensure the roles selected in `Roles Allowed to Push` are the ones you want to support, then press the `Create Connection` button.  You should now be able to push from mainsite.com to remotesite.com.  If you want to pull from remotesite.com to mainsite.com, simply repeat these instructions swapping mainsite.com and remotesite.com.
+
 ## Known Caveats/Issues
 
 __Remote Request Timeouts__ - With external connections, HTTP requests are sent back and forth - creating posts, transfering images, syncing post updates, etc. In certain situations, mostly commonly when distributing posts with a large number of images (or very large file sizes), using poorly configured or saturated servers / hosts, or using plugins that add significant weight to post creation, Distributor requests can fail. Although we do some error handling, there are certain cases in which post distribution can fail silently. If distribution requests are taking a long time to load and/or failing, consider adjusting the timeout; you can filter the timeout for pushing external posts [here](https://github.com/10up/distributor/blob/master/includes/classes/ExternalConnections/WordPressExternalConnection.php#L487). More advanced handling of large content requests, and improved error handling is on the road map for a future update.
