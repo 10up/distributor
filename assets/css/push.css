@@ -270,7 +270,8 @@
     box-sizing: border-box;
 }
 
-#wpadminbar #distributor-push-wrapper .action-wrapper.loading .syndicate-button:after {
+#wpadminbar #distributor-push-wrapper .action-wrapper.loading .syndicate-button:after,
+#distributor-push-wrapper .loading:after {
 	content: ' ';
 	vertical-align: middle;
 	border-radius: 50%;
