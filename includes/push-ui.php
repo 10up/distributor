@@ -493,7 +493,7 @@ syndicated<# } #>" data-connection-type="internal" data-connection-id="{{ connec
 						 * @param object  $connection The connection being used to push.
 						 * @param WP_Post $post       The post being pushed.
 						 */
-						$as_draft = apply_filters( 'dt_allow_as_draft_distribute', $as_draft, $connection, $post );
+						$as_draft = apply_filters( 'dt_allow_as_draft_distribute', $as_draft, $connection = null, $post );
 						?>
 						<button class="syndicate-button"><?php esc_html_e( 'Distribute', 'distributor' ); ?></button> <?php if ( $as_draft ) : ?><label class="as-draft" for="dt-as-draft"><input type="checkbox" id="dt-as-draft" checked> <?php esc_html_e( 'As draft', 'distributor' ); ?></label><?php endif; ?>
 					</div>

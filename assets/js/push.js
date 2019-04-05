@@ -53,6 +53,19 @@ jQuery( window ).on( 'load', () => {
 		actionWrapper           = distributorPushWrapper.querySelector( '.action-wrapper' );
 		postStatusInput         = document.getElementById( 'dt-post-status' );
 		asDraftInput            = document.getElementById( 'dt-as-draft' );
+
+		/**
+		 * Listen for connection filtering
+		 */
+		jQuery( connectionsSearchInput ).on( 'keyup change', _.debounce( ( event ) => {
+			if ( '' === event.currentTarget.value ) {
+				showConnections( dtConnections );
+			}
+
+			searchString = event.currentTarget.value.replace( /https?:\/\//i, '' ).replace( /www/i, '' ).replace( /[^0-9a-zA-Z ]+/, '' );
+
+			showConnections();
+		}, 300 ) );
 	}
 
 	/**
@@ -305,17 +318,4 @@ jQuery( window ).on( 'load', () => {
 
 		showConnections();
 	} );
-
-	/**
-	 * List for connection filtering
-	 */
-	jQuery( connectionsSearchInput ).on( 'keyup change', _.debounce( ( event ) => {
-		if ( '' === event.currentTarget.value ) {
-			showConnections( dtConnections );
-		}
-
-		searchString = event.currentTarget.value.replace( /https?:\/\//i, '' ).replace( /www/i, '' ).replace( /[^0-9a-zA-Z ]+/, '' );
-
-		showConnections();
-	}, 300 ) );
 } );
