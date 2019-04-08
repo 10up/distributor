@@ -157,7 +157,7 @@ class TestCase extends \WPAcceptance\PHPUnit\TestCase {
 	 *
 	 * @param \WPAcceptance\PHPUnit\Actor $actor The actor.
 	 */
-	protected function dismissNUXTip( $actot ) {
+	protected function dismissNUXTip( $actor ) {
 		try {
 			if ( $actor->getElement( '.nux-dot-tip__disable' ) ) {
 				$actor->click( '.nux-dot-tip__disable' );
