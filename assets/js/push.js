@@ -34,7 +34,6 @@ jQuery( window ).on( 'load', () => {
 	let connectionsSelectedList = '';
 	let connectionsNewList      = '';
 	let connectionsSearchInput  = '';
-	let syndicateButton         = '';
 	let actionWrapper           = '';
 	let postStatusInput         = '';
 	let asDraftInput            = '';
@@ -49,7 +48,6 @@ jQuery( window ).on( 'load', () => {
 		connectionsSelectedList = distributorPushWrapper.querySelector( '.selected-connections-list' );
 		connectionsNewList      = distributorPushWrapper.querySelector( '.new-connections-list' );
 		connectionsSearchInput  = document.getElementById( 'dt-connection-search' );
-		syndicateButton         = distributorPushWrapper.querySelector( '.syndicate-button' );
 		actionWrapper           = distributorPushWrapper.querySelector( '.action-wrapper' );
 		postStatusInput         = document.getElementById( 'dt-post-status' );
 		asDraftInput            = document.getElementById( 'dt-as-draft' );
@@ -205,7 +203,7 @@ jQuery( window ).on( 'load', () => {
 	/**
 	 * Do syndication ajax
 	 */
-	jQuery( syndicateButton ).on( 'click', () => {
+	jQuery( distributorPushWrapper ).on( 'click', '.syndicate-button', () => {
 		if ( actionWrapper.classList.contains( 'loading' ) ) {
 			return;
 		}
