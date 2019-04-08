@@ -243,12 +243,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/10up/wpsnapshots.git",
-                "reference": "c65de735be1e1779a15cbe4ac9da7e5c692ef6fa"
+                "reference": "9dcb8df741e0acb9582295e1869faa04b829e16d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/10up/wpsnapshots/zipball/c65de735be1e1779a15cbe4ac9da7e5c692ef6fa",
-                "reference": "c65de735be1e1779a15cbe4ac9da7e5c692ef6fa",
+                "url": "https://api.github.com/repos/10up/wpsnapshots/zipball/9dcb8df741e0acb9582295e1869faa04b829e16d",
+                "reference": "9dcb8df741e0acb9582295e1869faa04b829e16d",
                 "shasum": ""
             },
             "require": {
@@ -288,7 +288,7 @@
                 "snapshots",
                 "wordpress"
             ],
-            "time": "2019-03-21T17:52:30+00:00"
+            "time": "2019-04-05T20:35:41+00:00"
         },
         {
             "name": "antecedent/patchwork",
