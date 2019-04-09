@@ -20,35 +20,41 @@ class WordPressExternalConnection extends ExternalConnection {
 	 *
 	 * @var string
 	 */
-	static public $slug = 'wp';
+	public static $slug = 'wp';
 
 	/**
 	 * Connection pretty label
 	 *
+	 * This is to represent the authentication method,
+	 * not the connection type. This value was previously
+	 * "WordPress REST API".
+	 *
+	 * @since 1.4.0 Label as authentication method, not connection type
+	 *
 	 * @var string
 	 */
-	static public $label = 'WordPress REST API';
+	public static $label = 'Username / Password';
 
 	/**
 	 * Auth handler to use
 	 *
 	 * @var string
 	 */
-	static public $auth_handler_class = '\Distributor\Authentications\WordPressBasicAuth';
+	public static $auth_handler_class = '\Distributor\Authentications\WordPressBasicAuth';
 
 	/**
 	 * REST API namespace
 	 *
 	 * @var string
 	 */
-	static public $namespace = 'wp/v2';
+	public static $namespace = 'wp/v2';
 
 	/**
 	 * Remote request timeout
 	 *
 	 * @var integer
 	 */
-	static public $timeout = 5;
+	public static $timeout = 5;
 
 	/**
 	 * Default post type to pull.
@@ -264,6 +270,9 @@ class WordPressExternalConnection extends ExternalConnection {
 		} else {
 			$posts_url = untrailingslashit( $types_urls[ $post_type ] ) . '/?' . $args_str;
 		}
+
+		// Add request parameter to specify Distributor request
+		$posts_url = add_query_arg( 'distributor_request', '1', $posts_url );
 
 		if ( function_exists( 'vip_safe_wp_remote_get' ) && \Distributor\Utils\is_vip_com() ) {
 			$posts_response = vip_safe_wp_remote_get(
@@ -531,7 +540,7 @@ class WordPressExternalConnection extends ExternalConnection {
 		$post_body = [
 			'title'                          => get_the_title( $post_id ),
 			'slug'                           => $post->post_name,
-			'content'                        => apply_filters( 'the_content', $post->post_content ),
+			'content'                        => Utils\get_processed_content( $post->post_content ),
 			'type'                           => $post->post_type,
 			'status'                         => ( ! empty( $args['post_status'] ) ) ? $args['post_status'] : 'publish',
 			'excerpt'                        => $post->post_excerpt,
@@ -547,7 +556,7 @@ class WordPressExternalConnection extends ExternalConnection {
 		];
 
 		// Gutenberg posts also distribute raw content.
-		if ( \Distributor\Utils\is_using_gutenberg() ) {
+		if ( \Distributor\Utils\is_using_gutenberg( $post ) ) {
 			if ( \Distributor\Utils\dt_use_block_editor_for_post_type( $post->post_type ) ) {
 				$post_body['distributor_raw_content'] = $post->post_content;
 			}
@@ -874,18 +883,19 @@ class WordPressExternalConnection extends ExternalConnection {
 	private function to_wp_post( $post ) {
 		$obj = new \stdClass();
 
-		$obj->ID           = $post['id'];
-		$obj->post_title   = $post['title']['rendered'];
-		$obj->post_content = $post['content']['rendered'];
+		$obj->ID         = $post['id'];
+		$obj->post_title = $post['title']['rendered'];
 
 		if ( isset( $post['excerpt']['raw'] ) ) {
 			$obj->post_excerpt = $post['excerpt']['raw'];
-		} else {
+		} elseif ( isset( $post['excerpt']['rendered'] ) ) {
 			$obj->post_excerpt = $post['excerpt']['rendered'];
+		} else {
+			$obj->post_excerpt = '';
 		}
 
-		$obj->post_status       = 'draft';
-		$obj->post_author       = get_current_user_id();
+		$obj->post_status = 'draft';
+		$obj->post_author = get_current_user_id();
 
 		$obj->post_password     = $post['password'];
 		$obj->post_date         = $post['date'];
@@ -897,6 +907,11 @@ class WordPressExternalConnection extends ExternalConnection {
 		$obj->link              = $post['link'];
 		$obj->comment_status    = $post['comment_status'];
 		$obj->ping_status       = $post['ping_status'];
+
+		// Use raw content if both remote and local are using Gutenberg.
+		$obj->post_content = \Distributor\Utils\is_using_gutenberg( new \WP_Post( $obj ) ) && isset( $post['is_using_gutenberg'] ) ?
+			$post['content']['raw'] :
+			Utils\get_processed_content( $post['content']['raw'] );
 
 		/**
 		 * These will only be set if Distributor is active on the other side

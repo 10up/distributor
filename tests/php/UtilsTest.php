@@ -2,7 +2,9 @@
 
 namespace Distributor;
 
-class UtilsTest extends \TestCase {
+use WP_Mock\Tools\TestCase;
+
+class UtilsTest extends TestCase {
 
 	/**
 	 * Test set meta with string value and array value
@@ -44,6 +46,10 @@ class UtilsTest extends \TestCase {
 			]
 		);
 
+		\WP_Mock::expectAction( 'dt_after_set_meta', [ 'key' => [ 'value' ] ], [], 1 );
+
+		\WP_Mock::expectAction( 'dt_after_set_meta', [ 'key' => [ [ 'value' ] ] ], [ 'key' => [ 'value' ] ], 1 );
+
 		Utils\set_meta(
 			1, [
 				'key' => [ 'value' ]
@@ -55,6 +61,8 @@ class UtilsTest extends \TestCase {
 				'key' => [ [ 'value' ] ],
 			]
 		);
+
+		$this->assertConditionsMet();
 	}
 
 	/**
@@ -137,6 +145,8 @@ class UtilsTest extends \TestCase {
 				'key2' => [ 'value3' ],
 			]
 		);
+
+		$this->assertConditionsMet();
 	}
 
 	/**
@@ -177,6 +187,8 @@ class UtilsTest extends \TestCase {
 				'key2' => [ 'a:1:{i:0;s:4:"test";}' ],
 			]
 		);
+
+		$this->assertConditionsMet();
 	}
 
 	/**
@@ -246,6 +258,8 @@ class UtilsTest extends \TestCase {
 				],
 			]
 		);
+
+		$this->assertConditionsMet();
 	}
 
 	/**
@@ -312,6 +326,8 @@ class UtilsTest extends \TestCase {
 				],
 			]
 		);
+
+		$this->assertConditionsMet();
 	}
 
 	/**
@@ -354,6 +370,8 @@ class UtilsTest extends \TestCase {
 				],
 			]
 		);
+
+		$this->assertConditionsMet();
 	}
 
 	/**
@@ -421,9 +439,15 @@ class UtilsTest extends \TestCase {
 				'times'  => 1,
 				'args'   => [ $media_post->ID ],
 				'return' => [
-					'meta1' => true,
-					'meta2' => false,
+					'meta1' => [ true ],
+					'meta2' => [ false ],
 				],
+			]
+		);
+
+		\WP_Mock::userFunction(
+			'remove_filter', [
+				'times' => 1,
 			]
 		);
 
@@ -498,6 +522,12 @@ class UtilsTest extends \TestCase {
 					'meta1' => [ true ],
 					'meta2' => [ false ],
 				],
+			]
+		);
+
+		\WP_Mock::userFunction(
+			'remove_filter', [
+				'times' => 1,
 			]
 		);
 

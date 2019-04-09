@@ -60,13 +60,13 @@ function setup_list_table() {
 	$connection_list_table = new \Distributor\PullListTable();
 
 	if ( ! empty( \Distributor\Connections::factory()->get_registered()['networkblog'] ) ) {
-		$sites = \Distributor\InternalConnections\NetworkSiteConnection::get_available_authorized_sites();
+		$sites = \Distributor\InternalConnections\NetworkSiteConnection::get_available_authorized_sites( 'pull' );
 
 		foreach ( $sites as $site_array ) {
 			$internal_connection                         = new \Distributor\InternalConnections\NetworkSiteConnection( $site_array['site'] );
 			$connection_list_table->connection_objects[] = $internal_connection;
 
-			if ( ! empty( $_GET['connection_id'] ) && ! empty( $_GET['connection_type'] ) && 'internal' === $_GET['connection_type'] && (int) $internal_connection->site->blog_id === (int) $_GET['connection_id'] ) {
+			if ( ! empty( $_GET['connection_id'] ) && ! empty( $_GET['connection_type'] ) && 'internal' === $_GET['connection_type'] && (int) $internal_connection->site->blog_id === (int) $_GET['connection_id'] ) { // @codingStandardsIgnoreLine Content is type casted, no need for nonce.
 				$connection_now = $internal_connection;
 			}
 		}
@@ -90,7 +90,7 @@ function setup_list_table() {
 		if ( ! is_wp_error( $external_connection ) ) {
 			$connection_list_table->connection_objects[] = $external_connection;
 
-			if ( ! empty( $_GET['connection_id'] ) && ! empty( $_GET['connection_type'] ) && 'external' === $_GET['connection_type'] && (int) $external_connection_id === (int) $_GET['connection_id'] ) {
+			if ( ! empty( $_GET['connection_id'] ) && ! empty( $_GET['connection_type'] ) && 'external' === $_GET['connection_type'] && (int) $external_connection_id === (int) $_GET['connection_id'] ) { // @codingStandardsIgnoreLine Content is type casted, no need for nonce.
 				$connection_now = $external_connection;
 			}
 		}
@@ -110,7 +110,7 @@ function setup_list_table() {
  * @since  0.8
  */
 function admin_enqueue_scripts( $hook ) {
-	if ( 'distributor_page_pull' !== $hook || empty( $_GET['page'] ) || 'pull' !== $_GET['page'] ) {
+	if ( 'distributor_page_pull' !== $hook || empty( $_GET['page'] ) || 'pull' !== $_GET['page'] ) { // @codingStandardsIgnoreLine Comparing values, not using them.
 		return;
 	}
 
@@ -251,8 +251,6 @@ function process_actions() {
 
 			wp_safe_redirect( wp_get_referer() );
 			exit;
-
-			break;
 		case 'bulk-skip':
 		case 'skip':
 			if ( ! wp_verify_nonce( $_GET['_wpnonce'], 'dt_skip' ) && ! wp_verify_nonce( $_GET['_wpnonce'], 'bulk-distributor_page_pull' ) ) {
@@ -295,8 +293,6 @@ function process_actions() {
 
 			wp_safe_redirect( wp_get_referer() );
 			exit;
-
-			break;
 	}
 }
 
@@ -397,8 +393,8 @@ function dashboard() {
 				// This is either from a query param, "post" post type, or the first in the list
 				$connection_now->pull_post_type = $connection_now->pull_post_types[0]['slug'];
 				foreach ( $connection_now->pull_post_types as $post_type ) {
-					if ( isset( $_GET['pull_post_type'] ) ) {
-						if ( $_GET['pull_post_type'] === $post_type['slug'] ) {
+					if ( isset( $_GET['pull_post_type'] ) ) { // @codingStandardsIgnoreLine No nonce needed here.
+						if ( $_GET['pull_post_type'] === $post_type['slug'] ) { // @codingStandardsIgnoreLine Comparing values, no nonce needed.
 							$connection_now->pull_post_type = $post_type['slug'];
 							break;
 						}
@@ -439,7 +435,7 @@ function dashboard() {
 		<?php else : ?>
 			<?php $connection_list_table->views(); ?>
 
-			<form id="posts-filter" class="status-<?php echo ( ! empty( $_GET['status'] ) ) ? esc_attr( $_GET['status'] ) : 'new'; ?>" method="get">
+			<form id="posts-filter" class="status-<?php echo ( ! empty( $_GET['status'] ) ) ? esc_attr( $_GET['status'] ) : 'new'; // @codingStandardsIgnoreLine Nonce not needed. ?>" method="get">
 				<?php if ( ! empty( $connection_list_table->connection_objects ) ) : ?>
 					<input type="hidden" name="connection_type" value="<?php echo esc_attr( $connection_type ); ?>">
 					<input type="hidden" name="connection_id" value="<?php echo esc_attr( $connection_id ); ?>">

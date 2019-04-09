@@ -4,6 +4,7 @@
  *
  * @package distributor
  */
+use WPAcceptance\Log;
 
 /**
  * Class extends \WPAcceptance\PHPUnit\TestCase
@@ -17,10 +18,11 @@ class TestCase extends \WPAcceptance\PHPUnit\TestCase {
 	 * @param  int                     $post_id          Post ID to distributor
 	 * @param  int                     $to_connection_id Connection ID to distribute from
 	 * @param  string                  $from_blog_slug   Blog where original post lives. Empty string is main blog.
-	 * @param  string                  $post_status      New post status
+	 * @param  string                  $post_status      New post status.
+	 * @param  boolean                 $external         Is this an external connection push?
 	 * @return array
 	 */
-	protected function pushPost( \WPAcceptance\PHPUnit\Actor $I, $post_id, $to_connection_id, $from_blog_slug = '', $post_status = 'publish' ) {
+	protected function pushPost( \WPAcceptance\PHPUnit\Actor $I, $post_id, $to_connection_id, $from_blog_slug = '', $post_status = 'publish', $external = false ) {
 		$info = [
 			'original_edit_url' => $from_blog_slug . '/wp-admin/post.php?post=' . $post_id . '&action=edit',
 		];
@@ -29,16 +31,20 @@ class TestCase extends \WPAcceptance\PHPUnit\TestCase {
 		$I->moveTo( $info['original_edit_url'] );
 
 		try {
-			$info['original_front_url'] = $I->getElement( '#wp-admin-bar-view a')->getAttribute( 'href' );
+			$info['original_front_url'] = $I->getElementAttribute( '#wp-admin-bar-view a', 'href' );
 		} catch ( \Exception $e ) {
-			$info['original_front_url'] = $I->getElement( '#wp-admin-bar-preview a')->getAttribute( 'href' );
+			$info['original_front_url'] = $I->getElementAttribute( '#wp-admin-bar-preview a', 'href' );
 		}
 
 		$I->waitUntilElementVisible( '#wp-admin-bar-distributor a' );
 
+		$this->dismissNUXTip( $I );
+
 		$I->moveMouse( '#wp-admin-bar-distributor a' );
 
 		$I->click( '#wp-admin-bar-distributor a' );
+
+		$I->waitUntilElementVisible( '#distributor-push-wrapper .new-connections-list' );
 
 		// Distribute post
 
@@ -50,25 +56,30 @@ class TestCase extends \WPAcceptance\PHPUnit\TestCase {
 			$I->click( '#dt-as-draft' ); // Uncheck for publish, draft is checked by default
 		}
 
+		$I->waitUntilElementEnabled( '#distributor-push-wrapper .syndicate-button' );
+
 		$I->click( '#distributor-push-wrapper .syndicate-button' );
 
 		$I->waitUntilElementVisible( '#distributor-push-wrapper .dt-success' );
 
-		// Now let's navigate to the new post
+		// Now let's navigate to the new post - only works for network connections.
+		if ( ! $external ) {
 
-		$I->click( '#distributor-push-wrapper .new-connections-list .add-connection[data-connection-id="' . $to_connection_id . '"] a' );
+			$I->click( '#distributor-push-wrapper .new-connections-list .add-connection[data-connection-id="' . $to_connection_id . '"] a' );
 
-		$I->waitUntilElementVisible( '#wp-admin-bar-edit' );
+			$I->waitUntilNavigation();
 
-		$info['distributed_front_url'] = $I->getCurrentUrl();
+			$info['distributed_front_url'] = $I->getCurrentUrl();
 
-		$I->click( '#wp-admin-bar-edit a' );
-
-		$I->waitUntilElementVisible( '#title' );
-
-		$info['distributed_edit_url'] = $I->getCurrentUrl();
-
-		$info['distributed_post_id'] = (int) $I->getElement( '#post_ID' )->getAttribute( 'value' );
+			try {
+				$link = $I->getElementAttribute( '#wp-admin-bar-edit a', 'href' );
+				$info['distributed_edit_url'] = $link;
+				preg_match( '/post=(\d+)/', $link, $matches );
+				if ( $matches ) {
+					$info['distributed_post_id'] = (int) $matches[1];
+				}
+			} catch ( \Exception $e ) {}
+		}
 
 		return $info;
 	}
@@ -80,9 +91,11 @@ class TestCase extends \WPAcceptance\PHPUnit\TestCase {
 	 * @param  int                     $original_post_id Original post id
 	 * @param  int                     $to_blog_slug     Blog slug where post is being pulled in
 	 * @param  string                  $from_blog_slug   Blog we are pulling from. Empty string is main blog
+	 * @param  string                  $use_connection   The full connection name to use on the pull screen.
+	 *
 	 * @return array
 	 */
-	protected function pullPost( \WPAcceptance\PHPUnit\Actor $I, $original_post_id, $to_blog_slug, $from_blog_slug = '' ) {
+	protected function pullPost( \WPAcceptance\PHPUnit\Actor $I, $original_post_id, $to_blog_slug, $from_blog_slug = '', $use_connection = false ) {
 		if ( ! empty( $to_blog_slug ) ) {
 			$to_blog_slug .= '/';
 		}
@@ -97,27 +110,60 @@ class TestCase extends \WPAcceptance\PHPUnit\TestCase {
 
 		$I->moveTo( $to_blog_slug . 'wp-admin/admin.php?page=pull' );
 
+		if ( $use_connection ) {
+			$I->checkOptions( '#pull_connections', $use_connection );
+			$I->waitUntilElementVisible( '.wp-list-table #cb-select-' . $original_post_id );
+		}
+
 		$I->checkOptions( '.wp-list-table #cb-select-' . $original_post_id );
 
 		$I->click( '#doaction' );
 
-		$I->waitUntilElementVisible( '#wpadminbar' );
+		$I->waitUntilNavigation();
 
-		$I->moveTo( $to_blog_slug . 'wp-admin/admin.php?page=pull&status=pulled' );
+		$I->click( '.pulled > a' );
+		$I->waitUntilNavigation();
 
 		$I->moveMouse( '.wp-list-table tbody tr:nth-child(1) .page-title' );
 		$I->click( '.wp-list-table tbody tr:nth-child(1) .page-title .view a' );
 
-		$I->waitUntilElementVisible( '#wpadminbar' );
+		$I->waitUntilNavigation();
 
 		$info['distributed_view_url'] = $I->getCurrentUrl();
 
 		$I->click( '#wp-admin-bar-edit a' );
 
-		$I->waitUntilElementVisible( '#wpadminbar' );
+		$I->waitUntilNavigation();
 
 		$info['distributed_edit_url'] = $I->getCurrentUrl();
 
 		return $info;
 	}
+
+	/**
+	 * Check if the editor is the block editor.
+	 *
+	 * Must be called from the edit page.
+	 *
+	 * @param \WPAcceptance\PHPUnit\Actor $actor The actor.
+	 */
+	protected function editorHasBlocks ( $actor ) {
+		$body = $actor->getElement( 'body' );
+		$msg = $actor->elementToString( $body );
+		return ( strpos( $msg, 'block-editor-page' ) );
+	}
+
+	/**
+	 * Dismiss the Gutenberg NUX tooltip.
+	 *
+	 * @param \WPAcceptance\PHPUnit\Actor $actor The actor.
+	 */
+	protected function dismissNUXTip( $actor ) {
+		try {
+			if ( $actor->getElement( '.nux-dot-tip__disable' ) ) {
+				$actor->click( '.nux-dot-tip__disable' );
+			}
+		} catch ( \Exception $e ) {}
+	}
+
 }

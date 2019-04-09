@@ -108,6 +108,7 @@ function update_notice( $plugin_file, $plugin_data, $status ) {
 		<td colspan="3" class="plugin-update colspanchange">
 			<div class="update-message notice inline notice-warning notice-alt">
 				<p>
+					<?php /* translators: %s: distributor notice url */ ?>
 					<?php echo wp_kses_post( sprintf( __( '<a href="%s">Register</a> for a free Distributor key to receive updates.', 'distributor' ), esc_url( $notice_url ) ) ); ?>
 				</p>
 			</div>
@@ -126,6 +127,7 @@ function maybe_notice() {
 		if ( preg_match( '/-dev$/', DT_VERSION ) ) {
 			?>
 			<div class="notice notice-warning">
+			<?php /* translators: %1$s: npm commands, %2$s: distributor url */ ?>
 			<p><?php echo wp_kses_post( sprintf( __( 'You appear to be running a development version of Distributor. Certain features may not work correctly without regularly running %1$s. If you&rsquo;re not sure what this means, you may want to <a href="%2$s">download and install</a> the stable version of Distributor instead.', 'distributor' ), '<code>npm install && npm run build</code>', 'https://distributorplugin.com/' ) ); ?></p>
 			</div>
 			<?php
@@ -148,6 +150,7 @@ function maybe_notice() {
 			}
 			?>
 			<div data-notice="auto-upgrade-disabled" class="notice notice-warning">
+				<?php /* translators: %s: distributor url */ ?>
 				<p><?php echo wp_kses_post( sprintf( __( '<a href="%s">Register Distributor</a> to receive important plugin update notices and other Distributor news.', 'distributor' ), esc_url( $notice_url ) ) ); ?></p>
 			</div>
 			<?php
@@ -162,7 +165,7 @@ function maybe_notice() {
  * @since  1.2
  */
 function admin_enqueue_scripts( $hook ) {
-	if ( ! empty( $_GET['page'] ) && 'distributor-settings' === $_GET['page'] ) {
+	if ( ! empty( $_GET['page'] ) && 'distributor-settings' === $_GET['page'] ) { // @codingStandardsIgnoreLine Nonce not required.
 		wp_enqueue_style( 'dt-admin-settings', plugins_url( '/dist/css/admin-settings.min.css', __DIR__ ), array(), DT_VERSION );
 	}
 }

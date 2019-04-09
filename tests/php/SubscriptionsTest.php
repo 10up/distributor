@@ -2,7 +2,9 @@
 
 namespace Distributor;
 
-class SubscriptionsTest extends \TestCase {
+use WP_Mock\Tools\TestCase;
+
+class SubscriptionsTest extends TestCase {
 
 	/**
 	 * Test delete subscribed to post
@@ -107,6 +109,7 @@ class SubscriptionsTest extends \TestCase {
 
 		Subscriptions\delete_subscriptions( 1 );
 
+		$this->assertConditionsMet();
 	}
 
 	/**
@@ -163,6 +166,7 @@ class SubscriptionsTest extends \TestCase {
 		// External connection comes back WP_Error and delete_subscription isn't actually called on connection
 		Subscriptions\delete_subscriptions( 1 );
 
+		$this->assertConditionsMet();
 	}
 
 	/**
@@ -194,6 +198,8 @@ class SubscriptionsTest extends \TestCase {
 		);
 
 		Subscriptions\send_notifications( 1 );
+
+		$this->assertConditionsMet();
 	}
 
 	/**
@@ -352,7 +358,15 @@ class SubscriptionsTest extends \TestCase {
 			]
 		);
 
+		\WP_Mock::userFunction(
+			'remove_filter', [
+				'times' => 1,
+			]
+		);
+
 		Subscriptions\send_notifications( $post_id );
+
+		$this->assertConditionsMet();
 	}
 
 	/**
@@ -507,7 +521,15 @@ class SubscriptionsTest extends \TestCase {
 			]
 		);
 
+		\WP_Mock::userFunction(
+			'remove_filter', [
+				'times' => 1,
+			]
+		);
+
 		Subscriptions\send_notifications( $post_id );
+
+		$this->assertConditionsMet();
 	}
 
 	/**
@@ -585,6 +607,8 @@ class SubscriptionsTest extends \TestCase {
 		);
 
 		Subscriptions\create_subscription( $post_id, $remote_post_id, $target_url, $signature );
+
+		$this->assertConditionsMet();
 	}
 
 	/**
@@ -667,6 +691,8 @@ class SubscriptionsTest extends \TestCase {
 		);
 
 		Subscriptions\create_remote_subscription( $connection, $remote_post_id, $post_id );
+
+		$this->assertConditionsMet();
 	}
 
 	/**
@@ -704,5 +730,7 @@ class SubscriptionsTest extends \TestCase {
 		);
 
 		Subscriptions\delete_subscription( $post_id, $signature );
+
+		$this->assertConditionsMet();
 	}
 }

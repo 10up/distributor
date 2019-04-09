@@ -15,16 +15,20 @@ class DistributedPost extends \TestCase {
 	 * locations
 	 */
 	public function testDistributedCount() {
-		$I = $this->getAnonymousUser();
+		$I = $this->openBrowserPage();
 
 		$I->loginAs( 'wpsnapshots' );
+
+		self::assertPostFieldContains( 40, 'post_title', 'Test Post' );
+
+		return;
 
 		// Distribute post
 		$post_info = $this->pushPost( $I, 40, 2 );
 
 		$I->moveTo( $post_info['original_edit_url'] );
 
-		$I->waitUntilElementVisible( '#title' );
+		$I->waitUntilElementVisible( 'body.post-php' );;
 
 		$I->seeText( '1', '#distributed-to strong' );
 
@@ -33,7 +37,7 @@ class DistributedPost extends \TestCase {
 
 		$I->moveTo( $post_info['original_edit_url'] );
 
-		$I->waitUntilElementVisible( '#title' );
+		$I->waitUntilElementVisible( 'body.post-php' );;
 
 		$I->seeText( '2', '#distributed-to strong' );
 	}
@@ -42,7 +46,7 @@ class DistributedPost extends \TestCase {
 	 * Test UI for a post that has been distributed (not original)
 	 */
 	public function testDistributedFrom() {
-		$I = $this->getAnonymousUser();
+		$I = $this->openBrowserPage();
 
 		$I->loginAs( 'wpsnapshots' );
 
@@ -59,14 +63,25 @@ class DistributedPost extends \TestCase {
 
 		$I->moveTo( $post_info['distributed_edit_url'] );
 
-		$I->waitUntilElementVisible( '#title' );
+		$I->waitUntilElementVisible( 'body.post-php' );
 
+		$editor_has_blocks =  $this->editorHasBlocks( $I );
 		// Make sure we see distributed time in publish box
-		$I->seeText( 'Distributed on', '#syndicate-time' );
+		if ( $editor_has_blocks ) {
+			$I->seeText( 'Distributed on:', '#distributed-from' );
+		} else {
+			$I->seeText( 'Distributed on', '#syndicate-time' );
+		}
 
 		// Make sure we see distributed status admin notice and that it shows as linked
-		$I->seeText( 'Distributed from', '.syndicate-status');
-		$I->seeText( 'unlink from the original', '.syndicate-status' );
+		if ( $editor_has_blocks ) {
+			$I->seeText( 'Distributed from Site One. The original will update this unless youunlink from original.View Original', '.components-notice__content' );
+			$element = $I->getElement( '.components-notice__action' );
+			$I->seeText( 'unlink from original.', '.components-notice__action' );
+		} else {
+			$I->seeText( 'Distributed from', '.syndicate-status');
+			$I->seeText( 'unlink from the original', '.syndicate-status' );
+		}
 
 		// Now let's check in the front end
 		$I->moveTo( $post_info['distributed_front_url'] );

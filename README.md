@@ -61,8 +61,6 @@ In addition, in order for distribution to work with external connections that ha
 
 __Backwards Compatibility__ - While we strive to be mindful of backwards compatibility much the same way WordPress itself is, we do not currently guarantee continued interoperability between different versions of Distributor. We assume the current userbase for this plugin has a high degree of control over any site that has been set up as an external connection and urge you to keep Distributor up to date.
 
-__oEmbeds__ - oEmbeds are currently distributed as fully-formed HTML which may not be retained correctly if a user without the `unfiltered_html` capability later edits the post. A fix for the issue is forthcoming; in the meantime, we recommend removing the `autoembed` filter from `the_content` when content is being prepared for distribution.
-
 ## Developers
 
 ### Testing
@@ -72,6 +70,8 @@ The plugin contains a standard test suite compatible with PHPUnit. If you want t
 ### Debugging
 
 You can define a constant `DISTRIBUTOR_DEBUG` to `true` to increase the ease of debugging in Distributor. This will make all remote requests blocking and expose the subscription post type.
+
+Enabling this will also provide more debugging information in your error log for image side loading issues. The specific logging method may change in the future.
 
 ### Work with us
 
