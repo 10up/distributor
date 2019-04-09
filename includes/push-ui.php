@@ -453,15 +453,11 @@ function menu_content() {
 						<div class="new-connections-list">
 							<# for ( var key in connections ) { #>
 								<# if ( 'external' === connections[ key ]['type'] ) { #>
-									<div class="add-connection
-										<# if ( ! _.isEmpty( connections[ key ]['syndicated'] ) ) { #>
-syndicated<# } #>" data-connection-type="external" data-connection-id="{{ connections[ key ]['id'] }}>">
-										<span>{{ connections[ key ]['title'] }}</span>
+									<div class="add-connection<# if ( ! _.isEmpty( connections[ key ]['syndicated'] ) ) { #> syndicated<# } #>" data-connection-type="external" data-connection-id="{{ connections[ key ]['id'] }}>">
+										<span>{{ connections[ key ]['name'] }}</span>
 									</div>
 								<# } else { #>
-									<div class="add-connection
-										<# if ( ! _.isEmpty( connections[ key ]['syndicated'] ) ) { #>
-syndicated<# } #>" data-connection-type="internal" data-connection-id="{{ connections[ key ]['id'] }}">
+									<div class="add-connection<# if ( ! _.isEmpty( connections[ key ]['syndicated'] ) ) { #> syndicated<# } #>" data-connection-type="internal" data-connection-id="{{ connections[ key ]['id'] }}">
 										<span>{{ connections[ key ]['url'] }}</span>
 										<# if ( ! _.isEmpty( connections[ key ]['syndicated'] ) ) { #>
 											<a href="{{ connections[ key ]['syndicated'] }}"><?php esc_html_e( 'View', 'distributor' ); ?></a>
