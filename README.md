@@ -64,9 +64,7 @@ __Gutenberg Block Mismatch__ - When distributing a Gutenberg post to another sit
 
 __Parent Posts__ - Distributor does not "bring along" parent (or child posts). If your post (or custom post type) has a parent or a child, it will distribute it as if it's an orphan.
 
-__External Connection Post Type Support__ - When _pulling_ content from an external connection, only "Posts" (post type) content will appear. _Pulling_ other post types from _external_ connections is not currently supported. Internal connections (multisite) support multiple post types, and other post types can still be _pushed_ to external connections that support the post type. This will be addressed in an upcoming release, including an improved interface for navigating available content by post types supported on both sides.
-
-In addition, in order for distribution to work with external connections that have custom post type content, that post type needs to be registered with the argument `show_in_rest => true` on the external site.
+__Custom Post Type Support__ - Internal Connections (multisite) support multiple post types. In order for distribution to work with External Connections that have custom post type content, that post type needs to be registered with the argument `show_in_rest => true` on the external site.
 
 __Backwards Compatibility__ - While we strive to be mindful of backwards compatibility much the same way WordPress itself is, we do not currently guarantee continued interoperability between different versions of Distributor. We assume the current userbase for this plugin has a high degree of control over any site that has been set up as an external connection and urge you to keep Distributor up to date.
 
