@@ -71,13 +71,14 @@ class TestCase extends \WPAcceptance\PHPUnit\TestCase {
 
 			$info['distributed_front_url'] = $I->getCurrentUrl();
 
-			$I->click( '#wp-admin-bar-edit a' );
-
-			$I->waitUntilNavigation();
-
-			$info['distributed_edit_url'] = $I->getCurrentUrl();
-
-			$info['distributed_post_id'] = (int) $I->getElementAttribute( '#post_ID', 'value' );
+			try {
+				$link = $I->getElementAttribute( '#wp-admin-bar-edit a', 'href' );
+				$info['distributed_edit_url'] = $link;
+				preg_match( '/+.post=(\d+)/', $link, $matches );
+				if ( $matches ) {
+					$info['distributed_post_id'] = (int) $matches[1];
+				}
+			} catch ( \Exception $e ) {}
 		}
 
 		return $info;
@@ -157,7 +158,7 @@ class TestCase extends \WPAcceptance\PHPUnit\TestCase {
 	 *
 	 * @param \WPAcceptance\PHPUnit\Actor $actor The actor.
 	 */
-	protected function dismissNUXTip( $actot ) {
+	protected function dismissNUXTip( $actor ) {
 		try {
 			if ( $actor->getElement( '.nux-dot-tip__disable' ) ) {
 				$actor->click( '.nux-dot-tip__disable' );
