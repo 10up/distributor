@@ -83,7 +83,6 @@ class OembedTests extends \TestCase {
 
 		$post_info = $this->pushPost( $I, 48, (int) $matches[1], '', 'publish', true );
 		$I->moveTo( 'two/wp-admin/edit.php' );
-		$I->takeScreenshot( 'screenshots/testBlocksNetworkPushedContent0' );
 
 		// Switch to the distributed post.
 		$I->waitUntilElementVisible( '#the-list' );
