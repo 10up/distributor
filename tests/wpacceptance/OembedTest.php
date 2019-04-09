@@ -78,20 +78,24 @@ class OembedTests extends \TestCase {
 		$I->pressEnterKey( '#create-connection' );
 
 		$I->waitUntilElementVisible( '.notice-success' );
+		$url = $I->getCurrentUrl();
+		preg_match( '/post=(\d+)/', $url, $matches );
 
-		$I->moveTo( 'wp-admin/admin.php?page=distributor' );
-
-		$post_info = $this->pushPost( $I, 48, 52, '', 'publish', true );
+		$post_info = $this->pushPost( $I, 48, (int) $matches[1], '', 'publish', true );
 		$I->moveTo( 'two/wp-admin/edit.php' );
+		$I->takeScreenshot( 'screenshots/testBlocksNetworkPushedContent0' );
 
 		// Switch to the distributed post.
 		$I->waitUntilElementVisible( '#the-list' );
-
 		$I->click( 'a.row-title' );
 		$I->waitUntilNavigation();
 
+		// Use moveTo to prime page object.
 		$url = $I->getCurrentUrl();
+		$I->moveTo( 'two/wp-admin/edit.php' );
 		$I->moveTo( $url );
+
+		$I->waitUntilElementVisible( 'body.post-php' );
 
 		// Get the source.
 		$source = $I->getPageSource();

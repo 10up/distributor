@@ -74,7 +74,7 @@ class TestCase extends \WPAcceptance\PHPUnit\TestCase {
 			try {
 				$link = $I->getElementAttribute( '#wp-admin-bar-edit a', 'href' );
 				$info['distributed_edit_url'] = $link;
-				preg_match( '/+.post=(\d+)/', $link, $matches );
+				preg_match( '/post=(\d+)/', $link, $matches );
 				if ( $matches ) {
 					$info['distributed_post_id'] = (int) $matches[1];
 				}
