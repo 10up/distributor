@@ -522,8 +522,23 @@ function menu_content() {
 			</div>
 		</script>
 
-		<div id="distributor-push-wrapper">
-			<span class="loading"></span>
+		<div id="distributor-push-wrapper" class="loaded">
+			<div class="inner">
+				<div class="loader-item">
+					<div class="loader-col-8">
+						<div class="loader-row border">
+							<div class="loader-col-12 big odd"></div>
+							<div class="loader-col-12 big"></div>
+						</div>
+					</div>
+					<div class="loader-col-4">
+						<div class="loader-row">
+							<div class="loader-col-12 odd bottom"></div>
+							<div class="loader-col-12 big odd"></div>
+						</div>
+					</div>
+				</div>
+			</div>
 		</div>
 
 		<?php
