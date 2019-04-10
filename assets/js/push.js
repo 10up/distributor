@@ -169,24 +169,21 @@ jQuery( window ).on( 'load', () => {
 			method: 'post',
 			data: data
 		} ).done( ( response ) => {
-			setTimeout( () => {
-				if ( ! response.success || ! response.data ) {
-					doError();
-					return;
-				}
-
-				dtConnections = response.data;
-
-				distributorPushWrapper.innerHTML = processTemplate( 'dt-show-connections' )( {
-					connections: dtConnections,
-				} );
-
-				setVariables();
-			}, 500 );
-		} ).error( () => {
-			setTimeout( () => {
+			if ( ! response.success || ! response.data ) {
 				doError();
-			}, 500 );
+				return;
+			}
+
+			dtConnections = response.data;
+
+			distributorPushWrapper.innerHTML = processTemplate( 'dt-show-connections' )( {
+				connections: dtConnections,
+			} );
+
+			setVariables();
+		} ).error( () => {
+			distributorPushWrapper.classList.remove( 'loaded' );
+			doError();
 		} );
 	}
 

@@ -76,12 +76,10 @@ function syndicatable() {
 function get_connections() {
 	if ( ! check_ajax_referer( 'dt-load-connections', 'loadConnectionsNonce', false ) ) {
 		wp_send_json_error();
-		exit;
 	}
 
 	if ( empty( $_POST['postId'] ) ) {
 		wp_send_json_error();
-		exit;
 	}
 
 	$post            = get_post( intval( $_POST['postId'] ) );
@@ -184,8 +182,6 @@ function get_connections() {
 	}
 
 	wp_send_json_success( $dom_connections );
-
-	exit;
 }
 
 /**
