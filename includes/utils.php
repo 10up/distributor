@@ -34,12 +34,18 @@ function is_vip_com() {
  * @return boolean
  */
 function is_using_gutenberg( $post ) {
+
 	global $wp_version;
 	$gutenberg_available = function_exists( 'the_gutenberg_project' );
 	$version_5_plus      = version_compare( $wp_version, '5', '>=' );
 
 	if ( ! $gutenberg_available && ! $version_5_plus ) {
 		return false;
+	}
+
+	// WordPress 5.0 introduces the has_blocks function.
+	if ( function_exists( 'has_blocks' ) ) {
+		return has_blocks( $post );
 	}
 
 	// We have to use the function here instead of the filter due to differences in the way certain plugins implement this.
