@@ -677,13 +677,13 @@ class NetworkSiteConnection extends Connection {
 	/**
 	 * Build the available sites a specific user is authorized to use.
 	 *
-	 * @param int|string $user_id Current user ID
-	 * @param string     $context The context of the authorization. Either push or pull
-	 * @param bool       $force Force a cache clear. Default false
+	 * @param int|bool $user_id Current user ID
+	 * @param string   $context The context of the authorization. Either push or pull
+	 * @param bool     $force   Force a cache clear. Default false
 	 *
 	 * @return array
 	 */
-	public static function build_available_authorized_sites( $user_id = '', $context = null, $force = false ) {
+	public static function build_available_authorized_sites( $user_id = false, $context = null, $force = false ) {
 		$user_id      = ! $user_id ? get_current_user_id() : $user_id;
 		$last_changed = get_site_option( 'last_changed_sites' );
 
@@ -696,7 +696,11 @@ class NetworkSiteConnection extends Connection {
 		$authorized_sites = get_transient( $cache_key );
 
 		if ( $force || false === $authorized_sites ) {
-			$sites           = get_sites();
+			$sites           = get_sites(
+				array(
+					'number' => 1000,
+				)
+			);
 			$current_blog_id = (int) get_current_blog_id();
 
 			foreach ( $sites as $site ) {
@@ -736,7 +740,7 @@ class NetworkSiteConnection extends Connection {
 			}
 		}
 
-		// Make sure we save and return an array
+		// Make sure we save and return an array.
 		$authorized_sites = ! is_array( $authorized_sites ) ? array() : $authorized_sites;
 
 		set_transient( $cache_key, $authorized_sites, 15 * MINUTE_IN_SECONDS );
