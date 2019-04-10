@@ -18,11 +18,9 @@ class BlocksTests extends \TestCase {
 
 		$this->dismissNUXTip( $I );
 		usleep( 500 );
-		$I->takeScreenshot( 'screenshots/testBlocksNetworkPushedContent1' );
 
 		$I->getPage()->type(  '.editor-default-block-appender__content', 'Lorem ipsum dolor sit amet.', [ 'delay' => 10 ] );
 		$I->jsClick( '.editor-post-publish-button' );
-		$I->takeScreenshot( 'screenshots/testBlocksNetworkPushedContent3a' );
 
 		$I->waitUntilElementVisible( '.is-success' );
 
@@ -120,7 +118,6 @@ class BlocksTests extends \TestCase {
 
 		$post_info = $this->pushPost( $I, 40, (int) $matches[1], '', 'publish', true );
 		$I->moveTo( 'two/wp-admin/edit.php' );
-		$I->takeScreenshot( 'screenshots/testBlocksNetworkPushedContent0' );
 
 		// Switch to the distributed post.
 		$I->waitUntilElementVisible( '#the-list' );
