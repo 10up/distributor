@@ -323,7 +323,18 @@
 	-ms-flex-wrap: wrap;
 	flex-wrap: wrap;
 	overflow: hidden;
-	border-radius: 2px;
+}
+
+#distributor-push-wrapper.message-error .loader-item {
+	display: none;
+}
+
+#wpadminbar #distributor-push-wrapper .loader-messages {
+	@media (--small-screen) {
+		width: 100%;
+		float: none;
+		padding-left: 0;
+	}
 }
 
 #distributor-push-wrapper .loader-item,
@@ -342,7 +353,7 @@
 	bottom: 0;
 	left: 50%;
 	z-index: 1;
-	width: 500%;
+	width: 349%;
 	margin-left: -250%;
 	-webkit-animation: loaderAnimation 0.8s linear infinite;
 	animation: loaderAnimation 0.8s linear infinite;
@@ -369,7 +380,6 @@
 	display: flex;
 	-ms-flex-wrap: wrap;
 	flex-wrap: wrap;
-	margin-bottom: 7.5px;
 }
 
 #distributor-push-wrapper .loader-row.border {
@@ -395,8 +405,8 @@
 
 #distributor-push-wrapper .loader-col-4 {
 	-webkit-box-flex: 0;
-	-ms-flex: 0 0 40%;
-	flex: 0 0 40%;
+	-ms-flex: 0 0 30%;
+	flex: 0 0 30%;
 	padding-left: 3em;
 }
 

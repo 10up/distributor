@@ -522,7 +522,7 @@ function menu_content() {
 			</div>
 		</script>
 
-		<div id="distributor-push-wrapper" class="loaded">
+		<div id="distributor-push-wrapper">
 			<div class="inner">
 				<div class="loader-item">
 					<div class="loader-col-8">
@@ -536,6 +536,11 @@ function menu_content() {
 							<div class="loader-col-12 odd bottom"></div>
 							<div class="loader-col-12 big odd"></div>
 						</div>
+					</div>
+				</div>
+				<div class="loader-messages messages">
+					<div class="dt-error">
+						<?php esc_html_e( 'There was an issue loading connections.', 'distributor' ); ?>
 					</div>
 				</div>
 			</div>

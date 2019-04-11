@@ -153,6 +153,7 @@ jQuery( window ).on( 'load', () => {
 			return;
 		}
 
+		distributorPushWrapper.classList.remove( 'message-error' );
 		distributorPushWrapper.classList.add( 'loaded' );
 
 		const data = {
@@ -170,7 +171,8 @@ jQuery( window ).on( 'load', () => {
 			data: data
 		} ).done( ( response ) => {
 			if ( ! response.success || ! response.data ) {
-				doError();
+				distributorPushWrapper.classList.remove( 'loaded' );
+				distributorPushWrapper.classList.add( 'message-error' );
 				return;
 			}
 
@@ -183,7 +185,7 @@ jQuery( window ).on( 'load', () => {
 			setVariables();
 		} ).error( () => {
 			distributorPushWrapper.classList.remove( 'loaded' );
-			doError();
+			distributorPushWrapper.classList.add( 'message-error' );
 		} );
 	}
 
