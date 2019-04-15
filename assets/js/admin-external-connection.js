@@ -1,6 +1,10 @@
 import jQuery from 'jquery';
 import _ from 'underscores';
 import { dt, ajaxurl } from 'window';
+import {
+	addQueryArgs,
+	isURL,
+} from '@wordpress/url';
 
 const externalConnectionUrlField  = document.getElementsByClassName( 'external-connection-url-field' )[0];
 const externalConnectionMetaBox   = document.getElementById( 'dt_external_connection_details' );
@@ -12,9 +16,51 @@ const endpointResult              = document.querySelector( '.endpoint-result' )
 const endpointErrors              = document.querySelector( '.endpoint-errors' );
 const postIdField                 = document.getElementById( 'post_ID' );
 const wpbody                      = document.getElementById( 'wpbody' );
+const externalSiteUrlField        = document.getElementsByClassName( 'external-site-url-field' )[0];
+const authorizeConnectionButton   = document.getElementsByClassName( 'establish-connection-button' );
 let $apiVerify                    = false;
 
 wpbody.className = 'wp';
+
+/**
+ * Handle Setup Connection Wizard "Authorize Connection" button.
+ */
+jQuery( authorizeConnectionButton ).on( 'click', ( event ) => {
+	event.preventDefault();
+
+	const siteURL =  externalSiteUrlField.value;
+	if ( ! isURL( siteURL ) ) {
+		return false;
+	}
+
+	// @todo check that Distributor available on remote site here.
+
+	const successURL = addQueryArgs( document.location.href,
+		{
+			setupStatus: 'success',
+			titleField: titleField.value,
+			externalSiteUrlField: siteURL,
+		}
+	);
+
+	const failureURL = addQueryArgs( document.location.href,
+		{
+			setupStatus: 'failure'
+		}
+	);
+
+	const authURL = addQueryArgs(
+		`${ siteURL }/wp-admin/admin.php`,
+		{
+			page: 'auth_app',
+			app_name: dt.distributor_from, /*eslint camelcase: 0*/
+			success_url: encodeURI( successURL ), /*eslint camelcase: 0*/
+			reject_url:  encodeURI( failureURL ), /*eslint camelcase: 0*/
+		}
+	);
+	document.location = authURL;
+	return false;
+} );
 /**
  * Check the external connection.
  */
