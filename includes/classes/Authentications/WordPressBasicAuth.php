@@ -69,7 +69,7 @@ class WordPressBasicAuth extends Authentication {
 				<?php esc_html_e( 'Note: the remote site must also be running Distributor verion 1.5 or higher.', 'distributor' ); ?>
 			</span><br />
 			<label for="dt_external_site_url"><?php esc_html_e( 'External Site Url', 'distributor' ); ?></label><br>
-			<input type="text" name="dt_external_connection_auth[site_url]" data-auth-field="dt_external_site_url" value="" class="auth-field widefat" id="dt_external_site_url" placeholder="https://remotesite.com" autocomplete="off" value="">
+			<input type="text" name="dt_external_connection_auth[site_url]" data-auth-field="dt_external_site_url" value="" class="widefat" id="dt_external_site_url" placeholder="https://remotesite.com" autocomplete="off" value="">
 			<p>
 				<button class="button button-large establish-connection-button button-primary">
 					<?php esc_html_e( 'Authorize Connection', 'distributor' ); ?>

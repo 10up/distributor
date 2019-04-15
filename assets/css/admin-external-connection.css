@@ -209,7 +209,8 @@ input[type="password"].error-required {
 	display: inline-block;
 }
 
-.post-new-php  .auth-credentials.dotcom-oauth2 {
+.post-new-php .auth-credentials.dotcom-oauth2,
+.post-php .auth-credentials.dotcom-oauth2 {
 	display: none;
 }
 

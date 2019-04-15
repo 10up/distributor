@@ -15,12 +15,15 @@ const titleField                  = document.getElementById( 'title' );
 const endpointResult              = document.querySelector( '.endpoint-result' );
 const endpointErrors              = document.querySelector( '.endpoint-errors' );
 const postIdField                 = document.getElementById( 'post_ID' );
+const createConnection            = document.getElementById( 'create-connection' );
 const wpbody                      = document.getElementById( 'wpbody' );
-const externalSiteUrlField        = document.getElementsByClassName( 'external-site-url-field' )[0];
+const externalSiteUrlField        = document.getElementById( 'dt_external_site_url' );
 const authorizeConnectionButton   = document.getElementsByClassName( 'establish-connection-button' );
 let $apiVerify                    = false;
-
+const titlePrompt                 = document.getElementById( '#title-prompt-text' );
 wpbody.className = 'wp';
+
+// @todo prevent enter from submitting the form
 
 /**
  * Handle Setup Connection Wizard "Authorize Connection" button.
@@ -61,6 +64,7 @@ jQuery( authorizeConnectionButton ).on( 'click', ( event ) => {
 	document.location = authURL;
 	return false;
 } );
+
 /**
  * Check the external connection.
  */
@@ -163,7 +167,22 @@ function checkConnections() {
 	} );
 }
 
+// Initialize after load.
 setTimeout( () => {
+	// Repopulate fields on wizard flow.
+	const { wizard_return } = dt;
+
+	if ( wizard_return ) {
+		if ( '' === titleField.value ) {
+			jQuery( titleField ).val( wizard_return.titleField ).focus().blur();
+			jQuery( titlePrompt ).empty();
+		}
+		jQuery( usernameField ).val( wizard_return.user_login );
+		jQuery( passwordField ).val( wizard_return.password );
+		jQuery( externalConnectionUrlField ).val( `${ wizard_return.externalSiteUrlField.replace( /\/$/, '' ) }/wp-json` );
+		wpbody.className = 'wizard-return';
+		createConnection.click();
+	}
 	checkConnections();
 }, 300 );
 
