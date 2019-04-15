@@ -11,8 +11,10 @@ const titleField                  = document.getElementById( 'title' );
 const endpointResult              = document.querySelector( '.endpoint-result' );
 const endpointErrors              = document.querySelector( '.endpoint-errors' );
 const postIdField                 = document.getElementById( 'post_ID' );
+const wpbody                      = document.getElementById( 'wpbody' );
 let $apiVerify                    = false;
 
+wpbody.className = 'wp';
 /**
  * Check the external connection.
  */
@@ -195,7 +197,6 @@ jQuery( rolesAllowed ).on( 'click', '.dt-role-checkbox', ( event ) => {
  * Creates a cleaner flow for authorization by separating the authorization steps.
  */
 const $hideUntilAuthed = jQuery( '.hide-until-authed' ),
-	$authCredentials = jQuery( '.auth-credentials' ),
 	$clientSecret    = jQuery( document.getElementById( 'dt_client_secret' ) ),
 	$clientId        = jQuery( document.getElementById( 'dt_client_id' ) ),
 	hideItemsRequiringAuth = () => {
@@ -227,17 +228,7 @@ const $hideUntilAuthed = jQuery( '.hide-until-authed' ),
 jQuery( externalConnectionTypeField ).on( 'change', () => {
 	const slug = externalConnectionTypeField.value;
 
-	$authCredentials.hide();
-	jQuery( '.auth-credentials.' + slug ).show();
-
-	// For WordPress.com Oauth authentication, hide fields until authentication is complete.
-	if ( 'wpdotcom' === slug ) {
-		hideItemsRequiringAuth();
-	} else {
-
-		// Otherwise, ensure all areas are showing.
-		$hideUntilAuthed.show();
-	}
+	wpbody.className = slug;
 } );
 
 

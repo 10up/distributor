@@ -62,7 +62,7 @@ class WordPressBasicAuth extends Authentication {
 			$args['username'] = '';
 		}
 		?>
-		<div class="external-connection-wizard">
+		<div class="external-connection-wizard card">
 			<h3><?php esc_html_e( 'Remote connection Wizard', 'distributor' ); ?></h3>
 			<span class="description">
 				<?php esc_html_e( 'Auto-connect to an external site by authorizing Distributor with your login.', 'distributor' ); ?><br />

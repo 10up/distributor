@@ -189,11 +189,6 @@ input[type="password"].error-required {
 	border: 2px solid red;
 }
 
-.external-connection-wizard {
-	background-color: white;
-	padding: 10px;
-	border: 1px gray solid;
-}
 
 .post-new-php .external-connection-setup,
 .post-new-php .connection-field-wrap,
@@ -204,4 +199,20 @@ input[type="password"].error-required {
 
 .post-php .external-connection-wizard {
 	display: none;
+}
+
+.post-new-php .external-connection-wizard {
+	display: none;
+}
+
+.post-new-php #wpbody.wp .external-connection-wizard {
+	display: inline-block;
+}
+
+.post-new-php  .auth-credentials.dotcom-oauth2 {
+	display: none;
+}
+
+.post-new-php #wpbody.wpdotcom .auth-credentials.dotcom-oauth2 {
+	display: inline-block;
 }
