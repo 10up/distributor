@@ -69,42 +69,44 @@ class WordPressBasicAuth extends Authentication {
 				<?php esc_html_e( 'Note: the remote site must also be running Distributor verion 1.5 or higher.', 'distributor' ); ?>
 			</span><br />
 			<label for="dt_external_site_url"><?php esc_html_e( 'External Site Url', 'distributor' ); ?></label><br>
-			<input type="text" name="dt_external_connection_auth[siteurl]" data-auth-field="dt_external_site_url" value="" class="auth-field widefat" id="dt_external_site_url" placeholder="https://remotesite.com">
+			<input type="text" name="dt_external_connection_auth[site_url]" data-auth-field="dt_external_site_url" value="" class="auth-field widefat" id="dt_external_site_url" placeholder="https://remotesite.com" autocomplete="off" value="">
 			<p>
 				<button class="button button-large establish-connection-button button-primary">
 					<?php esc_html_e( 'Authorize Connection', 'distributor' ); ?>
 				</button>
 			</p>
 		</div>
-		<p>
-			<h3><?php esc_html_e( 'Manual configuration', 'distributor' ); ?></h3>
+		<div class="external-connection-setup">
+			<p>
+				<h3><?php esc_html_e( 'Edit configuration', 'distributor' ); ?></h3>
 
-			<label for="dt_username"><?php esc_html_e( 'Username', 'distributor' ); ?></label><br>
-			<input type="text" name="dt_external_connection_auth[username]" data-auth-field="username" value="<?php echo esc_attr( $args['username'] ); ?>" class="auth-field" id="dt_username">
+				<label for="dt_username"><?php esc_html_e( 'Username', 'distributor' ); ?></label><br>
+				<input type="text" name="dt_external_connection_auth[username]" data-auth-field="username" value="<?php echo esc_attr( $args['username'] ); ?>" class="auth-field" id="dt_username" autocomplete="off" >
 
-			<span class="description"><?php esc_html_e( 'A username from the external WordPress site to connect with. For full functionality, this needs to be a user with an administrator role.', 'distributor' ); ?>
-		</p>
+				<span class="description"><?php esc_html_e( 'A username from the external WordPress site to connect with. For full functionality, this needs to be a user with an administrator role.', 'distributor' ); ?></span>
+			</p>
+			<p>
+				<label for="dt_username"><?php esc_html_e( 'Password', 'distributor' ); ?> <?php
+				if ( ! empty( $args['base64_encoded'] ) ) :
+					?>
+					<a class="change-password" href="#"><?php esc_html_e( '(Change)', 'distributor' ); ?></a><?php endif; ?></label><br>
 
-		<p>
-			<label for="dt_username"><?php esc_html_e( 'Password', 'distributor' ); ?> <?php
-			if ( ! empty( $args['base64_encoded'] ) ) :
-				?>
-<a class="change-password" href="#"><?php esc_html_e( '(Change)', 'distributor' ); ?></a><?php endif; ?></label><br>
+				<?php if ( ! empty( $args['base64_encoded'] ) ) : ?>
+				<input disabled type="password" name="dt_external_connection_auth[password]" value="ertdfweewefewwe" data-auth-field="password" class="auth-field" id="dt_password">
+				<?php else : ?>
+					<input type="password" name="dt_external_connection_auth[password]" data-auth-field="password" class="auth-field" id="dt_password" autocomplete="off" >
+				<?php endif; ?>
 
-			<?php if ( ! empty( $args['base64_encoded'] ) ) : ?>
-			<input disabled type="password" name="dt_external_connection_auth[password]" value="ertdfweewefewwe" data-auth-field="password" class="auth-field" id="dt_password">
-			<?php else : ?>
-				<input type="password" name="dt_external_connection_auth[password]" data-auth-field="password" class="auth-field" id="dt_password">
-			<?php endif; ?>
+				<span class="description">
+					<?php
+					$plugin_link = 'https://wordpress.org/plugins/application-passwords/';
 
-			<span class="description">
-				<?php
-				$plugin_link = 'https://wordpress.org/plugins/application-passwords/';
+					/* translators: %s: Application Passwords plugin URL */
+					printf( wp_kses_post( __( '<strong>Important:</strong> We strongly recommend using the <a href="%s">Application Passwords</a> plugin on the site you are connecting to in order to create a unique password for this connection. This helps limit the use of your primary password and will allow you to revoke access in the future if needed.', 'distributor' ) ), esc_url( $plugin_link ) );
+					?>
+			</p>
+		</div>
 
-				/* translators: %s: Application Passwords plugin URL */
-				printf( wp_kses_post( __( '<strong>Important:</strong> We strongly recommend using the <a href="%s">Application Passwords</a> plugin on the site you are connecting to in order to create a unique password for this connection. This helps limit the use of your primary password and will allow you to revoke access in the future if needed.', 'distributor' ) ), esc_url( $plugin_link ) );
-				?>
-		</p>
 		<?php
 	}
 

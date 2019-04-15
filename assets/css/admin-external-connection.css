@@ -194,3 +194,14 @@ input[type="password"].error-required {
 	padding: 10px;
 	border: 1px gray solid;
 }
+
+.post-new-php .external-connection-setup,
+.post-new-php .connection-field-wrap,
+.post-new-php .dt-roles-allowed,
+.post-new-php .dt-submit-connection {
+	display: none;
+}
+
+.post-php .external-connection-wizard {
+	display: none;
+}
