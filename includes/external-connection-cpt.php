@@ -269,6 +269,8 @@ function admin_enqueue_scripts( $hook ) {
 		wp_enqueue_style( 'dt-admin-external-connection', plugins_url( '/dist/css/admin-external-connection.min.css', __DIR__ ), array(), DT_VERSION );
 		wp_enqueue_script( 'dt-admin-external-connection', plugins_url( '/dist/js/admin-external-connection.min.js', __DIR__ ), array( 'jquery', 'underscore' ), DT_VERSION, true );
 
+		$blog_name     = get_bloginfo( 'name ' );
+		$wizard_return = get_wizard_return_data();
 		wp_localize_script(
 			'dt-admin-external-connection',
 			'dt',
@@ -287,6 +289,9 @@ function admin_enqueue_scripts( $hook ) {
 				'no_distributor'            => esc_html__( 'Distributor not installed on remote site.', 'distributor' ),
 				'roles_warning'             => esc_html__( 'Be careful assigning less trusted roles push privileges as they will inherit the capabilities of the user on the remote site.', 'distributor' ),
 				'admin_url'                 => admin_url(),
+				/* translators: %s: site name */
+				'distributor_from'          => sprintf( esc_html__( 'Distributor from %s', 'distributor' ), $blog_name ),
+				'wizard_return'             => $wizard_return,
 			)
 		);
 
@@ -296,6 +301,22 @@ function admin_enqueue_scripts( $hook ) {
 	if ( ! empty( $_GET['page'] ) && 'distributor' === $_GET['page'] ) { // @codingStandardsIgnoreLine Nonce not required
 		wp_enqueue_style( 'dt-admin-external-connections', plugins_url( '/dist/css/admin-external-connections.min.css', __DIR__ ), array(), DT_VERSION );
 	}
+}
+
+/**
+ * Get the data returned as part of the external applications passwords flow.
+ */
+function get_wizard_return_data() {
+	$wizard_return = false;
+	if ( isset( $_GET['setupStatus'] ) && 'success' === sanitize_key( $_GET['setupStatus'] ) ) { // @codingStandardsIgnoreLine Nonce isn't needed here.
+		$wizard_return = array(
+			'titleField'           => isset( $_GET['titleField'] ) ? sanitize_text_field( urldecode( $_GET['titleField'] ) ) : '', // @codingStandardsIgnoreLine Nonce isn't needed here.
+			'externalSiteUrlField' => isset( $_GET['externalSiteUrlField'] ) ? sanitize_text_field( urldecode( $_GET['externalSiteUrlField'] ) ) : '', // @codingStandardsIgnoreLine Nonce isn't needed here.
+			'user_login'           => isset( $_GET['user_login'] ) ? sanitize_text_field( $_GET['user_login'] ) : '', // @codingStandardsIgnoreLine Nonce isn't needed here.
+			'password'             => isset( $_GET['password'] ) ? sanitize_text_field( $_GET['password'] ) : '', // @codingStandardsIgnoreLine Nonce isn't needed here.
+		);
+	}
+	return $wizard_return;
 }
 
 /**
