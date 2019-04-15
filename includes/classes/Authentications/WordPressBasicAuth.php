@@ -62,7 +62,23 @@ class WordPressBasicAuth extends Authentication {
 			$args['username'] = '';
 		}
 		?>
+		<div class="external-connection-wizard">
+			<h3><?php esc_html_e( 'Remote connection Wizard', 'distributor' ); ?></h3>
+			<span class="description">
+				<?php esc_html_e( 'Auto-connect to an external site by authorizing Distributor with your login.', 'distributor' ); ?><br />
+				<?php esc_html_e( 'Note: the remote site must also be running Distributor verion 1.5 or higher.', 'distributor' ); ?>
+			</span><br />
+			<label for="dt_external_site_url"><?php esc_html_e( 'External Site Url', 'distributor' ); ?></label><br>
+			<input type="text" name="dt_external_connection_auth[siteurl]" data-auth-field="dt_external_site_url" value="" class="auth-field widefat" id="dt_external_site_url" placeholder="https://remotesite.com">
+			<p>
+				<button class="button button-large establish-connection-button button-primary">
+					<?php esc_html_e( 'Authorize Connection', 'distributor' ); ?>
+				</button>
+			</p>
+		</div>
 		<p>
+			<h3><?php esc_html_e( 'Manual configuration', 'distributor' ); ?></h3>
+
 			<label for="dt_username"><?php esc_html_e( 'Username', 'distributor' ); ?></label><br>
 			<input type="text" name="dt_external_connection_auth[username]" data-auth-field="username" value="<?php echo esc_attr( $args['username'] ); ?>" class="auth-field" id="dt_username">
 

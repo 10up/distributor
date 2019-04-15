@@ -188,3 +188,9 @@ input[type="text"].error-required,
 input[type="password"].error-required {
 	border: 2px solid red;
 }
+
+.external-connection-wizard {
+	background-color: white;
+	padding: 10px;
+	border: 1px gray solid;
+}
