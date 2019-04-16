@@ -31,6 +31,18 @@ wpbody.className = 'wp';
 jQuery( authorizeConnectionButton ).on( 'click', ( event ) => {
 	event.preventDefault();
 
+	// Verify Title and Site URL fields are non-empty.
+	const validateTitle = validateField( jQuery( titleField ), event );
+	const validateURL   = validateField( jQuery( externalSiteUrlField ), event );
+
+	if (
+		! validateTitle ||
+		! validateURL
+	) {
+		event.preventDefault();
+		return false;
+	}
+
 	const siteURL =  externalSiteUrlField.value;
 	if ( ! isURL( siteURL ) ) {
 		return false;
