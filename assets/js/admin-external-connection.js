@@ -21,8 +21,8 @@ const externalSiteUrlField        = document.getElementById( 'dt_external_site_u
 const authorizeConnectionButton   = document.getElementsByClassName( 'establish-connection-button' );
 let $apiVerify                    = false;
 const titlePrompt                 = document.getElementById( '#title-prompt-text' );
-wpbody.className = 'wp';
-
+const slug = externalConnectionTypeField.value;
+wpbody.className = slug;
 // @todo prevent enter from submitting the form
 
 /**
