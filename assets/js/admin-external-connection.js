@@ -48,7 +48,7 @@ jQuery( authorizeConnectionButton ).on( 'click', ( event ) => {
 		return false;
 	}
 
-	// @todo check that Distributor available on remote site here.
+	// @todo Check that the current version of Distributor is available on remote site here.
 
 	const successURL = addQueryArgs( document.location.href,
 		{
