@@ -63,7 +63,7 @@ class WordPressBasicAuth extends Authentication {
 		}
 		?>
 		<div class="external-connection-wizard card">
-			<h3><?php esc_html_e( 'Remote connection Wizard', 'distributor' ); ?></h3>
+			<h3><?php esc_html_e( 'Remote Connection Wizard', 'distributor' ); ?></h3>
 			<span class="description">
 				<?php esc_html_e( 'Auto-connect to an external site by authorizing Distributor with your login.', 'distributor' ); ?><br />
 				<?php esc_html_e( 'Note: the remote site must also be running Distributor verion 1.5 or higher.', 'distributor' ); ?>
