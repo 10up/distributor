@@ -319,7 +319,7 @@ const createConnectionButton = document.getElementById( 'create-oauth-connection
 if ( createConnectionButton ) {
 	jQuery( createConnectionButton ).on( 'click', ( event ) => {
 		const validateClientSecret = validateField( $clientSecret, event ),
-			validateClientId     = validateField( $clientId, event );
+			validateClientId       = validateField( $clientId, event );
 		if (
 			! validateClientSecret ||
 			! validateClientId
