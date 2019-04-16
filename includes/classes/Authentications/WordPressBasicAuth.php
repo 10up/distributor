@@ -77,14 +77,14 @@ class WordPressBasicAuth extends Authentication {
 			</p>
 		</div>
 		<div class="external-connection-setup">
-			<p>
-				<h3><?php esc_html_e( 'Edit configuration', 'distributor' ); ?></h3>
 
-				<label for="dt_username"><?php esc_html_e( 'Username', 'distributor' ); ?></label><br>
-				<input type="text" name="dt_external_connection_auth[username]" data-auth-field="username" value="<?php echo esc_attr( $args['username'] ); ?>" class="auth-field" id="dt_username" autocomplete="off" >
+			<h3><?php esc_html_e( 'Edit configuration', 'distributor' ); ?></h3>
 
-				<span class="description"><?php esc_html_e( 'A username from the external WordPress site to connect with. For full functionality, this needs to be a user with an administrator role.', 'distributor' ); ?></span>
-			</p>
+			<label for="dt_username"><?php esc_html_e( 'Username', 'distributor' ); ?></label><br>
+			<input type="text" name="dt_external_connection_auth[username]" data-auth-field="username" value="<?php echo esc_attr( $args['username'] ); ?>" class="auth-field" id="dt_username" autocomplete="off" >
+
+			<span class="description"><?php esc_html_e( 'A username from the external WordPress site to connect with. For full functionality, this needs to be a user with an administrator role.', 'distributor' ); ?></span>
+
 			<p>
 				<label for="dt_username"><?php esc_html_e( 'Password', 'distributor' ); ?> <?php
 				if ( ! empty( $args['base64_encoded'] ) ) :
