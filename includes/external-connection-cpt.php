@@ -458,14 +458,24 @@ function meta_box_external_connection_details( $post ) {
 		$allowed_roles[] = 'administrator';
 	}
 	?>
-
+	<?php
+		if ( isset( $_GET['setupStatus'] ) && 'failure' === sanitize_key( $_GET['setupStatus'] ) ) { // @codingStandardsIgnoreLine Nonce is checked above.
+			?>
+		<div class="updated is-dismissible error">
+			<p>
+				<?php esc_html_e( 'Authorization rejected, please try again.', 'distributor' ); ?>
+			</p>
+		</div>
+			<?php
+		}
+	?>
 	<?php
 	if ( 1 === count( $registered_external_connection_types ) ) :
 		$registered_connection_types_keys = array_keys( $registered_external_connection_types );
 		?>
 		<input id="dt_external_connection_type" class="external-connection-type-field" type="hidden" name="dt_external_connection_type" value="<?php echo esc_attr( $registered_connection_types_keys[0] ); ?>">
 	<?php else : ?>
-		<div>
+		<div class="choose-authentication">
 			<label for="dt_external_connection_type"><?php esc_html_e( 'Authentication Method', 'distributor' ); ?></label><br>
 			<select name="dt_external_connection_type" class="external-connection-type-field" id="dt_external_connection_type">
 				<?php foreach ( $registered_external_connection_types as $slug => $external_connection_class ) : ?>

@@ -21,8 +21,8 @@ const externalSiteUrlField        = document.getElementById( 'dt_external_site_u
 const authorizeConnectionButton   = document.getElementsByClassName( 'establish-connection-button' );
 let $apiVerify                    = false;
 const titlePrompt                 = document.getElementById( '#title-prompt-text' );
-wpbody.className = 'wp';
-
+const slug = externalConnectionTypeField.value;
+wpbody.className = slug;
 // @todo prevent enter from submitting the form
 
 /**
@@ -31,12 +31,24 @@ wpbody.className = 'wp';
 jQuery( authorizeConnectionButton ).on( 'click', ( event ) => {
 	event.preventDefault();
 
+	// Verify Title and Site URL fields are non-empty.
+	const validateTitle = validateField( jQuery( titleField ), event );
+	const validateURL   = validateField( jQuery( externalSiteUrlField ), event );
+
+	if (
+		! validateTitle ||
+		! validateURL
+	) {
+		event.preventDefault();
+		return false;
+	}
+
 	const siteURL =  externalSiteUrlField.value;
 	if ( ! isURL( siteURL ) ) {
 		return false;
 	}
 
-	// @todo check that Distributor available on remote site here.
+	// @todo Check that the current version of Distributor is available on remote site here.
 
 	const successURL = addQueryArgs( document.location.href,
 		{
@@ -307,7 +319,7 @@ const createConnectionButton = document.getElementById( 'create-oauth-connection
 if ( createConnectionButton ) {
 	jQuery( createConnectionButton ).on( 'click', ( event ) => {
 		const validateClientSecret = validateField( $clientSecret, event ),
-			validateClientId     = validateField( $clientId, event );
+			validateClientId       = validateField( $clientId, event );
 		if (
 			! validateClientSecret ||
 			! validateClientId
