@@ -48,11 +48,11 @@ function setup() {
  * @return Object $prepared_post The filtered post object.
  */
 function filter_distributor_content( $prepared_post, $request ) {
-
-	if ( \Distributor\Utils\is_using_gutenberg( get_post( $prepared_post->ID ) ) && isset( $request['distributor_raw_content'] ) ) {
-		if ( \Distributor\Utils\dt_use_block_editor_for_post_type( $prepared_post->post_type ) ) {
+	if (
+		isset( $request['distributor_raw_content'] ) &&
+		\Distributor\Utils\dt_use_block_editor_for_post_type( $prepared_post->post_type )
+	) {
 			$prepared_post->post_content = $request['distributor_raw_content'];
-		}
 	}
 	return $prepared_post;
 }
