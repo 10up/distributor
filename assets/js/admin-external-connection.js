@@ -23,7 +23,14 @@ let $apiVerify                    = false;
 const titlePrompt                 = document.getElementById( '#title-prompt-text' );
 const slug = externalConnectionTypeField.value;
 wpbody.className = slug;
-// @todo prevent enter from submitting the form
+
+// Prevent the `enter` key from submitting the form.
+jQuery( '#post' ).on( 'keypress', function ( e ) {
+	if ( 13 === e.which ) {
+		return false;
+	}
+	return true;
+} );
 
 /**
  * Handle Setup Connection Wizard "Authorize Connection" button.
