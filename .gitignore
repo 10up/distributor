@@ -5,5 +5,4 @@ vendor/*
 !vendor/yahnis-elsts
 release/*
 dist/*
-.history
 screenshots/
