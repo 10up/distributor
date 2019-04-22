@@ -99,6 +99,7 @@ jQuery( authorizeConnectionButton ).on( 'click', ( event ) => {
 					setupStatus: 'success',
 					titleField: titleField.value,
 					externalSiteUrlField: siteURL,
+					restRoot: endpoint,
 				}
 			);
 
@@ -241,7 +242,7 @@ setTimeout( () => {
 		}
 		jQuery( usernameField ).val( wizard_return.user_login );
 		jQuery( passwordField ).val( wizard_return.password );
-		jQuery( externalConnectionUrlField ).val( `${ wizard_return.externalSiteUrlField.replace( /\/$/, '' ) }/wp-json` );
+		jQuery( externalConnectionUrlField ).val( wizard_return.restRoot );
 		wpbody.className = 'wizard-return';
 		createConnection.click();
 	}
