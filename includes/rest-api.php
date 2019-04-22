@@ -253,11 +253,14 @@ function register_endpoints() {
 	);
 
 	// Register a distributor meta endpoint
-	register_rest_route( 'wp/v2', '/dt_meta', array(
-		'methods' => 'GET',
-		'callback' => __NAMESPACE__ . '\distributor_meta',
-	) );
-
+	register_rest_route(
+		'wp/v2',
+		'/dt_meta',
+		array(
+			'methods'  => 'GET',
+			'callback' => __NAMESPACE__ . '\distributor_meta',
+		)
+	);
 
 }
 
