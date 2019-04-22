@@ -460,14 +460,14 @@ function meta_box_external_connection_details( $post ) {
 	?>
 	<?php
 		if ( isset( $_GET['setupStatus'] ) && 'failure' === sanitize_key( $_GET['setupStatus'] ) ) { // @codingStandardsIgnoreLine Nonce is checked above.
-			?>
+		?>
 		<div class="updated is-dismissible error">
 			<p>
 				<?php esc_html_e( 'Authorization rejected, please try again.', 'distributor' ); ?>
 			</p>
 		</div>
-			<?php
-		}
+		<?php
+	}
 	?>
 	<?php
 	if ( 1 === count( $registered_external_connection_types ) ) :
