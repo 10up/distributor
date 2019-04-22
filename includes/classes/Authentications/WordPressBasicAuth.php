@@ -74,6 +74,8 @@ class WordPressBasicAuth extends Authentication {
 				<button class="button button-large establish-connection-button button-primary">
 					<?php esc_html_e( 'Authorize Connection', 'distributor' ); ?>
 				</button>
+				<div class="dt-wizard-error">
+				</div>
 			</p>
 		</div>
 		<div class="external-connection-setup">

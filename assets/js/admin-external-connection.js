@@ -6,6 +6,8 @@ import {
 	isURL,
 } from '@wordpress/url';
 
+import compareVersions from 'compare-versions';
+
 const externalConnectionUrlField  = document.getElementsByClassName( 'external-connection-url-field' )[0];
 const externalConnectionMetaBox   = document.getElementById( 'dt_external_connection_details' );
 const externalConnectionTypeField = document.getElementsByClassName( 'external-connection-type-field' )[0];
@@ -18,11 +20,12 @@ const postIdField                 = document.getElementById( 'post_ID' );
 const createConnection            = document.getElementById( 'create-connection' );
 const wpbody                      = document.getElementById( 'wpbody' );
 const externalSiteUrlField        = document.getElementById( 'dt_external_site_url' );
+const wizardError                 = document.getElementsByClassName( 'dt-wizard-error' );
 const authorizeConnectionButton   = document.getElementsByClassName( 'establish-connection-button' );
 let $apiVerify                    = false;
 const titlePrompt                 = document.getElementById( '#title-prompt-text' );
-const slug = externalConnectionTypeField.value;
-wpbody.className = slug;
+const slug                        = externalConnectionTypeField.value;
+wpbody.className                  = slug;
 
 // Prevent the `enter` key from submitting the form.
 jQuery( '#post' ).on( 'keypress', function ( e ) {
@@ -37,6 +40,9 @@ jQuery( '#post' ).on( 'keypress', function ( e ) {
  */
 jQuery( authorizeConnectionButton ).on( 'click', ( event ) => {
 	event.preventDefault();
+
+	// Clear any previous errors.
+	jQuery( wizardError[0] ).text( '' );
 
 	// Verify Title and Site URL fields are non-empty.
 	const validateTitle = validateField( jQuery( titleField ), event );
@@ -56,31 +62,69 @@ jQuery( authorizeConnectionButton ).on( 'click', ( event ) => {
 	}
 
 	// @todo Check that the current version of Distributor is available on remote site here.
+	//
 
-	const successURL = addQueryArgs( document.location.href,
-		{
-			setupStatus: 'success',
-			titleField: titleField.value,
-			externalSiteUrlField: siteURL,
-		}
-	);
+	// First, locate the remote site REST API root.
+	jQuery.get( siteURL, function( remoteSite ) {
+		let endpoint = false;
+		// Look for the <link rel='https://api.w.org/' href='http://developwordpress.localhost/wp-json/' />
+		const parsed = jQuery.parseHTML( remoteSite );
+		parsed.forEach( function( el ) {
+			const $el = jQuery( el );
+			const rel = $el.attr( 'rel' );
+			if ( 'https://api.w.org/' === rel ) {
+				endpoint = $el.attr( 'href' );
+			}
+		} );
 
-	const failureURL = addQueryArgs( document.location.href,
-		{
-			setupStatus: 'failure'
+		if ( ! endpoint ) {
+			jQuery( wizardError[0] ).text( dt.norest );
 		}
-	);
 
-	const authURL = addQueryArgs(
-		`${ siteURL }/wp-admin/admin.php`,
-		{
-			page: 'auth_app',
-			app_name: dt.distributor_from, /*eslint camelcase: 0*/
-			success_url: encodeURI( successURL ), /*eslint camelcase: 0*/
-			reject_url:  encodeURI( failureURL ), /*eslint camelcase: 0*/
-		}
-	);
-	document.location = authURL;
+		// Check that the current version of Distributor is available on remote site.
+		jQuery.getJSON( `${ endpoint }wp/v2/dt_meta`, function( dtMeta ) {
+			if (  ! dtMeta ) {
+				jQuery( wizardError[0] ).text( dt.no_distributor );
+				return;
+			}
+
+			// Requires Distributor version 1.5.0.
+			if ( compareVersions( dtMeta.version, '1.5.0' ) ) {
+				jQuery( wizardError[0] ).text( dt.minversion );
+				return;
+			}
+
+			const successURL = addQueryArgs( document.location.href,
+				{
+					setupStatus: 'success',
+					titleField: titleField.value,
+					externalSiteUrlField: siteURL,
+				}
+			);
+
+			const failureURL = addQueryArgs( document.location.href,
+				{
+					setupStatus: 'failure'
+				}
+			);
+
+			const authURL = addQueryArgs(
+				`${ siteURL }/wp-admin/admin.php`,
+				{
+					page: 'auth_app',
+					app_name: dt.distributor_from, /*eslint camelcase: 0*/
+					success_url: encodeURI( successURL ), /*eslint camelcase: 0*/
+					reject_url:  encodeURI( failureURL ), /*eslint camelcase: 0*/
+				}
+			);
+			document.location = authURL;
+		} ).fail( function() {
+			jQuery( wizardError[0] ).text( dt.no_distributor );
+		} );
+	} ).fail( function() {
+		jQuery( wizardError[0] ).text( dt.noconnection );
+	} );
+
 	return false;
 } );
 
@@ -95,7 +139,6 @@ function checkConnections() {
 	if ( '' === externalConnectionUrlField.value ) {
 		endpointErrors.innerText = '';
 		endpointResult.innerText = '';
-
 		endpointResult.removeAttribute( 'data-endpoint-state' );
 		return;
 	}
