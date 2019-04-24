@@ -21,7 +21,7 @@ const processTemplate = _.memoize( ( id ) => {
 	return _.template( element.innerHTML, null, options );
 } );
 
-jQuery( window ).load( () => {
+jQuery( window ).on( 'load', () => {
 	const distributorMenuItem     = document.querySelector( '#wp-admin-bar-distributor' );
 	const distributorPushWrapper  = document.querySelector( '#distributor-push-wrapper' );
 
@@ -124,6 +124,9 @@ jQuery( window ).load( () => {
 		document.body.classList.toggle( 'distributor-show' );
 	}
 
+	/**
+	 * Handle exiting the distributor menu.
+	 */
 	function distributorMenuExited() {
 		distributorMenuItem.blur();
 		document.body.classList.toggle( 'distributor-show' );

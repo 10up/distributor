@@ -2,6 +2,53 @@
 
 All notable changes to this project will be documented in this file, per [the Keep a Changelog standard](http://keepachangelog.com/).
 
+## [ 1.4.1 ] - 2019-03-15
+### Fixed
+* Improve block editor detection, correcting an issue with post saving.
+
+## [ 1.4.0 ] - 2019-03-07
+### Added
+* Clearer instructions and help text when adding an external connection.
+* Log image sideloading failures when using `DISTRIBUTOR_DEBUG`.
+
+### Fixed
+* Allow attachments to be distributed from local environments.
+* Ensure pagination is reset when switching views on the pull content screen.
+* Remove extraneous checkboxes from pulled content screen.
+* Suppress a PHP warning when no meta is being distributed for attachments.
+
+## [ 1.3.9 ] - 2019-02-21
+### Fixed
+* Ensure posts distributed as draft can be published.
+
+## [ 1.3.8 ] - 2019-01-30
+### Added
+* Add `dt_after_set_meta` action.
+* Add `dt_process_subscription_attributes` action.
+
+### Fixed
+* Ensure post types without excerpt support can be distributed.
+
+## [ 1.3.7 ] - 2019-01-16
+### Added
+* Distribute plaintext URLs instead of full markup for automatic embeds (oEmbeds). This was causing issues for non-privileged users where the markup was subject to sanitization/kses.
+* Add `push`/`pull` context to `get_available_authorized_sites()`.
+* Add `dt_allowed_media_extensions` and `dt_media_processing_filename` filters so that different media types or specific files can be detected and targeted.
+
+### Fixed
+* Ensure media meta is passed through `prepare_meta()` to apply the blacklist. This completes the generated image size info fix from 1.3.3.
+* Avoid a PHP notice when only using the block editor on the receiving site.
+* Avoid a jQuery Migrate notice.
+
+## [ 1.3.6 ] - 2018-12-19
+### Fixed (for WP 5.0 block editor)
+* Properly detect block editor content.
+* Show notices with actions.
+* Ensure distributed posts can be published.
+* Fully disable editing of classic blocks in distributed posts.
+* Clean up distribution status display in side panel.
+* Not block editor: Avoid notices on the pull content screen when no connections are set up yet.
+
 ## [ 1.3.5 ] - 2018-12-05
 ### Added
 * Add a `dt_available_pull_post_types` filter to enable pulling of post types not registered on the destination site. NOTE: This requires custom handling to pull into an existing post type.

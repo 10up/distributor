@@ -2,9 +2,11 @@
 
 namespace Distributor\InternalConnections;
 
-class NetworkSiteConnectionsTest extends \TestCase {
+use WP_Mock\Tools\TestCase;
 
-	public function setUp() {
+class NetworkSiteConnectionsTest extends TestCase {
+
+	public function setUp(): void {
 		$this->site_obj = \Mockery::mock(
 			'\WP_Site', [
 				'args'   => 1,
