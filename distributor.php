@@ -106,6 +106,7 @@ require_once __DIR__ . '/includes/syndicated-post-ui.php';
 require_once __DIR__ . '/includes/distributed-post-ui.php';
 require_once __DIR__ . '/includes/settings.php';
 require_once __DIR__ . '/includes/template-tags.php';
+require_once __DIR__ . '/includes/content-receiver.php';
 
 if ( \Distributor\Utils\is_vip_com() ) {
 	add_filter( 'dt_network_site_connection_enabled', '__return_false', 9 );
@@ -178,4 +179,4 @@ add_action(
 \Distributor\SyndicatedPostUI\setup();
 \Distributor\DistributedPostUI\setup();
 \Distributor\Settings\setup();
-
+\Distributor\ContentReceiver\setup();
