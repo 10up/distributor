@@ -49,7 +49,7 @@ function save_post_specific_content( $post, $request ) {
 /**
  * Reference distributed post images to local attachments
  *
- * @param array $matches
+ * @param array<string> $matches
  *
  * @return string
  */
@@ -167,7 +167,7 @@ function get_distributed_image_id( $id ) {
 				                                          INNER JOIN `$wpdb->posts` 
 				                                            ON `$wpdb->posts`.`ID` = `$wpdb->postmeta`.`post_id` 
 				                                            AND `$wpdb->posts`.`post_status` != 'trash' 
-				                                        WHERE meta_key LIKE 'dt_original_media_id' 
+				                                        WHERE meta_key = 'dt_original_media_id' 
 				                                          AND meta_value = %d 
 				                                        LIMIT 1",
 				$id
