@@ -360,7 +360,7 @@ class SubscriptionsTest extends TestCase {
 
 		\WP_Mock::userFunction(
 			'remove_filter', [
-				'times' => 2,
+				'times' => 1,
 			]
 		);
 
@@ -523,7 +523,7 @@ class SubscriptionsTest extends TestCase {
 
 		\WP_Mock::userFunction(
 			'remove_filter', [
-				'times' => 2,
+				'times' => 1,
 			]
 		);
 
