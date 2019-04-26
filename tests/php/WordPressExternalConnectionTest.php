@@ -141,7 +141,7 @@ class WordPressExternalConnectionTest extends TestCase {
 
 		\WP_Mock::userFunction(
 			'remove_filter', [
-				'times' => 1,
+				'times' => 4,
 			]
 		);
 
