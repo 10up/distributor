@@ -668,12 +668,6 @@ class UtilsTest extends TestCase {
 			]
 		);
 
-		\WP_Mock::userFunction(
-			'remove_filter', [
-				'times' => 2,
-			]
-		);
-
 		Utils\set_media( $post_id, [ $media_item ] );
 	}
 
