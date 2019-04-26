@@ -49,7 +49,7 @@ function save_post_specific_content( $post, $request ) {
 /**
  * Reference distributed post images to local attachments
  *
- * @param array<string> $matches
+ * @param array<string> $matches Matches array
  *
  * @return string
  */
