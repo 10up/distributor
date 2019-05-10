@@ -463,8 +463,10 @@ function set_taxonomy_terms( $post_id, $taxonomy_terms ) {
 			 * @since 1.0.0
 			 *
 			 * @param bool true Controls whether missing terms should be created. Default 'true'.
+			 * @param string    The taxonomy name.
+			 * @param array     Term data.
 			 */
-			$create_missing_terms = apply_filters( 'dt_create_missing_terms', true );
+			$create_missing_terms = apply_filters( 'dt_create_missing_terms', true, $taxonomy, $term_array );
 
 			if ( empty( $term ) ) {
 
