@@ -73,6 +73,8 @@ __Custom Post Type Support__ - Internal Connections (multisite) support multiple
 
 __Backwards Compatibility__ - While we strive to be mindful of backwards compatibility much the same way WordPress itself is, we do not currently guarantee continued interoperability between different versions of Distributor. We assume the current userbase for this plugin has a high degree of control over any site that has been set up as an external connection and urge you to keep Distributor up to date.
 
+__Distributing Authors__ - By default, distributed stories references the original site as the "author" with a link to it.  This can be altered by extending Distributor with custom code to make it sync authors.
+
 ## Developers
 
 ### Testing
