@@ -13,7 +13,7 @@ class PushMenuTest extends \TestCase {
 	 * Test that the menu shows on hover
 	 */
 	public function testMenuItemHover() {
-		$I = $this->getAnonymousUser();
+		$I = $this->openBrowserPage();
 
 		$I->loginAs( 'wpsnapshots' );
 
@@ -32,7 +32,7 @@ class PushMenuTest extends \TestCase {
 	 * Test connection cross out
 	 */
 	public function testConnectionCrossOutOnPush() {
-		$I = $this->getAnonymousUser();
+		$I = $this->openBrowserPage();
 
 		$I->loginAs( 'wpsnapshots' );
 
@@ -40,9 +40,13 @@ class PushMenuTest extends \TestCase {
 
 		$I->waitUntilElementVisible( '#wp-admin-bar-distributor a' );
 
+		$this->dismissNUXTip( $I );
+
 		$I->moveMouse( '#wp-admin-bar-distributor a' );
 
 		$I->click( '#wp-admin-bar-distributor a' );
+
+		$I->waitUntilElementVisible( '#distributor-push-wrapper .new-connections-list' );
 
 		$I->click( '#distributor-push-wrapper .new-connections-list .add-connection[data-connection-id="2"]' );
 
@@ -50,7 +54,6 @@ class PushMenuTest extends \TestCase {
 
 		// Distribute post (as draft)
 		$I->click( '#distributor-push-wrapper .syndicate-button' );
-
 		$I->waitUntilElementVisible( '#distributor-push-wrapper .dt-success' );
 
 		// See crossed out element
@@ -61,7 +64,7 @@ class PushMenuTest extends \TestCase {
 	 * Test that we can select connections properly
 	 */
 	public function testSelectConnection() {
-		$I = $this->getAnonymousUser();
+		$I = $this->openBrowserPage();
 
 		$I->loginAs( 'wpsnapshots' );
 
@@ -69,9 +72,13 @@ class PushMenuTest extends \TestCase {
 
 		$I->waitUntilElementVisible( '#wp-admin-bar-distributor a' );
 
+		$this->dismissNUXTip( $I );
+
 		$I->moveMouse( '#wp-admin-bar-distributor a' );
 
 		$I->click( '#wp-admin-bar-distributor a' );
+
+		$I->waitUntilElementVisible( '#distributor-push-wrapper .new-connections-list' );
 
 		$I->click( '#distributor-push-wrapper .new-connections-list .add-connection[data-connection-id="2"]' );
 

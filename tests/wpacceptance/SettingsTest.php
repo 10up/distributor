@@ -14,7 +14,7 @@ class SettingsTest extends \TestCase {
 	 * Test that settings actually save
 	 */
 	public function testSettingsSave() {
-		$I = $this->getAnonymousUser();
+		$I = $this->openBrowserPage();
 
 		$I->loginAs( 'wpsnapshots' );
 
@@ -51,7 +51,7 @@ class SettingsTest extends \TestCase {
 	 * Test author bylines
 	 */
 	public function testAuthorBylineSetting() {
-		$I = $this->getAnonymousUser();
+		$I = $this->openBrowserPage();
 
 		$I->loginAs( 'wpsnapshots' );
 

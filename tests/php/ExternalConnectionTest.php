@@ -2,7 +2,9 @@
 
 namespace Distributor;
 
-class ExternalConnectionTest extends \TestCase {
+use WP_Mock\Tools\TestCase;
+
+class ExternalConnectionTest extends TestCase {
 
 	/**
 	 * Text External Connection instantiation failure on no type

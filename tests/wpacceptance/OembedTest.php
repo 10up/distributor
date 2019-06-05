@@ -14,26 +14,21 @@ class OembedTests extends \TestCase {
 	 * Test network pushing content with an oEmbed.
 	 */
 	public function testOembedNetworkPushedContent() {
-		$I = $this->getAnonymousUser();
+		$I = $this->openBrowserPage();
 
 		$I->loginAs( 'wpsnapshots' );
 
 		// Push post to connection 2.
 		$post_info = $this->pushPost( $I, 48, 2 );
 		$I->moveTo( $post_info['distributed_edit_url'] );
+		$I->waitUntilElementVisible( 'body.post-php' );
 
-		// Switch to the text editor.
-		$I->waitUntilElementVisible( '#content-html' );
-		$I->jsClick( '#content-html' );
-
-		// Grab the post content.
-		$I->waitUntilElementVisible( '.wp-editor-area' );
-		$content = $I->getElement( '.wp-editor-area' );
+		// Get the source.
+		$source = $I->getPageSource();
 
 		// Test the distributed post content.
-		$this->assertEquals(
-			"<p>https://twitter.com/10up/status/1067517868441387008</p>\n<p>&nbsp;</p>",
-			$content->getText(),
+		$this->assertTrue(
+			(bool) preg_match( '#https://twitter.com/10up/status/1067517868441387008#', stripslashes( $source ) ),
 			'oEmbed was not pushed properly over a network connection'
 		);
 	}
@@ -42,25 +37,20 @@ class OembedTests extends \TestCase {
 	 * Test network pulling content with an oEmbed.
 	 */
 	public function testOembedNetworkPulledContent() {
-		$I = $this->getAnonymousUser();
+		$I = $this->openBrowserPage();
 
 		$I->loginAs( 'wpsnapshots' );
 
 		$post_info = $this->pullPost( $I, 48, 'two', '' );
 		$I->moveTo( $post_info['distributed_edit_url'] );
+		$I->waitUntilElementVisible( 'body.post-php' );
 
-		// Switch to the text editor.
-		$I->waitUntilElementVisible( '#content-html' );
-		$I->jsClick( '#content-html' );
-
-		// Grab the post content.
-		$I->waitUntilElementVisible( '.wp-editor-area' );
-		$content = $I->getElement( '.wp-editor-area' );
+		// Get the source.
+		$source = $I->getPageSource();
 
 		// Test the distributed post content.
-		$this->assertEquals(
-			"https://twitter.com/10up/status/1067517868441387008\n\n&nbsp;",
-			$content->getText(),
+		$this->assertTrue(
+			(bool) preg_match( '#https://twitter.com/10up/status/1067517868441387008#', stripslashes( $source ) ),
 			'oEmbed was not pulled properly over a network connection'
 		);
 	}
@@ -69,47 +59,49 @@ class OembedTests extends \TestCase {
 	 * Test external pushing content with an oEmbed.
 	 */
 	public function testOembedExternalPushedContent() {
-		$I = $this->getAnonymousUser();
+		$I = $this->openBrowserPage();
 
 		$I->loginAs( 'wpsnapshots' );
 
 		$I->moveTo( 'wp-admin/post-new.php?post_type=dt_ext_connection' );
 
-		$I->fillField( '#title', 'Test External Connection' );
+		$I->typeInField( '#title', 'Test External Connection' );
 
-		$I->fillField( '#dt_username', 'wpsnapshots' );
+		$I->typeInField( '#dt_username', 'wpsnapshots' );
 
-		$I->fillField( '#dt_external_connection_url', $this->getWPHomeUrl() . '/two/wp-json' );
+		$I->typeInField( '#dt_external_connection_url', $this->getWPHomeUrl() . '/two/wp-json' );
 
-		$I->fillField( '#dt_password', 'password' );
+		$I->typeInField( '#dt_password', 'password' );
 
 		$I->waitUntilElementContainsText( 'Connection established', '.endpoint-result' );
 
 		$I->pressEnterKey( '#create-connection' );
 
 		$I->waitUntilElementVisible( '.notice-success' );
+		$url = $I->getCurrentUrl();
+		preg_match( '/post=(\d+)/', $url, $matches );
 
-		$I->moveTo( 'wp-admin/admin.php?page=distributor' );
-
-		$post_info = $this->pushPost( $I, 48, 52, '', 'publish', true );
+		$post_info = $this->pushPost( $I, 48, (int) $matches[1], '', 'publish', true );
 		$I->moveTo( 'two/wp-admin/edit.php' );
 
 		// Switch to the distributed post.
 		$I->waitUntilElementVisible( '#the-list' );
-		$I->jsClick( 'a.row-title' );
+		$I->click( 'a.row-title' );
+		$I->waitUntilNavigation();
 
-		// Switch to the text editor.
-		$I->waitUntilElementVisible( '#content-html' );
-		$I->jsClick( '#content-html' );
+		// Use moveTo to prime page object.
+		$url = $I->getCurrentUrl();
+		$I->moveTo( 'two/wp-admin/edit.php' );
+		$I->moveTo( $url );
 
-		// Grab the post content.
-		$I->waitUntilElementVisible( '.wp-editor-area' );
-		$content = $I->getElement( '.wp-editor-area' );
+		$I->waitUntilElementVisible( 'body.post-php' );
+
+		// Get the source.
+		$source = $I->getPageSource();
 
 		// Test the distributed post content.
-		$this->assertEquals(
-			"<p>https://twitter.com/10up/status/1067517868441387008</p>\n<p>&nbsp;</p>",
-			$content->getText(),
+		$this->assertTrue(
+			(bool) preg_match( '#https://twitter.com/10up/status/1067517868441387008#', stripslashes( $source ) ),
 			'oEmbed was not pushed properly over an external connection'
 		);
 	}
@@ -118,20 +110,19 @@ class OembedTests extends \TestCase {
 	 * Test external pulling content with an oEmbed.
 	 */
 	public function testOembedExternalPulledContent() {
-		$I = $this->getAnonymousUser();
+		$I = $this->openBrowserPage();
 
 		$I->loginAs( 'wpsnapshots' );
 
 		$I->moveTo( 'two/wp-admin/post-new.php?post_type=dt_ext_connection' );
 
-		$I->fillField( '#title', 'Test External Connection' );
+		$I->typeInField( '#title', 'Test External Connection' );
 
-		$I->fillField( '#dt_username', 'wpsnapshots' );
+		$I->typeInField( '#dt_username', 'wpsnapshots' );
 
-		$I->fillField( '#dt_external_connection_url', $this->getWPHomeUrl() . '/wp-json' );
+		$I->typeInField( '#dt_external_connection_url', $this->getWPHomeUrl() . '/wp-json' );
 
-
-		$I->fillField( '#dt_password', 'password' );
+		$I->typeInField( '#dt_password', 'password' );
 
 		$I->waitUntilElementContainsText( 'Connection established', '.endpoint-result' );
 
@@ -145,18 +136,12 @@ class OembedTests extends \TestCase {
 		$post_info = $this->pullPost( $I, 48, 'two', '', 'Test External Connection' );
 		$I->moveTo( $post_info['distributed_edit_url'] );
 
-		// Switch to the text editor.
-		$I->waitUntilElementVisible( '#content-html' );
-		$I->jsClick( '#content-html' );
-
-		// Grab the post content.
-		$I->waitUntilElementVisible( '.wp-editor-area' );
-		$content = $I->getElement( '.wp-editor-area' );
+		// Get the source.
+		$source = $I->getPageSource();
 
 		// Test the distributed post content.
-		$this->assertEquals(
-			"<p>https://twitter.com/10up/status/1067517868441387008</p>\n<p>&nbsp;</p>",
-			$content->getText(),
+		$this->assertTrue(
+			(bool) preg_match( '#https://twitter.com/10up/status/1067517868441387008#', stripslashes( $source ) ),
 			'oEmbed was not pulled properly over an external connection'
 		);
 	}
