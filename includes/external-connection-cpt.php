@@ -479,6 +479,15 @@ function meta_box_external_connection_details( $post ) {
 		<ul class="endpoint-errors"></ul>
 	</div>
 
+	<?php
+	/**
+	 * Distributor external connections details hook
+	 *
+	 * @param \WP_Post $post Post object
+	 */
+	do_action( 'dt_meta_box_external_connection_details', $post );
+	?>
+
 	<p class="dt-roles-allowed hide-until-authed">
 		<label><?php esc_html_e( 'Roles Allowed to Push', 'distributor' ); ?></label><br>
 
