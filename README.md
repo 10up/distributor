@@ -18,6 +18,7 @@ _Note:_ The latest stable version of the plugin is the _stable_ branch. [Downloa
   * [Registration](#registration)
   * [Setup External Connections](#setup-external-connections-using-application-passwords)
 * [Known Caveats/Issues](#known-caveatsissues)
+* [Contributing](#contributing)
 * [Testing](#testing)
 * [Debugging](#debugging)
 
@@ -92,13 +93,15 @@ __Distributing Post Date__ - By default, the "post date" on distributed stories 
 
 __Drafts as preferred Status__ - By default, drafts are the preferred status and can't be changed at the source site.
 
-## Developer Info
+## Contributing
 
-### Testing
+Please read [CODE_OF_CONDUCT.md](https://github.com/10up/distributor/blob/develop/CODE_OF_CONDUCT.md) for details on our code of conduct and [CONTRIBUTING.md](https://github.com/10up/distributor/blob/develop/CONTRIBUTING.md) for details on the process for submitting pull requests to us.
+
+## Testing
 
 The plugin contains a standard test suite compatible with PHPUnit. If you want to test across multiple PHP versions, a [Dockunit](https://github.com/dockunit/dockunit) file is included.
 
-### Debugging
+## Debugging
 
 You can define a constant `DISTRIBUTOR_DEBUG` to `true` to increase the ease of debugging in Distributor. This will make all remote requests blocking and expose the subscription post type.
 
