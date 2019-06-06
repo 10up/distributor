@@ -73,6 +73,8 @@ __Custom Post Type Support__ - Internal Connections (multisite) support multiple
 
 __Backwards Compatibility__ - While we strive to be mindful of backwards compatibility much the same way WordPress itself is, we do not currently guarantee continued interoperability between different versions of Distributor. We assume the current userbase for this plugin has a high degree of control over any site that has been set up as an external connection and urge you to keep Distributor up to date.
 
+__Distributing Post content__ - By default, post content is rendered before being copied.  This means that shortcodes are expanded before being distributed and remote posts will not have the shortcode, but rather the expanded HTML content.
+
 __Distributing Authors__ - By default, distributed stories reference the original site as the "author" with a link to it.  This can be altered by extending Distributor with custom code to make it sync authors.
 
 __Distributing Post Date__ - By default, the "post date" on distributed stories is the date its published on the remote site, not the date published on the origin site.  This can be overridden by extending Distributor with custom code to make it preserve the post date.
