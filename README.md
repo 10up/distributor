@@ -10,6 +10,17 @@
 
 _Note:_ The latest stable version of the plugin is the _stable_ branch. [Download the stable branch]((https://github.com/10up/distributor/archive/stable.zip)) if you are intending to use the plugin in production.
 
+## Table of Contents  
+* [Features](#features)
+  * [Gutenberg Support](#gutenberg-support-beta)
+* [Requirements](#requirements)
+* [Installation](#installation)
+  * [Registration](#registration)
+  * [Setup External Connections](#setup-external-connections-using-application-passwords)
+* [Known Caveats/Issues](#known-caveatsissues)
+* [Testing](#testing)
+* [Debugging](#debugging)
+
 ## Features
 
 Distributor supports safe, SEO-friendly content reuse and sharing via "pushing" and "pulling".
@@ -38,7 +49,7 @@ Distributor supports distributing Gutenberg posts but the functionality is curre
 * External connections require HTTP Basic Authentication or [WordPress.com OAuth2](https://developer.wordpress.com/docs/oauth2/) (must be on VIP) be set up on the remote website. For Basic Auth, we recommend the [Application Passwords](https://wordpress.org/plugins/application-passwords/) plugin.
 * For external connections, Distributor needs to be installed on BOTH sides of the connection.
 
-## Install
+## Installation
 
 For production use, we recommend [registering and downloading the plugin from DistributorPlugin.com](https://distributorplugin.com/#cta) – it's 100% free. You will be emailed a direct link to download the latest, production-ready build. Alternatively, you can [download the latest master build from GitHub](https://github.com/10up/distributor/archive/master.zip).
 
@@ -81,7 +92,7 @@ __Distributing Post Date__ - By default, the "post date" on distributed stories 
 
 __Drafts as preferred Status__ - By default, drafts are the preferred status and can't be changed at the source site.
 
-## Developers
+## Developer Info
 
 ### Testing
 
@@ -93,6 +104,6 @@ You can define a constant `DISTRIBUTOR_DEBUG` to `true` to increase the ease of 
 
 Enabling this will also provide more debugging information in your error log for image side loading issues. The specific logging method may change in the future.
 
-### Work with us
+## Like what you see?
 
 <a href="http://10up.com/contact/"><img src="https://10updotcom-wpengine.s3.amazonaws.com/uploads/2016/10/10up-Github-Banner.png" width="850"></a>
