@@ -18,6 +18,7 @@ _Note:_ The latest stable version of the plugin is the _stable_ branch. [Downloa
   * [Registration](#registration)
   * [Setup External Connections](#setup-external-connections-using-application-passwords)
 * [Known Caveats/Issues](#known-caveatsissues)
+* [Changelog](#changelog)
 * [Contributing](#contributing)
 * [Testing](#testing)
 * [Debugging](#debugging)
@@ -92,6 +93,10 @@ __Distributing Authors__ - By default, distributed stories reference the origina
 __Distributing Post Date__ - By default, the "post date" on distributed stories is the date its published on the remote site, not the date published on the origin site.  This can be overridden by extending Distributor with custom code to make it preserve the post date.
 
 __Drafts as preferred Status__ - By default, drafts are the preferred status and can't be changed at the source site.
+
+## Changelog
+
+A complete listing of all notable changes to Distributor are documented in [CHANGELOG.md](https://github.com/10up/distributor/blob/develop/CHANGELOG.md).
 
 ## Contributing
 
