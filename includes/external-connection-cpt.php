@@ -646,6 +646,13 @@ function setup_cpt() {
 		'register_meta_box_cb' => __NAMESPACE__ . '\add_meta_boxes',
 	);
 
+	/**
+	 * Filter to alter `dt_ext_connection` post type arguments
+	 *
+	 * @param array $args
+	 */
+	$args = apply_filters( 'dt_before_setup_cpt', $args );
+
 	register_post_type( 'dt_ext_connection', $args );
 }
 
