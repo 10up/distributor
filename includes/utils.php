@@ -235,6 +235,7 @@ function set_meta( $post_id, $meta ) {
  */
 function available_pull_post_types( $connection, $type ) {
 	$post_types        = array();
+	$local_post_types  = array();
 	$remote_post_types = $connection->get_post_types();
 
 	if ( ! empty( $remote_post_types ) && ! is_wp_error( $remote_post_types ) ) {
