@@ -40,6 +40,8 @@ class PushMenuTest extends \TestCase {
 
 		$I->waitUntilElementVisible( '#wp-admin-bar-distributor a' );
 
+		$this->dismissNUXTip( $I );
+
 		$I->moveMouse( '#wp-admin-bar-distributor a' );
 
 		$I->click( '#wp-admin-bar-distributor a' );
@@ -52,7 +54,6 @@ class PushMenuTest extends \TestCase {
 
 		// Distribute post (as draft)
 		$I->click( '#distributor-push-wrapper .syndicate-button' );
-
 		$I->waitUntilElementVisible( '#distributor-push-wrapper .dt-success' );
 
 		// See crossed out element
@@ -70,6 +71,8 @@ class PushMenuTest extends \TestCase {
 		$I->moveTo( 'wp-admin/post.php?post=40&action=edit' );
 
 		$I->waitUntilElementVisible( '#wp-admin-bar-distributor a' );
+
+		$this->dismissNUXTip( $I );
 
 		$I->moveMouse( '#wp-admin-bar-distributor a' );
 

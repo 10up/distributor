@@ -4,6 +4,7 @@
  *
  * @package distributor
  */
+use WPAcceptance\Log;
 
 /**
  * Class extends \WPAcceptance\PHPUnit\TestCase
@@ -37,6 +38,8 @@ class TestCase extends \WPAcceptance\PHPUnit\TestCase {
 
 		$I->waitUntilElementVisible( '#wp-admin-bar-distributor a' );
 
+		$this->dismissNUXTip( $I );
+
 		$I->moveMouse( '#wp-admin-bar-distributor a' );
 
 		$I->click( '#wp-admin-bar-distributor a' );
@@ -68,13 +71,14 @@ class TestCase extends \WPAcceptance\PHPUnit\TestCase {
 
 			$info['distributed_front_url'] = $I->getCurrentUrl();
 
-			$I->click( '#wp-admin-bar-edit a' );
-
-			$I->waitUntilNavigation();
-
-			$info['distributed_edit_url'] = $I->getCurrentUrl();
-
-			$info['distributed_post_id'] = (int) $I->getElementAttribute( '#post_ID', 'value' );
+			try {
+				$link = $I->getElementAttribute( '#wp-admin-bar-edit a', 'href' );
+				$info['distributed_edit_url'] = $link;
+				preg_match( '/post=(\d+)/', $link, $matches );
+				if ( $matches ) {
+					$info['distributed_post_id'] = (int) $matches[1];
+				}
+			} catch ( \Exception $e ) {}
 		}
 
 		return $info;
@@ -135,4 +139,31 @@ class TestCase extends \WPAcceptance\PHPUnit\TestCase {
 
 		return $info;
 	}
+
+	/**
+	 * Check if the editor is the block editor.
+	 *
+	 * Must be called from the edit page.
+	 *
+	 * @param \WPAcceptance\PHPUnit\Actor $actor The actor.
+	 */
+	protected function editorHasBlocks ( $actor ) {
+		$body = $actor->getElement( 'body' );
+		$msg = $actor->elementToString( $body );
+		return ( strpos( $msg, 'block-editor-page' ) );
+	}
+
+	/**
+	 * Dismiss the Gutenberg NUX tooltip.
+	 *
+	 * @param \WPAcceptance\PHPUnit\Actor $actor The actor.
+	 */
+	protected function dismissNUXTip( $actor ) {
+		try {
+			if ( $actor->getElement( '.nux-dot-tip__disable' ) ) {
+				$actor->click( '.nux-dot-tip__disable' );
+			}
+		} catch ( \Exception $e ) {}
+	}
+
 }
