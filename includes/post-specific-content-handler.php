@@ -5,7 +5,7 @@
  * @package Distributor
  */
 
-namespace Distributor\ContentReceiver;
+namespace Distributor\PostSpecificContentHandler;
 
 /**
  * Setup actions
