@@ -781,8 +781,13 @@ function get_processed_content( $post_content ) {
 	 * Remove autoembed filter so that actual URL will be pushed and not the generated markup.
 	 */
 	remove_filter( 'the_content', [ $wp_embed, 'autoembed' ], 8 );
+	/**
+	 * Remove the 'wp_make_content_images_responsive' filter, so the generated 'srcset' won't be pushed
+	 */
+	remove_filter( 'the_content', 'wp_make_content_images_responsive' );
 	$post_content = apply_filters( 'the_content', $post_content );
 	add_filter( 'the_content', [ $wp_embed, 'autoembed' ], 8 );
+	add_filter( 'the_content', 'wp_make_content_images_responsive' );
 
 	return $post_content;
 }
