@@ -40,7 +40,7 @@ function save_post_specific_content( $post, $request ) {
 
 	// Handle shortcode distribution
 	// We need just to get all shortcodes in post content regardless their type or hierarchy
-	$pattern = "/\[(\[?)([^\]]+)(\]?)\]/";
+	$pattern = '/\[(\[?)([^\]]+)(\]?)\]/';
 
 	$content = preg_replace_callback(
 		$pattern,
