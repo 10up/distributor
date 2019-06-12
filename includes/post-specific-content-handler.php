@@ -38,6 +38,28 @@ function save_post_specific_content( $post, $request ) {
 		$content
 	);
 
+	// Handle shortcode distribution
+	// We need just to get all shortcodes in post content regardless their type or hierarchy
+	$pattern = "/\[(\[?)([^\]]+)(\]?)\]/";
+
+	$content = preg_replace_callback(
+		$pattern,
+		function ( $matches ) {
+			$shortcode = $matches[0];
+
+			/**
+			 * Filters the the shortcode tags in the post content
+			 *
+			 * @param string $shortcode Whole shortcode tag including wrapped content, if there is any
+			 * @param array  $matches the array of matches
+			 */
+			$shortcode = apply_filters( 'dt_post_content_shortcode_tags', $shortcode, $matches );
+
+			return $shortcode;
+		},
+		$content
+	);
+
 	wp_update_post(
 		array(
 			'ID'           => $post->ID,
