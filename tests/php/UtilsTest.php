@@ -670,7 +670,7 @@ class UtilsTest extends TestCase {
 
 		\WP_Mock::userFunction(
 			'remove_filter', [
-				'times' => 2,
+				'times' => 0,
 			]
 		);
 
