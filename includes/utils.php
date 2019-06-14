@@ -795,5 +795,5 @@ function get_processed_content( $post_content ) {
  */
 function get_post_from_original_id( $original_id ) {
 	global $wpdb;
-	return $wpdb->get_var( "SELECT post_id from $wpdb->postmeta WHERE meta_key = 'dt_original_post_id' AND meta_value = '$original_id'" ); //phpcs:ignore
+	return $wpdb->get_var( $wpdb->prepare( "SELECT post_id from $wpdb->postmeta WHERE meta_key = 'dt_original_post_id' AND meta_value = %s", $original_id ) );
 }
