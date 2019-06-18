@@ -4,7 +4,7 @@
 > Distributor is a WordPress plugin that makes it easy to syndicate and reuse content across your websites — whether in a single multisite or across the web.
 
 [![Build Status](https://travis-ci.org/10up/distributor.svg?branch=master)](https://travis-ci.org/10up/distributor)
-[![Download Latest Stable Version](https://img.shields.io/github/release/10up/distributor.svg?label=stable%20release)](https://github.com/10up/distributor/archive/stable.zip) ![WordPress tested up to version](https://img.shields.io/badge/WordPress-v5.2%20tested-success.svg)
+[![Download Latest Stable Version](https://img.shields.io/github/release/10up/distributor.svg?label=stable%20release)](https://github.com/10up/distributor/archive/stable.zip) ![WordPress tested up to version](https://img.shields.io/badge/WordPress-v5.2%20tested-success.svg) [![License](https://img.shields.io/github/license/10up/distributor.svg)](https://github.com/10up/distributor/blob/develop/LICENSE.md)
 
 *You can learn more about Distributor's features at [DistributorPlugin.com](https://distributorplugin.com).*
 
