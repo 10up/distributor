@@ -92,6 +92,8 @@ __Distributing Authors__ - By default, distributed stories reference the origina
 
 __Distributing Post Date__ - By default, the "post date" on distributed stories is the date its published on the remote site, not the date published on the origin site.  This can be overridden by extending Distributor with custom code to make it preserve the post date.
 
+__Distributing Canonical URL__ - By default, canonical URL of distributed post will point to original content, which corresponds to SEO best practices. This can be overridden by extending Distributor with custom code and removing Distributor's default front end canonical URL filtering (look for `'get_canonical_url'` and `'wpseo_canonical'`).
+
 __Drafts as preferred Status__ - By default, drafts are the preferred status and can't be changed at the source site.
 
 ## Changelog
