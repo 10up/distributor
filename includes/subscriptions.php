@@ -234,7 +234,7 @@ function delete_subscriptions( $post_id ) {
  * @since  1.0
  */
 function send_notifications( $post_id ) {
-	if ( ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) || wp_is_post_revision( $post_id ) || ! current_user_can( 'edit_post', $post_id ) ) {
+	if ( ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) || wp_is_post_revision( $post_id ) ) {
 		return;
 	}
 
@@ -244,9 +244,13 @@ function send_notifications( $post_id ) {
 	 * @param bool true     Whether send notification in background or not
 	 * @param int  $post_id The post id
 	 */
-	$dt_send_notification_in_background = apply_filters( 'dt_send_notification_allow_in_background', false, $post_id );
+	$send_notification_in_background = apply_filters( 'dt_send_notification_allow_in_background', false, $post_id );
 
-	if ( true === $dt_send_notification_in_background ) {
+	if ( true === $send_notification_in_background ) {
+		return;
+	}
+
+	if( ! current_user_can( 'edit_post', $post_id ) ) {
 		return;
 	}
 
