@@ -88,7 +88,52 @@ function ajax_push() {
 		exit;
 	}
 
-	$connection_map = get_post_meta( intval( $_POST['postId'] ), 'dt_connection_map', true );
+	// Maybe we need $_POST stored for background task
+	$params = $_POST;
+
+	if( ! wp_doing_cron() ) {
+		/**
+		 * Add possibility to send notification in background
+		 *
+		 * @param bool true     Whether send notification in background or not
+		 * @param int $post_id The post id
+		 */
+		$push_in_background = apply_filters( 'dt_push_allow_in_background', false, $params );
+
+		if ( true === $push_in_background ) {
+			wp_send_json_success(
+				array(
+					'results' => 'Success!!',
+				)
+			);
+
+			exit;
+		}
+	}
+
+	$result = push( $params );
+
+	wp_send_json_success(
+		array(
+			'results' => array(
+				'internal' => $result['internal_push_results'],
+				'external' => $result['external_push_results'],
+			),
+		)
+	);
+
+	exit;
+}
+
+/**
+ * Performs 'push' action
+ *
+ * @param array $params
+ *
+ * @return array
+ */
+function push( $params ) {
+	$connection_map = get_post_meta( intval( $params['postId'] ), 'dt_connection_map', true );
 	if ( empty( $connection_map ) ) {
 		$connection_map = array();
 	}
@@ -104,7 +149,7 @@ function ajax_push() {
 	$external_push_results = array();
 	$internal_push_results = array();
 
-	foreach ( $_POST['connections'] as $connection ) {
+	foreach ( $params['connections'] as $connection ) {
 		if ( 'external' === $connection['type'] ) {
 			$external_connection_type = get_post_meta( $connection['id'], 'dt_external_connection_type', true );
 			$external_connection_url  = get_post_meta( $connection['id'], 'dt_external_connection_url', true );
@@ -127,11 +172,11 @@ function ajax_push() {
 					$push_args['remote_post_id'] = (int) $connection_map['external'][ (int) $connection['id'] ]['post_id'];
 				}
 
-				if ( ! empty( $_POST['postStatus'] ) ) {
-					$push_args['post_status'] = $_POST['postStatus'];
+				if ( ! empty( $params['postStatus'] ) ) {
+					$push_args['post_status'] = $params['postStatus'];
 				}
 
-				$remote_id = $external_connection->push( intval( $_POST['postId'] ), $push_args );
+				$remote_id = $external_connection->push( intval( $params['postId'] ), $push_args );
 
 				/**
 				 * Record the external connection id's remote post id for this local post
@@ -149,7 +194,7 @@ function ajax_push() {
 						'status'  => 'success',
 					);
 
-					$external_connection->log_sync( array( $remote_id => $_POST['postId'] ) );
+					$external_connection->log_sync( array( $remote_id => $params['postId'] ) );
 				} else {
 					$external_push_results[ (int) $connection['id'] ] = array(
 						'post_id' => (int) $remote_id,
@@ -166,11 +211,11 @@ function ajax_push() {
 				$push_args['remote_post_id'] = (int) $connection_map['internal'][ (int) $connection['id'] ]['post_id'];
 			}
 
-			if ( ! empty( $_POST['postStatus'] ) ) {
-				$push_args['post_status'] = esc_attr( $_POST['postStatus'] );
+			if ( ! empty( $params['postStatus'] ) ) {
+				$push_args['post_status'] = esc_attr( $params['postStatus'] );
 			}
 
-			$remote_id = $internal_connection->push( intval( $_POST['postId'] ), $push_args );
+			$remote_id = $internal_connection->push( intval( $params['postId'] ), $push_args );
 
 			/**
 			 * Record the internal connection id's remote post id for this local post
@@ -179,7 +224,7 @@ function ajax_push() {
 				$origin_site = get_current_blog_id();
 				switch_to_blog( intval( $connection['id'] ) );
 				$remote_url = get_permalink( $remote_id );
-				$internal_connection->log_sync( array( $_POST['postId'] => $remote_id ), $origin_site );
+				$internal_connection->log_sync( array( $params['postId'] => $remote_id ), $origin_site );
 				restore_current_blog();
 
 				$connection_map['internal'][ (int) $connection['id'] ] = array(
@@ -203,18 +248,9 @@ function ajax_push() {
 		}
 	}
 
-	update_post_meta( intval( $_POST['postId'] ), 'dt_connection_map', $connection_map );
+	update_post_meta( intval( $params['postId'] ), 'dt_connection_map', $connection_map );
 
-	wp_send_json_success(
-		array(
-			'results' => array(
-				'internal' => $internal_push_results,
-				'external' => $external_push_results,
-			),
-		)
-	);
-
-	exit;
+	return array( 'internal_push_results' => $internal_push_results, 'external_push_results' => $external_push_results );
 }
 
 /**
@@ -504,7 +540,7 @@ syndicated<?php endif; ?>" data-connection-type="internal" data-connection-id="<
 
 					<div class="messages">
 						<div class="dt-success">
-							<?php esc_html_e( 'Post successfully distributed.', 'distributor' ); ?>
+							<?php echo apply_filters( 'dt_successfully_distributed_message', esc_html__( 'Post successfully distributed.', 'distributor' ) ); ?>
 						</div>
 						<div class="dt-error">
 							<?php esc_html_e( 'There was an issue distributing the post.', 'distributor' ); ?>
