@@ -238,7 +238,7 @@ function send_notifications( $post_id ) {
 		return;
 	}
 
-	if ( ! \wp_doing_cron() ) {
+	if ( ! wp_doing_cron() ) { // @codingStandardsIgnoreLine `wp_doing_cron(..)` is a WP function
 		/**
 		 * Add possibility to send notification in background
 		 *
