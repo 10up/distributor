@@ -238,7 +238,7 @@ function send_notifications( $post_id ) {
 		return;
 	}
 
-	if( ! wp_doing_cron() ) {
+	if ( ! wp_doing_cron() ) {
 		/**
 		 * Add possibility to send notification in background
 		 *
@@ -252,7 +252,7 @@ function send_notifications( $post_id ) {
 		}
 	}
 
-	if( ! current_user_can( 'edit_post', $post_id ) ) {
+	if ( ! current_user_can( 'edit_post', $post_id ) ) {
 		return;
 	}
 
