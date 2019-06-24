@@ -128,7 +128,7 @@ function ajax_push() {
 /**
  * Performs 'push' action
  *
- * @param array $params
+ * @param array $params Parameters from 'post' request
  *
  * @return array
  */
@@ -406,7 +406,7 @@ function menu_content() {
 		$current_post_type = get_post_type();
 
 		if ( ! empty( $_GET['post_type'] ) ) { // @codingStandardsIgnoreLine nonce not required
-			$current_post_type = sanitize_key( $_GET['post_type'] );
+			$current_post_type = sanitize_key( $_GET['post_type'] ); // @codingStandardsIgnoreLine nonce not required
 		}
 
 		if ( empty( $current_post_type ) ) {
@@ -537,17 +537,16 @@ syndicated<?php endif; ?>" data-connection-type="internal" data-connection-id="<
 								 */
 								$as_draft = apply_filters( 'dt_allow_as_draft_distribute', $as_draft, $connection, $post );
 							?>
-							<button class="syndicate-button"><?php esc_html_e( 'Distribute', 'distributor' ); ?></button> 
-																			   <?php
-																				if ( $as_draft ) :
-																					?>
-								<label class="as-draft" for="dt-as-draft"><input type="checkbox" id="dt-as-draft" checked> <?php esc_html_e( 'As draft', 'distributor' ); ?></label><?php endif; ?>
+							<button class="syndicate-button"><?php esc_html_e( 'Distribute', 'distributor' ); ?></button>
+							<?php if ( $as_draft ) : ?>
+								<label class="as-draft" for="dt-as-draft"><input type="checkbox" id="dt-as-draft" checked> <?php esc_html_e( 'As draft', 'distributor' ); ?></label>
+							<?php endif; ?>
 						</div>
 					</div>
 
 					<div class="messages">
 						<div class="dt-success">
-							<?php echo apply_filters( 'dt_successfully_distributed_message', esc_html__( 'Post successfully distributed.', 'distributor' ) ); ?>
+							<?php echo esc_html( apply_filters( 'dt_successfully_distributed_message', esc_html__( 'Post successfully distributed.', 'distributor' ) ) ); ?>
 						</div>
 						<div class="dt-error">
 							<?php esc_html_e( 'There was an issue distributing the post.', 'distributor' ); ?>
