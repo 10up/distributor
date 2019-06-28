@@ -197,7 +197,7 @@ class SubscriptionsController extends \WP_REST_Controller {
 	 */
 	public function receive_item( $request ) {
 		$post_id = (int) $request['post_id'];
-		$post = get_post( $post_id );
+		$post    = get_post( $post_id );
 		if ( empty( $post ) ) {
 			return new \WP_REST_Response( null, 404, [ 'X-Distributor-Post-Deleted' => 'yes' ] );
 		}
@@ -249,12 +249,12 @@ class SubscriptionsController extends \WP_REST_Controller {
 
 			// Check for deleted metas
 			$previous_update = get_post_meta( $post_id, 'dt_subscription_update', true );
-			if( ! empty( $previous_update['meta'] ) && ! empty( $update['meta'] ) ) {
-				$new_meta_keys = array_keys( $update['meta'] );
+			if ( ! empty( $previous_update['meta'] ) && ! empty( $update['meta'] ) ) {
+				$new_meta_keys     = array_keys( $update['meta'] );
 				$updated_meta_keys = array_keys( $previous_update['meta'] );
-				$diff = array_diff( $updated_meta_keys, $new_meta_keys );
+				$diff              = array_diff( $updated_meta_keys, $new_meta_keys );
 
-				if( ! empty( $diff ) ) {
+				if ( ! empty( $diff ) ) {
 					foreach ( $diff as $meta_key ) {
 						// Delete post metas which were present in previous request but do not exist in the current
 						delete_post_meta( $post_id, $meta_key );
