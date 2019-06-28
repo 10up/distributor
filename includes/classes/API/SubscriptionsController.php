@@ -196,12 +196,13 @@ class SubscriptionsController extends \WP_REST_Controller {
 	 * @return WP_REST_Response|\WP_Error Response object on success, or \WP_Error object on failure.
 	 */
 	public function receive_item( $request ) {
-		$post = get_post( (int) $request['post_id'] );
+		$post_id = (int) $request['post_id'];
+		$post = get_post( $post_id );
 		if ( empty( $post ) ) {
 			return new \WP_REST_Response( null, 404, [ 'X-Distributor-Post-Deleted' => 'yes' ] );
 		}
 
-		$original_post_id = get_post_meta( $request['post_id'], 'dt_original_post_id', true );
+		$original_post_id = get_post_meta( $post_id, 'dt_original_post_id', true );
 
 		if ( empty( $original_post_id ) ) {
 			return new \WP_Error( 'rest_post_not_distributed', esc_html__( 'Post not distributed.', 'distributor' ), array( 'status' => 400 ) );
@@ -209,7 +210,7 @@ class SubscriptionsController extends \WP_REST_Controller {
 
 		// This endpoint updates post data and unlinks posts
 		if ( isset( $request['original_deleted'] ) ) {
-			update_post_meta( $request['post_id'], 'dt_original_post_deleted', true );
+			update_post_meta( $post_id, 'dt_original_post_deleted', true );
 
 			$response = new \WP_REST_Response();
 			$response->set_data( array( 'updated' => true ) );
@@ -246,9 +247,24 @@ class SubscriptionsController extends \WP_REST_Controller {
 				'media'        => ( isset( $request['post_data']['distributor_media'] ) ) ? $request['post_data']['distributor_media'] : [],
 			];
 
-			update_post_meta( (int) $request['post_id'], 'dt_subscription_update', $update );
+			// Check for deleted metas
+			$previous_update = get_post_meta( $post_id, 'dt_subscription_update', true );
+			if( ! empty( $previous_update['meta'] ) && ! empty( $update['meta'] ) ) {
+				$new_meta_keys = array_keys( $update['meta'] );
+				$updated_meta_keys = array_keys( $previous_update['meta'] );
+				$diff = array_diff( $updated_meta_keys, $new_meta_keys );
 
-			$unlinked = (bool) get_post_meta( $request['post_id'], 'dt_unlinked', true );
+				if( ! empty( $diff ) ) {
+					foreach ( $diff as $meta_key ) {
+						// Delete post metas which were present in previous request but do not exist in the current
+						delete_post_meta( $post_id, $meta_key );
+					}
+				}
+			}
+
+			update_post_meta( $post_id, 'dt_subscription_update', $update );
+
+			$unlinked = (bool) get_post_meta( $post_id, 'dt_unlinked', true );
 
 			if ( ! empty( $unlinked ) ) {
 				$response = new \WP_REST_Response();
@@ -259,7 +275,7 @@ class SubscriptionsController extends \WP_REST_Controller {
 
 			wp_update_post(
 				[
-					'ID'           => $request['post_id'],
+					'ID'           => $post_id,
 					'post_title'   => $request['post_data']['title'],
 					'post_content' => $content,
 					'post_excerpt' => $request['post_data']['excerpt'],
@@ -271,15 +287,15 @@ class SubscriptionsController extends \WP_REST_Controller {
 			 * We check if each of these exist since the API removes empty arrays from requests
 			 */
 			if ( ! empty( $request['post_data']['distributor_meta'] ) ) {
-				\Distributor\Utils\set_meta( $request['post_id'], $request['post_data']['distributor_meta'] );
+				\Distributor\Utils\set_meta( $post_id, $request['post_data']['distributor_meta'] );
 			}
 
 			if ( ! empty( $request['post_data']['distributor_terms'] ) ) {
-				\Distributor\Utils\set_taxonomy_terms( $request['post_id'], $request['post_data']['distributor_terms'] );
+				\Distributor\Utils\set_taxonomy_terms( $post_id, $request['post_data']['distributor_terms'] );
 			}
 
 			if ( ! empty( $request['post_data']['distributor_media'] ) ) {
-				\Distributor\Utils\set_media( $request['post_id'], $request['post_data']['distributor_media'] );
+				\Distributor\Utils\set_media( $post_id, $request['post_data']['distributor_media'] );
 			}
 
 			/**
