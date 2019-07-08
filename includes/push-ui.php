@@ -95,8 +95,8 @@ function ajax_push() {
 		/**
 		 * Add possibility to send notification in background
 		 *
-		 * @param bool true     Whether send notification in background or not
-		 * @param int $post_id The post id
+		 * @param bool  false   Whether run 'push' action in background or not, default 'false'
+		 * @param array $params request data
 		 */
 		$push_in_background = apply_filters( 'dt_push_allow_in_background', false, $params );
 
