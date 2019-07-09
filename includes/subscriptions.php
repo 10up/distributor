@@ -238,7 +238,11 @@ function send_notifications( $post_id ) {
 		return;
 	}
 
-	if ( ! wp_doing_cron() ) { // @codingStandardsIgnoreLine `wp_doing_cron(..)` is a WP function
+	if ( ! wp_doing_cron() ) { //phpcs:ignore
+		if ( ! current_user_can( 'edit_post', $post_id ) ) {
+			return;
+		}
+
 		/**
 		 * Add possibility to send notification in background
 		 *
@@ -250,10 +254,6 @@ function send_notifications( $post_id ) {
 		if ( true === $send_notification_in_background ) {
 			return;
 		}
-	}
-
-	if ( ! current_user_can( 'edit_post', $post_id ) ) {
-		return;
 	}
 
 	$subscriptions = get_post_meta( $post_id, 'dt_subscriptions', true );
