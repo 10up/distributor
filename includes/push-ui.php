@@ -111,15 +111,9 @@ function ajax_push() {
 		}
 	}
 
-	$result = push( $params );
 
 	wp_send_json_success(
-		array(
-			'results' => array(
-				'internal' => $result['internal_push_results'],
-				'external' => $result['external_push_results'],
-			),
-		)
+		push( $params )
 	);
 
 	exit;
@@ -251,8 +245,10 @@ function push( $params ) {
 	update_post_meta( intval( $params['postId'] ), 'dt_connection_map', $connection_map );
 
 	return array(
-		'internal_push_results' => $internal_push_results,
-		'external_push_results' => $external_push_results,
+		'results' => array(
+			'internal' => $internal_push_results,
+			'external' => $external_push_results,
+		),
 	);
 }
 
