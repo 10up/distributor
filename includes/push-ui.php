@@ -542,7 +542,14 @@ syndicated<?php endif; ?>" data-connection-type="internal" data-connection-id="<
 
 					<div class="messages">
 						<div class="dt-success">
-							<?php echo esc_html( apply_filters( 'dt_successfully_distributed_message', esc_html__( 'Post successfully distributed.', 'distributor' ) ) ); ?>
+							<?php
+							/**
+							 * Filter distribution success message
+							 *
+							 * @param string Success message
+							 */
+							echo esc_html( apply_filters( 'dt_successfully_distributed_message', __( 'Post successfully distributed.', 'distributor' ) ) );
+							?>
 						</div>
 						<div class="dt-error">
 							<?php esc_html_e( 'There was an issue distributing the post.', 'distributor' ); ?>
