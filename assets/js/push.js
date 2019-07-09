@@ -178,6 +178,7 @@ jQuery( window ).on( 'load', () => {
 
 			dtConnections = response.data;
 
+			// Allowing innerHTML because processTemplate escapes values
 			distributorPushWrapper.innerHTML = processTemplate( 'dt-show-connections' )( {
 				connections: dtConnections,
 			} );
