@@ -95,12 +95,12 @@ function ajax_push() {
 		/**
 		 * Add possibility to send notification in background
 		 *
-		 * @param bool  false   Whether run 'push' action in background or not, default 'false'
+		 * @param bool  true    Whether run 'push' action in background or not, default 'false'
 		 * @param array $params request data
 		 */
-		$push_in_background = apply_filters( 'dt_push_allow_in_background', false, $params );
+		$push_in_background = apply_filters( 'dt_allow_push', true, $params );
 
-		if ( true === $push_in_background ) {
+		if ( false === $push_in_background ) {
 			wp_send_json_success(
 				array(
 					'results' => 'Success!!',
@@ -110,7 +110,6 @@ function ajax_push() {
 			exit;
 		}
 	}
-
 
 	wp_send_json_success(
 		push( $params )
