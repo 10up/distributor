@@ -34,7 +34,7 @@ function is_vip_com() {
  * @return boolean
  */
 function is_using_gutenberg( $post ) {
-	if ( empty ( $post->post_content ) ) {
+	if ( empty( $post->post_content ) ) {
 		return false;
 	}
 
