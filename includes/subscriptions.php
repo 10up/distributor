@@ -249,9 +249,9 @@ function send_notifications( $post_id ) {
 		 * @param bool  true    Whether run 'send notification' in background or not, default 'false'
 		 * @param array $params request data
 		 */
-		$send_notification_in_background = apply_filters( 'dt_allow_send_notifications', true, $post_id );
+		$allow_send_notification = apply_filters( 'dt_allow_send_notifications', true, $post_id );
 
-		if ( false === $send_notification_in_background ) {
+		if ( false === $allow_send_notification ) {
 			return;
 		}
 	}

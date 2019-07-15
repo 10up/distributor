@@ -98,9 +98,9 @@ function ajax_push() {
 		 * @param bool  true    Whether run 'push' action in background or not, default 'false'
 		 * @param array $params request data
 		 */
-		$push_in_background = apply_filters( 'dt_allow_push', true, $params );
+		$allow_push = apply_filters( 'dt_allow_push', true, $params );
 
-		if ( false === $push_in_background ) {
+		if ( false === $allow_push ) {
 			wp_send_json_success(
 				array(
 					'results' => 'Success!!',
