@@ -4,14 +4,18 @@ All notable changes to this project will be documented in this file, per [the Ke
 
 ## [1.5.0] - TBD
 ### Added
-- Block tests (props [@adamsilverstein](https://github.com/adamsilverstein) via [#367](https://github.com/10up/distributor/pull/367))
-- WordPress version support badge (props [@adamsilverstein](https://github.com/adamsilverstein), [@jeffpaul](https://github.com/jeffpaul) via [#376](https://github.com/10up/distributor/pull/376))
-- Documentation (props [@adamsilverstein](https://github.com/adamsilverstein), [@jeffpaul](https://github.com/jeffpaul) via [#352](https://github.com/10up/distributor/pull/352), [#363](https://github.com/10up/distributor/pull/363), [#403](https://github.com/10up/distributor/pull/403))
+- Tests against multiple WP Snapshot variations and Block tests (props [@adamsilverstein](https://github.com/adamsilverstein) via [#342](https://github.com/10up/distributor/pull/342) and [#367](https://github.com/10up/distributor/pull/367))
+- Documentation (props [@adamsilverstein](https://github.com/adamsilverstein), [@jeffpaul](https://github.com/jeffpaul) via [#352](https://github.com/10up/distributor/pull/352), [#363](https://github.com/10up/distributor/pull/363), [#403](https://github.com/10up/distributor/pull/403), [#414](https://github.com/10up/distributor/pull/414))
 
 ### Changed
 - Approach for generating internal connections on Push and Pull screens to improve performance (props [@dkotter](https://github.com/dkotter) via [#355](https://github.com/10up/distributor/pull/355))
 - Available Push connections now lazy loaded (props [@dkotter](https://github.com/dkotter) via [#365](https://github.com/10up/distributor/pull/365))
-- Connection setup to setup wizard approach (props [@adamsilverstein](https://github.com/adamsilverstein) via [#368](https://github.com/10up/distributor/pull/368))
+- Bumped WordPress version support to 5.2 (props [@adamsilverstein](https://github.com/adamsilverstein), [@jeffpaul](https://github.com/jeffpaul) via [#376](https://github.com/10up/distributor/pull/376))
+
+### Fixed
+- Fix and simplify `is_using_gutenberg()` (props [@helen](https://github.com/helen) via [#426](https://github.com/10up/distributor/pull/426))
+- Define $local_post_types before the conditional to prevent PHP notice (props [@grappler](https://github.com/grappler) via [#401](https://github.com/10up/distributor/pull/401))
+- Correct a mismatched variable name throwing and undefined error (props [@mrazzari](https://github.com/mrazzari) via [#420](https://github.com/10up/distributor/pull/420))
 
 ## [1.4.1] - 2019-03-15
 ### Fixed
