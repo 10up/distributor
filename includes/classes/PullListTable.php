@@ -68,21 +68,6 @@ class PullListTable extends \WP_List_Table {
 	}
 
 	/**
-	 * Get sortable table columns
-	 *
-	 * @since  0.8
-	 * @return array
-	 */
-	public function get_sortable_columns() {
-		$sortable_columns = array(
-			'name' => 'name',
-			'date' => array( 'date', true ),
-		);
-
-		return $sortable_columns;
-	}
-
-	/**
 	 * Get table views
 	 *
 	 * @since  0.8
@@ -361,7 +346,7 @@ class PullListTable extends \WP_List_Table {
 
 		$columns  = $this->get_columns();
 		$hidden   = get_hidden_columns( $this->screen );
-		$sortable = $this->get_sortable_columns();
+		$sortable = [];
 
 		$data = $this->table_data();
 
@@ -378,6 +363,8 @@ class PullListTable extends \WP_List_Table {
 			'posts_per_page' => $per_page,
 			'paged'          => $current_page,
 			'post_type'      => $connection_now->pull_post_type ?: 'post',
+			'orderby'       => 'ID', // this is because of include/exclude truncation
+			'order'          => 'DESC', // default but specifying to be safe
 		];
 
 		if ( ! empty( $_GET['s'] ) ) { // @codingStandardsIgnoreLine Nonce isn't required.
