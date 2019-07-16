@@ -412,7 +412,7 @@ class PullListTable extends \WP_List_Table {
 		}
 
 		if ( empty( $_GET['status'] ) || 'new' === $_GET['status'] ) { // @codingStandardsIgnoreLine Nonce not required.
-			$remote_get_args['post__not_in'] = array_merge( $skipped, $syndicated );
+			$remote_get_args['post__not_in'] = array_slice( array_merge( $skipped, $syndicated ), 0, 200, true );
 
 			$remote_get_args['meta_query'] = [
 				[
@@ -421,9 +421,9 @@ class PullListTable extends \WP_List_Table {
 				],
 			];
 		} elseif ( 'skipped' === $_GET['status'] ) { // @codingStandardsIgnoreLine Nonce not required.
-			$remote_get_args['post__in'] = $skipped;
+			$remote_get_args['post__in'] = array_slice( $skipped, 0, 200, true );
 		} else {
-			$remote_get_args['post__in'] = $syndicated;
+			$remote_get_args['post__in'] = array_slice( $syndicated, 0, 200, true );
 		}
 
 		$remote_get = $connection_now->remote_get( $remote_get_args );
