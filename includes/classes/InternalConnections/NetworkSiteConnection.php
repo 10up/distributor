@@ -87,7 +87,7 @@ class NetworkSiteConnection extends Connection {
 		// Distribute raw HTML when going from Gutenberg enabled to Gutenberg enabled.
 		$remote_using_gutenberg = \Distributor\Utils\is_using_gutenberg( $post );
 		if ( $using_gutenberg && $remote_using_gutenberg ) {
-			$new_post_args['post_content'] = $this->filter_gutenberg_blocks( $post->post_content, $post_id );
+			$new_post_args['post_content'] = $this->filter_gutenberg_blocks( $post->post_content, $post_id, $original_blog_id, $this->site->blog_id );
 		}
 
 		// Handle existing posts.
@@ -167,9 +167,7 @@ class NetworkSiteConnection extends Connection {
 	 *
 	 * @return mixed|string
 	 */
-	public function filter_gutenberg_blocks( $content, $source_post_id ) {
-		$source_blog_id = is_multisite() ? get_current_blog_id() : 0;
-
+	public function filter_gutenberg_blocks( $content, $source_post_id, $source_blog_id, $destination_blog_id ) {
 		$content = $this->gutenbergCommentsToElements( $content );
 
 		$dom = new \DOMDocument();
@@ -194,7 +192,7 @@ class NetworkSiteConnection extends Connection {
 			 * @param int    $source_post_id   The post ID on the originating site
 			 * @param int    $source_blog_id   The blog_id of the source site
 			 */
-			$block_attributes = apply_filters( 'dt_filter_block_attributes', $block_attributes, $block_name, $source_post_id, $source_blog_id );
+			$block_attributes = apply_filters( 'dt_filter_block_attributes', $block_attributes, $block_name, $source_post_id, $source_blog_id, $destination_blog_id );
 
 			$node->setAttribute( 'blockattributes', wp_json_encode( $block_attributes ) );
 		}
