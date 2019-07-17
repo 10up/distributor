@@ -176,6 +176,18 @@ class PullListTable extends \WP_List_Table {
 	public function column_date( $post ) {
 		global $mode;
 
+		if ( ! empty( $this->sync_log ) && ( empty( $_GET['status'] ) || 'new' === $_GET['status'] ) ) { // @codingStandardsIgnoreLine Nonce not needed.
+			if ( isset( $this->sync_log[ $post->ID ] ) ) {
+				if ( false === $this->sync_log[ $post->ID ] ) {
+					echo '<span class="disabled">' . esc_html__( 'Skipped', 'distributor' ) . '</span>';
+					return;
+				} else {
+					echo '<span class="disabled">' . esc_html__( 'Pulled', 'distributor' ) . '</span>';
+					return;
+				}
+			}
+		}
+
 		if ( ! empty( $_GET['status'] ) && 'pulled' === $_GET['status'] ) { // @codingStandardsIgnoreLine Nonce isn't required.
 			if ( ! empty( $this->sync_log[ $post->ID ] ) ) {
 				$syndicated_at = get_post_meta( $this->sync_log[ $post->ID ], 'dt_syndicate_time', true );
@@ -299,12 +311,18 @@ class PullListTable extends \WP_List_Table {
 		}
 
 		$actions = [];
+		$disable = false;
 
 		if ( empty( $_GET['status'] ) || 'new' === $_GET['status'] ) { // @codingStandardsIgnoreLine Nonce not needed.
-			$actions = [
-				'view' => '<a href="' . esc_url( $item->link ) . '">' . esc_html__( 'View', 'distributor' ) . '</a>',
-				'skip' => sprintf( '<a href="%s">%s</a>', esc_url( wp_nonce_url( admin_url( 'admin.php?page=pull&action=skip&_wp_http_referer=' . rawurlencode( $_SERVER['REQUEST_URI'] ) . '&post=' . $item->ID . '&connection_type=' . $connection_type . '&connection_id=' . $connection_id ), 'dt_skip' ) ), esc_html__( 'Skip', 'distributor' ) ),
-			];
+			if ( isset( $this->sync_log[ $item->ID ] ) ) {
+				$actions = [];
+				$disable = true;
+			} else {
+				$actions = [
+					'view' => '<a href="' . esc_url( $item->link ) . '">' . esc_html__( 'View', 'distributor' ) . '</a>',
+					'skip' => sprintf( '<a href="%s">%s</a>', esc_url( wp_nonce_url( admin_url( 'admin.php?page=pull&action=skip&_wp_http_referer=' . rawurlencode( $_SERVER['REQUEST_URI'] ) . '&post=' . $item->ID . '&connection_type=' . $connection_type . '&connection_id=' . $connection_id ), 'dt_skip' ) ), esc_html__( 'Skip', 'distributor' ) ),
+				];
+			}
 		} elseif ( 'skipped' === $_GET['status'] ) { // @codingStandardsIgnoreLine Nonce not needed.
 			$actions = [
 				'view' => '<a href="' . esc_url( $item->link ) . '">' . esc_html__( 'View', 'distributor' ) . '</a>',
@@ -328,8 +346,16 @@ class PullListTable extends \WP_List_Table {
 			$title = esc_html__( '(no title)', 'distributor' );
 		}
 
+		if ( $disable ) {
+			echo '<div class="disabled">';
+		}
+
 		echo '<strong>' . esc_html( $title ) . '</strong>';
 		echo wp_kses_post( $this->row_actions( $actions ) );
+
+		if ( $disable ) {
+			echo '</div>';
+		}
 	}
 
 	/**
@@ -470,6 +496,9 @@ class PullListTable extends \WP_List_Table {
 	 * @param \WP_Post $post The current WP_Post object.
 	 */
 	public function column_cb( $post ) {
+		if ( isset( $this->sync_log[ $post->ID ] ) ) {
+			return;
+		}
 		?>
 		<label class="screen-reader-text" for="cb-select-<?php echo (int) $post->ID; ?>">
 		<?php /* translators: %s: the post title or draft */ ?>
