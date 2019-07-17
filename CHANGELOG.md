@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file, per [the Ke
 ## [1.5.0] - TBD
 ### Added
 - Tests against multiple WP Snapshot variations and Block tests (props [@adamsilverstein](https://github.com/adamsilverstein) via [#342](https://github.com/10up/distributor/pull/342) and [#367](https://github.com/10up/distributor/pull/367))
-- Documentation (props [@adamsilverstein](https://github.com/adamsilverstein), [@jeffpaul](https://github.com/jeffpaul) via [#352](https://github.com/10up/distributor/pull/352), [#363](https://github.com/10up/distributor/pull/363), [#403](https://github.com/10up/distributor/pull/403), [#414](https://github.com/10up/distributor/pull/414))
+- Documentation (props [@adamsilverstein](https://github.com/adamsilverstein), [@jeffpaul](https://github.com/jeffpaul), [@arsendovlatyan](https://github.com/arsendovlatyan) via [#352](https://github.com/10up/distributor/pull/352), [#363](https://github.com/10up/distributor/pull/363), [#403](https://github.com/10up/distributor/pull/403), [#414](https://github.com/10up/distributor/pull/414), [#415](https://github.com/10up/distributor/pull/415))
 
 ### Changed
 - Approach for generating internal connections on Push and Pull screens to improve performance (props [@dkotter](https://github.com/dkotter) via [#355](https://github.com/10up/distributor/pull/355))
