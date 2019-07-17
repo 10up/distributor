@@ -404,6 +404,8 @@ class PullListTable extends \WP_List_Table {
 			rsort( $skipped, SORT_NUMERIC );
 			rsort( $syndicated, SORT_NUMERIC );
 
+			// This is somewhat arbitrarily set to 200 and should probably be made filterable eventually.
+			// IDs can get rather large and 400 easily exceeds typical header size limits.
 			$post_ids = array_slice( array_merge( $skipped, $syndicated ), 0, 200, true );
 
 			$remote_get_args['post__not_in'] = $post_ids;
