@@ -60,7 +60,7 @@ class PullListTable extends \WP_List_Table {
 		];
 
 		// Remove checkbox column on the Pulled view
-		if ( isset( $_GET['status'] ) && 'pulled' === $_GET['status'] ) {
+		if ( isset( $_GET['status'] ) && 'pulled' === $_GET['status'] ) { // @codingStandardsIgnoreLine Nonce not needed.
 			unset( $columns['cb'] );
 		}
 
@@ -389,7 +389,7 @@ class PullListTable extends \WP_List_Table {
 			'posts_per_page' => $per_page,
 			'paged'          => $current_page,
 			'post_type'      => $connection_now->pull_post_type ?: 'post',
-			'orderby'       => 'ID', // this is because of include/exclude truncation
+			'orderby'        => 'ID', // this is because of include/exclude truncation
 			'order'          => 'DESC', // default but specifying to be safe
 		];
 
@@ -444,24 +444,24 @@ class PullListTable extends \WP_List_Table {
 			];
 		} elseif ( 'skipped' === $_GET['status'] ) { // @codingStandardsIgnoreLine Nonce not required.
 			// Put most recently skipped items first.
-			$skipped = array_reverse( $skipped );
+			$skipped     = array_reverse( $skipped );
 			$total_items = count( $skipped );
-			$offset = $per_page * ( $current_page - 1 );
-			$post_ids = array_slice( $skipped, $offset, $per_page, true );
+			$offset      = $per_page * ( $current_page - 1 );
+			$post_ids    = array_slice( $skipped, $offset, $per_page, true );
 
 			$remote_get_args['post__in'] = $post_ids;
 			$remote_get_args['orderby']  = 'post__in';
-			$remote_get_args['paged']  = 1;
+			$remote_get_args['paged']    = 1;
 		} else {
 			// Put most recently pulled items first.
-			$syndicated = array_reverse( $syndicated );
+			$syndicated  = array_reverse( $syndicated );
 			$total_items = count( $syndicated );
-			$offset = $per_page * ( $current_page - 1 );
-			$post_ids = array_slice( $syndicated, $offset, $per_page, true );
+			$offset      = $per_page * ( $current_page - 1 );
+			$post_ids    = array_slice( $syndicated, $offset, $per_page, true );
 
 			$remote_get_args['post__in'] = $post_ids;
 			$remote_get_args['orderby']  = 'post__in';
-			$remote_get_args['paged']  = 1;
+			$remote_get_args['paged']    = 1;
 		}
 
 		$remote_get = $connection_now->remote_get( $remote_get_args );
