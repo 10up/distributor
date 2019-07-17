@@ -387,8 +387,9 @@ class PullListTable extends \WP_List_Table {
 			$this->sync_log = [];
 		}
 
-		$skipped    = array();
-		$syndicated = array();
+		$skipped     = array();
+		$syndicated  = array();
+		$total_items = false;
 
 		foreach ( $this->sync_log as $old_post_id => $new_post_id ) {
 			if ( false === $new_post_id ) {
@@ -399,7 +400,13 @@ class PullListTable extends \WP_List_Table {
 		}
 
 		if ( empty( $_GET['status'] ) || 'new' === $_GET['status'] ) { // @codingStandardsIgnoreLine Nonce not required.
-			$remote_get_args['post__not_in'] = array_slice( array_merge( $skipped, $syndicated ), 0, 200, true );
+			// Sort from highest ID (newest) to low so the slice only affects later pagination.
+			rsort( $skipped, SORT_NUMERIC );
+			rsort( $syndicated, SORT_NUMERIC );
+
+			$post_ids = array_slice( array_merge( $skipped, $syndicated ), 0, 200, true );
+
+			$remote_get_args['post__not_in'] = $post_ids;
 
 			$remote_get_args['meta_query'] = [
 				[
@@ -408,9 +415,25 @@ class PullListTable extends \WP_List_Table {
 				],
 			];
 		} elseif ( 'skipped' === $_GET['status'] ) { // @codingStandardsIgnoreLine Nonce not required.
-			$remote_get_args['post__in'] = array_slice( $skipped, 0, 200, true );
+			// Put most recently skipped items first.
+			$skipped = array_reverse( $skipped );
+			$total_items = count( $skipped );
+			$offset = $per_page * ( $current_page - 1 );
+			$post_ids = array_slice( $skipped, $offset, $per_page, true );
+
+			$remote_get_args['post__in'] = $post_ids;
+			$remote_get_args['orderby']  = 'post__in';
+			$remote_get_args['paged']  = 1;
 		} else {
-			$remote_get_args['post__in'] = array_slice( $syndicated, 0, 200, true );
+			// Put most recently pulled items first.
+			$syndicated = array_reverse( $syndicated );
+			$total_items = count( $syndicated );
+			$offset = $per_page * ( $current_page - 1 );
+			$post_ids = array_slice( $syndicated, $offset, $per_page, true );
+
+			$remote_get_args['post__in'] = $post_ids;
+			$remote_get_args['orderby']  = 'post__in';
+			$remote_get_args['paged']  = 1;
 		}
 
 		$remote_get = $connection_now->remote_get( $remote_get_args );
@@ -421,9 +444,14 @@ class PullListTable extends \WP_List_Table {
 			return;
 		}
 
+		// Get total items retrieved from the remote request if not already set.
+		if ( false === $total_items ) {
+			$total_items = $remote_get['total_items'];
+		}
+
 		$this->set_pagination_args(
 			[
-				'total_items' => $remote_get['total_items'],
+				'total_items' => $total_items,
 				'per_page'    => $per_page,
 			]
 		);
