@@ -404,8 +404,8 @@ function set_taxonomy_terms( $post_id, $taxonomy_terms ) {
 							$term_array['name'], 
 							$taxonomy,
 							[
-							'slug'        => $term_array['slug'],
-							'description' => $term_array['description']
+								'slug'        => $term_array['slug'],
+								'description' => $term_array['description'],
 							]
 						);
 
@@ -437,7 +437,7 @@ function set_taxonomy_terms( $post_id, $taxonomy_terms ) {
 				}
 
 				if ( empty ( $term_array['parent'] ) ) {
-					$r = wp_update_term(
+					wp_update_term(
 						$term_id_mapping[ $term_array['term_id'] ],
 						$taxonomy,
 						[
