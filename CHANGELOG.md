@@ -151,11 +151,11 @@ This adds a post type selector when viewing the Pull Content list for both exter
 ### Added
 - Gutenberg support, public release.
 
-## [1.1.0] - 2018-05-07
+## [1.1.0] - 2018-01-19
 ### Added
 - WordPress.com Oauth2 authentication.
 
-## [1.0.0]
+## [1.0.0] - 2016-09-26
 - Initial closed release.
 
 [1.5.0]: https://github.com/10up/distributor/compare/1.4.1...1.5.0
@@ -172,5 +172,9 @@ This adds a post type selector when viewing the Pull Content list for both exter
 [1.3.1]: https://github.com/10up/distributor/compare/1.3.0...1.3.1
 [1.3.0]: https://github.com/10up/distributor/compare/1.2.3...1.3.0
 [1.2.3]: https://github.com/10up/distributor/compare/1.2.2...1.2.3
-[1.2.2]: https://github.com/10up/distributor/releases/tag/1.2.2
-[1.1.0]: https://github.com/10up/distributor/releases/tag/archive%2Ffeature%2Fenable-oath2
+[1.2.2]: https://github.com/10up/distributor/compare/7f245b5...1.2.2
+[1.2.1]: https://github.com/10up/distributor/compare/457b14...7f245b5
+[1.2.0]: https://github.com/10up/distributor/compare/archive%2Ffeature%2Fenable-oath2...457b14
+[1.1.0]: https://github.com/10up/distributor/compare/5f68677...archive%2Ffeature%2Fenable-oath2
+[1.0.0]: https://github.com/10up/distributor/commit/5f68677da972336b6a8161c143faa456bfdbe4ef
+
