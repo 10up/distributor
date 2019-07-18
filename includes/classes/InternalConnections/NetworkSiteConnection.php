@@ -194,7 +194,12 @@ class NetworkSiteConnection extends Connection {
 			 */
 			$block_attributes = apply_filters( 'dt_filter_block_attributes', $block_attributes, $block_name, $source_post_id, $source_blog_id, $destination_blog_id );
 
-			$node->setAttribute( 'blockattributes', wp_json_encode( $block_attributes ) );
+			if ( ! empty( $block_attributes ) ) {
+				$node->setAttribute( 'blockattributes', wp_json_encode( $block_attributes ) );
+			} else {
+				$node->removeAttribute( 'blockattributes' );
+			}
+
 		}
 
 		$string = $dom->saveHTML( $dom->getElementsByTagName( 'body' )->item( 0 ) );
@@ -254,13 +259,16 @@ class NetworkSiteConnection extends Connection {
 		$content = preg_replace( '/blockname="([^"]*)"/i', 'wp:$1', $content );
 
 		// Find any that should be self closing, and convert them to self closing gutenberg comments
-		$content = preg_replace( '/<gutenberg (wp:[^>]*)><\/gutenberg>/i', '<!-- $1/-->', $content );
+		$content = preg_replace( '/<gutenberg (wp:[^>]*)><\/gutenberg>/i', '<!-- $1/ -->', $content );
 
 		// Convert any opening tags to opening gutenberg comments
-		$content = preg_replace( '/<gutenberg (wp:[^>]*)>/i', '<!-- $1-->', $content );
+		$content = preg_replace( '/<gutenberg (wp:[^>]*)>/i', '<!-- $1 -->', $content );
 
 		// Since we left the closing comments inline, we can just get rid of the </gutenberg> elements that are left
 		$content = str_replace( '</gutenberg>', '', $content );
+
+		// In some cases, we introduce double spaces before closing comment, so get rid of any of those
+		$content = str_replace( '  -->', ' -->', $content );
 
 		return $content;
 	}
