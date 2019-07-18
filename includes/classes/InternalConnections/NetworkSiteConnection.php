@@ -173,7 +173,7 @@ class NetworkSiteConnection extends Connection {
 		$content = $this->gutenbergCommentsToElements( $content );
 
 		$dom = new \DOMDocument();
-		$dom->loadHTML( $content );
+		$dom->loadHTML( mb_convert_encoding( $content, 'HTML-ENTITIES', 'UTF-8' ) );
 
 		$body = $dom->getElementsByTagName( 'body' )->item( 0 );
 		foreach ( $body->childNodes as $node ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName
