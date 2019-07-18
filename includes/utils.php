@@ -444,7 +444,7 @@ function set_taxonomy_terms( $post_id, $taxonomy_terms ) {
 			 * @param bool true Controls whether missing terms should be created. Default 'true'.
 			 * @param string              The taxonomy name.
 			 * @param array               Term data.
-			 * @param WP_Term|array|false WP_Term object or array if found, false if not. 
+			 * @param WP_Term|array|false WP_Term object or array if found, false if not.
 			 */
 			$create_missing_terms = apply_filters( 'dt_create_missing_terms', true, $taxonomy, $term_array, $term );
 
