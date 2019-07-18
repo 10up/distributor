@@ -1,14 +1,48 @@
-# Distributor [![Build Status](https://travis-ci.org/10up/distributor.svg?branch=master)](https://travis-ci.org/10up/distributor)
-### [Download Latest Stable Version](https://github.com/10up/distributor/archive/stable.zip)
-<img alt="distributor icon" src="https://github.com/10up/distributor/blob/master/assets/img/icon.svg" height="45" width="45" align="left"> Distributor is a WordPress plugin that makes it easy to syndicate and reuse content across your websites — whether in a single multisite or across the web.
+<img alt="Distributor icon" src="https://github.com/10up/distributor/blob/master/assets/img/icon.svg" height="45" width="45" align="left">
+
+# Distributor
+> Distributor is a WordPress plugin that makes it easy to syndicate and reuse content across your websites — whether in a single multisite or across the web.
+
+[![Support Level](https://img.shields.io/badge/support-active-green.svg)](#support-level) [![Build Status](https://travis-ci.org/10up/distributor.svg?branch=master)](https://travis-ci.org/10up/distributor)
+[![Release Version](https://img.shields.io/github/release/10up/distributor.svg)](https://github.com/10up/distributor/releases/latest) ![WordPress tested up to version](https://img.shields.io/badge/WordPress-v5.2%20tested-success.svg) [![License](https://img.shields.io/github/license/10up/distributor.svg)](https://github.com/10up/distributor/blob/develop/LICENSE.md)
 
 *You can learn more about Distributor's features at [DistributorPlugin.com](https://distributorplugin.com).*
 
+_Note:_ The latest stable version of the plugin is the _stable_ branch. [Download the stable branch]((https://github.com/10up/distributor/archive/stable.zip)) if you are intending to use the plugin in production.
+
+## Table of Contents  
+* [Features](#features)
+  * [Gutenberg Support](#gutenberg-support-beta)
+* [Requirements](#requirements)
+* [Installation](#installation)
+  * [Registration](#registration)
+  * [Setup External Connections](#setup-external-connections-using-application-passwords)
+* [Known Caveats/Issues](#known-caveatsissues)
+* [Changelog](#changelog)
+* [Contributing](#contributing)
+* [Testing](#testing)
+* [Debugging](#debugging)
+
+## Features
+
+Distributor supports safe, SEO-friendly content reuse and sharing via "pushing" and "pulling".
+
+While logged in and editing or viewing any single post (or custom post type) that can be distributed, a `Distributor` admin bar item will appear, that will facilitate sharing ("pushing") that content to any `connection`.
 <a href="http://distributorplugin.com/"><img src="https://distributorplugin.com/wp-content/themes/distributor-theme/assets/img/push-screenshot.jpg" alt="Push the content you’re editing or viewing to any of your other sites from the admin bar" width="600"></a>
 
+In the admin dashboard, a top level Distributor menu item links to the "pull" screen. Here, editors can share ("pull") content from any `connection` into the current site.
+<a href="http://distributorplugin.com/"><img src="https://distributorplugin.com/wp-content/themes/distributor-theme/assets/img/pull-screenshot.jpg" alt="Pull content from another site from the Distributor admin menu" width="600"></a>
+
+Content this is distributed (via Push or Pull) is connected to the original.  Reposted content receives updates from the original, canonical source automatically.
 <a href="http://distributorplugin.com/"><img alt="Distributor intuitively presents the origin and status of any reused content" class="browser-frame" src="https://distributorplugin.com/wp-content/themes/distributor-theme/assets/img/syndicated-screenshot.jpg" width="600"></a>
 
-_Note:_ The latest stable version of the plugin is the _stable_ branch. [Download the stable branch]((https://github.com/10up/distributor/archive/stable.zip)) if you are intending to use the plugin in production.
+There are two connection types: `internal` and `external`.
+* Internal connections are other sites inside of the same multisite network. Any user logged into the network can distribute any content in the network to any other sites in the network where that user has permission to publish posts (assuming the site supports the same post type).
+* External connections are external websites, connected by the JSON REST API. External connections can be added in the WordPress admin dashboard under Distributor > External Connections. Administrators can decide which user roles are allowed to distribute content to and from that connection (Editors and Administrators by default). All users with those roles will inherit the permissions of the user account used to establish the remote connection.
+
+### Gutenberg Support (Beta)
+
+Distributor supports distributing Gutenberg posts but the functionality is currently in beta. We expect this functionality to stabilize as Gutenberg further iterates within WordPress core.
 
 ## Requirements
 
@@ -17,7 +51,7 @@ _Note:_ The latest stable version of the plugin is the _stable_ branch. [Downloa
 * External connections require HTTP Basic Authentication or [WordPress.com OAuth2](https://developer.wordpress.com/docs/oauth2/) (must be on VIP) be set up on the remote website. For Basic Auth, we recommend the [Application Passwords](https://wordpress.org/plugins/application-passwords/) plugin.
 * For external connections, Distributor needs to be installed on BOTH sides of the connection.
 
-## Install
+## Installation
 
 For production use, we recommend [registering and downloading the plugin from DistributorPlugin.com](https://distributorplugin.com/#cta) – it's 100% free. You will be emailed a direct link to download the latest, production-ready build. Alternatively, you can [download the latest master build from GitHub](https://github.com/10up/distributor/archive/master.zip).
 
@@ -25,23 +59,20 @@ You can upload and install the archived (zip) plugin via the WordPress dashboard
 
 ### Registration
 
-To help inform our roadmap, keep adopters apprised of major updates and changes that could impact their websites, and solicit opportunities for beta testing and feedback, we’re asking for a little bit of information in exchange for a free key that unlocks update notifications and 1-click upgrades inside the WordPress dashboard. Your information is kept confidential. You can [register here](https://distributorplugin.com/#cta) and input your key in Distributor settings in the dashboard (network dashboard for multisite users).
+To help inform our roadmap, keep adopters apprised of major updates and changes that could impact their websites, and solicit opportunities for beta testing and feedback, we’re asking for a little bit of information in exchange for a free key that unlocks update notifications and 1-click upgrades inside the WordPress dashboard. Your information is kept confidential. You can [register here](https://distributorplugin.com/#cta) and input your key in Distributor settings in the dashboard (network dashboard for multisite users).  Note that you need to input the email address you used to register Distributor (included in the email with your registration key) as that is linked to the registration key.
 
-## Plugin Usage
+### Setup External Connections using Application Passwords
 
-Distributor supports safe, SEO-friendly content reuse and sharing via "pushing" and "pulling".
+1. Ensure Distributor is installed on BOTH sites being connected.  We'll refer to these as mainsite.com and remotesite.com.
+2. On mainsite.com, navigate to `Distributor` > `External Connections` and click `Add New`.
+3. Enter a label for the connection (e.g., `remotesite.com`), select `Username / Password` for the `Authentication Method`, and a username from remotesite.com.
+4. On remotesite.com, ensure that [Application Passwords](https://wordpress.org/plugins/application-passwords/) is installed.  Then navigate to the user profile that will be used to create the Externatal Connection on mainsite.com and then to the `Application Passwords` section of the user profile (not the `Account Management` section).  Add a label for the New Application Password Name (e.g., `mainsite.com`) and click `Add New`.  Now copy the password provided into mainsite.com's External Connections `Password` field.
+5. On mainsite.com, add the `External Connection URL` (e.g., http://remotesite.com/wp-json).  You should see a green circle and "_Connection established._".
+6. Ensure the roles selected in `Roles Allowed to Push` are the ones you want to support, then press the `Create Connection` button.  You should now be able to push from mainsite.com to remotesite.com.  If you want to pull from remotesite.com to mainsite.com, simply repeat these instructions swapping mainsite.com and remotesite.com.
 
-While logged in and editing or viewing any single post (or custom post type) that can be distributed, a `Distributor` admin bar item will appear, that will facilitate sharing ("pushing") that content to any `connection`.
+## Support Level
 
-In the admin dashboard, a top level Distributor menu item links to the "pull" screen. Here, editors can share ("pull") content from any `connection` into the current site.
-
-There are two connection types: `external` and `internal`.
-* Internal connections are other sites inside of the same multisite network. Any user logged into the network can distribute any content in the network to any other sites in the network where that user has permission to publish posts (assuming the site supports the same post type).
-* External connections are external websites, connected by the JSON REST API. External connections can be added in the WordPress admin dashboard under Distributor > External Connections. Administrators can decide which user roles are allowed to distribute content to and from that connection (Editors and Administrators by default). All users with those roles will inherit the permissions of the user account used to establish the remote connection.
-
-### Gutenberg Support (Beta)
-
-Distributor supports distributing Gutenberg posts but the functionality is currently in beta (as is Gutenberg itself). We expect this functionality to stabilize when Gutenberg is released into WordPress core.
+**Active:** 10up is actively working on this, and we expect to continue work for the foreseeable future including keeping tested up to the most recent version of WordPress.  Bug reports, feature requests, questions, and pull requests are welcome.
 
 ## Known Caveats/Issues
 
@@ -55,24 +86,38 @@ __Gutenberg Block Mismatch__ - When distributing a Gutenberg post to another sit
 
 __Parent Posts__ - Distributor does not "bring along" parent (or child posts). If your post (or custom post type) has a parent or a child, it will distribute it as if it's an orphan.
 
-__External Connection Post Type Support__ - When _pulling_ content from an external connection, only "Posts" (post type) content will appear. _Pulling_ other post types from _external_ connections is not currently supported. Internal connections (multisite) support multiple post types, and other post types can still be _pushed_ to external connections that support the post type. This will be addressed in an upcoming release, including an improved interface for navigating available content by post types supported on both sides.
-
-In addition, in order for distribution to work with external connections that have custom post type content, that post type needs to be registered with the argument `show_in_rest => true` on the external site.
+__Custom Post Type Support__ - Internal Connections (multisite) support multiple post types. In order for distribution to work with External Connections that have custom post type content, that post type needs to be registered with the argument `show_in_rest => true` on the external site.
 
 __Backwards Compatibility__ - While we strive to be mindful of backwards compatibility much the same way WordPress itself is, we do not currently guarantee continued interoperability between different versions of Distributor. We assume the current userbase for this plugin has a high degree of control over any site that has been set up as an external connection and urge you to keep Distributor up to date.
 
-## Developers
+__Distributing Post content__ - By default, post content is rendered before being copied.  This means that shortcodes are expanded before being distributed and remote posts will not have the shortcode, but rather the expanded HTML content.
 
-### Testing
+__Distributing Authors__ - By default, distributed stories reference the original site as the "author" with a link to it.  This can be altered by extending Distributor with custom code to make it sync authors.
+
+__Distributing Post Date__ - By default, the "post date" on distributed stories is the date its published on the remote site, not the date published on the origin site.  This can be overridden by extending Distributor with custom code to make it preserve the post date.
+
+__Distributing Canonical URL__ - By default, canonical URL of distributed post will point to original content, which corresponds to SEO best practices. This can be overridden by extending Distributor with custom code and removing Distributor's default front end canonical URL filtering (look for `'get_canonical_url'` and `'wpseo_canonical'`).
+
+__Drafts as preferred Status__ - By default, drafts are the preferred status and can't be changed at the source site.
+
+## Changelog
+
+A complete listing of all notable changes to Distributor are documented in [CHANGELOG.md](https://github.com/10up/distributor/blob/develop/CHANGELOG.md).
+
+## Contributing
+
+Please read [CODE_OF_CONDUCT.md](https://github.com/10up/distributor/blob/develop/CODE_OF_CONDUCT.md) for details on our code of conduct and [CONTRIBUTING.md](https://github.com/10up/distributor/blob/develop/CONTRIBUTING.md) for details on the process for submitting pull requests to us.
+
+## Testing
 
 The plugin contains a standard test suite compatible with PHPUnit. If you want to test across multiple PHP versions, a [Dockunit](https://github.com/dockunit/dockunit) file is included.
 
-### Debugging
+## Debugging
 
 You can define a constant `DISTRIBUTOR_DEBUG` to `true` to increase the ease of debugging in Distributor. This will make all remote requests blocking and expose the subscription post type.
 
 Enabling this will also provide more debugging information in your error log for image side loading issues. The specific logging method may change in the future.
 
-### Work with us
+## Like what you see?
 
 <a href="http://10up.com/contact/"><img src="https://10updotcom-wpengine.s3.amazonaws.com/uploads/2016/10/10up-Github-Banner.png" width="850"></a>

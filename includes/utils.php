@@ -34,6 +34,10 @@ function is_vip_com() {
  * @return boolean
  */
 function is_using_gutenberg( $post ) {
+	if ( empty( $post->post_content ) ) {
+		return false;
+	}
+
 	global $wp_version;
 	$gutenberg_available = function_exists( 'the_gutenberg_project' );
 	$version_5_plus      = version_compare( $wp_version, '5', '>=' );
@@ -42,41 +46,15 @@ function is_using_gutenberg( $post ) {
 		return false;
 	}
 
-	// We have to use the function here instead of the filter due to differences in the way certain plugins implement this.
-	if ( ! function_exists( 'use_block_editor_for_post' ) ) {
-		include_once ABSPATH . 'wp-admin/includes/post.php';
+	// WordPress 5.0 introduces the has_blocks function.
+	// We pass `post_content` directly because `has_blocks()`
+	// tries to retrieve a local post object, but this may be a remote post.
+	if ( function_exists( 'has_blocks' ) ) {
+		return has_blocks( $post->post_content );
+	} else {
+		// This duplicates the check from `has_blocks()` as of WP 5.2.
+		return false !== strpos( (string) $post->post_content, '<!-- wp:' );
 	}
-
-	// Previous to Gutenberg 5.0, `use_block_editor_for_post` was named `gutenberg_can_edit_post`.
-	if ( ! function_exists( 'use_block_editor_for_post' ) ) {
-		if ( function_exists( 'gutenberg_can_edit_post' ) ) {
-			return gutenberg_can_edit_post( $post );
-		}
-		return false;
-	}
-
-	/**
-	 * WordPress 5.0 will do a check_admin_referrer() inside the use_block_editor_for_posts(),
-	 * and this call would fail, returns a 404 if there's custom meta box, and kills the request.
-	 *
-	 * Unsetting the 'meta-box-loader' in the global request would bypass that check.
-	 */
-	if ( isset( $_GET['meta-box-loader'] ) ) {
-		$meta_box_loader = $_GET['meta-box-loader'];
-		unset( $_GET['meta-box-loader'] );
-	}
-
-	$use_block_editor = use_block_editor_for_post( $post );
-
-	/**
-	 * Set the $meta_box_loader back to the request, if it exists
-	 * so other areas that rely on it would still work.
-	 */
-	if ( isset( $meta_box_loader ) ) {
-		$_GET['meta-box-loader'] = $meta_box_loader;
-	}
-
-	return $use_block_editor;
 }
 
 
@@ -229,6 +207,7 @@ function set_meta( $post_id, $meta ) {
  */
 function available_pull_post_types( $connection, $type ) {
 	$post_types        = array();
+	$local_post_types  = array();
 	$remote_post_types = $connection->get_post_types();
 
 	if ( ! empty( $remote_post_types ) && ! is_wp_error( $remote_post_types ) ) {
@@ -463,8 +442,11 @@ function set_taxonomy_terms( $post_id, $taxonomy_terms ) {
 			 * @since 1.0.0
 			 *
 			 * @param bool true Controls whether missing terms should be created. Default 'true'.
+			 * @param string              The taxonomy name.
+			 * @param array               Term data.
+			 * @param WP_Term|array|false WP_Term object or array if found, false if not.
 			 */
-			$create_missing_terms = apply_filters( 'dt_create_missing_terms', true );
+			$create_missing_terms = apply_filters( 'dt_create_missing_terms', true, $taxonomy, $term_array, $term );
 
 			if ( empty( $term ) ) {
 
@@ -473,7 +455,14 @@ function set_taxonomy_terms( $post_id, $taxonomy_terms ) {
 					continue;
 				}
 
-				$term = wp_insert_term( $term_array['name'], $taxonomy );
+				$term = wp_insert_term(
+					$term_array['name'],
+					$taxonomy,
+					[
+						'slug'        => $term_array['slug'],
+						'description' => $term_array['description'],
+					]
+				);
 
 				if ( ! is_wp_error( $term ) ) {
 					$term_id_mapping[ $term_array['term_id'] ] = $term['term_id'];
@@ -502,8 +491,16 @@ function set_taxonomy_terms( $post_id, $taxonomy_terms ) {
 					$term_array = (array) $term_array;
 				}
 
-				if ( ! empty( $term_array['parent'] ) ) {
-					wp_update_term(
+				if ( empty( $term_array['parent'] ) ) {
+					$term = wp_update_term(
+						$term_id_mapping[ $term_array['term_id'] ],
+						$taxonomy,
+						[
+							'parent' => '',
+						]
+					);
+				} elseif ( isset( $term_id_mapping[ $term_array['parent'] ] ) ) {
+					$term = wp_update_term(
 						$term_id_mapping[ $term_array['term_id'] ],
 						$taxonomy,
 						[

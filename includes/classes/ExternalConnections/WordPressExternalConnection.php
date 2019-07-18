@@ -613,9 +613,10 @@ class WordPressExternalConnection extends ExternalConnection {
 					 *
 					 * @param  array              $post_body                      The request body to send.
 					 * @param  object             $post                           The WP_Post that is being pushed.
+					 * @param  array              $args                           Post args to push.
 					 * @param  ExternalConnection $this                           The distributor connection being pushed to.
 					 */
-					'body'    => apply_filters( 'dt_push_post_args', $post_body, $post, $this ),
+					'body'    => apply_filters( 'dt_push_post_args', $post_body, $post, $args, $this ),
 				)
 			)
 		);

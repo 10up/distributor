@@ -123,7 +123,7 @@ class NetworkSiteConnection extends Connection {
 			update_post_meta( $new_post_id, 'dt_original_post_url', esc_url_raw( $original_post_url ) );
 
 			if ( ! empty( $post->post_parent ) ) {
-				update_post_meta( $new_post, 'dt_original_post_parent', (int) $post->post_parent );
+				update_post_meta( $new_post_id, 'dt_original_post_parent', (int) $post->post_parent );
 			}
 
 			\Distributor\Utils\set_meta( $new_post_id, $meta );
@@ -222,7 +222,7 @@ class NetworkSiteConnection extends Connection {
 				update_post_meta( $new_post_id, 'dt_original_post_url', esc_url_raw( $post->link ) );
 
 				if ( ! empty( $post->post_parent ) ) {
-					update_post_meta( $new_post, 'dt_original_post_parent', (int) $post->post_parent );
+					update_post_meta( $new_post_id, 'dt_original_post_parent', (int) $post->post_parent );
 				}
 
 				\Distributor\Utils\set_meta( $new_post_id, $post->meta );
@@ -453,12 +453,14 @@ class NetworkSiteConnection extends Connection {
 	 */
 	public static function bootstrap() {
 		add_action( 'template_redirect', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'canonicalize_front_end' ) );
-		add_action( 'wp_ajax_dt_auth_check', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'auth_check' ) );
 		add_action( 'save_post', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'update_syndicated' ) );
 		add_action( 'before_delete_post', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'separate_syndicated_on_delete' ) );
 		add_action( 'before_delete_post', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'remove_distributor_post_from_original' ) );
 		add_action( 'wp_trash_post', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'separate_syndicated_on_delete' ) );
 		add_action( 'untrash_post', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'connect_syndicated_on_untrash' ) );
+		add_action( 'clean_site_cache', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'set_sites_last_changed_time' ) );
+		add_action( 'add_user_to_blog', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'rebuild_user_authorized_sites_cache' ) );
+		add_action( 'remove_user_from_blog', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'rebuild_user_authorized_sites_cache' ) );
 	}
 
 	/**
@@ -622,37 +624,6 @@ class NetworkSiteConnection extends Connection {
 	}
 
 	/**
-	 * Check if current user can create a post type with ajax
-	 *
-	 * @since  0.8
-	 */
-	public static function auth_check() {
-		if ( ! check_ajax_referer( 'dt-auth-check', 'nonce', false ) ) {
-			wp_send_json_error();
-			exit;
-		}
-
-		if ( empty( $_POST['username'] ) ) {
-			wp_send_json_error();
-			exit;
-		}
-
-		$post_types            = get_post_types();
-		$authorized_post_types = array();
-
-		foreach ( $post_types as $post_type ) {
-			$post_type_object = get_post_type_object( $post_type );
-
-			if ( current_user_can( $post_type_object->cap->create_posts ) ) {
-				$authorized_post_types[] = $post_type;
-			}
-		}
-
-		wp_send_json_success( $authorized_post_types );
-		exit;
-	}
-
-	/**
 	 * Find out which sites user can create post type on
 	 *
 	 * @since  0.8
@@ -685,55 +656,7 @@ class NetworkSiteConnection extends Connection {
 			return $authorized_sites;
 		}
 
-		$sites           = get_sites();
-		$current_blog_id = (int) get_current_blog_id();
-		$current_user    = wp_get_current_user();
-
-		foreach ( $sites as $site ) {
-			$blog_id = (int) $site->blog_id;
-
-			if ( $blog_id === $current_blog_id ) {
-				continue;
-			}
-
-			$base_url = get_site_url( $blog_id );
-
-			if ( empty( $base_url ) ) {
-				continue;
-			}
-
-			$response = wp_remote_post(
-				untrailingslashit( $base_url ) . '/wp-admin/admin-ajax.php',
-				array(
-					'body'    => array(
-						'nonce'    => wp_create_nonce( 'dt-auth-check' ),
-						'username' => $current_user->user_login,
-						'action'   => 'dt_auth_check',
-					),
-					'cookies' => $_COOKIE, // WPCS: Input var ok.
-				)
-			);
-
-			if ( ! is_wp_error( $response ) ) {
-
-				$body = wp_remote_retrieve_body( $response );
-
-				if ( ! empty( $body ) ) {
-					try {
-						$body_array = json_decode( $body, true );
-
-						if ( ! empty( $body_array['success'] ) ) {
-							$authorized_sites[] = array(
-								'site'       => $site,
-								'post_types' => $body_array['data'],
-							);
-						}
-					} catch ( \Exception $e ) {
-						continue;
-					}
-				}
-			}
-		}
+		$authorized_sites = self::build_available_authorized_sites( get_current_user_id(), $context );
 
 		/**
 		 * Allow plugins to modify the array of authorized sites.
@@ -749,6 +672,106 @@ class NetworkSiteConnection extends Connection {
 		 * @param string $context The context of the authorization.
 		 */
 		return apply_filters( 'dt_authorized_sites', $authorized_sites, $context );
+	}
+
+	/**
+	 * Build the available sites a specific user is authorized to use.
+	 *
+	 * @param int|bool $user_id Current user ID
+	 * @param string   $context The context of the authorization. Either push or pull
+	 * @param bool     $force   Force a cache clear. Default false
+	 *
+	 * @return array
+	 */
+	public static function build_available_authorized_sites( $user_id = false, $context = null, $force = false ) {
+		$user_id      = ! $user_id ? get_current_user_id() : $user_id;
+		$last_changed = get_site_option( 'last_changed_sites' );
+
+		if ( ! $last_changed ) {
+			$last_changed = microtime();
+			self::set_sites_last_changed_time();
+		}
+
+		$cache_key        = "authorized_sites:$user_id:$context:$last_changed";
+		$authorized_sites = get_transient( $cache_key );
+
+		if ( $force || false === $authorized_sites ) {
+			$sites           = get_sites(
+				array(
+					'number' => 1000,
+				)
+			);
+			$current_blog_id = (int) get_current_blog_id();
+
+			foreach ( $sites as $site ) {
+				$blog_id = (int) $site->blog_id;
+
+				if ( $blog_id === $current_blog_id ) {
+					continue;
+				}
+
+				$base_url = get_site_url( $blog_id );
+
+				if ( empty( $base_url ) ) {
+					continue;
+				}
+
+				switch_to_blog( $blog_id );
+
+				$post_types            = get_post_types();
+				$authorized_post_types = array();
+
+				foreach ( $post_types as $post_type ) {
+					$post_type_object = get_post_type_object( $post_type );
+
+					if ( current_user_can( $post_type_object->cap->create_posts ) ) {
+						$authorized_post_types[] = $post_type;
+					}
+				}
+
+				if ( ! empty( $authorized_post_types ) ) {
+					$authorized_sites[] = array(
+						'site'       => $site,
+						'post_types' => $authorized_post_types,
+					);
+				}
+
+				restore_current_blog();
+			}
+		}
+
+		// Make sure we save and return an array.
+		$authorized_sites = ! is_array( $authorized_sites ) ? array() : $authorized_sites;
+
+		set_transient( $cache_key, $authorized_sites, 15 * MINUTE_IN_SECONDS );
+
+		return $authorized_sites;
+	}
+
+	/**
+	 * Whenever site data changes, save the timestamp.
+	 *
+	 * WordPress stores this same information in the cache
+	 * {@see clean_blog_cache()}, but not all environments
+	 * will have caching enabled, so we also store it
+	 * in a site option.
+	 *
+	 * @return void
+	 */
+	public static function set_sites_last_changed_time() {
+		update_site_option( 'last_changed_sites', microtime() );
+	}
+
+	/**
+	 * Rebuild the authorized sites cache for a specific user.
+	 *
+	 * @param int $user_id Current user ID.
+	 *
+	 * @return void
+	 */
+	public static function rebuild_user_authorized_sites_cache( $user_id ) {
+		self::build_available_authorized_sites( $user_id, 'push', true );
+		self::build_available_authorized_sites( $user_id, 'pull', true );
 	}
 
 	/**
