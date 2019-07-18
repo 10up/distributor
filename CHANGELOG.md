@@ -2,20 +2,24 @@
 
 All notable changes to this project will be documented in this file, per [the Keep a Changelog standard](http://keepachangelog.com/).
 
-## [1.5.0] - TBD
+## [1.5.0] - 2019-07-18
 ### Added
-- Tests against multiple WP Snapshot variations and Block tests (props [@adamsilverstein](https://github.com/adamsilverstein) via [#342](https://github.com/10up/distributor/pull/342) and [#367](https://github.com/10up/distributor/pull/367))
-- Documentation (props [@adamsilverstein](https://github.com/adamsilverstein), [@jeffpaul](https://github.com/jeffpaul), [@arsendovlatyan](https://github.com/arsendovlatyan) via [#352](https://github.com/10up/distributor/pull/352), [#363](https://github.com/10up/distributor/pull/363), [#403](https://github.com/10up/distributor/pull/403), [#414](https://github.com/10up/distributor/pull/414), [#415](https://github.com/10up/distributor/pull/415))
+- Provide more context to the `dt_create_missing_terms` hook (props [@mmcachran](https://github.com/mmcachran) and [@helen](https://github.com/helen) via [#378](https://github.com/10up/distributor/pull/378))
+- Test against multiple WP Snapshot variations and block tests (props [@adamsilverstein](https://github.com/adamsilverstein) via [#342](https://github.com/10up/distributor/pull/342) and [#367](https://github.com/10up/distributor/pull/367))
+- Documentation improvements (props [@adamsilverstein](https://github.com/adamsilverstein), [@jeffpaul](https://github.com/jeffpaul), [@arsendovlatyan](https://github.com/arsendovlatyan) via [#352](https://github.com/10up/distributor/pull/352), [#363](https://github.com/10up/distributor/pull/363), [#403](https://github.com/10up/distributor/pull/403), [#414](https://github.com/10up/distributor/pull/414), [#415](https://github.com/10up/distributor/pull/415))
 
 ### Changed
-- Approach for generating internal connections on Push and Pull screens to improve performance (props [@dkotter](https://github.com/dkotter) via [#355](https://github.com/10up/distributor/pull/355))
-- Available Push connections now lazy loaded (props [@dkotter](https://github.com/dkotter) via [#365](https://github.com/10up/distributor/pull/365))
+- More efficient method of generating internal connection data on push and pull screens (props [@dkotter](https://github.com/dkotter) via [#355](https://github.com/10up/distributor/pull/355))
+- Lazy load available push connections in toolbar dropdown to avoid blocking page render (props [@dkotter](https://github.com/dkotter) via [#365](https://github.com/10up/distributor/pull/365))
+- More performant retrieval and consistent ordering on the pull content screen (props [@helen](https://github.com/helen) via [#431](https://github.com/10up/distributor/pull/431))
+- Unify args provided to the `dt_push_post_args` filter (props [@gthayer](https://github.com/gthayer) via [#371](https://github.com/10up/distributor/pull/371))
 - Bumped WordPress version support to 5.2 (props [@adamsilverstein](https://github.com/adamsilverstein), [@jeffpaul](https://github.com/jeffpaul) via [#376](https://github.com/10up/distributor/pull/376))
 
 ### Fixed
-- Fix and simplify `is_using_gutenberg()` (props [@helen](https://github.com/helen) via [#426](https://github.com/10up/distributor/pull/426))
-- Define $local_post_types before the conditional to prevent PHP notice (props [@grappler](https://github.com/grappler) via [#401](https://github.com/10up/distributor/pull/401))
-- Correct a mismatched variable name throwing and undefined error (props [@mrazzari](https://github.com/mrazzari) via [#420](https://github.com/10up/distributor/pull/420))
+- Avoid connection errors on the pull content screen for connections with a lot of pulled/skipped content (props [@helen](https://github.com/helen) via [#431](https://github.com/10up/distributor/pull/431))
+- Pass slug when distributing terms to avoid duplicating terms with special characters or custom slugs (props [@arsendovlatyan](https://github.com/arsendovlatyan) and [@helen](https://github.com/helen) via [#262](https://github.com/10up/distributor/pull/262))
+- Simplify and avoid a fatal error in `is_using_gutenberg()` (props [@helen](https://github.com/helen) via [#426](https://github.com/10up/distributor/pull/426))
+- Avoid PHP notices (props [@grappler](https://github.com/grappler) via [#401](https://github.com/10up/distributor/pull/401) and [@mrazzari](https://github.com/mrazzari) via [#420](https://github.com/10up/distributor/pull/420))
 
 ## [1.4.1] - 2019-03-15
 ### Fixed
