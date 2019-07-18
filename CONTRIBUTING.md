@@ -34,7 +34,7 @@ The `develop` branch is the development branch which means it contains the next 
 4. Update the `.pot` file by running `npm run makepot`.
 5. Merge: Make a non-fast-forward merge from your release branch to `master`. `master` contains the stable development version.
 6. Build: In the `master` branch, run `npm install && npm run release`. This will create a subfolder called `release` with the `stable` branch cloned into it as a worktree and latest changes copied over. Ensure that any new files are in the `release` folder; if not, you may need to add them to `gulp-tasks/copy.js`.
-7. Check: Are there any modified files, such as `distributor.pot`? If so, head back to `develop`, run all necessary tasks and commit those changes before heading back to step 3.
+7. Check: Are there any modified files in `master`? If so, head back to `develop`, run all necessary tasks and commit those changes before heading back to step 3.
 8. Test: Switch to running Distributor from the version in the `release` subfolder and run through a few common tasks in the UI to ensure functionality.
 9. Push: First master: `git push`, then from within the `release` directory, add all files and push them to `origin stable`: `git push origin stable`.
 10. Git tag: Create the release as `X.Y.Z` on the `stable` branch in GitHub. It should now appear under [releases](https://github.com/10up/distributor/releases) as well.

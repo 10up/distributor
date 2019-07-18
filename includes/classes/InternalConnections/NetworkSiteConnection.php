@@ -518,6 +518,14 @@ class NetworkSiteConnection extends Connection {
 				$query_args['s'] = $args['s'];
 			}
 
+			if ( ! empty( $args['orderby'] ) ) {
+				$query_args['orderby'] = $args['orderby'];
+			}
+
+			if ( ! empty( $args['order'] ) ) {
+				$query_args['order'] = $args['order'];
+			}
+
 			$posts_query = new \WP_Query( apply_filters( 'dt_remote_get_query_args', $query_args, $args, $this ) );
 
 			$posts = $posts_query->posts;
