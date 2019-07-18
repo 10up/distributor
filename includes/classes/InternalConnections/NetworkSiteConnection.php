@@ -162,8 +162,10 @@ class NetworkSiteConnection extends Connection {
 	/**
 	 * Parses and allows filtering on the gutenberg blocks and their attributes
 	 *
-	 * @param string $content post content of the source post
-	 * @param int    $source_post_id Post ID on the source site
+	 * @param string $content             post content of the source post
+	 * @param int    $source_post_id      Post ID on the source site
+	 * @param int    $source_blog_id      ID of the source blog for the post
+	 * @param int    $destination_blog_id ID of the destination site for the post
 	 *
 	 * @return mixed|string
 	 */
@@ -174,12 +176,12 @@ class NetworkSiteConnection extends Connection {
 		$dom->loadHTML( $content );
 
 		$body = $dom->getElementsByTagName( 'body' )->item( 0 );
-		foreach ( $body->childNodes as $node ) {
-			if ( 'gutenberg' !== $node->tagName ) {
+		foreach ( $body->childNodes as $node ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName
+			if ( 'gutenberg' !== $node->tagName ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName
 				continue;
 			}
 
-			$block_name = $node->getAttribute( 'blockname' );
+			$block_name       = $node->getAttribute( 'blockname' );
 			$block_attributes = json_decode( $node->getAttribute( 'blockattributes' ), true );
 
 			/**
@@ -199,7 +201,6 @@ class NetworkSiteConnection extends Connection {
 			} else {
 				$node->removeAttribute( 'blockattributes' );
 			}
-
 		}
 
 		$string = $dom->saveHTML( $dom->getElementsByTagName( 'body' )->item( 0 ) );
@@ -231,15 +232,19 @@ class NetworkSiteConnection extends Connection {
 		$content = preg_replace( '/<gutenberg wp:([^\s]*)/i', '<gutenberg blockname="$1"', $content );
 
 		// put block attributes into an html attribute
-		$content = preg_replace_callback( '/<gutenberg[^{^>]+(\{.*})[\s\/]{0,2}>/i', function( $matches ) {
-			if ( ! isset( $matches[1] ) || empty( $matches[1] ) ) {
-				return $matches[0];
-			}
+		$content = preg_replace_callback(
+			'/<gutenberg[^{^>]+(\{.*})[\s\/]{0,2}>/i',
+			function( $matches ) {
+				if ( ! isset( $matches[1] ) || empty( $matches[1] ) ) {
+					return $matches[0];
+				}
 
-			$original_json = $matches[1];
+				$original_json = $matches[1];
 
-			return str_replace( $original_json, 'blockattributes=\'' . $original_json . '\'', $matches[0] );
-		}, $content );
+				return str_replace( $original_json, 'blockattributes=\'' . $original_json . '\'', $matches[0] );
+			},
+			$content
+		);
 
 		return $content;
 	}
