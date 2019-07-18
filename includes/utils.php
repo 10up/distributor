@@ -455,7 +455,14 @@ function set_taxonomy_terms( $post_id, $taxonomy_terms ) {
 					continue;
 				}
 
-				$term = wp_insert_term( $term_array['name'], $taxonomy );
+				$term = wp_insert_term(
+					$term_array['name'],
+					$taxonomy,
+					[
+						'slug'        => $term_array['slug'],
+						'description' => $term_array['description'],
+					]
+				);
 
 				if ( ! is_wp_error( $term ) ) {
 					$term_id_mapping[ $term_array['term_id'] ] = $term['term_id'];
@@ -484,8 +491,16 @@ function set_taxonomy_terms( $post_id, $taxonomy_terms ) {
 					$term_array = (array) $term_array;
 				}
 
-				if ( ! empty( $term_array['parent'] ) ) {
-					wp_update_term(
+				if ( empty( $term_array['parent'] ) ) {
+					$term = wp_update_term(
+						$term_id_mapping[ $term_array['term_id'] ],
+						$taxonomy,
+						[
+							'parent' => '',
+						]
+					);
+				} elseif ( isset( $term_id_mapping[ $term_array['parent'] ] ) ) {
+					$term = wp_update_term(
 						$term_id_mapping[ $term_array['term_id'] ],
 						$taxonomy,
 						[
