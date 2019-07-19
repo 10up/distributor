@@ -152,6 +152,18 @@ class WordPressExternalConnection extends ExternalConnection {
 			if ( ! empty( $args['s'] ) ) {
 				$query_args['search'] = $args['s'];
 			}
+
+			if ( ! empty( $args['orderby'] ) ) {
+				if ( 'post__in' === $args['orderby'] ) {
+					$query_args['orderby'] = 'include';
+				} else {
+					$query_args['orderby'] = strtolower( $args['orderby'] );
+				}
+			}
+
+			if ( ! empty( $args['order'] ) ) {
+				$query_args['order'] = strtolower( $args['order'] );
+			}
 		}
 
 		static $types_urls;
@@ -613,9 +625,10 @@ class WordPressExternalConnection extends ExternalConnection {
 					 *
 					 * @param  array              $post_body                      The request body to send.
 					 * @param  object             $post                           The WP_Post that is being pushed.
+					 * @param  array              $args                           Post args to push.
 					 * @param  ExternalConnection $this                           The distributor connection being pushed to.
 					 */
-					'body'    => apply_filters( 'dt_push_post_args', $post_body, $post, $this ),
+					'body'    => apply_filters( 'dt_push_post_args', $post_body, $post, $args, $this ),
 				)
 			)
 		);
