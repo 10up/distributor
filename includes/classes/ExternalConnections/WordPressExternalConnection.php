@@ -154,7 +154,7 @@ class WordPressExternalConnection extends ExternalConnection {
 			}
 
 			if ( ! empty( $args['orderby'] ) ) {
-				if ( 'post__in' === $args['orderby']) {
+				if ( 'post__in' === $args['orderby'] ) {
 					$query_args['orderby'] = 'include';
 				} else {
 					$query_args['orderby'] = strtolower( $args['orderby'] );
