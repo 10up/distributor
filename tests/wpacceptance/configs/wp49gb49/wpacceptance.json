@@ -1,0 +1,13 @@
+{
+    "snapshot_id": "9ea863cebfcbb416c6334a6bef6552f0",
+    "name": "distributor",
+    "exclude": [
+        "../../../../node_modules"
+    ],
+    "tests": [
+      "../../*Test.php"
+    ],
+    "enforce_clean_db": true,
+    "bootstrap": "../../bootstrap.php",
+    "repository": "10up"
+}
