@@ -10,6 +10,7 @@ env:
 before_script:
   - composer install
   - npm install
+
 matrix:
   - env: WPACCEPTANCE_CONFIG=wp49 PHPUNIT=true LINT=true # Only run PHPUnit and linting once.
   - env: WPACCEPTANCE_CONFIG=wp49gb49
