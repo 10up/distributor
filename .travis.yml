@@ -7,16 +7,14 @@ env:
   - WP_VERSION=4.7
   - PHPUNIT=false
   - LINT=false
-before_script:
-  - composer install
-  - npm install
-
-matrix:
+  matrix: # Run wp-acceptance for each config.
   - env: WPACCEPTANCE_CONFIG=wp49 PHPUNIT=true LINT=true # Only run PHPUnit and linting once.
   - env: WPACCEPTANCE_CONFIG=wp49gb49
   - env: WPACCEPTANCE_CONFIG=wp51
   - env: WPACCEPTANCE_CONFIG=wp51gb53
-
+before_script:
+  - composer install
+  - npm install
 script:
   - if [ -n "$AWS_ACCESS_KEY" ]; then ./vendor/bin/wpsnapshots configure 10up --aws_key=$AWS_ACCESS_KEY --aws_secret=$SECRET_ACCESS_KEY --user_name=Travis --user_email=travis@10up.com; fi
   - if [ -n "$AWS_ACCESS_KEY" ]; then bash run-wpacceptance.sh $WPACCEPTANCE_CONFIG; fi
