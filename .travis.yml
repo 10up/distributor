@@ -1,8 +1,7 @@
 language: php
-php:
-- 7.2
+
 global:
-- WP_VERSION=master
+- WP_VERSION=latest
 
 before_script:
   - composer install
@@ -33,4 +32,3 @@ notifications:
   email: false
 sudo: required
 services: docker
-
