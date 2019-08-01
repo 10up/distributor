@@ -5,8 +5,6 @@ env:
   global:
   - WP_VERSION=master
   - WP_VERSION=4.7
-  - PHPUNIT=false
-  - LINT=false
   matrix: # Run wp-acceptance for each config.
   - env: WPACCEPTANCE_CONFIG=wp49 PHPUNIT=true LINT=true # Only run PHPUnit and linting once.
   - env: WPACCEPTANCE_CONFIG=wp49gb49
