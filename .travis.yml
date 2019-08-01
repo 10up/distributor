@@ -7,10 +7,10 @@ env:
   - WP_VERSION=4.7
   matrix: # Run wp-acceptance for each config.
     include:
-    - env: WPACCEPTANCE_CONFIG=wp49 PHPUNIT=true LINT=true # Only run PHPUnit and linting once.
-    - env: WPACCEPTANCE_CONFIG=wp49gb49
-    - env: WPACCEPTANCE_CONFIG=wp51
-    - env: WPACCEPTANCE_CONFIG=wp51gb53
+      - env: WPACCEPTANCE_CONFIG="wp49" PHPUNIT="true" LINT="true" # Only run PHPUnit and linting once.
+      - env: WPACCEPTANCE_CONFIG="wp49gb49"
+      - env: WPACCEPTANCE_CONFIG="wp51"
+      - env: WPACCEPTANCE_CONFIG="wp51gb53"
 before_script:
   - composer install
   - npm install
