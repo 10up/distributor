@@ -22,3 +22,4 @@ notifications:
   email: false
 sudo: required
 services: docker
+
