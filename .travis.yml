@@ -3,27 +3,31 @@ php:
 - 7.2
 global:
 - WP_VERSION=master
-- WP_VERSION=4.7
 
 before_script:
   - composer install
   - npm install
   - if [ -n "$AWS_ACCESS_KEY" ]; then ./vendor/bin/wpsnapshots configure 10up --aws_key=$AWS_ACCESS_KEY --aws_secret=$SECRET_ACCESS_KEY --user_name=Travis --user_email=travis@10up.com; fi
 
+cache:
+  directories:
+    - $HOME/.composer/cache
+    - $HOME/.npm
 jobs:
+  fast_finish: true
   include:
     - stage: "Distributor Tests"
       name: "Unit Tests and Liniting"
       script: ./vendor/bin/phpunit
       script: composer run-script lint
     - script: travis_retry bash run-wpacceptance.sh wp49
-      name: "WordPress 4.9"
+      name: "wp-acceptance: WordPress 4.9"
     - script: travis_retry bash run-wpacceptance.sh wp49gb49
-      name: "WordPress 4.9 Gutenberg 4.9"
+      name: "wp-acceptance: WordPress 4.9 plus Gutenberg 4.9"
     - script: travis_retry bash run-wpacceptance.sh wp51
-      name: "WordPress 5.1"
+      name: "wp-acceptance: WordPress 5.1"
     - script: travis_retry bash run-wpacceptance.sh wp51gb53
-      name: "WordPress 5.1 Gutenberg 5.3"
+      name: "wp-acceptance: WordPress 5.1 plus Gutenberg 5.3"
 
 notifications:
   email: false
