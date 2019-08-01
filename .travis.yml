@@ -4,20 +4,31 @@ php:
 global:
 - WP_VERSION=master
 - WP_VERSION=4.7
-env:
-- PHPUNIT=true LINT=true # Only run PHPUnit and linting once.
-- WPACCEPTANCE_CONFIG="wp49" WPACCEPTANCE=true
-- WPACCEPTANCE_CONFIG="wp49gb49" WPACCEPTANCE=true
-- WPACCEPTANCE_CONFIG="wp51" WPACCEPTANCE=true
-- WPACCEPTANCE_CONFIG="wp51gb53" WPACCEPTANCE=true
+
 before_script:
   - composer install
   - npm install
-script:
   - if [ -n "$AWS_ACCESS_KEY" ]; then ./vendor/bin/wpsnapshots configure 10up --aws_key=$AWS_ACCESS_KEY --aws_secret=$SECRET_ACCESS_KEY --user_name=Travis --user_email=travis@10up.com; fi
-  - if [ $WPACCEPTANCE_CONFIG == true ]; then travis_retry bash run-wpacceptance.sh $WPACCEPTANCE_CONFIG; fi
-  - if [ $PHPUNIT == true ]; then ./vendor/bin/phpunit; fi
-  - if [ $LINT == true ]; then composer run-script lint; fi
+
+jobs:
+  include:
+    - stage: "Unit Tests and Liniting"
+      script:
+        - ./vendor/bin/phpunit
+        - composer run-script lint
+    - stage: "WordPress 4.9"
+      script:
+        - travis_retry bash run-wpacceptance.sh wp49
+    - stage: "WordPress 4.9 Gutenberg 4.9"
+      script:
+        - travis_retry bash run-wpacceptance.sh wp49gb49
+    - stage: "WordPress 5.1"
+      script:
+        - travis_retry bash run-wpacceptance.sh wp51
+    - stage: "WordPress 5.1 Gutenberg 5.3"
+      script:
+        - travis_retry bash run-wpacceptance.sh wp51gb53
+
 notifications:
   email: false
 sudo: required
