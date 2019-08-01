@@ -12,22 +12,18 @@ before_script:
 
 jobs:
   include:
-    - stage: "Unit Tests and Liniting"
-      script:
-        - ./vendor/bin/phpunit
-        - composer run-script lint
-    - stage: "WordPress 4.9"
-      script:
-        - travis_retry bash run-wpacceptance.sh wp49
-    - stage: "WordPress 4.9 Gutenberg 4.9"
-      script:
-        - travis_retry bash run-wpacceptance.sh wp49gb49
-    - stage: "WordPress 5.1"
-      script:
-        - travis_retry bash run-wpacceptance.sh wp51
-    - stage: "WordPress 5.1 Gutenberg 5.3"
-      script:
-        - travis_retry bash run-wpacceptance.sh wp51gb53
+    - stage: "Distributor Tests"
+      name: "Unit Tests and Liniting"
+      script: ./vendor/bin/phpunit
+      script: composer run-script lint
+    - script: travis_retry bash run-wpacceptance.sh wp49
+      name: "WordPress 4.9"
+    - script: travis_retry bash run-wpacceptance.sh wp49gb49
+      name: "WordPress 4.9 Gutenberg 4.9"
+    - script: travis_retry bash run-wpacceptance.sh wp51
+      name: "WordPress 5.1"
+    - script: travis_retry bash run-wpacceptance.sh wp51gb53
+      name: "WordPress 5.1 Gutenberg 5.3"
 
 notifications:
   email: false
