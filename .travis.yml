@@ -1,18 +1,16 @@
 language: php
+php:
+- 7.2
 env:
   global:
   - WP_VERSION=master
   - WP_VERSION=4.7
   matrix: # Run wp-acceptance for each config.
     include:
-    - php: "7.2"
-      env: WPACCEPTANCE_CONFIG=wp49 PHPUNIT=true LINT=true # Only run PHPUnit and linting once.
-    - php: "7.2"
-      env: WPACCEPTANCE_CONFIG=wp49gb49
-    - php: "7.2"
-      env: WPACCEPTANCE_CONFIG=wp51
-    - php: "7.2"
-      env: WPACCEPTANCE_CONFIG=wp51gb53
+    - env: WPACCEPTANCE_CONFIG=wp49 PHPUNIT=true LINT=true # Only run PHPUnit and linting once.
+    - env: WPACCEPTANCE_CONFIG=wp49gb49
+    - env: WPACCEPTANCE_CONFIG=wp51
+    - env: WPACCEPTANCE_CONFIG=wp51gb53
 before_script:
   - composer install
   - npm install
