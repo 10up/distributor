@@ -1,5 +1,5 @@
 for i in 1 2 3; do
-	echo -e "\033[32mRunning wp-pacceptance with snapshot $1\033[0m"
+	echo -e "\033[32mRunning wp-acceptance with snapshot $1\033[0m"
 	./vendor/bin/wpacceptance run --snapshot_id=$1
 	EXIT_CODE=$?
 
