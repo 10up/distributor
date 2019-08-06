@@ -22,6 +22,7 @@ jobs:
       script: ./vendor/bin/phpunit
       script: composer run-script lint
     - script: travis_retry bash run-wpacceptance.sh d1d46ee7e55bb0a75524ec6af40dfadd
+      php: 5.6
       name: "wp-acceptance: WordPress 4.7"
     - script: travis_retry bash run-wpacceptance.sh 3593222a181f0f91824947dbd06985d5
       name: "wp-acceptance: WordPress 4.9"
