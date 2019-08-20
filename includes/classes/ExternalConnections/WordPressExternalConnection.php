@@ -547,7 +547,7 @@ class WordPressExternalConnection extends ExternalConnection {
 		$signature = \Distributor\Subscriptions\generate_signature();
 
 		$distribute_post_status = apply_filters( 'dt_distribute_post_status', false );
-		$distribute_status = $distribute_post_status ? $post->post_status ? 'publish';
+		$distribute_status = $distribute_post_status ? $post->post_status : 'publish';
 
 		/**
 		 * Now let's push
