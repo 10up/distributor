@@ -51,7 +51,7 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 	public static function credentials_form( $args = array() ) {
 
 		// Check if we need to display the form, or request a token?
-		$code = isset( $_GET['code'] ) ? sanitize_text_field( wp_unslash( $_GET['code'] ) ) : false; // Input var okay. WPCS: CSRF ok.
+		$code = isset( $_GET['code'] ) ? sanitize_text_field( wp_unslash( $_GET['code'] ) ) : false; // @codingStandardsIgnoreLine No nonce needed.
 
 		/**
 		 * A code is present as a query parameter in the URL when the user has authorized the connection
@@ -81,10 +81,10 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 		// Calculate the redirect_uri to use for authorization (the current admin url & query vars).
 		$redirect_uri                   = esc_url(
 			( is_ssl() ? 'https://' : 'http://' ) .
-			sanitize_text_field( isset( $_SERVER['HTTP_HOST'] ) ? $_SERVER['HTTP_HOST'] : '' ) . // Input var okay. WPCS: CSRF ok.
-			sanitize_text_field( isset( $_SERVER['SCRIPT_NAME'] ) ? $_SERVER['SCRIPT_NAME'] : '' ) . // WPCS: input var ok.
+			sanitize_text_field( isset( $_SERVER['HTTP_HOST'] ) ? $_SERVER['HTTP_HOST'] : '' ) .
+			sanitize_text_field( isset( $_SERVER['SCRIPT_NAME'] ) ? $_SERVER['SCRIPT_NAME'] : '' ) .
 			'?' .
-			sanitize_text_field( isset( $_SERVER['QUERY_STRING'] ) ? $_SERVER['QUERY_STRING'] : '' ) // WPCS: input var ok.
+			sanitize_text_field( isset( $_SERVER['QUERY_STRING'] ) ? $_SERVER['QUERY_STRING'] : '' )
 		);
 		$args[ self::API_REDIRECT_URI ] = $redirect_uri;
 

@@ -72,7 +72,6 @@ class NetworkSiteConnection extends Connection {
 		 * Filter whether Distributor should update post statuses when the origin post status changes.
 		 *
 		 * False by default, return true to have post statuses distributed.
-		 *
 		 */
 		$distribute_post_status = apply_filters( 'dt_distribute_post_status', false );
 
@@ -109,7 +108,8 @@ class NetworkSiteConnection extends Connection {
 			if ( isset( $new_post_args['ID'] ) ) {
 
 				if ( ! $distribute_post_status ) {
-				// Avoid updating the status of previously distributed posts.
+
+					// Avoid updating the status of previously distributed posts.
 					$existing_status = get_post_status( (int) $new_post_args['ID'] );
 					if ( $existing_status ) {
 						$new_post_args['post_status'] = $existing_status;
