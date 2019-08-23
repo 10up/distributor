@@ -645,9 +645,9 @@ function format_media_post( $media_post ) {
 		'raw' => $media_post->post_excerpt,
 	);
 
-	$media_item['alt_text']      = get_post_meta( $media_post->ID, '_wp_attachment_image_alt', true );
-	$media_item['media_type']    = wp_attachment_is_image( $media_post->ID ) ? 'image' : 'file';
-	$media_item['mime_type']     = $media_post->post_mime_type;
+	$media_item['alt_text']   = get_post_meta( $media_post->ID, '_wp_attachment_image_alt', true );
+	$media_item['media_type'] = wp_attachment_is_image( $media_post->ID ) ? 'image' : 'file';
+	$media_item['mime_type']  = $media_post->post_mime_type;
 	// @todo Document filter.
 	$media_item['media_details'] = apply_filters( 'dt_get_media_details', wp_get_attachment_metadata( $media_post->ID ), $media_post->ID );
 	$media_item['post']          = $media_post->post_parent;

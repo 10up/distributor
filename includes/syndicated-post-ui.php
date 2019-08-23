@@ -26,7 +26,7 @@ function setup() {
 			add_filter( 'admin_body_class', __NAMESPACE__ . '\add_linked_class' );
 			add_filter( 'post_row_actions', __NAMESPACE__ . '\remove_quick_edit', 10, 2 );
 
-			$post = isset( $_GET['post'] ) ? get_post( (int) $_GET['post'] ) : false;
+			$post = isset( $_GET['post'] ) ? get_post( (int) $_GET['post'] ) : false; // @codingStandardsIgnoreLine Nonce not required
 
 			if ( $post && ! \Distributor\Utils\is_using_gutenberg( $post ) ) {
 				add_action( 'do_meta_boxes', __NAMESPACE__ . '\replace_revisions_meta_box', 10, 3 );
@@ -453,7 +453,8 @@ function syndicated_message( $post ) {
 				?>
 				<?php
 					// Filter documented above.
-					if ( apply_filters( 'dt_allow_post_unlink', true, $post->ID ) ) : ?>
+				if ( apply_filters( 'dt_allow_post_unlink', true, $post->ID ) ) :
+					?>
 					<?php /* translators: %1$s: post type name, %2$s: unlink url */ ?>
 					<span><?php echo wp_kses_post( sprintf( __( 'The original %1$s will update this version unless you <a href="%2$s">unlink from the original.</a>', 'distributor' ), esc_html( strtolower( $post_type_singular ) ), wp_nonce_url( add_query_arg( 'action', 'unlink', admin_url( sprintf( $post_type_object->_edit_link, $post->ID ) ) ), "unlink-post_{$post->ID}" ) ) ); ?></span>
 				<?php endif; ?>
