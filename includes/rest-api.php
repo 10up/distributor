@@ -119,6 +119,7 @@ function process_distributor_attributes( $post, $request, $update ) {
 	 * Action fired after an API push is handled by Distributor.
 	 *
 	 * @since 1.0
+	 * @hook dt_process_distributor_attributes
 	 *
 	 * @param \WP_Post         $post    Inserted or updated post object.
 	 * @param \WP_REST_Request $request Request object.

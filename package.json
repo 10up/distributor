@@ -42,5 +42,9 @@
     "run-sequence": "^2.2.1",
     "webpack": "^3.11.0",
     "webpack-stream": "^4.0.1"
+  },
+  "devDependencies": {
+    "jsdoc": "^3.6.3",
+    "wp-hookdoc": "^0.2.0"
   }
 }

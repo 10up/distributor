@@ -89,6 +89,7 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 		$args[ self::API_REDIRECT_URI ] = $redirect_uri;
 
 		// Display any authorization or token errors.
+		// @hook dt_oauth_admin_notices
 		do_action( 'dt_oauth_admin_notices' );
 
 		// If anything is missing, we aren't authorized - show the credentials form.
@@ -258,7 +259,7 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 		if ( ! empty( $args['dt_created_post_id'] ) ) {
 			$auth['dt_created_post_id'] = sanitize_text_field( $args['dt_created_post_id'] );
 		}
-
+		// Filter documented in includes/classes/Authentications/WordPressBasicAuth.php.
 		return apply_filters( 'dt_auth_prepare_credentials', $auth, $args, self::$slug );
 	}
 
