@@ -8,11 +8,7 @@ jobs:
   build:
 
     runs-on: ubuntu-latest
-
-    strategy:
-      matrix:
-        node-version: [12.x]
-
+    node-version: [12.x]
     steps:
     - uses: actions/checkout@v1
     - name: Use Node.js ${{ matrix.node-version }}
@@ -25,3 +21,9 @@ jobs:
         npm run build:docs
       env:
         CI: true
+  deploy:
+    - name: GitHub Pages Deploy
+    - uses: maxheld83/ghpages@v0.2.1
+    - env:
+        BUILD_DIR = "docs/"
+        secrets = ["GH_PAT"]
