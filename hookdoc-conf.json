@@ -1,6 +1,6 @@
 {
   "opts": {
-      "destination": "hook_docs",
+      "destination": "docs",
       "template": "node_modules/wp-hookdoc/template",
       "recurse": true
   },
