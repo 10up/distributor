@@ -8,10 +8,11 @@ requireDir( './gulp-tasks' );
 /**
  * Gulp task to run all JS processes in a sequential order.
 */
-gulp.task( 'js', () => {
+gulp.task( 'js', ( callback ) => {
 	return runSequence(
 		'jsclean',
-		'webpack'
+		'webpack',
+		callback()
 	);
 } );
 
@@ -24,7 +25,7 @@ gulp.task( 'css', ( callback ) => {
 		'cssnext',
 		'cssnano',
 		'csscomplete',
-		callback
+		callback()
 	);
 } );
 
@@ -45,7 +46,7 @@ gulp.task( 'release', ( callback ) => {
 		'css',
 		'js',
 		'copy',
-		callback
+		callback()
 	);
 } );
 
@@ -56,6 +57,6 @@ gulp.task( 'default', ( callback ) => {
 	return runSequence(
 		'css',
 		'js',
-		callback
+		callback()
 	);
 } );

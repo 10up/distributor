@@ -37,6 +37,7 @@ module.exports = {
 			}
 		]
 	},
+	mode: 'production',
 
 	externals: {
 		jquery: 'jQuery',
