@@ -83,7 +83,7 @@ function checkConnections() {
 					endpointResult.innerText = dt.bad_connection;
 				}
 			} else {
-				if ( response.data.errors.no_distributor || ! response.data.can_post.length ) {
+				if ( response.data.errors.no_distributor || ! Object.keys( response.data.can_post ).length ) {
 					endpointResult.setAttribute( 'data-endpoint-state', 'warning' );
 					endpointResult.innerText = dt.limited_connection;
 
