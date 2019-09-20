@@ -484,7 +484,7 @@ class UtilsTest extends TestCase {
 
 		\WP_Mock::userFunction(
 			'remove_filter', [
-				'times' => 1,
+				'times' => 2,
 			]
 		);
 
@@ -564,7 +564,7 @@ class UtilsTest extends TestCase {
 
 		\WP_Mock::userFunction(
 			'remove_filter', [
-				'times' => 1,
+				'times' => 2,
 			]
 		);
 
@@ -702,6 +702,12 @@ class UtilsTest extends TestCase {
 						'post_excerpt' => $attached_media_post->post_excerpt,
 					],
 				],
+			]
+		);
+
+		\WP_Mock::userFunction(
+			'remove_filter', [
+				'times' => 0,
 			]
 		);
 
