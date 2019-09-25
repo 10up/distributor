@@ -119,18 +119,15 @@ class WordPressExternalConnection extends ExternalConnection {
 			$query_args['page']        = ( empty( $args['paged'] ) ) ? 1 : $args['paged'];
 
 			if ( isset( $args['post__in'] ) ) {
+				// If post__in is empty, we can just stop right here
 				if ( empty( $args['post__in'] ) ) {
-					// If post__in is empty, we can just stop right here
 					/**
-					 * Filter the remote_get request
+					 * Filter the remote_get request.
 					 *
 					 * @since 1.0
+					 * @hook dt_remote_get
 					 *
-					 * @param array  $args {
-					 *      @type array Items to get.
-					 *      @type int Total number of items to get.
-					 * }
-					 * @param  array  $args The arguments originally passed to .remote_get'.
+					 * @param array $args The arguments originally passed to remote_get.
 					 * @param  object $this The authentication class.
 					 */
 					return apply_filters(
@@ -235,6 +232,7 @@ class WordPressExternalConnection extends ExternalConnection {
 		 * Filter the remote_get query arguments
 		 *
 		 * @since 1.0
+		 * @hook dt_remote_get_query_args
 		 *
 		 * @param  array  $query_args The existing query arguments.
 		 * @param  array  $args       The arguments originally passed to .remote_get'.
@@ -292,6 +290,7 @@ class WordPressExternalConnection extends ExternalConnection {
 				 * Filter the URL that remote_get will use
 				 *
 				 * @since 1.0
+				 * @hook dt_remote_get_url
 				 *
 				 * @param  string $posts_url  The posts URL
 				 * @param  string $args       The arguments originally passed to .remote_get'.
@@ -416,6 +415,7 @@ class WordPressExternalConnection extends ExternalConnection {
 			 * Filter the arguments passed into wp_insert_post during a pull.
 			 *
 			 * @since 1.0
+			 * @hook dt_pull_post_args
 			 *
 			 * @param  array              $post_array                     The post to be inserted.
 			 * @param  array              $item_array['remote_post_id']   The remote post ID.
@@ -468,6 +468,8 @@ class WordPressExternalConnection extends ExternalConnection {
 
 			/**
 			 * Action triggered when a post is pulled via distributor.
+			 *
+			 * @hook dt_pull_post
 			 *
 			 * @param int                $new_post   The newly created post ID.
 			 * @param ExternalConnection $this       The distributor connection pulling the post.
@@ -635,6 +637,8 @@ class WordPressExternalConnection extends ExternalConnection {
 
 		/**
 		 * Action triggered when a post is pushed via distributor.
+		 *
+		 * @hook dt_push_post
 		 *
 		 * @param array              $response   The HTTP response of the push.
 		 * @param array              $post_body  The body that was POSTed.

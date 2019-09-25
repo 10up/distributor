@@ -156,6 +156,7 @@ add_action(
 			 * Filter whether the network connection type is enabled. Enabled by default, return false to disable.
 			 *
 			 * @since 1.0.0
+			 * @hook dt_network_site_connection_enabled
 			 *
 			 * @param bool true Whether the network connection should be enabled.
 			 */

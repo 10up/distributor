@@ -160,6 +160,7 @@ function get_connections() {
 		}
 
 		// If not admin lets make sure the current user can push to this connection
+		// @todo Document filter.
 		if ( ! current_user_can( apply_filters( 'dt_push_capabilities', 'manage_options' ) ) ) {
 			$current_user_roles = (array) wp_get_current_user()->roles;
 
@@ -364,6 +365,7 @@ function enqueue_scripts( $hook ) {
 			 * See https://vip.wordpress.com/documentation/handling-frontend-file-uploads/#handling-ajax-requests
 			 *
 			 * @since 1.0.0
+			 * @hook dt_ajax_requires_with_credentials
 			 *
 			 * @param bool false Whether front end ajax requests should use xhrFields credentials:true.
 			 */
@@ -480,6 +482,8 @@ function menu_content() {
 						$as_draft = ( 'draft' !== $post->post_status ) ? true : false;
 						/**
 						 * Filter whether the 'As Draft' option appears in the push ui.
+						 *
+						 * @hook dt_allow_as_draft_distribute
 						 *
 						 * @param bool    $as_draft   Whether the 'As Draft' option should appear.
 						 * @param object  $connection The connection being used to push.
