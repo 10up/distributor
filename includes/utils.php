@@ -184,11 +184,12 @@ function set_meta( $post_id, $meta ) {
 	 * Note: All sent meta is included in the `$meta` array, including blacklisted keys.
 	 * Take care to continue to filter out blacklisted keys in any further meta setting.
 	 *
+	 * @since 1.3.8
+	 * @hook dt_after_set_meta
+	 *
 	 * @param array $meta          All received meta for the post
 	 * @param array $existing_meta Existing meta for the post
 	 * @param int   $post_id       Post ID
-	 *
-	 * @since 1.3.8
 	 */
 	do_action( 'dt_after_set_meta', $meta, $existing_meta, $post_id );
 }
@@ -230,6 +231,7 @@ function available_pull_post_types( $connection, $type ) {
 	 * Helpful for sites that want to pull custom post type content from another site into a different existing post type on the receiving end.
 	 *
 	 * @since 1.3.5
+	 * @hook dt_available_pull_post_types
 	 *
 	 * @param array                   $post_types        Post types available for pull with name and slug
 	 * @param array                   $remote_post_types Post types available from the remote connection
@@ -257,6 +259,8 @@ function distributable_post_types() {
 	 * Filter post types that are distributable.
 	 *
 	 * @since 1.0.0
+	 * @hook distributable_post_types
+	 *
 	 * @param array Post types that are distributable. Default 'all post types except dt_ext_connection and dt_subscription'.
 	 */
 	return apply_filters( 'distributable_post_types', array_diff( $post_types, [ 'dt_ext_connection', 'dt_subscription' ] ) );
@@ -275,6 +279,8 @@ function distributable_post_statuses() {
 	 *
 	 * By default only published posts can be distributed.
 	 *
+	 * @hook dt_distributable_post_statuses
+	 *
 	 * @param array Post statuses.
 	 */
 	return apply_filters( 'dt_distributable_post_statuses', array( 'publish' ) );
@@ -291,6 +297,7 @@ function blacklisted_meta() {
 	 * Filter meta keys that are blacklisted.
 	 *
 	 * @since 1.0.0
+	 * @hook dt_blacklisted_meta
 	 *
 	 * @param array Blacklisted meta keys. Default 'dt_unlinked, dt_connection_map, dt_subscription_update, dt_subscriptions, dt_subscription_signature, dt_original_post_id, dt_original_post_url, dt_original_blog_id, dt_syndicate_time, _wp_attached_file, _wp_attachment_metadata, _edit_lock, _edit_last, _wp_old_slug, _wp_old_date.
 	 */
@@ -334,6 +341,7 @@ function prepare_meta( $post_id ) {
 		foreach ( $meta_array as $meta_value ) {
 			if ( ! in_array( $meta_key, $blacklisted_meta, true ) ) {
 				$meta_value = maybe_unserialize( $meta_value );
+				// @todo Document filter.
 				if ( false === apply_filters( 'dt_sync_meta', true, $meta_key, $meta_value, $post_id ) ) {
 					continue;
 				}
@@ -396,6 +404,7 @@ function prepare_taxonomy_terms( $post_id ) {
 	 * Filters the taxonomies that should be synced.
 	 *
 	 * @since 1.0
+	 * @hook dt_syncable_taxonomies
 	 *
 	 * @param array  $taxonomies  Associative array list of taxonomies supported by current post
 	 * @param object $post        The Post Object
@@ -440,6 +449,7 @@ function set_taxonomy_terms( $post_id, $taxonomy_terms ) {
 			 * Filter whether missing terms should be created.
 			 *
 			 * @since 1.0.0
+			 * @hook dt_create_missing_terms
 			 *
 			 * @param bool true Controls whether missing terms should be created. Default 'true'.
 			 * @param string              The taxonomy name.
@@ -479,6 +489,7 @@ function set_taxonomy_terms( $post_id, $taxonomy_terms ) {
 		 * Filter whether term hierarchy should be updated.
 		 *
 		 * @since 1.0.0
+		 * @hook dt_update_term_hierarchy
 		 *
 		 * @param bool   true      Controls whether term hierarchy should be updated. Default 'true'.
 		 * @param string $taxonomy The taxonomy slug for the current term.
@@ -634,14 +645,16 @@ function format_media_post( $media_post ) {
 		'raw' => $media_post->post_excerpt,
 	);
 
-	$media_item['alt_text']      = get_post_meta( $media_post->ID, '_wp_attachment_image_alt', true );
-	$media_item['media_type']    = wp_attachment_is_image( $media_post->ID ) ? 'image' : 'file';
-	$media_item['mime_type']     = $media_post->post_mime_type;
+	$media_item['alt_text']   = get_post_meta( $media_post->ID, '_wp_attachment_image_alt', true );
+	$media_item['media_type'] = wp_attachment_is_image( $media_post->ID ) ? 'image' : 'file';
+	$media_item['mime_type']  = $media_post->post_mime_type;
+	// @todo Document filter.
 	$media_item['media_details'] = apply_filters( 'dt_get_media_details', wp_get_attachment_metadata( $media_post->ID ), $media_post->ID );
 	$media_item['post']          = $media_post->post_parent;
 	$media_item['source_url']    = wp_get_attachment_url( $media_post->ID );
 	$media_item['meta']          = \Distributor\Utils\prepare_meta( $media_post->ID );
 
+	// @todo Document filter.
 	return apply_filters( 'dt_media_item_formatted', $media_item, $media_post->ID );
 }
 
@@ -659,6 +672,7 @@ function process_media( $url, $post_id ) {
 	 * Filter allowed media extensions to be processed
 	 *
 	 * @since 1.3.7
+	 * @hook dt_allowed_media_extensions
 	 *
 	 * @param array $allowed_extensions Allowed extensions array.
 	 * @param string $url Media url.
@@ -676,6 +690,7 @@ function process_media( $url, $post_id ) {
 	 * Filter name of the processing media.
 	 *
 	 * @since 1.3.7
+	 * @hook dt_media_processing_filename
 	 *
 	 * @param string $media_name  Name of the processing media.
 	 * @param string $url Media url.
@@ -757,6 +772,7 @@ function dt_use_block_editor_for_post_type( $post_type ) {
 	 * Filter whether a post is able to be edited in the block editor.
 	 *
 	 * @since 5.0.0
+	 * @hook use_block_editor_for_post_type
 	 *
 	 * @param bool   $use_block_editor  Whether the post type can be edited or not. Default true.
 	 * @param string $post_type         The post type being checked.
@@ -778,6 +794,7 @@ function get_processed_content( $post_content ) {
 	 * Remove autoembed filter so that actual URL will be pushed and not the generated markup.
 	 */
 	remove_filter( 'the_content', [ $wp_embed, 'autoembed' ], 8 );
+	// Filter documented in WordPress core.
 	$post_content = apply_filters( 'the_content', $post_content );
 	add_filter( 'the_content', [ $wp_embed, 'autoembed' ], 8 );
 

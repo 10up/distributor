@@ -171,6 +171,7 @@ function distributor_get_original_site_link( $post_id = null ) {
 	 * Filter the original site link for a distributed post.
 	 *
 	 * @since 1.0.0
+	 * @hook distributor_get_original_site_link
 	 *
 	 * @param string A formatted version of the original site link.
 	 */

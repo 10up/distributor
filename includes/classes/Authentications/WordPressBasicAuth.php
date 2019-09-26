@@ -118,6 +118,7 @@ class WordPressBasicAuth extends Authentication {
 		 * Filter the authorization credentials prepared before saving.
 		 *
 		 * @since 1.0
+		 * @hook dt_auth_prepare_credentials
 		 *
 		 * @param array  $auth The credentials to be saved.
 		 * @param array  $args The arguments originally passed to .prepare_credentials'.

@@ -51,6 +51,7 @@ abstract class Authentication {
 		 * Format request args for a GET request so auth occurs
 		 *
 		 * @since 0.8
+		 * @hook dt_auth_format_get_args
 		 *
 		 * @param  array  $args
 		 * @param  array  $context optional array of information about the request
@@ -72,6 +73,7 @@ abstract class Authentication {
 		 * Format request args for a POST request so auth occurs
 		 *
 		 * @since 0.8
+		 * @hook dt_auth_format_post_args
 		 *
 		 * @param  array  $args
 		 * @param  array  $context optional array of information about the request

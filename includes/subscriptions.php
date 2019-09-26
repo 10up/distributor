@@ -285,6 +285,7 @@ function send_notifications( $post_id ) {
 				 * Filter the arguments sent to the remote server during a subscription update.
 				 *
 				 * @since 1.3.0
+				 * @hook dt_subscription_post_args
 				 *
 				 * @param  array  $post_body The request body to send.
 				 * @param  object $post      The WP_Post that is being pushed.

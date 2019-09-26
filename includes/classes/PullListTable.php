@@ -136,6 +136,7 @@ class PullListTable extends \WP_List_Table {
 			 * This filter can currently only be used to remove bulk actions.
 			 *
 			 * @since 3.5.0
+			 * @hook bulk_actions-{$this->screen->id}
 			 *
 			 * @param array $actions An array of the available bulk actions.
 			 */
@@ -243,8 +244,10 @@ class PullListTable extends \WP_List_Table {
 			}
 			echo '<br />';
 			if ( 'excerpt' === $mode ) {
+				// Core filter, documented in wp-admin/includes/class-wp-posts-list-table.php.
 				echo esc_html( apply_filters( 'post_date_column_time', $t_time, $post, 'date', $mode ) );
 			} else {
+				// Core filter, documented in wp-admin/includes/class-wp-posts-list-table.php.
 				echo '<abbr title="' . esc_attr( $t_time ) . '">' . esc_html( apply_filters( 'post_date_column_time', $h_time, $post, 'date', $mode ) ) . '</abbr>';
 			}
 		}
@@ -562,6 +565,7 @@ class PullListTable extends \WP_List_Table {
 		 * Action fired when extra table nav is generated.
 		 *
 		 * @since 1.0
+		 * @hook dt_pull_filters
 		 */
 		do_action( 'dt_pull_filters' );
 	}
