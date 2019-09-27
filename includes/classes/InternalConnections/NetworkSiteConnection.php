@@ -121,7 +121,7 @@ class NetworkSiteConnection extends Connection {
 		}
 
 		add_filter( 'wp_insert_post_data', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'maybe_set_modified_date' ), 10, 2 );
-
+		// Filter documented in includes/classes/ExternalConnections/WordPressExternalConnection.php
 		$new_post_id = wp_insert_post( apply_filters( 'dt_push_post_args', $new_post_args, $post, $args, $this ) );
 
 		remove_filter( 'wp_insert_post_data', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'maybe_set_modified_date' ), 10, 2 );
@@ -142,6 +142,8 @@ class NetworkSiteConnection extends Connection {
 			/**
 			 * Allow bypassing of all media processing.
 			 *
+			 * @hook dt_push_post_media
+			 *
 			 * @param bool                  true           If Distributor should set the post media.
 			 * @param int                   $new_post_id   The newly created post ID.
 			 * @param array                 $media         List of media items attached to the post, formatted by {@see \Distributor\Utils\prepare_media()}.
@@ -156,6 +158,8 @@ class NetworkSiteConnection extends Connection {
 
 		/**
 		 * Action triggered when a post is pushed via distributor.
+		 *
+		 * @hook dt_push_post
 		 *
 		 * @param int                $new_post_id   The newly created post ID.
 		 * @param int                $post_id       The original post ID.
@@ -221,6 +225,7 @@ class NetworkSiteConnection extends Connection {
 
 			add_filter( 'wp_insert_post_data', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'maybe_set_modified_date' ), 10, 2 );
 
+			// Filter documented in includes/classes/ExternalConnections/WordPressExternalConnection.php
 			$new_post_id = wp_insert_post( apply_filters( 'dt_pull_post_args', $post_array, $item_array['remote_post_id'], $post, $this ) );
 
 			remove_filter( 'wp_insert_post_data', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'maybe_set_modified_date' ), 10, 2 );
@@ -240,6 +245,8 @@ class NetworkSiteConnection extends Connection {
 
 				/**
 				 * Allow bypassing of all media processing.
+				 *
+				 * @hook dt_pull_post_media
 				 *
 				 * @param bool                  true                          If Distributor should set the post media.
 				 * @param int                   $new_post_id                  The newly created post ID.
@@ -281,6 +288,7 @@ class NetworkSiteConnection extends Connection {
 			 * Action triggered when a post is pulled via distributor.
 			 *
 			 * @since 1.0
+			 * @hook dt_pull_post
 			 *
 			 * @param int                $new_post_id   The new post ID that was pulled.
 			 * @param ExternalConnection $this          The distributor connection pulling the post.
@@ -335,6 +343,7 @@ class NetworkSiteConnection extends Connection {
 		 * Action fired when a sync is being logged.
 		 *
 		 * @since 1.0
+		 * @hook dt_log_sync
 		 *
 		 * @param array $item_id_mappings Item ID mappings.
 		 * @param array $sync_log The sync log
@@ -380,6 +389,7 @@ class NetworkSiteConnection extends Connection {
 					// If post__in is empty, we can just stop right here
 					restore_current_blog();
 
+					// Filter documented in includes/classes/ExternalConnections/WordPressExternalConnection.php
 					return apply_filters(
 						'dt_remote_get',
 						[
@@ -417,6 +427,7 @@ class NetworkSiteConnection extends Connection {
 				$query_args['order'] = $args['order'];
 			}
 
+			// Filter documented in includes/classes/ExternalConnections/WordPressExternalConnection.php
 			$posts_query = new \WP_Query( apply_filters( 'dt_remote_get_query_args', $query_args, $args, $this ) );
 
 			$posts = $posts_query->posts;
@@ -434,6 +445,7 @@ class NetworkSiteConnection extends Connection {
 
 			restore_current_blog();
 
+			// Filter documented in /includes/classes/ExternalConnections/WordPressExternalConnection.php.
 			return apply_filters(
 				'dt_remote_get',
 				[
@@ -460,6 +472,7 @@ class NetworkSiteConnection extends Connection {
 
 			restore_current_blog();
 
+			// Filter documented in /includes/classes/ExternalConnections/WordPressExternalConnection.php.
 			return apply_filters( 'dt_remote_get', $formatted_post, $args, $this );
 		}
 	}
@@ -657,15 +670,15 @@ class NetworkSiteConnection extends Connection {
 		}
 
 		/**
-		 * Allow plugins to override the default {@see \Distributor\InternalConnections\NetworkSiteConnection::get_available_authorized_sites()} function.
+		 * Enable plugins to filter the authorized sites, before they are retrieved.
 		 *
 		 * @since 1.2
 		 * @since 1.3.7 Added the `$context` parameter.
+		 * @hook dt_pre_get_authorized_sites
 		 *
-		 * @param array  $authorized_sites {
-		 *     @type array {
-		 *         'site'       => $site,  // WP_Site object.
-		 *         'post_types' => $array, // List of post type objects the user can edit.
+		 * @see \Distributor\InternalConnections\NetworkSiteConnection::get_available_authorized_sites()
+		 *
+		 * @param array  $authorized_sites Array of WP_Site object and post type objects the user can edit.
 		 * }
 		 * @param string $context The context of the authorization.
 		 */
@@ -681,11 +694,9 @@ class NetworkSiteConnection extends Connection {
 		 *
 		 * @since 1.2
 		 * @since 1.3.7 Added the `$context` parameter.
+		 * @hook dt_authorized_sites
 		 *
-		 * @param array  $authorized_sites {
-		 *     @type array {
-		 *         'site'       => $site,  // WP_Site object.
-		 *         'post_types' => $array, // List of post type objects the user can edit.
+		 * @param array  $authorized_sites An array of WP_Site objects and the post type objects the user can edit.
 		 * }
 		 * @param string $context The context of the authorization.
 		 */
