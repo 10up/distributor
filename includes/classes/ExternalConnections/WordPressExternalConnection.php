@@ -556,7 +556,7 @@ class WordPressExternalConnection extends ExternalConnection {
 			'slug'                           => $post->post_name,
 			'content'                        => Utils\get_processed_content( $post->post_content ),
 			'type'                           => $post->post_type,
-			'status'                         => ( ( ! empty( $args['post_status'] ) ) ? $args['post_status'] : 'publish' ),
+			'status'                         => ( ! empty( $args['post_status'] ) ) ? $args['post_status'] : 'publish',
 			'excerpt'                        => $post->post_excerpt,
 			'distributor_original_source_id' => $this->id,
 			'distributor_original_site_name' => get_bloginfo( 'name' ),
