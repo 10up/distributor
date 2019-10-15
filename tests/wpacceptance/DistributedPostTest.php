@@ -155,16 +155,12 @@ class DistributedPost extends \TestCase {
 		$post_info = $this->pushPost( $I, 40, (int) $matches[1], '', 'publish', true );
 		$I->moveTo( 'two/wp-admin/edit.php' );
 
-		// Switch to the distributed post.
+		// Grab the distributed post edit URL.
 		$I->waitUntilElementVisible( '#the-list' );
 		$I->click( 'a.row-title' );
 		$I->waitUntilNavigation();
-
-		// Use moveTo to prime page object.
 		$url = $I->getCurrentUrl();
-
 		$post_info['distributed_edit_url'] = $url;
-		error_log( json_encode( $post_info, JSON_PRETTY_PRINT ) );
 
 		$this->statusDistributionTest( $post_info, $I );
 	}
