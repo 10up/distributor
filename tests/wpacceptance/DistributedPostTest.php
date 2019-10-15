@@ -168,4 +168,25 @@ class DistributedPost extends \TestCase {
 
 		$this->statusDistributionTest( $post_info, $I );
 	}
+
+	/**
+	 * Test external pull status updates with the `dt_distribute_post_status` filter.
+	 */
+	public function testExternalPullStatusDistribution() {
+		$I = $this->openBrowserPage();
+		$I->loginAs( 'wpsnapshots' );
+
+		// Don't test in block editor.
+		$editor_has_blocks =  $this->editorHasBlocks( $I );
+		if ( $editor_has_blocks ) {
+			return;
+		}
+
+		// Create an external connection.
+		$this->createExternalConnection( $I );
+		// Pull post from external connection.
+		$post_info = $this->pullPost( $I, 48, 'two', '', 'Test External Connection' );
+		$this->statusDistributionTest( $post_info, $I );
+	}
+
 }
