@@ -548,9 +548,6 @@ class WordPressExternalConnection extends ExternalConnection {
 
 		$signature = \Distributor\Subscriptions\generate_signature();
 
-		$distribute_post_status = apply_filters( 'dt_distribute_post_status', false );
-		$distribute_status      = $distribute_post_status ? $post->post_status : 'publish';
-
 		/**
 		 * Now let's push
 		 */
@@ -559,7 +556,7 @@ class WordPressExternalConnection extends ExternalConnection {
 			'slug'                           => $post->post_name,
 			'content'                        => Utils\get_processed_content( $post->post_content ),
 			'type'                           => $post->post_type,
-			'status'                         => ( ! empty( $args['post_status'] ) ) ? $args['post_status'] : $distribute_status,
+			'status'                         => ( ( ! empty( $args['post_status'] ) ) ? $args['post_status'] : 'publish' ),
 			'excerpt'                        => $post->post_excerpt,
 			'distributor_original_source_id' => $this->id,
 			'distributor_original_site_name' => get_bloginfo( 'name' ),
