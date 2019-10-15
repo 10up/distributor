@@ -75,8 +75,7 @@ class NetworkSiteConnection extends Connection {
 		 *
 		 * @since 2.0.0
 		 * @hook dt_distribute_post_status
-		 *
-		 **/
+		 */
 		$distribute_post_status = apply_filters( 'dt_distribute_post_status', false );
 
 		$new_post_args = array(
