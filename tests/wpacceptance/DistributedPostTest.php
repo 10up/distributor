@@ -104,7 +104,7 @@ class DistributedPost extends \TestCase {
 	/**
 	 * Test network push status updates and the `dt_distribute_post_status` filter.
 	 */
-	public function testPushDistributedStatus() {
+	public function testPushStatusDistribution() {
 
 		$I = $this->openBrowserPage();
 		$I->loginAs( 'wpsnapshots' );
@@ -166,8 +166,8 @@ class DistributedPost extends \TestCase {
 		$I->seeText( 'Draft', '#post-status-display' );
 
 		// Change the remote post title and update.
-		$I->typeInField( '#title', 'New test title' );
-		$I->click( '#publish' );
+		$I->typeInField( '#title', 'Updated test title' );
+		$I->click( '#save-post' );
 		$I->waitUntilElementVisible( '#wpadminbar' );
 
 		// The remote post should now in a draft status, the post status is distributed.
