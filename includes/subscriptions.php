@@ -277,6 +277,16 @@ function send_notifications( $post_id ) {
 			}
 		}
 
+		/**
+		 * Filter whether Distributor should update post statuses when the origin post status changes.
+		 *
+		 * False by default, return true to have post statuses distributed.
+		 */
+		$distribute_post_status = apply_filters( 'dt_distribute_post_status', false );
+		if ( $distribute_post_status ) {
+			$post_body['post_data']['status'] = $post->post_status;
+		}
+
 		$request = wp_remote_post(
 			untrailingslashit( $target_url ) . '/wp/v2/dt_subscription/receive',
 			[
