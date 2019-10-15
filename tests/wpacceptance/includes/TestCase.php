@@ -166,4 +166,67 @@ class TestCase extends \WPAcceptance\PHPUnit\TestCase {
 		} catch ( \Exception $e ) {}
 	}
 
+	/**
+	 * Test status distribution.
+	 *
+	 * @param Object $post_info                  Information about the distributed post.
+	 * @param \WPAcceptance\PHPUnit\Actor $actor The Actor instance.
+	 */
+	protected function testStatusDistribution( $post_info, $actor ) {
+
+		// TEST SCENARIO: with 'dt_distribute_post_status' false (DEFAULT).
+		// Deactivate the plugin?
+		$actor->moveTo( '/wp-admin/plugins.php' );
+		usleep( 300 );
+
+		// Check the distributed post state.
+		$actor->moveTo( $post_info['distributed_edit_url'] );
+		$actor->waitUntilElementVisible( 'body.post-php' );
+
+		// The remote post should start in a Published post status.
+		$actor->seeText( 'Published', '#post-status-display' );
+
+		// Go back to the origin post.
+		$actor->moveTo( $post_info['original_edit_url'] );
+		$actor->waitUntilElementVisible( 'body.post-php' );
+
+		// The origin post should be in a published post status.
+		$actor->seeText( 'Published', '#post-status-display' );
+
+		// Change the origin post status to draft.
+		$actor->click( '.edit-post-status' );
+		$actor->waitUntilElementVisible( '#post_status' );
+		$actor->selectOptionByValue( '#post_status', 'draft' );
+		$actor->click( '.save-post-status' );
+		usleep( 200 );
+		$actor->click( '#publish' ); // Click the 'Update' button.
+		$actor->waitUntilElementVisible( '#wpadminbar' );
+
+		// The remote post will still be in a published status, the post status is not distributed.
+		$actor->moveTo( $post_info['distributed_edit_url'] );
+		$actor->waitUntilElementVisible( 'body.post-php' );
+		$actor->seeText( 'Published', '#post-status-display' );
+
+		// TEST SCENARIO: with 'dt_distribute_post_status' true - activate the helper plugin.
+		$actor->moveTo( '/wp-admin/plugins.php' );
+		$actor->click( '[data-slug="enable-post-status-distribution"] .activate a' );
+		$actor->waitUntilElementVisible( '#message' );
+
+		// Update the origin post
+		$actor->moveTo( $post_info['original_edit_url'] );
+		$actor->waitUntilElementVisible( 'body.post-php' );
+
+		// The origin post should be in a draft state.
+		$actor->seeText( 'Draft', '#post-status-display' );
+
+		// Change the remote post title and update.
+		$actor->typeInField( '#title', 'Updated test title' );
+		$actor->click( '#save-post' );
+		$actor->waitUntilElementVisible( '#wpadminbar' );
+
+		// The remote post should now in a draft status, the post status is distributed.
+		$actor->moveTo( $post_info['distributed_edit_url'] );
+		$actor->waitUntilElementVisible( 'body.post-php' );
+		$actor->seeText( 'Draft', '#post-status-display' );
+	}
 }
