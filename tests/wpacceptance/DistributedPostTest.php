@@ -104,7 +104,7 @@ class DistributedPost extends \TestCase {
 	/**
 	 * Test network push status updates with the `dt_distribute_post_status` filter.
 	 */
-	public function testPushStatusDistribution() {
+	public function testNetworkPushStatusDistribution() {
 		$I = $this->openBrowserPage();
 		$I->loginAs( 'wpsnapshots' );
 
@@ -120,7 +120,7 @@ class DistributedPost extends \TestCase {
 	/**
 	 * Test network pull status updates with the `dt_distribute_post_status` filter.
 	 */
-	public function testPullStatusDistribution() {
+	public function testNetworkPullStatusDistribution() {
 		$I = $this->openBrowserPage();
 		$I->loginAs( 'wpsnapshots' );
 
