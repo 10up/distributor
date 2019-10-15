@@ -229,4 +229,19 @@ class TestCase extends \WPAcceptance\PHPUnit\TestCase {
 		$actor->waitUntilElementVisible( 'body.post-php' );
 		$actor->seeText( 'Draft', '#post-status-display' );
 	}
+
+	/**
+	 * Create an external connection.
+	 *
+	 * @param \WPAcceptance\PHPUnit\Actor $actor The Actor instance.
+	 */
+	protected function createExternalConnection( $actor ) {
+		$actor->moveTo( 'wp-admin/post-new.php?post_type=dt_ext_connection' );
+		$actor->typeInField( '#title', 'Test External Connection' );
+		$actor->typeInField( '#dt_username', 'wpsnapshots' );
+		$actor->typeInField( '#dt_password', 'password' );
+		$actor->typeInField( '#dt_external_connection_url', $this->getWPHomeUrl() . '/two/wp-json' );
+		$actor->pressEnterKey( '#create-connection' );
+		$actor->waitUntilElementVisible( '.notice-success' );
+	}
 }
