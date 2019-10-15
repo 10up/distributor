@@ -72,7 +72,11 @@ class NetworkSiteConnection extends Connection {
 		 * Filter whether Distributor should update post statuses when the origin post status changes.
 		 *
 		 * False by default, return true to have post statuses distributed.
-		 */
+		 *
+		 * @since 2.0.0
+		 * @hook dt_distribute_post_status
+		 *
+		 **/
 		$distribute_post_status = apply_filters( 'dt_distribute_post_status', false );
 
 		$new_post_args = array(
