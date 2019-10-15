@@ -257,15 +257,19 @@ class SubscriptionsController extends \WP_REST_Controller {
 				return $response;
 			}
 
-			wp_update_post(
-				[
-					'ID'           => $request['post_id'],
-					'post_title'   => $request['post_data']['title'],
-					'post_content' => $content,
-					'post_excerpt' => $request['post_data']['excerpt'],
-					'post_name'    => $request['post_data']['slug'],
-				]
-			);
+			$post_update = [
+				'ID'           => $request['post_id'],
+				'post_title'   => $request['post_data']['title'],
+				'post_content' => $content,
+				'post_excerpt' => $request['post_data']['excerpt'],
+				'post_name'    => $request['post_data']['slug'],
+			];
+
+			if ( isset( $request['post_data']['status'] ) ) {
+				$post_update['post_status'] = $request['post_data']['status'];
+			}
+
+			wp_update_post( $post_update );
 
 			/**
 			 * We check if each of these exist since the API removes empty arrays from requests
