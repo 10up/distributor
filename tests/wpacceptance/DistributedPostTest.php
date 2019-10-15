@@ -21,8 +21,6 @@ class DistributedPost extends \TestCase {
 
 		self::assertPostFieldContains( 40, 'post_title', 'Test Post' );
 
-		return;
-
 		// Distribute post
 		$post_info = $this->pushPost( $I, 40, 2 );
 
@@ -102,4 +100,81 @@ class DistributedPost extends \TestCase {
 
 		$this->assertTrue( ( false !== strpos( $source, '<link rel="canonical" href="' . rtrim( $post_info['original_front_url'], '/' ) ) ) );
 	}
+
+	/**
+	 * Test network push status updates and the `dt_distribute_post_status` filter.
+	 */
+	public function testPushDistributedStatus() {
+
+		$I = $this->openBrowserPage();
+		$I->loginAs( 'wpsnapshots' );
+
+		$editor_has_blocks =  $this->editorHasBlocks( $I );
+		// Don't test in block editor.
+		if ( $editor_has_blocks ) {
+			return;
+		}
+
+		// TEST SCENARIO: with 'dt_distribute_post_status' FALSE (DEFAULT).
+		$post_info = $this->pushPost( $I, 40, 2, '', 'Draft' );
+
+		$I->moveTo( $post_info['distributed_edit_url'] );
+		$I->waitUntilElementVisible( 'body.post-php' );
+
+		$status = $I->getElement( '#post-status-display' );
+		$content = trim( $I->getElementInnerText( $status ) );
+
+		// The remote post should be in a draft state.
+		$I->seeText( 'Draft', '#post-status-display' );
+
+		// Publish the remote post - status will be 'published'.
+		$I->click( '#publish' );
+		$I->waitUntilElementVisible( '#wpadminbar' );
+
+		// Change the origin post status to draft.
+		$I->moveTo( $post_info['original_edit_url'] );
+		$I->waitUntilElementVisible( 'body.post-php' );
+
+		// The origin post should be in a published state.
+		$I->seeText( 'Published', '#post-status-display' );
+
+		// Change the remote post status to Draft.
+		$I->click( '.edit-post-status' );
+		$I->waitUntilElementVisible( '#post_status' );
+		$I->selectOptionByValue( '#post_status', 'draft' );
+		$I->click( '.save-post-status' );
+
+		usleep( 300 );
+		$I->click( '#publish' );
+		$I->waitUntilElementVisible( '#wpadminbar' );
+
+		// The remote post will still be in a published status, the post status is not distributed.
+		$I->moveTo( $post_info['distributed_edit_url'] );
+		$I->waitUntilElementVisible( 'body.post-php' );
+		$I->seeText( 'Published', '#post-status-display' );
+
+		// TEST SCENARIO: with 'dt_distribute_post_status' true - activate the helper plugin.
+		$I->moveTo( '/wp-admin/plugins.php' );
+		$I->click( '[data-slug="enable-post-status-distribution"] .activate a' );
+		$I->waitUntilElementVisible( '#message' );
+
+		// Update the origin post
+		$I->moveTo( $post_info['original_edit_url'] );
+		$I->waitUntilElementVisible( 'body.post-php' );
+
+		// The origin post should be in a draft state.
+		$I->seeText( 'Draft', '#post-status-display' );
+
+		// Change the remote post title and update.
+		$I->typeInField( '#title', 'New test title' );
+		$I->click( '#publish' );
+		$I->waitUntilElementVisible( '#wpadminbar' );
+
+		// The remote post should now in a draft status, the post status is distributed.
+		$I->moveTo( $post_info['distributed_edit_url'] );
+		$I->waitUntilElementVisible( 'body.post-php' );
+		$I->seeText( 'Draft', '#post-status-display' );
+
+	}
+
 }
