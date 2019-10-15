@@ -114,8 +114,8 @@ class DistributedPost extends \TestCase {
 			return;
 		}
 
-		$post_info = $this->pushPost( $I, 40, 2, '', 'Published' );
-		$this->testStatusDistribution( $post_info, $I );
+		$post_info = $this->pushPost( $I, 40, 2 );
+		$this->statusDistributionTest( $post_info, $I );
 	}
 	/**
 	 * Test network pull status updates with the `dt_distribute_post_status` filter.
@@ -131,6 +131,6 @@ class DistributedPost extends \TestCase {
 		}
 
 		$post_info = $this->pullPost( $I, 40, 'two', '' );
-		$this->testStatusDistribution( $post_info, $I );
+		$this->statusDistributionTest( $post_info, $I );
 	}
 }

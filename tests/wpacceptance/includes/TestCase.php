@@ -172,7 +172,7 @@ class TestCase extends \WPAcceptance\PHPUnit\TestCase {
 	 * @param Object $post_info                  Information about the distributed post.
 	 * @param \WPAcceptance\PHPUnit\Actor $actor The Actor instance.
 	 */
-	protected function testStatusDistribution( $post_info, $actor ) {
+	protected function statusDistributionTest( $post_info, $actor ) {
 
 		// TEST SCENARIO: with 'dt_distribute_post_status' false (DEFAULT).
 		// Deactivate the plugin?
