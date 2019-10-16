@@ -19,6 +19,12 @@ class DistributedPost extends \TestCase {
 
 		$I->loginAs( 'wpsnapshots' );
 
+		// Don't test in block editor.
+		$editor_has_blocks =  $this->editorHasBlocks( $I );
+		if ( $editor_has_blocks ) {
+			return;
+		}
+
 		self::assertPostFieldContains( 40, 'post_title', 'Test Post' );
 
 		// Distribute post
