@@ -7,7 +7,6 @@ on:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
     node-version: [12.x]
     steps:
@@ -25,6 +24,6 @@ jobs:
   deploy:
     - name: GitHub Pages Deploy
       uses: maxheld83/ghpages@v0.2.1
-    - env:
+      env:
         BUILD_DIR = "docs/"
         secrets = ["GH_PAT"]
