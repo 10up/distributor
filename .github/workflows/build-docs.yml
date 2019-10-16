@@ -6,7 +6,7 @@ on:
     - develop
 
 jobs:
-  build:
+  build and deploy:
     runs-on: ubuntu-latest
     node-version: [12.x]
     steps:
@@ -21,9 +21,7 @@ jobs:
         npm run build:docs
       env:
         CI: true
-  deploy:
-    - uses: actions/checkout@v1
-    - name: GitHub Pages Deploy
+    - name: Deploy to GH Pages
       uses: maxheld83/ghpages@v0.2.1
       env:
         BUILD_DIR = "docs/"
