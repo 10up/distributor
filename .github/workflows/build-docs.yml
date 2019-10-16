@@ -22,6 +22,7 @@ jobs:
       env:
         CI: true
   deploy:
+    - uses: actions/checkout@v1
     - name: GitHub Pages Deploy
       uses: maxheld83/ghpages@v0.2.1
       env:
