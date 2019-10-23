@@ -248,7 +248,8 @@ function ajax_push() {
 					$push_args['post_status'] = $_POST['postStatus'];
 				}
 
-				$remote_id = $external_connection->push( intval( $_POST['postId'] ), $push_args );
+				$post_id   = intval( $_POST['postId'] );
+				$remote_id = $external_connection->push( $post_id, $push_args );
 
 				/**
 				 * Record the external connection id's remote post id for this local post
@@ -269,7 +270,7 @@ function ajax_push() {
 					$external_connection->log_sync( array( $remote_id => $_POST['postId'] ) );
 				} else {
 					$external_push_results[ (int) $connection['id'] ] = array(
-						'post_id' => (int) $remote_id,
+						'post_id' => $post_id,
 						'date'    => date( 'F j, Y g:i a' ),
 						'status'  => 'fail',
 					);
@@ -550,3 +551,5 @@ function menu_content() {
 	}
 }
 
+$post_id   = intval( $_POST['postId'] );
+$remote_id = $external_connection->push( $post_id, $push_args );
