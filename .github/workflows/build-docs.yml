@@ -8,7 +8,7 @@ on:
 jobs:
   build and deploy:
     runs-on: ubuntu-latest
-    node-version: [12.x]
+    node-version: '12.x'
     steps:
     - uses: actions/checkout@v1
     - name: Use Node.js ${{ matrix.node-version }}
@@ -25,4 +25,4 @@ jobs:
       uses: maxheld83/ghpages@v0.2.1
       env:
         BUILD_DIR = "docs/"
-        secrets = ["GH_PAT"]
+      secrets: ${{ secrets.GH_PAT }}
