@@ -6,23 +6,23 @@ on:
     - develop
 
 jobs:
-  build and deploy:
+  build-deploy:
     runs-on: ubuntu-latest
-    node-version: '12.x'
     steps:
     - uses: actions/checkout@v1
-    - name: Use Node.js ${{ matrix.node-version }}
+    - name: Running Node 10
       uses: actions/setup-node@v1
       with:
-        node-version: ${{ matrix.node-version }}
+        node-version: '10.x'
     - name: npm install, and build docs
       run: |
         npm install
+        npm -g install gulp-cli
         npm run build:docs
       env:
         CI: true
     - name: Deploy to GH Pages
       uses: maxheld83/ghpages@v0.2.1
       env:
-        BUILD_DIR = "docs/"
-      secrets: ${{ secrets.GH_PAT }}
+        BUILD_DIR: 'docs/'
+        GH_PAT: ${{ secrets.GH_PAT }}
