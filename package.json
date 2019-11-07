@@ -12,7 +12,7 @@
     "postinstall": "gulp",
     "makepot": "wpi18n makepot && echo '.pot file updated'",
     "release": "rm -rf release/ && git worktree prune && npm run build && git worktree add -B stable release origin/stable && gulp copy",
-    "build:docs": "rm -rf hook_docs && jsdoc -c hookdoc-conf.json distributor.php includes"
+    "build:docs": "jsdoc -c hookdoc-conf.json distributor.php includes"
   },
   "dependencies": {
     "@10up/eslint-config": "^1.0.6",
