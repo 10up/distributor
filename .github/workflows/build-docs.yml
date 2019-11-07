@@ -10,13 +10,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v1
-    - name: Use Node.js ${{ matrix.node-version }}
+    - name: Running Node 10
       uses: actions/setup-node@v1
       with:
-        node-version: '12.x'
+        node-version: '10.x'
     - name: npm install, and build docs
       run: |
         npm install
+        npm -g install gulp-cli
         npm run build:docs
       env:
         CI: true
