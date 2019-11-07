@@ -8,13 +8,12 @@ on:
 jobs:
   build and deploy:
     runs-on: ubuntu-latest
-    node-version: '12.x'
     steps:
     - uses: actions/checkout@v1
     - name: Use Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v1
       with:
-        node-version: ${{ matrix.node-version }}
+        node-version: '12.x'
     - name: npm install, and build docs
       run: |
         npm install
