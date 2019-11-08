@@ -1,24 +1,41 @@
 body {
 	background: #fefefe;
 	color: #232323;
-	font-family: 'proxima-nova', sans-serif;
+	font-family: 'IBM Plex Sans', sans-serif;
 	font-size: 1.3rem;
 	font-weight: 300;
 }
 
 h1, h2, h3 {
 	line-height: 1.2;
-	font-family: 'proxima-nova', sans-serif;
-	font-weight: 800;
-	letter-spacing: -.02em;
+	font-family: 'Playfair Display', sans-serif;
+	font-weight: 900;
+	letter-spacing: -.01em;
 }
 
 h1.page-title {
+	font-size: 42px;
 	margin-top: .5em;
 }
 
 nav ul {
-	font-size: 1.1rem;
+	font-size: 1.2rem;
+}
+
+nav li a {
+	background-image: none;
+}
+
+nav li a:hover {
+	text-decoration: underline;
+}
+
+code, pre,
+nav ul a, nav ul a:visited, nav ul a:active,
+.name, .signature,
+.params .name, .props .name,
+.name code {
+	font-family: 'IBM Plex Mono', monospace;
 }
 
 article h1 {
@@ -48,10 +65,6 @@ a:hover {
 	text-decoration: none;
 }
 
-nav li a {
-	background-image: none;
-}
-
 a.banner {
 	background-image: none;
 	margin-left: -10px;
@@ -66,8 +79,20 @@ footer {
 	text-align: center;
 	font-size: .8em;
 	font-style: normal;
+	font-weight: 300;
 }
 
-.home #main > section:first-of-type {
+.home #main > section:first-of-type,
+.home nav > h2 {
 	display: none;
+}
+
+.prettyprint.source {
+	font-size: 14px;
+}
+
+.prettyprint code {
+	padding: 2px 10px;
+	line-height: 16px;
+	height: 16px;
 }
