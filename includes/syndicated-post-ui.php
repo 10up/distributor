@@ -296,6 +296,8 @@ function unlink() {
 		 *
 		 * @param bool true       Whether the post is allowed to be unlinked. Default true.
 		 * @param int  $post_id   The ID of the post attempting to be unlinked.
+		 *
+		 * @return bool Whether the post is allowed to be unlinked.
 		 */
 		! apply_filters( 'dt_allow_post_unlink', true, $post_id ) ) {
 		return;

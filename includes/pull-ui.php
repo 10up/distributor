@@ -135,6 +135,8 @@ function action_admin_menu() {
 		 * @hook dt_pull_capabilities
 		 *
 		 * @param string manage_options The capability allowed to pull content.
+		 *
+		 * @return The capability allowed to pull content.
 		 */
 		apply_filters( 'dt_pull_capabilities', 'manage_options' ),
 		'pull',

@@ -576,6 +576,8 @@ function add_menu_item() {
 		 * @hook dt_capabilities
 		 *
 		 * @param string manage_options The capability allowed to view external connections.
+		 *
+		 * @return string The capability allowed to view external connections.
 		 */
 		apply_filters( 'dt_capabilities', 'manage_options' ),
 		'distributor',
@@ -605,6 +607,8 @@ function add_submenu_item() {
 		 * @hook dt_external_capabilities
 		 *
 		 * @param string manage_options The capability allowed to manage external connections.
+		 *
+		 * @return The capability allowed to manage external connections.
 		 */
 		apply_filters( 'dt_external_capabilities', 'manage_options' ),
 		'distributor'

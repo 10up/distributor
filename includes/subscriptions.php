@@ -289,6 +289,8 @@ function send_notifications( $post_id ) {
 				 *
 				 * @param  array  $post_body The request body to send.
 				 * @param  object $post      The WP_Post that is being pushed.
+				 *
+				 * @return array The request body to send.
 				 */
 				'body'    => apply_filters( 'dt_subscription_post_args', $post_body, $post ),
 			]

@@ -127,8 +127,10 @@ class WordPressExternalConnection extends ExternalConnection {
 					 * @since 1.0
 					 * @hook dt_remote_get
 					 *
-					 * @param array $args The arguments originally passed to remote_get.
-					 * @param  object $this The authentication class.
+					 * @param array $args  The arguments originally passed to remote_get.
+					 * @param object $this The authentication class.
+					 *
+					 * @return array The arguments originally passed to remote_get.
 					 */
 					return apply_filters(
 						'dt_remote_get',
@@ -237,6 +239,8 @@ class WordPressExternalConnection extends ExternalConnection {
 		 * @param  array  $query_args The existing query arguments.
 		 * @param  array  $args       The arguments originally passed to .remote_get'.
 		 * @param  object $this       The authentication class.
+		 *
+		 * @return array The existing query arguments.
 		 */
 		$query_args = apply_filters( 'dt_remote_get_query_args', $query_args, $args, $this );
 
@@ -295,6 +299,8 @@ class WordPressExternalConnection extends ExternalConnection {
 				 * @param  string $posts_url  The posts URL
 				 * @param  string $args       The arguments originally passed to .remote_get'.
 				 * @param  object $this       The authentication class.
+				 *
+				 * @return string The posts URL.
 				 */
 				apply_filters( 'dt_remote_get_url', $posts_url, $args, $this ),
 				false,
@@ -417,10 +423,12 @@ class WordPressExternalConnection extends ExternalConnection {
 			 * @since 1.0
 			 * @hook dt_pull_post_args
 			 *
-			 * @param  array              $post_array                     The post to be inserted.
+			 * @param  array              $post_array                     The post data to be inserted.
 			 * @param  array              $item_array['remote_post_id']   The remote post ID.
 			 * @param  object             $post                           The request that got the post.
 			 * @param  ExternalConnection $this                           The distributor connection pulling the post.
+			 *
+			 * @return array The post data to be inserted.
 			 */
 			$new_post = wp_insert_post( apply_filters( 'dt_pull_post_args', $post_array, $item_array['remote_post_id'], $post, $this ) );
 

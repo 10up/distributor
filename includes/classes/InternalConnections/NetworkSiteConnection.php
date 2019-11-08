@@ -140,6 +140,8 @@ class NetworkSiteConnection extends Connection {
 			 * @param int                   $post_id       The original post ID.
 			 * @param array                 $args          The arguments passed into wp_insert_post.
 			 * @param NetworkSiteConnection $this          The distributor connection being pushed to.
+			 *
+			 * @return bool If Distributor should set the post media.
 			 */
 			if ( apply_filters( 'dt_push_post_media', true, $new_post_id, $media, $post_id, $args, $this ) ) {
 				\Distributor\Utils\set_media( $new_post_id, $media );
@@ -244,6 +246,8 @@ class NetworkSiteConnection extends Connection {
 				 * @param int                   $item_array['remote_post_id'] The original post ID.
 				 * @param array                 $post_array                   The arguments passed into wp_insert_post.
 				 * @param NetworkSiteConnection $this                         The distributor connection being pulled from.
+				 *
+				 * @return bool If Distributor should set the post media.
 				 */
 				if ( apply_filters( 'dt_pull_post_media', true, $new_post_id, $post->media, $item_array['remote_post_id'], $post_array, $this ) ) {
 					\Distributor\Utils\set_media( $new_post_id, $post->media );
@@ -671,6 +675,8 @@ class NetworkSiteConnection extends Connection {
 		 * @param array  $authorized_sites Array of WP_Site object and post type objects the user can edit.
 		 * }
 		 * @param string $context The context of the authorization.
+		 *
+		 * @return array Array of WP_Site object and post type objects.
 		 */
 		$authorized_sites = apply_filters( 'dt_pre_get_authorized_sites', array(), $context );
 		if ( ! empty( $authorized_sites ) ) {
@@ -689,6 +695,8 @@ class NetworkSiteConnection extends Connection {
 		 * @param array  $authorized_sites An array of WP_Site objects and the post type objects the user can edit.
 		 * }
 		 * @param string $context The context of the authorization.
+		 *
+		 * @return An array of WP_Site objects and the post type objects.
 		 */
 		return apply_filters( 'dt_authorized_sites', $authorized_sites, $context );
 	}

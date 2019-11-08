@@ -368,6 +368,8 @@ function enqueue_scripts( $hook ) {
 			 * @hook dt_ajax_requires_with_credentials
 			 *
 			 * @param bool false Whether front end ajax requests should use xhrFields credentials:true.
+			 *
+			 * @return array Whether front end ajax requests should use xhrFields credentials:true.
 			 */
 			'usexhr'               => apply_filters( 'dt_ajax_requires_with_credentials', false ),
 		)
@@ -488,6 +490,8 @@ function menu_content() {
 						 * @param bool    $as_draft   Whether the 'As Draft' option should appear.
 						 * @param object  $connection The connection being used to push.
 						 * @param WP_Post $post       The post being pushed.
+						 *
+						 * @return array Whether the 'As Draft' option should appear.
 						 */
 						$as_draft = apply_filters( 'dt_allow_as_draft_distribute', $as_draft, $connection = null, $post );
 						?>

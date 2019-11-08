@@ -139,6 +139,8 @@ class PullListTable extends \WP_List_Table {
 			 * @hook bulk_actions-{$this->screen->id}
 			 *
 			 * @param array $actions An array of the available bulk actions.
+			 *
+			 * @return array An array of the available bulk actions.
 			 */
 			$this->_actions = apply_filters( "bulk_actions-{$this->screen->id}", $this->_actions ); // @codingStandardsIgnoreLine valid filter name
 			$this->_actions = array_intersect_assoc( $this->_actions, $no_new_actions );

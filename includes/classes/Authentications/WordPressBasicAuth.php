@@ -123,6 +123,8 @@ class WordPressBasicAuth extends Authentication {
 		 * @param array  $auth The credentials to be saved.
 		 * @param array  $args The arguments originally passed to .prepare_credentials'.
 		 * @param string $slug The authorization handler type slug.
+		 *
+		 * @return array The authorization credentials to be saved.
 		 */
 		return apply_filters( 'dt_auth_prepare_credentials', $auth, $args, self::$slug );
 	}
