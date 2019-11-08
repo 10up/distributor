@@ -134,14 +134,14 @@ class NetworkSiteConnection extends Connection {
 			 *
 			 * @hook dt_push_post_media
 			 *
-			 * @param bool                  true           If Distributor should set the post media.
-			 * @param int                   $new_post_id   The newly created post ID.
-			 * @param array                 $media         List of media items attached to the post, formatted by {@see \Distributor\Utils\prepare_media()}.
-			 * @param int                   $post_id       The original post ID.
-			 * @param array                 $args          The arguments passed into wp_insert_post.
-			 * @param NetworkSiteConnection $this          The distributor connection being pushed to.
+			 * @param {bool}       true           If Distributor should push the post media.
+			 * @param {int}        $new_post_id   The newly created post ID.
+			 * @param {array}      $media         List of media items attached to the post, formatted by {@link \Distributor\Utils\prepare_media()}.
+			 * @param {int}        $post_id       The original post ID.
+			 * @param {array}      $args          The arguments passed into wp_insert_post.
+			 * @param {Connection} $this          The distributor connection being pushed to.
 			 *
-			 * @return bool If Distributor should set the post media.
+			 * @return {bool} If Distributor should push the post media.
 			 */
 			if ( apply_filters( 'dt_push_post_media', true, $new_post_id, $media, $post_id, $args, $this ) ) {
 				\Distributor\Utils\set_media( $new_post_id, $media );
@@ -149,14 +149,14 @@ class NetworkSiteConnection extends Connection {
 		}
 
 		/**
-		 * Action triggered when a post is pushed via distributor.
+		 * Fires after a post is pushed via Distributor before `restore_current_blog()`.
 		 *
 		 * @hook dt_push_post
 		 *
-		 * @param int                $new_post_id   The newly created post ID.
-		 * @param int                $post_id       The original post ID.
-		 * @param array              $args          The arguments passed into wp_insert_post.
-		 * @param ExternalConnection $this          The distributor connection being pushed to.
+		 * @param {int}        $new_post_id   The newly created post ID.
+		 * @param {int}        $post_id       The original post ID.
+		 * @param {array}      $args          The arguments passed into wp_insert_post.
+		 * @param {Connection} $this          The Distributor connection being pushed to.
 		 */
 		do_action( 'dt_push_post', $new_post_id, $post_id, $args, $this );
 
@@ -240,14 +240,14 @@ class NetworkSiteConnection extends Connection {
 				 *
 				 * @hook dt_pull_post_media
 				 *
-				 * @param bool                  true                          If Distributor should set the post media.
-				 * @param int                   $new_post_id                  The newly created post ID.
-				 * @param array                 $post->media                  List of media items attached to the post, formatted by {@see \Distributor\Utils\prepare_media()}.
-				 * @param int                   $item_array['remote_post_id'] The original post ID.
-				 * @param array                 $post_array                   The arguments passed into wp_insert_post.
-				 * @param NetworkSiteConnection $this                         The distributor connection being pulled from.
+				 * @param {bool}                  true            If Distributor should set the post media.
+				 * @param {int}                   $new_post_id    The newly created post ID.
+				 * @param {array}                 $post->media    List of media items attached to the post, formatted by {@link \Distributor\Utils\prepare_media()}.
+				 * @param {int}                   $remote_post_id The original post ID.
+				 * @param {array}                 $post_array     The arguments passed into wp_insert_post.
+				 * @param {NetworkSiteConnection} $this           The Distributor connection being pulled from.
 				 *
-				 * @return bool If Distributor should set the post media.
+				 * @return {bool} If Distributor should set the post media.
 				 */
 				if ( apply_filters( 'dt_pull_post_media', true, $new_post_id, $post->media, $item_array['remote_post_id'], $post_array, $this ) ) {
 					\Distributor\Utils\set_media( $new_post_id, $post->media );
@@ -279,14 +279,14 @@ class NetworkSiteConnection extends Connection {
 			restore_current_blog();
 
 			/**
-			 * Action triggered when a post is pulled via distributor.
+			 * Fires after a post is pulled via Distributor and after `restore_current_blog()`.
 			 *
 			 * @since 1.0
 			 * @hook dt_pull_post
 			 *
-			 * @param int                $new_post_id   The new post ID that was pulled.
-			 * @param ExternalConnection $this          The distributor connection pulling the post.
-			 * @param array              $post_array    The original post data retrieved via the connection.
+			 * @param {int}         $new_post_id   The new post ID that was pulled.
+			 * @param {Connection}  $this          The Distributor connection pulling the post.
+			 * @param {array}       $post_array    The original post data retrieved via the connection.
 			 */
 			do_action( 'dt_pull_post', $new_post_id, $this, $post_array );
 
@@ -333,16 +333,7 @@ class NetworkSiteConnection extends Connection {
 
 		update_option( 'dt_sync_log', $sync_log );
 
-		/**
-		 * Action fired when a sync is being logged.
-		 *
-		 * @since 1.0
-		 * @hook dt_log_sync
-		 *
-		 * @param array $item_id_mappings Item ID mappings.
-		 * @param array $sync_log The sync log
-		 * @param object $this This class.
-		 */
+		// Action documented in includes/classes/ExternalConnection.php.
 		do_action( 'dt_log_sync', $item_id_mappings, $sync_log, $this );
 	}
 
@@ -672,11 +663,11 @@ class NetworkSiteConnection extends Connection {
 		 *
 		 * @see \Distributor\InternalConnections\NetworkSiteConnection::get_available_authorized_sites()
 		 *
-		 * @param array  $authorized_sites Array of WP_Site object and post type objects the user can edit.
+		 * @param {array}  $authorized_sites Array of `WP_Site` object and post type objects the user can edit.
 		 * }
-		 * @param string $context The context of the authorization.
+		 * @param {string} $context The context of the authorization.
 		 *
-		 * @return array Array of WP_Site object and post type objects.
+		 * @return {array} Array of `WP_Site` object and post type objects.
 		 */
 		$authorized_sites = apply_filters( 'dt_pre_get_authorized_sites', array(), $context );
 		if ( ! empty( $authorized_sites ) ) {
@@ -686,17 +677,17 @@ class NetworkSiteConnection extends Connection {
 		$authorized_sites = self::build_available_authorized_sites( get_current_user_id(), $context );
 
 		/**
-		 * Allow plugins to modify the array of authorized sites.
+		 * Filter the array of authorized sites.
 		 *
 		 * @since 1.2
 		 * @since 1.3.7 Added the `$context` parameter.
 		 * @hook dt_authorized_sites
 		 *
-		 * @param array  $authorized_sites An array of WP_Site objects and the post type objects the user can edit.
+		 * @param {array}  $authorized_sites An array of `WP_Site` objects and the post type objects the user can edit.
 		 * }
-		 * @param string $context The context of the authorization.
+		 * @param {string} $context The context of the authorization.
 		 *
-		 * @return An array of WP_Site objects and the post type objects.
+		 * @return {array} An array of `WP_Site` objects and the post type objects.
 		 */
 		return apply_filters( 'dt_authorized_sites', $authorized_sites, $context );
 	}
