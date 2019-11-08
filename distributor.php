@@ -158,7 +158,9 @@ add_action(
 			 * @since 1.0.0
 			 * @hook dt_network_site_connection_enabled
 			 *
-			 * @param bool true Whether the network connection should be enabled.
+			 * @param {bool} true Whether the network connection should be enabled.
+			 *
+			 * @return {bool} Whether the network connection should be enabled.
 			 */
 			apply_filters( 'dt_network_site_connection_enabled', true )
 		) {

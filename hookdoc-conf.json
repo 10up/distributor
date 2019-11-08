@@ -9,7 +9,8 @@
       "includePattern": ".+\\.(php|inc)?$"
   },
   "plugins": [
-    "node_modules/wp-hookdoc/plugin"
+    "node_modules/wp-hookdoc/plugin",
+    "plugins/markdown"
   ],
   "templates":  {
     "default": {

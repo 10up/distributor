@@ -160,7 +160,16 @@ function get_connections() {
 		}
 
 		// If not admin lets make sure the current user can push to this connection
-		// @todo Document filter.
+		/**
+		 * Filter Distributor capabilities allowed to push content.
+		 *
+		 * @since 1.0.0
+		 * @hook dt_push_capabilities
+		 *
+		 * @param {string} 'manage_options' The capability allowed to push content.
+		 *
+		 * @return {string} The capability allowed to push content.
+		 */
 		if ( ! current_user_can( apply_filters( 'dt_push_capabilities', 'manage_options' ) ) ) {
 			$current_user_roles = (array) wp_get_current_user()->roles;
 
@@ -362,12 +371,14 @@ function enqueue_scripts( $hook ) {
 			 *
 			 * Front end ajax requests may require xhrFields with credentials when the front end and
 			 * back end domains do not match. This filter lets themes opt in.
-			 * See https://vip.wordpress.com/documentation/handling-frontend-file-uploads/#handling-ajax-requests
+			 * See {@link https://vip.wordpress.com/documentation/handling-frontend-file-uploads/#handling-ajax-requests}
 			 *
 			 * @since 1.0.0
 			 * @hook dt_ajax_requires_with_credentials
 			 *
-			 * @param bool false Whether front end ajax requests should use xhrFields credentials:true.
+			 * @param {bool} false Whether front end ajax requests should use xhrFields credentials:true.
+			 *
+			 * @return {bool} Whether front end ajax requests should use xhrFields credentials:true.
 			 */
 			'usexhr'               => apply_filters( 'dt_ajax_requires_with_credentials', false ),
 		)
@@ -485,9 +496,11 @@ function menu_content() {
 						 *
 						 * @hook dt_allow_as_draft_distribute
 						 *
-						 * @param bool    $as_draft   Whether the 'As Draft' option should appear.
-						 * @param object  $connection The connection being used to push.
-						 * @param WP_Post $post       The post being pushed.
+						 * @param {bool}    $as_draft   Whether the 'As Draft' option should appear.
+						 * @param {object}  $connection The connection being used to push.
+						 * @param {WP_Post} $post       The post being pushed.
+						 *
+						 * @return {bool} Whether the 'As Draft' option should appear.
 						 */
 						$as_draft = apply_filters( 'dt_allow_as_draft_distribute', $as_draft, $connection = null, $post );
 						?>
