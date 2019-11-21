@@ -286,9 +286,10 @@ class SubscriptionsController extends \WP_REST_Controller {
 			 * Action fired after receiving a subscription update from Distributor
 			 *
 			 * @since 1.3.8
+			 * @hook dt_process_subscription_attributes
 			 *
-			 * @param WP_Post         $post    Updated post object.
-			 * @param WP_REST_Request $request Request object.
+			 * @param {WP_Post}         $post    Updated post object.
+			 * @param {WP_REST_Request} $request Request object.
 			 */
 			do_action( 'dt_process_subscription_attributes', $post, $request );
 
