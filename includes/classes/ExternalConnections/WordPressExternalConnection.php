@@ -647,11 +647,15 @@ class WordPressExternalConnection extends ExternalConnection {
 
 		$body_array = json_decode( $body, true );
 
-		try {
-			$remote_id = $body_array['id'];
-		} catch ( \Exception $e ) {
+		if( isset( $body_array['data']['status'] ) && $body_array['data']['status'] == 400 ){
+			return new \WP_Error( 'bad-request', esc_html__( 'Status code is 400', 'distributor' ) );
+		}
+
+		if( !isset( $body_array['id'] ) ){
 			return new \WP_Error( 'no-push-post-remote-id', esc_html__( 'Could not determine remote post id.', 'distributor' ) );
 		}
+
+		$remote_id = $body_array['id'];
 
 		$response_headers = wp_remote_retrieve_headers( $response );
 
