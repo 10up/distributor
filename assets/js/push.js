@@ -29,14 +29,16 @@ jQuery( window ).on( 'load', () => {
 		return;
 	}
 
-	let dtConnections           = '';
-	let connectionsSelected     = '';
-	let connectionsSelectedList = '';
-	let connectionsNewList      = '';
-	let connectionsSearchInput  = '';
-	let actionWrapper           = '';
-	let postStatusInput         = '';
-	let asDraftInput            = '';
+	let dtConnections           	= '';
+	let connectionsSelected     	= '';
+	let connectionsSelectedList 	= '';
+	let connectionsNewList      	= '';
+	let connectionsNewListChildren	= '';
+	let selectAllConnections 		= '';
+	let connectionsSearchInput  	= '';
+	let actionWrapper           	= '';
+	let postStatusInput         	= '';
+	let asDraftInput            	= '';
 
 	distributorMenuItem.appendChild( distributorPushWrapper );
 
@@ -44,13 +46,15 @@ jQuery( window ).on( 'load', () => {
 	 * Set variables after connections have been rendered
 	 */
 	function setVariables() {
-		connectionsSelected     = distributorPushWrapper.querySelector( '.connections-selected' );
-		connectionsSelectedList = distributorPushWrapper.querySelector( '.selected-connections-list' );
-		connectionsNewList      = distributorPushWrapper.querySelector( '.new-connections-list' );
-		connectionsSearchInput  = document.getElementById( 'dt-connection-search' );
-		actionWrapper           = distributorPushWrapper.querySelector( '.action-wrapper' );
-		postStatusInput         = document.getElementById( 'dt-post-status' );
-		asDraftInput            = document.getElementById( 'dt-as-draft' );
+		connectionsSelected     	= distributorPushWrapper.querySelector( '.connections-selected' );
+		connectionsSelectedList 	= distributorPushWrapper.querySelector( '.selected-connections-list' );
+		connectionsNewList      	= distributorPushWrapper.querySelector( '.new-connections-list' );
+		connectionsNewListChildren	= connectionsNewList.querySelectorAll( '.add-connection' );
+		selectAllConnections 		= distributorPushWrapper.querySelector( '.selectall-connections' );
+		connectionsSearchInput  	= document.getElementById( 'dt-connection-search' );
+		actionWrapper           	= distributorPushWrapper.querySelector( '.action-wrapper' );
+		postStatusInput         	= document.getElementById( 'dt-post-status' );
+		asDraftInput            	= document.getElementById( 'dt-as-draft' );
 
 		/**
 		 * Listen for connection filtering
@@ -64,6 +68,15 @@ jQuery( window ).on( 'load', () => {
 
 			showConnections();
 		}, 300 ) );
+
+		/**
+		 * Indicate select all button available, if connections are available for syndication
+		 */
+		_.each( connectionsNewListChildren, ( element ) => {
+			if ( !element.classList.contains ( 'syndicated' ) ) {
+				selectAllConnections.classList.remove( 'empty' );
+			}
+		} );
 	}
 
 	/**
@@ -299,6 +312,39 @@ jQuery( window ).on( 'load', () => {
 			showConnections();
 		}
 	} );
+
+	/**
+	 * Select all connections for distribution.
+	*/
+	jQuery( distributorPushWrapper ).on( 'click', '.selectall-connections', () => {
+
+		jQuery ( connectionsNewList ).children( '.add-connection' ).each( ( index, childTarget ) => {
+			if ( childTarget.classList.contains( 'syndicated' ) || childTarget.classList.contains( 'added' ) ) {
+				return;
+			} else {
+				const type = childTarget.getAttribute( 'data-connection-type' );
+				const id   = childTarget.getAttribute( 'data-connection-id' );
+
+				selectedConnections[type + id] = dtConnections[type + id];
+
+				connectionsSelected.classList.remove( 'empty' );
+
+				const element     = childTarget.cloneNode();
+				element.innerText = childTarget.innerText;
+
+				const removeLink = document.createElement( 'span' );
+				removeLink.classList.add( 'remove-connection' );
+
+				element.appendChild( removeLink );
+				element.classList = 'added-connection';
+
+				connectionsSelectedList.appendChild( element );
+			}
+		} );
+
+		showConnections();
+	} );
+
 
 	/**
 	 * Remove a connection from selected connections and the UI list

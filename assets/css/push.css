@@ -83,6 +83,10 @@
 	}
 }
 
+#wpadminbar #distributor-push-wrapper .selectall-connections.empty {
+	opacity: .5;
+}
+
 #wpadminbar #distributor-push-wrapper .connections-selected label {
 	color: inherit;
 }
@@ -198,6 +202,10 @@
 	}
 }
 
+#wpadminbar #distributor-push-wrapper .selectall-connections {
+	margin-bottom: 1em;
+}
+
 #wpadminbar #distributor-push-wrapper .new-connections-list > div:nth-child(odd) {
 	background-color: var(--backgroundColorDark);
 }
@@ -270,7 +278,8 @@
     box-sizing: border-box;
 }
 
-#wpadminbar #distributor-push-wrapper .action-wrapper.loading .syndicate-button:after {
+#wpadminbar #distributor-push-wrapper .action-wrapper.loading .syndicate-button:after,
+#wpadminbar #distributor-push-wrapper .action-wrapper.loading .selectall-connections:after {
 	content: ' ';
 	vertical-align: middle;
 	border-radius: 50%;

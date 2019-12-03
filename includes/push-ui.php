@@ -455,6 +455,7 @@ function menu_content() {
 
 				<div class="connections-selector">
 					<div>
+						<button class="selectall-connections empty"><?php esc_html_e( 'Select All', 'distributor' ); ?></button>
 						<# if ( 5 < _.keys( connections ).length ) { #>
 							<input type="text" id="dt-connection-search" placeholder="<?php esc_attr_e( 'Search available connections', 'distributor' ); ?>">
 						<# } #>
