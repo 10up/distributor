@@ -267,6 +267,12 @@ class NetworkSiteConnection extends Connection {
 
 			restore_current_blog();
 
+			// Allow the sync'ed post to be updated via a REST request to
+			// get the rendered content.
+			if ( apply_filters( 'dt_pull_post_apply_rendered_content', true ) ) {
+				$this->update_content_via_rest( $new_post_id );
+			}
+
 			/**
 			 * Action triggered when a post is pulled via distributor.
 			 *
@@ -933,5 +939,54 @@ class NetworkSiteConnection extends Connection {
 		}
 
 		return $og_url;
+	}
+
+	/**
+	 * Updates a post content via a REST request after the new post is created
+	 * in order to get the rendered content.
+	 *
+	 * @param int $new_post_id The new post ID that was pulled.
+	 * @return void
+	 */
+	public function update_content_via_rest( $new_post_id ) {
+
+		$post = get_post( $new_post_id );
+		if ( ! is_a( $post, '\WP_Post' ) ) {
+			return;
+		}
+
+		$original_blog_id = absint( get_post_meta( $post->ID, 'dt_original_blog_id', true ) );
+		$original_post_id = absint( get_post_meta( $post->ID, 'dt_original_post_id', true ) );
+
+		$rest_url = false;
+		if ( ! empty( $original_blog_id ) && ! empty( $original_post_id ) ) {
+			$rest_url = Utils\get_rest_url( $original_blog_id, $original_post_id );
+		}
+
+		if ( empty( $rest_url ) ) {
+			return;
+		}
+
+		$request = apply_filters( 'dt_update_content_via_request_args', [], $new_post_id, $this );
+
+		$response = wp_remote_get( $rest_url, $request );
+
+		$body = wp_remote_retrieve_body( $response );
+		if ( empty( $body ) ) {
+			return;
+		}
+
+		$data = json_decode( $body );
+
+		// Grab the rendered response and update the current post.
+		if ( is_a( $data, '\stdClass' ) && isset( $data->content, $data->content->rendered ) ) {
+
+			wp_update_post(
+				[
+					'ID'           => $post->ID,
+					'post_content' => $data->content->rendered,
+				]
+			);
+		}
 	}
 }
