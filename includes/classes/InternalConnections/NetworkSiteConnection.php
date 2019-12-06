@@ -269,7 +269,7 @@ class NetworkSiteConnection extends Connection {
 
 			// Allow the sync'ed post to be updated via a REST request to
 			// get the rendered content.
-			if ( apply_filters( 'dt_pull_post_apply_rendered_content', true ) ) {
+			if ( apply_filters( 'dt_pull_post_apply_rendered_content', true, $new_post_id, $this, $post_array ) ) {
 				$this->update_content_via_rest( $new_post_id );
 			}
 
