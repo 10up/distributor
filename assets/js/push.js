@@ -35,6 +35,7 @@ jQuery( window ).on( 'load', () => {
 	let connectionsNewList      	= '';
 	let connectionsNewListChildren	= '';
 	let selectAllConnections 		= '';
+	let selectNoConnections			= '';
 	let connectionsSearchInput  	= '';
 	let actionWrapper           	= '';
 	let postStatusInput         	= '';
@@ -51,6 +52,7 @@ jQuery( window ).on( 'load', () => {
 		connectionsNewList      	= distributorPushWrapper.querySelector( '.new-connections-list' );
 		connectionsNewListChildren	= connectionsNewList.querySelectorAll( '.add-connection' );
 		selectAllConnections 		= distributorPushWrapper.querySelector( '.selectall-connections' );
+		selectNoConnections 		= distributorPushWrapper.querySelector( '.selectno-connections' );
 		connectionsSearchInput  	= document.getElementById( 'dt-connection-search' );
 		actionWrapper           	= distributorPushWrapper.querySelector( '.action-wrapper' );
 		postStatusInput         	= document.getElementById( 'dt-post-status' );
@@ -75,6 +77,7 @@ jQuery( window ).on( 'load', () => {
 		_.each( connectionsNewListChildren, ( element ) => {
 			if ( !element.classList.contains ( 'syndicated' ) ) {
 				selectAllConnections.classList.remove( 'empty' );
+				selectNoConnections.classList.remove( 'empty' );
 			}
 		} );
 	}
@@ -345,6 +348,26 @@ jQuery( window ).on( 'load', () => {
 		showConnections();
 	} );
 
+	/**
+	 * Select no connections for distribution.
+	*/
+	jQuery( distributorPushWrapper ).on( 'click', '.selectno-connections', () => {
+
+		while ( connectionsSelectedList.firstChild ) {
+			const type = connectionsSelectedList.firstChild.getAttribute( 'data-connection-type' );
+			const id   = connectionsSelectedList.firstChild.getAttribute( 'data-connection-id' );
+
+			delete selectedConnections[type + id];
+
+			connectionsSelectedList.removeChild( connectionsSelectedList.firstChild );
+
+			if ( ! Object.keys( selectedConnections ).length ) {
+				connectionsSelected.classList.add( 'empty' );
+			}
+		}
+
+		showConnections();
+	} );
 
 	/**
 	 * Remove a connection from selected connections and the UI list
