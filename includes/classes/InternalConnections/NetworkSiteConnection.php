@@ -267,9 +267,16 @@ class NetworkSiteConnection extends Connection {
 
 			restore_current_blog();
 
-			// Allow the sync'ed post to be updated via a REST request to
-			// get the rendered content.
-			if ( apply_filters( 'dt_pull_post_apply_rendered_content', true, $new_post_id, $this, $post_array ) ) {
+			/**
+			 * Allow the sync'ed post to be updated via a REST request get the rendered content.
+			 *
+			 * @since ?
+			 *
+			 * @param bool  $apply       Apply rendered content after a pull? Defaults to false.
+			 * @param int   $new_post_id The new post ID.
+			 * @param array $post_array  The post array used to create the new post.
+			 */
+			if ( apply_filters( 'dt_pull_post_apply_rendered_content', false, $new_post_id, $this, $post_array ) ) {
 				$this->update_content_via_rest( $new_post_id );
 			}
 
