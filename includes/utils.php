@@ -809,5 +809,14 @@ function get_rest_url( $blog_id, $post_id ) {
 
 	restore_current_blog();
 
+	/**
+	 * Allow filtering of the REST API URL used for pulling post contewnt,
+	 *
+	 * @since ?
+	 *
+	 * @param string $rest_url The defaukt REST URL to the post.
+	 * @param int $blog_id     The blog ID.
+	 * @param int $post_id     The post ID being retrieved.
+	 */
 	return apply_filters( 'dt_get_rest_url', $rest_url, $blog_id, $post_id );
 }
