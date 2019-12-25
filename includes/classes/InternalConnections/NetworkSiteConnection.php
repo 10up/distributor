@@ -974,6 +974,17 @@ class NetworkSiteConnection extends Connection {
 			return;
 		}
 
+		/**
+		 * Allow filtering of the HTTP request args before updating content
+		 * via a REST API call.
+		 *
+		 * @since ?
+		 *
+		 * @param array                 list            List of request args.
+		 * @param int                   $new_post_id    The new post ID.
+		 * @param array                 $post_array     The post array used to create the new post.
+		 * @param NetworkSiteConnection $this           The distributor connection being pulled from.
+		 */
 		$request = apply_filters( 'dt_update_content_via_request_args', [], $new_post_id, $this );
 
 		$response = wp_remote_get( $rest_url, $request );
