@@ -272,7 +272,7 @@ class NetworkSiteConnection extends Connection {
 			 *
 			 * @since ?
 			 *
-			 * @param bool  $apply       Apply rendered content after a pull? Defaults to false.
+			 * @param bool  false        Apply rendered content after a pull? Defaults to false.
 			 * @param int   $new_post_id The new post ID.
 			 * @param array $post_array  The post array used to create the new post.
 			 */
