@@ -4,7 +4,6 @@ import { dt } from 'window';
 
 let selectedConnections = {},
 	searchString        = '';
-
 const processTemplate = _.memoize( ( id ) => {
 	const element = document.getElementById( id );
 	if ( ! element ) {
@@ -29,17 +28,18 @@ jQuery( window ).on( 'load', () => {
 		return;
 	}
 
-	let dtConnections           	= '';
-	let connectionsSelected     	= '';
-	let connectionsSelectedList 	= '';
-	let connectionsNewList      	= '';
-	let connectionsNewListChildren	= '';
-	let selectAllConnections 		= '';
-	let selectNoConnections			= '';
-	let connectionsSearchInput  	= '';
-	let actionWrapper           	= '';
-	let postStatusInput         	= '';
-	let asDraftInput            	= '';
+	let dtConnections           		= '';
+	let connectionsSelected     		= '';
+	let connectionsSelectedList 		= '';
+	let connectionsNewList      		= '';
+	let connectionsNewListChildren    	= '';
+	let connectionsAvailableTotal		= '';
+	let selectAllConnections 			= '';
+	let selectNoConnections				= '';
+	let connectionsSearchInput  		= '';
+	let actionWrapper           		= '';
+	let postStatusInput         		= '';
+	let asDraftInput            		= '';
 
 	distributorMenuItem.appendChild( distributorPushWrapper );
 
@@ -50,13 +50,16 @@ jQuery( window ).on( 'load', () => {
 		connectionsSelected     	= distributorPushWrapper.querySelector( '.connections-selected' );
 		connectionsSelectedList 	= distributorPushWrapper.querySelector( '.selected-connections-list' );
 		connectionsNewList      	= distributorPushWrapper.querySelector( '.new-connections-list' );
-		connectionsNewListChildren	= connectionsNewList.querySelectorAll( '.add-connection' );
 		selectAllConnections 		= distributorPushWrapper.querySelector( '.selectall-connections' );
 		selectNoConnections 		= distributorPushWrapper.querySelector( '.selectno-connections' );
 		connectionsSearchInput  	= document.getElementById( 'dt-connection-search' );
 		actionWrapper           	= distributorPushWrapper.querySelector( '.action-wrapper' );
 		postStatusInput         	= document.getElementById( 'dt-post-status' );
 		asDraftInput            	= document.getElementById( 'dt-as-draft' );
+
+		if ( null !== connectionsNewList ){
+			connectionsNewListChildren  = connectionsNewList.querySelectorAll( '.add-connection' );
+		}
 
 		/**
 		 * Listen for connection filtering
@@ -65,21 +68,20 @@ jQuery( window ).on( 'load', () => {
 			if ( '' === event.currentTarget.value ) {
 				showConnections( dtConnections );
 			}
-
 			searchString = event.currentTarget.value.replace( /https?:\/\//i, '' ).replace( /www/i, '' ).replace( /[^0-9a-zA-Z ]+/, '' );
-
 			showConnections();
 		}, 300 ) );
 
 		/**
-		 * Indicate select all button available, if connections are available for syndication
+		 * Disable select all button if all connections are syndicated and set variable for total connections available
 		 */
 		_.each( connectionsNewListChildren, ( element ) => {
 			if ( !element.classList.contains ( 'syndicated' ) ) {
-				selectAllConnections.classList.remove( 'empty' );
-				selectNoConnections.classList.remove( 'empty' );
+				selectAllConnections.classList.remove( 'unavailable' );
+				connectionsAvailableTotal ++;
 			}
 		} );
+
 	}
 
 	/**
@@ -134,8 +136,8 @@ jQuery( window ).on( 'load', () => {
 	}
 
 	/**
-		 * Show connections. If there is a search string, then filter by it
-		 */
+	 * Show connections. If there is a search string, then filter by it
+	*/
 	function showConnections() {
 		connectionsNewList.innerText = '';
 
@@ -156,6 +158,32 @@ jQuery( window ).on( 'load', () => {
 
 			connectionsNewList.innerHTML += showConnection;
 		} );
+	}
+
+	/**
+	 * Add or remove CSS classes to indicate button functionality
+	*/
+	function classList( expr ) {
+		switch ( expr ) {
+				case 'addEmpty':
+					connectionsSelected.classList.add( 'empty' );
+					break;
+				case 'removeEmpty':
+					connectionsSelected.classList.remove( 'empty' );
+					break;
+				case 'allUnavailable':
+					selectAllConnections.classList.add ( 'unavailable' );
+					break;
+				case 'all':
+					selectAllConnections.classList.remove ( 'unavailable' );
+					break;
+				case 'noneUnavailable':
+					selectNoConnections.classList.add ( 'unavailable' );
+					break;
+				case 'none':
+					selectNoConnections.classList.remove ( 'unavailable' );
+					break;
+		}
 	}
 
 	/**
@@ -194,7 +222,6 @@ jQuery( window ).on( 'load', () => {
 
 			dtConnections = response.data;
 
-			// Allowing innerHTML because processTemplate escapes values
 			distributorPushWrapper.innerHTML = processTemplate( 'dt-show-connections' )( {
 				connections: dtConnections,
 			} );
@@ -277,7 +304,6 @@ jQuery( window ).on( 'load', () => {
 		}
 
 		if ( event.currentTarget.classList.contains( 'added' ) ) {
-
 			const type = event.currentTarget.getAttribute( 'data-connection-type' );
 			const id   = event.currentTarget.getAttribute( 'data-connection-id' );
 
@@ -287,19 +313,20 @@ jQuery( window ).on( 'load', () => {
 
 			delete selectedConnections[type + id];
 
+			if ( selectAllConnections.classList.contains ( 'unavailable' ) ) {
+				classList ( 'all' );
+			}
 			if ( ! Object.keys( selectedConnections ).length ) {
-				connectionsSelected.classList.add( 'empty' );
+				classList ( 'addEmpty' );
+				classList ( 'noneUnavailable' );
 			}
 
 			showConnections();
 		} else {
-
 			const type = event.currentTarget.getAttribute( 'data-connection-type' );
 			const id   = event.currentTarget.getAttribute( 'data-connection-id' );
 
 			selectedConnections[type + id] = dtConnections[type + id];
-
-			connectionsSelected.classList.remove( 'empty' );
 
 			const element       = event.currentTarget.cloneNode();
 			element.innerText = event.currentTarget.innerText;
@@ -312,6 +339,15 @@ jQuery( window ).on( 'load', () => {
 
 			connectionsSelectedList.appendChild( element );
 
+			if ( selectNoConnections.classList.contains ( 'unavailable' ) ) {
+				classList ( 'removeEmpty' );
+				classList ( 'none' );
+			}
+
+			if ( Object.keys( selectedConnections ).length == connectionsAvailableTotal ){
+				classList ( 'allUnavailable' );
+			}
+
 			showConnections();
 		}
 	} );
@@ -320,7 +356,6 @@ jQuery( window ).on( 'load', () => {
 	 * Select all connections for distribution.
 	*/
 	jQuery( distributorPushWrapper ).on( 'click', '.selectall-connections', () => {
-
 		jQuery ( connectionsNewList ).children( '.add-connection' ).each( ( index, childTarget ) => {
 			if ( childTarget.classList.contains( 'syndicated' ) || childTarget.classList.contains( 'added' ) ) {
 				return;
@@ -329,8 +364,6 @@ jQuery( window ).on( 'load', () => {
 				const id   = childTarget.getAttribute( 'data-connection-id' );
 
 				selectedConnections[type + id] = dtConnections[type + id];
-
-				connectionsSelected.classList.remove( 'empty' );
 
 				const element     = childTarget.cloneNode();
 				element.innerText = childTarget.innerText;
@@ -342,7 +375,15 @@ jQuery( window ).on( 'load', () => {
 				element.classList = 'added-connection';
 
 				connectionsSelectedList.appendChild( element );
+
 			}
+
+			if ( '' !== connectionsAvailableTotal ) {
+				classList ( 'removeEmpty' );
+				classList ( 'allUnavailable' );
+				classList ( 'none' );
+			}
+
 		} );
 
 		showConnections();
@@ -361,9 +402,12 @@ jQuery( window ).on( 'load', () => {
 
 			connectionsSelectedList.removeChild( connectionsSelectedList.firstChild );
 
-			if ( ! Object.keys( selectedConnections ).length ) {
-				connectionsSelected.classList.add( 'empty' );
-			}
+		}
+
+		if ( '' !== connectionsAvailableTotal ) {
+			classList ( 'addEmpty' );
+			classList ( 'noneUnavailable' );
+			classList ( 'all' );
 		}
 
 		showConnections();
@@ -379,8 +423,12 @@ jQuery( window ).on( 'load', () => {
 
 		delete selectedConnections[type + id];
 
+		if ( selectAllConnections.classList.contains ( 'unavailable' ) ) {
+			classList ( 'all' );
+		}
 		if ( ! Object.keys( selectedConnections ).length ) {
-			connectionsSelected.classList.add( 'empty' );
+			classList ( 'addEmpty' );
+			classList ( 'noneUnavailable' );
 		}
 
 		showConnections();
