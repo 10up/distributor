@@ -267,7 +267,7 @@ class NetworkSiteConnection extends Connection {
 		$content = preg_replace( '/blockname="([^"]*)"/i', 'wp:$1', $content );
 
 		// Find any that should be self closing, and convert them to self closing gutenberg comments
-		$content = preg_replace( '/<gutenberg (wp:[^>]*)><\/gutenberg>/i', '<!-- $1/ -->', $content );
+		$content = preg_replace( '/<gutenberg (wp:[^>]*)><\/gutenberg>/i', '<!-- $1 /-->', $content );
 
 		// Convert any opening tags to opening gutenberg comments
 		$content = preg_replace( '/<gutenberg (wp:[^>]*)>/i', '<!-- $1 -->', $content );
