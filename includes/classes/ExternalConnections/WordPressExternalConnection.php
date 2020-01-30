@@ -819,17 +819,21 @@ class WordPressExternalConnection extends ExternalConnection {
 				if ( is_wp_error( $permission_response ) || empty( $permission_body ) ) {
 					$output['errors']['no_permissions'] = 'no_permissions';
 				} else {
-					$permissions          = json_decode( $permission_body );
-					$can_get              = $permissions->can_get;
-					$can_post             = $permissions->can_post;
-					$blacklisted_get_key  = array_search( 'dt_subscription', $can_get, true );
-					$blacklisted_post_key = array_search( 'dt_subscription', $can_post, true );
-					if ( false !== $blacklisted_get_key ) {
-						unset( $can_get[ $blacklisted_get_key ] );
-					}
-					if ( false !== $blacklisted_post_key ) {
-						unset( $can_post[ $blacklisted_post_key ] );
-					}
+					$permissions = json_decode( $permission_body );
+					$can_get     = array_filter(
+						$permissions->can_get,
+						function ( $key ) {
+							return 'dt_subscription' !== $key;
+						},
+						ARRAY_FILTER_USE_KEY
+					);
+					$can_post    = array_filter(
+						$permissions->can_post,
+						function ( $key ) {
+							return 'dt_subscription' !== $key;
+						},
+						ARRAY_FILTER_USE_KEY
+					);
 				}
 
 				$output['can_get']  = $can_get;
