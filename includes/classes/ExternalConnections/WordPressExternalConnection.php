@@ -834,17 +834,11 @@ class WordPressExternalConnection extends ExternalConnection {
 					$permissions = json_decode( $permission_body );
 					$can_get     = array_filter(
 						$permissions->can_get,
-						function ( $key ) {
-							return 'dt_subscription' !== $key;
-						},
-						ARRAY_FILTER_USE_KEY
+						[ $this, 'not_distributor_internal_post_type' ]
 					);
 					$can_post    = array_filter(
 						$permissions->can_post,
-						function ( $key ) {
-							return 'dt_subscription' !== $key;
-						},
-						ARRAY_FILTER_USE_KEY
+						[ $this, 'not_distributor_internal_post_type' ]
 					);
 				}
 
@@ -855,6 +849,19 @@ class WordPressExternalConnection extends ExternalConnection {
 
 		return $output;
 	}
+
+
+	/**
+	 * Whether if the post type is not distibutor internal post type.
+	 *
+	 * @param string $post_type Post type
+	 *
+	 * @return bool
+	 */
+	private function not_distributor_internal_post_type( $post_type ) {
+		return 'dt_subscription' !== $post_type;
+	}
+
 
 	/**
 	 * Convert array to WP_Post object suitable for insert/update.
