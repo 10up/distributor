@@ -792,15 +792,30 @@ class WordPressExternalConnection extends ExternalConnection {
 				$can_get  = array();
 				$can_post = array();
 
-				$permission_url          = untrailingslashit( $this->base_url ) . '/' . self::$namespace . 'distributor/post-types-permissions';
-				$permission_auth_handler = $this->auth_handler->format_get_args(
-					array(
-						'timeout' => self::$timeout,
-					)
-				);
+				$permission_url = untrailingslashit( $this->base_url ) . '/' . self::$namespace . 'distributor/post-types-permissions';
 
-				$permission_response = wp_remote_get( $permission_url, $permission_auth_handler );
-				$permission_body     = wp_remote_retrieve_body( $permission_response );
+				if ( function_exists( 'vip_safe_wp_remote_get' ) && \Distributor\Utils\is_vip_com() ) {
+					$permission_response = vip_safe_wp_remote_get(
+						$permission_url,
+						false,
+						3,
+						3,
+						10,
+						$this->auth_handler->format_get_args()
+					);
+				} else {
+
+					$permission_response = wp_remote_get(
+						$permission_url,
+						$this->auth_handler->format_get_args(
+							array(
+								'timeout' => self::$timeout,
+							)
+						)
+					);
+				}
+				$permission_body = wp_remote_retrieve_body( $permission_response );
+
 				if ( is_wp_error( $permission_response ) || empty( $permission_body ) ) {
 					$output['errors']['no_permissions'] = 'no_permissions';
 				} else {
