@@ -20,35 +20,35 @@ class WordPressExternalConnection extends ExternalConnection {
 	 *
 	 * @var string
 	 */
-	static public $slug = 'wp';
+	public static $slug = 'wp';
 
 	/**
 	 * Connection pretty label
 	 *
 	 * @var string
 	 */
-	static public $label = 'WordPress REST API';
+	public static $label = 'WordPress REST API';
 
 	/**
 	 * Auth handler to use
 	 *
 	 * @var string
 	 */
-	static public $auth_handler_class = '\Distributor\Authentications\WordPressBasicAuth';
+	public static $auth_handler_class = '\Distributor\Authentications\WordPressBasicAuth';
 
 	/**
 	 * REST API namespace
 	 *
 	 * @var string
 	 */
-	static public $namespace = 'wp/v2';
+	public static $namespace = 'wp/v2';
 
 	/**
 	 * Remote request timeout
 	 *
 	 * @var integer
 	 */
-	static public $timeout = 5;
+	public static $timeout = 5;
 
 	/**
 	 * Default post type to pull.
@@ -792,7 +792,7 @@ class WordPressExternalConnection extends ExternalConnection {
 				$can_get  = array();
 				$can_post = array();
 
-				$permission_url          = untrailingslashit( $this->base_url ) . '/' . self::$namespace . '/distributor/permissions';
+				$permission_url          = untrailingslashit( $this->base_url ) . '/' . self::$namespace . 'distributor/post-types-permissions';
 				$permission_auth_handler = $this->auth_handler->format_get_args(
 					array(
 						'timeout' => self::$timeout,

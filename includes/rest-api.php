@@ -17,6 +17,7 @@ function setup() {
 		'init',
 		function() {
 			add_action( 'rest_api_init', __NAMESPACE__ . '\register_endpoints' );
+			add_action( 'rest_api_init', __NAMESPACE__ . '\register_rest_routes' );
 
 			$post_types = get_post_types(
 				array(
@@ -125,6 +126,20 @@ function process_distributor_attributes( $post, $request, $update ) {
 }
 
 /**
+ * Register custom routes to handle distributor specific functionality.
+ */
+function register_rest_routes() {
+	register_rest_route(
+		'wp/v2',
+		'distributor/post-types-permissions',
+		array(
+			'methods'  => 'GET',
+			'callback' => __NAMESPACE__ . '\check_post_types_permissions',
+		)
+	);
+}
+
+/**
  * We need to register distributor post fields for getting all the meta, terms, and media. This
  * is easier than modifying existing fields which other plugins may depend on.
  *
@@ -223,20 +238,12 @@ function register_endpoints() {
 			),
 		)
 	);
-	register_rest_route(
-		'wp/v2',
-		'/distributor/permissions',
-		array(
-			'methods'  => 'GET',
-			'callback' => __NAMESPACE__ . '\check_permissions',
-		)
-	);
 }
 
 /**
  * Check user permissions for available post types
  */
-function check_permissions() {
+function check_post_types_permissions() {
 	$types    = get_post_types(
 		array(
 			'show_in_rest' => true,
