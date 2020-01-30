@@ -59,22 +59,12 @@ class PullListTable extends \WP_List_Table {
 			'date' => esc_html__( 'Date', 'distributor' ),
 		];
 
+		// Remove checkbox column on the Pulled view
+		if ( isset( $_GET['status'] ) && 'pulled' === $_GET['status'] ) { // @codingStandardsIgnoreLine Nonce not needed.
+			unset( $columns['cb'] );
+		}
+
 		return $columns;
-	}
-
-	/**
-	 * Get sortable table columns
-	 *
-	 * @since  0.8
-	 * @return array
-	 */
-	public function get_sortable_columns() {
-		$sortable_columns = array(
-			'name' => 'name',
-			'date' => array( 'date', true ),
-		);
-
-		return $sortable_columns;
 	}
 
 	/**
@@ -85,14 +75,40 @@ class PullListTable extends \WP_List_Table {
 	 */
 	protected function get_views() {
 
-		$current_status = ( empty( $_GET['status'] ) ) ? 'new' : sanitize_key( $_GET['status'] );
+		$current_status = ( empty( $_GET['status'] ) ) ? 'new' : sanitize_key( $_GET['status'] ); // @codingStandardsIgnoreLine No nonce needed.
 
 		$request_uri = $_SERVER['REQUEST_URI'];
 
+		$url         = add_query_arg(
+			array(
+				'paged' => false,
+				's'     => false,
+			),
+			$request_uri
+		);
+		$new_url     = add_query_arg(
+			array(
+				'status' => 'new',
+			),
+			$url
+		);
+		$pulled_url  = add_query_arg(
+			array(
+				'status' => 'pulled',
+			),
+			$url
+		);
+		$skipped_url = add_query_arg(
+			array(
+				'status' => 'skipped',
+			),
+			$url
+		);
+
 		$status_links = [
-			'new'     => '<a href="' . esc_url( $request_uri . '&status=new' ) . '" class="' . ( ( 'new' === $current_status ) ? 'current' : '' ) . '">' . esc_html__( 'New', 'distributor' ) . '</a>',
-			'pulled'  => '<a href="' . esc_url( $request_uri . '&status=pulled' ) . '" class="' . ( ( 'pulled' === $current_status ) ? 'current' : '' ) . '">' . esc_html__( 'Pulled', 'distributor' ) . '</a>',
-			'skipped' => '<a href="' . esc_url( $request_uri . '&status=skipped' ) . '" class="' . ( ( 'skipped' === $current_status ) ? 'current' : '' ) . '">' . esc_html__( 'Skipped', 'distributor' ) . '</a>',
+			'new'     => '<a href="' . esc_url( $new_url ) . '" class="' . ( ( 'new' === $current_status ) ? 'current' : '' ) . '">' . esc_html__( 'New', 'distributor' ) . '</a>',
+			'pulled'  => '<a href="' . esc_url( $pulled_url ) . '" class="' . ( ( 'pulled' === $current_status ) ? 'current' : '' ) . '">' . esc_html__( 'Pulled', 'distributor' ) . '</a>',
+			'skipped' => '<a href="' . esc_url( $skipped_url ) . '" class="' . ( ( 'skipped' === $current_status ) ? 'current' : '' ) . '">' . esc_html__( 'Skipped', 'distributor' ) . '</a>',
 		];
 
 		return $status_links;
@@ -111,19 +127,8 @@ class PullListTable extends \WP_List_Table {
 		if ( is_null( $this->_actions ) ) {
 			$no_new_actions = $this->get_bulk_actions();
 			$this->_actions = $this->get_bulk_actions();
-			/**
-			 * Filters the list table Bulk Actions drop-down.
-			 *
-			 * The dynamic portion of the hook name, `$this->screen->id`, refers
-			 * to the ID of the current screen, usually a string.
-			 *
-			 * This filter can currently only be used to remove bulk actions.
-			 *
-			 * @since 3.5.0
-			 *
-			 * @param array $actions An array of the available bulk actions.
-			 */
-			$this->_actions = apply_filters( "bulk_actions-{$this->screen->id}", $this->_actions );
+			// Filter documented in WordPress core.
+			$this->_actions = apply_filters( "bulk_actions-{$this->screen->id}", $this->_actions ); // @codingStandardsIgnoreLine valid filter name
 			$this->_actions = array_intersect_assoc( $this->_actions, $no_new_actions );
 			$two            = '';
 		} else {
@@ -155,12 +160,24 @@ class PullListTable extends \WP_List_Table {
 	 *
 	 * @global string $mode
 	 *
-	 * @param WP_Post $post The current WP_Post object.
+	 * @param \WP_Post $post The current WP_Post object.
 	 */
 	public function column_date( $post ) {
 		global $mode;
 
-		if ( ! empty( $_GET['status'] ) && 'pulled' === $_GET['status'] ) {
+		if ( ! empty( $this->sync_log ) && ( empty( $_GET['status'] ) || 'new' === $_GET['status'] ) ) { // @codingStandardsIgnoreLine Nonce not needed.
+			if ( isset( $this->sync_log[ $post->ID ] ) ) {
+				if ( false === $this->sync_log[ $post->ID ] ) {
+					echo '<span class="disabled">' . esc_html__( 'Skipped', 'distributor' ) . '</span>';
+					return;
+				} else {
+					echo '<span class="disabled">' . esc_html__( 'Pulled', 'distributor' ) . '</span>';
+					return;
+				}
+			}
+		}
+
+		if ( ! empty( $_GET['status'] ) && 'pulled' === $_GET['status'] ) { // @codingStandardsIgnoreLine Nonce isn't required.
 			if ( ! empty( $this->sync_log[ $post->ID ] ) ) {
 				$syndicated_at = get_post_meta( $this->sync_log[ $post->ID ], 'dt_syndicate_time', true );
 
@@ -172,11 +189,13 @@ class PullListTable extends \WP_List_Table {
 					$time_diff = time() - $syndicated_at;
 
 					if ( $time_diff > 0 && $time_diff < DAY_IN_SECONDS ) {
+						/* translators: %s: a human readable time */
 						$h_time = sprintf( esc_html__( '%s ago', 'distributor' ), human_time_diff( $syndicated_at ) );
 					} else {
 						$h_time = date( 'F j, Y', $syndicated_at );
 					}
 
+					/* translators: %s: time of pull */
 					echo sprintf( esc_html__( 'Pulled %s', 'distributor' ), esc_html( $h_time ) );
 				}
 			}
@@ -193,6 +212,7 @@ class PullListTable extends \WP_List_Table {
 				$time_diff = time() - $time;
 
 				if ( $time_diff > 0 && $time_diff < DAY_IN_SECONDS ) {
+					/* translators: %s: a human readable time */
 					$h_time = sprintf( esc_html__( '%s ago', 'distributor' ), human_time_diff( $time ) );
 				} else {
 					$h_time = mysql2date( esc_html__( 'Y/m/d', 'distributor' ), $m_time );
@@ -212,8 +232,10 @@ class PullListTable extends \WP_List_Table {
 			}
 			echo '<br />';
 			if ( 'excerpt' === $mode ) {
+				// Core filter, documented in wp-admin/includes/class-wp-posts-list-table.php.
 				echo esc_html( apply_filters( 'post_date_column_time', $t_time, $post, 'date', $mode ) );
 			} else {
+				// Core filter, documented in wp-admin/includes/class-wp-posts-list-table.php.
 				echo '<abbr title="' . esc_attr( $t_time ) . '">' . esc_html( apply_filters( 'post_date_column_time', $h_time, $post, 'date', $mode ) ) . '</abbr>';
 			}
 		}
@@ -222,15 +244,16 @@ class PullListTable extends \WP_List_Table {
 	/**
 	 * Output standard table columns (not name)
 	 *
-	 * @param  array  $item Item to output.
-	 * @param  string $column_name Column name.
+	 * @param  array|\WP_Post $item Item to output.
+	 * @param  string         $column_name Column name.
+	 *
+	 * @return string Url, post title, or empty string.
 	 * @since  0.8
 	 */
 	public function column_default( $item, $column_name ) {
 		switch ( $column_name ) {
 			case 'name':
 				return $item['post_title'];
-				break;
 			case 'url':
 				$url = get_post_meta( $item->ID, 'dt_external_connection_url', true );
 
@@ -239,20 +262,21 @@ class PullListTable extends \WP_List_Table {
 				}
 
 				return $url;
-				break;
 		}
+
+		return '';
 	}
 
 	/**
 	 * Output name column wrapper
 	 *
 	 * @since 4.3.0
-	 * @param WP_Post $item Post object.
-	 * @param string  $classes CSS classes.
-	 * @param string  $data Column data.
-	 * @param string  $primary Whether primary or not.
+	 * @param \WP_Post $item Post object.
+	 * @param string   $classes CSS classes.
+	 * @param string   $data Column data.
+	 * @param string   $primary Whether primary or not.
 	 */
-	protected function _column_name( $item, $classes, $data, $primary ) {
+	protected function _column_name( $item, $classes, $data, $primary ) { // @codingStandardsIgnoreLine valid function name
 		echo '<td class="' . esc_attr( $classes ) . ' page-title">';
 		$this->column_name( $item );
 		echo wp_kses_post( $this->handle_row_actions( $item, 'title', $primary ) );
@@ -262,7 +286,7 @@ class PullListTable extends \WP_List_Table {
 	/**
 	 * Output inner name column with actions
 	 *
-	 * @param  WP_Post $item Post object.
+	 * @param  \WP_Post $item Post object.
 	 * @since  0.8
 	 */
 	public function column_name( $item ) {
@@ -278,17 +302,23 @@ class PullListTable extends \WP_List_Table {
 		}
 
 		$actions = [];
+		$disable = false;
 
-		if ( empty( $_GET['status'] ) || 'new' === $_GET['status'] ) {
+		if ( empty( $_GET['status'] ) || 'new' === $_GET['status'] ) { // @codingStandardsIgnoreLine Nonce not needed.
+			if ( isset( $this->sync_log[ $item->ID ] ) ) {
+				$actions = [];
+				$disable = true;
+			} else {
+				$actions = [
+					'view' => '<a href="' . esc_url( $item->link ) . '">' . esc_html__( 'View', 'distributor' ) . '</a>',
+					'skip' => sprintf( '<a href="%s">%s</a>', esc_url( wp_nonce_url( admin_url( 'admin.php?page=pull&action=skip&_wp_http_referer=' . rawurlencode( $_SERVER['REQUEST_URI'] ) . '&post=' . $item->ID . '&connection_type=' . $connection_type . '&connection_id=' . $connection_id ), 'dt_skip' ) ), esc_html__( 'Skip', 'distributor' ) ),
+				];
+			}
+		} elseif ( 'skipped' === $_GET['status'] ) { // @codingStandardsIgnoreLine Nonce not needed.
 			$actions = [
 				'view' => '<a href="' . esc_url( $item->link ) . '">' . esc_html__( 'View', 'distributor' ) . '</a>',
-				'skip' => sprintf( '<a href="%s">%s</a>', esc_url( wp_nonce_url( admin_url( 'admin.php?page=pull&action=skip&_wp_http_referer=' . rawurlencode( $_SERVER['REQUEST_URI'] ) . '&post=' . $item->ID . '&connection_type=' . $connection_type . '&connection_id=' . $connection_id ), 'dt_skip' ) ), esc_html__( 'Skip', 'distributor' ) ),
 			];
-		} elseif ( 'skipped' === $_GET['status'] ) {
-			$actions = [
-				'view' => '<a href="' . esc_url( $item->link ) . '">' . esc_html__( 'View', 'distributor' ) . '</a>',
-			];
-		} elseif ( 'pulled' === $_GET['status'] ) {
+		} elseif ( 'pulled' === $_GET['status'] ) { // @codingStandardsIgnoreLine Nonce not needed
 
 			$new_post_id = ( ! empty( $this->sync_log[ (int) $item->ID ] ) ) ? $this->sync_log[ (int) $item->ID ] : 0;
 			$new_post    = get_post( $new_post_id );
@@ -307,8 +337,16 @@ class PullListTable extends \WP_List_Table {
 			$title = esc_html__( '(no title)', 'distributor' );
 		}
 
+		if ( $disable ) {
+			echo '<div class="disabled">';
+		}
+
 		echo '<strong>' . esc_html( $title ) . '</strong>';
 		echo wp_kses_post( $this->row_actions( $actions ) );
+
+		if ( $disable ) {
+			echo '</div>';
+		}
 	}
 
 	/**
@@ -325,7 +363,7 @@ class PullListTable extends \WP_List_Table {
 
 		$columns  = $this->get_columns();
 		$hidden   = get_hidden_columns( $this->screen );
-		$sortable = $this->get_sortable_columns();
+		$sortable = [];
 
 		$data = $this->table_data();
 
@@ -342,10 +380,12 @@ class PullListTable extends \WP_List_Table {
 			'posts_per_page' => $per_page,
 			'paged'          => $current_page,
 			'post_type'      => $connection_now->pull_post_type ?: 'post',
+			'orderby'        => 'ID', // this is because of include/exclude truncation
+			'order'          => 'DESC', // default but specifying to be safe
 		];
 
-		if ( ! empty( $_GET['s'] ) ) {
-			$remote_get_args['s'] = rawurlencode( $_GET['s'] );
+		if ( ! empty( $_GET['s'] ) ) { // @codingStandardsIgnoreLine Nonce isn't required.
+			$remote_get_args['s'] = rawurlencode( $_GET['s'] ); // @codingStandardsIgnoreLine Nonce isn't required.
 		}
 
 		if ( is_a( $connection_now, '\Distributor\ExternalConnection' ) ) {
@@ -364,8 +404,9 @@ class PullListTable extends \WP_List_Table {
 			$this->sync_log = [];
 		}
 
-		$skipped    = array();
-		$syndicated = array();
+		$skipped     = array();
+		$syndicated  = array();
+		$total_items = false;
 
 		foreach ( $this->sync_log as $old_post_id => $new_post_id ) {
 			if ( false === $new_post_id ) {
@@ -375,8 +416,16 @@ class PullListTable extends \WP_List_Table {
 			}
 		}
 
-		if ( empty( $_GET['status'] ) || 'new' === $_GET['status'] ) {
-			$remote_get_args['post__not_in'] = array_merge( $skipped, $syndicated );
+		if ( empty( $_GET['status'] ) || 'new' === $_GET['status'] ) { // @codingStandardsIgnoreLine Nonce not required.
+			// Sort from highest ID (newest) to low so the slice only affects later pagination.
+			rsort( $skipped, SORT_NUMERIC );
+			rsort( $syndicated, SORT_NUMERIC );
+
+			// This is somewhat arbitrarily set to 200 and should probably be made filterable eventually.
+			// IDs can get rather large and 400 easily exceeds typical header size limits.
+			$post_ids = array_slice( array_merge( $skipped, $syndicated ), 0, 200, true );
+
+			$remote_get_args['post__not_in'] = $post_ids;
 
 			$remote_get_args['meta_query'] = [
 				[
@@ -384,10 +433,26 @@ class PullListTable extends \WP_List_Table {
 					'compare' => 'NOT EXISTS',
 				],
 			];
-		} elseif ( 'skipped' === $_GET['status'] ) {
-			$remote_get_args['post__in'] = $skipped;
+		} elseif ( 'skipped' === $_GET['status'] ) { // @codingStandardsIgnoreLine Nonce not required.
+			// Put most recently skipped items first.
+			$skipped     = array_reverse( $skipped );
+			$total_items = count( $skipped );
+			$offset      = $per_page * ( $current_page - 1 );
+			$post_ids    = array_slice( $skipped, $offset, $per_page, true );
+
+			$remote_get_args['post__in'] = $post_ids;
+			$remote_get_args['orderby']  = 'post__in';
+			$remote_get_args['paged']    = 1;
 		} else {
-			$remote_get_args['post__in'] = $syndicated;
+			// Put most recently pulled items first.
+			$syndicated  = array_reverse( $syndicated );
+			$total_items = count( $syndicated );
+			$offset      = $per_page * ( $current_page - 1 );
+			$post_ids    = array_slice( $syndicated, $offset, $per_page, true );
+
+			$remote_get_args['post__in'] = $post_ids;
+			$remote_get_args['orderby']  = 'post__in';
+			$remote_get_args['paged']    = 1;
 		}
 
 		$remote_get = $connection_now->remote_get( $remote_get_args );
@@ -398,9 +463,14 @@ class PullListTable extends \WP_List_Table {
 			return;
 		}
 
+		// Get total items retrieved from the remote request if not already set.
+		if ( false === $total_items ) {
+			$total_items = $remote_get['total_items'];
+		}
+
 		$this->set_pagination_args(
 			[
-				'total_items' => $remote_get['total_items'],
+				'total_items' => $total_items,
 				'per_page'    => $per_page,
 			]
 		);
@@ -414,11 +484,15 @@ class PullListTable extends \WP_List_Table {
 	 * Handles the checkbox column output.
 	 *
 	 * @since 4.3.0
-	 * @param WP_Post $post The current WP_Post object.
+	 * @param \WP_Post $post The current WP_Post object.
 	 */
 	public function column_cb( $post ) {
+		if ( isset( $this->sync_log[ $post->ID ] ) ) {
+			return;
+		}
 		?>
 		<label class="screen-reader-text" for="cb-select-<?php echo (int) $post->ID; ?>">
+		<?php /* translators: %s: the post title or draft */ ?>
 		<?php echo esc_html( sprintf( esc_html__( 'Select %s', 'distributor' ), _draft_or_post_title() ) ); ?>
 		</label>
 		<input id="cb-select-<?php echo (int) $post->ID; ?>" type="checkbox" name="post[]" value="<?php echo (int) $post->ID; ?>" />
@@ -433,12 +507,12 @@ class PullListTable extends \WP_List_Table {
 	 * @return array
 	 */
 	public function get_bulk_actions() {
-		if ( empty( $_GET['status'] ) || 'new' === $_GET['status'] ) {
+		if ( empty( $_GET['status'] ) || 'new' === $_GET['status'] ) { // @codingStandardsIgnoreLine Nonce not required.
 			$actions = [
 				'bulk-syndicate' => esc_html__( 'Pull', 'distributor' ),
 				'bulk-skip'      => esc_html__( 'Skip', 'distributor' ),
 			];
-		} elseif ( 'skipped' === $_GET['status'] ) {
+		} elseif ( 'skipped' === $_GET['status'] ) { // @codingStandardsIgnoreLine Nonce not required.
 			$actions = [
 				'bulk-syndicate' => esc_html__( 'Pull', 'distributor' ),
 			];
@@ -457,7 +531,7 @@ class PullListTable extends \WP_List_Table {
 	public function extra_tablenav( $which ) {
 		global $connection_now;
 
-		if ( $connection_now->pull_post_types && $connection_now->pull_post_type ) :
+		if ( $connection_now && $connection_now->pull_post_types && $connection_now->pull_post_type ) :
 			?>
 
 			<div class="alignleft actions">
@@ -479,6 +553,7 @@ class PullListTable extends \WP_List_Table {
 		 * Action fired when extra table nav is generated.
 		 *
 		 * @since 1.0
+		 * @hook dt_pull_filters
 		 */
 		do_action( 'dt_pull_filters' );
 	}

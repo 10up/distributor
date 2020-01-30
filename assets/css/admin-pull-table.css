@@ -11,6 +11,10 @@
 	}
 }
 
+.wp-list-table .disabled {
+	opacity: 0.7;
+}
+
 .status-sync .check-column {
 	display: none;
 }

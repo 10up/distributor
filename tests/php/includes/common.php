@@ -182,7 +182,7 @@ function remote_get_setup() {
 				[
 					'id'                => 123,
 					'title'             => [ 'rendered' => 'My post title' ],
-					'content'           => [ 'rendered' => '' ],
+					'content'           => [ 'rendered' => '', 'raw' => '' ],
 					'excerpt'           => [ 'rendered' => '' ],
 					'date'              => '',
 					'date_gmt'          => '',
@@ -195,6 +195,9 @@ function remote_get_setup() {
 					'distributor_terms' => [],
 					'distributor_media' => [],
 					$post_type          => $links,
+					'comment_status'    => 'open',
+					'ping_status'       => 'open',
+					'password'          => '',
 				]
 			),
 		]
@@ -244,6 +247,13 @@ function get_allowed_mime_types() {
 		'ico'          => 'image/x-icon',
 	];
 }
+
+/**
+ * Stub for remove_filter to avoid failure in test_remote_get()
+ *
+ * @return void
+ */
+function remove_filter() { }
 
 /**
  * Classes for testing connections

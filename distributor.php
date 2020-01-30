@@ -2,7 +2,7 @@
 /**
  * Plugin Name:       Distributor
  * Description:       Makes it easy to syndicate and reuse content across your websites, whether inside of a multisite or across the web.
- * Version:           1.3.3
+ * Version:           1.5.0
  * Author:            10up Inc.
  * Author URI:        https://distributorplugin.com
  * License:           GPLv2 or later
@@ -17,7 +17,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly.
 }
 
-define( 'DT_VERSION', '1.3.3-dev' );
+define( 'DT_VERSION', '1.5.0-dev' );
 define( 'DT_PLUGIN_FILE', preg_replace( '#^.*plugins/(.*)$#i', '$1', __FILE__ ) );
 
 // Define a constant if we're network activated to allow plugin to respond accordingly.
@@ -156,8 +156,11 @@ add_action(
 			 * Filter whether the network connection type is enabled. Enabled by default, return false to disable.
 			 *
 			 * @since 1.0.0
+			 * @hook dt_network_site_connection_enabled
 			 *
-			 * @param bool true Whether the network connection should be enabled.
+			 * @param {bool} true Whether the network connection should be enabled.
+			 *
+			 * @return {bool} Whether the network connection should be enabled.
 			 */
 			apply_filters( 'dt_network_site_connection_enabled', true )
 		) {

@@ -51,7 +51,7 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 	public static function credentials_form( $args = array() ) {
 
 		// Check if we need to display the form, or request a token?
-		$code = isset( $_GET['code'] ) ? sanitize_text_field( wp_unslash( $_GET['code'] ) ) : false; // Input var okay. WPCS: CSRF ok.
+		$code = isset( $_GET['code'] ) ? sanitize_text_field( wp_unslash( $_GET['code'] ) ) : false; // @codingStandardsIgnoreLine Nonce not required.
 
 		/**
 		 * A code is present as a query parameter in the URL when the user has authorized the connection
@@ -88,7 +88,11 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 		);
 		$args[ self::API_REDIRECT_URI ] = $redirect_uri;
 
-		// Display any authorization or token errors.
+		/**
+		 * Display any authorization or token errors.
+		 *
+		 * @hook dt_oauth_admin_notices
+		 */
 		do_action( 'dt_oauth_admin_notices' );
 
 		// If anything is missing, we aren't authorized - show the credentials form.
@@ -102,12 +106,12 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 			)
 		) {
 			?>
-			<p>
-			<?php esc_html_e( 'To connect, first ', 'distributor' ); ?>
-			<a href="https://developer.wordpress.com/apps/"><?php esc_html_e( 'create an application with the WordPress.com applications manager', 'distributor' ); ?></a>.<br />
-			<?php esc_html_e( 'Use the following redirect URL when creating your application: ', 'distributor' ); ?>
-			<strong><?php echo esc_url( admin_url( 'post.php' ) ); ?></strong>
-			</p>
+			<div class="card">
+				<p><?php esc_html_e( 'To connect, first ', 'distributor' ); ?>
+				<a href="https://developer.wordpress.com/apps/"><?php esc_html_e( 'create an application with the WordPress.com applications manager', 'distributor' ); ?></a>.</p>
+				<p><?php esc_html_e( 'Use the following redirect URL when creating your application: ', 'distributor' ); ?><br />
+				<strong><?php echo esc_url( admin_url( 'post.php' ) ); ?></strong></p>
+			</div>
 			<?php
 
 			/**
@@ -258,7 +262,7 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 		if ( ! empty( $args['dt_created_post_id'] ) ) {
 			$auth['dt_created_post_id'] = sanitize_text_field( $args['dt_created_post_id'] );
 		}
-
+		// Filter documented in includes/classes/Authentications/WordPressBasicAuth.php.
 		return apply_filters( 'dt_auth_prepare_credentials', $auth, $args, self::$slug );
 	}
 
@@ -506,7 +510,7 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 			self::log_authentication_error( 'Failed to validate token giving error ' . $response->get_error_message() );
 			$count ++;
 			if ( $count <= 3 ) {
-				$this->is_valid_token( $count );
+				self::is_valid_token( $count );
 			}
 
 			return false;

@@ -1,6 +1,6 @@
 import jQuery from 'jquery';
 import _ from 'underscores';
-import { dt, dtConnections } from 'window';
+import { dt } from 'window';
 
 let selectedConnections = {},
 	searchString        = '';
@@ -21,7 +21,7 @@ const processTemplate = _.memoize( ( id ) => {
 	return _.template( element.innerHTML, null, options );
 } );
 
-jQuery( window ).load( () => {
+jQuery( window ).on( 'load', () => {
 	const distributorMenuItem     = document.querySelector( '#wp-admin-bar-distributor' );
 	const distributorPushWrapper  = document.querySelector( '#distributor-push-wrapper' );
 
@@ -29,20 +29,46 @@ jQuery( window ).load( () => {
 		return;
 	}
 
-	const connectionsSelected     = distributorPushWrapper.querySelector( '.connections-selected' );
-	const connectionsSelectedList = distributorPushWrapper.querySelector( '.selected-connections-list' );
-	const connectionsNewList      = distributorPushWrapper.querySelector( '.new-connections-list' );
-	const connectionsSearchInput  = document.getElementById( 'dt-connection-search' );
-	const syndicateButton         = distributorPushWrapper.querySelector( '.syndicate-button' );
-	const actionWrapper           = distributorPushWrapper.querySelector( '.action-wrapper' );
-	const postStatusInput         = document.getElementById( 'dt-post-status' );
-	const asDraftInput            = document.getElementById( 'dt-as-draft' );
+	let dtConnections           = '';
+	let connectionsSelected     = '';
+	let connectionsSelectedList = '';
+	let connectionsNewList      = '';
+	let connectionsSearchInput  = '';
+	let actionWrapper           = '';
+	let postStatusInput         = '';
+	let asDraftInput            = '';
 
 	distributorMenuItem.appendChild( distributorPushWrapper );
 
 	/**
-		 * Handle UI error changes
+	 * Set variables after connections have been rendered
+	 */
+	function setVariables() {
+		connectionsSelected     = distributorPushWrapper.querySelector( '.connections-selected' );
+		connectionsSelectedList = distributorPushWrapper.querySelector( '.selected-connections-list' );
+		connectionsNewList      = distributorPushWrapper.querySelector( '.new-connections-list' );
+		connectionsSearchInput  = document.getElementById( 'dt-connection-search' );
+		actionWrapper           = distributorPushWrapper.querySelector( '.action-wrapper' );
+		postStatusInput         = document.getElementById( 'dt-post-status' );
+		asDraftInput            = document.getElementById( 'dt-as-draft' );
+
+		/**
+		 * Listen for connection filtering
 		 */
+		jQuery( connectionsSearchInput ).on( 'keyup change', _.debounce( ( event ) => {
+			if ( '' === event.currentTarget.value ) {
+				showConnections( dtConnections );
+			}
+
+			searchString = event.currentTarget.value.replace( /https?:\/\//i, '' ).replace( /www/i, '' ).replace( /[^0-9a-zA-Z ]+/, '' );
+
+			showConnections();
+		}, 300 ) );
+	}
+
+	/**
+	 * Handle UI error changes
+	 */
 	function doError() {
 		distributorPushWrapper.classList.add( 'message-error' );
 
@@ -122,8 +148,51 @@ jQuery( window ).load( () => {
 	function distributorMenuEntered() {
 		distributorMenuItem.focus();
 		document.body.classList.toggle( 'distributor-show' );
+
+		if ( distributorPushWrapper.classList.contains( 'loaded' ) ) {
+			return;
+		}
+
+		distributorPushWrapper.classList.remove( 'message-error' );
+		distributorPushWrapper.classList.add( 'loaded' );
+
+		const data = {
+			action: 'dt_load_connections',
+			loadConnectionsNonce: dt.loadConnectionsNonce,
+			postId: dt.postId
+		};
+
+		const xhr = dt.usexhr ? { withCredentials: true } : false;
+
+		jQuery.ajax( {
+			url: dt.ajaxurl,
+			xhrFields: xhr,
+			method: 'post',
+			data: data
+		} ).done( ( response ) => {
+			if ( ! response.success || ! response.data ) {
+				distributorPushWrapper.classList.remove( 'loaded' );
+				distributorPushWrapper.classList.add( 'message-error' );
+				return;
+			}
+
+			dtConnections = response.data;
+
+			// Allowing innerHTML because processTemplate escapes values
+			distributorPushWrapper.innerHTML = processTemplate( 'dt-show-connections' )( {
+				connections: dtConnections,
+			} );
+
+			setVariables();
+		} ).error( () => {
+			distributorPushWrapper.classList.remove( 'loaded' );
+			distributorPushWrapper.classList.add( 'message-error' );
+		} );
 	}
 
+	/**
+	 * Handle exiting the distributor menu.
+	 */
 	function distributorMenuExited() {
 		distributorMenuItem.blur();
 		document.body.classList.toggle( 'distributor-show' );
@@ -134,7 +203,7 @@ jQuery( window ).load( () => {
 	/**
 	 * Do syndication ajax
 	 */
-	jQuery( syndicateButton ).on( 'click', () => {
+	jQuery( distributorPushWrapper ).on( 'click', '.syndicate-button', () => {
 		if ( actionWrapper.classList.contains( 'loading' ) ) {
 			return;
 		}
@@ -247,17 +316,4 @@ jQuery( window ).load( () => {
 
 		showConnections();
 	} );
-
-	/**
-	 * List for connection filtering
-	 */
-	jQuery( connectionsSearchInput ).on( 'keyup change', _.debounce( ( event ) => {
-		if ( '' === event.currentTarget.value ) {
-			showConnections( dtConnections );
-		}
-
-		searchString = event.currentTarget.value.replace( /https?:\/\//i, '' ).replace( /www/i, '' ).replace( /[^0-9a-zA-Z ]+/, '' );
-
-		showConnections();
-	}, 300 ) );
 } );
