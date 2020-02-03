@@ -132,8 +132,11 @@ function action_admin_menu() {
 		 * Filter Distributor capabilities allowed to pull content.
 		 *
 		 * @since 1.0.0
+		 * @hook dt_pull_capabilities
 		 *
-		 * @param string manage_options The capability allowed to pull content.
+		 * @param {string} 'manage_options' The capability allowed to pull content.
+		 *
+		 * @return {string} The capability allowed to pull content.
 		 */
 		apply_filters( 'dt_pull_capabilities', 'manage_options' ),
 		'pull',
@@ -189,6 +192,7 @@ function process_actions() {
 				exit;
 			}
 
+			// Filter documented above.
 			if ( ! current_user_can( apply_filters( 'dt_pull_capabilities', 'manage_options' ) ) ) {
 				wp_die(
 					'<h1>' . esc_html__( 'Cheatin&#8217; uh?', 'distributor' ) . '</h1>' .
@@ -257,6 +261,7 @@ function process_actions() {
 				exit;
 			}
 
+			// Filter documented above.
 			if ( ! current_user_can( apply_filters( 'dt_pull_capabilities', 'manage_options' ) ) ) {
 				wp_die(
 					'<h1>' . esc_html__( 'Cheatin&#8217; uh?', 'distributor' ) . '</h1>' .

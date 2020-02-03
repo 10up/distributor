@@ -235,6 +235,20 @@ class UtilsTest extends TestCase {
 			]
 		);
 
+		\WP_Mock::userFunction(
+			'wp_update_term', [
+				'times'  => 1,
+				'args'   => [
+					$term_id,
+					$taxonomy,
+					[
+						'parent' => 0,
+					]
+				],
+				'return' => [ 'term_id' => $term_id ],
+			]
+		);
+
 		\WP_Mock::onFilter( 'dt_update_term_hierarchy' )
 			->with( true )
 			->reply( true );
@@ -270,11 +284,12 @@ class UtilsTest extends TestCase {
 	 * @runInSeparateProcess
 	 */
 	public function test_set_taxonomy_terms_create_term() {
-		$post_id  = 1;
-		$term_id  = 1;
-		$taxonomy = 'taxonomy';
-		$slug     = 'slug';
-		$name     = 'name';
+		$post_id     = 1;
+		$term_id     = 1;
+		$taxonomy    = 'taxonomy';
+		$slug        = 'slug';
+		$name        = 'name';
+		$description = 'description';
 
 		\WP_Mock::userFunction(
 			'taxonomy_exists', [
@@ -298,7 +313,28 @@ class UtilsTest extends TestCase {
 		\WP_Mock::userFunction(
 			'wp_insert_term', [
 				'times'  => 1,
-				'args'   => [ $name, $taxonomy ],
+				'args'   => [
+					$name,
+					$taxonomy,
+					[
+						'slug' => $slug,
+						'description' => $description
+					]
+				],
+				'return' => [ 'term_id' => $term_id ],
+			]
+		);
+
+		\WP_Mock::userFunction(
+			'wp_update_term', [
+				'times'  => 1,
+				'args'   => [
+					$term_id,
+					$taxonomy,
+					[
+						'parent' => 0,
+					]
+				],
 				'return' => [ 'term_id' => $term_id ],
 			]
 		);
@@ -318,10 +354,11 @@ class UtilsTest extends TestCase {
 			$post_id, [
 				$taxonomy => [
 					[
-						'slug'    => $slug,
-						'name'    => $name,
-						'term_id' => $term_id,
-						'parent'  => 0,
+						'slug'        => $slug,
+						'name'        => $name,
+						'term_id'     => $term_id,
+						'parent'      => 0,
+						'description' => $description,
 					],
 				],
 			]

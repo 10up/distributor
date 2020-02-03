@@ -25,7 +25,9 @@ class PushMenuTest extends \TestCase {
 
 		$I->click( '#wp-admin-bar-distributor a' );
 
-		$I->seeElement( '#distributor-push-wrapper .new-connections-list' );
+		$I->waitUntilElementVisible( '#distributor-push-wrapper .new-connections-list' );
+
+		$I->seeElement( '#distributor-push-wrapper .add-connection' );
 	}
 
 	/**
