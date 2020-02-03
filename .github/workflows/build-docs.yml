@@ -1,4 +1,4 @@
-name: Node CI
+name: Build Hook Docs
 
 on:
  push:
@@ -6,11 +6,11 @@ on:
     - develop
 
 jobs:
-  build-deploy:
+  build:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v1
-    - name: Running Node 10
+    - name: Use Node.js 10
       uses: actions/setup-node@v1
       with:
         node-version: '10.x'

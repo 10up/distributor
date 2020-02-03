@@ -4,13 +4,13 @@
 > Distributor is a WordPress plugin that makes it easy to syndicate and reuse content across your websites — whether in a single multisite or across the web.
 
 [![Support Level](https://img.shields.io/badge/support-active-green.svg)](#support-level) [![Build Status](https://travis-ci.org/10up/distributor.svg?branch=master)](https://travis-ci.org/10up/distributor)
-[![Release Version](https://img.shields.io/github/release/10up/distributor.svg)](https://github.com/10up/distributor/releases/latest) ![WordPress tested up to version](https://img.shields.io/badge/WordPress-v5.2%20tested-success.svg) [![License](https://img.shields.io/github/license/10up/distributor.svg)](https://github.com/10up/distributor/blob/develop/LICENSE.md)
+[![Release Version](https://img.shields.io/github/release/10up/distributor.svg)](https://github.com/10up/distributor/releases/latest) ![WordPress tested up to version](https://img.shields.io/badge/WordPress-v5.3%20tested-success.svg) [![License](https://img.shields.io/github/license/10up/distributor.svg)](https://github.com/10up/distributor/blob/develop/LICENSE.md)
 
 *You can learn more about Distributor's features at [DistributorPlugin.com](https://distributorplugin.com).*
 
 _Note:_ The latest stable version of the plugin is the _stable_ branch. [Download the stable branch]((https://github.com/10up/distributor/archive/stable.zip)) if you are intending to use the plugin in production.
 
-## Table of Contents  
+## Table of Contents
 * [Features](#features)
   * [Gutenberg Support](#gutenberg-support-beta)
 * [Requirements](#requirements)
@@ -43,6 +43,10 @@ There are two connection types: `internal` and `external`.
 ### Gutenberg Support (Beta)
 
 Distributor supports distributing Gutenberg posts but the functionality is currently in beta. We expect this functionality to stabilize as Gutenberg further iterates within WordPress core.
+
+### Extendability
+
+Distributor is built with the same extensible approach as WordPress itself, with [fully documented hooks and filters](https://10up.github.io/distributor/) to customize its default behavior and create custom distribution workflows.  You can even create connections to other platforms.
 
 ## Requirements
 

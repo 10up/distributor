@@ -127,8 +127,10 @@ class WordPressExternalConnection extends ExternalConnection {
 					 * @since 1.0
 					 * @hook dt_remote_get
 					 *
-					 * @param array $args The arguments originally passed to remote_get.
-					 * @param  object $this The authentication class.
+					 * @param {array} $args  The arguments originally passed to `remote_get`.
+					 * @param {object} $this The authentication class.
+					 *
+					 * @return {array} The arguments originally passed to `remote_get`.
 					 */
 					return apply_filters(
 						'dt_remote_get',
@@ -234,9 +236,11 @@ class WordPressExternalConnection extends ExternalConnection {
 		 * @since 1.0
 		 * @hook dt_remote_get_query_args
 		 *
-		 * @param  array  $query_args The existing query arguments.
-		 * @param  array  $args       The arguments originally passed to .remote_get'.
-		 * @param  object $this       The authentication class.
+		 * @param  {array}  $query_args The existing query arguments.
+		 * @param  {array}  $args       The arguments originally passed to `remote_get`.
+		 * @param  {object} $this       The authentication class.
+		 *
+		 * @return {array} The existing query arguments.
 		 */
 		$query_args = apply_filters( 'dt_remote_get_query_args', $query_args, $args, $this );
 
@@ -292,9 +296,11 @@ class WordPressExternalConnection extends ExternalConnection {
 				 * @since 1.0
 				 * @hook dt_remote_get_url
 				 *
-				 * @param  string $posts_url  The posts URL
-				 * @param  string $args       The arguments originally passed to .remote_get'.
-				 * @param  object $this       The authentication class.
+				 * @param  {string} $posts_url  The posts URL
+				 * @param  {string} $args       The arguments originally passed to `remote_get`.
+				 * @param  {object} $this       The authentication class.
+				 *
+				 * @return {string} The posts URL.
 				 */
 				apply_filters( 'dt_remote_get_url', $posts_url, $args, $this ),
 				false,
@@ -417,10 +423,12 @@ class WordPressExternalConnection extends ExternalConnection {
 			 * @since 1.0
 			 * @hook dt_pull_post_args
 			 *
-			 * @param  array              $post_array                     The post to be inserted.
-			 * @param  array              $item_array['remote_post_id']   The remote post ID.
-			 * @param  object             $post                           The request that got the post.
-			 * @param  ExternalConnection $this                           The distributor connection pulling the post.
+			 * @param  {array}              $post_array      The post data to be inserted.
+			 * @param  {array}              $remote_post_id  The remote post ID.
+			 * @param  {object}             $post            The request that got the post.
+			 * @param  {ExternalConnection} $this            The Distributor connection pulling the post.
+			 *
+			 * @return {array} The post data to be inserted.
 			 */
 			$new_post = wp_insert_post( apply_filters( 'dt_pull_post_args', $post_array, $item_array['remote_post_id'], $post, $this ) );
 
@@ -451,30 +459,13 @@ class WordPressExternalConnection extends ExternalConnection {
 
 			if ( ! empty( $post_array['media'] ) ) {
 
-				/**
-				 * Allow bypassing of all media processing.
-				 *
-				 * @param bool                  true                          If Distributor should set the post media.
-				 * @param int                   $new_post                     The newly created post ID.
-				 * @param array                 $post_array['media']          List of media items attached to the post, formatted by {@see \Distributor\Utils\prepare_media()}.
-				 * @param int                   $item_array['remote_post_id'] The original post ID.
-				 * @param array                 $post_array                   The arguments passed into wp_insert_post.
-				 * @param ExternalConnection    $this                         The distributor connection being pulled from.
-				 */
+				// Filter documented in includes/classes/InternalConnections/NetworkSiteConnection.php.
 				if ( apply_filters( 'dt_pull_post_media', true, $new_post, $post_array['media'], $item_array['remote_post_id'], $post_array, $this ) ) {
 					\Distributor\Utils\set_media( $new_post, $post_array['media'] );
 				}
 			}
 
-			/**
-			 * Action triggered when a post is pulled via distributor.
-			 *
-			 * @hook dt_pull_post
-			 *
-			 * @param int                $new_post   The newly created post ID.
-			 * @param ExternalConnection $this       The distributor connection pulling the post.
-			 * @param array              $post_array The original post data retrieved via the connection.
-			 */
+			// Filter documented in includes/classes/InternalConnections/NetworkSiteConnection.php.
 			do_action( 'dt_pull_post', $new_post, $this, $post_array );
 
 			$created_posts[] = $new_post;
@@ -612,41 +603,36 @@ class WordPressExternalConnection extends ExternalConnection {
 			$this->auth_handler->format_post_args(
 				array(
 					/**
-					 * Filter the timeout used when calling WordPressExternalConnection::push.
+					 * Filter the timeout used when calling `WordPressExternalConnection::push`.
 					 *
 					 * @since 1.0
+					 * @hook dt_push_post_timeout
 					 *
-					 * @param int $timeout The timeout to use for the remote post. Default 5.
-					 * @param object $post The post object
+					 * @param {int} $timeout The timeout to use for the remote post. Default `5`.
+					 * @param {object} $post The post object
+					 *
+					 * @return {int} The timeout to use for the remote post.
 					 */
 					'timeout' => apply_filters( 'dt_push_post_timeout', 45, $post ),
 					/**
 					 * Filter the arguments sent to the remote server during a push.
 					 *
 					 * @since 1.0
+					 * @hook dt_push_post_args
 					 *
-					 * @param  array              $post_body                      The request body to send.
-					 * @param  object             $post                           The WP_Post that is being pushed.
-					 * @param  array              $args                           Post args to push.
-					 * @param  ExternalConnection $this                           The distributor connection being pushed to.
+					 * @param  {array}              $post_body  The request body to send.
+					 * @param  {object}             $post       The WP_Post that is being pushed.
+					 * @param  {array}              $args       Post args to push.
+					 * @param  {ExternalConnection} $this       The distributor connection being pushed to.
+					 *
+					 * @return {array} The request body to send.
 					 */
 					'body'    => apply_filters( 'dt_push_post_args', $post_body, $post, $args, $this ),
 				)
 			)
 		);
 
-		/**
-		 * Action triggered when a post is pushed via distributor.
-		 *
-		 * @hook dt_push_post
-		 *
-		 * @param array              $response   The HTTP response of the push.
-		 * @param array              $post_body  The body that was POSTed.
-		 * @param string             $type_url   The URL that was POSTed to.
-		 * @param int                $post_id    The post ID that was pushed.
-		 * @param array              $args       The arguments sent with the POST.
-		 * @param ExternalConnection $this       The distributor connection being pushed to.
-		 */
+		// Action documented in includes/classes/InternalConnections/NetworkSiteConnection.php.
 		do_action( 'dt_push_post', $response, $post_body, $type_url, $post_id, $args, $this );
 
 		if ( is_wp_error( $response ) ) {
@@ -945,9 +931,12 @@ class WordPressExternalConnection extends ExternalConnection {
 		 * Filter the post item.
 		 *
 		 * @since 1.0
+		 * @hook dt_item_mapping
 		 *
-		 * @param  object             $obj  The WP_Post that is being pushed.
-		 * @param  ExternalConnection $this The external connection the post concerns.
+		 * @param  {WP_Post}            $obj  The WP_Post that is being pushed.
+		 * @param  {ExternalConnection} $this The external connection the post concerns.
+		 *
+		 * @return {WP_Post} The WP_Post that is being pushed.
 		 */
 		return apply_filters( 'dt_item_mapping', new \WP_Post( $obj ), $post, $this );
 	}
