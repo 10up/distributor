@@ -18,10 +18,12 @@ _Note:_ The latest stable version of the plugin is the _stable_ branch. [Downloa
   * [Registration](#registration)
   * [Setup External Connections](#setup-external-connections-using-application-passwords)
 * [Known Caveats/Issues](#known-caveatsissues)
+* [Developers](#developers)
+  * [Running Locally](#running-locally)
+  * [Testing](#testing)
+  * [Debugging](#debugging)
 * [Changelog](#changelog)
 * [Contributing](#contributing)
-* [Testing](#testing)
-* [Debugging](#debugging)
 
 ## Features
 
@@ -104,6 +106,22 @@ __Distributing Canonical URL__ - By default, canonical URL of distributed post w
 
 __Drafts as preferred Status__ - By default, drafts are the preferred status and can't be changed at the source site.
 
+## Developers
+
+### Running Locally
+
+If you are compiling Distributor locally, note that there is a minimum requirement of Node.js 8.10.  If you're using an older version of Node, then it will not compile correctly.
+
+### Testing
+
+The plugin contains a standard test suite compatible with PHPUnit. If you want to test across multiple PHP versions, a [Dockunit](https://github.com/dockunit/dockunit) file is included.
+
+### Debugging
+
+You can define a constant `DISTRIBUTOR_DEBUG` to `true` to increase the ease of debugging in Distributor. This will make all remote requests blocking and expose the subscription post type.
+
+Enabling this will also provide more debugging information in your error log for image side loading issues. The specific logging method may change in the future.
+
 ## Changelog
 
 A complete listing of all notable changes to Distributor are documented in [CHANGELOG.md](https://github.com/10up/distributor/blob/develop/CHANGELOG.md).
@@ -111,16 +129,6 @@ A complete listing of all notable changes to Distributor are documented in [CHAN
 ## Contributing
 
 Please read [CODE_OF_CONDUCT.md](https://github.com/10up/distributor/blob/develop/CODE_OF_CONDUCT.md) for details on our code of conduct and [CONTRIBUTING.md](https://github.com/10up/distributor/blob/develop/CONTRIBUTING.md) for details on the process for submitting pull requests to us.
-
-## Testing
-
-The plugin contains a standard test suite compatible with PHPUnit. If you want to test across multiple PHP versions, a [Dockunit](https://github.com/dockunit/dockunit) file is included.
-
-## Debugging
-
-You can define a constant `DISTRIBUTOR_DEBUG` to `true` to increase the ease of debugging in Distributor. This will make all remote requests blocking and expose the subscription post type.
-
-Enabling this will also provide more debugging information in your error log for image side loading issues. The specific logging method may change in the future.
 
 ## Like what you see?
 
