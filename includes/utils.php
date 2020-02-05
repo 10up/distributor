@@ -49,7 +49,7 @@ function is_using_gutenberg( $post ) {
 	if ( function_exists( 'use_block_editor_for_post' ) ) {
 		return use_block_editor_for_post( $post );
 	} else {
-		// This duplicates the check from `use_block_editor_for_post()` as of WP 5.2.
+		// This duplicates the check from `has_blocks()` as of WP 5.2.
 		return false !== strpos( (string) $post->post_content, '<!-- wp:' );
 	}
 }
