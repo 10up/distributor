@@ -347,6 +347,7 @@ function prepare_meta( $post_id ) {
 				$meta_value = maybe_unserialize( $meta_value );
 				/**
 				 * Filter whether to sync meta.
+				 *
 				 * @hook dt_sync_meta
 				 *
 				 * @param {bool}   $sync_meta  Whether to sync meta. Default `true`.
