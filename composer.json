@@ -12,11 +12,11 @@
         "type":"package",
         "package": {
           "name": "georgestephanis/application-passwords",
-          "version":"master",
+          "version":"0.1.1",
           "source": {
-              "url": "https://github.com/georgestephanis/application-passwords.git",
+              "url": "https://github.com/WordPress/application-passwords.git",
               "type": "git",
-              "reference":"master"
+              "reference":"aaa502d70190d13fbc45d58ff47db1635f7dbe1c"
             }
         }
     }
@@ -24,7 +24,7 @@
   "require": {
     "php": ">=5.6",
     "yahnis-elsts/plugin-update-checker": "^4.4",
-    "georgestephanis/application-passwords": "master"
+    "georgestephanis/application-passwords": "0.1.1"
   },
   "autoload": {
     "psr-4": {

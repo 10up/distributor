@@ -8,14 +8,14 @@
     "packages": [
         {
             "name": "georgestephanis/application-passwords",
-            "version": "master",
+            "version": "0.1.1",
             "source": {
                 "type": "git",
-                "url": "https://github.com/georgestephanis/application-passwords.git",
-                "reference": "master"
+                "url": "https://github.com/WordPress/application-passwords.git",
+                "reference": "aaa502d70190d13fbc45d58ff47db1635f7dbe1c"
             },
             "type": "library",
-            "time": "2018-12-13T17:22:22+00:00"
+            "time": "2020-01-08T22:51:25+00:00"
         },
         {
             "name": "yahnis-elsts/plugin-update-checker",
