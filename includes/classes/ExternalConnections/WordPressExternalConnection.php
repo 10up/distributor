@@ -853,7 +853,10 @@ class WordPressExternalConnection extends ExternalConnection {
 										// types whose POST REST endpoints have no required fields, such as page and
 										// block_type. Otherwise, an empty page/block_type will be created each time
 										// this runs.
-										'body'    => array( 'test' => 1, 'id' => -1 ),
+										'body'    => array(
+											'test' => 1,
+											'id' => -1
+										),
 									)
 								)
 							);
