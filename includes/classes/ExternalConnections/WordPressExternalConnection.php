@@ -855,7 +855,7 @@ class WordPressExternalConnection extends ExternalConnection {
 										// this runs.
 										'body'    => array(
 											'test' => 1,
-											'id' => -1
+											'id'   => -1
 										),
 									)
 								)
