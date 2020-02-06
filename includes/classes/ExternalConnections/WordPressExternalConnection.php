@@ -849,7 +849,11 @@ class WordPressExternalConnection extends ExternalConnection {
 								$this->auth_handler->format_post_args(
 									array(
 										'timeout' => self::$timeout,
-										'body'    => array( 'test' => 1 ),
+										// Set id to -1 to ensure the request can authenticate but is invalid for post
+										// types whose POST REST endpoints have no required fields, such as page and
+										// block_type. Otherwise, an empty page/block_type will be created each time
+										// this runs.
+										'body'    => array( 'test' => 1, 'id' => -1 ),
 									)
 								)
 							);
