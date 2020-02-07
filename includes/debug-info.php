@@ -105,7 +105,6 @@ function get_formatted_internal_connnections() {
 
 	foreach ( $sites as $site_array ) {
 		$internal_connection = new \Distributor\InternalConnections\NetworkSiteConnection( $site_array['site'] );
-		error_log( print_r( $internal_connection, true ) );
 		$output[ $internal_connection->site->blog_id ] = $internal_connection->site->domain . $internal_connection->site->path;
 	}
 
