@@ -112,3 +112,49 @@ function get_formatted_internal_connnections() {
 	return $output;
 }
 
+/**
+ * Get and format external connections.
+ *
+ * @return array
+ */
+function get_formatted_external_connnections() {
+
+	$output = [];
+
+	$external_connections = new \WP_Query(
+		array(
+			'post_type'      => 'dt_ext_connection',
+			'fields'         => 'ids',
+			'no_found_rows'  => true,
+			'posts_per_page' => 100,
+		)
+	);
+
+	if ( empty( $external_connections->posts ) ) {
+		return __( 'N/A', 'distributor' );
+	}
+
+	foreach ( $external_connections->posts as $external_connection_id ) {
+		$external_connection_type = get_post_meta( $external_connection_id, 'dt_external_connection_type', true );
+
+		if ( empty( \Distributor\Connections::factory()->get_registered()[ $external_connection_type ] ) ) {
+			continue;
+		}
+
+		$external_connection_status = get_post_meta( $external_connection_id, 'dt_external_connections', true );
+
+		if ( empty( $external_connection_status ) || empty( $external_connection_status['can_get'] ) ) {
+			continue;
+		}
+
+		$external_connection = \Distributor\ExternalConnection::instantiate( $external_connection_id );
+
+		if ( is_wp_error( $external_connection ) ) {
+			continue;
+		}
+
+		$output[ $external_connection->name ] = $external_connection->base_url;
+	}
+
+	return $output;
+}
