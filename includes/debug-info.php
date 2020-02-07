@@ -38,13 +38,15 @@ function setup() {
  * @since 2.4.0
  */
 function add_debug_info( $info ) {
-	$plugin_data  = get_plugin_data( WP_PLUGIN_DIR . '/' . DT_PLUGIN_FILE );
-	$text_domain  = $plugin_data['TextDomain'];
-	$defaults     = [
+
+	$plugin_data = get_plugin_data( WP_PLUGIN_DIR . '/' . DT_PLUGIN_FILE );
+	$text_domain = $plugin_data['TextDomain'];
+	$defaults    = [
 		'email'         => '',
 		'valid_license' => false,
 		'license_key'   => '',
 	];
+
 	$all_settings = wp_parse_args(
 		(array) get_option( 'dt_settings' ),
 		$defaults
@@ -70,6 +72,14 @@ function add_debug_info( $info ) {
 			'label' => __( 'Settings', 'distributor' ),
 			'value' => preg_replace( '/,"/', ', "', wp_json_encode( $settings ) ),
 		],
+		[
+			'label' => __( 'Internal Connections', 'distributor' ),
+			'value' => get_formatted_internal_connnections(),
+		],
+		[
+			'label' => __( 'External Connections', 'distributor' ),
+			'value' => get_formatted_external_connnections(),
+		],
 	];
 
 	$info[ $text_domain ] = [
@@ -78,5 +88,27 @@ function add_debug_info( $info ) {
 	];
 
 	return $info;
+}
+
+/**
+ * Get and format internal connections.
+ *
+ * @return array
+ */
+function get_formatted_internal_connnections() {
+	if ( empty( \Distributor\Connections::factory()->get_registered()['networkblog'] ) ) {
+		return __( 'N/A', 'distributor' );
+	}
+
+	$sites = \Distributor\InternalConnections\NetworkSiteConnection::get_available_authorized_sites( 'pull' );
+	$output = [];
+
+	foreach ( $sites as $site_array ) {
+		$internal_connection = new \Distributor\InternalConnections\NetworkSiteConnection( $site_array['site'] );
+		error_log( print_r( $internal_connection, true ) );
+		$output[ $internal_connection->site->blog_id ] = $internal_connection->site->domain . $internal_connection->site->path;
+	}
+
+	return $output;
 }
 
