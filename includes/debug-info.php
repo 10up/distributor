@@ -152,7 +152,7 @@ function get_formatted_external_connnections() {
 			continue;
 		}
 
-		$output[ $external_connection->name ] = $external_connection->base_url;
+		$output[ $external_connection->base_url ] = preg_replace( '/,"/', ', "', wp_json_encode( $external_connection_status ) );
 	}
 
 	return $output;
