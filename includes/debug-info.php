@@ -40,6 +40,7 @@ function setup() {
 function add_debug_info( $info ) {
 
 	$plugin_data = get_plugin_data( WP_PLUGIN_DIR . '/' . DT_PLUGIN_FILE );
+	error_log( print_r( $plugin_data, true ) );
 	$text_domain = $plugin_data['TextDomain'];
 	$defaults    = [
 		'email'         => '',
@@ -105,7 +106,7 @@ function get_formatted_internal_connnections() {
 
 	foreach ( $sites as $site_array ) {
 		$internal_connection = new \Distributor\InternalConnections\NetworkSiteConnection( $site_array['site'] );
-		$output[ $internal_connection->site->blog_id ] = $internal_connection->site->domain . $internal_connection->site->path;
+		$output[ $internal_connection->site->blog_id ] = preg_replace( '/,"/', ', "', wp_json_encode( $internal_connection ) );
 	}
 
 	return $output;
