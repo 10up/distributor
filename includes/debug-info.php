@@ -109,6 +109,10 @@ function get_formatted_internal_connnections() {
 		$output[ $internal_connection->site->blog_id ] = preg_replace( '/,"/', ', "', wp_json_encode( $internal_connection ) );
 	}
 
+	if ( empty( $output ) ) {
+		return __( 'N/A', 'distributor' );
+	}
+
 	return $output;
 }
 
