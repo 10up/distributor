@@ -19,8 +19,9 @@ jobs:
   include:
     - stage: "Distributor Tests"
       name: "Unit Tests and Liniting"
-      script: ./vendor/bin/phpunit
-      script: composer run-script lint
+      script:
+        - ./vendor/bin/phpunit
+        - composer run-script lint
     - script: travis_retry bash run-wpacceptance.sh 3593222a181f0f91824947dbd06985d5
       name: "wp-acceptance: WordPress 4.9"
     - script: travis_retry bash run-wpacceptance.sh 9ea863cebfcbb416c6334a6bef6552f0
