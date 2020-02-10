@@ -100,11 +100,11 @@ function get_formatted_internal_connnections() {
 		return __( 'N/A', 'distributor' );
 	}
 
-	$sites = \Distributor\InternalConnections\NetworkSiteConnection::get_available_authorized_sites( 'pull' );
+	$sites  = \Distributor\InternalConnections\NetworkSiteConnection::get_available_authorized_sites( 'pull' );
 	$output = [];
 
 	foreach ( $sites as $site_array ) {
-		$internal_connection = new \Distributor\InternalConnections\NetworkSiteConnection( $site_array['site'] );
+		$internal_connection                           = new \Distributor\InternalConnections\NetworkSiteConnection( $site_array['site'] );
 		$output[ $internal_connection->site->blog_id ] = preg_replace( '/,"/', ', "', wp_json_encode( $internal_connection ) );
 	}
 
