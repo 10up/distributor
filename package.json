@@ -48,5 +48,8 @@
     "webpack-stream": "^5.2.1",
     "jsdoc": "^3.6.3",
     "wp-hookdoc": "^0.2.0"
+  },
+  "engines": {
+    "node": ">=8.9.10"
   }
 }
