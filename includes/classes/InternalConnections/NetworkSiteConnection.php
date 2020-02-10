@@ -108,15 +108,11 @@ class NetworkSiteConnection extends Connection {
 		}
 
 		if ( empty( $args['post_status'] ) ) {
-			if ( isset( $new_post_args['ID'] ) ) {
-
-				if ( ! $distribute_post_status ) {
-
-					// Avoid updating the status of previously distributed posts.
-					$existing_status = get_post_status( (int) $new_post_args['ID'] );
-					if ( $existing_status ) {
-						$new_post_args['post_status'] = $existing_status;
-					}
+			if ( isset( $new_post_args['ID'] ) && ! $distribute_post_status ) {
+				// Avoid updating the status of previously distributed posts.
+				$existing_status = get_post_status( (int) $new_post_args['ID'] );
+				if ( $existing_status ) {
+					$new_post_args['post_status'] = $existing_status;
 				}
 			}
 		} else {
