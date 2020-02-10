@@ -223,6 +223,10 @@ input[type="password"].error-required {
 	display: none;
 }
 
+.manual-setup-button {
+	padding-left: 5px;
+}
+
 .dt-wizard-error {
-	color: red;
+	color: #a00;
 }

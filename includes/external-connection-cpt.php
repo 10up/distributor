@@ -286,6 +286,7 @@ function admin_enqueue_scripts( $hook ) {
 				'bad_auth'                  => esc_html__( 'Authentication failed.', 'distributor' ),
 				'change'                    => esc_html__( 'Change', 'distributor' ),
 				'cancel'                    => esc_html__( 'Cancel', 'distributor' ),
+				'invalid_url'               => esc_html__( 'Please enter a valid URL, including the HTTP(S).', 'distributor' ),
 				'norest'                    => esc_html__( 'No REST API endpoint was located for this site.', 'distributor' ),
 				'noconnection'              => esc_html__( 'Unable to connect to site.', 'distributor' ),
 				'minversion'                => esc_html__( 'Remote site requires Distributor version 1.5.0 or greater. Upgrade Distributor on the remote site to use the Authentication Wizard.', 'distributor' ),

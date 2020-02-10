@@ -4,6 +4,7 @@ import { dt, ajaxurl } from 'window';
 import {
 	addQueryArgs,
 	isURL,
+	prependHTTP,
 } from '@wordpress/url';
 
 import compareVersions from 'compare-versions';
@@ -22,6 +23,7 @@ const wpbody                      = document.getElementById( 'wpbody' );
 const externalSiteUrlField        = document.getElementById( 'dt_external_site_url' );
 const wizardError                 = document.getElementsByClassName( 'dt-wizard-error' );
 const authorizeConnectionButton   = document.getElementsByClassName( 'establish-connection-button' );
+const manualSetupButton           = document.getElementsByClassName( 'manual-setup-button' );
 let $apiVerify                    = false;
 const titlePrompt                 = document.getElementById( '#title-prompt-text' );
 const slug                        = externalConnectionTypeField.value;
@@ -56,10 +58,17 @@ jQuery( authorizeConnectionButton ).on( 'click', ( event ) => {
 		return false;
 	}
 
-	const siteURL =  externalSiteUrlField.value;
+	let siteURL = prependHTTP( externalSiteUrlField.value );
 	if ( ! isURL( siteURL ) ) {
+		jQuery( wizardError[0] ).text( dt.invalid_url );
 		return false;
 	}
+
+	// Remove wp-json from URL, if that was added
+	siteURL = siteURL.replace( /wp-json(\/)*/, '' );
+
+	// Ensure URL ends with trailing slash
+	siteURL = siteURL.replace( /\/?$/, '/' );
 
 	// @todo Check that the current version of Distributor is available on remote site here.
 	//
@@ -69,12 +78,15 @@ jQuery( authorizeConnectionButton ).on( 'click', ( event ) => {
 		let endpoint = false;
 		// Look for the <link rel='https://api.w.org/' href='http://developwordpress.localhost/wp-json/' />
 		const parsed = jQuery.parseHTML( remoteSite );
-		parsed.forEach( function( el ) {
+		parsed.some( function( el ) {
 			const $el = jQuery( el );
 			const rel = $el.attr( 'rel' );
 			if ( 'https://api.w.org/' === rel ) {
 				endpoint = $el.attr( 'href' );
+				return true;
 			}
+
+			return false;
 		} );
 
 		if ( ! endpoint ) {
@@ -110,7 +122,7 @@ jQuery( authorizeConnectionButton ).on( 'click', ( event ) => {
 			);
 
 			const authURL = addQueryArgs(
-				`${ siteURL }/wp-admin/admin.php`,
+				`${ siteURL }wp-admin/admin.php`,
 				{
 					page: 'auth_app',
 					app_name: dt.distributor_from, /*eslint camelcase: 0*/
@@ -127,6 +139,19 @@ jQuery( authorizeConnectionButton ).on( 'click', ( event ) => {
 	} );
 
 	return false;
+} );
+
+/**
+ * Handle Manual Setup Connection button.
+ *
+ * This hides the wizard box and shows the
+ * default fields.
+ */
+jQuery( manualSetupButton ).on( 'click', ( event ) => {
+	event.preventDefault();
+
+	jQuery( '.external-connection-wizard' ).hide();
+	jQuery( '.external-connection-setup, .hide-until-authed' ).show();
 } );
 
 /**
