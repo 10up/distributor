@@ -40,7 +40,6 @@ function setup() {
 function add_debug_info( $info ) {
 
 	$plugin_data = get_plugin_data( WP_PLUGIN_DIR . '/' . DT_PLUGIN_FILE );
-	error_log( print_r( $plugin_data, true ) );
 	$text_domain = $plugin_data['TextDomain'];
 	$defaults    = [
 		'email'         => '',
