@@ -68,16 +68,6 @@ class NetworkSiteConnection extends Connection {
 		$original_post_url = get_permalink( $post_id );
 		$using_gutenberg   = \Distributor\Utils\is_using_gutenberg( $post );
 
-		/**
-		 * Filter whether Distributor should update post statuses when the origin post status changes.
-		 *
-		 * False by default, return true to have post statuses distributed.
-		 *
-		 * @since 2.0.0
-		 * @hook dt_distribute_post_status
-		 */
-		$distribute_post_status = apply_filters( 'dt_distribute_post_status', false );
-
 		$new_post_args = array(
 			'post_title'   => get_the_title( $post_id ),
 			'post_name'    => $post->post_name,
@@ -85,7 +75,7 @@ class NetworkSiteConnection extends Connection {
 			'post_excerpt' => $post->post_excerpt,
 			'post_type'    => $post->post_type,
 			'post_author'  => get_current_user_id(),
-			'post_status'  => $distribute_post_status ? $post->post_status : 'publish',
+			'post_status'  => Utils\can_distribute_post_status() ? $post->post_status : 'publish',
 		);
 
 		$media = \Distributor\Utils\prepare_media( $post_id );
@@ -108,7 +98,7 @@ class NetworkSiteConnection extends Connection {
 		}
 
 		if ( empty( $args['post_status'] ) ) {
-			if ( isset( $new_post_args['ID'] ) && ! $distribute_post_status ) {
+			if ( isset( $new_post_args['ID'] ) && ! Utils\can_distribute_post_status() ) {
 				// Avoid updating the status of previously distributed posts.
 				$existing_status = get_post_status( (int) $new_post_args['ID'] );
 				if ( $existing_status ) {
