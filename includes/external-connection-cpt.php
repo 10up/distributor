@@ -289,7 +289,7 @@ function admin_enqueue_scripts( $hook ) {
 				'invalid_url'               => esc_html__( 'Please enter a valid URL, including the HTTP(S).', 'distributor' ),
 				'norest'                    => esc_html__( 'No REST API endpoint was located for this site.', 'distributor' ),
 				'noconnection'              => esc_html__( 'Unable to connect to site.', 'distributor' ),
-				'minversion'                => esc_html__( 'Remote site requires Distributor version 1.5.0 or greater. Upgrade Distributor on the remote site to use the Authentication Wizard.', 'distributor' ),
+				'minversion'                => esc_html__( 'Remote site requires Distributor version 2.0.0 or greater. Upgrade Distributor on the remote site to use the Authentication Wizard.', 'distributor' ),
 				'no_distributor'            => esc_html__( 'Distributor not installed on remote site.', 'distributor' ),
 				'roles_warning'             => esc_html__( 'Be careful assigning less trusted roles push privileges as they will inherit the capabilities of the user on the remote site.', 'distributor' ),
 				'admin_url'                 => admin_url(),

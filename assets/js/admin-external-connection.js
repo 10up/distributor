@@ -6,7 +6,6 @@ import {
 	isURL,
 	prependHTTP,
 } from '@wordpress/url';
-
 import compareVersions from 'compare-versions';
 
 const externalConnectionUrlField  = document.getElementsByClassName( 'external-connection-url-field' )[0];
@@ -70,9 +69,6 @@ jQuery( authorizeConnectionButton ).on( 'click', ( event ) => {
 	// Ensure URL ends with trailing slash
 	siteURL = siteURL.replace( /\/?$/, '/' );
 
-	// @todo Check that the current version of Distributor is available on remote site here.
-	//
-
 	// First, locate the remote site REST API root.
 	jQuery.get( siteURL, function( remoteSite ) {
 		let endpoint = false;
@@ -100,8 +96,11 @@ jQuery( authorizeConnectionButton ).on( 'click', ( event ) => {
 				return;
 			}
 
-			// Requires Distributor version 1.5.0.
-			if ( compareVersions( dtMeta.version, '1.5.0' ) ) {
+			// Remove -dev from the version number, if running from the develop branch
+			const version = dtMeta.version.replace( /-dev/, '' );
+
+			// Requires Distributor version 2.0.0.
+			if ( compareVersions.compare( version, '2.0.0', '>=' ) ) {
 				jQuery( wizardError[0] ).text( dt.minversion );
 				return;
 			}

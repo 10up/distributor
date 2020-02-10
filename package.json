@@ -24,7 +24,7 @@
     "babel-preset-env": "^1.6.1",
     "babel-preset-react": "^6.24.1",
     "babel-register": "^6.26.0",
-    "compare-versions": "^3.4.0",
+    "compare-versions": "^3.5.1",
     "eslint": "^4.17.0",
     "eslint-loader": "^1.9.0",
     "gulp": "^3.9.1",
