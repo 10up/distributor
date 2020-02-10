@@ -100,7 +100,7 @@ jQuery( authorizeConnectionButton ).on( 'click', ( event ) => {
 			const version = dtMeta.version.replace( /-dev/, '' );
 
 			// Requires Distributor version 2.0.0.
-			if ( compareVersions.compare( version, '2.0.0', '>=' ) ) {
+			if ( compareVersions.compare( version, '2.0.0', '<' ) ) {
 				jQuery( wizardError[0] ).text( dt.minversion );
 				return;
 			}
