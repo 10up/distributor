@@ -87,6 +87,7 @@ jQuery( authorizeConnectionButton ).on( 'click', ( event ) => {
 
 		if ( ! endpoint ) {
 			jQuery( wizardError[0] ).text( dt.norest );
+			return;
 		}
 
 		// Check that the current version of Distributor is available on remote site.
