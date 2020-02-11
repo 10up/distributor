@@ -228,7 +228,7 @@ function register_endpoints() {
 		'distributor_original_site_name',
 		array(
 			'get_callback'    => function( $post_array ) {
-				return get_bloginfo( 'name' );
+				return get_post_meta( $post_array['id'], 'dt_original_site_name', true );
 			},
 			'update_callback' => function( $value, $post ) { },
 			'schema'          => array(
@@ -243,7 +243,7 @@ function register_endpoints() {
 		'distributor_original_site_url',
 		array(
 			'get_callback'    => function( $post_array ) {
-				return home_url();
+				return get_post_meta( $post_array['id'], 'dt_original_site_url', true );
 			},
 			'update_callback' => function( $value, $post ) { },
 			'schema'          => array(
