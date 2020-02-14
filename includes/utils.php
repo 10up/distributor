@@ -46,17 +46,13 @@ function is_using_gutenberg( $post ) {
 		return false;
 	}
 
-	// WordPress 5.0 introduces the has_blocks function.
-	// We pass `post_content` directly because `has_blocks()`
-	// tries to retrieve a local post object, but this may be a remote post.
-	if ( function_exists( 'has_blocks' ) ) {
-		return has_blocks( $post->post_content );
+	if ( function_exists( 'use_block_editor_for_post' ) ) {
+		return use_block_editor_for_post( $post );
 	} else {
 		// This duplicates the check from `has_blocks()` as of WP 5.2.
 		return false !== strpos( (string) $post->post_content, '<!-- wp:' );
 	}
 }
-
 
 /**
  * Get Distributor settings with defaults
@@ -351,6 +347,7 @@ function prepare_meta( $post_id ) {
 				$meta_value = maybe_unserialize( $meta_value );
 				/**
 				 * Filter whether to sync meta.
+				 *
 				 * @hook dt_sync_meta
 				 *
 				 * @param {bool}   $sync_meta  Whether to sync meta. Default `true`.
