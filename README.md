@@ -4,13 +4,13 @@
 > Distributor is a WordPress plugin that makes it easy to syndicate and reuse content across your websites — whether in a single multisite or across the web.
 
 [![Support Level](https://img.shields.io/badge/support-active-green.svg)](#support-level) [![Build Status](https://travis-ci.org/10up/distributor.svg?branch=master)](https://travis-ci.org/10up/distributor)
-[![Release Version](https://img.shields.io/github/release/10up/distributor.svg)](https://github.com/10up/distributor/releases/latest) ![WordPress tested up to version](https://img.shields.io/badge/WordPress-v5.2%20tested-success.svg) [![License](https://img.shields.io/github/license/10up/distributor.svg)](https://github.com/10up/distributor/blob/develop/LICENSE.md)
+[![Release Version](https://img.shields.io/github/release/10up/distributor.svg)](https://github.com/10up/distributor/releases/latest) ![WordPress tested up to version](https://img.shields.io/badge/WordPress-v5.3%20tested-success.svg) [![License](https://img.shields.io/github/license/10up/distributor.svg)](https://github.com/10up/distributor/blob/develop/LICENSE.md)
 
 *You can learn more about Distributor's features at [DistributorPlugin.com](https://distributorplugin.com).*
 
 _Note:_ The latest stable version of the plugin is the _stable_ branch. [Download the stable branch]((https://github.com/10up/distributor/archive/stable.zip)) if you are intending to use the plugin in production.
 
-## Table of Contents  
+## Table of Contents
 * [Features](#features)
   * [Gutenberg Support](#gutenberg-support-beta)
 * [Requirements](#requirements)
@@ -18,10 +18,12 @@ _Note:_ The latest stable version of the plugin is the _stable_ branch. [Downloa
   * [Registration](#registration)
   * [Setup External Connections](#setup-external-connections-using-application-passwords)
 * [Known Caveats/Issues](#known-caveatsissues)
+* [Developers](#developers)
+  * [Running Locally](#running-locally)
+  * [Testing](#testing)
+  * [Debugging](#debugging)
 * [Changelog](#changelog)
 * [Contributing](#contributing)
-* [Testing](#testing)
-* [Debugging](#debugging)
 
 ## Features
 
@@ -43,6 +45,10 @@ There are two connection types: `internal` and `external`.
 ### Gutenberg Support (Beta)
 
 Distributor supports distributing Gutenberg posts but the functionality is currently in beta. We expect this functionality to stabilize as Gutenberg further iterates within WordPress core.
+
+### Extendability
+
+Distributor is built with the same extensible approach as WordPress itself, with [fully documented hooks and filters](https://10up.github.io/distributor/) to customize its default behavior and create custom distribution workflows.  You can even create connections to other platforms.
 
 ## Requirements
 
@@ -100,6 +106,22 @@ __Distributing Canonical URL__ - By default, canonical URL of distributed post w
 
 __Drafts as preferred Status__ - By default, drafts are the preferred status and can't be changed at the source site.
 
+## Developers
+
+### Running Locally
+
+If you are compiling Distributor locally, note that there is a minimum requirement of Node.js 8.10.  If you're using an older version of Node, then it will not compile correctly.
+
+### Testing
+
+The plugin contains a standard test suite compatible with PHPUnit. If you want to test across multiple PHP versions, a [Dockunit](https://github.com/dockunit/dockunit) file is included.
+
+### Debugging
+
+You can define a constant `DISTRIBUTOR_DEBUG` to `true` to increase the ease of debugging in Distributor. This will make all remote requests blocking and expose the subscription post type.
+
+Enabling this will also provide more debugging information in your error log for image side loading issues. The specific logging method may change in the future.
+
 ## Changelog
 
 A complete listing of all notable changes to Distributor are documented in [CHANGELOG.md](https://github.com/10up/distributor/blob/develop/CHANGELOG.md).
@@ -107,16 +129,6 @@ A complete listing of all notable changes to Distributor are documented in [CHAN
 ## Contributing
 
 Please read [CODE_OF_CONDUCT.md](https://github.com/10up/distributor/blob/develop/CODE_OF_CONDUCT.md) for details on our code of conduct and [CONTRIBUTING.md](https://github.com/10up/distributor/blob/develop/CONTRIBUTING.md) for details on the process for submitting pull requests to us.
-
-## Testing
-
-The plugin contains a standard test suite compatible with PHPUnit. If you want to test across multiple PHP versions, a [Dockunit](https://github.com/dockunit/dockunit) file is included.
-
-## Debugging
-
-You can define a constant `DISTRIBUTOR_DEBUG` to `true` to increase the ease of debugging in Distributor. This will make all remote requests blocking and expose the subscription post type.
-
-Enabling this will also provide more debugging information in your error log for image side loading issues. The specific logging method may change in the future.
 
 ## Like what you see?
 

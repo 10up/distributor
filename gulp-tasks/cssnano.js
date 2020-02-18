@@ -1,10 +1,11 @@
 import gulp from 'gulp';
-import cssnano from 'gulp-cssnano';
+import postcss from 'gulp-postcss';
 import rename from 'gulp-rename';
 import sourcemaps from 'gulp-sourcemaps';
 import pump from 'pump';
 import livereload from 'gulp-livereload';
 import filter from 'gulp-filter';
+import cssnano from 'cssnano';
 
 /**
  * Gulp task to run the cssnano task.
@@ -17,21 +18,16 @@ import filter from 'gulp-filter';
 */
 gulp.task( 'cssnano', ( cb ) => {
 	const fileDest = './dist/css',
+		plugins = [
+			cssnano()
+		],
 		fileSrc = [
 			'./dist/*.css'
-		],
-		taskOpts = {
-			autoprefixer: false,
-			calc: {
-				precision: 8
-			},
-			zindex: false,
-			convertValues: true
-		};
+		];
 
 	pump( [
 		gulp.src( fileSrc ),
-		cssnano( taskOpts ),
+		postcss(plugins),
 		rename( function( path ) {
 			path.extname = '.min.css';
 		} ),

@@ -573,14 +573,23 @@ class NetworkSiteConnection extends Connection {
 	/**
 	 * Update syndicated post when original changes
 	 *
-	 * @param  int $post_id Post ID.
+	 * @param  int|WP_Post $post Post ID or WP_Post
+	 * depending on which action the method is hooked to.
 	 */
-	public static function update_syndicated( $post_id ) {
+	public static function update_syndicated( $post ) {
+		$post    = get_post( $post );
+		$post_id = $post->ID;
 		if ( ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) || wp_is_post_revision( $post_id ) || ! current_user_can( 'edit_post', $post_id ) ) {
 			return;
 		}
 
 		if ( 'trash' === get_post_status( $post_id ) ) {
+			return;
+		}
+
+		// If using Gutenberg, short circuit early and run this method later to make sure terms and meta are saved before syndicating.
+		if ( \Distributor\Utils\is_using_gutenberg( $post ) && doing_action( 'save_post' ) && ! isset( $_GET['meta-box-loader'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification
+			add_action( "rest_after_insert_{$post->post_type}", array( '\Distributor\InternalConnections\NetworkSiteConnection', 'update_syndicated' ) );
 			return;
 		}
 
