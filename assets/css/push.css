@@ -60,6 +60,8 @@
 
 #wpadminbar #distributor-push-wrapper .selected-connections-list {
 	margin-bottom: 1em;
+	overflow: auto;
+    max-height: 145px;
 }
 
 #wpadminbar #distributor-push-wrapper .connections-selected {
@@ -82,7 +84,10 @@
 		display: none;
 	}
 }
-
+#wpadminbar #distributor-push-wrapper .selectall-connections.unavailable,
+#wpadminbar #distributor-push-wrapper .selectno-connections.unavailable {
+	opacity: .5;
+}
 #wpadminbar #distributor-push-wrapper .connections-selected label {
 	color: inherit;
 }
@@ -154,9 +159,9 @@
 #wpadminbar #distributor-push-wrapper input[type=text] {
 	font-size: inherit;
 	padding: 0.5278em;
-    width: 100%;
+    width: 96%;
 	background-color: var(--backgroundColor);
-	border: 2px solid var(--borderColor);
+	border: 3px solid var(--borderColor);
 	color: var(--fontColor);
 	margin-bottom: .5em;
 
@@ -196,6 +201,9 @@
 		background-color: #0085ba;
 		outline: none;
 	}
+}
+#wpadminbar #distributor-push-wrapper .selectall-connections {
+	margin-bottom: 1em;
 }
 
 #wpadminbar #distributor-push-wrapper .new-connections-list > div:nth-child(odd) {
@@ -270,7 +278,9 @@
     box-sizing: border-box;
 }
 
-#wpadminbar #distributor-push-wrapper .action-wrapper.loading .syndicate-button:after {
+#wpadminbar #distributor-push-wrapper .action-wrapper.loading .syndicate-button:after,
+#wpadminbar #distributor-push-wrapper .action-wrapper.loading .selectall-connections:after,
+#wpadminbar #distributor-push-wrapper .action-wrapper.loading .selectno-connections:after {
 	content: ' ';
 	vertical-align: middle;
 	border-radius: 50%;
