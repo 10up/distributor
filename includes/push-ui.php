@@ -34,7 +34,14 @@ function setup() {
  * @return  bool
  */
 function syndicatable() {
-	if ( ! is_user_logged_in() || ! current_user_can( 'edit_posts' ) ) {
+	/**
+	 * Filter Distributor capabilities allowed to syndicate content.
+	 *
+	 * @hook dt_syndicatable_capabilities
+	 *
+	 * @param string edit_posts The capability allowed to syndicate content.
+	 */
+	if ( ! is_user_logged_in() || ! current_user_can( apply_filters( 'dt_syndicatable_capabilities', 'edit_posts' ) ) ) {
 		return false;
 	}
 
