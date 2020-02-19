@@ -7,7 +7,7 @@ assignees: ''
 
 ---
 
-<!-- Thank you for reporting a possible bug in Dsitributor.  Please fill in as much of the template below as you can. -->
+<!-- Thank you for reporting a possible bug in Distributor.  Please fill in as much of the template below as you can. -->
 
 **Describe the bug**
 <!-- A clear and concise description of what the bug is. -->
