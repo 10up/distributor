@@ -134,7 +134,9 @@ function action_admin_menu() {
 		 * @since 1.0.0
 		 * @hook dt_pull_capabilities
 		 *
-		 * @param string manage_options The capability allowed to pull content.
+		 * @param {string} 'manage_options' The capability allowed to pull content.
+		 *
+		 * @return {string} The capability allowed to pull content.
 		 */
 		apply_filters( 'dt_pull_capabilities', 'manage_options' ),
 		'pull',

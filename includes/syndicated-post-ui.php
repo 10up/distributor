@@ -294,8 +294,10 @@ function unlink() {
 		 * @since 1.0
 		 * @hook dt_allow_post_unlink
 		 *
-		 * @param bool true       Whether the post is allowed to be unlinked. Default true.
-		 * @param int  $post_id   The ID of the post attempting to be unlinked.
+		 * @param {bool} true       Whether the post is allowed to be unlinked. Default true.
+		 * @param {int}  $post_id   The ID of the post attempting to be unlinked.
+		 *
+		 * @return {bool} Whether the post is allowed to be unlinked.
 		 */
 		! apply_filters( 'dt_allow_post_unlink', true, $post_id ) ) {
 		return;
@@ -307,12 +309,12 @@ function unlink() {
 	 * Todo: Do we delete subscriptions for external posts?
 	 */
 	/**
-	 * Action fired when a post is unlinked.
+	 * Fires when a post is unlinked.
 	 *
 	 * @since 1.0
 	 * @hook dt_unlink_post
 	 *
-	 * @param int $post_id ID of the post being unlinked.
+	 * @param {int} $post_id ID of the post being unlinked.
 	 */
 	do_action( 'dt_unlink_post', $post_id );
 
@@ -384,11 +386,12 @@ function link() {
 	}
 
 	/**
-	 * Action fired when a post is linked.
+	 * Fires when a post is linked.
 	 *
 	 * @since 1.0
+	 * @hook dt_link_post
 	 *
-	 * @param int $post_id ID of the post being unlinked.
+	 * @param {int} $post_id ID of the post being linked.
 	 */
 	do_action( 'dt_link_post', $post_id );
 

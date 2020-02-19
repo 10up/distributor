@@ -98,9 +98,9 @@ abstract class ExternalConnection extends Connection {
 		 * @since 1.0
 		 * @hook dt_log_sync
 		 *
-		 * @param array $item_id_mappings Item ID mappings.
-		 * @param array $sync_log The sync log
-		 * @param object $this This class.
+		 * @param {array} $item_id_mappings Item ID mappings.
+		 * @param {array} $sync_log The sync log
+		 * @param {object} $this The current connection class.
 		 */
 		do_action( 'dt_log_sync', $item_id_mappings, $sync_log, $this );
 	}

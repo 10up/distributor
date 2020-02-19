@@ -2,16 +2,16 @@ import jQuery from 'jquery';
 import _ from 'underscores';
 import { dt, ajaxurl } from 'window';
 
-const externalConnectionUrlField  = document.getElementsByClassName( 'external-connection-url-field' )[0];
-const externalConnectionMetaBox   = document.getElementById( 'dt_external_connection_details' );
-const externalConnectionTypeField = document.getElementsByClassName( 'external-connection-type-field' )[0];
-const authFields                  = document.getElementsByClassName( 'auth-field' );
-const rolesAllowed                = document.getElementsByClassName( 'dt-roles-allowed' );
-const titleField                  = document.getElementById( 'title' );
-const endpointResult              = document.querySelector( '.endpoint-result' );
-const endpointErrors              = document.querySelector( '.endpoint-errors' );
-const postIdField                 = document.getElementById( 'post_ID' );
-let $apiVerify                    = false;
+const [ externalConnectionUrlField ]  = document.getElementsByClassName( 'external-connection-url-field' );
+const externalConnectionMetaBox       = document.getElementById( 'dt_external_connection_details' );
+const [ externalConnectionTypeField ] = document.getElementsByClassName( 'external-connection-type-field' );
+const authFields                      = document.getElementsByClassName( 'auth-field' );
+const rolesAllowed                    = document.getElementsByClassName( 'dt-roles-allowed' );
+const titleField                      = document.getElementById( 'title' );
+const endpointResult                  = document.querySelector( '.endpoint-result' );
+const endpointErrors                  = document.querySelector( '.endpoint-errors' );
+const postIdField                     = document.getElementById( 'post_ID' );
+let $apiVerify                        = false;
 
 /**
  * Check the external connection.
@@ -41,7 +41,7 @@ function checkConnections() {
 			return;
 		}
 
-		var key = authField.getAttribute( 'data-auth-field' );
+		const key = authField.getAttribute( 'data-auth-field' );
 
 		if ( key ) {
 			auth[key] = authField.value;
@@ -72,7 +72,7 @@ function checkConnections() {
 				endpointResult.setAttribute( 'data-endpoint-state', 'error' );
 
 				if ( response.data.endpoint_suggestion ) {
-					endpointResult.innerText = dt.endpoint_suggestion + ' ';
+					endpointResult.innerText = `${ dt.endpoint_suggestion } `;
 
 					const suggestion = document.createElement( 'a' );
 					suggestion.classList.add( 'suggest' );
@@ -90,9 +90,9 @@ function checkConnections() {
 					const warnings = [];
 
 					if ( response.data.errors.no_distributor ) {
-						endpointResult.innerText += ' ' + dt.no_distributor;
+						endpointResult.innerText += ` ${ dt.no_distributor }`;
 					} else {
-						endpointResult.innerText += ' ' + dt.bad_auth;
+						endpointResult.innerText += ` ${ dt.bad_auth }`;
 					}
 
 					warnings.push( dt.no_push );
@@ -228,7 +228,7 @@ jQuery( externalConnectionTypeField ).on( 'change', () => {
 	const slug = externalConnectionTypeField.value;
 
 	$authCredentials.hide();
-	jQuery( '.auth-credentials.' + slug ).show();
+	jQuery( `.auth-credentials.${ slug }` ).show();
 
 	// For WordPress.com Oauth authentication, hide fields until authentication is complete.
 	if ( 'wpdotcom' === slug ) {
@@ -316,7 +316,7 @@ if ( beginAuthorize ) {
 				if ( response.success && response.data.id ) {
 
 					// The post has been saved, update the url in case the user refreshes.
-					const url = dt.admin_url + 'post.php?post=' + response.data.id  + '&action=edit';
+					const url = `${ dt.admin_url }post.php?post=${ response.data.id }&action=edit`;
 					history.pushState( {}, 'Oauth Authorize Details', url );
 
 					// Update the form field for dt_redirect_uri and post id.
