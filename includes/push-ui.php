@@ -455,6 +455,8 @@ function menu_content() {
 
 				<div class="connections-selector">
 					<div>
+						<button class="selectall-connections unavailable"><?php esc_html_e( 'Select All', 'distributor' ); ?></button>
+						<button class="selectno-connections unavailable"><?php esc_html_e( 'None', 'distributor' ); ?></button>
 						<# if ( 5 < _.keys( connections ).length ) { #>
 							<input type="text" id="dt-connection-search" placeholder="<?php esc_attr_e( 'Search available connections', 'distributor' ); ?>">
 						<# } #>
@@ -506,6 +508,7 @@ function menu_content() {
 						?>
 						<button class="syndicate-button"><?php esc_html_e( 'Distribute', 'distributor' ); ?></button> <?php if ( $as_draft ) : ?><label class="as-draft" for="dt-as-draft"><input type="checkbox" id="dt-as-draft" checked> <?php esc_html_e( 'As draft', 'distributor' ); ?></label><?php endif; ?>
 					</div>
+
 				</div>
 
 				<div class="messages">
