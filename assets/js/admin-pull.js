@@ -33,9 +33,9 @@ if ( chooseConnection && choosePostType && form ) {
 
 			const search = searchField.value;
 
-			document.location = getURL() + '&s=' + search;
+			document.location = `${ getURL() }&s=${ search }`;
 
-			document.body.className += ' ' + 'dt-loading';
+			document.body.className += ' dt-loading';
 		} );
 	}
 }
@@ -50,11 +50,11 @@ const getURL = () => {
 	const baseURL = chooseConnection.options[ chooseConnection.selectedIndex ].getAttribute( 'data-pull-url' );
 	let status = 'new';
 
-	if ( -1 < ( ' ' + form.className + ' ' ).indexOf( ' status-skipped ' ) ) {
+	if ( -1 < ( ` ${ form.className } ` ).indexOf( ' status-skipped ' ) ) {
 		status = 'skipped';
-	} else if ( -1 < ( ' ' + form.className + ' ' ).indexOf( ' status-pulled ' ) ) {
+	} else if ( -1 < ( ` ${ form.className } ` ).indexOf( ' status-pulled ' ) ) {
 		status = 'pulled';
 	}
 
-	return baseURL + '&pull_post_type=' + postType + '&status=' + status;
+	return `${ baseURL }&pull_post_type=${ postType }&status=${ status }`;
 };

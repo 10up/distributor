@@ -105,7 +105,7 @@ jQuery( window ).on( 'load', () => {
 			if ( 'fail' === result.status ) {
 				error = true;
 			} else {
-				dtConnections['internal' + connectionId].syndicated = result.url;
+				dtConnections[ `internal${ connectionId}` ].syndicated = result.url;
 			}
 		} );
 
@@ -113,7 +113,7 @@ jQuery( window ).on( 'load', () => {
 			if ( 'fail' === result.status ) {
 				error = true;
 			} else {
-				dtConnections['external' + connectionId].syndicated = true;
+				dtConnections[ `external${ connectionId }` ].syndicated = true;
 			}
 		} );
 
@@ -143,8 +143,8 @@ jQuery( window ).on( 'load', () => {
 
 		_.each( dtConnections, ( connection ) => {
 			if ( '' !== searchString ) {
-				let nameMatch = connection.name.replace( /[^0-9a-zA-Z ]+/, '' ).toLowerCase().match( searchString.toLowerCase() );
-				let urlMatch  = connection.url.replace( /https?:\/\//i, '' ).replace( /www/i, '' ).replace( /[^0-9a-zA-Z ]+/, '' ).toLowerCase().match( searchString.toLowerCase() );
+				const nameMatch = connection.name.replace( /[^0-9a-zA-Z ]+/, '' ).toLowerCase().match( searchString.toLowerCase() );
+				const urlMatch  = connection.url.replace( /https?:\/\//i, '' ).replace( /www/i, '' ).replace( /[^0-9a-zA-Z ]+/, '' ).toLowerCase().match( searchString.toLowerCase() );
 
 				if ( ! nameMatch && ! urlMatch ) {
 					return;
@@ -307,7 +307,7 @@ jQuery( window ).on( 'load', () => {
 			const type = event.currentTarget.getAttribute( 'data-connection-type' );
 			const id   = event.currentTarget.getAttribute( 'data-connection-id' );
 
-			const deleteNode = connectionsSelectedList.querySelector( '[data-connection-id="' + id + '"][data-connection-type="' + type + '"]' );
+			const deleteNode = connectionsSelectedList.querySelector( `[data-connection-id="${ id }"][data-connection-type="${ type }"]` );
 
 			deleteNode.parentNode.removeChild( deleteNode );
 
