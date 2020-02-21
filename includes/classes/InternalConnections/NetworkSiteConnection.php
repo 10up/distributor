@@ -74,7 +74,7 @@ class NetworkSiteConnection extends Connection {
 			'post_content' => Utils\get_processed_content( $post->post_content ),
 			'post_excerpt' => $post->post_excerpt,
 			'post_type'    => $post->post_type,
-			'post_author'  => get_current_user_id(),
+			'post_author'  => isset( $post->post_author ) ? $post->post_author : get_current_user_id(),
 			'post_status'  => 'publish',
 		);
 
