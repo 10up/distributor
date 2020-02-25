@@ -112,6 +112,11 @@ class TestCase extends \WPAcceptance\PHPUnit\TestCase {
 
 		if ( $use_connection ) {
 			$I->checkOptions( '#pull_connections', $use_connection );
+			$I->executeJavaScript('
+				jQuery("#pull_connections").find("option").filter(function(){
+				  return jQuery(this).text() == "' . $use_connection . '";
+				}).prop("selected", true).trigger("change");
+			');
 			$I->waitUntilElementVisible( '.wp-list-table #cb-select-' . $original_post_id );
 		}
 
@@ -132,6 +137,10 @@ class TestCase extends \WPAcceptance\PHPUnit\TestCase {
 		$info['distributed_view_url'] = $I->getCurrentUrl();
 
 		$I->click( '#wp-admin-bar-edit a' );
+
+		$I->waitUntilNavigation();
+
+		$I->click( '#publish' );
 
 		$I->waitUntilNavigation();
 
@@ -235,12 +244,16 @@ class TestCase extends \WPAcceptance\PHPUnit\TestCase {
 	 *
 	 * @param \WPAcceptance\PHPUnit\Actor $actor The Actor instance.
 	 */
-	protected function createExternalConnection( $actor ) {
-		$actor->moveTo( 'wp-admin/post-new.php?post_type=dt_ext_connection' );
+	protected function createExternalConnection( $actor, $from = '', $to = 'two' ) {
+		$connection_url = $this->getWPHomeUrl() . '/wp-json';
+		if ( $to ) {
+			$connection_url = $this->getWPHomeUrl() . "/{$to}/wp-json";
+		}
+		$actor->moveTo( "{$from}/wp-admin/post-new.php?post_type=dt_ext_connection" );
 		$actor->typeInField( '#title', 'Test External Connection' );
 		$actor->typeInField( '#dt_username', 'wpsnapshots' );
 		$actor->typeInField( '#dt_password', 'password' );
-		$actor->typeInField( '#dt_external_connection_url', $this->getWPHomeUrl() . '/two/wp-json' );
+		$actor->typeInField( '#dt_external_connection_url', $connection_url );
 		$actor->pressEnterKey( '#create-connection' );
 		$actor->waitUntilElementVisible( '.notice-success' );
 	}

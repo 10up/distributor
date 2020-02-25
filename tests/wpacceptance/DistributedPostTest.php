@@ -185,7 +185,7 @@ class DistributedPost extends \TestCase {
 		}
 
 		// Create an external connection.
-		$this->createExternalConnection( $I );
+		$this->createExternalConnection( $I, 'two', '' );
 		// Pull post from external connection.
 		$post_info = $this->pullPost( $I, 40, 'two', '', 'Test External Connection' );
 		$this->statusDistributionTest( $post_info, $I );
