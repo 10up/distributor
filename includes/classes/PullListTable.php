@@ -127,19 +127,7 @@ class PullListTable extends \WP_List_Table {
 		if ( is_null( $this->_actions ) ) {
 			$no_new_actions = $this->get_bulk_actions();
 			$this->_actions = $this->get_bulk_actions();
-			/**
-			 * Filters the list table Bulk Actions drop-down.
-			 *
-			 * The dynamic portion of the hook name, `$this->screen->id`, refers
-			 * to the ID of the current screen, usually a string.
-			 *
-			 * This filter can currently only be used to remove bulk actions.
-			 *
-			 * @since 3.5.0
-			 * @hook bulk_actions-{$this->screen->id}
-			 *
-			 * @param array $actions An array of the available bulk actions.
-			 */
+			// Filter documented in WordPress core.
 			$this->_actions = apply_filters( "bulk_actions-{$this->screen->id}", $this->_actions ); // @codingStandardsIgnoreLine valid filter name
 			$this->_actions = array_intersect_assoc( $this->_actions, $no_new_actions );
 			$two            = '';
@@ -322,6 +310,7 @@ class PullListTable extends \WP_List_Table {
 				$disable = true;
 			} else {
 				$actions = [
+					'pull' => sprintf( '<a href="%s">%s</a>', esc_url( wp_nonce_url( admin_url( 'admin.php?page=pull&action=syndicate&_wp_http_referer=' . rawurlencode( $_SERVER['REQUEST_URI'] ) . '&post=' . $item->ID . '&connection_type=' . $connection_type . '&connection_id=' . $connection_id . '&pull_post_type=' . $item->post_type ), 'bulk-distributor_page_pull' ) ), esc_html__( 'Pull', 'distributor' ) ),
 					'view' => '<a href="' . esc_url( $item->link ) . '">' . esc_html__( 'View', 'distributor' ) . '</a>',
 					'skip' => sprintf( '<a href="%s">%s</a>', esc_url( wp_nonce_url( admin_url( 'admin.php?page=pull&action=skip&_wp_http_referer=' . rawurlencode( $_SERVER['REQUEST_URI'] ) . '&post=' . $item->ID . '&connection_type=' . $connection_type . '&connection_id=' . $connection_id ), 'dt_skip' ) ), esc_html__( 'Skip', 'distributor' ) ),
 				];
