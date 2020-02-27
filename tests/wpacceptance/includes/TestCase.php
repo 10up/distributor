@@ -140,10 +140,6 @@ class TestCase extends \WPAcceptance\PHPUnit\TestCase {
 
 		$I->waitUntilNavigation();
 
-		$I->click( '#publish' );
-
-		$I->waitUntilNavigation();
-
 		$info['distributed_edit_url'] = $I->getCurrentUrl();
 
 		return $info;
