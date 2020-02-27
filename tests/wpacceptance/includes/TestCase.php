@@ -140,6 +140,13 @@ class TestCase extends \WPAcceptance\PHPUnit\TestCase {
 
 		$I->waitUntilNavigation();
 
+		if ( ! $this->editorHasBlocks( $I ) && 'Published' !== $I->getElementInnerText( '#post-status-display' ) ) {
+			$I->click( '#publish' );
+		} elseif( $this->editorHasBlocks( $I ) && false === strpos( $I->getElementInnerText( '.edit-post-header__settings' ), 'Switch to Draft' ) ) {
+			$I->click( '.edit-post-header__settings .editor-post-publish-panel__toggle' );
+			$I->click( '.editor-post-publish-panel__header-publish-button .editor-post-publish-button' );
+		}
+
 		$info['distributed_edit_url'] = $I->getCurrentUrl();
 
 		return $info;
