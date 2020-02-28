@@ -34,7 +34,14 @@ function setup() {
  * @return  bool
  */
 function syndicatable() {
-	if ( ! is_user_logged_in() || ! current_user_can( 'edit_posts' ) ) {
+	/**
+	 * Filter Distributor capabilities allowed to syndicate content.
+	 *
+	 * @hook dt_syndicatable_capabilities
+	 *
+	 * @param string edit_posts The capability allowed to syndicate content.
+	 */
+	if ( ! is_user_logged_in() || ! current_user_can( apply_filters( 'dt_syndicatable_capabilities', 'edit_posts' ) ) ) {
 		return false;
 	}
 
@@ -160,6 +167,16 @@ function get_connections() {
 		}
 
 		// If not admin lets make sure the current user can push to this connection
+		/**
+		 * Filter Distributor capabilities allowed to push content.
+		 *
+		 * @since 1.0.0
+		 * @hook dt_push_capabilities
+		 *
+		 * @param {string} 'manage_options' The capability allowed to push content.
+		 *
+		 * @return {string} The capability allowed to push content.
+		 */
 		if ( ! current_user_can( apply_filters( 'dt_push_capabilities', 'manage_options' ) ) ) {
 			$current_user_roles = (array) wp_get_current_user()->roles;
 
@@ -176,7 +193,7 @@ function get_connections() {
 				'id'         => $connection->id,
 				'url'        => $connection->base_url,
 				'name'       => $connection->name,
-				'syndicated' => ( ! empty( $connection_map['external'][ (int) $external_connection->ID ] ) ) ? true : false,
+				'syndicated' => ! empty( $connection_map['external'][ (int) $external_connection->ID ] ) ? $connection_map['external'][ (int) $external_connection->ID ] : false,
 			];
 		}
 	}
@@ -361,11 +378,14 @@ function enqueue_scripts( $hook ) {
 			 *
 			 * Front end ajax requests may require xhrFields with credentials when the front end and
 			 * back end domains do not match. This filter lets themes opt in.
-			 * See https://vip.wordpress.com/documentation/handling-frontend-file-uploads/#handling-ajax-requests
+			 * See {@link https://vip.wordpress.com/documentation/handling-frontend-file-uploads/#handling-ajax-requests}
 			 *
 			 * @since 1.0.0
+			 * @hook dt_ajax_requires_with_credentials
 			 *
-			 * @param bool false Whether front end ajax requests should use xhrFields credentials:true.
+			 * @param {bool} false Whether front end ajax requests should use xhrFields credentials:true.
+			 *
+			 * @return {bool} Whether front end ajax requests should use xhrFields credentials:true.
 			 */
 			'usexhr'               => apply_filters( 'dt_ajax_requires_with_credentials', false ),
 		)
@@ -442,6 +462,8 @@ function menu_content() {
 
 				<div class="connections-selector">
 					<div>
+						<button class="selectall-connections unavailable"><?php esc_html_e( 'Select All', 'distributor' ); ?></button>
+						<button class="selectno-connections unavailable"><?php esc_html_e( 'None', 'distributor' ); ?></button>
 						<# if ( 5 < _.keys( connections ).length ) { #>
 							<input type="text" id="dt-connection-search" placeholder="<?php esc_attr_e( 'Search available connections', 'distributor' ); ?>">
 						<# } #>
@@ -481,14 +503,19 @@ function menu_content() {
 						/**
 						 * Filter whether the 'As Draft' option appears in the push ui.
 						 *
-						 * @param bool    $as_draft   Whether the 'As Draft' option should appear.
-						 * @param object  $connection The connection being used to push.
-						 * @param WP_Post $post       The post being pushed.
+						 * @hook dt_allow_as_draft_distribute
+						 *
+						 * @param {bool}    $as_draft   Whether the 'As Draft' option should appear.
+						 * @param {object}  $connection The connection being used to push.
+						 * @param {WP_Post} $post       The post being pushed.
+						 *
+						 * @return {bool} Whether the 'As Draft' option should appear.
 						 */
 						$as_draft = apply_filters( 'dt_allow_as_draft_distribute', $as_draft, $connection = null, $post );
 						?>
 						<button class="syndicate-button"><?php esc_html_e( 'Distribute', 'distributor' ); ?></button> <?php if ( $as_draft ) : ?><label class="as-draft" for="dt-as-draft"><input type="checkbox" id="dt-as-draft" checked> <?php esc_html_e( 'As draft', 'distributor' ); ?></label><?php endif; ?>
 					</div>
+
 				</div>
 
 				<div class="messages">
@@ -549,4 +576,3 @@ function menu_content() {
 		<?php
 	}
 }
-

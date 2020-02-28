@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "930a5a93d964fc7fa225c6c6dfbce835",
+    "content-hash": "dd224472f7d58e7774ce04197e97f717",
     "packages": [
         {
             "name": "yahnis-elsts/plugin-update-checker",
@@ -133,19 +133,19 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/10up/wpacceptance.git",
-                "reference": "9e9dfb1fdd76d6916b8164a952453137cf7551a1"
+                "reference": "41f51fd6ee09fcf84a30db82915bc03c928b6520"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/10up/wpacceptance/zipball/9e9dfb1fdd76d6916b8164a952453137cf7551a1",
-                "reference": "9e9dfb1fdd76d6916b8164a952453137cf7551a1",
+                "url": "https://api.github.com/repos/10up/wpacceptance/zipball/41f51fd6ee09fcf84a30db82915bc03c928b6520",
+                "reference": "41f51fd6ee09fcf84a30db82915bc03c928b6520",
                 "shasum": ""
             },
             "require": {
                 "10up/wpinstructions": "dev-master",
                 "10up/wpsnapshots": "dev-master",
-                "docker-php/docker-php": "^2.0",
-                "facebook/webdriver": "^1.6",
+                "docker-php/docker-php": "^2.0@dev",
+                "jane-php/open-api-runtime": "4.2.0",
                 "nesk/puphpeteer": "^1.4",
                 "php": ">=7.2",
                 "phpunit/phpunit": "^7.5",
@@ -182,7 +182,7 @@
                 "testing",
                 "wordpress"
             ],
-            "time": "2019-04-05T20:41:31+00:00"
+            "time": "2019-07-18T13:18:45+00:00"
         },
         {
             "name": "10up/wpinstructions",
@@ -243,12 +243,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/10up/wpsnapshots.git",
-                "reference": "9dcb8df741e0acb9582295e1869faa04b829e16d"
+                "reference": "ba0b035be901458d1217f9eb9ca1a2ee390bc4c4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/10up/wpsnapshots/zipball/9dcb8df741e0acb9582295e1869faa04b829e16d",
-                "reference": "9dcb8df741e0acb9582295e1869faa04b829e16d",
+                "url": "https://api.github.com/repos/10up/wpsnapshots/zipball/ba0b035be901458d1217f9eb9ca1a2ee390bc4c4",
+                "reference": "ba0b035be901458d1217f9eb9ca1a2ee390bc4c4",
                 "shasum": ""
             },
             "require": {
@@ -288,7 +288,7 @@
                 "snapshots",
                 "wordpress"
             ],
-            "time": "2019-04-05T20:35:41+00:00"
+            "time": "2019-05-29T20:39:21+00:00"
         },
         {
             "name": "antecedent/patchwork",
@@ -4357,7 +4357,7 @@
                 },
                 {
                     "name": "Gert de Pagter",
-                    "email": "backendtea@gmail.com"
+                    "email": "BackEndTea@gmail.com"
                 }
             ],
             "description": "Symfony polyfill for ctype functions",
@@ -4765,12 +4765,12 @@
             "version": "2.1.0",
             "source": {
                 "type": "git",
-                "url": "https://github.com/WordPress-Coding-Standards/WordPress-Coding-Standards.git",
+                "url": "https://github.com/WordPress/WordPress-Coding-Standards.git",
                 "reference": "8c7a2e7682de9ef5955251874b639deda51ef470"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/WordPress-Coding-Standards/WordPress-Coding-Standards/zipball/8c7a2e7682de9ef5955251874b639deda51ef470",
+                "url": "https://api.github.com/repos/WordPress/WordPress-Coding-Standards/zipball/8c7a2e7682de9ef5955251874b639deda51ef470",
                 "reference": "8c7a2e7682de9ef5955251874b639deda51ef470",
                 "shasum": ""
             },
@@ -4815,7 +4815,8 @@
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {
-        "php": ">=5.6"
+        "php": ">=5.6",
+        "ext-json": "*"
     },
     "platform-dev": []
 }
