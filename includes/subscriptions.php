@@ -289,7 +289,7 @@ function send_notifications( $post_id ) {
 				 *
 				 * @return {int} The timeout to use for the remote post.
 				 */
-				'timeout' => apply_filters( 'dt_subscription_post_timeout', 5 ),
+				'timeout' => apply_filters( 'dt_subscription_post_timeout', 5, $post ),
 				/**
 				 * Filter the arguments sent to the remote server during a subscription update.
 				 *
