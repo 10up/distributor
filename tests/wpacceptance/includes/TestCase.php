@@ -108,7 +108,7 @@ class TestCase extends \WPAcceptance\PHPUnit\TestCase {
 			'original_edit_url' => $from_blog_slug . '/wp-admin/post.php?post=' . $original_post_id . '&action=edit',
 		];
 
-		$I->moveTo( '/wp-admin/plugins.php' );
+		$I->moveTo( '/wp-admin/network/plugins.php' );
 		try {
 			$element = $I->getElement( '[data-slug="auto-publish-pulled-posts"] .deactivate a' );
 			if ( $element ) {
