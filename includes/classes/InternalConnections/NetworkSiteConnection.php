@@ -401,7 +401,7 @@ class NetworkSiteConnection extends Connection {
 			}
 
 			if ( isset( $args['s'] ) ) {
-				$query_args['s'] = $args['s'];
+				$query_args['s'] = urldecode( $args['s'] );
 			}
 
 			if ( ! empty( $args['orderby'] ) ) {
