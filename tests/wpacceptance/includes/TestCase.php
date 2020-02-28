@@ -108,6 +108,17 @@ class TestCase extends \WPAcceptance\PHPUnit\TestCase {
 			'original_edit_url' => $from_blog_slug . '/wp-admin/post.php?post=' . $original_post_id . '&action=edit',
 		];
 
+		$I->moveTo( '/wp-admin/plugins.php' );
+		try {
+			$element = $I->getElement( '[data-slug="auto-publish-pulled-posts"] .deactivate a' );
+			if ( $element ) {
+				$I->click( $element );
+				$I->waitUntilElementVisible( '#message' );
+			}
+		} catch ( \Exception $e ) {}
+		$I->click( '[data-slug="auto-publish-pulled-posts"] .activate a' );
+		$I->waitUntilElementVisible( '#message' );
+
 		$I->moveTo( $to_blog_slug . 'wp-admin/admin.php?page=pull' );
 
 		if ( $use_connection ) {
@@ -139,13 +150,6 @@ class TestCase extends \WPAcceptance\PHPUnit\TestCase {
 		$I->click( '#wp-admin-bar-edit a' );
 
 		$I->waitUntilNavigation();
-
-		if ( ! $this->editorHasBlocks( $I ) && 'Published' !== $I->getElementInnerText( '#post-status-display' ) ) {
-			$I->click( '#publish' );
-		} elseif( $this->editorHasBlocks( $I ) && false === strpos( $I->getElementInnerText( '.edit-post-header__settings' ), 'Switch to Draft' ) ) {
-			$I->click( '.edit-post-header__settings .editor-post-publish-panel__toggle' );
-			$I->click( '.editor-post-publish-panel__header-publish-button .editor-post-publish-button' );
-		}
 
 		$info['distributed_edit_url'] = $I->getCurrentUrl();
 
