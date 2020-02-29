@@ -69,12 +69,12 @@ class DistributedPost extends \TestCase {
 
 		$I->waitUntilElementVisible( 'body.post-php' );
 
-		$editor_has_blocks =  $this->editorHasBlocks( $I );
+		$editor_has_blocks =  $this->editorHasBlocks( $I, true );
 		// Make sure we see distributed time in publish box
 		if ( $editor_has_blocks ) {
 			$I->seeText( 'Distributed on:', '#distributed-from' );
 		} else {
-			$I->seeText( 'Distributed on', '#syndicate-time' );
+			$I->seeText( 'Distributed on:', '#syndicate-time' );
 		}
 
 		// Make sure we see distributed status admin notice and that it shows as linked

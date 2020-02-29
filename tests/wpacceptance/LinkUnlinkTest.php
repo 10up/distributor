@@ -26,7 +26,7 @@ class LinkUnlinkTest extends \TestCase {
 
 		$I->waitUntilElementVisible( 'body.post-php' );
 
-		$editor_has_blocks =  $this->editorHasBlocks( $I );
+		$editor_has_blocks =  $this->editorHasBlocks( $I, true );
 
 		// I see linked link
 		if ( $editor_has_blocks ) {

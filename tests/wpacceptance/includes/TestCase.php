@@ -161,12 +161,18 @@ class TestCase extends \WPAcceptance\PHPUnit\TestCase {
 	 *
 	 * Must be called from the edit page.
 	 *
-	 * @param \WPAcceptance\PHPUnit\Actor $actor The actor.
+	 * @param \WPAcceptance\PHPUnit\Actor $actor        The actor.
+	 * @param bool                        $on_edit_page We detect the block editor using a body class
+	 *                                                  of post edit page so we need to navigate to
+	 *                                                  that page before checking.
 	 */
 
-	protected function editorHasBlocks ( $actor ) {
-		$actor->moveTo( '/wp-admin/post.php?post=40&action=edit' );
-		$actor->waitUntilElementVisible( 'body.post-php' );;
+	protected function editorHasBlocks ( $actor, $on_edit_page = false ) {
+
+		if ( ! $on_edit_page ) {
+			$actor->moveTo( '/wp-admin/post.php?post=40&action=edit' );
+			$actor->waitUntilElementVisible( 'body.post-php' );;
+		}
 
 		$body = $actor->getElement( 'body' );
 		$msg = $actor->elementToString( $body );
