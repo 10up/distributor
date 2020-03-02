@@ -285,9 +285,10 @@ function send_notifications( $post_id ) {
 				 *
 				 * @hook dt_subscription_post_timeout
 				 *
-				 * @param {int} $timeout The timeout to use for the remote post. Default `5`.
+				 * @param int $timeout The timeout to use for the remote post. Default `5`.
+				 * @param \WP_Post $post The post object
 				 *
-				 * @return {int} The timeout to use for the remote post.
+				 * @return int The timeout to use for the remote post.
 				 */
 				'timeout' => apply_filters( 'dt_subscription_post_timeout', 5, $post ),
 				/**
