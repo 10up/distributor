@@ -54,6 +54,40 @@ function is_using_gutenberg( $post ) {
 	}
 }
 
+	/**
+	 * Check if Gutenberg is active.
+	 *
+	 * @since 2.0.0
+	 * 
+	 * @return bool
+	 */
+	function is_gutenberg_active() {
+		$gutenberg    = false;
+		$block_editor = false;
+
+		if ( has_filter( 'replace_editor', 'gutenberg_init' ) ) {
+			// Gutenberg is installed and activated.
+			$gutenberg = true;
+		}
+
+		if ( version_compare( $GLOBALS['wp_version'], '5.0-beta', '>' ) ) {
+			// Block editor.
+			$block_editor = true;
+		}
+
+		if ( ! $gutenberg && ! $block_editor ) {
+			return false;
+		}
+
+		if ( ! is_plugin_active( 'classic-editor/classic-editor.php' ) ) {
+			return true;
+		}
+
+		$use_block_editor = ( get_option( 'classic-editor-replace' ) === 'no-replace' );
+
+		return $use_block_editor;
+	}
+
 /**
  * Get Distributor settings with defaults
  *
