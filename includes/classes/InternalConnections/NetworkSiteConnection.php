@@ -87,7 +87,13 @@ class NetworkSiteConnection extends Connection {
 		// Distribute raw HTML when going from Gutenberg enabled to Gutenberg enabled.
 		$remote_using_gutenberg = \Distributor\Utils\is_using_gutenberg( $post );
 		if ( $using_gutenberg && $remote_using_gutenberg ) {
-			$new_post_args['post_content'] = $this->filter_gutenberg_blocks( $post->post_content, $post_id, $original_blog_id, $this->site->blog_id );
+
+			// If DOMDocument is not installed, skip parsing the content.
+			if ( class_exists( 'DOMDocument' ) ) {
+				$new_post_args['post_content'] = $this->filter_gutenberg_blocks( $post->post_content, $post_id, $original_blog_id, $this->site->blog_id );
+			} else {
+				$new_post_args['post_content'] = $post->post_content;
+			}
 		}
 
 		// Handle existing posts.
