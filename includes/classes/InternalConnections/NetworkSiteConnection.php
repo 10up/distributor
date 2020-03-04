@@ -180,7 +180,7 @@ class NetworkSiteConnection extends Connection {
 
 		$dom = new \DOMDocument();
 
-		$converted_content = function_exists( 'mb_convert_encoding' ) ? mb_convert_encoding( $content, 'HTML-ENTITIES', 'UTF-8' ) : htmlspecialchars_decode( utf8_decode( htmlentities( $content, ENT_COMPAT, 'utf-8', false) ) );
+		$converted_content = function_exists( 'mb_convert_encoding' ) ? mb_convert_encoding( $content, 'HTML-ENTITIES', 'UTF-8' ) : htmlspecialchars_decode( utf8_decode( htmlentities( $content, ENT_COMPAT, 'utf-8', false ) ) );
 
 		$dom->loadHTML( $converted_content );
 
