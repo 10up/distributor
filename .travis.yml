@@ -36,12 +36,12 @@ cache:
   
 script:
   - |
-    if [[ "$DISTRIBUTOR_TEST" == "unit" ]]; then
-      ./vendor/bin/phpunit
-      composer run-script lint
-      else
-      travis_retry bash run-wpacceptance.sh "$SS"
-    fi
+  if [[ "$DISTRIBUTOR_TEST" == "unit" ]]; then
+    ./vendor/bin/phpunit
+    composer run-script lint
+  else
+    travis_retry bash run-wpacceptance.sh "$SS"
+  fi
 
 notifications:
   email: false
