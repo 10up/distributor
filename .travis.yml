@@ -3,6 +3,10 @@ php:
  - '5.6'
  - '7.2'
 
+env:
+  - TYPE=unit
+  - TYPE=wpa
+
 global:
 - WP_VERSION=latest
 
@@ -20,10 +24,11 @@ cache:
 
 jobs:
   fast_finish: true
+  exclude:
+    - php: '5.6'
+    - env: TYPE=unit
   include:
- 
     - stage: "Distributor Tests"
-      php: '7.2'
       name: "Unit Tests and Liniting"
       script: ./vendor/bin/phpunit
       script: composer run-script lint
