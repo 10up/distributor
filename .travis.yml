@@ -2,15 +2,25 @@ language: php
 php:
  - '5.6'
  - '7.2'
-env:
-  - DISTRIBUTOR_TEST=unit
-  - DISTRIBUTOR_TEST=wpa SS=3593222a181f0f91824947dbd06985d5
-  - DISTRIBUTOR_TEST=wpa SS=9ea863cebfcbb416c6334a6bef6552f0
-  - DISTRIBUTOR_TEST=wpa SS=01ccbe4d2c4dbcd00b226885b759114e
-  - DISTRIBUTOR_TEST=wpa SS=01ccbe4d2c4dbcd00b226885b759114e
 
 global:
 - WP_VERSION=latest
+
+matrix:
+  include:
+  - env: DISTRIBUTOR_TEST=unit
+    name: "Unit Tests and Linting"
+  - env: DISTRIBUTOR_TEST=wpa SS=3593222a181f0f91824947dbd06985d5
+    name: "WP Acceptance: WordPress 4.9"
+  - env: DISTRIBUTOR_TEST=wpa SS=9ea863cebfcbb416c6334a6bef6552f0
+    name: "WP Acceptance: WordPress 4.9 plus Gutenberg 4.9"
+  - env: DISTRIBUTOR_TEST=wpa SS=01ccbe4d2c4dbcd00b226885b759114e
+    name: "WP Acceptance: WordPress 5.1"
+  - env: DISTRIBUTOR_TEST=wpa SS=01ccbe4d2c4dbcd00b226885b759114e
+    name: "WP Acceptance: WordPress 5.1 plus Gutenberg 5.3"
+  allow_failures:
+  - env: DISTRIBUTOR_TEST=unit
+    php: '5.6'
 
 before_script:
   - composer install
@@ -23,7 +33,7 @@ cache:
     - $HOME/.npm
     - node_modules
     - $HOME/vendor
-    
+  
 script:
   - |
     if [[ "$DISTRIBUTOR_TEST" == "unit" ]]; then
