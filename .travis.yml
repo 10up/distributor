@@ -22,7 +22,7 @@ cache:
     - node_modules
     - $HOME/vendor
 
-matrix:
+jobs:
   include:
   - env: DISTRIBUTOR_TEST=unit
     name: "Unit Tests and Linting"
