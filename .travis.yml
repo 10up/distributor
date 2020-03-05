@@ -17,10 +17,13 @@ cache:
     - $HOME/.npm
     - node_modules
     - $HOME/vendor
+
 jobs:
   fast_finish: true
   include:
+ 
     - stage: "Distributor Tests"
+      php: '7.2'
       name: "Unit Tests and Liniting"
       script: ./vendor/bin/phpunit
       script: composer run-script lint
