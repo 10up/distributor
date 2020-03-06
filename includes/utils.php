@@ -838,3 +838,40 @@ function get_processed_content( $post_content ) {
 
 	return $post_content;
 }
+
+/**
+ * Gets the REST URL for a post.
+ *
+ * @param  int $blog_id The blog ID.
+ * @param  int $post_id The post ID.
+ * @return string
+ */
+function get_rest_url( $blog_id, $post_id ) {
+
+	switch_to_blog( $blog_id );
+
+	$post = get_post( $post_id );
+	if ( ! is_a( $post, '\WP_Post' ) ) {
+		restore_current_blog();
+		return apply_filters( 'dt_get_rest_url', false, $blog_id, $post_id );
+	}
+
+	$obj       = get_post_type_object( $post->post_type );
+	$rest_base = ! empty( $obj->rest_base ) ? $obj->rest_base : $obj->name;
+	$base      = sprintf( '%s/%s', 'wp/v2', $rest_base );
+
+	$rest_url = rest_url( trailingslashit( $base ) . $post->ID );
+
+	restore_current_blog();
+
+	/**
+	 * Allow filtering of the REST API URL used for pulling post contewnt,
+	 *
+	 * @since ?
+	 *
+	 * @param string $rest_url The defaukt REST URL to the post.
+	 * @param int $blog_id     The blog ID.
+	 * @param int $post_id     The post ID being retrieved.
+	 */
+	return apply_filters( 'dt_get_rest_url', $rest_url, $blog_id, $post_id );
+}

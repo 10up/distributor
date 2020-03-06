@@ -279,6 +279,21 @@ class NetworkSiteConnection extends Connection {
 			restore_current_blog();
 
 			/**
+			 * Allow the sync'ed post to be updated via a REST request get the rendered content.
+			 *
+			 * @since ?
+			 * @hook dt_pull_post_apply_rendered_content
+			 *
+			 * @param bool  false        Apply rendered content after a pull? Defaults to false.
+			 * @param int   $new_post_id The new post ID.
+			 * @param array $post_array  The post array used to create the new post.
+			 */
+			if ( apply_filters( 'dt_pull_post_apply_rendered_content', false, $new_post_id, $this, $post_array ) ) {
+				$this->update_content_via_rest( $new_post_id );
+			}
+
+			/**
+			 * Action triggered when a post is pulled via distributor.
 			 * Fires after a post is pulled via Distributor and after `restore_current_blog()`.
 			 *
 			 * @since 1.0
@@ -952,5 +967,84 @@ class NetworkSiteConnection extends Connection {
 		}
 
 		return $og_url;
+	}
+
+	/**
+	 * Updates a post content via a REST request after the new post is created
+	 * in order to get the rendered content.
+	 *
+	 * @param int $new_post_id The new post ID that was pulled.
+	 * @return void
+	 */
+	public function update_content_via_rest( $new_post_id ) {
+
+		$post = get_post( $new_post_id );
+		if ( ! is_a( $post, '\WP_Post' ) ) {
+			return;
+		}
+
+		$original_blog_id = absint( get_post_meta( $post->ID, 'dt_original_blog_id', true ) );
+		$original_post_id = absint( get_post_meta( $post->ID, 'dt_original_post_id', true ) );
+
+		$rest_url = false;
+		if ( ! empty( $original_blog_id ) && ! empty( $original_post_id ) ) {
+			$rest_url = Utils\get_rest_url( $original_blog_id, $original_post_id );
+		}
+
+		if ( empty( $rest_url ) ) {
+			return;
+		}
+
+		/**
+		 * Allow filtering of the HTTP request args before updating content
+		 * via a REST API call.
+		 *
+		 * @since ?
+		 *
+		 * @param array                 list            List of request args.
+		 * @param int                   $new_post_id    The new post ID.
+		 * @param array                 $post_array     The post array used to create the new post.
+		 * @param NetworkSiteConnection $this           The distributor connection being pulled from.
+		 */
+		$request = apply_filters( 'dt_update_content_via_request_args', [], $new_post_id, $this );
+
+		if ( function_exists( 'vip_safe_wp_remote_get' ) && \Distributor\Utils\is_vip_com() ) {
+			$response = vip_safe_wp_remote_get(
+				$rest_url,
+				false,
+				3,
+				3,
+				10,
+				$request
+			);
+		} else {
+			$response = wp_remote_get(
+				$rest_url,
+				$request
+			);
+		}
+
+		$body = false;
+		$code = wp_remote_retrieve_response_code( $response );
+		if ( 200 === $code ) {
+			$body = wp_remote_retrieve_body( $response );
+		}
+
+		if ( empty( $body ) ) {
+			return;
+		}
+
+		$data = json_decode( $body );
+
+		// Grab the rendered response and update the current post.
+		if ( is_a( $data, '\stdClass' ) && isset( $data->content, $data->content->rendered ) ) {
+
+			wp_update_post(
+				[
+					'ID'           => $post->ID,
+					'post_content' => $data->content->rendered,
+				]
+			);
+		}
 	}
 }
