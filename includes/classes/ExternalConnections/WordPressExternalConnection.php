@@ -912,7 +912,7 @@ class WordPressExternalConnection extends ExternalConnection {
 		$obj->ping_status       = $post['ping_status'];
 
 		// Use raw content if both remote and local are using Gutenberg.
-		$obj->post_content = Utils\is_gutenberg_active() && isset( $post['is_using_gutenberg'] ) ?
+		$obj->post_content = Utils\is_using_gutenberg( new \WP_Post( $obj ) ) && isset( $post['is_using_gutenberg'] ) ?
 			$post['content']['raw'] :
 			Utils\get_processed_content( $post['content']['raw'] );
 

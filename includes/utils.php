@@ -34,11 +34,8 @@ function is_vip_com() {
  * @return boolean
  */
 function is_using_gutenberg( $post ) {
-	if ( empty( $post->post_content ) ) {
-		return false;
-	}
-
 	global $wp_version;
+
 	$gutenberg_available = function_exists( 'the_gutenberg_project' );
 	$version_5_plus      = version_compare( $wp_version, '5', '>=' );
 
@@ -46,44 +43,25 @@ function is_using_gutenberg( $post ) {
 		return false;
 	}
 
-	if ( function_exists( 'use_block_editor_for_post' ) ) {
-		return use_block_editor_for_post( $post );
-	} else {
+	if ( ! empty( $post->post_content ) ) {
+		if ( function_exists( 'use_block_editor_for_post' ) ) {
+			return use_block_editor_for_post( $post );
+		}
+
 		// This duplicates the check from `has_blocks()` as of WP 5.2.
 		return false !== strpos( (string) $post->post_content, '<!-- wp:' );
 	}
-}
 
-	/**
-	 * Check if Gutenberg is active.
-	 *
-	 * @since 2.0.0
-	 *
-	 * @return bool
-	 */
-function is_gutenberg_active() {
-	$gutenberg    = false;
-	$block_editor = false;
+	$use_block_editor = true;
 
-	if ( has_filter( 'replace_editor', 'gutenberg_init' ) ) {
-		// Gutenberg is installed and activated.
-		$gutenberg = true;
+	if ( is_plugin_active( 'classic-editor/classic-editor.php' ) ) {
+		$use_block_editor = ( get_option( 'classic-editor-replace' ) === 'no-replace' );
 	}
 
-	if ( version_compare( $GLOBALS['wp_version'], '5.0-beta', '>' ) ) {
-		// Block editor.
-		$block_editor = true;
+	if ( $use_block_editor && is_a( $post, '\WP_Post' ) && class_exists( '\Gutenberg_Ramp' ) ) {
+		$gutenberg_ramp   = \Gutenberg_Ramp::get_instance();
+		$use_block_editor = $gutenberg_ramp->gutenberg_should_load( $post );
 	}
-
-	if ( ! $gutenberg && ! $block_editor ) {
-		return false;
-	}
-
-	if ( ! is_plugin_active( 'classic-editor/classic-editor.php' ) ) {
-		return true;
-	}
-
-	$use_block_editor = ( get_option( 'classic-editor-replace' ) === 'no-replace' );
 
 	return $use_block_editor;
 }
