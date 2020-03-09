@@ -237,11 +237,16 @@ jQuery( window ).on( 'load', () => {
 	 * Handle exiting the distributor menu.
 	 */
 	function distributorMenuExited() {
+
+		if ( actionWrapper.classList.contains( 'loading' ) ) {
+			return;
+		}
+
 		distributorMenuItem.blur();
-		document.body.classList.toggle( 'distributor-show' );
+		document.body.classList.remove( 'distributor-show' );
 	}
 
-	jQuery( distributorMenuItem ).hoverIntent( distributorMenuEntered, 300, distributorMenuExited );
+	jQuery( distributorMenuItem ).hoverIntent( distributorMenuEntered, distributorMenuExited, 300 );
 
 	/**
 	 * Do syndication ajax
