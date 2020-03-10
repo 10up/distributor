@@ -1,6 +1,11 @@
 <?php
+/**
+ * Distributor uninstall script.
+ *
+ * @since 2.0.0
+ */
 
-if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
+if ( ! defined( 'ABSPATH' ) || ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
 	die;
 }
 
