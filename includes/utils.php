@@ -54,8 +54,8 @@ function is_using_gutenberg( $post ) {
 
 	$use_block_editor = true;
 
-	if ( ! function_exists( 'is_plugin_active' ) ){
-		require_once( ABSPATH . '/wp-admin/includes/plugin.php' );
+	if ( ! function_exists( 'is_plugin_active' ) ) {
+		require_once ABSPATH . '/wp-admin/includes/plugin.php';
 	}
 
 	if ( is_plugin_active( 'classic-editor/classic-editor.php' ) ) {
