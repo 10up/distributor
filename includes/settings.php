@@ -338,12 +338,19 @@ function network_settings_screen() {
 				<tr>
 					<th scope="row"><?php esc_html_e( 'Registration Key', 'distributor' ); ?></th>
 					<td>
+						<?php if( true === $settings['valid_license'] ) : ?>
+							<div class="registered">
+								<p><?php printf( esc_html__( 'Distributor is registered to %s.', 'distributor' ), $email ); ?></p>
+								<a href="#" onclick="this.parentNode.remove(); return false;"><?php esc_html_e( 'Update registration', 'distributor' ); ?></a>
+							</div>
+						<?php endif; ?>
+
 						<div class="license-wrap <?php if ( true === $settings['valid_license'] ) : ?>valid<?php elseif ( false === $settings['valid_license'] ) : ?>invalid<?php endif; ?>">
 							<input name="dt_settings[email]" type="email" placeholder="<?php esc_html_e( 'Email', 'distributor' ); ?>" value="<?php echo esc_attr( $email ); ?>"> <input name="dt_settings[license_key]" type="text" placeholder="<?php esc_html_e( 'Registration Key', 'distributor' ); ?>" value="<?php echo esc_attr( $license_key ); ?>">
 						</div>
 
 						<p class="description">
-							<?php echo wp_kses_post( __( 'Registration is 100% free and provides update notifications and upgrades inside the dashboard; <a href="https://distributorplugin.com/#cta">Register for your key</a>.', 'distributor' ) ); ?>
+							<?php echo wp_kses_post( __( 'Registration is 100% free and provides update notifications and upgrades inside the dashboard. <a href="https://distributorplugin.com/#cta">Register for your key</a>.', 'distributor' ) ); ?>
 						</p>
 					</td>
 				</tr>
