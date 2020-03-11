@@ -301,6 +301,10 @@ function settings_screen() {
 	<div class="wrap">
 		<h2><?php esc_html_e( 'Distributor Settings', 'distributor' ); ?></h2>
 
+		<a class="distributor-help-link" target="_blank" href="https://github.com/10up/distributor#installation">
+			<span class="dashicons dashicons-info"></span> <?php esc_html_e( 'Help', 'distributor' ); ?>
+		</a>
+
 		<form action="options.php" method="post">
 
 		<?php settings_fields( 'dt_settings' ); ?>
@@ -327,6 +331,10 @@ function network_settings_screen() {
 
 	<div class="wrap">
 		<h2><?php esc_html_e( 'Distributor Network Settings', 'distributor' ); ?></h2>
+
+		<a class="distributor-help-link" target="_blank" href="https://github.com/10up/distributor#installation">
+			<span class="dashicons dashicons-info"></span> <?php esc_html_e( 'Help', 'distributor' ); ?>
+		</a>
 
 		<form action="" method="post">
 		<?php settings_fields( 'dt-settings' ); ?>
