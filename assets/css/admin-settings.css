@@ -23,3 +23,15 @@
 	position: relative;
 	color: #ff0000;
 }
+
+.registered + .license-wrap,
+.registered ~ .description {
+	display: none;
+}
+
+.registered a {
+	font-weight: bold;
+	margin-top: 10px;
+	text-decoration: none;
+	display: inline-block;
+}
