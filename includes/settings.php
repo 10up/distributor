@@ -342,8 +342,8 @@ function network_settings_screen() {
 						<?php if ( true === $settings['valid_license'] ) : ?>
 							<div class="registered">
 								<?php /* translators: %s is registered email. */ ?>
-								<p><?php echo esc_html( sprintf( __( 'distributor is registered to %s.', 'distributor' ), $email ) ); ?></p>
-								<a href="#" onclick="this.parentnode.remove(); return false;"><?php esc_html_e( 'update registration', 'distributor' ); ?></a>
+								<p><?php echo esc_html( sprintf( __( 'Distributor is registered to %s.', 'distributor' ), $email ) ); ?></p>
+								<a href="#" onclick="this.parentNode.remove(); return false;"><?php esc_html_e( 'Update registration', 'distributor' ); ?></a>
 							</div>
 						<?php endif; ?>
 
