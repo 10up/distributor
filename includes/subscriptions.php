@@ -277,7 +277,6 @@ function send_notifications( $post_id ) {
 				$post_body['post_data']['distributor_raw_content'] = $post->post_content;
 			}
 		}
-		error_log(print_r(array_keys( $post_body['post_data']), true));
 
 		$request = wp_remote_post(
 			untrailingslashit( $target_url ) . '/wp/v2/dt_subscription/receive',
