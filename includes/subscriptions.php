@@ -20,7 +20,7 @@ function setup() {
 		'plugins_loaded',
 		function() {
 			add_action( 'init', __NAMESPACE__ . '\register_cpt' );
-			add_action( 'save_post', __NAMESPACE__ . '\send_notifications' );
+			add_action( 'wp_insert_post', __NAMESPACE__ . '\send_notifications' );
 			add_action( 'before_delete_post', __NAMESPACE__ . '\delete_subscriptions' );
 		}
 	);
@@ -271,11 +271,13 @@ function send_notifications( $post_id ) {
 				'distributor_meta'  => \Distributor\Utils\prepare_meta( $post_id ),
 			],
 		];
+
 		if ( \Distributor\Utils\is_using_gutenberg( $post ) ) {
 			if ( \Distributor\Utils\dt_use_block_editor_for_post_type( $post->post_type ) ) {
 				$post_body['post_data']['distributor_raw_content'] = $post->post_content;
 			}
 		}
+		error_log(print_r(array_keys( $post_body['post_data']), true));
 
 		$request = wp_remote_post(
 			untrailingslashit( $target_url ) . '/wp/v2/dt_subscription/receive',
