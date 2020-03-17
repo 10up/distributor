@@ -290,7 +290,7 @@ function network_admin_menu() {
 function settings_screen() {
 	?>
 	<div class="wrap">
-		<h2><?php esc_html_e( 'Distributor Settings', 'distributor' ); ?></h2>
+		<h1><?php esc_html_e( 'Distributor Settings', 'distributor' ); ?></h1>
 
 		<form action="options.php" method="post">
 
