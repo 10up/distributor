@@ -221,7 +221,11 @@ function license_key_callback() {
 	$email       = ( ! empty( $settings['email'] ) ) ? $settings['email'] : '';
 	?>
 	<div class="license-wrap <?php if ( true === $settings['valid_license'] ) : ?>valid<?php elseif ( false === $settings['valid_license'] ) : ?>invalid<?php endif; ?>">
-		<input name="dt_settings[email]" type="email" placeholder="<?php esc_html_e( 'Email', 'distributor' ); ?>" value="<?php echo esc_attr( $email ); ?>"> <input name="dt_settings[license_key]" type="text" placeholder="<?php esc_html_e( 'Registration Key', 'distributor' ); ?>" value="<?php echo esc_attr( $license_key ); ?>">
+		<label class="screen-reader-text" for="dt_settings_email"><?php esc_html_e( 'Email', 'distributor' ); ?></label>
+		<input name="dt_settings[email]" type="email" placeholder="<?php esc_html_e( 'Email', 'distributor' ); ?>" value="<?php echo esc_attr( $email ); ?>" id="dt_settings_email">
+
+		<label class="screen-reader-text" for="dt_settings_license_key"><?php esc_html_e( 'Registration Key', 'distributor' ); ?></label>
+		<input name="dt_settings[license_key]" type="text" placeholder="<?php esc_html_e( 'Registration Key', 'distributor' ); ?>" value="<?php echo esc_attr( $license_key ); ?>" id="dt_settings_license_key">
 	</div>
 
 	<p class="description">
