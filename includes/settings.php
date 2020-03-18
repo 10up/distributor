@@ -317,7 +317,7 @@ function network_settings_screen() {
 	?>
 
 	<div class="wrap">
-		<h2><?php esc_html_e( 'Distributor Network Settings', 'distributor' ); ?></h2>
+		<h1><?php esc_html_e( 'Distributor Network Settings', 'distributor' ); ?></h1>
 
 		<form action="" method="post">
 		<?php settings_fields( 'dt-settings' ); ?>
