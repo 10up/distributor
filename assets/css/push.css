@@ -10,12 +10,13 @@
 @custom-media --small-screen (min-width: 480px);
 @custom-media --medium-screen (min-width: 768px);
 
-#distributor-push-wrapper {
+#distributor-push-wrapper,
+#wpadminbar #wp-admin-bar-distributor-placeholder > .ab-item {
 	display: none;
 }
 
 #wpadminbar #distributor-push-wrapper {
-	display: none;
+	display: flex;
 	font-size: 13px;
     font-weight: 400;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
@@ -40,10 +41,6 @@
 
 #wpadminbar #distributor-push-wrapper * {
 	line-height: 1.5;
-}
-
-.distributor-show #wp-admin-bar-distributor #distributor-push-wrapper {
-	display: flex;
 }
 
 #wpadminbar #distributor-push-wrapper .inner {

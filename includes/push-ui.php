@@ -410,6 +410,15 @@ function menu_button( $wp_admin_bar ) {
 			'href'  => '#',
 		)
 	);
+
+	$wp_admin_bar->add_node(
+		array(
+			'parent' => 'distributor',
+			'id'     => 'distributor-placeholder',
+			'title'  => esc_html__( 'Distributor', 'distributor' ),
+			'href'   => '#',
+		)
+	);
 }
 
 /**

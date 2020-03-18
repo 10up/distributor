@@ -21,7 +21,7 @@ const processTemplate = _.memoize( ( id ) => {
 } );
 
 jQuery( window ).on( 'load', () => {
-	const distributorMenuItem     = document.querySelector( '#wp-admin-bar-distributor' );
+	const distributorMenuItem     = document.querySelector( '#wp-admin-bar-distributor #wp-admin-bar-distributor-placeholder' );
 	const distributorPushWrapper  = document.querySelector( '#distributor-push-wrapper' );
 
 	if ( ! distributorMenuItem || ! distributorPushWrapper ) {
@@ -42,6 +42,8 @@ jQuery( window ).on( 'load', () => {
 	let asDraftInput            		= '';
 
 	distributorMenuItem.appendChild( distributorPushWrapper );
+
+	distributorMenuEntered();
 
 	/**
 	 * Set variables after connections have been rendered
@@ -190,8 +192,6 @@ jQuery( window ).on( 'load', () => {
 	 * Handle distributor push dropdown menu hover using hoverIntent.
 	 */
 	function distributorMenuEntered() {
-		distributorMenuItem.focus();
-		document.body.classList.toggle( 'distributor-show' );
 
 		if ( distributorPushWrapper.classList.contains( 'loaded' ) ) {
 			return;
@@ -232,16 +232,6 @@ jQuery( window ).on( 'load', () => {
 			distributorPushWrapper.classList.add( 'message-error' );
 		} );
 	}
-
-	/**
-	 * Handle exiting the distributor menu.
-	 */
-	function distributorMenuExited() {
-		distributorMenuItem.blur();
-		document.body.classList.toggle( 'distributor-show' );
-	}
-
-	jQuery( distributorMenuItem ).hoverIntent( distributorMenuEntered, 300, distributorMenuExited );
 
 	/**
 	 * Do syndication ajax
