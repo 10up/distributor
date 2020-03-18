@@ -189,7 +189,7 @@ jQuery( window ).on( 'load', () => {
 	}
 
 	/**
-	 * Handle distributor push dropdown menu hover using hoverIntent.
+	 * Handle distributor push dropdown menu.
 	 */
 	function distributorMenuEntered() {
 
