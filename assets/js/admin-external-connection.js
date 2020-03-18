@@ -74,8 +74,10 @@ function checkConnections() {
 				if ( response.data.endpoint_suggestion ) {
 					endpointResult.innerText = `${ dt.endpoint_suggestion } `;
 
-					const suggestion = document.createElement( 'a' );
+					const suggestion = document.createElement( 'button' );
 					suggestion.classList.add( 'suggest' );
+					suggestion.classList.add( 'button-link' );
+					suggestion.setAttribute( 'type', 'button' );
 					suggestion.innerText = response.data.endpoint_suggestion;
 
 					endpointResult.appendChild( suggestion );
