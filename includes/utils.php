@@ -818,8 +818,8 @@ function process_media( $url, $post_id, $args = [] ) {
 
 		$source_file = $args['source_file'];
 
-		// For debugging.
-		$save_source_file_path = apply_filters( 'dt_process_media_save_source_file_path', true );
+		// For debugging, defaults to not saving.
+		$save_source_file_path = apply_filters( 'dt_process_media_save_source_file_path', false );
 
 		if ( ! is_a( $wp_filesystem, 'WP_Filesystem_Base' ) ) {
 			$creds = request_filesystem_credentials( site_url() );
