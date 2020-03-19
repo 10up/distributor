@@ -818,9 +818,6 @@ function process_media( $url, $post_id, $args = [] ) {
 
 		$source_file = $args['source_file'];
 
-		// For debugging, defaults to not saving.
-		$save_source_file_path = apply_filters( 'dt_process_media_save_source_file_path', false );
-
 		if ( ! is_a( $wp_filesystem, 'WP_Filesystem_Base' ) ) {
 			$creds = request_filesystem_credentials( site_url() );
 			wp_filesystem( $creds );
@@ -834,6 +831,10 @@ function process_media( $url, $post_id, $args = [] ) {
 			$copied = $wp_filesystem->copy( $source_file, $temp_name, true );
 
 			if ( $copied ) {
+
+				// For debugging, defaults to not saving.
+				$save_source_file_path = apply_filters( 'dt_process_media_save_source_file_path', false );
+
 				$file_array['tmp_name'] = $temp_name;
 				$download_url = false;
 			}
