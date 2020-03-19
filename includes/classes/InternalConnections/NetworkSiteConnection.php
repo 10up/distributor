@@ -144,7 +144,7 @@ class NetworkSiteConnection extends Connection {
 			 * @return {bool} If Distributor should push the post media.
 			 */
 			if ( apply_filters( 'dt_push_post_media', true, $new_post_id, $media, $post_id, $args, $this ) ) {
-				\Distributor\Utils\set_media( $new_post_id, $media );
+				\Distributor\Utils\set_media( $new_post_id, $media, [ 'use_filesystem' => true ] );
 			};
 		}
 
@@ -250,7 +250,7 @@ class NetworkSiteConnection extends Connection {
 				 * @return {bool} If Distributor should set the post media.
 				 */
 				if ( apply_filters( 'dt_pull_post_media', true, $new_post_id, $post->media, $item_array['remote_post_id'], $post_array, $this ) ) {
-					\Distributor\Utils\set_media( $new_post_id, $post->media );
+					\Distributor\Utils\set_media( $new_post_id, $post->media, [ 'use_filesystem' => true ] );
 				};
 			}
 

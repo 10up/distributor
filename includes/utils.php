@@ -570,12 +570,29 @@ function set_taxonomy_terms( $post_id, $taxonomy_terms ) {
  *
  * @param int   $post_id Post ID.
  * @param array $media Array of media posts.
+ * @param array $args Additional args for set_media.
  * @since 1.0
  */
-function set_media( $post_id, $media ) {
+function set_media( $post_id, $media, $args = [] ) {
 	$settings            = get_settings(); // phpcs:ignore
 	$current_media_posts = get_attached_media( get_allowed_mime_types(), $post_id );
 	$current_media       = [];
+
+	$args = wp_parse_args(
+		$args,
+		[
+			'use_filesystem' => false,
+		]
+	);
+
+	/**
+	 * Allow filtering of the set_media args.
+	 *
+	 * @param array $args    List of args.
+	 * @param int   $post_id Post ID.
+	 * @param array $media   Array of media posts.
+	 */
+	$args = apply_filters( 'dt_set_media_args', $args, $post_id, $media );
 
 	// Create mapping so we don't create duplicates
 	foreach ( $current_media_posts as $media_post ) {
@@ -597,6 +614,8 @@ function set_media( $post_id, $media ) {
 
 	foreach ( $media as $media_item ) {
 
+		$args['source_file'] = $media_item['source_file'];
+
 		// Delete duplicate if it exists (unless filter says otherwise)
 		/**
 		 * Filter whether media should be deleted and replaced if it already exists.
@@ -614,12 +633,12 @@ function set_media( $post_id, $media ) {
 				wp_delete_attachment( $current_media[ $media_item['source_url'] ], true );
 			}
 
-			$image_id = process_media( $media_item['source_url'], $post_id );
+			$image_id = process_media( $media_item['source_url'], $post_id, $args );
 		} else {
 			if ( ! empty( $current_media[ $media_item['source_url'] ] ) ) {
 				$image_id = $current_media[ $media_item['source_url'] ];
 			} else {
-				$image_id = process_media( $media_item['source_url'], $post_id );
+				$image_id = process_media( $media_item['source_url'], $post_id, $args );
 			}
 		}
 
@@ -701,6 +720,7 @@ function format_media_post( $media_post ) {
 	$media_item['media_details'] = apply_filters( 'dt_get_media_details', wp_get_attachment_metadata( $media_post->ID ), $media_post->ID );
 	$media_item['post']          = $media_post->post_parent;
 	$media_item['source_url']    = wp_get_attachment_url( $media_post->ID );
+	$media_item['source_file']   = get_attached_file( $media_post->ID );
 	$media_item['meta']          = \Distributor\Utils\prepare_meta( $media_post->ID );
 
 	/**
@@ -720,11 +740,30 @@ function format_media_post( $media_post ) {
  * Simple function for sideloading media and returning the media id
  *
  * @param  string $url URL of media.
- * @param  int    $post_id Post ID.
+ * @param  int    $post_id Post ID that the media will be assigned to.
+ * @param  arra y $args Additional args for process_media.
  * @since  1.0
  * @return int|bool
  */
-function process_media( $url, $post_id ) {
+function process_media( $url, $post_id, $args = [] ) {
+	global $wp_filesystem;
+
+	$args = wp_parse_args(
+		$args,
+		[
+			'use_filesystem'  => false,
+			'source_file'     => '',
+		]
+	);
+
+	/**
+	 * Allow filtering of the process_media args.
+	 *
+	 * @param array $args    List of args.
+	 * @param  string $url URL of media.
+	 * @param int   $post_id Post ID.
+	 */
+	$args = apply_filters( 'dt_process_media_args', $args, $url, $post_id );
 
 	/**
 	 * Filter allowed media extensions to be processed
@@ -771,14 +810,47 @@ function process_media( $url, $post_id ) {
 	require_once ABSPATH . 'wp-admin/includes/file.php';
 	require_once ABSPATH . 'wp-admin/includes/media.php';
 
-	// Allows to pull media from local IP addresses
-	// Uses a "magic number" for priority so we only unhook our call, just in case
-	add_filter( 'http_request_host_is_external', '__return_true', 88 );
+	$download_url          = true;
+	$source_file           = false;
+	$save_source_file_path = false;
 
-	// Download file to temp location.
-	$file_array['tmp_name'] = download_url( $url );
+	if ( $args['use_filesystem'] && isset( $args['source_file'] ) && ! empty( $args['source_file'] ) ) {
 
-	remove_filter( 'http_request_host_is_external', '__return_true', 88 );
+		$source_file = $args['source_file'];
+
+		// For debugging.
+		$save_source_file_path = apply_filters( 'dt_process_media_save_source_file_path', true );
+
+		if ( ! is_a( $wp_filesystem, 'WP_Filesystem_Base' ) ) {
+			$creds = request_filesystem_credentials( site_url() );
+			wp_filesystem( $creds );
+		}
+
+		// Copy the source file so we don't mess with the original file.
+		if ( $wp_filesystem->exists( $source_file ) ) {
+
+			$temp_name = wp_tempnam( $source_file );
+
+			$copied = $wp_filesystem->copy( $source_file, $temp_name, true );
+
+			if ( $copied ) {
+				$file_array['tmp_name'] = $temp_name;
+				$download_url = false;
+			}
+		}
+	}
+
+	// Default for external, or if a local file copy failed.
+	if ( $download_url ) {
+		// Allows to pull media from local IP addresses
+		// Uses a "magic number" for priority so we only unhook our call, just in case.
+		add_filter( 'http_request_host_is_external', '__return_true', 88 );
+
+		// Download file to temp location.
+		$file_array['tmp_name'] = download_url( $url );
+
+		remove_filter( 'http_request_host_is_external', '__return_true', 88 );
+	}
 
 	// If error storing temporarily, return the error.
 	if ( is_wp_error( $file_array['tmp_name'] ) ) {
@@ -802,6 +874,14 @@ function process_media( $url, $post_id ) {
 
 		return false;
 	}
+
+	// Make sure we clean up.
+	@unlink( $file_array['tmp_name'] );
+
+	if ( $save_source_file_path ) {
+		update_post_meta( $result, 'dt_original_file_path', $source_file );
+	}
+
 	return (int) $result;
 }
 
