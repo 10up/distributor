@@ -21,6 +21,7 @@ const processTemplate = _.memoize( ( id ) => {
 } );
 
 jQuery( window ).on( 'load', () => {
+	const distributorAdminItem    = document.querySelector( '#wp-admin-bar-distributor > a' );
 	const distributorMenuItem     = document.querySelector( '#wp-admin-bar-distributor #wp-admin-bar-distributor-placeholder' );
 	const distributorPushWrapper  = document.querySelector( '#distributor-push-wrapper' );
 
@@ -42,8 +43,6 @@ jQuery( window ).on( 'load', () => {
 	let asDraftInput            		= '';
 
 	distributorMenuItem.appendChild( distributorPushWrapper );
-
-	distributorMenuEntered();
 
 	/**
 	 * Set variables after connections have been rendered
@@ -192,7 +191,6 @@ jQuery( window ).on( 'load', () => {
 	 * Handle distributor push dropdown menu.
 	 */
 	function distributorMenuEntered() {
-
 		if ( distributorPushWrapper.classList.contains( 'loaded' ) ) {
 			return;
 		}
@@ -232,6 +230,17 @@ jQuery( window ).on( 'load', () => {
 			distributorPushWrapper.classList.add( 'message-error' );
 		} );
 	}
+
+	// Event listerners when to fetch distributor data.
+	distributorAdminItem.addEventListener( 'keydown', function( e ) {
+		// Pressing Enter.
+		if ( ( 13 === e.keyCode ) ) {
+			distributorMenuEntered();
+		}
+	}, false );
+
+	distributorAdminItem.addEventListener( 'touchstart', distributorMenuEntered, false );
+	distributorAdminItem.addEventListener( 'mouseenter', distributorMenuEntered, false );
 
 	/**
 	 * Do syndication ajax
