@@ -19,6 +19,21 @@ function setup() {
 			add_filter( 'debug_information', __NAMESPACE__ . '\add_debug_info' );
 		}
 	);
+	add_action( 'admin_enqueue_scripts', __NAMESPACE__ . '\enqueue_scripts' );
+}
+
+/**
+ * Enqueue scripts/styles for site health.
+ *
+ * @since  2.0.0
+ *
+ * @param int $hook Hook suffix for the current admin page.
+ */
+function enqueue_scripts( $hook ) {
+	if ( 'site-health.php' !== $hook ) {
+		return;
+	}
+	wp_enqueue_style( 'dt-site-health', plugins_url( '/dist/css/admin-site-health.min.css', __DIR__ ), [], DT_VERSION );
 }
 
 /**
@@ -77,7 +92,7 @@ function add_debug_info( $info ) {
 		[
 			[
 				'label' => __( 'Settings', 'distributor' ),
-				'value' => preg_replace( '/,"/', ', "', wp_json_encode( $settings ) ),
+				'value' => wp_json_encode( $settings, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES ),
 			],
 			[
 				'label' => __( 'Internal Connections', 'distributor' ),
@@ -113,7 +128,7 @@ function get_formatted_internal_connnections() {
 
 	foreach ( $sites as $site_array ) {
 		$internal_connection                           = new \Distributor\InternalConnections\NetworkSiteConnection( $site_array['site'] );
-		$output[ $internal_connection->site->blog_id ] = preg_replace( '/,"/', ', "', wp_json_encode( $internal_connection ) );
+		$output[ $internal_connection->site->blog_id ] = wp_json_encode( $internal_connection, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES );
 	}
 
 	if ( empty( $output ) ) {
@@ -164,7 +179,7 @@ function get_formatted_external_connnections() {
 			continue;
 		}
 
-		$output[ $external_connection->base_url ] = preg_replace( '/,"/', ', "', wp_json_encode( $external_connection_status ) );
+		$output[ $external_connection->base_url ] = wp_json_encode( $external_connection_status, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES );
 	}
 
 	return $output;
