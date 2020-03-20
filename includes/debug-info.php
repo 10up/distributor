@@ -54,33 +54,43 @@ function add_debug_info( $info ) {
 
 	// Get settings without license data.
 	$settings = array_diff_key( $all_settings, $defaults );
-
-	$fields = [
+	$fields   = [
 		[
 			'label' => __( 'Version', 'distributor' ),
 			'value' => $plugin_data['Version'],
 		],
-		[
-			'label' => __( 'Valid registration', 'distributor' ),
-			'value' => $all_settings['valid_license'] ? __( 'Yes', 'distributor' ) : __( 'No', 'distributor' ),
-		],
-		[
-			'label' => __( 'Registration email', 'distributor' ),
-			'value' => $all_settings['email'] ? $all_settings['email'] : __( 'N/A', 'distributor' ),
-		],
-		[
-			'label' => __( 'Settings', 'distributor' ),
-			'value' => preg_replace( '/,"/', ', "', wp_json_encode( $settings ) ),
-		],
-		[
-			'label' => __( 'Internal Connections', 'distributor' ),
-			'value' => get_formatted_internal_connnections(),
-		],
-		[
-			'label' => __( 'External Connections', 'distributor' ),
-			'value' => get_formatted_external_connnections(),
-		],
 	];
+
+	if ( false === DT_IS_NETWORK || is_network_admin() ) {
+		$fields = [
+			[
+				'label' => __( 'Valid registration', 'distributor' ),
+				'value' => $all_settings['valid_license'] ? __( 'Yes', 'distributor' ) : __( 'No', 'distributor' ),
+			],
+			[
+				'label' => __( 'Registration email', 'distributor' ),
+				'value' => $all_settings['email'] ? $all_settings['email'] : __( 'N/A', 'distributor' ),
+			],
+		];
+	}
+
+	$fields = array_merge(
+		$fields,
+		[
+			[
+				'label' => __( 'Settings', 'distributor' ),
+				'value' => preg_replace( '/,"/', ', "', wp_json_encode( $settings ) ),
+			],
+			[
+				'label' => __( 'Internal Connections', 'distributor' ),
+				'value' => get_formatted_internal_connnections(),
+			],
+			[
+				'label' => __( 'External Connections', 'distributor' ),
+				'value' => get_formatted_external_connnections(),
+			],
+		]
+	);
 
 	$info[ $text_domain ] = [
 		'label'  => $plugin_data['Name'],
