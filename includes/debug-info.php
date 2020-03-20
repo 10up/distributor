@@ -62,15 +62,13 @@ function add_debug_info( $info ) {
 	];
 
 	if ( false === DT_IS_NETWORK || is_network_admin() ) {
-		$fields = [
-			[
-				'label' => __( 'Valid registration', 'distributor' ),
-				'value' => $all_settings['valid_license'] ? __( 'Yes', 'distributor' ) : __( 'No', 'distributor' ),
-			],
-			[
-				'label' => __( 'Registration email', 'distributor' ),
-				'value' => $all_settings['email'] ? $all_settings['email'] : __( 'N/A', 'distributor' ),
-			],
+		$fields[] = [
+			'label' => __( 'Valid registration', 'distributor' ),
+			'value' => $all_settings['valid_license'] ? __( 'Yes', 'distributor' ) : __( 'No', 'distributor' ),
+		];
+		$fields[] = [
+			'label' => __( 'Registration email', 'distributor' ),
+			'value' => $all_settings['email'] ? $all_settings['email'] : __( 'N/A', 'distributor' ),
 		];
 	}
 

@@ -8,6 +8,7 @@ class DebugInfoTest extends TestCase {
 	public function test_add_debug_info() {
 		define( 'WP_PLUGIN_DIR', '/wp-content/plugins' );
 		define( 'DT_PLUGIN_FILE', 'distributor/distributor.php' );
+		define( 'DT_IS_NETWORK', false );
 
 		\WP_Mock::userFunction(
 			'get_plugin_data',
