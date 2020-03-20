@@ -1,8 +1,7 @@
-/* global wp */
-
 import jQuery from 'jquery';
 import _ from 'underscores';
 import { dt, ajaxurl } from 'window';
+import wp from 'wp';
 
 const [ externalConnectionUrlField ]  = document.getElementsByClassName( 'external-connection-url-field' );
 const externalConnectionMetaBox       = document.getElementById( 'dt_external_connection_details' );
