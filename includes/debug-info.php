@@ -61,11 +61,11 @@ function add_debug_info( $info ) {
 			'value' => $plugin_data['Version'],
 		],
 		[
-			'label' => __( 'Valid license', 'distributor' ),
+			'label' => __( 'Valid registration', 'distributor' ),
 			'value' => $all_settings['valid_license'] ? __( 'Yes', 'distributor' ) : __( 'No', 'distributor' ),
 		],
 		[
-			'label' => __( 'Email', 'distributor' ),
+			'label' => __( 'Registration email', 'distributor' ),
 			'value' => $all_settings['email'] ? $all_settings['email'] : __( 'N/A', 'distributor' ),
 		],
 		[
