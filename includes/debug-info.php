@@ -92,7 +92,10 @@ function add_debug_info( $info ) {
 		[
 			[
 				'label' => __( 'Settings', 'distributor' ),
-				'value' => wp_json_encode( $settings, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES ),
+				'value' => [
+					__( 'Override Author Byline', 'distributor' ) => $all_settings['override_author_byline'] ? __( 'Yes', 'distributor' ) : __( 'No', 'distributor' ),
+					__( 'Media Handling', 'distributor' )         => 'attached' === $all_settings['media_handling'] ? __( 'Featured image and attached images', 'distributor' ) : __( 'Featured image only', 'distributor' ),
+				],
 			],
 			[
 				'label' => __( 'Internal Connections', 'distributor' ),
