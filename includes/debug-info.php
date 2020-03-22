@@ -94,7 +94,7 @@ function add_debug_info( $info ) {
 				'label' => __( 'Settings', 'distributor' ),
 				'value' => [
 					__( 'Override Author Byline', 'distributor' ) => $all_settings['override_author_byline'] ? __( 'Yes', 'distributor' ) : __( 'No', 'distributor' ),
-					__( 'Media Handling', 'distributor' )         => 'attached' === $all_settings['media_handling'] ? __( 'Featured image and attached images', 'distributor' ) : __( 'Featured image only', 'distributor' ),
+					__( 'Media Handling', 'distributor' ) => 'attached' === $all_settings['media_handling'] ? __( 'Featured image and attached images', 'distributor' ) : __( 'Featured image only', 'distributor' ),
 				],
 			],
 			[
@@ -130,8 +130,15 @@ function get_formatted_internal_connnections() {
 	$output = [];
 
 	foreach ( $sites as $site_array ) {
-		$internal_connection                           = new \Distributor\InternalConnections\NetworkSiteConnection( $site_array['site'] );
-		$output[ $internal_connection->site->blog_id ] = wp_json_encode( $internal_connection, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES );
+		$internal_connection  = new \Distributor\InternalConnections\NetworkSiteConnection( $site_array['site'] );
+		$site_name            = get_blog_option( $internal_connection->site->blog_id, 'blogname' );
+		$data                 = [
+			__( 'Blog ID', 'distributor' )      => $internal_connection->site->blog_id,
+			__( 'URL', 'distributor' )          => get_blog_option( $internal_connection->site->blog_id, 'home' ),
+			__( 'Registered', 'distributor' )   => $internal_connection->site->registered,
+			__( 'Last updated', 'distributor' ) => $internal_connection->site->last_updated,
+		];
+		$output[ $site_name ] = format_connection_data( $data );
 	}
 
 	if ( empty( $output ) ) {
@@ -164,13 +171,13 @@ function get_formatted_external_connnections() {
 	}
 
 	foreach ( $external_connections->posts as $external_connection_id ) {
-		$external_connection_type = get_post_meta( $external_connection_id, 'dt_external_connection_type', true );
+		$external_connection_type          = get_post_meta( $external_connection_id, 'dt_external_connection_type', true );
+		$external_connection_status        = get_post_meta( $external_connection_id, 'dt_external_connections', true );
+		$external_connection_allowed_roles = get_post_meta( $external_connection_id, 'dt_external_connection_allowed_roles', true );
 
 		if ( empty( \Distributor\Connections::factory()->get_registered()[ $external_connection_type ] ) ) {
 			continue;
 		}
-
-		$external_connection_status = get_post_meta( $external_connection_id, 'dt_external_connections', true );
 
 		if ( empty( $external_connection_status ) || empty( $external_connection_status['can_get'] ) ) {
 			continue;
@@ -182,8 +189,57 @@ function get_formatted_external_connnections() {
 			continue;
 		}
 
-		$output[ $external_connection->base_url ] = wp_json_encode( $external_connection_status, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES );
+		$data = [
+			__( 'URL', 'distributor' )                   => $external_connection->base_url,
+			__( 'Status', 'distributor' )                => get_external_connection_status( $external_connection_status ),
+			__( 'Auth method', 'distributor' )           => 'wp' === $external_connection_type ? __( 'Username / Password', 'distributor' ) : __( 'WordPress.com Application', 'distributor' ),
+			__( 'Username', 'distributor' )              => $external_connection->auth_handler->username,
+			__( 'Roles Allowed to Push', 'distributor' ) => implode( ', ', $external_connection_allowed_roles ),
+			__( 'Additional data', 'distributor' )       => preg_replace( '/,"/', ', "', wp_json_encode( $external_connection_status ) ),
+		];
+
+		$output[ $external_connection->name ] = format_connection_data( $data );
 	}
 
 	return $output;
+}
+
+/**
+ * Get external connection status.
+ *
+ * @param array $external_connection_status External connection status meta.
+ */
+function get_external_connection_status( $external_connection_status ) {
+	$status = __( 'valid', 'distributor' );
+
+	if ( empty( $external_connection_status ) ) {
+		$status = __( 'error', 'distributor' );
+	} else {
+		if ( ! empty( $external_connection_status['errors'] ) && ! empty( $external_connection_status['errors']['no_distributor'] ) ) {
+			$status = __( 'error', 'distributor' );
+		}
+
+		if ( empty( $external_connection_status['can_post'] ) ) {
+			$status = __( 'warning', 'distributor' );
+		}
+	}
+
+	return $status;
+}
+
+/**
+ * Format connection data for displaying.
+ *
+ * @param array $data Assoc array of connection data.
+ */
+function format_connection_data( $data ) {
+	$formatted = array_map(
+		function( $key, $value ) {
+			return sprintf( '- %1$s: %2$s', $key, $value );
+		},
+		array_keys( $data ),
+		$data
+	);
+
+	return "\n" . implode( "\n", $formatted );
 }
