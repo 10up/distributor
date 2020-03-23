@@ -37,20 +37,16 @@ function enqueue_scripts( $hook ) {
 }
 
 /**
- * Setup actions and filters
- *
- * @since 2.0.0
- */
-/**
  * Add distributor debug information to Site Health screen.
  *
  * @see WP_Debug_Data::debug_data
  * @filter debug_information
  *
- * @param array $info The full array of site debug information.
- * @return array Filtered debug information.
+ * @since 2.0.0
  *
- * @since 2.4.0
+ * @param array $info The full array of site debug information.
+ *
+ * @return array Filtered debug information.
  */
 function add_debug_info( $info ) {
 
@@ -67,8 +63,6 @@ function add_debug_info( $info ) {
 		$defaults
 	);
 
-	// Get settings without license data.
-	$settings = array_diff_key( $all_settings, $defaults );
 	$fields   = [
 		[
 			'label' => __( 'Version', 'distributor' ),
