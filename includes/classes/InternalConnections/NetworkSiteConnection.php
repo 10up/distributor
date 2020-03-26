@@ -142,7 +142,7 @@ class NetworkSiteConnection extends Connection {
 			 * @return {bool} If Distributor should push the post media.
 			 */
 			if ( apply_filters( 'dt_push_post_media', true, $new_post_id, $post->media, $post_id, $args, $this ) ) {
-				\Distributor\Utils\set_media( $new_post_id, $post->media );
+				Utils\set_media( $new_post_id, $post->media );
 			};
 		}
 
@@ -433,7 +433,7 @@ class NetworkSiteConnection extends Connection {
 			$formatted_posts = [];
 
 			foreach ( $posts as $post ) {
-				$formatted_posts[] = \Distributor\Utils\prepare_post( $post );
+				$formatted_posts[] = Utils\prepare_post( $post );
 			}
 
 			restore_current_blog();
@@ -455,7 +455,7 @@ class NetworkSiteConnection extends Connection {
 			if ( empty( $post ) ) {
 				$formatted_post = false;
 			} else {
-				$formatted_post = \Distributor\Utils\prepare_post( $post );
+				$formatted_post = Utils\prepare_post( $post );
 			}
 
 			restore_current_blog();
