@@ -536,17 +536,18 @@ function menu_content() {
 		</script>
 
 		<script id="dt-add-connection" type="text/html">
-			<div class="<# if (selectedConnections[connection.type + connection.id]) { #>added<# }#> add-connection <# if (connection.syndicated) { #>syndicated<# } #>" data-connection-type="{{ connection.type }}" data-connection-id="{{ connection.id }}">
-				<# if ('internal' === connection.type) { #>
+			<# if ('internal' === connection.type) { #>
+				<div class="<# if (selectedConnections[connection.type + connection.id]) { #>added<# }#> add-connection <# if (connection.syndicated) { #>syndicated<# } #>" data-connection-type="{{ connection.type }}" data-connection-id="{{ connection.id }}">
 					<span>{{ connection.url }}</span>
-				<# } else { #>
+					<# if ('internal' === connection.type && connection.syndicated) { #>
+						<a href="{{ connection.syndicated }}"><?php esc_html_e( 'View', 'distributor' ); ?></a>
+					<# } #>
+				</div>
+			<# } else { #>
+				<button class="<# if (selectedConnections[connection.type + connection.id]) { #>added<# }#> add-connection <# if (connection.syndicated) { #>syndicated<# } #>" data-connection-type="{{ connection.type }}" data-connection-id="{{ connection.id }}">
 					<span>{{{ connection.name }}}</span>
-				<# } #>
-
-				<# if ('internal' === connection.type && connection.syndicated) { #>
-					<a href="{{ connection.syndicated }}"><?php esc_html_e( 'View', 'distributor' ); ?></a>
-				<# } #>
-			</div>
+				</button>
+			<# } #>
 		</script>
 
 		<div id="distributor-push-wrapper">
