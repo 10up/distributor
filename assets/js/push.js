@@ -328,8 +328,7 @@ jQuery( window ).on( 'load', () => {
 
 			selectedConnections[type + id] = dtConnections[type + id];
 
-			const element       = event.currentTarget.cloneNode();
-			element.innerText = event.currentTarget.innerText;
+			const element = event.currentTarget.cloneNode( true );
 
 			const removeLink = document.createElement( 'span' );
 			removeLink.classList.add( 'remove-connection' );
@@ -416,7 +415,7 @@ jQuery( window ).on( 'load', () => {
 	/**
 	 * Remove a connection from selected connections and the UI list
 	 */
-	jQuery( distributorPushWrapper ).on( 'click', '.remove-connection', ( event ) => {
+	jQuery( distributorPushWrapper ).on( 'click', '.added-connection', ( event ) => {
 		event.currentTarget.parentNode.parentNode.removeChild( event.currentTarget.parentNode );
 		const type = event.currentTarget.parentNode.getAttribute( 'data-connection-type' );
 		const id   = event.currentTarget.parentNode.getAttribute( 'data-connection-id' );
