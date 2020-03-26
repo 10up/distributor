@@ -2,7 +2,9 @@
 
 namespace Distributor;
 
-class UtilsTest extends \TestCase {
+use WP_Mock\Tools\TestCase;
+
+class UtilsTest extends TestCase {
 
 	/**
 	 * Test set meta with string value and array value
@@ -13,24 +15,54 @@ class UtilsTest extends \TestCase {
 	 */
 	public function test_set_meta_simple() {
 		\WP_Mock::userFunction(
-			'update_post_meta', [
-				'times'  => 2,
+			'get_post_meta', [
+				'times'  => 1,
+				'args'   => [ 1 ],
+				'return' => [],
+			]
+		);
+
+		\WP_Mock::userFunction(
+			'get_post_meta', [
+				'times'  => 1,
+				'args'   => [ 1 ],
+				'return' => [ 'key' => [ 'value' ] ],
+			]
+		);
+
+		\WP_Mock::userFunction(
+			'add_post_meta', [
+				'times'  => 1,
 				'args'   => [ 1, 'key', 'value' ],
 				'return' => [],
 			]
 		);
 
+		\WP_Mock::userFunction(
+			'update_post_meta', [
+				'times'  => 1,
+				'args'   => [ 1, 'key', [ 'value' ], 'value' ],
+				'return' => [],
+			]
+		);
+
+		\WP_Mock::expectAction( 'dt_after_set_meta', [ 'key' => [ 'value' ] ], [], 1 );
+
+		\WP_Mock::expectAction( 'dt_after_set_meta', [ 'key' => [ [ 'value' ] ] ], [ 'key' => [ 'value' ] ], 1 );
+
 		Utils\set_meta(
 			1, [
-				'key' => 'value',
+				'key' => [ 'value' ]
 			]
 		);
 
 		Utils\set_meta(
 			1, [
-				'key' => [ 'value' ],
+				'key' => [ [ 'value' ] ],
 			]
 		);
+
+		$this->assertConditionsMet();
 	}
 
 	/**
@@ -42,9 +74,25 @@ class UtilsTest extends \TestCase {
 	 */
 	public function test_set_meta_multi() {
 		\WP_Mock::userFunction(
+			'get_post_meta', [
+				'times'  => 1,
+				'args'   => [ 1 ],
+				'return' => [ 'key' => [ 'value' ], 'key2' => [ 'value2' ] ],
+			]
+		);
+
+		\WP_Mock::userFunction(
+			'get_post_meta', [
+				'times'  => 1,
+				'args'   => [ 1 ],
+				'return' => [ 'key' => [ 'value', 'value2' ], 'key2' => [ 'value3' ] ],
+			]
+		);
+
+		\WP_Mock::userFunction(
 			'update_post_meta', [
 				'times'  => 1,
-				'args'   => [ 1, 'key', 'value' ],
+				'args'   => [ 1, 'key', 'value', 'value' ],
 				'return' => [],
 			]
 		);
@@ -52,17 +100,53 @@ class UtilsTest extends \TestCase {
 		\WP_Mock::userFunction(
 			'update_post_meta', [
 				'times'  => 1,
-				'args'   => [ 1, 'key2', 'value2' ],
+				'args'   => [ 1, 'key2', 'value2', 'value2' ],
+				'return' => [],
+			]
+		);
+
+		\WP_Mock::userFunction(
+			'update_post_meta', [
+				'times'  => 1,
+				'args'   => [ 1, 'key', 'value', 'value' ],
+				'return' => [],
+			]
+		);
+
+		\WP_Mock::userFunction(
+			'update_post_meta', [
+				'times'  => 1,
+				'args'   => [ 1, 'key', 'value2', 'value2' ],
+				'return' => [],
+			]
+		);
+
+		\WP_Mock::userFunction(
+			'update_post_meta', [
+				'times'  => 1,
+				'args'   => [ 1, 'key2', 'value3', 'value3' ],
 				'return' => [],
 			]
 		);
 
 		Utils\set_meta(
 			1, [
-				'key'  => 'value',
-				'key2' => 'value2',
+				'key'  => [ 'value' ],
+				'key2' => [ 'value2' ],
 			]
 		);
+
+		Utils\set_meta(
+			1, [
+				'key'  => [
+					'value',
+					'value2'
+				],
+				'key2' => [ 'value3' ],
+			]
+		);
+
+		$this->assertConditionsMet();
 	}
 
 	/**
@@ -74,9 +158,17 @@ class UtilsTest extends \TestCase {
 	 */
 	public function test_set_meta_serialize() {
 		\WP_Mock::userFunction(
+			'get_post_meta', [
+				'times'  => 1,
+				'args'   => [ 1 ],
+				'return' => [ 'key' => [ 'value' ], 'key2' => [ [ 0 => 'test' ] ] ],
+			]
+		);
+
+		\WP_Mock::userFunction(
 			'update_post_meta', [
 				'times'  => 1,
-				'args'   => [ 1, 'key', 'value' ],
+				'args'   => [ 1, 'key', 'value', 'value' ],
 				'return' => [],
 			]
 		);
@@ -84,17 +176,19 @@ class UtilsTest extends \TestCase {
 		\WP_Mock::userFunction(
 			'update_post_meta', [
 				'times'  => 1,
-				'args'   => [ 1, 'key2', [ 0 => 'test' ] ],
+				'args'   => [ 1, 'key2', [ 0 => 'test' ], [ 0 => 'test' ] ],
 				'return' => [],
 			]
 		);
 
 		Utils\set_meta(
 			1, [
-				'key'  => 'value',
-				'key2' => 'a:1:{i:0;s:4:"test";}',
+				'key'  => [ 'value' ],
+				'key2' => [ 'a:1:{i:0;s:4:"test";}' ],
 			]
 		);
+
+		$this->assertConditionsMet();
 	}
 
 	/**
@@ -141,68 +235,16 @@ class UtilsTest extends \TestCase {
 			]
 		);
 
-		\WP_Mock::onFilter( 'dt_update_term_hierarchy' )
-			->with( true )
-			->reply( true );
-
 		\WP_Mock::userFunction(
-			'wp_set_object_terms', [
-				'times' => 1,
-				'args'  => [ $post_id, [ $term_id ], $taxonomy ],
-			]
-		);
-
-		Utils\set_taxonomy_terms(
-			$post_id, [
-				$taxonomy => [
+			'wp_update_term', [
+				'times'  => 1,
+				'args'   => [
+					$term_id,
+					$taxonomy,
 					[
-						'slug'    => $slug,
-						'name'    => $name,
-						'term_id' => $term_id,
-						'parent'  => 0,
-					],
+						'parent' => 0,
+					]
 				],
-			]
-		);
-	}
-
-	/**
-	 * Test set taxonomy terms with an existing taxonomy and non existing term
-	 *
-	 * @since 1.0
-	 * @group Utils
-	 * @runInSeparateProcess
-	 */
-	public function test_set_taxonomy_terms_create_term() {
-		$post_id  = 1;
-		$term_id  = 1;
-		$taxonomy = 'taxonomy';
-		$slug     = 'slug';
-		$name     = 'name';
-
-		\WP_Mock::userFunction(
-			'taxonomy_exists', [
-				'times'  => 1,
-				'args'   => [ $taxonomy ],
-				'return' => true,
-			]
-		);
-
-		\WP_Mock::userFunction(
-			'get_term_by', [
-				'times'  => 1,
-				'args'   => [ 'slug', $slug, $taxonomy ],
-				'return' => false,
-			]
-		);
-
-		/**
-		 * Don't need to create any terms
-		 */
-		\WP_Mock::userFunction(
-			'wp_insert_term', [
-				'times'  => 1,
-				'args'   => [ $name, $taxonomy ],
 				'return' => [ 'term_id' => $term_id ],
 			]
 		);
@@ -230,6 +272,99 @@ class UtilsTest extends \TestCase {
 				],
 			]
 		);
+
+		$this->assertConditionsMet();
+	}
+
+	/**
+	 * Test set taxonomy terms with an existing taxonomy and non existing term
+	 *
+	 * @since 1.0
+	 * @group Utils
+	 * @runInSeparateProcess
+	 */
+	public function test_set_taxonomy_terms_create_term() {
+		$post_id     = 1;
+		$term_id     = 1;
+		$taxonomy    = 'taxonomy';
+		$slug        = 'slug';
+		$name        = 'name';
+		$description = 'description';
+
+		\WP_Mock::userFunction(
+			'taxonomy_exists', [
+				'times'  => 1,
+				'args'   => [ $taxonomy ],
+				'return' => true,
+			]
+		);
+
+		\WP_Mock::userFunction(
+			'get_term_by', [
+				'times'  => 1,
+				'args'   => [ 'slug', $slug, $taxonomy ],
+				'return' => false,
+			]
+		);
+
+		/**
+		 * Don't need to create any terms
+		 */
+		\WP_Mock::userFunction(
+			'wp_insert_term', [
+				'times'  => 1,
+				'args'   => [
+					$name,
+					$taxonomy,
+					[
+						'slug' => $slug,
+						'description' => $description
+					]
+				],
+				'return' => [ 'term_id' => $term_id ],
+			]
+		);
+
+		\WP_Mock::userFunction(
+			'wp_update_term', [
+				'times'  => 1,
+				'args'   => [
+					$term_id,
+					$taxonomy,
+					[
+						'parent' => 0,
+					]
+				],
+				'return' => [ 'term_id' => $term_id ],
+			]
+		);
+
+		\WP_Mock::onFilter( 'dt_update_term_hierarchy' )
+			->with( true )
+			->reply( true );
+
+		\WP_Mock::userFunction(
+			'wp_set_object_terms', [
+				'times' => 1,
+				'args'  => [ $post_id, [ $term_id ], $taxonomy ],
+			]
+		);
+
+		Utils\set_taxonomy_terms(
+			$post_id, [
+				$taxonomy => [
+					[
+						'slug'        => $slug,
+						'name'        => $name,
+						'term_id'     => $term_id,
+						'parent'      => 0,
+						'description' => $description,
+					],
+				],
+			]
+		);
+
+		$this->assertConditionsMet();
 	}
 
 	/**
@@ -272,6 +407,8 @@ class UtilsTest extends \TestCase {
 				],
 			]
 		);
+
+		$this->assertConditionsMet();
 	}
 
 	/**
@@ -339,9 +476,15 @@ class UtilsTest extends \TestCase {
 				'times'  => 1,
 				'args'   => [ $media_post->ID ],
 				'return' => [
-					'meta1' => true,
-					'meta2' => false,
+					'meta1' => [ true ],
+					'meta2' => [ false ],
 				],
+			]
+		);
+
+		\WP_Mock::userFunction(
+			'remove_filter', [
+				'times' => 1,
 			]
 		);
 
@@ -413,9 +556,15 @@ class UtilsTest extends \TestCase {
 				'times'  => 1,
 				'args'   => [ $media_post->ID ],
 				'return' => [
-					'meta1' => true,
-					'meta2' => false,
+					'meta1' => [ true ],
+					'meta2' => [ false ],
 				],
+			]
+		);
+
+		\WP_Mock::userFunction(
+			'remove_filter', [
+				'times' => 1,
 			]
 		);
 
@@ -448,6 +597,19 @@ class UtilsTest extends \TestCase {
 		$attached_media_post->post_mime_type = 'image/png';
 
 		\WP_Mock::userFunction(
+			'Distributor\Utils\get_settings', [
+				'times'  => 1,
+				'return' => [
+					'override_author_byline' => true,
+					'media_handling'         => 'featured',
+					'email'                  => '',
+					'license_key'            => '',
+					'valid_license'          => null,
+				],
+			]
+		);
+
+		\WP_Mock::userFunction(
 			'get_attached_media', [
 				'times'  => 1,
 				'args'   => [ get_allowed_mime_types(), $post_id ],
@@ -471,6 +633,14 @@ class UtilsTest extends \TestCase {
 		);
 
 		\WP_Mock::userFunction(
+			'wp_list_pluck', [
+				'times'  => 1,
+				'args'   => [ [ $media_item ], 'featured' ],
+				'return' => [ 0 => true ],
+			]
+		);
+
+		\WP_Mock::userFunction(
 			'Distributor\Utils\process_media', [
 				'times'  => 1,
 				'args'   => [ $media_item['source_url'], $post_id ],
@@ -486,9 +656,9 @@ class UtilsTest extends \TestCase {
 		);
 
 		\WP_Mock::userFunction(
-			'update_post_meta', [
+			'set_post_thumbnail', [
 				'times' => 1,
-				'args'  => [ $post_id, '_thumbnail_id', $new_image_id ],
+				'args'  => [ $post_id, $new_image_id ],
 			]
 		);
 
@@ -500,16 +670,24 @@ class UtilsTest extends \TestCase {
 		);
 
 		\WP_Mock::userFunction(
-			'update_post_meta', [
-				'times' => 1,
-				'args'  => [ $new_image_id, 'meta1', true ],
+			'get_post_meta', [
+				'times'  => 1,
+				'args'   => [ $new_image_id ],
+				'return' => [ 'meta1' => [ true ], 'meta2' => [ false ] ],
 			]
 		);
 
 		\WP_Mock::userFunction(
 			'update_post_meta', [
 				'times' => 1,
-				'args'  => [ $new_image_id, 'meta2', false ],
+				'args'  => [ $new_image_id, 'meta1', true, true ],
+			]
+		);
+
+		\WP_Mock::userFunction(
+			'update_post_meta', [
+				'times' => 1,
+				'args'  => [ $new_image_id, 'meta2', false, false ],
 			]
 		);
 

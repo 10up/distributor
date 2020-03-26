@@ -14,7 +14,8 @@ namespace Distributor\PullUI;
  */
 function setup() {
 	add_action(
-		'plugins_loaded', function() {
+		'plugins_loaded',
+		function() {
 			add_action( 'admin_menu', __NAMESPACE__ . '\action_admin_menu' );
 			add_action( 'admin_enqueue_scripts', __NAMESPACE__ . '\admin_enqueue_scripts' );
 			add_action( 'load-distributor_page_pull', __NAMESPACE__ . '\setup_list_table' );
@@ -59,13 +60,13 @@ function setup_list_table() {
 	$connection_list_table = new \Distributor\PullListTable();
 
 	if ( ! empty( \Distributor\Connections::factory()->get_registered()['networkblog'] ) ) {
-		$sites = \Distributor\InternalConnections\NetworkSiteConnection::get_available_authorized_sites();
+		$sites = \Distributor\InternalConnections\NetworkSiteConnection::get_available_authorized_sites( 'pull' );
 
 		foreach ( $sites as $site_array ) {
 			$internal_connection                         = new \Distributor\InternalConnections\NetworkSiteConnection( $site_array['site'] );
 			$connection_list_table->connection_objects[] = $internal_connection;
 
-			if ( ! empty( $_GET['connection_id'] ) && ! empty( $_GET['connection_type'] ) && 'internal' === $_GET['connection_type'] && (int) $internal_connection->site->blog_id === (int) $_GET['connection_id'] ) {
+			if ( ! empty( $_GET['connection_id'] ) && ! empty( $_GET['connection_type'] ) && 'internal' === $_GET['connection_type'] && (int) $internal_connection->site->blog_id === (int) $_GET['connection_id'] ) { // @codingStandardsIgnoreLine Content is type casted, no need for nonce.
 				$connection_now = $internal_connection;
 			}
 		}
@@ -89,7 +90,7 @@ function setup_list_table() {
 		if ( ! is_wp_error( $external_connection ) ) {
 			$connection_list_table->connection_objects[] = $external_connection;
 
-			if ( ! empty( $_GET['connection_id'] ) && ! empty( $_GET['connection_type'] ) && 'external' === $_GET['connection_type'] && (int) $external_connection_id === (int) $_GET['connection_id'] ) {
+			if ( ! empty( $_GET['connection_id'] ) && ! empty( $_GET['connection_type'] ) && 'external' === $_GET['connection_type'] && (int) $external_connection_id === (int) $_GET['connection_id'] ) { // @codingStandardsIgnoreLine Content is type casted, no need for nonce.
 				$connection_now = $external_connection;
 			}
 		}
@@ -109,7 +110,7 @@ function setup_list_table() {
  * @since  0.8
  */
 function admin_enqueue_scripts( $hook ) {
-	if ( 'distributor_page_pull' !== $hook || empty( $_GET['page'] ) || 'pull' !== $_GET['page'] ) {
+	if ( 'distributor_page_pull' !== $hook || empty( $_GET['page'] ) || 'pull' !== $_GET['page'] ) { // @codingStandardsIgnoreLine Comparing values, not using them.
 		return;
 	}
 
@@ -131,8 +132,11 @@ function action_admin_menu() {
 		 * Filter Distributor capabilities allowed to pull content.
 		 *
 		 * @since 1.0.0
+		 * @hook dt_pull_capabilities
 		 *
-		 * @param string manage_options The capability allowed to pull content.
+		 * @param {string} 'manage_options' The capability allowed to pull content.
+		 *
+		 * @return {string} The capability allowed to pull content.
 		 */
 		apply_filters( 'dt_pull_capabilities', 'manage_options' ),
 		'pull',
@@ -152,7 +156,7 @@ function action_admin_menu() {
  * @return mixed
  */
 function set_screen_option( $status, $option, $value ) {
-	return $value;
+	return 'pull_posts_per_page' === $option ? $value : $status;
 }
 
 /**
@@ -188,6 +192,7 @@ function process_actions() {
 				exit;
 			}
 
+			// Filter documented above.
 			if ( ! current_user_can( apply_filters( 'dt_pull_capabilities', 'manage_options' ) ) ) {
 				wp_die(
 					'<h1>' . esc_html__( 'Cheatin&#8217; uh?', 'distributor' ) . '</h1>' .
@@ -200,12 +205,17 @@ function process_actions() {
 				break;
 			}
 
-			$posts = (array) $_GET['post'];
+			$posts     = (array) $_GET['post'];
+			$post_type = sanitize_text_field( $_GET['pull_post_type'] );
 
 			$posts = array_map(
-				function( $remote_post_id ) {
-						return [ 'remote_post_id' => $remote_post_id ];
-				}, $posts
+				function( $remote_post_id ) use ( $post_type ) {
+						return [
+							'remote_post_id' => $remote_post_id,
+							'post_type'      => $post_type,
+						];
+				},
+				$posts
 			);
 
 			if ( 'external' === $_GET['connection_type'] ) {
@@ -213,6 +223,9 @@ function process_actions() {
 				$new_posts  = $connection->pull( $posts );
 
 				foreach ( $posts as $key => $post_array ) {
+					if ( is_wp_error( $new_posts[ $key ] ) ) {
+						continue;
+					}
 					\Distributor\Subscriptions\create_remote_subscription( $connection, $post_array['remote_post_id'], $new_posts[ $key ] );
 				}
 			} else {
@@ -224,6 +237,9 @@ function process_actions() {
 			$post_id_mappings = array();
 
 			foreach ( $posts as $key => $post_array ) {
+				if ( is_wp_error( $new_posts[ $key ] ) ) {
+					continue;
+				}
 				$post_id_mappings[ $post_array['remote_post_id'] ] = $new_posts[ $key ];
 			}
 
@@ -239,14 +255,13 @@ function process_actions() {
 
 			wp_safe_redirect( wp_get_referer() );
 			exit;
-
-			break;
 		case 'bulk-skip':
 		case 'skip':
 			if ( ! wp_verify_nonce( $_GET['_wpnonce'], 'dt_skip' ) && ! wp_verify_nonce( $_GET['_wpnonce'], 'bulk-distributor_page_pull' ) ) {
 				exit;
 			}
 
+			// Filter documented above.
 			if ( ! current_user_can( apply_filters( 'dt_pull_capabilities', 'manage_options' ) ) ) {
 				wp_die(
 					'<h1>' . esc_html__( 'Cheatin&#8217; uh?', 'distributor' ) . '</h1>' .
@@ -283,8 +298,6 @@ function process_actions() {
 
 			wp_safe_redirect( wp_get_referer() );
 			exit;
-
-			break;
 	}
 }
 
@@ -297,8 +310,6 @@ function dashboard() {
 	global $connection_list_table;
 	global $connection_now;
 	global $dt_pull_messages;
-
-	$connection_list_table->prepare_items();
 
 	if ( ! empty( $connection_now ) ) {
 		if ( is_a( $connection_now, '\Distributor\ExternalConnection' ) ) {
@@ -379,6 +390,28 @@ function dashboard() {
 						<?php endif; ?>
 					<?php endif; ?>
 				</select>
+
+				<?php
+				$connection_now->pull_post_types = \Distributor\Utils\available_pull_post_types( $connection_now, $connection_type );
+
+				// Set the post type we want to pull
+				// This is either from a query param, "post" post type, or the first in the list
+				$connection_now->pull_post_type = $connection_now->pull_post_types[0]['slug'];
+				foreach ( $connection_now->pull_post_types as $post_type ) {
+					if ( isset( $_GET['pull_post_type'] ) ) { // @codingStandardsIgnoreLine No nonce needed here.
+						if ( $_GET['pull_post_type'] === $post_type['slug'] ) { // @codingStandardsIgnoreLine Comparing values, no nonce needed.
+							$connection_now->pull_post_type = $post_type['slug'];
+							break;
+						}
+					} else {
+						if ( 'post' === $post_type['slug'] ) {
+							$connection_now->pull_post_type = $post_type['slug'];
+							break;
+						}
+					}
+				}
+				?>
+
 			<?php endif; ?>
 		</h1>
 
@@ -400,12 +433,14 @@ function dashboard() {
 			</div>
 		<?php endif; ?>
 
+		<?php $connection_list_table->prepare_items(); ?>
+
 		<?php if ( ! empty( $connection_list_table->pull_error ) ) : ?>
 			<p><?php esc_html_e( 'Could not pull content from connection due to error.', 'distributor' ); ?></p>
 		<?php else : ?>
 			<?php $connection_list_table->views(); ?>
 
-			<form id="posts-filter" class="status-<?php echo ( ! empty( $_GET['status'] ) ) ? esc_attr( $_GET['status'] ) : 'new'; ?>" method="get">
+			<form id="posts-filter" class="status-<?php echo ( ! empty( $_GET['status'] ) ) ? esc_attr( $_GET['status'] ) : 'new'; // @codingStandardsIgnoreLine Nonce not needed. ?>" method="get">
 				<?php if ( ! empty( $connection_list_table->connection_objects ) ) : ?>
 					<input type="hidden" name="connection_type" value="<?php echo esc_attr( $connection_type ); ?>">
 					<input type="hidden" name="connection_id" value="<?php echo esc_attr( $connection_id ); ?>">

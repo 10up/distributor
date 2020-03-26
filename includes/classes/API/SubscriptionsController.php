@@ -44,7 +44,9 @@ class SubscriptionsController extends \WP_REST_Controller {
 	public function register_routes() {
 
 		register_rest_route(
-			$this->namespace, '/' . $this->rest_base, array(
+			$this->namespace,
+			'/' . $this->rest_base,
+			array(
 				array(
 					'methods'             => \WP_REST_Server::CREATABLE,
 					'callback'            => array( $this, 'create_item' ),
@@ -76,7 +78,9 @@ class SubscriptionsController extends \WP_REST_Controller {
 		);
 
 		register_rest_route(
-			$this->namespace, '/' . $this->rest_base . '/receive', array(
+			$this->namespace,
+			'/' . $this->rest_base . '/receive',
+			array(
 				array(
 					'methods'             => \WP_REST_Server::CREATABLE,
 					'callback'            => array( $this, 'receive_item' ),
@@ -98,7 +102,9 @@ class SubscriptionsController extends \WP_REST_Controller {
 		);
 
 		register_rest_route(
-			$this->namespace, '/' . $this->rest_base . '/delete', array(
+			$this->namespace,
+			'/' . $this->rest_base . '/delete',
+			array(
 				array(
 					'methods'             => \WP_REST_Server::DELETABLE,
 					'callback'            => array( $this, 'delete_item' ),
@@ -134,19 +140,39 @@ class SubscriptionsController extends \WP_REST_Controller {
 			return $status;
 		}
 
-		// Authenticate by signature, if available.
-		if ( ! empty( $request['signature'] ) && ! empty( $request['post_id'] ) ) {
+		if ( ! empty( $GLOBALS['wp']->query_vars['rest_route'] ) ) {
+			$path = $GLOBALS['wp']->query_vars['rest_route'];
+		} else {
+			$path = $_SERVER['REQUEST_URI'];
+		}
+
+		$request = new \WP_REST_Request( $_SERVER['REQUEST_METHOD'], $path );
+		$request->set_body_params( wp_unslash( $_POST ) ); // phpcs:ignore
+
+		// If this is not a subscription request, return the original value.
+		if ( '/dt_subscription/receive' !== $request->get_route() && '/dt_subscription/delete' !== $request->get_route() ) {
+			return $status;
+		}
+
+		// If the signature is unset or empty, throw an error.
+		if ( ( ! isset( $request['signature'] ) ) || empty( $request['signature'] ) ) {
+			return new \WP_Error( 'rest_post_invalid_signature', esc_html__( 'Signature invalid or missing.', 'distributor' ), array( 'status' => 403 ) );
+		}
+
+		// If the post id is missing, throw an error.
+		if ( empty( $request['post_id'] ) ) {
+			return new \WP_Error( 'rest_post_invalid_post_id', esc_html__( 'Invalid post id.', 'distributor' ), array( 'status' => 403 ) );
+		} else {
+
 			$signature = get_post_meta( $request['post_id'], 'dt_subscription_signature', true );
 
 			if ( $request['signature'] === $signature ) {
 				return true;
-			} else {
-				return new \WP_Error( 'rest_post_invalid_signature', esc_html__( 'Signature invalid.', 'distributor' ), array( 'status' => 403 ) );
 			}
 		}
 
-		// No check was performed.
-		return null;
+		// No check was performed, return the original value.
+		return $status;
 	}
 
 	/**
@@ -196,8 +222,8 @@ class SubscriptionsController extends \WP_REST_Controller {
 
 			// When both sides of a subscription connection support Gutenberg, update with the raw content.
 			$content = $request['post_data']['content'];
-			if ( \Distributor\Utils\is_using_gutenberg() && $request['post_data']['distributor_raw_content'] ) {
-				if ( gutenberg_can_edit_post_type( $request['post_data']['post_type'] ) ) {
+			if ( \Distributor\Utils\is_using_gutenberg( $post ) && isset( $request['post_data']['distributor_raw_content'] ) ) {
+				if ( \Distributor\Utils\dt_use_block_editor_for_post_type( $post->post_type ) ) {
 					$content = $request['post_data']['distributor_raw_content'];
 
 					// Remove filters that may alter content updates.
@@ -255,6 +281,17 @@ class SubscriptionsController extends \WP_REST_Controller {
 			if ( ! empty( $request['post_data']['distributor_media'] ) ) {
 				\Distributor\Utils\set_media( $request['post_id'], $request['post_data']['distributor_media'] );
 			}
+
+			/**
+			 * Action fired after receiving a subscription update from Distributor
+			 *
+			 * @since 1.3.8
+			 * @hook dt_process_subscription_attributes
+			 *
+			 * @param {WP_Post}         $post    Updated post object.
+			 * @param {WP_REST_Request} $request Request object.
+			 */
+			do_action( 'dt_process_subscription_attributes', $post, $request );
 
 			$response = new \WP_REST_Response();
 			$response->set_data( array( 'updated' => true ) );

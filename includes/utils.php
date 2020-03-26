@@ -18,13 +18,56 @@ function is_vip_com() {
 }
 
 /**
- * Determine if Gutenberg is being used
+ * Determine if Gutenberg is being used.
+ *
+ * There are several possible variations that need to be accounted for:
+ *
+ *  - WordPress 4.9, Gutenberg plugin is not active.
+ *  - WordPress 4.9, Gutenberg plugin is active.
+ *  - WordPress 5.0, block editor by default.
+ *  - WordPress 5.0, Classic editor plugin active, using classic editor.
+ *  - WordPress 5.0, Classic editor plugin active, using the block editor.
  *
  * @since  1.2
+ *
+ * @param object $post The post object.
  * @return boolean
  */
-function is_using_gutenberg() {
-	return ( function_exists( 'the_gutenberg_project' ) );
+function is_using_gutenberg( $post ) {
+	global $wp_version;
+
+	$gutenberg_available = function_exists( 'the_gutenberg_project' );
+	$version_5_plus      = version_compare( $wp_version, '5', '>=' );
+
+	if ( ! $gutenberg_available && ! $version_5_plus ) {
+		return false;
+	}
+
+	if ( ! empty( $post->post_content ) ) {
+		if ( function_exists( 'use_block_editor_for_post' ) ) {
+			return use_block_editor_for_post( $post );
+		}
+
+		// This duplicates the check from `has_blocks()` as of WP 5.2.
+		return false !== strpos( (string) $post->post_content, '<!-- wp:' );
+	}
+
+	$use_block_editor = true;
+
+	if ( ! function_exists( 'is_plugin_active' ) ) {
+		require_once ABSPATH . '/wp-admin/includes/plugin.php';
+	}
+
+	if ( is_plugin_active( 'classic-editor/classic-editor.php' ) ) {
+		$use_block_editor = ( get_option( 'classic-editor-replace' ) === 'no-replace' );
+	}
+
+	if ( $use_block_editor && is_a( $post, '\WP_Post' ) && class_exists( '\Gutenberg_Ramp' ) ) {
+		$gutenberg_ramp   = \Gutenberg_Ramp::get_instance();
+		$use_block_editor = $gutenberg_ramp->gutenberg_should_load( $post );
+	}
+
+	return $use_block_editor;
 }
 
 /**
@@ -36,6 +79,7 @@ function is_using_gutenberg() {
 function get_settings() {
 	$defaults = [
 		'override_author_byline' => true,
+		'media_handling'         => 'featured',
 		'email'                  => '',
 		'license_key'            => '',
 		'valid_license'          => null,
@@ -77,7 +121,8 @@ function get_network_settings() {
 function check_license_key( $email, $license_key ) {
 
 	$request = wp_remote_post(
-		'https://distributorplugin.com/wp-json/distributor-theme/v1/validate-license', [
+		'https://distributorplugin.com/wp-json/distributor-theme/v1/validate-license',
+		[
 			'timeout' => 10,
 			'body'    => [
 				'license_key' => $license_key,
@@ -108,30 +153,107 @@ function is_dt_debug() {
 }
 
 /**
- * Given an array of meta, set meta to another post. Don't copy in blackisted (Distributor) meta.
+ * Given an array of meta, set meta to another post.
+ *
+ * Don't copy in blacklisted (Distributor) meta.
  *
  * @param int   $post_id Post ID.
  * @param array $meta Array of meta as key => value
  */
 function set_meta( $post_id, $meta ) {
+	$existing_meta    = get_post_meta( $post_id );
 	$blacklisted_meta = blacklisted_meta();
 
-	foreach ( $meta as $meta_key => $meta_value ) {
-		if ( is_string( $meta_value ) ) {
-			if ( ! in_array( $meta_key, $blacklisted_meta, true ) ) {
-				$meta_value = maybe_unserialize( $meta_value );
-				update_post_meta( $post_id, $meta_key, $meta_value );
+	foreach ( $meta as $meta_key => $meta_values ) {
+		if ( in_array( $meta_key, $blacklisted_meta, true ) ) {
+			continue;
+		}
+
+		foreach ( (array) $meta_values as $meta_placement => $meta_value ) {
+			$has_prev_value = isset( $existing_meta[ $meta_key ] )
+								&& is_array( $existing_meta[ $meta_key ] )
+								&& array_key_exists( $meta_placement, $existing_meta[ $meta_key ] )
+								? true : false;
+			if ( $has_prev_value ) {
+				$prev_value = maybe_unserialize( $existing_meta[ $meta_key ][ $meta_placement ] );
 			}
-		} else {
-			$meta_array = (array) $meta_value;
-			foreach ( $meta_array as $meta_item_value ) {
-				if ( ! in_array( $meta_key, $blacklisted_meta, true ) ) {
-					$meta_item_value = maybe_unserialize( $meta_item_value );
-					update_post_meta( $post_id, $meta_key, $meta_item_value );
-				}
+
+			if ( ! is_array( $meta_value ) ) {
+				$meta_value = maybe_unserialize( $meta_value );
+			}
+
+			if ( $has_prev_value ) {
+				update_post_meta( $post_id, $meta_key, $meta_value, $prev_value );
+			} else {
+				add_post_meta( $post_id, $meta_key, $meta_value );
 			}
 		}
 	}
+
+	/**
+	 * Fires after Distributor sets post meta.
+	 *
+	 * Note: All sent meta is included in the `$meta` array, including blacklisted keys.
+	 * Take care to continue to filter out blacklisted keys in any further meta setting.
+	 *
+	 * @since 1.3.8
+	 * @hook dt_after_set_meta
+	 *
+	 * @param {array} $meta          All received meta for the post
+	 * @param {array} $existing_meta Existing meta for the post
+	 * @param {int}   $post_id       Post ID
+	 */
+	do_action( 'dt_after_set_meta', $meta, $existing_meta, $post_id );
+}
+
+/**
+ * Get post types available for pulling.
+ *
+ * This will compare the public post types from a remote site
+ * against the public post types from the origin site and return
+ * an array of post types supported on both.
+ *
+ * @param \Distributor\Connection $connection Connection object
+ * @param string                  $type Connection type
+ * @since 1.3
+ * @return array
+ */
+function available_pull_post_types( $connection, $type ) {
+	$post_types        = array();
+	$local_post_types  = array();
+	$remote_post_types = $connection->get_post_types();
+
+	if ( ! empty( $remote_post_types ) && ! is_wp_error( $remote_post_types ) ) {
+		$local_post_types     = array_diff_key( get_post_types( [ 'public' => true ], 'objects' ), array_flip( [ 'attachment', 'dt_ext_connection', 'dt_subscription' ] ) );
+		$available_post_types = array_intersect_key( $remote_post_types, $local_post_types );
+
+		if ( ! empty( $available_post_types ) ) {
+			foreach ( $available_post_types as $post_type ) {
+				$post_types[] = array(
+					'name' => 'external' === $type ? $post_type['name'] : $post_type->label,
+					'slug' => 'external' === $type ? $post_type['slug'] : $post_type->name,
+				);
+			}
+		}
+	}
+
+	/**
+	 * Filter the post types that should be available for pull.
+	 *
+	 * Helpful for sites that want to pull custom post type content from another site into a different existing post type on the receiving end.
+	 *
+	 * @since 1.3.5
+	 * @hook dt_available_pull_post_types
+	 *
+	 * @param {array}                   $post_types        Post types available for pull with name and slug.
+	 * @param {array}                   $remote_post_types Post types available from the remote connection.
+	 * @param {array}                   $local_post_types  Post types registered as public on the local site.
+	 * @param {Connection}              $connection        Distributor connection object.
+	 * @param {string}                  $type              Distributor connection type.
+	 *
+	 * @return {array} Post types available for pull with name and slug.
+	 */
+	return apply_filters( 'dt_available_pull_post_types', $post_types, $remote_post_types, $local_post_types, $connection, $type );
 }
 
 /**
@@ -151,7 +273,11 @@ function distributable_post_types() {
 	 * Filter post types that are distributable.
 	 *
 	 * @since 1.0.0
-	 * @param array Post types that are distributable. Default 'all post types except dt_ext_connection and dt_subscription'.
+	 * @hook distributable_post_types
+	 *
+	 * @param {array} Post types that are distributable. Default all post types except `dt_ext_connection` and `dt_subscription`.
+	 *
+	 * @return {array} Post types that are distributable.
 	 */
 	return apply_filters( 'distributable_post_types', array_diff( $post_types, [ 'dt_ext_connection', 'dt_subscription' ] ) );
 }
@@ -169,7 +295,11 @@ function distributable_post_statuses() {
 	 *
 	 * By default only published posts can be distributed.
 	 *
-	 * @param array Post statuses.
+	 * @hook dt_distributable_post_statuses
+	 *
+	 * @param {array} $statuses Post statuses that are distributable. Default `publish`.
+	 *
+	 * @return {array} Post statuses that are distributable.
 	 */
 	return apply_filters( 'dt_distributable_post_statuses', array( 'publish' ) );
 }
@@ -182,13 +312,35 @@ function distributable_post_statuses() {
  */
 function blacklisted_meta() {
 	/**
-	 * Filter meta keys that are blacklisted.
+	 * Filter meta keys that are blacklisted from distribution.
 	 *
 	 * @since 1.0.0
+	 * @hook dt_blacklisted_meta
 	 *
-	 * @param array Blacklisted meta keys. Default 'dt_unlinked, dt_connection_map, dt_subscription_update, dt_subscriptions, dt_subscription_signature, dt_original_post_id, dt_original_post_url, dt_original_blog_id, dt_syndicate_time, _wp_attached_file, _edit_lock, _edit_last, _wp_old_slug, _wp_old_date.
+	 * @param {array} $meta_keys Blacklisted meta keys. Default `dt_unlinked, dt_connection_map, dt_subscription_update, dt_subscriptions, dt_subscription_signature, dt_original_post_id, dt_original_post_url, dt_original_blog_id, dt_syndicate_time, _wp_attached_file, _wp_attachment_metadata, _edit_lock, _edit_last, _wp_old_slug, _wp_old_date`.
+	 *
+	 * @return {array} Blacklisted meta keys.
 	 */
-	return apply_filters( 'dt_blacklisted_meta', [ 'dt_unlinked', 'dt_connection_map', 'dt_subscription_update', 'dt_subscriptions', 'dt_subscription_signature', 'dt_original_post_id', 'dt_original_post_url', 'dt_original_blog_id', 'dt_syndicate_time', '_wp_attached_file', '_edit_lock', '_edit_last', '_wp_old_slug', '_wp_old_date' ] );
+	return apply_filters(
+		'dt_blacklisted_meta',
+		[
+			'dt_unlinked',
+			'dt_connection_map',
+			'dt_subscription_update',
+			'dt_subscriptions',
+			'dt_subscription_signature',
+			'dt_original_post_id',
+			'dt_original_post_url',
+			'dt_original_blog_id',
+			'dt_syndicate_time',
+			'_wp_attached_file',
+			'_wp_attachment_metadata',
+			'_edit_lock',
+			'_edit_last',
+			'_wp_old_slug',
+			'_wp_old_date',
+		]
+	);
 }
 
 /**
@@ -209,10 +361,22 @@ function prepare_meta( $post_id ) {
 		foreach ( $meta_array as $meta_value ) {
 			if ( ! in_array( $meta_key, $blacklisted_meta, true ) ) {
 				$meta_value = maybe_unserialize( $meta_value );
+				/**
+				 * Filter whether to sync meta.
+				 *
+				 * @hook dt_sync_meta
+				 *
+				 * @param {bool}   $sync_meta  Whether to sync meta. Default `true`.
+				 * @param {string} $meta_key   The meta key.
+				 * @param {mixed}  $meta_value The meta value.
+				 * @param {int}    $post_id    The post ID.
+				 *
+				 * @return {bool} Whether to sync meta.
+				 */
 				if ( false === apply_filters( 'dt_sync_meta', true, $meta_key, $meta_value, $post_id ) ) {
 					continue;
 				}
-				$prepared_meta[ $meta_key ] = $meta_value;
+				$prepared_meta[ $meta_key ][] = $meta_value;
 			}
 		}
 	}
@@ -271,9 +435,12 @@ function prepare_taxonomy_terms( $post_id ) {
 	 * Filters the taxonomies that should be synced.
 	 *
 	 * @since 1.0
+	 * @hook dt_syncable_taxonomies
 	 *
-	 * @param array  $taxonomies  Associative array list of taxonomies supported by current post
-	 * @param object $post        The Post Object
+	 * @param {array}  $taxonomies  Associative array list of taxonomies supported by current post in the format of `$taxonomy => $terms`.
+	 * @param {WP_Post} $post       The post object.
+	 *
+	 * @return {array} Associative array list of taxonomies supported by current post in the format of `$taxonomy => $terms`.
 	 */
 	$taxonomies = apply_filters( 'dt_syncable_taxonomies', $taxonomies, $post );
 
@@ -315,10 +482,16 @@ function set_taxonomy_terms( $post_id, $taxonomy_terms ) {
 			 * Filter whether missing terms should be created.
 			 *
 			 * @since 1.0.0
+			 * @hook dt_create_missing_terms
 			 *
-			 * @param bool true Controls whether missing terms should be created. Default 'true'.
+			 * @param {bool}                true        Whether missing terms should be created. Default `true`.
+			 * @param {string}              $taxonomy   The taxonomy name.
+			 * @param {array}               $term_array Term data.
+			 * @param {WP_Term|array|false} $term       `WP_Term` object or `array` if found, `false` if not.
+			 *
+			 * @return {bool} Whether missing terms should be created.
 			 */
-			$create_missing_terms = apply_filters( 'dt_create_missing_terms', true );
+			$create_missing_terms = apply_filters( 'dt_create_missing_terms', true, $taxonomy, $term_array, $term );
 
 			if ( empty( $term ) ) {
 
@@ -327,7 +500,14 @@ function set_taxonomy_terms( $post_id, $taxonomy_terms ) {
 					continue;
 				}
 
-				$term = wp_insert_term( $term_array['name'], $taxonomy );
+				$term = wp_insert_term(
+					$term_array['name'],
+					$taxonomy,
+					[
+						'slug'        => $term_array['slug'],
+						'description' => $term_array['description'],
+					]
+				);
 
 				if ( ! is_wp_error( $term ) ) {
 					$term_id_mapping[ $term_array['term_id'] ] = $term['term_id'];
@@ -344,10 +524,14 @@ function set_taxonomy_terms( $post_id, $taxonomy_terms ) {
 		 * Filter whether term hierarchy should be updated.
 		 *
 		 * @since 1.0.0
+		 * @hook dt_update_term_hierarchy
 		 *
-		 * @param bool true Controls whether term hierarchy should be updated. Default 'true'.
+		 * @param {bool}   true      Whether term hierarchy should be updated. Default `true`.
+		 * @param {string} $taxonomy The taxonomy slug for the current term.
+		 *
+		 * @return {bool} Whether term hierarchy should be updated.
 		 */
-		$update_term_hierachy = apply_filters( 'dt_update_term_hierarchy', true );
+		$update_term_hierachy = apply_filters( 'dt_update_term_hierarchy', true, $taxonomy );
 
 		if ( ! empty( $update_term_hierachy ) ) {
 			foreach ( $terms as $term_array ) {
@@ -355,9 +539,19 @@ function set_taxonomy_terms( $post_id, $taxonomy_terms ) {
 					$term_array = (array) $term_array;
 				}
 
-				if ( ! empty( $term_array['parent'] ) ) {
-					wp_update_term(
-						$term_id_mapping[ $term_array['term_id'] ], $taxonomy, [
+				if ( empty( $term_array['parent'] ) ) {
+					$term = wp_update_term(
+						$term_id_mapping[ $term_array['term_id'] ],
+						$taxonomy,
+						[
+							'parent' => '',
+						]
+					);
+				} elseif ( isset( $term_id_mapping[ $term_array['parent'] ] ) ) {
+					$term = wp_update_term(
+						$term_id_mapping[ $term_array['term_id'] ],
+						$taxonomy,
+						[
 							'parent' => $term_id_mapping[ $term_array['parent'] ],
 						]
 					);
@@ -379,6 +573,7 @@ function set_taxonomy_terms( $post_id, $taxonomy_terms ) {
  * @since 1.0
  */
 function set_media( $post_id, $media ) {
+	$settings            = get_settings(); // phpcs:ignore
 	$current_media_posts = get_attached_media( get_allowed_mime_types(), $post_id );
 	$current_media       = [];
 
@@ -390,6 +585,16 @@ function set_media( $post_id, $media ) {
 
 	$found_featured_image = false;
 
+	// If we only want to process the featured image, remove all other media
+	if ( 'featured' === $settings['media_handling'] ) {
+		$featured_keys = wp_list_pluck( $media, 'featured' );
+
+		// Note: this is not a strict search because of issues with typecasting in some setups
+		$featured_key = array_search( true, $featured_keys ); // @codingStandardsIgnoreLine Ignore strict search requirement.
+
+		$media = ( false !== $featured_key ) ? array( $media[ $featured_key ] ) : array();
+	}
+
 	foreach ( $media as $media_item ) {
 
 		// Delete duplicate if it exists (unless filter says otherwise)
@@ -397,9 +602,12 @@ function set_media( $post_id, $media ) {
 		 * Filter whether media should be deleted and replaced if it already exists.
 		 *
 		 * @since 1.0.0
+		 * @hook dt_sync_media_delete_and_replace
 		 *
-		 * @param bool   true     Controls whether pre-existing media should be deleted and replaced. Default 'true'.
-		 * @param int    $post_id The post ID.
+		 * @param {bool}   true     Whether pre-existing media should be deleted and replaced. Default `true`.
+		 * @param {int}    $post_id The post ID.
+		 *
+		 * @return {bool} Whether pre-existing media should be deleted and replaced.
 		 */
 		if ( apply_filters( 'dt_sync_media_delete_and_replace', true, $post_id ) ) {
 			if ( ! empty( $current_media[ $media_item['source_url'] ] ) ) {
@@ -415,16 +623,23 @@ function set_media( $post_id, $media ) {
 			}
 		}
 
+		// Exit if the image ID is not valid.
+		if ( ! $image_id ) {
+			continue;
+		}
+
 		update_post_meta( $image_id, 'dt_original_media_url', $media_item['source_url'] );
 		update_post_meta( $image_id, 'dt_original_media_id', $media_item['id'] );
 
 		if ( $media_item['featured'] ) {
 			$found_featured_image = true;
-			update_post_meta( $post_id, '_thumbnail_id', $image_id );
+			set_post_thumbnail( $post_id, $image_id );
 		}
 
 		// Transfer all meta
-		set_meta( $image_id, $media_item['meta'] );
+		if ( isset( $media_item['meta'] ) ) {
+			set_meta( $image_id, $media_item['meta'] );
+		}
 
 		// Transfer post properties
 		wp_update_post(
@@ -445,7 +660,7 @@ function set_media( $post_id, $media ) {
 /**
  * This is a helper function for transporting/formatting data about a media post
  *
- * @param  WP_Post $media_post Media post.
+ * @param  \WP_Post $media_post Media post.
  * @since  1.0
  * @return array
  */
@@ -463,21 +678,41 @@ function format_media_post( $media_post ) {
 
 	$media_item['description'] = array(
 		'raw'      => $media_post->post_content,
-		'rendered' => apply_filters( 'the_content', $media_post->post_content ),
+		'rendered' => get_processed_content( $media_post->post_content ),
 	);
 
 	$media_item['caption'] = array(
 		'raw' => $media_post->post_excerpt,
 	);
 
-	$media_item['alt_text']      = get_post_meta( $media_post->ID, '_wp_attachment_image_alt', true );
-	$media_item['media_type']    = wp_attachment_is_image( $media_post->ID ) ? 'image' : 'file';
-	$media_item['mime_type']     = $media_post->post_mime_type;
+	$media_item['alt_text']   = get_post_meta( $media_post->ID, '_wp_attachment_image_alt', true );
+	$media_item['media_type'] = wp_attachment_is_image( $media_post->ID ) ? 'image' : 'file';
+	$media_item['mime_type']  = $media_post->post_mime_type;
+	/**
+	 * Filter media details retrieved by `wp_get_attachment_metadata()`.
+	 *
+	 * @hook dt_get_media_details
+	 *
+	 * @param {array|false} $metadata  Array of media metadata. `false` on failure.
+	 * @param {int}    $media_post->ID The media post ID.
+	 *
+	 * @return {array} Array of media metadata.
+	 */
 	$media_item['media_details'] = apply_filters( 'dt_get_media_details', wp_get_attachment_metadata( $media_post->ID ), $media_post->ID );
 	$media_item['post']          = $media_post->post_parent;
 	$media_item['source_url']    = wp_get_attachment_url( $media_post->ID );
-	$media_item['meta']          = get_post_meta( $media_post->ID );
+	$media_item['meta']          = \Distributor\Utils\prepare_meta( $media_post->ID );
 
+	/**
+	 * Filter formatted media item.
+	 *
+	 * @hook dt_media_item_formatted
+	 *
+	 * @param {array} $media_item Array of media item details.
+	 * @param {int}   $media_post->ID The media post ID.
+	 *
+	 * @return {array} Array of media item details.
+	 */
 	return apply_filters( 'dt_media_item_formatted', $media_item, $media_post->ID );
 }
 
@@ -490,28 +725,171 @@ function format_media_post( $media_post ) {
  * @return int|bool
  */
 function process_media( $url, $post_id ) {
-	preg_match( '/[^\?]+\.(jpe?g|jpe|gif|png)\b/i', $url, $matches );
+
+	/**
+	 * Filter allowed media extensions to be processed
+	 *
+	 * @since 1.3.7
+	 * @hook dt_allowed_media_extensions
+	 *
+	 * @param array $allowed_extensions Allowed extensions array.
+	 * @param string $url Media url.
+	 * @param int $post_id Post ID.
+	 *
+	 * @return array Media extensions to be processed.
+	 */
+	$allowed_extensions = apply_filters( 'dt_allowed_media_extensions', array( 'jpg', 'jpeg', 'jpe', 'gif', 'png' ), $url, $post_id );
+	preg_match( '/[^\?]+\.(' . implode( '|', $allowed_extensions ) . ')\b/i', $url, $matches );
 	if ( ! $matches ) {
+		$media_name = null;
+	} else {
+		$media_name = basename( $matches[0] );
+	}
+
+	/**
+	 * Filter name of the processing media.
+	 *
+	 * @since 1.3.7
+	 * @hook dt_media_processing_filename
+	 *
+	 * @param {string} $media_name Filemame of the media being processed.
+	 * @param {string} $url        Media url.
+	 * @param {int}    $post_id    Post ID.
+	 *
+	 * @return {string} Filemame of the media being processed.
+	 */
+	$media_name = apply_filters( 'dt_media_processing_filename', $media_name, $url, $post_id );
+
+	if ( is_null( $media_name ) ) {
 		return false;
 	}
+
+	$file_array         = array();
+	$file_array['name'] = $media_name;
 
 	require_once ABSPATH . 'wp-admin/includes/image.php';
 	require_once ABSPATH . 'wp-admin/includes/file.php';
 	require_once ABSPATH . 'wp-admin/includes/media.php';
 
-	$file_array         = array();
-	$file_array['name'] = basename( $matches[0] );
+	// Allows to pull media from local IP addresses
+	// Uses a "magic number" for priority so we only unhook our call, just in case
+	add_filter( 'http_request_host_is_external', '__return_true', 88 );
 
 	// Download file to temp location.
 	$file_array['tmp_name'] = download_url( $url );
 
+	remove_filter( 'http_request_host_is_external', '__return_true', 88 );
+
 	// If error storing temporarily, return the error.
 	if ( is_wp_error( $file_array['tmp_name'] ) ) {
+
+		// Distributor is in debug mode, display the issue, could be storage related.
+		if ( is_dt_debug() ) {
+			error_log( sprintf( 'Distributor: %s', $file_array['tmp_name']->get_error_message() ) ); // @codingStandardsIgnoreLine
+		}
+
 		return false;
 	}
 
 	// Do the validation and storage stuff.
-	return media_handle_sideload( $file_array, $post_id );
+	$result = media_handle_sideload( $file_array, $post_id );
+	if ( is_wp_error( $result ) ) {
+
+		// Distributor is in debug mode, display the issue, could be storage related.
+		if ( is_dt_debug() ) {
+			error_log( sprintf( 'Distributor: %s', $file_array['tmp_name']->get_error_message() ) ); // @codingStandardsIgnoreLine
+		}
+
+		return false;
+	}
+	return (int) $result;
+}
+
+/**
+ * Return whether a post type is compatible with the block editor.
+ *
+ * The block editor depends on the REST API, and if the post type is not shown in the
+ * REST API, then it won't work with the block editor.
+ *
+ * @source WordPress 5.0.0
+ *
+ * @param string $post_type The post type.
+ * @return bool Whether the post type can be edited with the block editor.
+ */
+function dt_use_block_editor_for_post_type( $post_type ) {
+	if ( ! post_type_exists( $post_type ) ) {
+		return false;
+	}
+
+	if ( ! post_type_supports( $post_type, 'editor' ) ) {
+		return false;
+	}
+
+	$post_type_object = get_post_type_object( $post_type );
+	if ( $post_type_object && ! $post_type_object->show_in_rest ) {
+		return false;
+	}
+
+	// Filter documented in WordPress core.
+	return apply_filters( 'use_block_editor_for_post_type', true, $post_type );
+}
+
+/**
+ * Helper function to process post content.
+ *
+ * @param string $post_content The post content.
+ *
+ * @return string $post_content The processed post content.
+ */
+function get_processed_content( $post_content ) {
+
+	global $wp_embed;
+	/**
+	 * Remove autoembed filter so that actual URL will be pushed and not the generated markup.
+	 */
+	remove_filter( 'the_content', [ $wp_embed, 'autoembed' ], 8 );
+	// Filter documented in WordPress core.
+	$post_content = apply_filters( 'the_content', $post_content );
+	add_filter( 'the_content', [ $wp_embed, 'autoembed' ], 8 );
+
+	return $post_content;
+}
+
+/**
+ * Gets the REST URL for a post.
+ *
+ * @param  int $blog_id The blog ID.
+ * @param  int $post_id The post ID.
+ * @return string
+ */
+function get_rest_url( $blog_id, $post_id ) {
+
+	switch_to_blog( $blog_id );
+
+	$post = get_post( $post_id );
+	if ( ! is_a( $post, '\WP_Post' ) ) {
+		restore_current_blog();
+		return apply_filters( 'dt_get_rest_url', false, $blog_id, $post_id );
+	}
+
+	$obj       = get_post_type_object( $post->post_type );
+	$rest_base = ! empty( $obj->rest_base ) ? $obj->rest_base : $obj->name;
+	$base      = sprintf( '%s/%s', 'wp/v2', $rest_base );
+
+	$rest_url = rest_url( trailingslashit( $base ) . $post->ID );
+
+	restore_current_blog();
+
+	/**
+	 * Allow filtering of the REST API URL used for pulling post contewnt,
+	 *
+	 * @since ?
+	 *
+	 * @param string $rest_url The defaukt REST URL to the post.
+	 * @param int $blog_id     The blog ID.
+	 * @param int $post_id     The post ID being retrieved.
+	 */
+	return apply_filters( 'dt_get_rest_url', $rest_url, $blog_id, $post_id );
 }
 
 /**

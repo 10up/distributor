@@ -8,6 +8,7 @@
 namespace Distributor\Subscriptions;
 
 use Distributor\ExternalConnection as ExternalConnection;
+use Distributor\Utils;
 
 /**
  * Setup actions and filters
@@ -16,7 +17,8 @@ use Distributor\ExternalConnection as ExternalConnection;
  */
 function setup() {
 	add_action(
-		'plugins_loaded', function() {
+		'plugins_loaded',
+		function() {
 			add_action( 'init', __NAMESPACE__ . '\register_cpt' );
 			add_action( 'save_post', __NAMESPACE__ . '\send_notifications' );
 			add_action( 'before_delete_post', __NAMESPACE__ . '\delete_subscriptions' );
@@ -210,7 +212,8 @@ function delete_subscriptions( $post_id ) {
 
 			// We need to ensure any remote post is unlinked to this post
 			wp_remote_post(
-				untrailingslashit( $target_url ) . '/wp/v2/dt_subscription/receive', [
+				untrailingslashit( $target_url ) . '/wp/v2/dt_subscription/receive',
+				[
 					'timeout'  => 5,
 					'blocking' => \Distributor\Utils\is_dt_debug(),
 					'body'     => [
@@ -261,29 +264,43 @@ function send_notifications( $post_id ) {
 				'title'             => get_the_title( $post_id ),
 				'slug'              => $post->post_name,
 				'post_type'         => $post->post_type,
-				'content'           => apply_filters( 'the_content', $post->post_content ),
+				'content'           => Utils\get_processed_content( $post->post_content ),
 				'excerpt'           => $post->post_excerpt,
 				'distributor_media' => \Distributor\Utils\prepare_media( $post_id ),
 				'distributor_terms' => \Distributor\Utils\prepare_taxonomy_terms( $post_id ),
 				'distributor_meta'  => \Distributor\Utils\prepare_meta( $post_id ),
 			],
 		];
-		if ( \Distributor\Utils\is_using_gutenberg() ) {
-			if ( gutenberg_can_edit_post_type( $post->post_type ) ) {
+		if ( \Distributor\Utils\is_using_gutenberg( $post ) ) {
+			if ( \Distributor\Utils\dt_use_block_editor_for_post_type( $post->post_type ) ) {
 				$post_body['post_data']['distributor_raw_content'] = $post->post_content;
 			}
 		}
 
 		$request = wp_remote_post(
-			untrailingslashit( $target_url ) . '/wp/v2/dt_subscription/receive', [
-				'timeout' => 5,
+			untrailingslashit( $target_url ) . '/wp/v2/dt_subscription/receive',
+			[
+				/**
+				 * Filter the timeout used when calling `\Distributor\Subscriptions\send_notifications`
+				 *
+				 * @hook dt_subscription_post_timeout
+				 *
+				 * @param int $timeout The timeout to use for the remote post. Default `5`.
+				 * @param \WP_Post $post The post object
+				 *
+				 * @return int The timeout to use for the remote post.
+				 */
+				'timeout' => apply_filters( 'dt_subscription_post_timeout', 5, $post ),
 				/**
 				 * Filter the arguments sent to the remote server during a subscription update.
 				 *
 				 * @since 1.3.0
+				 * @hook dt_subscription_post_args
 				 *
-				 * @param  array  $post_body The request body to send.
-				 * @param  object $post      The WP_Post that is being pushed.
+				 * @param  {array}   $post_body The request body to send.
+				 * @param  {WP_Post} $post      The WP_Post that is being pushed.
+				 *
+				 * @return {array} The request body to send.
 				 */
 				'body'    => apply_filters( 'dt_subscription_post_args', $post_body, $post ),
 			]

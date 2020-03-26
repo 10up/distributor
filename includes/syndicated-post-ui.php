@@ -14,7 +14,8 @@ namespace Distributor\SyndicatedPostUI;
  */
 function setup() {
 	add_action(
-		'plugins_loaded', function() {
+		'plugins_loaded',
+		function() {
 			add_action( 'edit_form_top', __NAMESPACE__ . '\syndicated_message', 9, 1 );
 			add_action( 'admin_enqueue_scripts', __NAMESPACE__ . '\enqueue_post_scripts' );
 			add_action( 'admin_enqueue_scripts', __NAMESPACE__ . '\enqueue_edit_scripts' );
@@ -25,7 +26,9 @@ function setup() {
 			add_filter( 'admin_body_class', __NAMESPACE__ . '\add_linked_class' );
 			add_filter( 'post_row_actions', __NAMESPACE__ . '\remove_quick_edit', 10, 2 );
 
-			if ( ! \Distributor\Utils\is_using_gutenberg() ) {
+			$post = isset( $_GET['post'] ) ? get_post( (int) $_GET['post'] ) : false; // @codingStandardsIgnoreLine Nonce not required
+
+			if ( $post && ! \Distributor\Utils\is_using_gutenberg( $post ) ) {
 				add_action( 'do_meta_boxes', __NAMESPACE__ . '\replace_revisions_meta_box', 10, 3 );
 				add_action( 'add_meta_boxes', __NAMESPACE__ . '\add_revisions_meta_box' );
 			}
@@ -58,7 +61,7 @@ function setup_columns() {
  */
 function add_distributor_column( $columns ) {
 	unset( $columns['date'] );
-	$columns['distributor'] = '<img src="' . esc_url( plugins_url( 'assets/img/icon.svg', __DIR__ ) ) . '" alt="' . esc_html__( 'Posts distributed from another site.', 'distributor' ) . '" title="' . esc_html__( 'Posts distributed from another site.', 'distributor' ) . '"> <span class="dt-column-header">Distributor</span>';
+	$columns['distributor'] = '<img src="' . esc_url( plugins_url( 'assets/img/icon.svg', __DIR__ ) ) . '" alt="' . esc_attr__( 'Posts distributed from another site.', 'distributor' ) . '" title="' . esc_attr__( 'Posts distributed from another site.', 'distributor' ) . '"> <span class="dt-column-header">Distributor</span>';
 
 	$columns['date'] = esc_html__( 'Date', 'distributor' );
 
@@ -86,9 +89,9 @@ function output_distributor_column( $column_name, $post_id ) {
 			$post_url         = get_post_meta( $post_id, 'dt_original_post_url', true );
 
 			if ( $unlinked ) {
-				echo '<a href="' . esc_url( $post_url ) . '"><img class="dt-unlinked" src="' . esc_url( plugins_url( 'assets/img/icon.svg', __DIR__ ) ) . '" alt="' . esc_html__( 'Unlinked', 'distributor' ) . '" title="' . esc_html__( 'Unlinked', 'distributor' ) . '"></a>';
+				echo '<a href="' . esc_url( $post_url ) . '"><img class="dt-unlinked" src="' . esc_url( plugins_url( 'assets/img/icon.svg', __DIR__ ) ) . '" alt="' . esc_attr__( 'Unlinked', 'distributor' ) . '" title="' . esc_attr__( 'Unlinked', 'distributor' ) . '"></a>';
 			} else {
-				echo '<a href="' . esc_url( $post_url ) . '"><img src="' . esc_url( plugins_url( 'assets/img/icon.svg', __DIR__ ) ) . '" alt="' . esc_html__( 'Linked', 'distributor' ) . '" title="' . esc_html__( 'Linked', 'distributor' ) . '"></a>';
+				echo '<a href="' . esc_url( $post_url ) . '"><img src="' . esc_url( plugins_url( 'assets/img/icon.svg', __DIR__ ) ) . '" alt="' . esc_attr__( 'Linked', 'distributor' ) . '" title="' . esc_attr__( 'Linked', 'distributor' ) . '"></a>';
 			}
 		}
 	}
@@ -97,8 +100,9 @@ function output_distributor_column( $column_name, $post_id ) {
 /**
  * Remove quick edit for linked posts
  *
- * @param  array   $actions Array of current actions
- * @param  WP_Post $post Post object
+ * @param  array    $actions Array of current actions
+ * @param  \WP_Post $post Post object
+ *
  * @since  0.8
  * @return array
  */
@@ -139,22 +143,23 @@ function add_linked_class( $classes ) {
 	global $post, $pagenow;
 
 	if ( 'post.php' !== $pagenow && 'post-new.php' !== $pagenow ) {
-		return;
+		return ''; // Must stick to docblock, cannot return void.
 	}
 
-	if ( empty( $_GET['post'] ) ) {
+	if ( empty( $_GET['post'] ) ) { // @codingStandardsIgnoreLine No nonce needed.
 		return $classes;
 	}
 
-	$original_blog_id   = get_post_meta( intval( $_GET['post'] ), 'dt_original_blog_id', true );
-	$original_source_id = get_post_meta( intval( $_GET['post'] ), 'dt_original_source_id', true );
-	$original_post_id   = get_post_meta( intval( $_GET['post'] ), 'dt_original_post_id', true );
+	$current_post_id    = intval( $_GET['post'] ); // @codingStandardsIgnoreLine No nonce needed.
+	$original_blog_id   = get_post_meta( $current_post_id, 'dt_original_blog_id', true );
+	$original_source_id = get_post_meta( $current_post_id, 'dt_original_source_id', true );
+	$original_post_id   = get_post_meta( $current_post_id, 'dt_original_post_id', true );
 
 	if ( empty( $original_post_id ) || ( empty( $original_blog_id ) && empty( $original_source_id ) ) ) {
 		return $classes;
 	}
 
-	$unlinked         = (bool) get_post_meta( intval( $_GET['post'] ), 'dt_unlinked', true );
+	$unlinked         = (bool) get_post_meta( $current_post_id, 'dt_unlinked', true );
 	$original_deleted = (bool) get_post_meta( $post->ID, 'dt_original_post_deleted', true );
 
 	if ( $unlinked || $original_deleted ) {
@@ -167,7 +172,7 @@ function add_linked_class( $classes ) {
 /**
  * Output syndicated on date
  *
- * @param  WP_Post $post Post object
+ * @param  \WP_Post $post Post object
  * @since  0.8
  */
 function syndication_date( $post ) {
@@ -230,7 +235,10 @@ function new_revisions_meta_box( $post_id ) {
 	$post_type = get_post_type_object( get_post_type( $post_id ) );
 	?>
 	<p>
-		<?php printf( esc_html__( 'Distributed %s do not support revisions unless unlinked.', 'distributor' ), esc_html( strtolower( $post_type->labels->name ) ) ); ?>
+		<?php
+			/* translators: %s the post type name */
+			printf( esc_html__( 'Distributed %s do not support revisions unless unlinked.', 'distributor' ), esc_html( strtolower( $post_type->labels->name ) ) );
+		?>
 	</p>
 	<?php
 }
@@ -238,9 +246,10 @@ function new_revisions_meta_box( $post_id ) {
 /**
  * Remove old revisions meta box
  *
- * @param  string  $post_type Post type
- * @param  string  $context Meta box context
- * @param  WP_Post $post Post object
+ * @param  string   $post_type Post type
+ * @param  string   $context Meta box context
+ * @param  \WP_Post $post Post object
+ *
  * @since  1.0
  */
 function replace_revisions_meta_box( $post_type, $context, $post ) {
@@ -271,7 +280,7 @@ function replace_revisions_meta_box( $post_type, $context, $post ) {
  * @since  0.8
  */
 function unlink() {
-	if ( empty( $_GET['action'] ) || 'unlink' !== $_GET['action'] || empty( $_GET['post'] ) ) {
+	if ( empty( $_GET['action'] ) || 'unlink' !== $_GET['action'] || empty( $_GET['post'] ) ) { // @codingStandardsIgnoreLine Nonce isn't needed here.
 		return;
 	}
 
@@ -283,9 +292,12 @@ function unlink() {
 		 * Filters whether the post can be unlinked.
 		 *
 		 * @since 1.0
+		 * @hook dt_allow_post_unlink
 		 *
-		 * @param bool true       Whether the post is allowed to be unlinked. Default true.
-		 * @param int  $post_id   The ID of the post attempting to be unlinked.
+		 * @param {bool} true       Whether the post is allowed to be unlinked. Default true.
+		 * @param {int}  $post_id   The ID of the post attempting to be unlinked.
+		 *
+		 * @return {bool} Whether the post is allowed to be unlinked.
 		 */
 		! apply_filters( 'dt_allow_post_unlink', true, $post_id ) ) {
 		return;
@@ -297,11 +309,12 @@ function unlink() {
 	 * Todo: Do we delete subscriptions for external posts?
 	 */
 	/**
-	 * Action fired when a post is unlinked.
+	 * Fires when a post is unlinked.
 	 *
 	 * @since 1.0
+	 * @hook dt_unlink_post
 	 *
-	 * @param int $post_id ID of the post being unlinked.
+	 * @param {int} $post_id ID of the post being unlinked.
 	 */
 	do_action( 'dt_unlink_post', $post_id );
 
@@ -315,7 +328,7 @@ function unlink() {
  * @since  0.8
  */
 function link() {
-	if ( empty( $_GET['action'] ) || 'link' !== $_GET['action'] || empty( $_GET['post'] ) ) {
+	if ( empty( $_GET['action'] ) || 'link' !== $_GET['action'] || empty( $_GET['post'] ) ) { // @codingStandardsIgnoreLine Nonce isn't needed here.
 		return;
 	}
 
@@ -373,11 +386,12 @@ function link() {
 	}
 
 	/**
-	 * Action fired when a post is linked.
+	 * Fires when a post is linked.
 	 *
 	 * @since 1.0
+	 * @hook dt_link_post
 	 *
-	 * @param int $post_id ID of the post being unlinked.
+	 * @param {int} $post_id ID of the post being linked.
 	 */
 	do_action( 'dt_link_post', $post_id );
 
@@ -388,7 +402,7 @@ function link() {
 /**
  * Show syndicated post message
  *
- * @param  WP_Post $post Post object.
+ * @param  \WP_Post $post Post object.
  * @since  0.8
  */
 function syndicated_message( $post ) {
@@ -416,6 +430,7 @@ function syndicated_message( $post ) {
 		restore_current_blog();
 
 		if ( empty( $original_location_name ) ) {
+			/* translators: %d: the blog ID */
 			$original_location_name = sprintf( esc_html__( 'Blog #%d', 'distributor' ), $original_blog_id );
 		}
 	} else {
@@ -428,18 +443,30 @@ function syndicated_message( $post ) {
 	<div class="updated syndicate-status">
 		<?php if ( $original_deleted ) : ?>
 			<p>
-				<?php echo wp_kses_post( sprintf( __( 'This %1$s was distributed from <a href="%2$s">%3$s</a>. However, the original has been deleted.', 'distributor' ), esc_html( strtolower( $post_type_singular ) ), esc_url( $post_url ), esc_html( $original_location_name ) ) ); ?>
+				<?php
+					/* translators: %1$s: post type name, %2$s: site url, %3$s: site name */
+					echo wp_kses_post( sprintf( __( 'This %1$s was distributed from <a href="%2$s">%3$s</a>. However, the original has been deleted.', 'distributor' ), esc_html( strtolower( $post_type_singular ) ), esc_url( $post_url ), esc_html( $original_location_name ) ) );
+				?>
 			</p>
 		<?php elseif ( ! $unlinked ) : ?>
 			<p>
-				<?php echo wp_kses_post( sprintf( __( 'Distributed from <a href="%1$s">%2$s</a>.', 'distributor' ), esc_url( $post_url ), esc_html( $original_location_name ) ) ); ?>
-				<?php if ( apply_filters( 'dt_allow_post_unlink', true, $post->ID ) ) : ?>
+				<?php
+					/* translators: %1$s: site url, %2$s: site name */
+					echo wp_kses_post( sprintf( __( 'Distributed from <a href="%1$s">%2$s</a>.', 'distributor' ), esc_url( $post_url ), esc_html( $original_location_name ) ) );
+				?>
+				<?php
+					// Filter documented above.
+				if ( apply_filters( 'dt_allow_post_unlink', true, $post->ID ) ) :
+					?>
+					<?php /* translators: %1$s: post type name, %2$s: unlink url */ ?>
 					<span><?php echo wp_kses_post( sprintf( __( 'The original %1$s will update this version unless you <a href="%2$s">unlink from the original.</a>', 'distributor' ), esc_html( strtolower( $post_type_singular ) ), wp_nonce_url( add_query_arg( 'action', 'unlink', admin_url( sprintf( $post_type_object->_edit_link, $post->ID ) ) ), "unlink-post_{$post->ID}" ) ) ); ?></span>
 				<?php endif; ?>
 			</p>
 		<?php else : ?>
 			<p>
+				<?php /* translators: %1$s: site url, %2$s: site name */ ?>
 				<?php echo wp_kses_post( sprintf( __( 'Originally distributed from <a href="%1$s">%1$s</a>.', 'distributor' ), esc_url( $post_url ), esc_html( $original_location_name ) ) ); ?>
+				<?php /* translators: %1$s: post type name, %2$s: link url */ ?>
 				<span><?php echo wp_kses_post( sprintf( __( "This %1\$s has been unlinked from the original. However, you can always <a href='%2\$s'>restore it.</a>", 'distributor' ), esc_html( strtolower( $post_type_singular ) ), wp_nonce_url( add_query_arg( 'action', 'link', admin_url( sprintf( $post_type_object->_edit_link, $post->ID ) ) ), "link-post_{$post->ID}" ) ) ); ?></span>
 			</p>
 		<?php endif; ?>
@@ -468,7 +495,7 @@ function enqueue_post_scripts( $hook ) {
 		return;
 	}
 
-	if ( \Distributor\Utils\is_using_gutenberg() ) {
+	if ( \Distributor\Utils\is_using_gutenberg( $post ) ) {
 		wp_enqueue_style( 'dt-gutenberg-syndicated-post', plugins_url( '/dist/css/gutenberg-syndicated-post.min.css', __DIR__ ), array(), DT_VERSION );
 	} else {
 		wp_enqueue_style( 'dt-admin-syndicated-post', plugins_url( '/dist/css/admin-syndicated-post.min.css', __DIR__ ), array(), DT_VERSION );
@@ -517,6 +544,7 @@ function enqueue_gutenberg_edit_scripts() {
 		restore_current_blog();
 
 		if ( empty( $original_location_name ) ) {
+			/* translators: %d: the original blog id */
 			$original_location_name = sprintf( esc_html__( 'Blog #%d', 'distributor' ), $original_blog_id );
 		}
 	} else {
@@ -525,11 +553,25 @@ function enqueue_gutenberg_edit_scripts() {
 
 	$post_type_singular = $post_type_object->labels->singular_name;
 
+	if ( function_exists( 'gutenberg_get_jed_locale_data' ) ) {
+		$i18n_locale = gutenberg_get_jed_locale_data( 'distributor' );
+	} else {
+		$i18n_locale = [
+			'' => [
+				'domain' => 'distributor',
+				'lang'   => get_user_locale(),
+			],
+		]; // this is a temp hacky substitute for gutenberg_get_jed_locale_data()
+	}
+
 	wp_enqueue_script( 'dt-gutenberg-syndicated-post', plugins_url( '/dist/js/gutenberg-syndicated-post.min.js', __DIR__ ), [ 'wp-blocks' ], DT_VERSION, true );
-	wp_enqueue_script( 'dt-gutenberg-syndicated-status-plugin', plugins_url( '/dist/js/gutenberg-status-plugin.min.js', __DIR__ ), [ 'wp-blocks' ], DT_VERSION, true );
+	wp_enqueue_script( 'dt-gutenberg-syndicated-status-plugin', plugins_url( '/dist/js/gutenberg-status-plugin.min.js', __DIR__ ), [ 'wp-blocks', 'wp-edit-post' ], DT_VERSION, true );
+
 	wp_localize_script(
-		'dt-gutenberg-syndicated-post', 'dtGutenberg', [
-			'i18n'                 => gutenberg_get_jed_locale_data( 'distributor' ),
+		'dt-gutenberg-syndicated-post',
+		'dtGutenberg',
+		[
+			'i18n'                 => $i18n_locale,
 			'originalBlogId'       => (int) $original_blog_id,
 			'originalPostId'       => (int) $original_post_id,
 			'originalSourceId'     => (int) $original_source_id,

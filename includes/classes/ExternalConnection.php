@@ -69,11 +69,14 @@ abstract class ExternalConnection extends Connection {
 	 *
 	 * This let's us grab all the IDs of posts we've PULLED from a given connection
 	 *
-	 * @param  array $item_id_mappings Mapping array to store.
-	 * @since  0.8
+	 * @param array $item_id_mappings Mapping array to store; key = origin post ID, value = new post ID.
+	 * @param int   $connection_id Connection ID.
+	 * @since 0.8
 	 */
-	public function log_sync( array $item_id_mappings ) {
-		$sync_log = get_post_meta( $this->id, 'dt_sync_log', true );
+	public function log_sync( array $item_id_mappings, $connection_id = 0 ) {
+		$connection_id = 0 === $connection_id ? $this->id : $connection_id;
+
+		$sync_log = get_post_meta( $connection_id, 'dt_sync_log', true );
 
 		if ( empty( $sync_log ) ) {
 			$sync_log = array();
@@ -87,16 +90,17 @@ abstract class ExternalConnection extends Connection {
 			}
 		}
 
-		update_post_meta( $this->id, 'dt_sync_log', $sync_log );
+		update_post_meta( $connection_id, 'dt_sync_log', $sync_log );
 
 		/**
 		 * Action fired when a sync is being logged.
 		 *
 		 * @since 1.0
+		 * @hook dt_log_sync
 		 *
-		 * @param array $item_id_mappings Item ID mappings.
-		 * @param array $sync_log The sync log
-		 * @param object $this This class.
+		 * @param {array} $item_id_mappings Item ID mappings.
+		 * @param {array} $sync_log The sync log
+		 * @param {object} $this The current connection class.
 		 */
 		do_action( 'dt_log_sync', $item_id_mappings, $sync_log, $this );
 	}

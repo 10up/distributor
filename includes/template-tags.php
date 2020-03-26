@@ -164,16 +164,20 @@ function distributor_get_original_site_link( $post_id = null ) {
 	$site_url  = distributor_get_original_site_url( $post_id );
 
 	if ( empty( $site_name ) || empty( $site_url ) ) {
-		return;
+		return '';
 	}
 
 	/**
 	 * Filter the original site link for a distributed post.
 	 *
 	 * @since 1.0.0
+	 * @hook distributor_get_original_site_link
 	 *
-	 * @param string A formatted version of the original site link.
+	 * @param {string} $link A formatted version of the original site link.
+	 *
+	 * @return {string} A formatted version of the original site link.
 	 */
+	/* translators: %1$s: site url, %2$s; site name*/
 	return apply_filters( 'distributor_get_original_site_link', sprintf( __( 'By <a href="%1$s">%2$s</a>', 'distributor' ), esc_url( $site_url ), esc_html( $site_name ) ) );
 }
 

@@ -2,10 +2,11 @@
 namespace Distributor\ExternalConnections;
 
 use \Distributor\Authentications\WordPressBasicAuth as WordPressBasicAuth;
+use WP_Mock\Tools\TestCase;
 
-class WordPressExternalConnectionTest extends \TestCase {
+class WordPressExternalConnectionTest extends TestCase {
 
-	public function setUp() {
+	public function setUp(): void {
 
 		$this->auth       = new WordPressBasicAuth( array() );
 		$this->connection = new WordPressExternalConnection( 'name', 'url', 1, $this->auth );
@@ -138,6 +139,12 @@ class WordPressExternalConnectionTest extends \TestCase {
 
 		\WP_Mock::userFunction( 'get_permalink' );
 
+		\WP_Mock::userFunction(
+			'remove_filter', [
+				'times' => 2,
+			]
+		);
+
 		$this->assertInstanceOf( \WP_Error::class, $this->connection->push( 0 ) );
 		$this->assertTrue( is_int( $this->connection->push( 1 ) ) );
 
@@ -203,11 +210,20 @@ class WordPressExternalConnectionTest extends \TestCase {
 			]
 		);
 
+		\WP_Mock::userFunction(
+			'add_query_arg', [
+				'times' => 1,
+			]
+		);
+
 		$this->assertTrue(
 			is_array(
 				$this->connection->pull(
 					[
-						[ 'remote_post_id' => $post_id ],
+						[
+							'remote_post_id' => $post_id,
+							'post_type'      => 'post',
+						],
 					]
 				)
 			)
@@ -244,6 +260,11 @@ class WordPressExternalConnectionTest extends \TestCase {
 			]
 		);
 
+		\WP_Mock::userFunction(
+			'add_query_arg', [
+				'times' => 1,
+			]
+		);
 		$this->assertInstanceOf(
 			\WP_Post::class, $this->connection->remote_get(
 				[

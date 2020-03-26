@@ -1,27 +1,31 @@
 import gulp from 'gulp';
 import requireDir from 'require-dir';
-import runSequence from 'run-sequence';
+import runSequence from 'gulp4-run-sequence';
 import livereload from 'gulp-livereload';
 
 requireDir( './gulp-tasks' );
 
 /**
- * Gulp task to run all JS processes in a sequenctial order.
+ * Gulp task to run all JS processes in a sequential order.
 */
-gulp.task( 'js', () => {
-	runSequence(
+gulp.task( 'js', ( callback ) => {
+	return runSequence(
+		'jsclean',
 		'webpack',
+		callback()
 	);
 } );
 
 /**
- * Gulp task to run all Sass/CSS processes in a sequenctial order.
+ * Gulp task to run all Sass/CSS processes in a sequential order.
 */
-gulp.task( 'css', () => {
-	runSequence(
+gulp.task( 'css', ( callback ) => {
+	return runSequence(
+		'cssclean',
 		'cssnext',
 		'cssnano',
-		'cssclean'
+		'csscomplete',
+		callback()
 	);
 } );
 
@@ -35,11 +39,24 @@ gulp.task( 'watch', () => {
 } );
 
 /**
- * Gulp task to run the default build processes in a sequenctial order.
+ * Gulp task to run the default release processes in a sequential order.
  */
-gulp.task( 'default', () => {
-	runSequence(
+gulp.task( 'release', ( callback ) => {
+	return runSequence(
 		'css',
-		'webpack'
+		'js',
+		'copy',
+		callback()
+	);
+} );
+
+/**
+ * Gulp task to run the default build processes in a sequential order.
+ */
+gulp.task( 'default', ( callback ) => {
+	return runSequence(
+		'css',
+		'js',
+		callback()
 	);
 } );

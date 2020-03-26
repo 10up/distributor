@@ -16,7 +16,8 @@ use Distributor\Utils;
  */
 function setup() {
 	add_action(
-		'plugins_loaded', function() {
+		'plugins_loaded',
+		function() {
 			add_action( 'admin_menu', __NAMESPACE__ . '\admin_menu', 20 );
 
 			if ( DT_IS_NETWORK ) {
@@ -107,6 +108,7 @@ function update_notice( $plugin_file, $plugin_data, $status ) {
 		<td colspan="3" class="plugin-update colspanchange">
 			<div class="update-message notice inline notice-warning notice-alt">
 				<p>
+					<?php /* translators: %s: distributor notice url */ ?>
 					<?php echo wp_kses_post( sprintf( __( '<a href="%s">Register</a> for a free Distributor key to receive updates.', 'distributor' ), esc_url( $notice_url ) ) ); ?>
 				</p>
 			</div>
@@ -116,32 +118,43 @@ function update_notice( $plugin_file, $plugin_data, $status ) {
 }
 
 /**
- * Maybe show license notice
+ * Maybe show license or dev version notice
  *
  * @since 1.2
  */
 function maybe_notice() {
-	if ( ! empty( $_GET['page'] ) && ( 'distributor-settings' === $_GET['page'] || 'pull' === $_GET['page'] || 'distributor' === $_GET['page'] ) ) {
-		if ( DT_IS_NETWORK ) {
-			$settings = Utils\get_network_settings();
+	if ( 0 === strpos( get_current_screen()->parent_base, 'distributor' ) ) {
+		if ( preg_match( '/-dev$/', DT_VERSION ) ) {
+			?>
+			<div class="notice notice-warning">
+			<?php /* translators: %1$s: npm commands, %2$s: distributor url */ ?>
+			<p><?php echo wp_kses_post( sprintf( __( 'You appear to be running a development version of Distributor. Certain features may not work correctly without regularly running %1$s. If you&rsquo;re not sure what this means, you may want to <a href="%2$s">download and install</a> the stable version of Distributor instead.', 'distributor' ), '<code>npm install && npm run build</code>', 'https://distributorplugin.com/' ) ); ?></p>
+			</div>
+			<?php
 		} else {
-			$settings = Utils\get_settings();
-		}
+			// Don't bother with the registration notice if this is a dev version
+			if ( DT_IS_NETWORK ) {
+				$settings = Utils\get_network_settings();
+			} else {
+				$settings = Utils\get_settings();
+			}
 
-		if ( true === $settings['valid_license'] ) {
-			return;
-		}
+			if ( true === $settings['valid_license'] ) {
+				return;
+			}
 
-		if ( DT_IS_NETWORK ) {
-			$notice_url = network_admin_url( 'admin.php?page=distributor-settings' );
-		} else {
-			$notice_url = admin_url( 'admin.php?page=distributor-settings' );
+			if ( DT_IS_NETWORK ) {
+				$notice_url = network_admin_url( 'admin.php?page=distributor-settings' );
+			} else {
+				$notice_url = admin_url( 'admin.php?page=distributor-settings' );
+			}
+			?>
+			<div data-notice="auto-upgrade-disabled" class="notice notice-warning">
+				<?php /* translators: %s: distributor url */ ?>
+				<p><?php echo wp_kses_post( sprintf( __( '<a href="%s">Register Distributor</a> to receive important plugin update notices and other Distributor news.', 'distributor' ), esc_url( $notice_url ) ) ); ?></p>
+			</div>
+			<?php
 		}
-		?>
-		<div data-notice="auto-upgrade-disabled" class="notice notice-warning">
-			<p><?php echo wp_kses_post( sprintf( __( '<a href="%s">Register Distributor</a> to receive important plugin update notices and other Distributor news.', 'elasticpress' ), esc_url( $notice_url ) ) ); ?></p>
-		</div>
-		<?php
 	}
 }
 
@@ -152,7 +165,7 @@ function maybe_notice() {
  * @since  1.2
  */
 function admin_enqueue_scripts( $hook ) {
-	if ( ! empty( $_GET['page'] ) && 'distributor-settings' === $_GET['page'] ) {
+	if ( ! empty( $_GET['page'] ) && 'distributor-settings' === $_GET['page'] ) { // @codingStandardsIgnoreLine Nonce not required.
 		wp_enqueue_style( 'dt-admin-settings', plugins_url( '/dist/css/admin-settings.min.css', __DIR__ ), array(), DT_VERSION );
 	}
 }
@@ -166,6 +179,8 @@ function setup_fields_sections() {
 	add_settings_section( 'dt-section-1', '', '', 'distributor' );
 
 	add_settings_field( 'override_author_byline', esc_html__( 'Override Author Byline', 'distributor' ), __NAMESPACE__ . '\override_author_byline_callback', 'distributor', 'dt-section-1' );
+
+	add_settings_field( 'media_handling', esc_html__( 'Media Handling', 'distributor' ), __NAMESPACE__ . '\media_handling_callback', 'distributor', 'dt-section-1' );
 
 	if ( false === DT_IS_NETWORK ) {
 		add_settings_field( 'registation_key', esc_html__( 'Registration Key', 'distributor' ), __NAMESPACE__ . '\license_key_callback', 'distributor', 'dt-section-1' );
@@ -187,11 +202,9 @@ function override_author_byline_callback() {
 	}
 
 	?>
-	<input <?php checked( $value, true ); ?> type="checkbox" value="1" name="dt_settings[override_author_byline]">
-
-	<span class="description">
-		<?php esc_html_e( 'For linked distributed posts, replace the author name and link with the original site name and link.', 'distributor' ); ?>
-	</span>
+	<label><input <?php checked( $value, true ); ?> type="checkbox" value="1" name="dt_settings[override_author_byline]">
+	<?php esc_html_e( 'For linked distributed posts, replace the author name and link with the original site name and link.', 'distributor' ); ?>
+	</label>
 	<?php
 }
 
@@ -218,6 +231,31 @@ function license_key_callback() {
 }
 
 /**
+ * Output media handling options.
+ *
+ * @since 1.3.0
+ */
+function media_handling_callback() {
+	$settings = Utils\get_settings();
+	?>
+
+	<ul class="media-handling">
+		<li>
+			<label><input <?php checked( $settings['media_handling'], 'featured' ); ?> type="radio" value="featured" name="dt_settings[media_handling]">
+			<?php esc_html_e( 'Process the featured image only (default).', 'distributor' ); ?>
+			</label>
+		</li>
+		<li>
+			<label><input <?php checked( $settings['media_handling'], 'attached' ); ?> type="radio" value="attached" name="dt_settings[media_handling]">
+			<?php esc_html_e( 'Process the featured image and any attached images.', 'distributor' ); ?>
+			</label>
+		</li>
+	</ul>
+
+	<?php
+}
+
+/**
  * Register settings for options table
  *
  * @since  1.0
@@ -234,6 +272,7 @@ function register_settings() {
 function admin_menu() {
 	add_submenu_page( 'distributor', esc_html__( 'Settings', 'distributor' ), esc_html__( 'Settings', 'distributor' ), 'manage_options', 'distributor-settings', __NAMESPACE__ . '\settings_screen' );
 }
+
 /**
  * Output network setting menu option
  *
@@ -358,6 +397,12 @@ function sanitize_settings( $settings ) {
 		$new_settings['override_author_byline'] = false;
 	} else {
 		$new_settings['override_author_byline'] = true;
+	}
+
+	if ( ! isset( $settings['media_handling'] ) || ! in_array( $settings['media_handling'], array( 'featured', 'attached' ), true ) ) {
+		$new_settings['media_handling'] = 'featured';
+	} else {
+		$new_settings['media_handling'] = sanitize_text_field( $settings['media_handling'] );
 	}
 
 	if ( isset( $settings['license_key'] ) ) {

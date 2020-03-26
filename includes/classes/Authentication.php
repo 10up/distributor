@@ -22,7 +22,7 @@ abstract class Authentication {
 	 *
 	 * @var string
 	 */
-	static public $error_message;
+	public static $error_message;
 
 	/**
 	 * Set associative arguments as instance variables
@@ -48,13 +48,16 @@ abstract class Authentication {
 	 */
 	public function format_get_args( $args = array(), $context = array() ) {
 		/**
-		 * Format request args for a GET request so auth occurs
+		 * Format request args for a GET request so auth occurs.
 		 *
 		 * @since 0.8
+		 * @hook dt_auth_format_get_args
 		 *
-		 * @param  array  $args
-		 * @param  array  $context optional array of information about the request
-		 * @param  object $this The authentication class.
+		 * @param  {array}  $args    Array of request arguments.
+		 * @param  {array}  $context Optional array of information about the request.
+		 * @param  {object} $this    The authentication class.
+		 *
+		 * @return {array} Array of request arguments.
 		 */
 		return apply_filters( 'dt_auth_format_get_args', $args, $context, $this );
 	}
@@ -72,10 +75,13 @@ abstract class Authentication {
 		 * Format request args for a POST request so auth occurs
 		 *
 		 * @since 0.8
+		 * @hook dt_auth_format_post_args
 		 *
-		 * @param  array  $args
-		 * @param  array  $context optional array of information about the request
-		 * @param  object $this The authentication class.
+		 * @param  {array}  $args    Array of request arguments.
+		 * @param  {array}  $context Optional array of information about the request.
+		 * @param  {object} $this    The authentication class.
+		 *
+		 * @return {array} Array of request arguments.
 		 */
 		return apply_filters( 'dt_auth_format_post_args', $args, $context, $this );
 	}
@@ -113,7 +119,8 @@ abstract class Authentication {
 		// Store the message for output at the top of the authorization form
 		self::$error_message = $error_message;
 		add_action(
-			'auth_admin_notices', function() {
+			'auth_admin_notices',
+			function() {
 				?>
 		<div class="notice notice-error is-dismissible">
 			<p>

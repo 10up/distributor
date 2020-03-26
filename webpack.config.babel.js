@@ -1,6 +1,4 @@
-import path from 'path'
-import webpack from 'webpack'
-import UglifyJSPlugin from 'uglifyjs-webpack-plugin'
+import path from 'path';
 
 const DIST_PATH = path.resolve('./dist/js');
 
@@ -39,20 +37,8 @@ module.exports = {
 			}
 		]
 	},
-	plugins: [
-	    new webpack.NoEmitOnErrorsPlugin(),
-		new UglifyJSPlugin( {
-			sourceMap: true,
-			compress: {
-				drop_debugger: false
-			},
-			uglifyOptions: {
-				output: {
-					comments: false
-				}
-			}
-		} )
-	],
+	mode: 'production',
+
 	externals: {
 		jquery: 'jQuery',
 		underscores: '_',

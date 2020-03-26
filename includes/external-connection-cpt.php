@@ -14,7 +14,8 @@ namespace Distributor\ExternalConnectionCPT;
  */
 function setup() {
 	add_action(
-		'plugins_loaded', function() {
+		'plugins_loaded',
+		function() {
 			add_action( 'init', __NAMESPACE__ . '\setup_cpt' );
 			add_filter( 'enter_title_here', __NAMESPACE__ . '\filter_enter_title_here', 10, 2 );
 			add_filter( 'post_updated_messages', __NAMESPACE__ . '\filter_post_updated_messages' );
@@ -81,6 +82,7 @@ function output_status_column( $column_name, $post_id ) {
 		<span
 			class="connection-status <?php echo esc_attr( $status ); ?>"
 			<?php if ( ! empty( $last_checked ) ) : ?>
+				<?php /* translators: %s: human readable time difference */ ?>
 				title="<?php printf( esc_html__( 'Last Checked on %s' ), esc_html( date( 'F j, Y, g:i a', ( $last_checked + ( get_option( 'gmt_offset' ) * HOUR_IN_SECONDS ) ) ) ) ); ?>"
 			<?php endif; ?>
 		></span>
@@ -140,7 +142,7 @@ function ajax_begin_authorization() {
  * @return mixed
  */
 function set_screen_option( $status, $option, $value ) {
-	return $value;
+	return 'connections_per_page' === $option ? $value : $status;
 }
 
 /**
@@ -235,7 +237,7 @@ function ajax_verify_external_connection() {
 		$auth = $_POST['auth'];
 	}
 
-	$current_auth = get_post_meta( intval( sanitize_key( $_POST['endpoint_id'] ) ), 'dt_external_connection_auth', true );
+	$current_auth = get_post_meta( intval( sanitize_key( $_POST['endpointId'] ) ), 'dt_external_connection_auth', true );
 
 	if ( ! empty( $current_auth ) ) {
 		$auth = array_merge( $auth, (array) $current_auth );
@@ -262,13 +264,15 @@ function ajax_verify_external_connection() {
  * @since  0.8
  */
 function admin_enqueue_scripts( $hook ) {
-	if ( ( 'post.php' === $hook && 'dt_ext_connection' === get_post_type() ) || ( 'post-new.php' === $hook && ! empty( $_GET['post_type'] ) && 'dt_ext_connection' === $_GET['post_type'] ) ) {
+	if ( ( 'post.php' === $hook && 'dt_ext_connection' === get_post_type() ) || ( 'post-new.php' === $hook && ! empty( $_GET['post_type'] ) && 'dt_ext_connection' === $_GET['post_type'] ) ) { // @codingStandardsIgnoreLine Nonce not required.
 
 		wp_enqueue_style( 'dt-admin-external-connection', plugins_url( '/dist/css/admin-external-connection.min.css', __DIR__ ), array(), DT_VERSION );
 		wp_enqueue_script( 'dt-admin-external-connection', plugins_url( '/dist/js/admin-external-connection.min.js', __DIR__ ), array( 'jquery', 'underscore' ), DT_VERSION, true );
 
 		wp_localize_script(
-			'dt-admin-external-connection', 'dt', array(
+			'dt-admin-external-connection',
+			'dt',
+			array(
 				'nonce'                     => wp_create_nonce( 'dt-verify-ext-conn' ),
 				'bad_connection'            => esc_html__( 'No connection found.', 'distributor' ),
 				'good_connection'           => esc_html__( 'Connection established.', 'distributor' ),
@@ -289,7 +293,7 @@ function admin_enqueue_scripts( $hook ) {
 		wp_dequeue_script( 'autosave' );
 	}
 
-	if ( ! empty( $_GET['page'] ) && 'distributor' === $_GET['page'] ) {
+	if ( ! empty( $_GET['page'] ) && 'distributor' === $_GET['page'] ) { // @codingStandardsIgnoreLine Nonce not required
 		wp_enqueue_style( 'dt-admin-external-connections', plugins_url( '/dist/css/admin-external-connections.min.css', __DIR__ ), array(), DT_VERSION );
 	}
 }
@@ -307,7 +311,7 @@ function filter_enter_title_here( $label, $post = 0 ) {
 		return $label;
 	}
 
-	return esc_html__( 'Enter external connection name', 'distributor' );
+	return esc_html__( 'Label this external connection', 'distributor' );
 }
 
 /**
@@ -396,7 +400,7 @@ function add_meta_boxes() {
  * Output connection options meta box
  *
  * @since 0.8
- * @param WP_Post $post Post object.
+ * @param \WP_Post $post Post object.
  */
 function meta_box_external_connection_details( $post ) {
 	wp_nonce_field( 'dt_external_connection_details_action', 'dt_external_connection_details' );
@@ -441,13 +445,12 @@ function meta_box_external_connection_details( $post ) {
 		<input id="dt_external_connection_type" class="external-connection-type-field" type="hidden" name="dt_external_connection_type" value="<?php echo esc_attr( $registered_connection_types_keys[0] ); ?>">
 	<?php else : ?>
 		<p>
-			<label for="dt_external_connection_type"><?php esc_html_e( 'External Connection Type', 'distributor' ); ?></label><br>
+			<label for="dt_external_connection_type"><?php esc_html_e( 'Authentication Method', 'distributor' ); ?></label><br>
 			<select name="dt_external_connection_type" class="external-connection-type-field" id="dt_external_connection_type">
 				<?php foreach ( $registered_external_connection_types as $slug => $external_connection_class ) : ?>
 					<option <?php selected( $slug, $external_connection_type ); ?> value="<?php echo esc_attr( $slug ); ?>"><?php echo esc_attr( $external_connection_class::$label ); ?></option>
 				<?php endforeach; ?>
 			</select>
-			<span class="description"><?php esc_html_e( 'We need to know what type of API we are communicating with.', 'distributor' ); ?></span>
 		</p>
 	<?php endif; ?>
 
@@ -490,7 +493,7 @@ function meta_box_external_connection_details( $post ) {
 			<?php
 		}
 		?>
-		<span class="description"><?php esc_html_e( 'Please be warned all these users will inherit the permissions of the user on the remote site', 'distributor' ); ?></p>
+		<span class="description"><?php esc_html_e( 'Select the roles of users on this site that will be allowed to push content to this connection. Keep in mind that pushing will use the permissions of the user credentials provided for this connection.', 'distributor' ); ?></p>
 	</p>
 
 	<p class="dt-submit-connection hide-until-authed">
@@ -529,7 +532,7 @@ function dashboard() {
 
 		<form id="posts-filter" method="get">
 
-		<input type="hidden" name="post_status" class="post_status_page" value="<?php echo ! empty( $_REQUEST['post_status'] ) ? esc_attr( sanitize_key( $_REQUEST['post_status'] ) ) : 'all'; ?>">
+		<input type="hidden" name="post_status" class="post_status_page" value="<?php echo ! empty( $_REQUEST['post_status'] ) ? esc_attr( sanitize_key( $_REQUEST['post_status'] ) ) : 'all'; // @codingStandardsIgnoreLine Nonce not required ?>">
 		<input type="hidden" name="post_type" class="post_type_page" value="dt_ext_connection">
 		<input type="hidden" name="page" value="distributor">
 
@@ -570,8 +573,11 @@ function add_menu_item() {
 		 * Filter Distributor capabilities allowed to view external connections.
 		 *
 		 * @since 1.0.0
+		 * @hook dt_capabilities
 		 *
-		 * @param string manage_options The capability allowed to view external connections.
+		 * @param {string} 'manage_options' The capability allowed to view external connections.
+		 *
+		 * @return {string} The capability allowed to view external connections.
 		 */
 		apply_filters( 'dt_capabilities', 'manage_options' ),
 		'distributor',
@@ -595,13 +601,16 @@ function add_submenu_item() {
 		esc_html__( 'External Connections', 'distributor' ),
 		esc_html__( 'External Connections', 'distributor' ),
 		/**
-					  * Filter Distributor capabilities allowed to manage external connections.
-					  *
-					  * @since 1.0.0
-					  *
-					  * @param string manage_options The capability allowed to manage external connections.
-					  */
-					 apply_filters( 'dt_external_capabilities', 'manage_options' ),
+		 * Filter Distributor capabilities allowed to manage external connections.
+		 *
+		 * @since 1.0.0
+		 * @hook dt_external_capabilities
+		 *
+		 * @param {string} 'manage_options' The capability allowed to manage external connections.
+		 *
+		 * @return {string} The capability allowed to manage external connections.
+		 */
+		apply_filters( 'dt_external_capabilities', 'manage_options' ),
 		'distributor'
 	);
 }
@@ -662,11 +671,13 @@ function filter_post_updated_messages( $messages ) {
 		2  => esc_html__( 'Custom field updated.', 'distributor' ),
 		3  => esc_html__( 'Custom field deleted.', 'distributor' ),
 		4  => esc_html__( 'External connection updated.', 'distributor' ),
-		5  => isset( $_GET['revision'] ) ? sprintf( __( ' External connection restored to revision from %s', 'distributor' ), wp_post_revision_title( (int) $_GET['revision'], false ) ) : false,
+		/* translators: %s: revision title */
+		5  => isset( $_GET['revision'] ) ? sprintf( __( ' External connection restored to revision from %s', 'distributor' ), wp_post_revision_title( (int) $_GET['revision'], false ) ) : false, // @codingStandardsIgnoreLine Nonce not required
 		6  => esc_html__( 'External connection created.', 'distributor' ),
 		7  => esc_html__( 'External connection saved.', 'distributor' ),
 		8  => esc_html__( 'External connection submitted.', 'distributor' ),
 		9  => sprintf(
+			/* translators: %s: a date and time */
 			__( 'External connection scheduled for: <strong>%1$s</strong>.', 'distributor' ),
 			date_i18n( __( 'M j, Y @ G:i' ), strtotime( $post->post_date ) )
 		),
