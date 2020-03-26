@@ -211,7 +211,7 @@
 }
 
 #wpadminbar #distributor-push-wrapper .add-connection.syndicated {
-	cursor: default;
+	cursor: not-allowed;
 }
 
 #wpadminbar #distributor-push-wrapper .add-connection.syndicated span {

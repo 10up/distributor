@@ -471,7 +471,7 @@ function menu_content() {
 						<div class="new-connections-list">
 							<# for ( var key in connections ) { #>
 								<# if ( 'external' === connections[ key ]['type'] ) { #>
-									<button class="add-connection<# if ( ! _.isEmpty( connections[ key ]['syndicated'] ) ) { #> syndicated<# } #>" data-connection-type="external" data-connection-id="{{ connections[ key ]['id'] }}">
+									<button class="add-connection<# if ( ! _.isEmpty( connections[ key ]['syndicated'] ) ) { #> syndicated<# } #>" data-connection-type="external" data-connection-id="{{ connections[ key ]['id'] }}" <# if ( ! _.isEmpty( connections[ key ]['syndicated'] ) ) { #>disabled<# } #>>
 										<span>{{ connections[ key ]['name'] }}</span>
 									</button>
 								<# } else { #>
@@ -544,7 +544,7 @@ function menu_content() {
 					<# } #>
 				</div>
 			<# } else { #>
-				<button class="<# if (selectedConnections[connection.type + connection.id]) { #>added<# }#> add-connection <# if (connection.syndicated) { #>syndicated<# } #>" data-connection-type="{{ connection.type }}" data-connection-id="{{ connection.id }}">
+				<button class="<# if (selectedConnections[connection.type + connection.id]) { #>added<# }#> add-connection <# if (connection.syndicated) { #>syndicated<# } #>" data-connection-type="{{ connection.type }}" data-connection-id="{{ connection.id }}" <# if (connection.syndicated) { #>disabled<# } #>>
 					<span>{{{ connection.name }}}</span>
 				</button>
 			<# } #>
