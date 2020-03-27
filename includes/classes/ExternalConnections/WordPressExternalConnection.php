@@ -804,7 +804,7 @@ class WordPressExternalConnection extends ExternalConnection {
 				$can_get  = array();
 				$can_post = array();
 
-				$permission_url = untrailingslashit( $this->base_url ) . '/' . self::$namespace . 'distributor/post-types-permissions';
+				$permission_url = untrailingslashit( $this->base_url ) . '/' . self::$namespace . '/distributor/post-types-permissions';
 
 				if ( function_exists( 'vip_safe_wp_remote_get' ) && \Distributor\Utils\is_vip_com() ) {
 					$permission_response = vip_safe_wp_remote_get(
@@ -826,12 +826,17 @@ class WordPressExternalConnection extends ExternalConnection {
 						)
 					);
 				}
-				$permission_body = wp_remote_retrieve_body( $permission_response );
 
-				if ( is_wp_error( $permission_response ) || empty( $permission_body ) ) {
+				$permissions = json_decode( wp_remote_retrieve_body( $permission_response ) );
+
+				if (
+					is_wp_error( $permission_response )
+					|| empty( $permissions )
+					|| ! isset( $permissions->can_get )
+					|| ! isset( $permissions->can_post )
+				) {
 					$output['errors']['no_permissions'] = 'no_permissions';
 				} else {
-					$permissions = json_decode( $permission_body );
 					$can_get     = array_filter(
 						$permissions->can_get,
 						[ $this, 'not_distributor_internal_post_type' ]
