@@ -1,6 +1,9 @@
 {
   "name": "10up/distributor",
   "type": "wordpress-plugin",
+  "description": "Distributor is a WordPress plugin that makes it easy to syndicate and reuse content across your websites — whether in a single multisite or across the web.",
+  "homepage": "https://distributorplugin.com/",
+  "license": "GPL-2.0",
   "authors": [
     {
       "name": "Taylor Lovett",
