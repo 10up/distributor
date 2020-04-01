@@ -69,73 +69,63 @@ jQuery( authorizeConnectionButton ).on( 'click', ( event ) => {
 	// Ensure URL ends with trailing slash
 	siteURL = siteURL.replace( /\/?$/, '/' );
 
-	// First, locate the remote site REST API root.
-	jQuery.get( siteURL, function( remoteSite ) {
-		let endpoint = false;
-		// Look for the <link rel='https://api.w.org/' href='http://developwordpress.localhost/wp-json/' />
-		const parsed = jQuery.parseHTML( remoteSite );
-		parsed.some( function( el ) {
-			const $el = jQuery( el );
-			const rel = $el.attr( 'rel' );
-			if ( 'https://api.w.org/' === rel ) {
-				endpoint = $el.attr( 'href' );
-				return true;
+	jQuery.ajax( {
+		url: ajaxurl,
+		method: 'post',
+		data: {
+			nonce: dt.nonce,
+			action: 'dt_get_remote_info',
+			url: siteURL
+		}
+	} ).done( response => {
+		if ( ! response.success ) {
+			if (
+				response.hasOwnProperty( 'data' )
+				&& response.data.hasOwnProperty( 'rest_url' )
+				&& ! response.data.hasOwnProperty( 'version' )
+			) {
+				jQuery( wizardError[0] ).text( dt.no_distributor );
+			} else {
+				jQuery( wizardError[0] ).text( dt.noconnection );
 			}
 
-			return false;
-		} );
-
-		if ( ! endpoint ) {
-			jQuery( wizardError[0] ).text( dt.norest );
 			return;
 		}
 
-		// Check that the current version of Distributor is available on remote site.
-		jQuery.getJSON( `${ endpoint }wp/v2/dt_meta`, function( dtMeta ) {
-			if (  ! dtMeta ) {
-				jQuery( wizardError[0] ).text( dt.no_distributor );
-				return;
+		// Remove -dev from the version number, if running from the develop branch
+		const version = response.data.version.replace( /-dev/, '' );
+
+		// Requires Distributor version 1.6.0.
+		if ( compareVersions.compare( version, '1.6.0', '<' ) ) {
+			jQuery( wizardError[0] ).text( dt.minversion );
+			return;
+		}
+
+		const successURL = addQueryArgs( document.location.href,
+			{
+				setupStatus: 'success',
+				titleField: titleField.value,
+				externalSiteUrlField: siteURL,
+				restRoot: response.data.rest_url,
 			}
+		);
 
-			// Remove -dev from the version number, if running from the develop branch
-			const version = dtMeta.version.replace( /-dev/, '' );
-
-			// Requires Distributor version 2.0.0.
-			if ( compareVersions.compare( version, '2.0.0', '<' ) ) {
-				jQuery( wizardError[0] ).text( dt.minversion );
-				return;
+		const failureURL = addQueryArgs( document.location.href,
+			{
+				setupStatus: 'failure'
 			}
+		);
 
-			const successURL = addQueryArgs( document.location.href,
-				{
-					setupStatus: 'success',
-					titleField: titleField.value,
-					externalSiteUrlField: siteURL,
-					restRoot: endpoint,
-				}
-			);
-
-			const failureURL = addQueryArgs( document.location.href,
-				{
-					setupStatus: 'failure'
-				}
-			);
-
-			const authURL = addQueryArgs(
-				`${ siteURL }wp-admin/admin.php`,
-				{
-					page: 'auth_app',
-					app_name: dt.distributor_from, /*eslint camelcase: 0*/
-					success_url: encodeURI( successURL ), /*eslint camelcase: 0*/
-					reject_url:  encodeURI( failureURL ), /*eslint camelcase: 0*/
-				}
-			);
-			document.location = authURL;
-		} ).fail( function() {
-			jQuery( wizardError[0] ).text( dt.no_distributor );
-		} );
-	} ).fail( function() {
-		jQuery( wizardError[0] ).text( dt.noconnection );
+		const authURL = addQueryArgs(
+			`${ siteURL }wp-admin/admin.php`,
+			{
+				page: 'auth_app',
+				app_name: dt.distributor_from, /*eslint camelcase: 0*/
+				success_url: encodeURI( successURL ), /*eslint camelcase: 0*/
+				reject_url:  encodeURI( failureURL ), /*eslint camelcase: 0*/
+			}
+		);
+		document.location = authURL;
 	} );
 
 	return false;

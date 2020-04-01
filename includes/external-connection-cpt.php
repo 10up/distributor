@@ -22,6 +22,7 @@ function setup() {
 			add_action( 'save_post', __NAMESPACE__ . '\save_post' );
 			add_action( 'admin_enqueue_scripts', __NAMESPACE__ . '\admin_enqueue_scripts' );
 			add_action( 'wp_ajax_dt_verify_external_connection', __NAMESPACE__ . '\ajax_verify_external_connection' );
+			add_action( 'wp_ajax_dt_get_remote_info', __NAMESPACE__ . '\get_remote_distributor_info' );
 			add_filter( 'manage_dt_ext_connection_posts_columns', __NAMESPACE__ . '\filter_columns' );
 			add_action( 'manage_dt_ext_connection_posts_custom_column', __NAMESPACE__ . '\action_custom_columns', 10, 2 );
 			add_action( 'admin_menu', __NAMESPACE__ . '\add_menu_item' );
@@ -289,7 +290,7 @@ function admin_enqueue_scripts( $hook ) {
 				'invalid_url'               => esc_html__( 'Please enter a valid URL, including the HTTP(S).', 'distributor' ),
 				'norest'                    => esc_html__( 'No REST API endpoint was located for this site.', 'distributor' ),
 				'noconnection'              => esc_html__( 'Unable to connect to site.', 'distributor' ),
-				'minversion'                => esc_html__( 'Remote site requires Distributor version 2.0.0 or greater. Upgrade Distributor on the remote site to use the Authentication Wizard.', 'distributor' ),
+				'minversion'                => esc_html__( 'Remote site requires Distributor version 1.6.0 or greater. Upgrade Distributor on the remote site to use the Authentication Wizard.', 'distributor' ),
 				'no_distributor'            => esc_html__( 'Distributor not installed on remote site.', 'distributor' ),
 				'roles_warning'             => esc_html__( 'Be careful assigning less trusted roles push privileges as they will inherit the capabilities of the user on the remote site.', 'distributor' ),
 				'admin_url'                 => admin_url(),
@@ -723,3 +724,73 @@ function filter_post_updated_messages( $messages ) {
 	return $messages;
 }
 
+/**
+ * Get the REST API root of the remote site.
+ *
+ * @since  1.6.0
+ *
+ * @param string $site_url Remote site URL.
+ *
+ * @return false|string
+ */
+function get_rest_url( $site_url ) {
+
+	$source = wp_remote_get( $site_url );
+
+	if ( ! is_wp_error( $source ) ) {
+		return false;
+	}
+
+	$dom = new \DOMDocument();
+	// The HTML may be imperfect, use @ to suppress warnings.
+	@$dom->loadHTML( wp_remote_retrieve_body( $source ) ); // phpcs:ignore
+	$links = $dom->getElementsByTagName( 'link' );
+
+	foreach ( $links as $link ) {
+		if ( 'https://api.w.org/' === $link->getAttribute( 'rel' ) ) {
+			return $link->getAttribute( 'href' );
+		}
+	}
+
+	return false;
+}
+
+/**
+ * Get the Distributor version of the remote site.
+ *
+ * @since  1.6.0
+ */
+function get_remote_distributor_info() {
+	if (
+		! check_ajax_referer( 'dt-verify-ext-conn', 'nonce', false )
+		|| empty( $_POST['url'] )
+	) {
+		wp_send_json_error();
+		exit;
+	}
+
+	$rest_url = get_rest_url( $_POST['url'] );
+
+	if ( ! $rest_url ) {
+		wp_send_json_error();
+		exit;
+	}
+
+	$route = $rest_url . 'wp/v2/dt_meta';
+
+	if ( function_exists( 'vip_safe_wp_remote_get' ) && \Distributor\Utils\is_vip_com() ) {
+		$response = vip_safe_wp_remote_get( $route, false, 3, 3, 10 );
+	} else {
+		$response = wp_remote_get( $route, [ 'timeout' => 5 ] );
+	}
+
+	$body = json_decode( wp_remote_retrieve_body( $response ), true );
+
+	if ( empty( $body['version'] ) ) {
+		wp_send_json_error( [ 'rest_url' => $rest_url ] );
+		exit;
+	}
+
+	wp_send_json_success( array_merge( $body, [ 'rest_url' => $rest_url ] ) );
+	exit;
+}
