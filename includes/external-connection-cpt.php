@@ -521,13 +521,17 @@ function dashboard() {
 	global $connection_list_table;
 
 	$_GET['post_type'] = 'dt_ext_connection';
+	$_REQUEST['all_posts'] = true; // Default to replacite "All" tab
 
 	$connection_list_table->prepare_items();
 	?>
 
 	<div class="wrap">
-		<h1><?php esc_html_e( 'External Connections', 'distributor' ); ?> <a href="<?php echo esc_url( admin_url( 'post-new.php?post_type=dt_ext_connection' ) ); ?>" class="page-title-action"><?php esc_html_e( 'Add New', 'distributor' ); ?></a></h1>
+		<h1 class="wp-heading-inline"><?php esc_html_e( 'External Connections', 'distributor' ); ?></h1>
+		<a href="<?php echo esc_url( admin_url( 'post-new.php?post_type=dt_ext_connection' ) ); ?>" class="page-title-action"><?php esc_html_e( 'Add New', 'distributor' ); ?></a>
+		<hr class="wp-header-end">
 
+		<h2 class="screen-reader-text"><?php esc_html_e( 'Filter connections list', 'distributor' ); ?></h2>
 		<?php $connection_list_table->views(); ?>
 
 		<form id="posts-filter" method="get">
@@ -634,6 +638,7 @@ function setup_cpt() {
 		'search_items'       => esc_html__( 'Search External Connections', 'distributor' ),
 		'not_found'          => esc_html__( 'No external connections found.', 'distributor' ),
 		'not_found_in_trash' => esc_html__( 'No external connections found in trash.', 'distributor' ),
+		'filter_items_list'  => esc_html__( 'Filter connections list', 'distributor' ),
 		'parent_item_colon'  => '',
 		'menu_name'          => esc_html__( 'Distributor', 'distributor' ),
 	);
