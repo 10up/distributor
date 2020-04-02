@@ -775,8 +775,6 @@ class WordPressExternalConnection extends ExternalConnection {
 			$output['errors']['no_distributor'] = 'no_distributor';
 		}
 
-		$routes = $data['routes'];
-
 		$types_path = untrailingslashit( $this->base_url ) . '/' . self::$namespace . '/types';
 
 		if ( function_exists( 'vip_safe_wp_remote_get' ) && \Distributor\Utils\is_vip_com() ) {
@@ -837,14 +835,15 @@ class WordPressExternalConnection extends ExternalConnection {
 				) {
 					$output['errors']['no_permissions'] = 'no_permissions';
 				} else {
-					$can_get     = array_filter(
+					$can_get = array_values( array_filter(
 						$permissions->can_get,
 						[ $this, 'not_distributor_internal_post_type' ]
-					);
-					$can_post    = array_filter(
+					) );
+
+					$can_post = array_values( array_filter(
 						$permissions->can_post,
 						[ $this, 'not_distributor_internal_post_type' ]
-					);
+					) );
 				}
 
 				$output['can_get']  = $can_get;
