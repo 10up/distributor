@@ -273,7 +273,7 @@ function register_endpoints() {
  * Check user permissions for available post types
  */
 function check_post_types_permissions() {
-	$types    = get_post_types(
+	$types = get_post_types(
 		array(
 			'show_in_rest' => true,
 		),

@@ -835,15 +835,19 @@ class WordPressExternalConnection extends ExternalConnection {
 				) {
 					$output['errors']['no_permissions'] = 'no_permissions';
 				} else {
-					$can_get = array_values( array_filter(
-						$permissions->can_get,
-						[ $this, 'not_distributor_internal_post_type' ]
-					) );
+					$can_get = array_values(
+						array_filter(
+							$permissions->can_get,
+							[ $this, 'not_distributor_internal_post_type' ]
+						)
+					);
 
-					$can_post = array_values( array_filter(
-						$permissions->can_post,
-						[ $this, 'not_distributor_internal_post_type' ]
-					) );
+					$can_post = array_values(
+						array_filter(
+							$permissions->can_post,
+							[ $this, 'not_distributor_internal_post_type' ]
+						)
+					);
 				}
 
 				$output['can_get']  = $can_get;
