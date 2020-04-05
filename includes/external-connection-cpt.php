@@ -737,7 +737,7 @@ function get_rest_url( $site_url ) {
 
 	$source = wp_remote_get( $site_url );
 
-	if ( ! is_wp_error( $source ) ) {
+	if ( is_wp_error( $source ) ) {
 		return false;
 	}
 
