@@ -191,7 +191,7 @@ jQuery( window ).on( 'load', () => {
 	 */
 	function distributorMenuEntered() {
 		distributorMenuItem.focus();
-		document.body.classList.toggle( 'distributor-show' );
+		document.body.classList.add( 'distributor-show' );
 
 		if ( distributorPushWrapper.classList.contains( 'loaded' ) ) {
 			return;
@@ -238,7 +238,7 @@ jQuery( window ).on( 'load', () => {
 	 */
 	function distributorMenuExited() {
 
-		if ( actionWrapper.classList.contains( 'loading' ) ) {
+		if ( actionWrapper && actionWrapper.classList.contains( 'loading' ) ) {
 			return;
 		}
 
