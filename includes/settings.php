@@ -299,7 +299,7 @@ function network_admin_menu() {
 function settings_screen() {
 	?>
 	<div class="wrap">
-		<h2><?php esc_html_e( 'Distributor Settings', 'distributor' ); ?></h2>
+		<h1><?php esc_html_e( 'Distributor Settings', 'distributor' ); ?></h1>
 
 		<a class="distributor-help-link" target="_blank" href="https://github.com/10up/distributor#installation">
 			<span class="dashicons dashicons-info"></span> <?php esc_html_e( 'Help', 'distributor' ); ?>
@@ -330,7 +330,7 @@ function network_settings_screen() {
 	?>
 
 	<div class="wrap">
-		<h2><?php esc_html_e( 'Distributor Network Settings', 'distributor' ); ?></h2>
+		<h1><?php esc_html_e( 'Distributor Network Settings', 'distributor' ); ?></h1>
 
 		<a class="distributor-help-link" target="_blank" href="https://github.com/10up/distributor#installation">
 			<span class="dashicons dashicons-info"></span> <?php esc_html_e( 'Help', 'distributor' ); ?>
