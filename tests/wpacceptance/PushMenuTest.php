@@ -60,6 +60,7 @@ class PushMenuTest extends \TestCase {
 
 		// See crossed out element
 		$I->seeElement( '#distributor-push-wrapper .new-connections-list .add-connection.syndicated[data-connection-id="2"]' );
+		$I->seeText( 'View', '#distributor-push-wrapper .new-connections-list .add-connection.syndicated[data-connection-id="2"]' );
 	}
 
 	/**
