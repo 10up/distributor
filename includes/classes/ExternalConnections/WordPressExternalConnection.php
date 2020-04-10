@@ -647,9 +647,7 @@ class WordPressExternalConnection extends ExternalConnection {
 
 		$body_array = json_decode( $body, true );
 
-		try {
-			$remote_id = $body_array['id'];
-		} catch ( \Exception $e ) {
+		if ( empty( $body_array['id'] ) ) {
 			return new \WP_Error( 'no-push-post-remote-id', esc_html__( 'Could not determine remote post id.', 'distributor' ) );
 		}
 
