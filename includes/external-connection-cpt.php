@@ -479,8 +479,8 @@ function meta_box_external_connection_details( $post ) {
 		<ul class="endpoint-errors"></ul>
 	</div>
 
-	<p class="dt-roles-allowed hide-until-authed">
-		<label><?php esc_html_e( 'Roles Allowed to Push', 'distributor' ); ?></label><br>
+	<fieldset class="dt-roles-allowed hide-until-authed">
+		<legend><?php esc_html_e( 'Roles Allowed to Push', 'distributor' ); ?></legend>
 
 		<?php
 		$editable_roles = get_editable_roles();
@@ -488,13 +488,13 @@ function meta_box_external_connection_details( $post ) {
 			$name = translate_user_role( $details['name'] );
 			?>
 
-			<label for="dt-role-<?php echo esc_attr( $role ); ?>"><input class="dt-role-checkbox" name="dt_external_connection_allowed_roles[]" id="dt-role-<?php echo esc_attr( $role ); ?>" type="checkbox" <?php checked( true, in_array( $role, $allowed_roles, true ) ); ?> value="<?php echo esc_attr( $role ); ?>"> <?php echo esc_html( $name ); ?></label><br>
+			<input class="dt-role-checkbox" name="dt_external_connection_allowed_roles[]" id="dt-role-<?php echo esc_attr( $role ); ?>" type="checkbox" <?php checked( true, in_array( $role, $allowed_roles, true ) ); ?> value="<?php echo esc_attr( $role ); ?>"> <label for="dt-role-<?php echo esc_attr( $role ); ?>"><?php echo esc_html( $name ); ?></label><br>
 
 			<?php
 		}
 		?>
-		<span class="description"><?php esc_html_e( 'Select the roles of users on this site that will be allowed to push content to this connection. Keep in mind that pushing will use the permissions of the user credentials provided for this connection.', 'distributor' ); ?></p>
-	</p>
+		<span class="description"><?php esc_html_e( 'Select the roles of users on this site that will be allowed to push content to this connection. Keep in mind that pushing will use the permissions of the user credentials provided for this connection.', 'distributor' ); ?></span>
+	</fieldset>
 
 	<p class="dt-submit-connection hide-until-authed">
 		<input type="hidden" name="post_status" value="publish">

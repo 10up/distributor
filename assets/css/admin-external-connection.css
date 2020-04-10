@@ -13,8 +13,15 @@
 	box-shadow: none;
 }
 
+.dt-roles-allowed legend {
+	font-size: 14px;
+	font-weight: 700;
+	margin-bottom: 4px;
+}
+
 #dt_external_connection_details .dt-roles-allowed label {
-	font-weight: normal;
+	font-weight: 400;
+	vertical-align: top;
 }
 
 #dt_external_connection_details .dt-roles-allowed label:first-child {
@@ -48,6 +55,7 @@
 }
 
 #dt_external_connection_details p,
+#dt_external_connection_details .dt-roles-allowed,
 #dt_external_connection_details .connection-field-wrap {
 	margin-bottom: 2em;
 }
