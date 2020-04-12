@@ -232,7 +232,10 @@ jQuery( window ).on( 'load', () => {
 	 */
 	function distributorMenuExited() {
 
-		if ( ! distributorPushWrapper.classList.contains( 'message-error' ) ) {
+		if (
+			! distributorPushWrapper.classList.contains( 'message-error' )
+			&& ! distributorPushWrapper.querySelector( '.syndicated-notice' )
+		) {
 			if ( ! actionWrapper || actionWrapper.classList.contains( 'loading' ) ) {
 				return;
 			}
