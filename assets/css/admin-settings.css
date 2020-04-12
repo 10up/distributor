@@ -2,6 +2,24 @@
 	margin: 0;
 }
 
+.distributor-help-link {
+	display: none;
+	position: absolute;
+	right: 20px;
+	top: 25px;
+	text-decoration: none;
+}
+
+.distributor-help-link:not(:hover) span {
+	color: #9EA3A8;
+}
+
+@media (min-width: 600px) {
+	.distributor-help-link {
+		display: block;
+	}
+}
+
 .license-wrap.valid:after {
 	content: "\f147";
 	font-family: dashicons;
@@ -22,4 +40,16 @@
 	top: -2px;
 	position: relative;
 	color: #ff0000;
+}
+
+.registered + .license-wrap,
+.registered ~ .description {
+	display: none;
+}
+
+.registered a {
+	font-weight: bold;
+	margin-top: 10px;
+	text-decoration: none;
+	display: inline-block;
 }

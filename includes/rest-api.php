@@ -273,16 +273,18 @@ function register_endpoints() {
  * Check user permissions for available post types
  */
 function check_post_types_permissions() {
-	$types    = get_post_types(
+	$types = get_post_types(
 		array(
 			'show_in_rest' => true,
 		),
 		'objects'
 	);
+
 	$response = array(
 		'can_get'  => array(),
 		'can_post' => array(),
 	);
+
 	foreach ( $types as $type ) {
 		$caps                  = $type->cap;
 		$response['can_get'][] = $type->name;
@@ -291,5 +293,6 @@ function check_post_types_permissions() {
 			$response['can_post'][] = $type->name;
 		}
 	}
+
 	return $response;
 }
