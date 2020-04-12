@@ -70,7 +70,7 @@ class WordPressBasicAuth extends Authentication {
 		</p>
 
 		<p>
-			<label for="dt_username"><?php esc_html_e( 'Password', 'distributor' ); ?> <?php
+			<label for="dt_password"><?php esc_html_e( 'Password', 'distributor' ); ?> <?php
 			if ( ! empty( $args['base64_encoded'] ) ) :
 				?>
 <a class="change-password" href="#"><?php esc_html_e( '(Change)', 'distributor' ); ?></a><?php endif; ?></label><br>

@@ -1,6 +1,7 @@
 import jQuery from 'jquery';
 import _ from 'underscores';
 import { dt, ajaxurl } from 'window';
+import wp from 'wp';
 
 const [ externalConnectionUrlField ]  = document.getElementsByClassName( 'external-connection-url-field' );
 const externalConnectionMetaBox       = document.getElementById( 'dt_external_connection_details' );
@@ -74,13 +75,19 @@ function checkConnections() {
 				if ( response.data.endpoint_suggestion ) {
 					endpointResult.innerText = `${ dt.endpoint_suggestion } `;
 
-					const suggestion = document.createElement( 'a' );
+					const suggestion = document.createElement( 'button' );
 					suggestion.classList.add( 'suggest' );
+					suggestion.classList.add( 'button-link' );
+					suggestion.setAttribute( 'type', 'button' );
 					suggestion.innerText = response.data.endpoint_suggestion;
 
 					endpointResult.appendChild( suggestion );
+
+					wp.a11y.speak( `${ dt.endpoint_suggestion } ${ response.data.endpoint_suggestion }`, 'polite' );
 				} else {
 					endpointResult.innerText = dt.bad_connection;
+
+					wp.a11y.speak( dt.bad_connection, 'polite' );
 				}
 			} else {
 				if ( response.data.errors.no_distributor || ! response.data.can_post.length ) {
@@ -91,8 +98,10 @@ function checkConnections() {
 
 					if ( response.data.errors.no_distributor ) {
 						endpointResult.innerText += ` ${ dt.no_distributor }`;
+						wp.a11y.speak( `${ dt.limited_connection } ${ dt.no_distributor }`, 'polite' );
 					} else {
 						endpointResult.innerText += ` ${ dt.bad_auth }`;
+						wp.a11y.speak( `${ dt.limited_connection } ${ dt.bad_auth }`, 'polite' );
 					}
 
 					warnings.push( dt.no_push );
@@ -107,6 +116,8 @@ function checkConnections() {
 				} else {
 					endpointResult.setAttribute( 'data-endpoint-state', 'valid' );
 					endpointResult.innerText = dt.good_connection;
+
+					wp.a11y.speak( dt.good_connection, 'polite' );
 				}
 			}
 		}
