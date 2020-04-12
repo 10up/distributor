@@ -238,8 +238,10 @@ jQuery( window ).on( 'load', () => {
 	 */
 	function distributorMenuExited() {
 
-		if ( actionWrapper && actionWrapper.classList.contains( 'loading' ) ) {
-			return;
+		if ( ! distributorPushWrapper.classList.contains( 'message-error' ) ) {
+			if ( ! actionWrapper || actionWrapper.classList.contains( 'loading' ) ) {
+				return;
+			}
 		}
 
 		distributorMenuItem.blur();
