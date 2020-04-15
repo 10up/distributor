@@ -294,8 +294,8 @@ function admin_enqueue_scripts( $hook ) {
 				'no_distributor'            => esc_html__( 'Distributor not installed on remote site.', 'distributor' ),
 				'roles_warning'             => esc_html__( 'Be careful assigning less trusted roles push privileges as they will inherit the capabilities of the user on the remote site.', 'distributor' ),
 				'admin_url'                 => admin_url(),
-				/* translators: %s: site name */
-				'distributor_from'          => sprintf( esc_html__( 'Distributor from %s', 'distributor' ), $blog_name ),
+				/* translators: %1$s: site name, %2$s: site URL */
+				'distributor_from'          => sprintf( esc_html__( 'Distributor on %1$s (%2$s)', 'distributor' ), $blog_name, esc_url( home_url() ) ),
 				'wizard_return'             => $wizard_return,
 			)
 		);
