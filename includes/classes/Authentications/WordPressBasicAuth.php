@@ -64,21 +64,26 @@ class WordPressBasicAuth extends Authentication {
 		?>
 		<div class="external-connection-wizard card">
 			<h3><?php esc_html_e( 'Remote Connection Wizard', 'distributor' ); ?></h3>
-			<span class="description">
-				<?php esc_html_e( 'Auto-connect to an external site by authorizing Distributor with your login.', 'distributor' ); ?><br />
-				<?php esc_html_e( 'Note: the remote site must also be running Distributor verion 1.5 or higher.', 'distributor' ); ?>
-			</span><br />
-			<label for="dt_external_site_url"><?php esc_html_e( 'External Site Url', 'distributor' ); ?></label><br>
+			<p>
+				<?php esc_html_e( 'Enter the URL of a site that also has the latest version of Distributor installed and the wizard will attempt to generate an application-specific password and fill in the rest of the connection details for you.', 'distributor' ); ?>
+			</p>
+			<p>
+				<?php esc_html_e( 'If you are not already logged in to the other site, you will be prompted to log in before continuing. The login details you enter will not be stored on this site.', 'distributor' ); ?>
+			</p>
+			<label for="dt_external_site_url"><?php esc_html_e( 'External Site URL', 'distributor' ); ?></label><br>
 			<input type="text" name="dt_external_connection_auth[site_url]" data-auth-field="dt_external_site_url" value="" class="widefat" id="dt_external_site_url" placeholder="https://remotesite.com" autocomplete="off" value="">
 			<p>
 				<button class="button button-large establish-connection-button button-primary">
 					<?php esc_html_e( 'Authorize Connection', 'distributor' ); ?>
 				</button>
 				<a href="#" class="manual-setup-button">
-					<?php esc_html_e( 'Manually Setup Connection', 'distributor' ); ?>
+					<?php esc_html_e( 'Manually Set Up Connection', 'distributor' ); ?>
 				</a>
 				<div class="dt-wizard-error">
 				</div>
+			</p>
+			<p class="description">
+				<?php esc_html_e( 'Note: the remote site must also be running Distributor version 1.6.0 or higher to use this wizard. If not, please manually set up the connection.', 'distributor' ); ?>
 			</p>
 		</div>
 		<div class="external-connection-setup">
