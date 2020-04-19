@@ -44,7 +44,7 @@ function is_using_gutenberg( $post ) {
 	}
 
 	if ( ! empty( $post->post_content ) ) {
-		if ( function_exists( 'use_block_editor_for_post' ) ) {
+		if ( function_exists( 'use_block_editor_for_post' ) && ! isset( $_GET['meta-box-loader'] ) ) {
 			return use_block_editor_for_post( $post );
 		}
 
