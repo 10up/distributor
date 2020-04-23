@@ -43,9 +43,26 @@ function is_using_gutenberg( $post ) {
 		return false;
 	}
 
+	$post = get_post( $post );
+
+	if ( ! $post ) {
+		return false;
+	}
+
 	if ( ! empty( $post->post_content ) ) {
-		if ( function_exists( 'use_block_editor_for_post' ) && ! isset( $_GET['meta-box-loader'] ) ) {
-			return use_block_editor_for_post( $post );
+		// This duplicates the check from `use_block_editor_for_post()` as of WP 5.0.
+		// We duplicate this here to remove the $_GET['meta-box-loader'] check
+		if ( function_exists( 'use_block_editor_for_post_type' ) ) {
+			// The posts page can't be edited in the block editor.
+			if ( absint( get_option( 'page_for_posts' ) ) === $post->ID && empty( $post->post_content ) ) {
+				return false;
+			}
+
+			// Make sure this post type supports Gutenberg
+			$use_block_editor = use_block_editor_for_post_type( $post->post_type );
+
+			/** This filter is documented in wp-admin/includes/post.php */
+			return apply_filters( 'use_block_editor_for_post', $use_block_editor, $post );
 		}
 
 		// This duplicates the check from `has_blocks()` as of WP 5.2.
