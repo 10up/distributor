@@ -43,8 +43,6 @@ function is_using_gutenberg( $post ) {
 		return false;
 	}
 
-	$post = get_post( $post );
-
 	if ( ! $post ) {
 		return false;
 	}
