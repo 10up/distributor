@@ -176,6 +176,7 @@
 
 #wpadminbar #distributor-push-wrapper button {
 	padding: 0 10px;
+	border-radius: 3px;
 }
 
 #wpadminbar #distributor-push-wrapper .selectall-connections {
