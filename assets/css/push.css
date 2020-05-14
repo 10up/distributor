@@ -200,7 +200,7 @@
 	text-align: left;
 
 	&:focus {
-		box-shadow: 0 0 0 2px #fff;
+		box-shadow: inset 0 0 0 2px #fff;
 		outline: 2px solid transparent;
 		outline-offset: 0;
 	}
@@ -223,6 +223,10 @@
 	text-decoration: underline;
 	float: right;
 	height: auto;
+
+	&:focus {
+		box-shadow: inset 0 0 0 1px #fff;
+	}
 }
 
 #wpadminbar #distributor-push-wrapper .added-connection {
