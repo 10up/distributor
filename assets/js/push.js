@@ -101,20 +101,14 @@ jQuery( window ).on( 'load', () => {
 	function doSuccess( results ) {
 		let error = false;
 
-		_.each( results.internal, ( result, connectionId ) => {
-			if ( 'fail' === result.status ) {
-				error = true;
-			} else {
-				dtConnections[ `internal${ connectionId}` ].syndicated = result.url;
-			}
-		} );
-
-		_.each( results.external, ( result, connectionId ) => {
-			if ( 'fail' === result.status ) {
-				error = true;
-			} else {
-				dtConnections[ `external${ connectionId }` ].syndicated = true;
-			}
+		[ 'internal', 'external' ].map( type => {
+			_.each( results[type], ( result, connectionId ) => {
+				if ( 'fail' === result.status ) {
+					error = true;
+				} else {
+					dtConnections[ `${type}${ connectionId }` ].syndicated = result.url;
+				}
+			} );
 		} );
 
 		if ( error ) {
