@@ -588,9 +588,14 @@ function set_media( $post_id, $media, $args = [] ) {
 	/**
 	 * Allow filtering of the set_media args.
 	 *
+	 * @since 1.6.0
+	 * @hook dt_set_media_args
+	 *
 	 * @param array $args    List of args.
 	 * @param int   $post_id Post ID.
 	 * @param array $media   Array of media posts.
+	 *
+	 * @return array set_media args
 	 */
 	$args = apply_filters( 'dt_set_media_args', $args, $post_id, $media );
 
@@ -741,7 +746,7 @@ function format_media_post( $media_post ) {
  *
  * @param  string $url URL of media.
  * @param  int    $post_id Post ID that the media will be assigned to.
- * @param  arra y $args Additional args for process_media.
+ * @param  array  $args Additional args for process_media.
  * @since  1.0
  * @return int|bool
  */
@@ -751,17 +756,22 @@ function process_media( $url, $post_id, $args = [] ) {
 	$args = wp_parse_args(
 		$args,
 		[
-			'use_filesystem'  => false,
-			'source_file'     => '',
+			'use_filesystem' => false,
+			'source_file'    => '',
 		]
 	);
 
 	/**
 	 * Allow filtering of the process_media args.
 	 *
-	 * @param array $args    List of args.
-	 * @param  string $url URL of media.
-	 * @param int   $post_id Post ID.
+	 * @since 1.6.0
+	 * @hook dt_process_media_args
+	 *
+	 * @param array  $args    List of args.
+	 * @param string $url     URL of media.
+	 * @param int    $post_id Post ID.
+	 *
+	 * @return array Process media arguments.
 	 */
 	$args = apply_filters( 'dt_process_media_args', $args, $url, $post_id );
 
@@ -827,22 +837,31 @@ function process_media( $url, $post_id, $args = [] ) {
 		if ( $wp_filesystem->exists( $source_file ) ) {
 
 			$temp_name = wp_tempnam( $source_file );
-
-			$copied = $wp_filesystem->copy( $source_file, $temp_name, true );
+			$copied    = $wp_filesystem->copy( $source_file, $temp_name, true );
 
 			if ( $copied ) {
 
-				// For debugging, defaults to not saving.
+				/**
+				 * Allow filtering whether to save the source file path.
+				 *
+				 * @since 1.6.0
+				 * @hook dt_process_media_save_source_file_path
+				 *
+				 * @param boolean $save_file Whether to save the source file path. Default `false`.
+				 *
+				 * @return boolean Whether to save the source file path or not.
+				 */
 				$save_source_file_path = apply_filters( 'dt_process_media_save_source_file_path', false );
 
 				$file_array['tmp_name'] = $temp_name;
-				$download_url = false;
+				$download_url           = false;
 			}
 		}
 	}
 
-	// Default for external, or if a local file copy failed.
+	// Default for external or if a local file copy failed.
 	if ( $download_url ) {
+
 		// Allows to pull media from local IP addresses
 		// Uses a "magic number" for priority so we only unhook our call, just in case.
 		add_filter( 'http_request_host_is_external', '__return_true', 88 );
@@ -880,7 +899,7 @@ function process_media( $url, $post_id, $args = [] ) {
 	@unlink( $file_array['tmp_name'] );
 
 	if ( $save_source_file_path ) {
-		update_post_meta( $result, 'dt_original_file_path', $source_file );
+		update_post_meta( $result, 'dt_original_file_path', sanitize_text_field( $source_file ) );
 	}
 
 	return (int) $result;
