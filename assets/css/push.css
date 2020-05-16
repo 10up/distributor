@@ -55,11 +55,13 @@
 #wpadminbar #distributor-push-wrapper .new-connections-list {
 	border: 1px solid var(--borderColor);
 	max-height: 125px;
+	overflow: auto;
 }
 
 #wpadminbar #distributor-push-wrapper .selected-connections-list {
 	margin-bottom: 1em;
-    max-height: 145px;
+	max-height: 145px;
+	overflow: auto;
 }
 
 #wpadminbar #distributor-push-wrapper .connections-selected {
