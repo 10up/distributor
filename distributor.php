@@ -108,11 +108,14 @@ require_once __DIR__ . '/includes/settings.php';
 require_once __DIR__ . '/includes/template-tags.php';
 
 // Include application passwords.
-add_action( 'plugins_loaded', function() {
-	if ( ! class_exists( 'Application_Passwords' ) ) {
-		require_once __DIR__ . '/vendor/georgestephanis/application-passwords/application-passwords.php';
+add_action(
+	'plugins_loaded',
+	function() {
+		if ( ! class_exists( 'Application_Passwords' ) ) {
+			require_once __DIR__ . '/vendor/georgestephanis/application-passwords/application-passwords.php';
+		}
 	}
-} );
+);
 
 // Override some styles for application passwords until we can get these changes upstream.
 add_action(
