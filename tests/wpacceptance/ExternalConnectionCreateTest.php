@@ -46,7 +46,7 @@ class ExternalConnectionCreateTest extends \TestCase {
 
 		$I->waitUntilElementContainsText( 'Connection established', '.endpoint-result' );
 
-		$I->pressEnterKey( '#create-connection' );
+		$I->click( '#create-connection' );
 
 		$I->waitUntilElementVisible( '.notice-success' );
 
