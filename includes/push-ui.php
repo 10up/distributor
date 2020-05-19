@@ -506,15 +506,20 @@ function menu_content() {
 
 				<div class="connections-selector">
 					<div>
-						<button class="selectall-connections unavailable"><?php esc_html_e( 'Select All', 'distributor' ); ?></button>
-						<button class="selectno-connections unavailable"><?php esc_html_e( 'None', 'distributor' ); ?></button>
+						<button class="button button-primary selectall-connections unavailable"><?php esc_html_e( 'Select All', 'distributor' ); ?></button>
+						<button class="button button-secondary selectno-connections unavailable"><?php esc_html_e( 'None', 'distributor' ); ?></button>
 						<# if ( 5 < _.keys( connections ).length ) { #>
 							<input type="text" id="dt-connection-search" placeholder="<?php esc_attr_e( 'Search available connections', 'distributor' ); ?>">
 						<# } #>
 
 						<div class="new-connections-list">
 							<# for ( var key in connections ) { #>
-								<div class="add-connection<# if ( ! _.isEmpty( connections[ key ]['syndicated'] ) ) { #> syndicated<# } #>" data-connection-type="{{ connections[ key ]['type'] }}" data-connection-id="{{ connections[ key ]['id'] }}">
+								<button
+									class="add-connection<# if ( ! _.isEmpty( connections[ key ]['syndicated'] ) ) { #> syndicated<# } #>"
+									data-connection-type="{{ connections[ key ]['type'] }}"
+									data-connection-id="{{ connections[ key ]['id'] }}"
+									<# if ( ! _.isEmpty( connections[ key ]['syndicated'] ) && connections[ key ]['syndicated'] ) { #>disabled<# } #>
+								>
 									<# if ( 'external' === connections[ key ]['type'] ) { #>
 										<span>{{ connections[ key ]['name'] }}</span>
 									<# } else { #>
@@ -523,9 +528,10 @@ function menu_content() {
 									<# if ( ! _.isEmpty( connections[ key ]['syndicated'] ) && connections[ key ]['syndicated'] ) { #>
 										<a href="{{ connections[ key ]['syndicated'] }}"><?php esc_html_e( 'View', 'distributor' ); ?></a>
 									<# } #>
-								</div>
+								</button>
 							<# } #>
 						</div>
+
 					</div>
 				</div>
 				<div class="connections-selected empty">
@@ -555,7 +561,7 @@ function menu_content() {
 						 */
 						$as_draft = apply_filters( 'dt_allow_as_draft_distribute', $as_draft, $connection = null, $post );
 						?>
-						<button class="syndicate-button"><?php esc_html_e( 'Distribute', 'distributor' ); ?></button> <?php if ( $as_draft ) : ?><label class="as-draft" for="dt-as-draft"><input type="checkbox" id="dt-as-draft" checked> <?php esc_html_e( 'As draft', 'distributor' ); ?></label><?php endif; ?>
+						<button class="button button-primary syndicate-button"><?php esc_html_e( 'Distribute', 'distributor' ); ?></button> <?php if ( $as_draft ) : ?><label class="as-draft" for="dt-as-draft"><input type="checkbox" id="dt-as-draft" checked> <?php esc_html_e( 'As draft', 'distributor' ); ?></label><?php endif; ?>
 					</div>
 
 				</div>
@@ -578,7 +584,7 @@ function menu_content() {
 		</script>
 
 		<script id="dt-add-connection" type="text/html">
-			<div class="<# if (selectedConnections[connection.type + connection.id]) { #>added<# }#> add-connection <# if (connection.syndicated) { #>syndicated<# } #>" data-connection-type="{{ connection.type }}" data-connection-id="{{ connection.id }}">
+			<button class="<# if (selectedConnections[connection.type + connection.id]) { #>added<# }#> add-connection <# if (connection.syndicated) { #>syndicated<# } #>" data-connection-type="{{ connection.type }}" data-connection-id="{{ connection.id }}" <# if (connection.syndicated) { #>disabled<# } #>>
 				<# if ('internal' === connection.type) { #>
 					<span>{{ connection.url }}</span>
 				<# } else { #>
@@ -588,7 +594,7 @@ function menu_content() {
 				<# if (connection.syndicated) { #>
 					<a href="{{ connection.syndicated }}"><?php esc_html_e( 'View', 'distributor' ); ?></a>
 				<# } #>
-			</div>
+			</button>
 		</script>
 
 		<div id="distributor-push-wrapper">
