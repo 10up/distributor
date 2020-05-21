@@ -185,7 +185,7 @@ jQuery( window ).on( 'load', () => {
 	 */
 	function distributorMenuEntered() {
 		distributorMenuItem.focus();
-		document.body.classList.toggle( 'distributor-show' );
+		document.body.classList.add( 'distributor-show' );
 
 		if ( distributorPushWrapper.classList.contains( 'loaded' ) ) {
 			return;
@@ -231,11 +231,21 @@ jQuery( window ).on( 'load', () => {
 	 * Handle exiting the distributor menu.
 	 */
 	function distributorMenuExited() {
+
+		if (
+			! distributorPushWrapper.classList.contains( 'message-error' )
+			&& ! distributorPushWrapper.querySelector( '.syndicated-notice' )
+		) {
+			if ( ! actionWrapper || actionWrapper.classList.contains( 'loading' ) ) {
+				return;
+			}
+		}
+
 		distributorMenuItem.blur();
-		document.body.classList.toggle( 'distributor-show' );
+		document.body.classList.remove( 'distributor-show' );
 	}
 
-	jQuery( distributorMenuItem ).hoverIntent( distributorMenuEntered, 300, distributorMenuExited );
+	jQuery( distributorMenuItem ).hoverIntent( distributorMenuEntered, distributorMenuExited, 300 );
 
 	/**
 	 * Do syndication ajax
