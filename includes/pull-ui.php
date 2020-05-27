@@ -253,7 +253,8 @@ function process_actions() {
 				setcookie( 'dt-duplicated', 1, time() + DAY_IN_SECONDS, ADMIN_COOKIE_PATH, COOKIE_DOMAIN, is_ssl() );
 			}
 
-			wp_safe_redirect( wp_get_referer() );
+			// Redirect to the pulled content tab
+			wp_safe_redirect( add_query_arg( 'status', 'pulled', wp_get_referer() ) );
 			exit;
 		case 'bulk-skip':
 		case 'skip':
@@ -296,7 +297,8 @@ function process_actions() {
 
 			setcookie( 'dt-skipped', 1, time() + DAY_IN_SECONDS, ADMIN_COOKIE_PATH, COOKIE_DOMAIN, is_ssl() );
 
-			wp_safe_redirect( wp_get_referer() );
+			// Redirect to the skipped content tab
+			wp_safe_redirect( add_query_arg( 'status', 'skipped', wp_get_referer() ) );
 			exit;
 	}
 }

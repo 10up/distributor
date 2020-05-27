@@ -22,6 +22,7 @@ const processTemplate = _.memoize( ( id ) => {
 
 jQuery( window ).on( 'load', () => {
 	const distributorAdminItem    = document.querySelector( '#wp-admin-bar-distributor > a' );
+	const distributorTopMenu      = document.querySelector( '#wp-admin-bar-distributor' );
 	const distributorMenuItem     = document.querySelector( '#wp-admin-bar-distributor #wp-admin-bar-distributor-placeholder' );
 	const distributorPushWrapper  = document.querySelector( '#distributor-push-wrapper' );
 
@@ -38,7 +39,6 @@ jQuery( window ).on( 'load', () => {
 	let selectAllConnections 			= '';
 	let selectNoConnections				= '';
 	let connectionsSearchInput  		= '';
-	let actionWrapper           		= '';
 	let postStatusInput         		= '';
 	let asDraftInput            		= '';
 
@@ -54,7 +54,6 @@ jQuery( window ).on( 'load', () => {
 		selectAllConnections 		= distributorPushWrapper.querySelector( '.selectall-connections' );
 		selectNoConnections 		= distributorPushWrapper.querySelector( '.selectno-connections' );
 		connectionsSearchInput  	= document.getElementById( 'dt-connection-search' );
-		actionWrapper           	= distributorPushWrapper.querySelector( '.action-wrapper' );
 		postStatusInput         	= document.getElementById( 'dt-post-status' );
 		asDraftInput            	= document.getElementById( 'dt-as-draft' );
 
@@ -77,7 +76,7 @@ jQuery( window ).on( 'load', () => {
 		 * Disable select all button if all connections are syndicated and set variable for total connections available
 		 */
 		_.each( connectionsNewListChildren, ( element ) => {
-			if ( !element.classList.contains ( 'syndicated' ) ) {
+			if ( ! element.classList.contains ( 'syndicated' ) ) {
 				selectAllConnections.classList.remove( 'unavailable' );
 				connectionsAvailableTotal ++;
 			}
@@ -102,20 +101,14 @@ jQuery( window ).on( 'load', () => {
 	function doSuccess( results ) {
 		let error = false;
 
-		_.each( results.internal, ( result, connectionId ) => {
-			if ( 'fail' === result.status ) {
-				error = true;
-			} else {
-				dtConnections[ `internal${ connectionId}` ].syndicated = result.url;
-			}
-		} );
-
-		_.each( results.external, ( result, connectionId ) => {
-			if ( 'fail' === result.status ) {
-				error = true;
-			} else {
-				dtConnections[ `external${ connectionId }` ].syndicated = true;
-			}
+		[ 'internal', 'external' ].map( type => {
+			_.each( results[type], ( result, connectionId ) => {
+				if ( 'fail' === result.status ) {
+					error = true;
+				} else {
+					dtConnections[ `${type}${ connectionId }` ].syndicated = result.url;
+				}
+			} );
 		} );
 
 		if ( error ) {
@@ -191,6 +184,8 @@ jQuery( window ).on( 'load', () => {
 	 * Handle distributor push dropdown menu.
 	 */
 	function distributorMenuEntered() {
+		distributorMenuItem.focus();
+
 		if ( distributorPushWrapper.classList.contains( 'loaded' ) ) {
 			return;
 		}
@@ -246,11 +241,11 @@ jQuery( window ).on( 'load', () => {
 	 * Do syndication ajax
 	 */
 	jQuery( distributorPushWrapper ).on( 'click', '.syndicate-button', () => {
-		if ( actionWrapper.classList.contains( 'loading' ) ) {
+		if ( distributorTopMenu.classList.contains( 'syncing' ) ) {
 			return;
 		}
 
-		actionWrapper.classList.add( 'loading' );
+		distributorTopMenu.classList.add( 'syncing' );
 
 		const data = {
 			action: 'dt_push',
@@ -270,7 +265,7 @@ jQuery( window ).on( 'load', () => {
 			data: data
 		} ).done( ( response ) => {
 			setTimeout( () => {
-				actionWrapper.classList.remove( 'loading' );
+				distributorTopMenu.classList.remove( 'syncing' );
 
 				if ( ! response.data || ! response.data.results ) {
 					doError();
@@ -281,7 +276,7 @@ jQuery( window ).on( 'load', () => {
 			}, 500 );
 		} ).error( () => {
 			setTimeout( () => {
-				actionWrapper.classList.remove( 'loading' );
+				distributorTopMenu.classList.remove( 'syncing' );
 
 				doError();
 			}, 500 );
@@ -327,8 +322,7 @@ jQuery( window ).on( 'load', () => {
 
 			selectedConnections[type + id] = dtConnections[type + id];
 
-			const element       = event.currentTarget.cloneNode();
-			element.innerText = event.currentTarget.innerText;
+			const element = event.currentTarget.cloneNode( true );
 
 			const removeLink = document.createElement( 'span' );
 			removeLink.classList.add( 'remove-connection' );
@@ -415,10 +409,10 @@ jQuery( window ).on( 'load', () => {
 	/**
 	 * Remove a connection from selected connections and the UI list
 	 */
-	jQuery( distributorPushWrapper ).on( 'click', '.remove-connection', ( event ) => {
-		event.currentTarget.parentNode.parentNode.removeChild( event.currentTarget.parentNode );
-		const type = event.currentTarget.parentNode.getAttribute( 'data-connection-type' );
-		const id   = event.currentTarget.parentNode.getAttribute( 'data-connection-id' );
+	jQuery( distributorPushWrapper ).on( 'click', '.added-connection', ( event ) => {
+		event.currentTarget.parentNode.removeChild( event.currentTarget );
+		const type = event.currentTarget.getAttribute( 'data-connection-type' );
+		const id   = event.currentTarget.getAttribute( 'data-connection-id' );
 
 		delete selectedConnections[type + id];
 

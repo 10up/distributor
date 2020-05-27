@@ -647,9 +647,7 @@ class WordPressExternalConnection extends ExternalConnection {
 
 		$body_array = json_decode( $body, true );
 
-		try {
-			$remote_id = $body_array['id'];
-		} catch ( \Exception $e ) {
+		if ( empty( $body_array['id'] ) ) {
 			return new \WP_Error( 'no-push-post-remote-id', esc_html__( 'Could not determine remote post id.', 'distributor' ) );
 		}
 
@@ -657,10 +655,10 @@ class WordPressExternalConnection extends ExternalConnection {
 
 		if ( ! empty( $response_headers['X-Distributor'] ) ) {
 			// We have Distributor on the other side
-			\Distributor\Subscriptions\create_subscription( $post_id, $remote_id, untrailingslashit( $this->base_url ), $signature );
+			\Distributor\Subscriptions\create_subscription( $post_id, $body_array['id'], untrailingslashit( $this->base_url ), $signature );
 		}
 
-		return $remote_id;
+		return $body_array['id'];
 	}
 
 	/**
@@ -775,8 +773,6 @@ class WordPressExternalConnection extends ExternalConnection {
 			$output['errors']['no_distributor'] = 'no_distributor';
 		}
 
-		$routes = $data['routes'];
-
 		$types_path = untrailingslashit( $this->base_url ) . '/' . self::$namespace . '/types';
 
 		if ( function_exists( 'vip_safe_wp_remote_get' ) && \Distributor\Utils\is_vip_com() ) {
@@ -804,65 +800,52 @@ class WordPressExternalConnection extends ExternalConnection {
 				$can_get  = array();
 				$can_post = array();
 
-				$blacklisted_types = [ 'dt_subscription' ];
+				$permission_url = untrailingslashit( $this->base_url ) . '/' . self::$namespace . '/distributor/post-types-permissions';
 
-				foreach ( $types as $type_key => $type ) {
+				if ( function_exists( 'vip_safe_wp_remote_get' ) && \Distributor\Utils\is_vip_com() ) {
+					$permission_response = vip_safe_wp_remote_get(
+						$permission_url,
+						false,
+						3,
+						3,
+						10,
+						$this->auth_handler->format_get_args()
+					);
+				} else {
 
-					if ( in_array( $type_key, $blacklisted_types, true ) ) {
-						continue;
-					}
+					$permission_response = wp_remote_get(
+						$permission_url,
+						$this->auth_handler->format_get_args(
+							array(
+								'timeout' => self::$timeout,
+							)
+						)
+					);
+				}
 
-					$link = $this->parse_type_items_link( $type );
-					if ( empty( $link ) ) {
-						continue;
-					}
+				$permissions = json_decode( wp_remote_retrieve_body( $permission_response ) );
 
-					$route = str_replace( untrailingslashit( $this->base_url ), '', $link );
+				if (
+					is_wp_error( $permission_response )
+					|| empty( $permissions )
+					|| ! isset( $permissions->can_get )
+					|| ! isset( $permissions->can_post )
+				) {
+					$output['errors']['no_permissions'] = 'no_permissions';
+				} else {
+					$can_get = array_values(
+						array_filter(
+							$permissions->can_get,
+							[ $this, 'not_distributor_internal_post_type' ]
+						)
+					);
 
-					if ( ! empty( $routes[ $route ] ) ) {
-						if ( in_array( 'GET', $routes[ $route ]['methods'], true ) ) {
-							if ( function_exists( 'vip_safe_wp_remote_get' ) && \Distributor\Utils\is_vip_com() ) {
-								$type_response = vip_safe_wp_remote_get(
-									$link,
-									false,
-									3,
-									3,
-									10,
-									$this->auth_handler->format_get_args()
-								);
-							} else {
-								$type_response = wp_remote_get( $link, $this->auth_handler->format_get_args( array( 'timeout' => self::$timeout ) ) );
-							}
-
-							if ( ! is_wp_error( $type_response ) ) {
-								$code = (int) wp_remote_retrieve_response_code( $type_response );
-
-								if ( 401 !== $code ) {
-									$can_get[] = $type_key;
-								}
-							}
-						}
-
-						if ( in_array( 'POST', $routes[ $route ]['methods'], true ) ) {
-							$type_response = wp_remote_post(
-								$link,
-								$this->auth_handler->format_post_args(
-									array(
-										'timeout' => self::$timeout,
-										'body'    => array( 'test' => 1 ),
-									)
-								)
-							);
-
-							if ( ! is_wp_error( $type_response ) ) {
-								$code = (int) wp_remote_retrieve_response_code( $type_response );
-
-								if ( 401 !== $code ) {
-									$can_post[] = $type_key;
-								}
-							}
-						}
-					}
+					$can_post = array_values(
+						array_filter(
+							$permissions->can_post,
+							[ $this, 'not_distributor_internal_post_type' ]
+						)
+					);
 				}
 
 				$output['can_get']  = $can_get;
@@ -872,6 +855,19 @@ class WordPressExternalConnection extends ExternalConnection {
 
 		return $output;
 	}
+
+
+	/**
+	 * Whether if the post type is not distibutor internal post type.
+	 *
+	 * @param string $post_type Post type
+	 *
+	 * @return bool
+	 */
+	private function not_distributor_internal_post_type( $post_type ) {
+		return 'dt_subscription' !== $post_type;
+	}
+
 
 	/**
 	 * Convert array to WP_Post object suitable for insert/update.
