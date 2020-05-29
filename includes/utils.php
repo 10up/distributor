@@ -1008,3 +1008,19 @@ function get_rest_url( $blog_id, $post_id ) {
 	 */
 	return apply_filters( 'dt_get_rest_url', $rest_url, $blog_id, $post_id );
 }
+
+/**
+ * Setup additional properties on a post object to enable them to be
+ * fetched once and manipulated by filters.
+ *
+ * @param WP_Post $post WP_Post object.
+ * @since  1.2.2
+ * @return WP_Post
+ */
+function prepare_post( $post ) {
+	$post->link  = get_permalink( $post->ID );
+	$post->meta  = prepare_meta( $post->ID );
+	$post->terms = prepare_taxonomy_terms( $post->ID );
+	$post->media = prepare_media( $post->ID );
+	return $post;
+}
