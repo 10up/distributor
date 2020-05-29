@@ -655,10 +655,10 @@ class WordPressExternalConnection extends ExternalConnection {
 
 		if ( ! empty( $response_headers['X-Distributor'] ) ) {
 			// We have Distributor on the other side
-			\Distributor\Subscriptions\create_subscription( $post_id, $remote_id, untrailingslashit( $this->base_url ), $signature );
+			\Distributor\Subscriptions\create_subscription( $post_id, $body_array['id'], untrailingslashit( $this->base_url ), $signature );
 		}
 
-		return $remote_id;
+		return $body_array['id'];
 	}
 
 	/**

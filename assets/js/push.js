@@ -185,7 +185,7 @@ jQuery( window ).on( 'load', () => {
 	 */
 	function distributorMenuEntered() {
 		distributorMenuItem.focus();
-		document.body.classList.toggle( 'distributor-show' );
+		document.body.classList.add( 'distributor-show' );
 
 		if ( distributorPushWrapper.classList.contains( 'loaded' ) ) {
 			return;
@@ -231,11 +231,21 @@ jQuery( window ).on( 'load', () => {
 	 * Handle exiting the distributor menu.
 	 */
 	function distributorMenuExited() {
+
+		if (
+			! distributorPushWrapper.classList.contains( 'message-error' )
+			&& ! distributorPushWrapper.querySelector( '.syndicated-notice' )
+		) {
+			if ( ! actionWrapper || actionWrapper.classList.contains( 'loading' ) ) {
+				return;
+			}
+		}
+
 		distributorMenuItem.blur();
-		document.body.classList.toggle( 'distributor-show' );
+		document.body.classList.remove( 'distributor-show' );
 	}
 
-	jQuery( distributorMenuItem ).hoverIntent( distributorMenuEntered, 300, distributorMenuExited );
+	jQuery( distributorMenuItem ).hoverIntent( distributorMenuEntered, distributorMenuExited, 300 );
 
 	/**
 	 * Do syndication ajax
@@ -322,8 +332,7 @@ jQuery( window ).on( 'load', () => {
 
 			selectedConnections[type + id] = dtConnections[type + id];
 
-			const element       = event.currentTarget.cloneNode();
-			element.innerText = event.currentTarget.innerText;
+			const element = event.currentTarget.cloneNode( true );
 
 			const removeLink = document.createElement( 'span' );
 			removeLink.classList.add( 'remove-connection' );
@@ -410,10 +419,10 @@ jQuery( window ).on( 'load', () => {
 	/**
 	 * Remove a connection from selected connections and the UI list
 	 */
-	jQuery( distributorPushWrapper ).on( 'click', '.remove-connection', ( event ) => {
-		event.currentTarget.parentNode.parentNode.removeChild( event.currentTarget.parentNode );
-		const type = event.currentTarget.parentNode.getAttribute( 'data-connection-type' );
-		const id   = event.currentTarget.parentNode.getAttribute( 'data-connection-id' );
+	jQuery( distributorPushWrapper ).on( 'click', '.added-connection', ( event ) => {
+		event.currentTarget.parentNode.removeChild( event.currentTarget );
+		const type = event.currentTarget.getAttribute( 'data-connection-type' );
+		const id   = event.currentTarget.getAttribute( 'data-connection-id' );
 
 		delete selectedConnections[type + id];
 

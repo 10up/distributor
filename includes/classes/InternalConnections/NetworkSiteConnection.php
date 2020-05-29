@@ -142,7 +142,7 @@ class NetworkSiteConnection extends Connection {
 			 * @return {bool} If Distributor should push the post media.
 			 */
 			if ( apply_filters( 'dt_push_post_media', true, $new_post_id, $post->media, $post_id, $args, $this ) ) {
-				Utils\set_media( $new_post_id, $post->media );
+				Utils\set_media( $new_post_id, $post->media, [ 'use_filesystem' => true ] );
 			};
 		}
 
@@ -248,7 +248,7 @@ class NetworkSiteConnection extends Connection {
 				 * @return {bool} If Distributor should set the post media.
 				 */
 				if ( apply_filters( 'dt_pull_post_media', true, $new_post_id, $post->media, $item_array['remote_post_id'], $post_array, $this ) ) {
-					\Distributor\Utils\set_media( $new_post_id, $post->media );
+					\Distributor\Utils\set_media( $new_post_id, $post->media, [ 'use_filesystem' => true ] );
 				};
 			}
 
@@ -582,6 +582,7 @@ class NetworkSiteConnection extends Connection {
 	public static function update_syndicated( $post ) {
 		$post    = get_post( $post );
 		$post_id = $post->ID;
+
 		if ( ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) || wp_is_post_revision( $post_id ) || ! current_user_can( 'edit_post', $post_id ) ) {
 			return;
 		}
