@@ -90,4 +90,27 @@ class InternalPullTest extends \TestCase {
 
 		$I->seeText( 'Test Post', '.wp-list-table .page-title' );
 	}
+
+	/**
+	 * Test searching mutilple words.
+	 * 
+	 * @link https://github.com/10up/distributor/pull/533
+	 */
+	public function testSearchMultipleWordsDuringPull() {
+		$I = $this->openBrowserPage();
+
+		$I->loginAs( 'wpsnapshots' );
+
+		$I->moveTo( 'two/wp-admin/admin.php?page=pull' );
+
+		$I->waitUntilElementVisible( '.wp-list-table' );
+
+		$I->typeInField( '#post-search-input', 'test post' );
+
+		$I->click( '#search-submit' );
+
+		$I->waitUntilElementVisible( '.wp-list-table' );
+
+		$I->dontSeeText( 'No items found.', 'table.distributor_page_pull' );
+	}
 }

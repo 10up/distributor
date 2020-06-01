@@ -45,7 +45,7 @@ Getting Started
 		}
 		```
 		
-        This is a minimal example that leaves out optional fields. See [this table](https://docs.google.com/spreadsheets/d/1eOBbW7Go2qEQXReOOCdidMTf_tDYRq4JfegcO1CBPIs/edit?usp=sharing&authkey=CK7h9toK&output=html) for a full list of supported fields and their descriptions.
+        This is a minimal example that leaves out optional fields. See [this table](https://docs.google.com/spreadsheets/d/1eOBbW7Go2qEQXReOOCdidMTf_tDYRq4JfegcO1CBPIs/edit?usp=sharing) for a full list of supported fields and their descriptions.
 	- Theme example:
 	
 		```json
@@ -106,7 +106,7 @@ By default, the library will check the specified URL for changes every 12 hours.
 	//Optional: Set the branch that contains the stable release.
 	$myUpdateChecker->setBranch('stable-branch-name');
 	```
-3. Plugins only: Add a `readme.txt` file formatted according to the [WordPress.org plugin readme standard](https://wordpress.org/plugins/about/readme.txt) to your repository. The contents of this file will be shown when the user clicks the "View version 1.2.3 details" link.
+3. Plugins only: Add a `readme.txt` file formatted according to the [WordPress.org plugin readme standard](https://wordpress.org/plugins/readme.txt) to your repository. The contents of this file will be shown when the user clicks the "View version 1.2.3 details" link.
 
 #### How to Release an Update
 
@@ -192,7 +192,7 @@ The library will pull update details from the following parts of a release/tag/b
 	//Optional: Set the branch that contains the stable release.
 	$myUpdateChecker->setBranch('stable-branch-name');
 	```
-3. Optional: Add a `readme.txt` file formatted according to the [WordPress.org plugin readme standard](https://wordpress.org/plugins/about/readme.txt) to your repository. For plugins, the contents of this file will be shown when the user clicks the "View version 1.2.3 details" link.
+3. Optional: Add a `readme.txt` file formatted according to the [WordPress.org plugin readme standard](https://wordpress.org/plugins/readme.txt) to your repository. For plugins, the contents of this file will be shown when the user clicks the "View version 1.2.3 details" link.
 
 #### How to Release an Update
 
@@ -200,7 +200,7 @@ BitBucket doesn't have an equivalent to GitHub's releases, so the process is sli
 
 - **`Stable tag` header** 
 	
-	This is the recommended approach if you're using tags to mark each version. Add a `readme.txt` file formatted according to the [WordPress.org plugin readme standard](https://wordpress.org/plugins/about/readme.txt) to your repository. Set the "stable tag" header to the tag that represents the latest release. Example:
+	This is the recommended approach if you're using tags to mark each version. Add a `readme.txt` file formatted according to the [WordPress.org plugin readme standard](https://wordpress.org/plugins/readme.txt) to your repository. Set the "stable tag" header to the tag that represents the latest release. Example:
 	```text
 	Stable tag: v1.2.3
 	```
@@ -244,15 +244,24 @@ BitBucket doesn't have an equivalent to GitHub's releases, so the process is sli
 	
 	Alternatively, if you're using a self-hosted GitLab instance, initialize the update checker like this:
 	```php
-    $myUpdateChecker = new Puc_v4p6_Vcs_PluginUpdateChecker(
-        new Puc_v4p6_Vcs_GitLabApi('https://myserver.com/user-name/repo-name/'),
+    $myUpdateChecker = new Puc_v4p9_Vcs_PluginUpdateChecker(
+        new Puc_v4p9_Vcs_GitLabApi('https://myserver.com/user-name/repo-name/'),
         __FILE__,
         'unique-plugin-or-theme-slug'
     );
    //Optional: Add setAuthentication(...) and setBranch(...) as shown above.  
    ```
-	
-3. Plugins only: Add a `readme.txt` file formatted according to the [WordPress.org plugin readme standard](https://wordpress.org/plugins/about/readme.txt) to your repository. The contents of this file will be shown when the user clicks the "View version 1.2.3 details" link.
+   If you're using a self-hosted GitLab instance and [subgroups or nested groups](https://docs.gitlab.com/ce/user/group/subgroups/index.html), you have to tell the update checker which parts of the URL are subgroups:
+   ```php
+       $myUpdateChecker = new Puc_v4p9_Vcs_PluginUpdateChecker(
+           new Puc_v4p9_Vcs_GitLabApi('https://myserver.com/group-name/subgroup-level1/subgroup-level2/subgroup-level3/repo-name/', null, 'subgroup-level1/subgroup-level2/subgroup-level3'),
+           __FILE__,
+           'unique-plugin-or-theme-slug'
+       );
+    
+   ```
+   
+3. Plugins only: Add a `readme.txt` file formatted according to the [WordPress.org plugin readme standard](https://wordpress.org/plugins/readme.txt) to your repository. The contents of this file will be shown when the user clicks the "View version 1.2.3 details" link.
 
 #### How to Release an Update
 
@@ -284,6 +293,7 @@ Resources
 
 - [This blog post](http://w-shadow.com/blog/2010/09/02/automatic-updates-for-any-plugin/) has more information about the update checker API. *Slightly out of date.*
 - [Debug Bar](https://wordpress.org/plugins/debug-bar/) - useful for testing and debugging the update checker.
+- [Update format reference](https://docs.google.com/spreadsheets/d/1eOBbW7Go2qEQXReOOCdidMTf_tDYRq4JfegcO1CBPIs/edit?usp=sharing) - describes all fields supported by the JSON-based update information format used by the update checker. Only covers plugins. Themes use a similar but more limited format.
 - [Securing download links](http://w-shadow.com/blog/2013/03/19/plugin-updates-securing-download-links/) - a general overview.
 - [A GUI for entering download credentials](http://open-tools.net/documentation/tutorial-automatic-updates.html#wordpress)
 - [Theme Update Checker](http://w-shadow.com/blog/2011/06/02/automatic-updates-for-commercial-themes/) - an older, theme-only variant of this update checker.

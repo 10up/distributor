@@ -7,26 +7,27 @@ import {
 	prependHTTP,
 } from '@wordpress/url';
 import compareVersions from 'compare-versions';
+import wp from 'wp';
 
-const externalConnectionUrlField  = document.getElementsByClassName( 'external-connection-url-field' )[0];
-const externalConnectionMetaBox   = document.getElementById( 'dt_external_connection_details' );
-const externalConnectionTypeField = document.getElementsByClassName( 'external-connection-type-field' )[0];
-const authFields                  = document.getElementsByClassName( 'auth-field' );
-const rolesAllowed                = document.getElementsByClassName( 'dt-roles-allowed' );
-const titleField                  = document.getElementById( 'title' );
-const endpointResult              = document.querySelector( '.endpoint-result' );
-const endpointErrors              = document.querySelector( '.endpoint-errors' );
-const postIdField                 = document.getElementById( 'post_ID' );
-const createConnection            = document.getElementById( 'create-connection' );
-const wpbody                      = document.getElementById( 'wpbody' );
-const externalSiteUrlField        = document.getElementById( 'dt_external_site_url' );
-const wizardError                 = document.getElementsByClassName( 'dt-wizard-error' );
-const authorizeConnectionButton   = document.getElementsByClassName( 'establish-connection-button' );
-const manualSetupButton           = document.getElementsByClassName( 'manual-setup-button' );
-let $apiVerify                    = false;
-const titlePrompt                 = document.getElementById( '#title-prompt-text' );
-const slug                        = externalConnectionTypeField.value;
-wpbody.className                  = slug;
+const [ externalConnectionUrlField ]  = document.getElementsByClassName( 'external-connection-url-field' );
+const externalConnectionMetaBox       = document.getElementById( 'dt_external_connection_details' );
+const [ externalConnectionTypeField ] = document.getElementsByClassName( 'external-connection-type-field' );
+const authFields                      = document.getElementsByClassName( 'auth-field' );
+const rolesAllowed                    = document.getElementsByClassName( 'dt-roles-allowed' );
+const titleField                      = document.getElementById( 'title' );
+const endpointResult                  = document.querySelector( '.endpoint-result' );
+const endpointErrors                  = document.querySelector( '.endpoint-errors' );
+const postIdField                     = document.getElementById( 'post_ID' );
+const createConnection                = document.getElementById( 'create-connection' );
+const wpbody                          = document.getElementById( 'wpbody' );
+const externalSiteUrlField            = document.getElementById( 'dt_external_site_url' );
+const wizardError                     = document.getElementsByClassName( 'dt-wizard-error' );
+const authorizeConnectionButton       = document.getElementsByClassName( 'establish-connection-button' );
+const manualSetupButton               = document.getElementsByClassName( 'manual-setup-button' );
+let $apiVerify                        = false;
+const titlePrompt                     = document.getElementById( '#title-prompt-text' );
+const slug                            = externalConnectionTypeField.value;
+wpbody.className                      = slug;
 
 // Prevent the `enter` key from submitting the form.
 jQuery( '#post' ).on( 'keypress', function ( e ) {
@@ -80,9 +81,9 @@ jQuery( authorizeConnectionButton ).on( 'click', ( event ) => {
 	} ).done( response => {
 		if ( ! response.success ) {
 			if (
-				response.hasOwnProperty( 'data' )
-				&& response.data.hasOwnProperty( 'rest_url' )
-				&& ! response.data.hasOwnProperty( 'version' )
+				Object.prototype.hasOwnProperty.call( response, 'data' )
+				&& Object.prototype.hasOwnProperty.call( response.data, 'rest_url' )
+				&& ! Object.prototype.hasOwnProperty.call( response.data, 'version' )
 			) {
 				jQuery( wizardError[0] ).text( dt.no_distributor );
 			} else {
@@ -171,7 +172,7 @@ function checkConnections() {
 			return;
 		}
 
-		var key = authField.getAttribute( 'data-auth-field' );
+		const key = authField.getAttribute( 'data-auth-field' );
 
 		if ( key ) {
 			auth[key] = authField.value;
@@ -202,15 +203,21 @@ function checkConnections() {
 				endpointResult.setAttribute( 'data-endpoint-state', 'error' );
 
 				if ( response.data.endpoint_suggestion ) {
-					endpointResult.innerText = dt.endpoint_suggestion + ' ';
+					endpointResult.innerText = `${ dt.endpoint_suggestion } `;
 
-					const suggestion = document.createElement( 'a' );
+					const suggestion = document.createElement( 'button' );
 					suggestion.classList.add( 'suggest' );
+					suggestion.classList.add( 'button-link' );
+					suggestion.setAttribute( 'type', 'button' );
 					suggestion.innerText = response.data.endpoint_suggestion;
 
 					endpointResult.appendChild( suggestion );
+
+					wp.a11y.speak( `${ dt.endpoint_suggestion } ${ response.data.endpoint_suggestion }`, 'polite' );
 				} else {
 					endpointResult.innerText = dt.bad_connection;
+
+					wp.a11y.speak( dt.bad_connection, 'polite' );
 				}
 			} else {
 				if ( response.data.errors.no_distributor || ! response.data.can_post.length ) {
@@ -220,9 +227,11 @@ function checkConnections() {
 					const warnings = [];
 
 					if ( response.data.errors.no_distributor ) {
-						endpointResult.innerText += ' ' + dt.no_distributor;
+						endpointResult.innerText += ` ${ dt.no_distributor }`;
+						wp.a11y.speak( `${ dt.limited_connection } ${ dt.no_distributor }`, 'polite' );
 					} else {
-						endpointResult.innerText += ' ' + dt.bad_auth;
+						endpointResult.innerText += ` ${ dt.bad_auth }`;
+						wp.a11y.speak( `${ dt.limited_connection } ${ dt.bad_auth }`, 'polite' );
 					}
 
 					warnings.push( dt.no_push );
@@ -237,6 +246,8 @@ function checkConnections() {
 				} else {
 					endpointResult.setAttribute( 'data-endpoint-state', 'valid' );
 					endpointResult.innerText = dt.good_connection;
+
+					wp.a11y.speak( dt.good_connection, 'polite' );
 				}
 			}
 		}
@@ -450,7 +461,7 @@ if ( beginAuthorize ) {
 				if ( response.success && response.data.id ) {
 
 					// The post has been saved, update the url in case the user refreshes.
-					const url = dt.admin_url + 'post.php?post=' + response.data.id  + '&action=edit';
+					const url = `${ dt.admin_url }post.php?post=${ response.data.id }&action=edit`;
 					history.pushState( {}, 'Oauth Authorize Details', url );
 
 					// Update the form field for dt_redirect_uri and post id.

@@ -90,6 +90,6 @@ class SettingsTest extends \TestCase {
 		// Verify byline is normal
 		$I->moveTo( $post_info['distributed_front_url'] );
 
-		$I->seeText( 'wpsnapshots', '.byline .author' );
+		$I->seeText( 'admin', '.byline .author' );
 	}
 }
