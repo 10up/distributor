@@ -19,6 +19,7 @@ function setup() {
 		'init',
 		function() {
 			add_action( 'rest_api_init', __NAMESPACE__ . '\register_endpoints' );
+			add_action( 'rest_api_init', __NAMESPACE__ . '\register_rest_routes' );
 
 			$post_types = get_post_types(
 				array(
@@ -129,6 +130,20 @@ function process_distributor_attributes( $post, $request, $update ) {
 }
 
 /**
+ * Register custom routes to handle distributor specific functionality.
+ */
+function register_rest_routes() {
+	register_rest_route(
+		'wp/v2',
+		'distributor/post-types-permissions',
+		array(
+			'methods'  => 'GET',
+			'callback' => __NAMESPACE__ . '\check_post_types_permissions',
+		)
+	);
+}
+
+/**
  * Filter the data requested over REST API when a post is pulled.
  *
  * @param \WP_REST_Response $response Response object.
@@ -228,7 +243,7 @@ function register_endpoints() {
 		'distributor_original_site_name',
 		array(
 			'get_callback'    => function( $post_array ) {
-				return get_bloginfo( 'name' );
+				return esc_html( get_post_meta( $post_array['id'], 'dt_original_site_name', true ) );
 			},
 			'update_callback' => function( $value, $post ) { },
 			'schema'          => array(
@@ -243,7 +258,7 @@ function register_endpoints() {
 		'distributor_original_site_url',
 		array(
 			'get_callback'    => function( $post_array ) {
-				return home_url();
+				return esc_url_raw( get_post_meta( $post_array['id'], 'dt_original_site_url', true ) );
 			},
 			'update_callback' => function( $value, $post ) { },
 			'schema'          => array(
@@ -252,4 +267,52 @@ function register_endpoints() {
 			),
 		)
 	);
+
+	// Register a distributor meta endpoint
+	register_rest_route(
+		'wp/v2',
+		'/dt_meta',
+		array(
+			'methods'  => 'GET',
+			'callback' => __NAMESPACE__ . '\distributor_meta',
+		)
+	);
+
+}
+
+/**
+ * Return plugin meta information.
+ */
+function distributor_meta() {
+	return array(
+		'version' => DT_VERSION,
+	);
+}
+
+/**
+ * Check user permissions for available post types
+ */
+function check_post_types_permissions() {
+	$types = get_post_types(
+		array(
+			'show_in_rest' => true,
+		),
+		'objects'
+	);
+
+	$response = array(
+		'can_get'  => array(),
+		'can_post' => array(),
+	);
+
+	foreach ( $types as $type ) {
+		$caps                  = $type->cap;
+		$response['can_get'][] = $type->name;
+
+		if ( current_user_can( $caps->edit_posts ) && current_user_can( $caps->create_posts ) && current_user_can( $caps->publish_posts ) ) {
+			$response['can_post'][] = $type->name;
+		}
+	}
+
+	return $response;
 }

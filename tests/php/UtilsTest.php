@@ -472,6 +472,14 @@ class UtilsTest extends TestCase {
 		);
 
 		\WP_Mock::userFunction(
+			'get_attached_file', [
+				'times'  => 1,
+				'args'   => [ $media_post->ID ],
+				'return' => '/var/www/html/wp-content/uploads/mediaitem.jpg',
+			]
+		);
+
+		\WP_Mock::userFunction(
 			'get_post_meta', [
 				'times'  => 1,
 				'args'   => [ $media_post->ID ],
@@ -552,6 +560,14 @@ class UtilsTest extends TestCase {
 		);
 
 		\WP_Mock::userFunction(
+			'get_attached_file', [
+				'times'  => 1,
+				'args'   => [ $media_post->ID ],
+				'return' => '/var/www/html/wp-content/uploads/mediaitem.jpg',
+			]
+		);
+
+		\WP_Mock::userFunction(
 			'get_post_meta', [
 				'times'  => 1,
 				'args'   => [ $media_post->ID ],
@@ -618,6 +634,19 @@ class UtilsTest extends TestCase {
 		);
 
 		\WP_Mock::userFunction(
+			'wp_parse_args', [
+				'times'  => 1,
+				'args'   => [
+					[ 'use_filesystem' => false ],
+					[ 'use_filesystem' => false ],
+				],
+				'return' => [
+					'use_filesystem' => false,
+				],
+			]
+		);
+
+		\WP_Mock::userFunction(
 			'wp_delete_attachment', [
 				'times' => 1,
 				'args'  => [ $attached_media_post->ID, true ],
@@ -643,7 +672,12 @@ class UtilsTest extends TestCase {
 		\WP_Mock::userFunction(
 			'Distributor\Utils\process_media', [
 				'times'  => 1,
-				'args'   => [ $media_item['source_url'], $post_id ],
+				'args'   => [ $media_item['source_url'], $post_id,
+					[
+						'source_file'    => $media_item['source_file'],
+						'use_filesystem' => false,
+					]
+				],
 				'return' => $new_image_id,
 			]
 		);
@@ -705,7 +739,7 @@ class UtilsTest extends TestCase {
 			]
 		);
 
-		Utils\set_media( $post_id, [ $media_item ] );
+		Utils\set_media( $post_id, [ $media_item ], [ 'use_filesystem' => false ] );
 	}
 
 	/**

@@ -34,11 +34,8 @@ function is_vip_com() {
  * @return boolean
  */
 function is_using_gutenberg( $post ) {
-	if ( empty( $post->post_content ) ) {
-		return false;
-	}
-
 	global $wp_version;
+
 	$gutenberg_available = function_exists( 'the_gutenberg_project' );
 	$version_5_plus      = version_compare( $wp_version, '5', '>=' );
 
@@ -46,17 +43,49 @@ function is_using_gutenberg( $post ) {
 		return false;
 	}
 
-	// WordPress 5.0 introduces the has_blocks function.
-	// We pass `post_content` directly because `has_blocks()`
-	// tries to retrieve a local post object, but this may be a remote post.
-	if ( function_exists( 'has_blocks' ) ) {
-		return has_blocks( $post->post_content );
-	} else {
+	$post = get_post( $post );
+
+	if ( ! $post ) {
+		return false;
+	}
+
+	if ( ! empty( $post->post_content ) ) {
+		// This duplicates the check from `use_block_editor_for_post()` as of WP 5.0.
+		// We duplicate this here to remove the $_GET['meta-box-loader'] check
+		if ( function_exists( 'use_block_editor_for_post_type' ) ) {
+			// The posts page can't be edited in the block editor.
+			if ( absint( get_option( 'page_for_posts' ) ) === $post->ID && empty( $post->post_content ) ) {
+				return false;
+			}
+
+			// Make sure this post type supports Gutenberg
+			$use_block_editor = use_block_editor_for_post_type( $post->post_type );
+
+			/** This filter is documented in wp-admin/includes/post.php */
+			return apply_filters( 'use_block_editor_for_post', $use_block_editor, $post );
+		}
+
 		// This duplicates the check from `has_blocks()` as of WP 5.2.
 		return false !== strpos( (string) $post->post_content, '<!-- wp:' );
 	}
-}
 
+	$use_block_editor = true;
+
+	if ( ! function_exists( 'is_plugin_active' ) ) {
+		require_once ABSPATH . '/wp-admin/includes/plugin.php';
+	}
+
+	if ( is_plugin_active( 'classic-editor/classic-editor.php' ) ) {
+		$use_block_editor = ( get_option( 'classic-editor-replace' ) === 'no-replace' );
+	}
+
+	if ( $use_block_editor && is_a( $post, '\WP_Post' ) && class_exists( '\Gutenberg_Ramp' ) ) {
+		$gutenberg_ramp   = \Gutenberg_Ramp::get_instance();
+		$use_block_editor = $gutenberg_ramp->gutenberg_should_load( $post );
+	}
+
+	return $use_block_editor;
+}
 
 /**
  * Get Distributor settings with defaults
@@ -558,12 +587,34 @@ function set_taxonomy_terms( $post_id, $taxonomy_terms ) {
  *
  * @param int   $post_id Post ID.
  * @param array $media Array of media posts.
+ * @param array $args Additional args for set_media.
  * @since 1.0
  */
-function set_media( $post_id, $media ) {
+function set_media( $post_id, $media, $args = [] ) {
 	$settings            = get_settings(); // phpcs:ignore
 	$current_media_posts = get_attached_media( get_allowed_mime_types(), $post_id );
 	$current_media       = [];
+
+	$args = wp_parse_args(
+		$args,
+		[
+			'use_filesystem' => false,
+		]
+	);
+
+	/**
+	 * Allow filtering of the set_media args.
+	 *
+	 * @since 1.6.0
+	 * @hook dt_set_media_args
+	 *
+	 * @param array $args    List of args.
+	 * @param int   $post_id Post ID.
+	 * @param array $media   Array of media posts.
+	 *
+	 * @return array set_media args
+	 */
+	$args = apply_filters( 'dt_set_media_args', $args, $post_id, $media );
 
 	// Create mapping so we don't create duplicates
 	foreach ( $current_media_posts as $media_post ) {
@@ -585,6 +636,8 @@ function set_media( $post_id, $media ) {
 
 	foreach ( $media as $media_item ) {
 
+		$args['source_file'] = $media_item['source_file'];
+
 		// Delete duplicate if it exists (unless filter says otherwise)
 		/**
 		 * Filter whether media should be deleted and replaced if it already exists.
@@ -602,12 +655,12 @@ function set_media( $post_id, $media ) {
 				wp_delete_attachment( $current_media[ $media_item['source_url'] ], true );
 			}
 
-			$image_id = process_media( $media_item['source_url'], $post_id );
+			$image_id = process_media( $media_item['source_url'], $post_id, $args );
 		} else {
 			if ( ! empty( $current_media[ $media_item['source_url'] ] ) ) {
 				$image_id = $current_media[ $media_item['source_url'] ];
 			} else {
-				$image_id = process_media( $media_item['source_url'], $post_id );
+				$image_id = process_media( $media_item['source_url'], $post_id, $args );
 			}
 		}
 
@@ -689,6 +742,7 @@ function format_media_post( $media_post ) {
 	$media_item['media_details'] = apply_filters( 'dt_get_media_details', wp_get_attachment_metadata( $media_post->ID ), $media_post->ID );
 	$media_item['post']          = $media_post->post_parent;
 	$media_item['source_url']    = wp_get_attachment_url( $media_post->ID );
+	$media_item['source_file']   = get_attached_file( $media_post->ID );
 	$media_item['meta']          = \Distributor\Utils\prepare_meta( $media_post->ID );
 
 	/**
@@ -708,11 +762,35 @@ function format_media_post( $media_post ) {
  * Simple function for sideloading media and returning the media id
  *
  * @param  string $url URL of media.
- * @param  int    $post_id Post ID.
+ * @param  int    $post_id Post ID that the media will be assigned to.
+ * @param  array  $args Additional args for process_media.
  * @since  1.0
  * @return int|bool
  */
-function process_media( $url, $post_id ) {
+function process_media( $url, $post_id, $args = [] ) {
+	global $wp_filesystem;
+
+	$args = wp_parse_args(
+		$args,
+		[
+			'use_filesystem' => false,
+			'source_file'    => '',
+		]
+	);
+
+	/**
+	 * Allow filtering of the process_media args.
+	 *
+	 * @since 1.6.0
+	 * @hook dt_process_media_args
+	 *
+	 * @param array  $args    List of args.
+	 * @param string $url     URL of media.
+	 * @param int    $post_id Post ID.
+	 *
+	 * @return array Process media arguments.
+	 */
+	$args = apply_filters( 'dt_process_media_args', $args, $url, $post_id );
 
 	/**
 	 * Filter allowed media extensions to be processed
@@ -759,14 +837,57 @@ function process_media( $url, $post_id ) {
 	require_once ABSPATH . 'wp-admin/includes/file.php';
 	require_once ABSPATH . 'wp-admin/includes/media.php';
 
-	// Allows to pull media from local IP addresses
-	// Uses a "magic number" for priority so we only unhook our call, just in case
-	add_filter( 'http_request_host_is_external', '__return_true', 88 );
+	$download_url          = true;
+	$source_file           = false;
+	$save_source_file_path = false;
 
-	// Download file to temp location.
-	$file_array['tmp_name'] = download_url( $url );
+	if ( $args['use_filesystem'] && isset( $args['source_file'] ) && ! empty( $args['source_file'] ) ) {
 
-	remove_filter( 'http_request_host_is_external', '__return_true', 88 );
+		$source_file = $args['source_file'];
+
+		if ( ! is_a( $wp_filesystem, 'WP_Filesystem_Base' ) ) {
+			$creds = request_filesystem_credentials( site_url() );
+			wp_filesystem( $creds );
+		}
+
+		// Copy the source file so we don't mess with the original file.
+		if ( $wp_filesystem->exists( $source_file ) ) {
+
+			$temp_name = wp_tempnam( $source_file );
+			$copied    = $wp_filesystem->copy( $source_file, $temp_name, true );
+
+			if ( $copied ) {
+
+				/**
+				 * Allow filtering whether to save the source file path.
+				 *
+				 * @since 1.6.0
+				 * @hook dt_process_media_save_source_file_path
+				 *
+				 * @param boolean $save_file Whether to save the source file path. Default `false`.
+				 *
+				 * @return boolean Whether to save the source file path or not.
+				 */
+				$save_source_file_path = apply_filters( 'dt_process_media_save_source_file_path', false );
+
+				$file_array['tmp_name'] = $temp_name;
+				$download_url           = false;
+			}
+		}
+	}
+
+	// Default for external or if a local file copy failed.
+	if ( $download_url ) {
+
+		// Allows to pull media from local IP addresses
+		// Uses a "magic number" for priority so we only unhook our call, just in case.
+		add_filter( 'http_request_host_is_external', '__return_true', 88 );
+
+		// Download file to temp location.
+		$file_array['tmp_name'] = download_url( $url );
+
+		remove_filter( 'http_request_host_is_external', '__return_true', 88 );
+	}
 
 	// If error storing temporarily, return the error.
 	if ( is_wp_error( $file_array['tmp_name'] ) ) {
@@ -790,6 +911,14 @@ function process_media( $url, $post_id ) {
 
 		return false;
 	}
+
+	// Make sure we clean up.
+	@unlink( $file_array['tmp_name'] );
+
+	if ( $save_source_file_path ) {
+		update_post_meta( $result, 'dt_original_file_path', sanitize_text_field( $source_file ) );
+	}
+
 	return (int) $result;
 }
 
@@ -841,4 +970,57 @@ function get_processed_content( $post_content ) {
 	add_filter( 'the_content', [ $wp_embed, 'autoembed' ], 8 );
 
 	return $post_content;
+}
+
+/**
+ * Gets the REST URL for a post.
+ *
+ * @param  int $blog_id The blog ID.
+ * @param  int $post_id The post ID.
+ * @return string
+ */
+function get_rest_url( $blog_id, $post_id ) {
+
+	switch_to_blog( $blog_id );
+
+	$post = get_post( $post_id );
+	if ( ! is_a( $post, '\WP_Post' ) ) {
+		restore_current_blog();
+		return apply_filters( 'dt_get_rest_url', false, $blog_id, $post_id );
+	}
+
+	$obj       = get_post_type_object( $post->post_type );
+	$rest_base = ! empty( $obj->rest_base ) ? $obj->rest_base : $obj->name;
+	$base      = sprintf( '%s/%s', 'wp/v2', $rest_base );
+
+	$rest_url = rest_url( trailingslashit( $base ) . $post->ID );
+
+	restore_current_blog();
+
+	/**
+	 * Allow filtering of the REST API URL used for pulling post contewnt,
+	 *
+	 * @since ?
+	 *
+	 * @param string $rest_url The defaukt REST URL to the post.
+	 * @param int $blog_id     The blog ID.
+	 * @param int $post_id     The post ID being retrieved.
+	 */
+	return apply_filters( 'dt_get_rest_url', $rest_url, $blog_id, $post_id );
+}
+
+/**
+ * Setup additional properties on a post object to enable them to be
+ * fetched once and manipulated by filters.
+ *
+ * @param WP_Post $post WP_Post object.
+ * @since  1.2.2
+ * @return WP_Post
+ */
+function prepare_post( $post ) {
+	$post->link  = get_permalink( $post->ID );
+	$post->meta  = prepare_meta( $post->ID );
+	$post->terms = prepare_taxonomy_terms( $post->ID );
+	$post->media = prepare_media( $post->ID );
+	return $post;
 }

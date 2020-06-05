@@ -22,9 +22,10 @@ function processWebpack( src, conf, dest, cb ) {
  * @param   {Function} cb the pipe sequence that gulp should run.
  * @returns {void}
 */
-gulp.task( 'webpack', () => {
+gulp.task( 'webpack', ( complete ) => {
 	const src = '../assets/js/*.js';
 	const conf = '../webpack.config.babel.js';
 	const dest = './dist/js';
 	processWebpack( src, conf, dest );
+	complete();
 } );

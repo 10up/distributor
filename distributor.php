@@ -108,6 +108,24 @@ require_once __DIR__ . '/includes/settings.php';
 require_once __DIR__ . '/includes/template-tags.php';
 require_once __DIR__ . '/includes/debug-info.php';
 
+// Include application passwords.
+add_action(
+	'plugins_loaded',
+	function() {
+		if ( ! class_exists( 'Application_Passwords' ) ) {
+			require_once __DIR__ . '/vendor/georgestephanis/application-passwords/application-passwords.php';
+		}
+	}
+);
+
+// Override some styles for application passwords until we can get these changes upstream.
+add_action(
+	'admin_enqueue_scripts',
+	function() {
+		wp_enqueue_style( 'dt-admin-settings', plugins_url( '/dist/css/admin.min.css', __FILE__ ), array(), DT_VERSION );
+	}
+);
+
 if ( \Distributor\Utils\is_vip_com() ) {
 	add_filter( 'dt_network_site_connection_enabled', '__return_false', 9 );
 }
