@@ -10,6 +10,7 @@ namespace Distributor\DebugInfo;
 use Distributor\Connections;
 use Distributor\ExternalConnection;
 use Distributor\InternalConnections\NetworkSiteConnection;
+use function Distributor\ExternalConnectionCPT\get_rest_url;
 
 /**
  * Setup actions and filters
@@ -189,6 +190,7 @@ function get_formatted_external_connnections() {
 
 		$data = [
 			__( 'URL', 'distributor' )                   => $external_connection->base_url,
+			__( 'Version', 'distributor' )               => get_external_connection_version( $external_connection->base_url ),
 			__( 'Status', 'distributor' )                => get_external_connection_status( $external_connection_status ),
 			__( 'Auth method', 'distributor' )           => 'wp' === $external_connection_type ? __( 'Username / Password', 'distributor' ) : __( 'WordPress.com Application', 'distributor' ),
 			__( 'Username', 'distributor' )              => $external_connection->auth_handler->username,
@@ -200,6 +202,31 @@ function get_formatted_external_connnections() {
 	}
 
 	return $output;
+}
+
+/**
+ * Get external connection version.
+ *
+ * @param string $url Remote site REST base URL.
+ *
+ * @return string Remote Distributor version.
+ */
+function get_external_connection_version( $url ) {
+	$route = trailingslashit( $url ) . 'wp/v2/dt_meta';
+
+	if ( function_exists( 'vip_safe_wp_remote_get' ) && \Distributor\Utils\is_vip_com() ) {
+		$response = vip_safe_wp_remote_get( $route, false, 3, 3, 10 );
+	} else {
+		$response = wp_remote_get( $route, [ 'timeout' => 5 ] );
+	}
+
+	$body = json_decode( wp_remote_retrieve_body( $response ), true );
+
+	if ( empty( $body['version'] ) ) {
+		return __( 'N/A', 'distributor' );
+	}
+
+	return $body['version'];
 }
 
 /**
