@@ -10,7 +10,6 @@ namespace Distributor\DebugInfo;
 use Distributor\Connections;
 use Distributor\ExternalConnection;
 use Distributor\InternalConnections\NetworkSiteConnection;
-use function Distributor\ExternalConnectionCPT\get_rest_url;
 
 /**
  * Setup actions and filters
