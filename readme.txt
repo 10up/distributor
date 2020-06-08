@@ -8,7 +8,7 @@ Stable tag: 1.5.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-Distributor makes it easy to syndicate and reuse content across your websites — whether in a single multisite or across the web.
+Distributor makes it easy to distribute and reuse content across your websites — whether in a single multisite or across the web.
 
 == Description ==
 
