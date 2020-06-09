@@ -20,7 +20,7 @@ function setup() {
 		'plugins_loaded',
 		function() {
 			add_action( 'init', __NAMESPACE__ . '\register_cpt' );
-			add_action( 'save_post', __NAMESPACE__ . '\send_notifications' );
+			add_action( 'save_post', __NAMESPACE__ . '\send_notifications', 99 );
 			add_action( 'before_delete_post', __NAMESPACE__ . '\delete_subscriptions' );
 		}
 	);
