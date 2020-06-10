@@ -440,7 +440,7 @@ function menu_button( $wp_admin_bar ) {
  * @return string Site URL.
  */
 function get_site_url_from_rest_url( $rest_url ) {
-	$_url = explode( '/', $rest_url );
+	$_url = explode( '/', untrailingslashit( $rest_url ) );
 
 	if ( count( $_url ) < 2 ) {
 		return $rest_url;

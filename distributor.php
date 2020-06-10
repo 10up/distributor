@@ -1,7 +1,7 @@
 <?php
 /**
  * Plugin Name:       Distributor
- * Description:       Makes it easy to syndicate and reuse content across your websites, whether inside of a multisite or across the web.
+ * Description:       Makes it easy to distribute and reuse content across your websites, whether inside of a multisite or across the web.
  * Version:           1.5.0
  * Author:            10up Inc.
  * Author URI:        https://distributorplugin.com
@@ -201,4 +201,3 @@ add_action(
 \Distributor\DistributedPostUI\setup();
 \Distributor\Settings\setup();
 \Distributor\DebugInfo\setup();
-

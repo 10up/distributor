@@ -869,7 +869,7 @@ msgstr ""
 
 #. Description of the plugin/theme
 msgid ""
-"Makes it easy to syndicate and reuse content across your websites, whether "
+"Makes it easy to distribute and reuse content across your websites, whether "
 "inside of a multisite or across the web."
 msgstr ""
 

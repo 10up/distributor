@@ -1,6 +1,6 @@
 {
   "name": "distributor",
-  "description": "Syndicate content to and from external websites and within multisite blogs.",
+  "description": "Distributor is a WordPress plugin that makes it easy to distribute and reuse content across your websites — whether in a single multisite or across the web.",
   "author": "Taylor Lovett, 10up",
   "scripts": {
     "build": "gulp",
