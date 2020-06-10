@@ -65,12 +65,17 @@
 
 #wpadminbar #distributor-push-wrapper .new-connections-list {
 	border: 1px solid var(--borderColor);
-	max-height: 125px;
+	max-height: 155px;
 	overflow: auto;
+
+	& .no-results {
+		margin: 0 !important;
+		padding: 0.5em;
+	}
 }
 
 #wpadminbar #distributor-push-wrapper .selected-connections-list {
-	margin-bottom: 1em;
+	margin-bottom: 0.5em;
 	max-height: 145px;
 	overflow: auto;
 }
@@ -223,6 +228,7 @@
 
 	&.selectall-connections {
 		margin-top: .5em;
+		margin-bottom: -10px; /* compensation for margin above messages div to reduce jumping */
 	}
 }
 
