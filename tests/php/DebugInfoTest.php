@@ -29,9 +29,11 @@ class DebugInfoTest extends TestCase {
 				'times'  => 1,
 				'args'   => [ \WP_Mock\Functions::type( 'array' ), \WP_Mock\Functions::type( 'array' ) ],
 				'return' => [
-					'email'         => '',
-					'valid_license' => false,
-					'license_key'   => '',
+					'email'                  => '',
+					'valid_license'          => false,
+					'license_key'            => '',
+					'override_author_byline' => true,
+					'media_handling'         => 'featured',
 				],
 			]
 		);
@@ -56,7 +58,7 @@ class DebugInfoTest extends TestCase {
 		\WP_Mock::userFunction(
 			'get_post_meta',
 			[
-				'args'   => [ \WP_Mock\Functions::type( 'object' ), 'dt_external_connection_type', true ],
+				'args'   => [ \WP_Mock\Functions::type( 'object' ), \WP_Mock\Functions::type( 'string' ), true ],
 				'return' => 'none',
 			]
 		);

@@ -339,7 +339,7 @@ function ajax_push() {
 					'time'    => time(),
 				);
 
-				$internal_push_results[ (int) $connection['id']  ] = array(
+				$internal_push_results[ (int) $connection['id'] ] = array(
 					'post_id' => (int) $remote_id,
 					'url'     => esc_url_raw( $remote_url ),
 					'date'    => date( 'F j, Y g:i a' ),

@@ -57,9 +57,11 @@ function add_debug_info( $info ) {
 	$plugin_data = get_plugin_data( WP_PLUGIN_DIR . '/' . DT_PLUGIN_FILE );
 	$text_domain = $plugin_data['TextDomain'];
 	$defaults    = [
-		'email'         => '',
-		'valid_license' => false,
-		'license_key'   => '',
+		'email'                  => '',
+		'valid_license'          => false,
+		'license_key'            => '',
+		'override_author_byline' => true,
+		'media_handling'         => 'featured',
 	];
 
 	$all_settings = wp_parse_args(
@@ -67,7 +69,7 @@ function add_debug_info( $info ) {
 		$defaults
 	);
 
-	$fields   = [
+	$fields = [
 		[
 			'label' => __( 'Version', 'distributor' ),
 			'value' => $plugin_data['Version'],
