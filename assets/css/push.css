@@ -197,6 +197,7 @@
 #wpadminbar #distributor-push-wrapper button {
 	padding: .5em 1em;
 	border-radius: 3px;
+	min-height: 0;
 
 	&.button-link {
 		margin: 0;
