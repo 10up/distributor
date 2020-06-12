@@ -339,7 +339,7 @@ function ajax_push() {
 					'time'    => time(),
 				);
 
-				$internal_push_results[ (int) $connection['id']  ] = array(
+				$internal_push_results[ (int) $connection['id'] ] = array(
 					'post_id' => (int) $remote_id,
 					'url'     => esc_url_raw( $remote_url ),
 					'date'    => date( 'F j, Y g:i a' ),
@@ -506,12 +506,9 @@ function menu_content() {
 
 				<div class="connections-selector">
 					<div>
-						<button class="button button-primary selectall-connections unavailable"><?php esc_html_e( 'Select All', 'distributor' ); ?></button>
-						<button class="button button-secondary selectno-connections unavailable"><?php esc_html_e( 'None', 'distributor' ); ?></button>
 						<# if ( 5 < _.keys( connections ).length ) { #>
 							<input type="text" id="dt-connection-search" placeholder="<?php esc_attr_e( 'Search available connections', 'distributor' ); ?>">
 						<# } #>
-
 						<div class="new-connections-list">
 							<# for ( var key in connections ) { #>
 								<button
@@ -532,11 +529,14 @@ function menu_content() {
 							<# } #>
 						</div>
 
+						<button class="button button-primary selectall-connections unavailable"><?php esc_html_e( 'Select All', 'distributor' ); ?></button>
+
 					</div>
 				</div>
 				<div class="connections-selected empty">
 					<header class="with-selected">
 						<?php esc_html_e( 'Selected connections', 'distributor' ); ?>
+						<button class="button button-link selectno-connections unavailable"><?php esc_html_e( 'Clear', 'distributor' ); ?></button>
 					</header>
 					<header class="no-selected">
 						<?php esc_html_e( 'No connections selected', 'distributor' ); ?>
