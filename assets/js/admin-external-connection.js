@@ -318,13 +318,14 @@ jQuery( externalConnectionUrlField ).on( 'blur', ( event ) => {
  *
  * @todo  separate
  */
-const passwordField   = document.getElementById( 'dt_password' );
-const usernameField   = document.getElementById( 'dt_username' );
-const changePassword  = document.querySelector( '.change-password' );
+const passwordField  = document.getElementById( 'dt_password' );
+const usernameField  = document.getElementById( 'dt_username' );
+const changePassword = document.querySelector( '.change-password' );
 
 jQuery( usernameField ).on( 'focus click', event => {
 	event.target.setAttribute( 'initial-username', event.target.value );
 } );
+
 jQuery( usernameField ).on( 'blur', event => {
 	if ( event.target.getAttribute( 'initial-username' ) === event.target.value ) {
 		return;
