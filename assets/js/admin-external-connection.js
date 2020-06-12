@@ -9,7 +9,7 @@ import {
 import compareVersions from 'compare-versions';
 import wp from 'wp';
 
-const [ externalConnectionUrlField ]  = document.getElementsByClassName( 'external-connection-url-field' );
+const externalConnectionUrlField      = document.getElementById( 'dt_external_connection_url' );
 const externalConnectionMetaBox       = document.getElementById( 'dt_external_connection_details' );
 const [ externalConnectionTypeField ] = document.getElementsByClassName( 'external-connection-type-field' );
 const authFields                      = document.getElementsByClassName( 'auth-field' );
@@ -289,7 +289,17 @@ jQuery( externalConnectionMetaBox ).on( 'click', '.suggest', ( event ) => {
 	jQuery( externalConnectionUrlField ).trigger( 'input' );
 } );
 
-jQuery( externalConnectionMetaBox ).on( 'keyup input', '.auth-field, .external-connection-url-field', _.debounce( checkConnections, 250 ) );
+jQuery( externalConnectionUrlField ).on( 'focus click', event => {
+	event.target.setAttribute( 'initial-url', event.target.value );
+} );
+
+jQuery( externalConnectionUrlField ).on( 'blur', event => {
+	if ( event.target.value.replace( /\/$/, '' ) === event.target.getAttribute( 'initial-url' ).replace( /\/$/, '' ) ) {
+		return;
+	}
+
+	checkConnections();
+} );
 
 jQuery( externalConnectionUrlField ).on( 'blur', ( event ) => {
 	if ( '' === titleField.value && '' !== event.currentTarget.value ) {
@@ -306,10 +316,12 @@ jQuery( externalConnectionUrlField ).on( 'blur', ( event ) => {
 const passwordField   = document.getElementById( 'dt_password' );
 const usernameField   = document.getElementById( 'dt_username' );
 const changePassword  = document.querySelector( '.change-password' );
-const initialUsername = usernameField.value;
 
+jQuery( usernameField ).on( 'focus click', event => {
+	event.target.setAttribute( 'initial-username', event.target.value );
+} );
 jQuery( usernameField ).on( 'blur', event => {
-	if ( initialUsername == event.target.value ) {
+	if ( event.target.getAttribute( 'initial-username' ) === event.target.value ) {
 		return;
 	}
 	if ( changePassword ) {
