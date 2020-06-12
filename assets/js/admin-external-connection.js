@@ -38,6 +38,15 @@ jQuery( '#post' ).on( 'keypress', function ( e ) {
 } );
 
 /**
+ * Handle pressing enter key on site URL field.
+ */
+jQuery( externalSiteUrlField ).on( 'keypress', function( event ) {
+	if ( 13 === event.which ) {
+		jQuery( authorizeConnectionButton ).trigger( 'click' );
+	}
+} );
+
+/**
  * Handle Setup Connection Wizard "Authorize Connection" button.
  */
 jQuery( authorizeConnectionButton ).on( 'click', ( event ) => {
