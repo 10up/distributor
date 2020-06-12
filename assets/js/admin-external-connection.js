@@ -9,6 +9,7 @@ import {
 import compareVersions from 'compare-versions';
 import wp from 'wp';
 
+const [ body ]                    = document.getElementsByTagName( 'body' );
 const externalConnectionUrlField  = document.getElementById( 'dt_external_connection_url' );
 const externalConnectionMetaBox   = document.getElementById( 'dt_external_connection_details' );
 const externalConnectionTypeField = document.getElementById( 'dt_external_connection_type' );
@@ -23,6 +24,7 @@ const wpbody                      = document.getElementById( 'wpbody' );
 const externalSiteUrlField        = document.getElementById( 'dt_external_site_url' );
 const wizardError                 = document.getElementsByClassName( 'dt-wizard-error' );
 const authorizeConnectionButton   = document.getElementsByClassName( 'establish-connection-button' );
+const beginOauthConnectionButton  = document.getElementById( 'begin-authorization' );
 const createOauthConnectionButton = document.getElementById( 'create-oauth-connection' );
 const manualSetupButton           = document.getElementsByClassName( 'manual-setup-button' );
 let $apiVerify                    = false;
@@ -32,7 +34,7 @@ wpbody.className                  = slug;
 
 // Prevent the `enter` key from submitting the form.
 jQuery( '#post' ).on( 'keypress', function ( event ) {
-	if ( 13 != event.which || wpbody.classList.contains( 'post-php' ) ) {
+	if ( 13 != event.which || body.classList.contains( 'post-php' ) ) {
 		return true;
 	}
 
@@ -41,7 +43,8 @@ jQuery( '#post' ).on( 'keypress', function ( event ) {
 	}
 
 	if ( 'wpdotcom' === jQuery( externalConnectionTypeField ).val() ) {
-		jQuery( createOauthConnectionButton ).trigger( 'click' );
+		! isHidden( beginOauthConnectionButton ) && jQuery( beginOauthConnectionButton ).trigger( 'click' );
+		! isHidden( createOauthConnectionButton ) && jQuery( createOauthConnectionButton ).trigger( 'click' );
 	}
 
 	return false;
@@ -508,4 +511,12 @@ if ( beginAuthorize ) {
 			} );
 		}
 	} );
+}
+
+/**
+ * Check if an element is hidden or not.
+ * @param {*} el Element to check.
+ */
+function isHidden( el ) {
+	return ( null === el.offsetParent );
 }
