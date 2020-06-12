@@ -303,17 +303,21 @@ jQuery( externalConnectionUrlField ).on( 'blur', ( event ) => {
  *
  * @todo  separate
  */
-const passwordField  = document.getElementById( 'dt_password' );
-const usernameField  = document.getElementById( 'dt_username' );
-const changePassword = document.querySelector( '.change-password' );
+const passwordField   = document.getElementById( 'dt_password' );
+const usernameField   = document.getElementById( 'dt_username' );
+const changePassword  = document.querySelector( '.change-password' );
+const initialUsername = usernameField.value;
 
-jQuery( usernameField ).on( 'keyup change', _.debounce( () => {
+jQuery( usernameField ).on( 'blur', event => {
+	if ( initialUsername == event.target.value ) {
+		return;
+	}
 	if ( changePassword ) {
-		passwordField.disabled       = false;
-		passwordField.value          = '';
+		passwordField.disabled = false;
+		passwordField.value = '';
 		changePassword.style.display = 'none';
 	}
-}, 250 ) );
+} );
 
 jQuery( changePassword ).on( 'click', ( event ) => {
 	event.preventDefault();
