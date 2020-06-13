@@ -326,8 +326,8 @@ jQuery( usernameField ).on( 'focus click', event => {
 	event.target.setAttribute( 'initial-username', event.target.value );
 } );
 
-jQuery( usernameField ).on( 'blur', event => {
-	if ( event.target.getAttribute( 'initial-username' ) === event.target.value ) {
+jQuery( usernameField ).on( 'keyup input', _.debounce( () => {
+	if ( usernameField.getAttribute( 'initial-username' ) === usernameField.value ) {
 		return;
 	}
 	if ( changePassword ) {
@@ -335,7 +335,11 @@ jQuery( usernameField ).on( 'blur', event => {
 		passwordField.value = '';
 		changePassword.style.display = 'none';
 	}
-} );
+}, 250 ) );
+
+jQuery( passwordField ).on( 'keyup input', _.debounce( () => {
+	checkConnections();
+}, 250 ) );
 
 jQuery( changePassword ).on( 'click', ( event ) => {
 	event.preventDefault();
