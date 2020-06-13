@@ -22,6 +22,7 @@ const createConnection                = document.getElementById( 'create-connect
 const wpbody                          = document.getElementById( 'wpbody' );
 const externalSiteUrlField            = document.getElementById( 'dt_external_site_url' );
 const wizardError                     = document.getElementsByClassName( 'dt-wizard-error' );
+const [ wizardStatus ]                = document.getElementsByClassName( 'dt-wizard-status' );
 const authorizeConnectionButton       = document.getElementsByClassName( 'establish-connection-button' );
 const manualSetupButton               = document.getElementsByClassName( 'manual-setup-button' );
 let $apiVerify                        = false;
@@ -42,6 +43,8 @@ jQuery( '#post' ).on( 'keypress', function ( e ) {
  */
 jQuery( authorizeConnectionButton ).on( 'click', ( event ) => {
 	event.preventDefault();
+
+	wizardStatus.style.display = 'block';
 
 	// Clear any previous errors.
 	jQuery( wizardError[0] ).text( '' );
@@ -79,6 +82,8 @@ jQuery( authorizeConnectionButton ).on( 'click', ( event ) => {
 			url: siteURL
 		}
 	} ).done( response => {
+		wizardStatus.style.display = 'none';
+
 		if ( ! response.success ) {
 			if (
 				Object.prototype.hasOwnProperty.call( response, 'data' )
