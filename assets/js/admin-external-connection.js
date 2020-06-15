@@ -9,32 +9,45 @@ import {
 import compareVersions from 'compare-versions';
 import wp from 'wp';
 
-const [ externalConnectionUrlField ]  = document.getElementsByClassName( 'external-connection-url-field' );
-const externalConnectionMetaBox       = document.getElementById( 'dt_external_connection_details' );
-const [ externalConnectionTypeField ] = document.getElementsByClassName( 'external-connection-type-field' );
-const authFields                      = document.getElementsByClassName( 'auth-field' );
-const rolesAllowed                    = document.getElementsByClassName( 'dt-roles-allowed' );
-const titleField                      = document.getElementById( 'title' );
-const endpointResult                  = document.querySelector( '.endpoint-result' );
-const endpointErrors                  = document.querySelector( '.endpoint-errors' );
-const postIdField                     = document.getElementById( 'post_ID' );
-const createConnection                = document.getElementById( 'create-connection' );
-const wpbody                          = document.getElementById( 'wpbody' );
-const externalSiteUrlField            = document.getElementById( 'dt_external_site_url' );
-const wizardError                     = document.getElementsByClassName( 'dt-wizard-error' );
-const authorizeConnectionButton       = document.getElementsByClassName( 'establish-connection-button' );
-const manualSetupButton               = document.getElementsByClassName( 'manual-setup-button' );
-let $apiVerify                        = false;
-const titlePrompt                     = document.getElementById( '#title-prompt-text' );
-const slug                            = externalConnectionTypeField.value;
-wpbody.className                      = slug;
+const [ body ]                    = document.getElementsByTagName( 'body' );
+const externalConnectionUrlField  = document.getElementById( 'dt_external_connection_url' );
+const externalConnectionMetaBox   = document.getElementById( 'dt_external_connection_details' );
+const externalConnectionTypeField = document.getElementById( 'dt_external_connection_type' );
+const authFields                  = document.getElementsByClassName( 'auth-field' );
+const rolesAllowed                = document.getElementsByClassName( 'dt-roles-allowed' );
+const titleField                  = document.getElementById( 'title' );
+const endpointResult              = document.querySelector( '.endpoint-result' );
+const endpointErrors              = document.querySelector( '.endpoint-errors' );
+const postIdField                 = document.getElementById( 'post_ID' );
+const createConnection            = document.getElementById( 'create-connection' );
+const wpbody                      = document.getElementById( 'wpbody' );
+const externalSiteUrlField        = document.getElementById( 'dt_external_site_url' );
+const wizardError                 = document.getElementsByClassName( 'dt-wizard-error' );
+const authorizeConnectionButton   = document.getElementsByClassName( 'establish-connection-button' );
+const beginOauthConnectionButton  = document.getElementById( 'begin-authorization' );
+const createOauthConnectionButton = document.getElementById( 'create-oauth-connection' );
+const manualSetupButton           = document.getElementsByClassName( 'manual-setup-button' );
+let $apiVerify                    = false;
+const titlePrompt                 = document.getElementById( '#title-prompt-text' );
+const slug                        = externalConnectionTypeField.value;
+wpbody.className                  = slug;
 
 // Prevent the `enter` key from submitting the form.
-jQuery( '#post' ).on( 'keypress', function ( e ) {
-	if ( 13 === e.which ) {
-		return false;
+jQuery( '#post' ).on( 'keypress', function ( event ) {
+	if ( 13 != event.which || body.classList.contains( 'post-php' ) ) {
+		return true;
 	}
-	return true;
+
+	if ( 'wp' === jQuery( externalConnectionTypeField ).val() ) {
+		jQuery( authorizeConnectionButton ).trigger( 'click' );
+	}
+
+	if ( 'wpdotcom' === jQuery( externalConnectionTypeField ).val() ) {
+		! isHidden( beginOauthConnectionButton ) && jQuery( beginOauthConnectionButton ).trigger( 'click' );
+		! isHidden( createOauthConnectionButton ) && jQuery( createOauthConnectionButton ).trigger( 'click' );
+	}
+
+	return false;
 } );
 
 /**
@@ -280,7 +293,18 @@ jQuery( externalConnectionMetaBox ).on( 'click', '.suggest', ( event ) => {
 	jQuery( externalConnectionUrlField ).trigger( 'input' );
 } );
 
-jQuery( externalConnectionMetaBox ).on( 'keyup input', '.auth-field, .external-connection-url-field', _.debounce( checkConnections, 250 ) );
+jQuery( externalConnectionUrlField ).on( 'focus click', event => {
+	event.target.setAttribute( 'initial-url', event.target.value );
+} );
+
+jQuery( externalConnectionUrlField ).on( 'keyup input', _.debounce( () => {
+	if ( externalConnectionUrlField.value.replace( /\/$/, '' ) === externalConnectionUrlField.getAttribute( 'initial-url' ).replace( /\/$/, '' ) ) {
+		return;
+	}
+
+	externalConnectionUrlField.setAttribute( 'initial-url', externalConnectionUrlField.value );
+	checkConnections();
+}, 250 ) );
 
 jQuery( externalConnectionUrlField ).on( 'blur', ( event ) => {
 	if ( '' === titleField.value && '' !== event.currentTarget.value ) {
@@ -298,12 +322,23 @@ const passwordField  = document.getElementById( 'dt_password' );
 const usernameField  = document.getElementById( 'dt_username' );
 const changePassword = document.querySelector( '.change-password' );
 
-jQuery( usernameField ).on( 'keyup change', _.debounce( () => {
+jQuery( usernameField ).on( 'focus click', event => {
+	event.target.setAttribute( 'initial-username', event.target.value );
+} );
+
+jQuery( usernameField ).on( 'keyup input', _.debounce( () => {
+	if ( usernameField.getAttribute( 'initial-username' ) === usernameField.value ) {
+		return;
+	}
 	if ( changePassword ) {
-		passwordField.disabled       = false;
-		passwordField.value          = '';
+		passwordField.disabled = false;
+		passwordField.value = '';
 		changePassword.style.display = 'none';
 	}
+}, 250 ) );
+
+jQuery( passwordField ).on( 'keyup input', _.debounce( () => {
+	checkConnections();
 }, 250 ) );
 
 jQuery( changePassword ).on( 'click', ( event ) => {
@@ -392,9 +427,8 @@ if ( 'wpdotcom' === externalConnectionTypeField.value ) {
 }
 
 // When authorization is initiated, ensure fields are non-empty.
-const createConnectionButton = document.getElementById( 'create-oauth-connection' );
-if ( createConnectionButton ) {
-	jQuery( createConnectionButton ).on( 'click', ( event ) => {
+if ( createOauthConnectionButton ) {
+	jQuery( createOauthConnectionButton ).on( 'click', ( event ) => {
 		const validateClientSecret = validateField( $clientSecret, event ),
 			validateClientId       = validateField( $clientId, event );
 		if (
@@ -482,4 +516,12 @@ if ( beginAuthorize ) {
 			} );
 		}
 	} );
+}
+
+/**
+ * Check if an element is hidden or not.
+ * @param {*} el Element to check.
+ */
+function isHidden( el ) {
+	return ( null === el.offsetParent );
 }
