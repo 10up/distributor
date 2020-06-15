@@ -17,6 +17,10 @@ use Distributor\InternalConnections\NetworkSiteConnection;
  * @since 2.0.0
  */
 function setup() {
+	if ( ! apply_filters( 'dt_debug_info_enabled', true ) ) {
+		return;
+	}
+
 	add_action(
 		'plugins_loaded',
 		function() {
