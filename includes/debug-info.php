@@ -17,17 +17,16 @@ use Distributor\InternalConnections\NetworkSiteConnection;
  * @since 2.0.0
  */
 function setup() {
-	if ( ! apply_filters( 'dt_debug_info_enabled', true ) ) {
-		return;
-	}
-
 	add_action(
-		'plugins_loaded',
+		'admin_init',
 		function() {
+			if ( ! apply_filters( 'dt_debug_info_enabled', true ) ) {
+				return;
+			}
 			add_filter( 'debug_information', __NAMESPACE__ . '\add_debug_info' );
+			add_action( 'admin_enqueue_scripts', __NAMESPACE__ . '\enqueue_scripts' );
 		}
 	);
-	add_action( 'admin_enqueue_scripts', __NAMESPACE__ . '\enqueue_scripts' );
 }
 
 /**
