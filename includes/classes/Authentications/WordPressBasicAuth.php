@@ -81,7 +81,7 @@ class WordPressBasicAuth extends Authentication {
 				</a>
 				<div class="dt-wizard-status">
 					<span class="spinner is-active"></span>
-					<span><?php esc_html_e( 'Checking the connection..', 'distributor' ); ?></span>
+					<span><?php esc_html_e( 'Checking the connection...', 'distributor' ); ?></span>
 				</div>
 				<div class="dt-wizard-error">
 				</div>
