@@ -23,13 +23,14 @@ const createConnection            = document.getElementById( 'create-connection'
 const wpbody                      = document.getElementById( 'wpbody' );
 const externalSiteUrlField        = document.getElementById( 'dt_external_site_url' );
 const wizardError                 = document.getElementsByClassName( 'dt-wizard-error' );
+const [ wizardStatus ]            = document.getElementsByClassName( 'dt-wizard-status' );
 const authorizeConnectionButton   = document.getElementsByClassName( 'establish-connection-button' );
 const beginOauthConnectionButton  = document.getElementById( 'begin-authorization' );
 const createOauthConnectionButton = document.getElementById( 'create-oauth-connection' );
 const manualSetupButton           = document.getElementsByClassName( 'manual-setup-button' );
-let $apiVerify                    = false;
 const titlePrompt                 = document.getElementById( '#title-prompt-text' );
 const slug                        = externalConnectionTypeField.value;
+let $apiVerify                    = false;
 wpbody.className                  = slug;
 
 // Prevent the `enter` key from submitting the form.
