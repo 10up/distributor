@@ -106,6 +106,7 @@ require_once __DIR__ . '/includes/syndicated-post-ui.php';
 require_once __DIR__ . '/includes/distributed-post-ui.php';
 require_once __DIR__ . '/includes/settings.php';
 require_once __DIR__ . '/includes/template-tags.php';
+require_once __DIR__ . '/includes/debug-info.php';
 
 // Include application passwords.
 add_action(
@@ -199,3 +200,4 @@ add_action(
 \Distributor\SyndicatedPostUI\setup();
 \Distributor\DistributedPostUI\setup();
 \Distributor\Settings\setup();
+\Distributor\DebugInfo\setup();
