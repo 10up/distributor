@@ -44,8 +44,6 @@ jQuery( '#post' ).on( 'keypress', function ( e ) {
 jQuery( authorizeConnectionButton ).on( 'click', ( event ) => {
 	event.preventDefault();
 
-	wizardStatus.style.display = 'block';
-
 	// Clear any previous errors.
 	jQuery( wizardError[0] ).text( '' );
 
@@ -66,6 +64,9 @@ jQuery( authorizeConnectionButton ).on( 'click', ( event ) => {
 		jQuery( wizardError[0] ).text( dt.invalid_url );
 		return false;
 	}
+
+	// Show the spinner and loading message.
+	wizardStatus.style.display = 'block';
 
 	// Remove wp-json from URL, if that was added
 	siteURL = siteURL.replace( /wp-json(\/)*/, '' );
