@@ -14,7 +14,13 @@ class BlocksTests extends \TestCase {
 	public function addContentToTestPost( $I ) {
 		$I->moveTo( '/wp-admin/post.php?post=40&action=edit' );
 
-		sleep( 3 );
+		try {
+			$I->getElement( '.editor-default-block-appender__content' );
+			$I->waitUntilElementVisible( '.editor-default-block-appender__content' );
+		} catch( \Exception $e ) {
+			$I->waitUntilElementVisible( '.block-editor-default-block-appender__content' );
+		}
+		$I->jsClick( '.editor-post-publish-button' );
 
 		$this->disableFullscreenEditor( $I );
 
@@ -29,7 +35,12 @@ class BlocksTests extends \TestCase {
 		}
 		$I->jsClick( '.editor-post-publish-button' );
 
-		sleep( 3 );
+		try {
+			$I->getElement( '.is-success' );
+			$I->waitUntilElementVisible( '.is-success' );
+		} catch( \Exception $e ) {
+			$I->waitUntilElementContainsText( 'Post updated', '.components-editor-notices__snackbar' );
+		}
 	}
 
 	/**
