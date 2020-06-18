@@ -175,7 +175,7 @@ class TestCase extends \WPAcceptance\PHPUnit\TestCase {
 	 * @param \WPAcceptance\PHPUnit\Actor $actor The actor.
 	 */
 	protected function disableFullscreenEditor( $actor ) {
-		$script = "if ( wp.data.select( 'core/edit-post' ).isFeatureActive( 'fullscreenMode' ) ) { wp.data.dispatch( 'core/edit-post' ).toggleFeature( 'fullscreenMode' ); }";
+		$script = "if ( !! wp.data && wp.data.select( 'core/edit-post' ).isFeatureActive( 'fullscreenMode' ) ) { wp.data.dispatch( 'core/edit-post' ).toggleFeature( 'fullscreenMode' ); }";
 
 		$actor->executeJavascript( $script );
 	}
