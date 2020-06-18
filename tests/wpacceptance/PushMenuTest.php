@@ -44,6 +44,8 @@ class PushMenuTest extends \TestCase {
 
 		$I->moveTo( 'wp-admin/post.php?post=40&action=edit' );
 
+		$this->disableFullscreenEditor( $I );
+
 		$I->waitUntilElementVisible( '#wp-admin-bar-distributor a' );
 
 		$this->dismissNUXTip( $I );
@@ -86,7 +88,7 @@ class PushMenuTest extends \TestCase {
 		$I->moveMouse( '#wp-admin-bar-distributor a' );
 
 		$I->click( '#wp-admin-bar-distributor a' );
-		
+
 		$I->click( '#wp-admin-bar-distributor a' );
 
 		$I->waitUntilElementVisible( '#distributor-push-wrapper .new-connections-list' );
