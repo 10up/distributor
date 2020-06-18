@@ -36,10 +36,10 @@ class BlocksTests extends \TestCase {
 		$I->jsClick( '.editor-post-publish-button' );
 
 		try {
-			$I->getElement( '.is-success' );
-			$I->waitUntilElementVisible( '.is-success' );
-		} catch( \Exception $e ) {
+			$I->getElement( '.components-editor-notices__snackbar' );
 			$I->waitUntilElementContainsText( 'Post updated', '.components-editor-notices__snackbar' );
+		} catch( \Exception $e ) {
+			$I->waitUntilElementVisible( '.is-success' );
 		}
 	}
 
