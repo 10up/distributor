@@ -14,16 +14,21 @@ class BlocksTests extends \TestCase {
 	public function addContentToTestPost( $I ) {
 		$I->moveTo( '/wp-admin/post.php?post=40&action=edit' );
 
-		$I->waitUntilElementVisible( '.editor-default-block-appender__content' );
+		sleep( 3 );
+
+		$this->disableFullscreenEditor( $I );
 
 		$this->dismissNUXTip( $I );
 		usleep( 500 );
 
-		$I->getPage()->type(  '.editor-default-block-appender__content', 'Lorem ipsum dolor sit amet.', [ 'delay' => 10 ] );
+		try {
+			$I->getPage()->type( '.block-editor-default-block-appender__content', 'Lorem ipsum dolor sit amet.', [ 'delay' => 10 ] );
+		} catch( Exception $e ) {
+			$I->getPage()->type( '.editor-default-block-appender__content', 'Lorem ipsum dolor sit amet.', [ 'delay' => 10 ] );
+		}
 		$I->jsClick( '.editor-post-publish-button' );
 
-		$I->waitUntilElementVisible( '.is-success' );
-
+		sleep( 3 );
 	}
 
 	/**
