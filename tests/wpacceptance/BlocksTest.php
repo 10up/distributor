@@ -20,7 +20,6 @@ class BlocksTests extends \TestCase {
 		} catch( \Exception $e ) {
 			$I->waitUntilElementVisible( '.block-editor-default-block-appender__content' );
 		}
-		$I->jsClick( '.editor-post-publish-button' );
 
 		$this->disableFullscreenEditor( $I );
 
@@ -47,6 +46,31 @@ class BlocksTests extends \TestCase {
 	 * Test network pushing content with blocks.
 	 */
 	public function testBlocksNetworkPushedContent() {
+		$I = $this->openBrowserPage();
+
+		$I->loginAs( 'wpsnapshots' );
+		$I->moveTo( '/wp-admin/post.php?post=40&action=edit' );
+
+		// Only test for the block editor.
+		if ( ! $this->editorHasBlocks( $I ) ) {
+			return;
+		}
+		$this->addContentToTestPost( $I );
+		$post_info = $this->pushPost( $I, 40, 2 );
+
+		// Now let's navigate to the new post
+		$I->moveTo( $post_info['distributed_edit_url'] );
+		$I->waitUntilElementVisible( '#wpadminbar' );
+
+		// Check that the blocks are intact by looking for the paragraph comment.
+		$source = $I->getPageSource();
+
+		$this->assertTrue(
+			(bool) preg_match( '<!-- wp:paragraph -->', stripslashes( $source ) ),
+			'Blocks were not pushed properly over an external connection'
+		);
+	}
+	public function testBlocksNetworkPushedContent2() {
 		$I = $this->openBrowserPage();
 
 		$I->loginAs( 'wpsnapshots' );
