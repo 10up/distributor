@@ -22,9 +22,10 @@ class BlocksTests extends \TestCase {
 		usleep( 500 );
 
 		try {
-			$I->getPage()->type( '.block-editor-default-block-appender__content', 'Lorem ipsum dolor sit amet.', [ 'delay' => 10 ] );
-		} catch( Exception $e ) {
+			$I->getElement( '.editor-default-block-appender__content' );
 			$I->getPage()->type( '.editor-default-block-appender__content', 'Lorem ipsum dolor sit amet.', [ 'delay' => 10 ] );
+		} catch( \Exception $e ) {
+			$I->getPage()->type( '.block-editor-default-block-appender__content', 'Lorem ipsum dolor sit amet.', [ 'delay' => 10 ] );
 		}
 		$I->jsClick( '.editor-post-publish-button' );
 
