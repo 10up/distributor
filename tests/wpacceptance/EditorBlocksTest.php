@@ -9,12 +9,10 @@
  * PHPUnit test class.
  */
 
-class BlocksTests extends \TestCase {
+class EditorBlocksTests extends \TestCase {
 
 	public function addContentToTestPost( $I ) {
 		$I->moveTo( '/wp-admin/post.php?post=40&action=edit' );
-
-		$I->refresh();
 
 		try {
 			$I->getElement( '.editor-default-block-appender__content' );
