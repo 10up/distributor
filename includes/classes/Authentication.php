@@ -133,7 +133,7 @@ abstract class Authentication {
 			}
 		);
 		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-			$time = date( '[d/M/Y:H:i:s]' );
+			$time = gmdate( '[d/M/Y:H:i:s]' );
 			// @codingStandardsIgnoreLine - error_log is only used when WP_DEBUG is true.
 			error_log( $time . ': ' . $error_message );
 		}
