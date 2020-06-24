@@ -380,7 +380,7 @@ class PullListTable extends \WP_List_Table {
 		$remote_get_args = [
 			'posts_per_page' => $per_page,
 			'paged'          => $current_page,
-			'post_type'      => $connection_now->pull_post_type ?: 'post',
+			'post_type'      => $connection_now->pull_post_type ? $connection_now->pull_post_type : 'post',
 			'orderby'        => 'ID', // this is because of include/exclude truncation
 			'order'          => 'DESC', // default but specifying to be safe
 		];
