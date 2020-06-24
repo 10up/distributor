@@ -10,9 +10,24 @@
       "email": "opensource@10up.com"
     }
   ],
+  "repositories": [
+    {
+        "type":"package",
+        "package": {
+          "name": "georgestephanis/application-passwords",
+          "version":"0.1.1",
+          "source": {
+              "url": "https://github.com/WordPress/application-passwords.git",
+              "type": "git",
+              "reference":"aaa502d70190d13fbc45d58ff47db1635f7dbe1c"
+            }
+        }
+    }
+  ],
   "require": {
     "php": ">=5.6",
     "yahnis-elsts/plugin-update-checker": "^4.4",
+    "georgestephanis/application-passwords": "0.1.1",
     "ext-json": "*"
   },
   "autoload": {
@@ -20,11 +35,12 @@
       "Distributor\\": "includes/classes/"
     }
   },
+
   "require-dev": {
+    "10up/wpacceptance": "dev-master",
     "10up/wp_mock": "~0.4",
     "phpunit/phpunit": "~7.5",
-    "10up/phpcs-composer": "dev-master",
-    "10up/wpacceptance": "dev-master"
+    "10up/phpcs-composer": "dev-master"
   },
   "scripts": {
     "lint": "./vendor/bin/phpcs . --runtime-set testVersion 5.6-",

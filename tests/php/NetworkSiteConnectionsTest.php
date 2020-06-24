@@ -29,6 +29,7 @@ class NetworkSiteConnectionsTest extends TestCase {
 		\WP_Mock::userFunction(
 			'get_post', [
 				'return' => (object) [
+					'ID'           => 111,
 					'post_content' => '',
 					'post_excerpt' => '',
 					'post_type'    => '',
@@ -143,6 +144,7 @@ class NetworkSiteConnectionsTest extends TestCase {
 		\WP_Mock::userFunction(
 			'get_post', [
 				'return' => (object) [
+					'ID'        => 111,
 					'post_tite' => 'My post title',
 					'meta'      => [],
 				],
@@ -269,6 +271,7 @@ class NetworkSiteConnectionsTest extends TestCase {
 		\WP_Mock::userFunction(
 			'get_post', [
 				'return' => (object) [
+					'ID'         => 111,
 					'post_title' => 'my title',
 				],
 			]
