@@ -152,6 +152,10 @@ jQuery( window ).on( 'load', () => {
 
 			connectionsNewList.innerHTML += showConnection;
 		} );
+
+		if ( '' === connectionsNewList.innerHTML ) {
+			connectionsNewList.innerHTML = '<p class="no-results">No results</p>';
+		}
 	}
 
 	/**

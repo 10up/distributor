@@ -1,14 +1,14 @@
 === Distributor ===
 Contributors: 10up
-Tags: content, distribution, syndication, management, 
+Tags: content, distribution, syndication, management,
 Requires at least: 4.7
-Tested up to: 5.3
+Tested up to: 5.4.2
 Requires PHP: 5.6
 Stable tag: 1.5.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-Distributor makes it easy to syndicate and reuse content across your websites — whether in a single multisite or across the web.
+Distributor makes it easy to distribute and reuse content across your websites — whether in a single multisite or across the web.
 
 == Description ==
 
@@ -17,7 +17,7 @@ Distributor makes it easy to syndicate and reuse content across your websites �
 * Distributor supports safe, SEO-friendly content reuse and sharing via "pushing" and "pulling".
 * While logged in and editing or viewing any single post (or custom post type) that can be distributed, a `Distributor` admin bar item will appear, that will facilitate sharing ("pushing") that content to any `connection`.
 * In the admin dashboard, a top level Distributor menu item links to the "pull" screen. Here, editors can share ("pull") content from any `connection` into the current site.
-* Content this is distributed (via Push or Pull) is connected to the original. Reposted content receives updates from the original, canonical source automatically. 
+* Content this is distributed (via Push or Pull) is connected to the original. Reposted content receives updates from the original, canonical source automatically.
 
 **Connections**
 

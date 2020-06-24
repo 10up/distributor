@@ -68,12 +68,17 @@
 
 #wpadminbar #distributor-push-wrapper .new-connections-list {
 	border: 1px solid var(--borderColor);
-	max-height: 125px;
+	max-height: 155px;
 	overflow: auto;
+
+	& .no-results {
+		margin: 0 !important;
+		padding: 0.5em;
+	}
 }
 
 #wpadminbar #distributor-push-wrapper .selected-connections-list {
-	margin-bottom: 1em;
+	margin-bottom: 0.5em;
 	max-height: 145px;
 	overflow: auto;
 }
@@ -98,13 +103,15 @@
 		display: none;
 	}
 }
-#wpadminbar #distributor-push-wrapper .selectall-connections.unavailable,
-#wpadminbar #distributor-push-wrapper .selectno-connections.unavailable {
-	opacity: .5;
+
+#wpadminbar #distributor-push-wrapper .connections-selected button.selectno-connections {
+	margin-left: 10px;
 }
+
 #wpadminbar #distributor-push-wrapper .connections-selected label {
 	color: inherit;
 }
+
 #wpadminbar #distributor-push-wrapper .connections-selected input[type="checkbox"] {
 	vertical-align: middle;
 	margin-right: 2px;
@@ -173,9 +180,9 @@
 #wpadminbar #distributor-push-wrapper input[type=text] {
 	font-size: inherit;
 	padding: 0.5278em;
-    width: 96%;
+    width: calc( 100% - 1.0556em - 2px );
 	background-color: var(--backgroundColor);
-	border: 3px solid var(--borderColor);
+	border: 2px solid var(--borderColor);
 	color: var(--fontColor);
 	margin-bottom: .5em;
 
@@ -186,17 +193,47 @@
 	&:focus {
 		color: var(--fontColor);
 		background-color: var(--backgroundColor);
-		border: 2px solid var(--borderColor);
+		border-color: color(var(--fontColor) blackness(50%));
 	}
 }
 
 #wpadminbar #distributor-push-wrapper button {
-	padding: 0 10px;
+	padding: .5em 1em;
 	border-radius: 3px;
-}
+	min-height: 0;
 
-#wpadminbar #distributor-push-wrapper .selectall-connections {
-	margin-bottom: 1em;
+	&.button-link {
+		margin: 0;
+		padding: 0;
+		box-shadow: none;
+		border: 0;
+		border-radius: 0;
+		background: none;
+		cursor: pointer;
+		text-align: left;
+		/* Mimics the default link style in common.css but brighter due to dark bg */
+		color: #00a0d2;
+		text-decoration: underline;
+		transition-property: border, background, color;
+		transition-duration: .05s;
+		transition-timing-function: ease-in-out;
+
+		&:hover {
+			color: #fff;
+			text-decoration: none;
+		}
+	}
+
+	/* avoid being overridden by themes, darker than admin due to dark bg */
+	&.button-primary:hover {
+		background-color: #005b85;
+		border-color: #005b85;
+	}
+
+	&.selectall-connections {
+		margin-top: .5em;
+		margin-bottom: -10px; /* compensation for margin above messages div to reduce jumping */
+	}
 }
 
 #wpadminbar #distributor-push-wrapper .new-connections-list > .add-connection:nth-child(odd) {
@@ -207,6 +244,7 @@
 #wpadminbar #distributor-push-wrapper .added-connection {
 	background-color: transparent;
 	border: 0;
+	border-radius: 0;
 	box-shadow: none;
 	display: block;
 	width: 100%;
@@ -221,10 +259,14 @@
 		outline: 2px solid transparent;
 		outline-offset: 0;
 	}
+
+	&:hover {
+		text-decoration: underline;
+	}
 }
 
 #wpadminbar #distributor-push-wrapper .new-connections-list .add-connection.added {
-	background-color: color(var(--backgroundColor) lightness(25%));
+	background-color: color(var(--backgroundColor) lightness(40%));
 }
 
 #wpadminbar #distributor-push-wrapper .add-connection.syndicated {
@@ -234,22 +276,34 @@
 #wpadminbar #distributor-push-wrapper .add-connection.syndicated {
 	pointer-events: none;
 	cursor: not-allowed;
-}
 
-#wpadminbar #distributor-push-wrapper .add-connection.syndicated span {
-	color: var(--borderColor);
-}
+	&:after {
+		content: "\f147";
+		font-family: dashicons;
+		color: var(--borderColor);
+	}
 
-#wpadminbar #distributor-push-wrapper .add-connection.syndicated a {
-	color: inherit;
-	text-decoration: underline;
-	float: right;
-	height: auto;
-	pointer-events: auto;
-	cursor: pointer;
+	&:hover {
+		text-decoration: none;
+	}
 
-	&:focus {
-		box-shadow: inset 0 0 0 1px #fff;
+	& span {
+		color: var(--borderColor);
+	}
+
+	& a {
+		color: inherit;
+		text-decoration: underline;
+		float: right;
+		height: auto;
+
+		&:focus {
+			box-shadow: inset 0 0 0 1px #fff;
+		}
+
+		&:hover {
+			text-decoration: none;
+		}
 	}
 }
 
@@ -258,6 +312,14 @@
 	margin-bottom: .5em;
 	cursor: normal;
 	position: relative;
+
+	&:hover {
+		text-decoration: none;
+
+		& .remove-connection:after {
+			color: #f00;
+		}
+	}
 
 	& .remove-connection {
 		cursor: pointer;
@@ -268,7 +330,7 @@
 		line-height: 19px;
 		vertical-align: middle;
 		margin-left: 6px;
-   		position: relative;
+		position: relative;
 	}
 
 	& .remove-connection:after {
