@@ -79,6 +79,10 @@ class WordPressBasicAuth extends Authentication {
 				<a href="#" class="manual-setup-button">
 					<?php esc_html_e( 'Manually Set Up Connection', 'distributor' ); ?>
 				</a>
+				<div class="dt-wizard-status">
+					<span class="spinner is-active"></span>
+					<span><?php esc_html_e( 'Checking the connection...', 'distributor' ); ?></span>
+				</div>
 				<div class="dt-wizard-error">
 				</div>
 			</p>

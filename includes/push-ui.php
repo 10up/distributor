@@ -292,7 +292,7 @@ function ajax_push() {
 
 					$external_push_results[ (int) $connection['id'] ] = array(
 						'post_id' => (int) $remote_id,
-						'date'    => date( 'F j, Y g:i a' ),
+						'date'    => gmdate( 'F j, Y g:i a' ),
 						'status'  => 'success',
 						'url'     => sprintf(
 							'%1$s/?p=%2$d',
@@ -305,7 +305,7 @@ function ajax_push() {
 				} else {
 					$external_push_results[ (int) $connection['id'] ] = array(
 						'post_id' => (int) $remote_id,
-						'date'    => date( 'F j, Y g:i a' ),
+						'date'    => gmdate( 'F j, Y g:i a' ),
 						'status'  => 'fail',
 					);
 				}
@@ -342,13 +342,13 @@ function ajax_push() {
 				$internal_push_results[ (int) $connection['id'] ] = array(
 					'post_id' => (int) $remote_id,
 					'url'     => esc_url_raw( $remote_url ),
-					'date'    => date( 'F j, Y g:i a' ),
+					'date'    => gmdate( 'F j, Y g:i a' ),
 					'status'  => 'success',
 				);
 			} else {
 				$internal_push_results[ (int) $connection['id'] ] = array(
 					'post_id' => (int) $remote_id,
-					'date'    => date( 'F j, Y g:i a' ),
+					'date'    => gmdate( 'F j, Y g:i a' ),
 					'status'  => 'fail',
 				);
 			}

@@ -9,21 +9,39 @@
  * PHPUnit test class.
  */
 
-class BlocksTests extends \TestCase {
+class EditorBlocksTests extends \TestCase {
 
 	public function addContentToTestPost( $I ) {
 		$I->moveTo( '/wp-admin/post.php?post=40&action=edit' );
 
-		$I->waitUntilElementVisible( '.editor-default-block-appender__content' );
+		try {
+			$I->getElement( '.editor-default-block-appender__content' );
+			$I->waitUntilElementVisible( '.editor-default-block-appender__content' );
+		} catch( \Exception $e ) {
+			$I->waitUntilElementVisible( '.block-editor-default-block-appender__content' );
+		}
+
+		$this->disableFullscreenEditor( $I );
 
 		$this->dismissNUXTip( $I );
+
 		usleep( 500 );
 
-		$I->getPage()->type(  '.editor-default-block-appender__content', 'Lorem ipsum dolor sit amet.', [ 'delay' => 10 ] );
+		try {
+			$I->getElement( '.editor-default-block-appender__content' );
+			$I->getPage()->type( '.editor-default-block-appender__content', 'Lorem ipsum dolor sit amet.', [ 'delay' => 10 ] );
+		} catch( \Exception $e ) {
+			$I->getPage()->type( '.block-editor-default-block-appender__content', 'Lorem ipsum dolor sit amet.', [ 'delay' => 10 ] );
+		}
+
 		$I->jsClick( '.editor-post-publish-button' );
 
-		$I->waitUntilElementVisible( '.is-success' );
-
+		try {
+			$I->getElement( '.components-editor-notices__snackbar' );
+			$I->waitUntilElementContainsText( 'Post updated', '.components-editor-notices__snackbar' );
+		} catch( \Exception $e ) {
+			$I->waitUntilElementVisible( '.is-success' );
+		}
 	}
 
 	/**

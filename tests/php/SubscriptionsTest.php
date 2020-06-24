@@ -177,6 +177,23 @@ class SubscriptionsTest extends TestCase {
 	 * @runInSeparateProcess
 	 */
 	public function test_send_notifications_none() {
+
+		$post = new \stdClass();
+		$post->ID = 1;
+
+		\WP_Mock::userFunction(
+			'get_post', [
+				'args'   => [ $post->ID ],
+				'return' => $post,
+			]
+		);
+
+		\WP_Mock::userFunction(
+			'wp_is_post_revision', [
+				'return' => false,
+			]
+		);
+
 		\WP_Mock::userFunction(
 			'current_user_can', [
 				'return' => true,
@@ -197,7 +214,7 @@ class SubscriptionsTest extends TestCase {
 			]
 		);
 
-		Subscriptions\send_notifications( 1 );
+		Subscriptions\send_notifications( $post->ID );
 
 		$this->assertConditionsMet();
 	}
@@ -215,6 +232,13 @@ class SubscriptionsTest extends TestCase {
 		$remote_post_id       = 9;
 		$target_url           = 'http://target';
 		$signature            = 'signature';
+
+		$post               = new \stdClass();
+		$post->post_content = 'content';
+		$post->post_excerpt = 'excerpt';
+		$post->post_name    = 'slug';
+		$post->post_type    = 'post';
+		$post->ID           = $post_id;
 
 		\WP_Mock::userFunction(
 			'current_user_can', [
@@ -292,15 +316,7 @@ class SubscriptionsTest extends TestCase {
 		\WP_Mock::userFunction(
 			'get_post', [
 				'args'   => [ $post_id ],
-				'return' => function() {
-					$post               = new \stdClass();
-					$post->post_content = 'content';
-					$post->post_excerpt = 'excerpt';
-					$post->post_name    = 'slug';
-					$post->post_type    = 'post';
-
-					return $post;
-				},
+				'return' => $post,
 			]
 		);
 
@@ -383,6 +399,13 @@ class SubscriptionsTest extends TestCase {
 		$target_url           = 'http://target';
 		$signature            = 'signature';
 
+		$post               = new \stdClass();
+		$post->post_content = 'content';
+		$post->post_excerpt = 'excerpt';
+		$post->post_name    = 'slug';
+		$post->post_type    = 'post';
+		$post->ID           = $post_id;
+
 		\WP_Mock::userFunction(
 			'current_user_can', [
 				'return' => true,
@@ -459,15 +482,7 @@ class SubscriptionsTest extends TestCase {
 		\WP_Mock::userFunction(
 			'get_post', [
 				'args'   => [ $post_id ],
-				'return' => function() {
-					$post               = new \stdClass();
-					$post->post_content = 'content';
-					$post->post_excerpt = 'excerpt';
-					$post->post_name    = 'slug';
-					$post->post_type    = 'post';
-
-					return $post;
-				},
+				'return' => $post,
 			]
 		);
 

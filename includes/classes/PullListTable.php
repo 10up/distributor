@@ -192,7 +192,7 @@ class PullListTable extends \WP_List_Table {
 						/* translators: %s: a human readable time */
 						$h_time = sprintf( esc_html__( '%s ago', 'distributor' ), human_time_diff( $syndicated_at ) );
 					} else {
-						$h_time = date( 'F j, Y', $syndicated_at );
+						$h_time = gmdate( 'F j, Y', $syndicated_at );
 					}
 
 					/* translators: %s: time of pull */
@@ -380,7 +380,7 @@ class PullListTable extends \WP_List_Table {
 		$remote_get_args = [
 			'posts_per_page' => $per_page,
 			'paged'          => $current_page,
-			'post_type'      => $connection_now->pull_post_type ?: 'post',
+			'post_type'      => $connection_now->pull_post_type ? $connection_now->pull_post_type : 'post',
 			'orderby'        => 'ID', // this is because of include/exclude truncation
 			'order'          => 'DESC', // default but specifying to be safe
 		];

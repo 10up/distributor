@@ -36,6 +36,8 @@ class LinkUnlinkTest extends \TestCase {
 
 			$I->waitUntilElementVisible( 'body.post-php' );;
 
+			sleep( 1 );
+
 			// I see unlinked text
 			$I->seeText( 'Originally distributed from Site One. This Post has been unlinked from the original. However, you can alwaysrestore it.View Original', '.components-notice__content' );
 
