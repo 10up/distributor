@@ -44,7 +44,7 @@ All notable changes to this project will be documented in this file, per [the Ke
 - Issue where terms/meta/etc. gets distributed when updating a previously distributed post (props [@lakrisgubben](https://github.com/lakrisgubben), [@dkotter](https://github.com/dkotter) via [#518](https://github.com/10up/distributor/pull/518))
 - Replace `has_blocks` with `use_block_editor_for_post` in `is_using_gutenberg check` (props [@johnwatkins0](https://github.com/johnwatkins0), [@dkotter](https://github.com/dkotter) via [#514](https://github.com/10up/distributor/pull/514))
 - Issue where previously distributed posts appear as distributable for External Connections (props [@madmax3365](https://github.com/madmax3365), [@avag-novembit](https://github.com/avag-novembit), [@adamsilverstein](https://github.com/adamsilverstein) via [#444](https://github.com/10up/distributor/pull/444))
-- Fixes and updates unit and acceptance tests, coding standards issues, and WordPress tested-up-to version (props [@dinhtungdu](https://github.com/dinhtungdu) via [](https://github.com/10up/distributor/pull/603))
+- Fixes and updates unit and acceptance tests, coding standards issues, and WordPress tested-up-to version (props [@dinhtungdu](https://github.com/dinhtungdu) via [#603](https://github.com/10up/distributor/pull/603))
 
 ### Security
 - Bump `websocket-extensions` from 0.1.3 to 0.1.4 (props [@dependabot](https://github.com/apps/dependabot) via [#587](https://github.com/10up/distributor/pull/587))
