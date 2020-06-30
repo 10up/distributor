@@ -207,7 +207,7 @@ This adds a post type selector when viewing the Pull Content list for both exter
 ## [1.0.0] - 2016-09-26
 - Initial closed release.
 
-[Unreleased]: https://github.com/10up/distributor/compare/master...develop
+[Unreleased]: https://github.com/10up/distributor/compare/trunk...develop
 [1.6.0]: https://github.com/10up/distributor/compare/1.5.0...1.6.0
 [1.5.0]: https://github.com/10up/distributor/compare/1.4.1...1.5.0
 [1.4.1]: https://github.com/10up/distributor/compare/1.4.0...1.4.1
@@ -228,4 +228,3 @@ This adds a post type selector when viewing the Pull Content list for both exter
 [1.2.0]: https://github.com/10up/distributor/compare/archive%2Ffeature%2Fenable-oath2...457b14
 [1.1.0]: https://github.com/10up/distributor/compare/5f68677...archive%2Ffeature%2Fenable-oath2
 [1.0.0]: https://github.com/10up/distributor/commit/5f68677da972336b6a8161c143faa456bfdbe4ef
-
