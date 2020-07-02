@@ -10,8 +10,9 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v2
-    - name: npm install and build
+    - name: Install and build
       run: |
+        composer install --no-dev
         npm install
         npm run makepot
         npm run release
