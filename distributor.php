@@ -146,6 +146,8 @@ if ( class_exists( 'Puc_v4_Factory' ) ) {
 			'distributor'
 		);
 
+		$updateChecker->getVcsApi()->enableReleaseAssets();
+
 		$updateChecker->addResultFilter(
 			function( $plugin_info, $http_response = null ) {
 				$plugin_info->icons = array(
