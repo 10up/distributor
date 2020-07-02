@@ -17,7 +17,7 @@ class DebugInfoTest extends TestCase {
 				'args'   => [ \WP_Mock\Functions::type( 'string' ) ],
 				'return' => [
 					'Name'       => 'Distributor',
-					'Version'    => '1.5.0',
+					'Version'    => '1.6.0',
 					'TextDomain' => 'distributor'
 				],
 			]
