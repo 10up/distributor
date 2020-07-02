@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Distributor 1.6.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/distributor\n"
-"POT-Creation-Date: 2020-07-02 19:46:11+00:00\n"
+"POT-Creation-Date: 2020-07-02 20:13:48+00:00\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -277,6 +277,8 @@ msgid "Could not determine remote post id."
 msgstr ""
 
 #: includes/classes/PullListTable.php:58
+#: vendor/georgestephanis/application-passwords/class.application-passwords-list-table.php:26
+#: vendor/georgestephanis/application-passwords/class.application-passwords.php:620
 msgid "Name"
 msgstr ""
 
@@ -641,6 +643,7 @@ msgstr ""
 
 #: includes/external-connection-cpt.php:568
 #: includes/external-connection-cpt.php:669
+#: vendor/georgestephanis/application-passwords/class.application-passwords.php:583
 msgid "Add New"
 msgstr ""
 
@@ -1020,6 +1023,131 @@ msgstr ""
 msgid "Distributed from"
 msgstr ""
 
+#: vendor/georgestephanis/application-passwords/class.application-passwords-list-table.php:27
+#: vendor/georgestephanis/application-passwords/class.application-passwords.php:623
+msgid "Created"
+msgstr ""
+
+#: vendor/georgestephanis/application-passwords/class.application-passwords-list-table.php:28
+#: vendor/georgestephanis/application-passwords/class.application-passwords.php:626
+msgid "Last Used"
+msgstr ""
+
+#: vendor/georgestephanis/application-passwords/class.application-passwords-list-table.php:29
+#: vendor/georgestephanis/application-passwords/class.application-passwords.php:629
+msgid "Last IP"
+msgstr ""
+
+#: vendor/georgestephanis/application-passwords/class.application-passwords-list-table.php:30
+#: vendor/georgestephanis/application-passwords/class.application-passwords-list-table.php:76
+#: vendor/georgestephanis/application-passwords/class.application-passwords.php:632
+#: vendor/georgestephanis/application-passwords/class.application-passwords.php:633
+msgid "Revoke"
+msgstr ""
+
+#: vendor/georgestephanis/application-passwords/class.application-passwords-list-table.php:96
+msgid "Revoke all application passwords"
+msgstr ""
+
+#: vendor/georgestephanis/application-passwords/class.application-passwords.php:289
+msgid ""
+"No HTTP Basic Authorization credentials were found submitted with this "
+"request."
+msgstr ""
+
+#: vendor/georgestephanis/application-passwords/class.application-passwords.php:405
+msgid "Approve Application"
+msgstr ""
+
+#: vendor/georgestephanis/application-passwords/class.application-passwords.php:437
+msgid "Authorize Application"
+msgstr ""
+
+#: vendor/georgestephanis/application-passwords/class.application-passwords.php:440
+msgid "An application would like to connect to your account."
+msgstr ""
+
+#: vendor/georgestephanis/application-passwords/class.application-passwords.php:445
+#. translators: application name.
+msgid ""
+"Would you like to give the application identifying itself as %1$s access to "
+"your account?  You should only do this if you trust the app in question."
+msgstr ""
+
+#: vendor/georgestephanis/application-passwords/class.application-passwords.php:449
+msgid ""
+"Would you like to give this application access to your account?  You should "
+"only do this if you trust the app in question."
+msgstr ""
+
+#: vendor/georgestephanis/application-passwords/class.application-passwords.php:457
+msgid "Application Title:"
+msgstr ""
+
+#: vendor/georgestephanis/application-passwords/class.application-passwords.php:458
+msgid "Name this connection&hellip;"
+msgstr ""
+
+#: vendor/georgestephanis/application-passwords/class.application-passwords.php:460
+msgid "Yes, I approve of this connection."
+msgstr ""
+
+#: vendor/georgestephanis/application-passwords/class.application-passwords.php:478
+msgid ""
+"You will be given a password to manually enter into the application in "
+"question."
+msgstr ""
+
+#: vendor/georgestephanis/application-passwords/class.application-passwords.php:484
+msgid "No, I do not approve of this connection."
+msgstr ""
+
+#: vendor/georgestephanis/application-passwords/class.application-passwords.php:501
+msgid ""
+"You will be returned to the WordPress Dashboard, and we will never speak of "
+"this again."
+msgstr ""
+
+#: vendor/georgestephanis/application-passwords/class.application-passwords.php:532
+msgid "Your New Application Password:"
+msgstr ""
+
+#: vendor/georgestephanis/application-passwords/class.application-passwords.php:572
+msgid ""
+"Due to a potential server misconfiguration, it seems that HTTP Basic "
+"Authorization may not work for the REST API on this site: `Authorization` "
+"headers are not being sent to WordPress by the web server. <a "
+"href=\"https://github.com/georgestephanis/application-passwords/wiki/Basic-"
+"Authorization-Header----Missing\">You can learn more about this problem, "
+"and a possible solution, on our GitHub Wiki.</a>"
+msgstr ""
+
+#: vendor/georgestephanis/application-passwords/class.application-passwords.php:579
+msgid "Application Passwords"
+msgstr ""
+
+#: vendor/georgestephanis/application-passwords/class.application-passwords.php:580
+msgid ""
+"Application passwords allow authentication via non-interactive systems, "
+"such as XMLRPC or the REST API, without providing your actual password. "
+"Application passwords can be easily revoked. They cannot be used for "
+"traditional logins to your website."
+msgstr ""
+
+#: vendor/georgestephanis/application-passwords/class.application-passwords.php:582
+msgid "New Application Password Name"
+msgstr ""
+
+#: vendor/georgestephanis/application-passwords/class.application-passwords.php:611
+msgid ""
+"Be sure to save this in a safe location.  You will not be able to retrieve "
+"it."
+msgstr ""
+
+#: vendor/georgestephanis/application-passwords/class.application-passwords.php:612
+msgid "Dismiss"
+msgstr ""
+
 #: vendor/yahnis-elsts/plugin-update-checker/Puc/v4p9/Plugin/Ui.php:54
 msgid "View details"
 msgstr ""
@@ -1061,6 +1189,20 @@ msgstr ""
 #: includes/classes/ExternalConnectionListTable.php:92
 msgctxt "verb"
 msgid "Trash"
+msgstr ""
+
+#: vendor/georgestephanis/application-passwords/class.application-passwords.php:431
+#: vendor/georgestephanis/application-passwords/class.application-passwords.php:605
+#. translators: application, password.
+msgctxt "application, password"
+msgid "Your new password for %1$s is: %2$s"
+msgstr ""
+
+#: vendor/georgestephanis/application-passwords/class.application-passwords.php:466
+#: vendor/georgestephanis/application-passwords/class.application-passwords.php:490
+#. translators: url.
+msgctxt "%1$s is a url"
+msgid "You will be sent to %1$s"
 msgstr ""
 
 #: vendor/yahnis-elsts/plugin-update-checker/Puc/v4p9/Plugin/Ui.php:213

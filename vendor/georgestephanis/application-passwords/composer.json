@@ -1,0 +1,47 @@
+{
+  "name": "georgestephanis/application-passwords",
+  "description": "Provide Application Passwords for WordPress core",
+  "homepage": "https://github.com/WordPress/application-passwords",
+  "keywords": [
+    "wordpress",
+    "application Ppasswords",
+    "api"
+  ],
+  "type": "wordpress-plugin",
+  "license": "GPL-2.0-or-later",
+  "authors": [
+    {
+      "name": "George Stephanis",
+      "email": "georgestephanis@automattic.com",
+      "homepage": "https://github.com/georgestephanis"
+    }
+  ],
+  "support": {
+    "issues": "https://github.com/WordPress/application-passwords/issues"
+  },
+  "config": {
+    "platform": {
+      "php": "5.6"
+    }
+  },
+  "require": {
+    "composer/installers": "~1.0"
+  },
+  "require-dev": {
+    "xwp/wp-dev-lib": "^1.2",
+    "wp-coding-standards/wpcs": "^2.1",
+    "phpunit/phpunit": "^4.8",
+    "wpsh/local": "^0.2.3"
+  },
+  "scripts": {
+    "lint-staged": [
+      "DEV_LIB_SKIP=phpunit DIFF_BASE=master SYNC_README_MD=0 ./vendor/xwp/wp-dev-lib/scripts/pre-commit"
+    ],
+    "lint-head": [
+      "DEV_LIB_SKIP=phpunit DIFF_BASE=master DIFF_HEAD=HEAD SYNC_README_MD=0 ./vendor/xwp/wp-dev-lib/scripts/pre-commit"
+    ],
+    "lint": [
+      "phpcs ."
+    ]
+  }
+}
