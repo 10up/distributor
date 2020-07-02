@@ -10,12 +10,13 @@
 @custom-media --small-screen (min-width: 480px);
 @custom-media --medium-screen (min-width: 768px);
 
-#distributor-push-wrapper {
+#distributor-push-wrapper,
+#wpadminbar #wp-admin-bar-distributor-placeholder > .ab-item {
 	display: none;
 }
 
 #wpadminbar #distributor-push-wrapper {
-	display: none;
+	display: flex;
 	font-size: 13px;
     font-weight: 400;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
@@ -42,19 +43,21 @@
 	line-height: 1.5;
 }
 
-.distributor-show #wpcontent::before {
+#wp-admin-bar-distributor.syncing > .ab-sub-wrapper {
+	display: block;
+}
+
+#wp-admin-bar-distributor.hover::before,
+#wp-admin-bar-distributor.syncing::before {
 	position: fixed;
 	top: 0;
 	left: 0;
 	right: 0;
 	bottom: 0;
 	background: rgba(0,0,0,0.6);
-	z-index: 9999;
+	z-index: -1;
 	content: '';
-}
-
-.distributor-show #wp-admin-bar-distributor #distributor-push-wrapper {
-	display: flex;
+	pointer-events: none;
 }
 
 #wpadminbar #distributor-push-wrapper .inner {
@@ -267,6 +270,11 @@
 }
 
 #wpadminbar #distributor-push-wrapper .add-connection.syndicated {
+	position: relative;
+}
+
+#wpadminbar #distributor-push-wrapper .add-connection.syndicated {
+	pointer-events: none;
 	cursor: not-allowed;
 
 	&:after {
@@ -288,7 +296,7 @@
 		text-decoration: underline;
 		float: right;
 		height: auto;
-	
+
 		&:focus {
 			box-shadow: inset 0 0 0 1px #fff;
 		}
@@ -346,9 +354,9 @@
     box-sizing: border-box;
 }
 
-#wpadminbar #distributor-push-wrapper .action-wrapper.loading .syndicate-button:after,
-#wpadminbar #distributor-push-wrapper .action-wrapper.loading .selectall-connections:after,
-#wpadminbar #distributor-push-wrapper .action-wrapper.loading .selectno-connections:after {
+#wpadminbar .syncing #distributor-push-wrapper .action-wrapper .syndicate-button:after,
+#wpadminbar .syncing #distributor-push-wrapper .action-wrapper .selectall-connections:after,
+#wpadminbar .syncing #distributor-push-wrapper .action-wrapper .selectno-connections:after {
 	content: ' ';
 	vertical-align: middle;
 	border-radius: 50%;

@@ -21,7 +21,9 @@ const processTemplate = _.memoize( ( id ) => {
 } );
 
 jQuery( window ).on( 'load', () => {
-	const distributorMenuItem     = document.querySelector( '#wp-admin-bar-distributor' );
+	const distributorAdminItem    = document.querySelector( '#wp-admin-bar-distributor > a' );
+	const distributorTopMenu      = document.querySelector( '#wp-admin-bar-distributor' );
+	const distributorMenuItem     = document.querySelector( '#wp-admin-bar-distributor #wp-admin-bar-distributor-placeholder' );
 	const distributorPushWrapper  = document.querySelector( '#distributor-push-wrapper' );
 
 	if ( ! distributorMenuItem || ! distributorPushWrapper ) {
@@ -37,7 +39,6 @@ jQuery( window ).on( 'load', () => {
 	let selectAllConnections 			= '';
 	let selectNoConnections				= '';
 	let connectionsSearchInput  		= '';
-	let actionWrapper           		= '';
 	let postStatusInput         		= '';
 	let asDraftInput            		= '';
 
@@ -53,7 +54,6 @@ jQuery( window ).on( 'load', () => {
 		selectAllConnections 		= distributorPushWrapper.querySelector( '.selectall-connections' );
 		selectNoConnections 		= distributorPushWrapper.querySelector( '.selectno-connections' );
 		connectionsSearchInput  	= document.getElementById( 'dt-connection-search' );
-		actionWrapper           	= distributorPushWrapper.querySelector( '.action-wrapper' );
 		postStatusInput         	= document.getElementById( 'dt-post-status' );
 		asDraftInput            	= document.getElementById( 'dt-as-draft' );
 
@@ -76,7 +76,7 @@ jQuery( window ).on( 'load', () => {
 		 * Disable select all button if all connections are syndicated and set variable for total connections available
 		 */
 		_.each( connectionsNewListChildren, ( element ) => {
-			if ( !element.classList.contains ( 'syndicated' ) ) {
+			if ( ! element.classList.contains ( 'syndicated' ) ) {
 				selectAllConnections.classList.remove( 'unavailable' );
 				connectionsAvailableTotal ++;
 			}
@@ -185,11 +185,10 @@ jQuery( window ).on( 'load', () => {
 	}
 
 	/**
-	 * Handle distributor push dropdown menu hover using hoverIntent.
+	 * Handle distributor push dropdown menu.
 	 */
 	function distributorMenuEntered() {
 		distributorMenuItem.focus();
-		document.body.classList.add( 'distributor-show' );
 
 		if ( distributorPushWrapper.classList.contains( 'loaded' ) ) {
 			return;
@@ -231,35 +230,26 @@ jQuery( window ).on( 'load', () => {
 		} );
 	}
 
-	/**
-	 * Handle exiting the distributor menu.
-	 */
-	function distributorMenuExited() {
-
-		if (
-			! distributorPushWrapper.classList.contains( 'message-error' )
-			&& ! distributorPushWrapper.querySelector( '.syndicated-notice' )
-		) {
-			if ( ! actionWrapper || actionWrapper.classList.contains( 'loading' ) ) {
-				return;
-			}
+	// Event listerners when to fetch distributor data.
+	distributorAdminItem.addEventListener( 'keydown', function( e ) {
+		// Pressing Enter.
+		if ( ( 13 === e.keyCode ) ) {
+			distributorMenuEntered();
 		}
+	}, false );
 
-		distributorMenuItem.blur();
-		document.body.classList.remove( 'distributor-show' );
-	}
-
-	jQuery( distributorMenuItem ).hoverIntent( distributorMenuEntered, distributorMenuExited, 300 );
+	distributorAdminItem.addEventListener( 'touchstart', distributorMenuEntered, false );
+	distributorAdminItem.addEventListener( 'mouseenter', distributorMenuEntered, false );
 
 	/**
 	 * Do syndication ajax
 	 */
 	jQuery( distributorPushWrapper ).on( 'click', '.syndicate-button', () => {
-		if ( actionWrapper.classList.contains( 'loading' ) ) {
+		if ( distributorTopMenu.classList.contains( 'syncing' ) ) {
 			return;
 		}
 
-		actionWrapper.classList.add( 'loading' );
+		distributorTopMenu.classList.add( 'syncing' );
 
 		const data = {
 			action: 'dt_push',
@@ -279,7 +269,7 @@ jQuery( window ).on( 'load', () => {
 			data: data
 		} ).done( ( response ) => {
 			setTimeout( () => {
-				actionWrapper.classList.remove( 'loading' );
+				distributorTopMenu.classList.remove( 'syncing' );
 
 				if ( ! response.data || ! response.data.results ) {
 					doError();
@@ -290,7 +280,7 @@ jQuery( window ).on( 'load', () => {
 			}, 500 );
 		} ).error( () => {
 			setTimeout( () => {
-				actionWrapper.classList.remove( 'loading' );
+				distributorTopMenu.classList.remove( 'syncing' );
 
 				doError();
 			}, 500 );
