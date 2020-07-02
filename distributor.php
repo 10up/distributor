@@ -1,8 +1,8 @@
 <?php
 /**
  * Plugin Name:       Distributor
- * Description:       Makes it easy to syndicate and reuse content across your websites, whether inside of a multisite or across the web.
- * Version:           1.5.0
+ * Description:       Makes it easy to distribute and reuse content across your websites, whether inside of a multisite or across the web.
+ * Version:           1.6.0
  * Author:            10up Inc.
  * Author URI:        https://distributorplugin.com
  * License:           GPLv2 or later
@@ -17,7 +17,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly.
 }
 
-define( 'DT_VERSION', '1.5.0-dev' );
+define( 'DT_VERSION', '1.6.0-dev' );
 define( 'DT_PLUGIN_FILE', preg_replace( '#^.*plugins/(.*)$#i', '$1', __FILE__ ) );
 
 // Define a constant if we're network activated to allow plugin to respond accordingly.
@@ -106,10 +106,25 @@ require_once __DIR__ . '/includes/syndicated-post-ui.php';
 require_once __DIR__ . '/includes/distributed-post-ui.php';
 require_once __DIR__ . '/includes/settings.php';
 require_once __DIR__ . '/includes/template-tags.php';
+require_once __DIR__ . '/includes/debug-info.php';
 
-if ( \Distributor\Utils\is_vip_com() ) {
-	add_filter( 'dt_network_site_connection_enabled', '__return_false', 9 );
-}
+// Include application passwords.
+add_action(
+	'plugins_loaded',
+	function() {
+		if ( ! class_exists( 'Application_Passwords' ) ) {
+			require_once __DIR__ . '/vendor/georgestephanis/application-passwords/application-passwords.php';
+		}
+	}
+);
+
+// Override some styles for application passwords until we can get these changes upstream.
+add_action(
+	'admin_enqueue_scripts',
+	function() {
+		wp_enqueue_style( 'dt-admin-settings', plugins_url( '/dist/css/admin.min.css', __FILE__ ), array(), DT_VERSION );
+	}
+);
 
 if ( class_exists( 'Puc_v4_Factory' ) ) {
 	/**
@@ -130,6 +145,8 @@ if ( class_exists( 'Puc_v4_Factory' ) ) {
 			__FILE__,
 			'distributor'
 		);
+
+		$updateChecker->getVcsApi()->enableReleaseAssets();
 
 		$updateChecker->addResultFilter(
 			function( $plugin_info, $http_response = null ) {
@@ -156,8 +173,11 @@ add_action(
 			 * Filter whether the network connection type is enabled. Enabled by default, return false to disable.
 			 *
 			 * @since 1.0.0
+			 * @hook dt_network_site_connection_enabled
 			 *
-			 * @param bool true Whether the network connection should be enabled.
+			 * @param {bool} true Whether the network connection should be enabled.
+			 *
+			 * @return {bool} Whether the network connection should be enabled.
 			 */
 			apply_filters( 'dt_network_site_connection_enabled', true )
 		) {
@@ -178,4 +198,4 @@ add_action(
 \Distributor\SyndicatedPostUI\setup();
 \Distributor\DistributedPostUI\setup();
 \Distributor\Settings\setup();
-
+\Distributor\DebugInfo\setup();

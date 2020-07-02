@@ -26,7 +26,7 @@ function setup() {
 			add_filter( 'admin_body_class', __NAMESPACE__ . '\add_linked_class' );
 			add_filter( 'post_row_actions', __NAMESPACE__ . '\remove_quick_edit', 10, 2 );
 
-			$post = isset( $_GET['post'] ) ? get_post( (int) $_GET['post'] ) : false;
+			$post = isset( $_GET['post'] ) ? get_post( (int) $_GET['post'] ) : false; // @codingStandardsIgnoreLine Nonce not required
 
 			if ( $post && ! \Distributor\Utils\is_using_gutenberg( $post ) ) {
 				add_action( 'do_meta_boxes', __NAMESPACE__ . '\replace_revisions_meta_box', 10, 3 );
@@ -194,7 +194,7 @@ function syndication_date( $post ) {
 	?>
 
 	<div class="misc-pub-section curtime misc-pub-curtime">
-		<span id="syndicate-time"><?php esc_html_e( 'Distributed on: ', 'distributor' ); ?><strong><?php echo esc_html( date( 'M j, Y @ h:i', ( $syndicate_time + ( get_option( 'gmt_offset' ) * HOUR_IN_SECONDS ) ) ) ); ?></strong></span>
+		<span id="syndicate-time"><?php esc_html_e( 'Distributed on: ', 'distributor' ); ?><strong><?php echo esc_html( gmdate( 'M j, Y @ h:i', ( $syndicate_time + ( get_option( 'gmt_offset' ) * HOUR_IN_SECONDS ) ) ) ); ?></strong></span>
 	</div>
 
 	<?php
@@ -292,9 +292,12 @@ function unlink() {
 		 * Filters whether the post can be unlinked.
 		 *
 		 * @since 1.0
+		 * @hook dt_allow_post_unlink
 		 *
-		 * @param bool true       Whether the post is allowed to be unlinked. Default true.
-		 * @param int  $post_id   The ID of the post attempting to be unlinked.
+		 * @param {bool} true       Whether the post is allowed to be unlinked. Default true.
+		 * @param {int}  $post_id   The ID of the post attempting to be unlinked.
+		 *
+		 * @return {bool} Whether the post is allowed to be unlinked.
 		 */
 		! apply_filters( 'dt_allow_post_unlink', true, $post_id ) ) {
 		return;
@@ -306,11 +309,12 @@ function unlink() {
 	 * Todo: Do we delete subscriptions for external posts?
 	 */
 	/**
-	 * Action fired when a post is unlinked.
+	 * Fires when a post is unlinked.
 	 *
 	 * @since 1.0
+	 * @hook dt_unlink_post
 	 *
-	 * @param int $post_id ID of the post being unlinked.
+	 * @param {int} $post_id ID of the post being unlinked.
 	 */
 	do_action( 'dt_unlink_post', $post_id );
 
@@ -382,11 +386,12 @@ function link() {
 	}
 
 	/**
-	 * Action fired when a post is linked.
+	 * Fires when a post is linked.
 	 *
 	 * @since 1.0
+	 * @hook dt_link_post
 	 *
-	 * @param int $post_id ID of the post being unlinked.
+	 * @param {int} $post_id ID of the post being linked.
 	 */
 	do_action( 'dt_link_post', $post_id );
 
@@ -449,7 +454,10 @@ function syndicated_message( $post ) {
 					/* translators: %1$s: site url, %2$s: site name */
 					echo wp_kses_post( sprintf( __( 'Distributed from <a href="%1$s">%2$s</a>.', 'distributor' ), esc_url( $post_url ), esc_html( $original_location_name ) ) );
 				?>
-				<?php if ( apply_filters( 'dt_allow_post_unlink', true, $post->ID ) ) : ?>
+				<?php
+					// Filter documented above.
+				if ( apply_filters( 'dt_allow_post_unlink', true, $post->ID ) ) :
+					?>
 					<?php /* translators: %1$s: post type name, %2$s: unlink url */ ?>
 					<span><?php echo wp_kses_post( sprintf( __( 'The original %1$s will update this version unless you <a href="%2$s">unlink from the original.</a>', 'distributor' ), esc_html( strtolower( $post_type_singular ) ), wp_nonce_url( add_query_arg( 'action', 'unlink', admin_url( sprintf( $post_type_object->_edit_link, $post->ID ) ) ), "unlink-post_{$post->ID}" ) ) ); ?></span>
 				<?php endif; ?>
@@ -572,7 +580,7 @@ function enqueue_gutenberg_edit_scripts() {
 			'postTypeSingular'     => sanitize_text_field( $post_type_singular ),
 			'postUrl'              => sanitize_text_field( $post_url ),
 			'originalSiteName'     => sanitize_text_field( $original_site_name ),
-			'syndicationTime'      => ( ! empty( $syndication_time ) ) ? esc_html( date( 'M j, Y @ h:i', ( $syndication_time + ( get_option( 'gmt_offset' ) * HOUR_IN_SECONDS ) ) ) ) : 0,
+			'syndicationTime'      => ( ! empty( $syndication_time ) ) ? esc_html( gmdate( 'M j, Y @ h:i', ( $syndication_time + ( get_option( 'gmt_offset' ) * HOUR_IN_SECONDS ) ) ) ) : 0,
 			'syndicationCount'     => $total_connections,
 			'originalLocationName' => sanitize_text_field( $original_location_name ),
 			'unlinkNonceUrl'       => wp_nonce_url( add_query_arg( 'action', 'unlink', admin_url( sprintf( $post_type_object->_edit_link, $post->ID ) ) ), "unlink-post_{$post->ID}" ),

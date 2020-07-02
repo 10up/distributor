@@ -19,9 +19,13 @@ class PushMenuTest extends \TestCase {
 
 		$I->moveTo( 'wp-admin/post.php?post=40&action=edit' );
 
+		$this->disableFullscreenEditor( $I );
+
 		$I->waitUntilElementVisible( '#wp-admin-bar-distributor a' );
 
 		$I->moveMouse( '#wp-admin-bar-distributor a' );
+
+		$I->click( '#wp-admin-bar-distributor a' );
 
 		$I->click( '#wp-admin-bar-distributor a' );
 
@@ -40,11 +44,15 @@ class PushMenuTest extends \TestCase {
 
 		$I->moveTo( 'wp-admin/post.php?post=40&action=edit' );
 
+		$this->disableFullscreenEditor( $I );
+
 		$I->waitUntilElementVisible( '#wp-admin-bar-distributor a' );
 
 		$this->dismissNUXTip( $I );
 
 		$I->moveMouse( '#wp-admin-bar-distributor a' );
+
+		$I->click( '#wp-admin-bar-distributor a' );
 
 		$I->click( '#wp-admin-bar-distributor a' );
 
@@ -60,6 +68,7 @@ class PushMenuTest extends \TestCase {
 
 		// See crossed out element
 		$I->seeElement( '#distributor-push-wrapper .new-connections-list .add-connection.syndicated[data-connection-id="2"]' );
+		$I->seeText( 'View', '#distributor-push-wrapper .new-connections-list .add-connection.syndicated[data-connection-id="2"]' );
 	}
 
 	/**
@@ -72,11 +81,15 @@ class PushMenuTest extends \TestCase {
 
 		$I->moveTo( 'wp-admin/post.php?post=40&action=edit' );
 
+		$this->disableFullscreenEditor( $I );
+
 		$I->waitUntilElementVisible( '#wp-admin-bar-distributor a' );
 
 		$this->dismissNUXTip( $I );
 
 		$I->moveMouse( '#wp-admin-bar-distributor a' );
+
+		$I->click( '#wp-admin-bar-distributor a' );
 
 		$I->click( '#wp-admin-bar-distributor a' );
 

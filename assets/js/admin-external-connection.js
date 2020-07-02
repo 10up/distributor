@@ -1,17 +1,168 @@
 import jQuery from 'jquery';
 import _ from 'underscores';
 import { dt, ajaxurl } from 'window';
+import {
+	addQueryArgs,
+	isURL,
+	prependHTTP,
+} from '@wordpress/url';
+import compareVersions from 'compare-versions';
+import wp from 'wp';
 
-const externalConnectionUrlField  = document.getElementsByClassName( 'external-connection-url-field' )[0];
+const [ body ]                    = document.getElementsByTagName( 'body' );
+const externalConnectionUrlField  = document.getElementById( 'dt_external_connection_url' );
 const externalConnectionMetaBox   = document.getElementById( 'dt_external_connection_details' );
-const externalConnectionTypeField = document.getElementsByClassName( 'external-connection-type-field' )[0];
+const externalConnectionTypeField = document.getElementById( 'dt_external_connection_type' );
 const authFields                  = document.getElementsByClassName( 'auth-field' );
 const rolesAllowed                = document.getElementsByClassName( 'dt-roles-allowed' );
 const titleField                  = document.getElementById( 'title' );
 const endpointResult              = document.querySelector( '.endpoint-result' );
 const endpointErrors              = document.querySelector( '.endpoint-errors' );
 const postIdField                 = document.getElementById( 'post_ID' );
+const createConnection            = document.getElementById( 'create-connection' );
+const wpbody                      = document.getElementById( 'wpbody' );
+const externalSiteUrlField        = document.getElementById( 'dt_external_site_url' );
+const wizardError                 = document.getElementsByClassName( 'dt-wizard-error' );
+const [ wizardStatus ]            = document.getElementsByClassName( 'dt-wizard-status' );
+const authorizeConnectionButton   = document.getElementsByClassName( 'establish-connection-button' );
+const beginOauthConnectionButton  = document.getElementById( 'begin-authorization' );
+const createOauthConnectionButton = document.getElementById( 'create-oauth-connection' );
+const manualSetupButton           = document.getElementsByClassName( 'manual-setup-button' );
+const titlePrompt                 = document.getElementById( '#title-prompt-text' );
+const slug                        = externalConnectionTypeField.value;
 let $apiVerify                    = false;
+wpbody.className                  = slug;
+
+// Prevent the `enter` key from submitting the form.
+jQuery( '#post' ).on( 'keypress', function ( event ) {
+	if ( 13 != event.which || body.classList.contains( 'post-php' ) ) {
+		return true;
+	}
+
+	if ( 'wp' === jQuery( externalConnectionTypeField ).val() ) {
+		jQuery( authorizeConnectionButton ).trigger( 'click' );
+	}
+
+	if ( 'wpdotcom' === jQuery( externalConnectionTypeField ).val() ) {
+		! isHidden( beginOauthConnectionButton ) && jQuery( beginOauthConnectionButton ).trigger( 'click' );
+		! isHidden( createOauthConnectionButton ) && jQuery( createOauthConnectionButton ).trigger( 'click' );
+	}
+
+	return false;
+} );
+
+/**
+ * Handle Setup Connection Wizard "Authorize Connection" button.
+ */
+jQuery( authorizeConnectionButton ).on( 'click', ( event ) => {
+	event.preventDefault();
+
+	// Clear any previous errors.
+	jQuery( wizardError[0] ).text( '' );
+
+	// Verify Title and Site URL fields are non-empty.
+	const validateTitle = validateField( jQuery( titleField ), event );
+	const validateURL   = validateField( jQuery( externalSiteUrlField ), event );
+
+	if (
+		! validateTitle ||
+		! validateURL
+	) {
+		event.preventDefault();
+		return false;
+	}
+
+	let siteURL = prependHTTP( externalSiteUrlField.value );
+	if ( ! isURL( siteURL ) ) {
+		jQuery( wizardError[0] ).text( dt.invalid_url );
+		return false;
+	}
+
+	// Show the spinner and loading message.
+	wizardStatus.style.display = 'block';
+
+	// Remove wp-json from URL, if that was added
+	siteURL = siteURL.replace( /wp-json(\/)*/, '' );
+
+	// Ensure URL ends with trailing slash
+	siteURL = siteURL.replace( /\/?$/, '/' );
+
+	jQuery.ajax( {
+		url: ajaxurl,
+		method: 'post',
+		data: {
+			nonce: dt.nonce,
+			action: 'dt_get_remote_info',
+			url: siteURL
+		}
+	} ).done( response => {
+		wizardStatus.style.display = 'none';
+
+		if ( ! response.success ) {
+			if (
+				Object.prototype.hasOwnProperty.call( response, 'data' )
+				&& Object.prototype.hasOwnProperty.call( response.data, 'rest_url' )
+				&& ! Object.prototype.hasOwnProperty.call( response.data, 'version' )
+			) {
+				jQuery( wizardError[0] ).text( dt.no_distributor );
+			} else {
+				jQuery( wizardError[0] ).text( dt.noconnection );
+			}
+
+			return;
+		}
+
+		// Remove -dev from the version number, if running from the develop branch
+		const version = response.data.version.replace( /-dev/, '' );
+
+		// Requires Distributor version 1.6.0.
+		if ( compareVersions.compare( version, '1.6.0', '<' ) ) {
+			jQuery( wizardError[0] ).text( dt.minversion );
+			return;
+		}
+
+		const successURL = addQueryArgs( document.location.href,
+			{
+				setupStatus: 'success',
+				titleField: titleField.value,
+				externalSiteUrlField: siteURL,
+				restRoot: response.data.rest_url,
+			}
+		);
+
+		const failureURL = addQueryArgs( document.location.href,
+			{
+				setupStatus: 'failure'
+			}
+		);
+
+		const authURL = addQueryArgs(
+			`${ siteURL }wp-admin/admin.php`,
+			{
+				page: 'auth_app',
+				app_name: dt.distributor_from, /*eslint camelcase: 0*/
+				success_url: encodeURI( successURL ), /*eslint camelcase: 0*/
+				reject_url:  encodeURI( failureURL ), /*eslint camelcase: 0*/
+			}
+		);
+		document.location = authURL;
+	} );
+
+	return false;
+} );
+
+/**
+ * Handle Manual Setup Connection button.
+ *
+ * This hides the wizard box and shows the
+ * default fields.
+ */
+jQuery( manualSetupButton ).on( 'click', ( event ) => {
+	event.preventDefault();
+
+	jQuery( '.external-connection-wizard' ).hide();
+	jQuery( '.external-connection-setup, .hide-until-authed' ).show();
+} );
 
 /**
  * Check the external connection.
@@ -24,7 +175,6 @@ function checkConnections() {
 	if ( '' === externalConnectionUrlField.value ) {
 		endpointErrors.innerText = '';
 		endpointResult.innerText = '';
-
 		endpointResult.removeAttribute( 'data-endpoint-state' );
 		return;
 	}
@@ -41,7 +191,7 @@ function checkConnections() {
 			return;
 		}
 
-		var key = authField.getAttribute( 'data-auth-field' );
+		const key = authField.getAttribute( 'data-auth-field' );
 
 		if ( key ) {
 			auth[key] = authField.value;
@@ -72,15 +222,21 @@ function checkConnections() {
 				endpointResult.setAttribute( 'data-endpoint-state', 'error' );
 
 				if ( response.data.endpoint_suggestion ) {
-					endpointResult.innerText = dt.endpoint_suggestion + ' ';
+					endpointResult.innerText = `${ dt.endpoint_suggestion } `;
 
-					const suggestion = document.createElement( 'a' );
+					const suggestion = document.createElement( 'button' );
 					suggestion.classList.add( 'suggest' );
+					suggestion.classList.add( 'button-link' );
+					suggestion.setAttribute( 'type', 'button' );
 					suggestion.innerText = response.data.endpoint_suggestion;
 
 					endpointResult.appendChild( suggestion );
+
+					wp.a11y.speak( `${ dt.endpoint_suggestion } ${ response.data.endpoint_suggestion }`, 'polite' );
 				} else {
 					endpointResult.innerText = dt.bad_connection;
+
+					wp.a11y.speak( dt.bad_connection, 'polite' );
 				}
 			} else {
 				if ( response.data.errors.no_distributor || ! response.data.can_post.length ) {
@@ -90,9 +246,11 @@ function checkConnections() {
 					const warnings = [];
 
 					if ( response.data.errors.no_distributor ) {
-						endpointResult.innerText += ' ' + dt.no_distributor;
+						endpointResult.innerText += ` ${ dt.no_distributor }`;
+						wp.a11y.speak( `${ dt.limited_connection } ${ dt.no_distributor }`, 'polite' );
 					} else {
-						endpointResult.innerText += ' ' + dt.bad_auth;
+						endpointResult.innerText += ` ${ dt.bad_auth }`;
+						wp.a11y.speak( `${ dt.limited_connection } ${ dt.bad_auth }`, 'polite' );
 					}
 
 					warnings.push( dt.no_push );
@@ -107,6 +265,8 @@ function checkConnections() {
 				} else {
 					endpointResult.setAttribute( 'data-endpoint-state', 'valid' );
 					endpointResult.innerText = dt.good_connection;
+
+					wp.a11y.speak( dt.good_connection, 'polite' );
 				}
 			}
 		}
@@ -115,7 +275,22 @@ function checkConnections() {
 	} );
 }
 
+// Initialize after load.
 setTimeout( () => {
+	// Repopulate fields on wizard flow.
+	const { wizard_return } = dt;
+
+	if ( wizard_return ) {
+		if ( '' === titleField.value ) {
+			jQuery( titleField ).val( wizard_return.titleField ).focus().blur();
+			jQuery( titlePrompt ).empty();
+		}
+		jQuery( usernameField ).val( wizard_return.user_login );
+		jQuery( passwordField ).val( wizard_return.password );
+		jQuery( externalConnectionUrlField ).val( wizard_return.restRoot );
+		wpbody.className = 'wizard-return';
+		createConnection.click();
+	}
 	checkConnections();
 }, 300 );
 
@@ -124,7 +299,18 @@ jQuery( externalConnectionMetaBox ).on( 'click', '.suggest', ( event ) => {
 	jQuery( externalConnectionUrlField ).trigger( 'input' );
 } );
 
-jQuery( externalConnectionMetaBox ).on( 'keyup input', '.auth-field, .external-connection-url-field', _.debounce( checkConnections, 250 ) );
+jQuery( externalConnectionUrlField ).on( 'focus click', event => {
+	event.target.setAttribute( 'initial-url', event.target.value );
+} );
+
+jQuery( externalConnectionUrlField ).on( 'keyup input', _.debounce( () => {
+	if ( externalConnectionUrlField.value.replace( /\/$/, '' ) === externalConnectionUrlField.getAttribute( 'initial-url' ).replace( /\/$/, '' ) ) {
+		return;
+	}
+
+	externalConnectionUrlField.setAttribute( 'initial-url', externalConnectionUrlField.value );
+	checkConnections();
+}, 250 ) );
 
 jQuery( externalConnectionUrlField ).on( 'blur', ( event ) => {
 	if ( '' === titleField.value && '' !== event.currentTarget.value ) {
@@ -142,12 +328,23 @@ const passwordField  = document.getElementById( 'dt_password' );
 const usernameField  = document.getElementById( 'dt_username' );
 const changePassword = document.querySelector( '.change-password' );
 
-jQuery( usernameField ).on( 'keyup change', _.debounce( () => {
+jQuery( usernameField ).on( 'focus click', event => {
+	event.target.setAttribute( 'initial-username', event.target.value );
+} );
+
+jQuery( usernameField ).on( 'keyup input', _.debounce( () => {
+	if ( usernameField.getAttribute( 'initial-username' ) === usernameField.value ) {
+		return;
+	}
 	if ( changePassword ) {
-		passwordField.disabled       = false;
-		passwordField.value          = '';
+		passwordField.disabled = false;
+		passwordField.value = '';
 		changePassword.style.display = 'none';
 	}
+}, 250 ) );
+
+jQuery( passwordField ).on( 'keyup input', _.debounce( () => {
+	checkConnections();
 }, 250 ) );
 
 jQuery( changePassword ).on( 'click', ( event ) => {
@@ -195,7 +392,6 @@ jQuery( rolesAllowed ).on( 'click', '.dt-role-checkbox', ( event ) => {
  * Creates a cleaner flow for authorization by separating the authorization steps.
  */
 const $hideUntilAuthed = jQuery( '.hide-until-authed' ),
-	$authCredentials = jQuery( '.auth-credentials' ),
 	$clientSecret    = jQuery( document.getElementById( 'dt_client_secret' ) ),
 	$clientId        = jQuery( document.getElementById( 'dt_client_id' ) ),
 	hideItemsRequiringAuth = () => {
@@ -227,17 +423,7 @@ const $hideUntilAuthed = jQuery( '.hide-until-authed' ),
 jQuery( externalConnectionTypeField ).on( 'change', () => {
 	const slug = externalConnectionTypeField.value;
 
-	$authCredentials.hide();
-	jQuery( '.auth-credentials.' + slug ).show();
-
-	// For WordPress.com Oauth authentication, hide fields until authentication is complete.
-	if ( 'wpdotcom' === slug ) {
-		hideItemsRequiringAuth();
-	} else {
-
-		// Otherwise, ensure all areas are showing.
-		$hideUntilAuthed.show();
-	}
+	wpbody.className = slug;
 } );
 
 
@@ -247,11 +433,10 @@ if ( 'wpdotcom' === externalConnectionTypeField.value ) {
 }
 
 // When authorization is initiated, ensure fields are non-empty.
-const createConnectionButton = document.getElementById( 'create-oauth-connection' );
-if ( createConnectionButton ) {
-	jQuery( createConnectionButton ).on( 'click', ( event ) => {
+if ( createOauthConnectionButton ) {
+	jQuery( createOauthConnectionButton ).on( 'click', ( event ) => {
 		const validateClientSecret = validateField( $clientSecret, event ),
-			validateClientId     = validateField( $clientId, event );
+			validateClientId       = validateField( $clientId, event );
 		if (
 			! validateClientSecret ||
 			! validateClientId
@@ -316,7 +501,7 @@ if ( beginAuthorize ) {
 				if ( response.success && response.data.id ) {
 
 					// The post has been saved, update the url in case the user refreshes.
-					const url = dt.admin_url + 'post.php?post=' + response.data.id  + '&action=edit';
+					const url = `${ dt.admin_url }post.php?post=${ response.data.id }&action=edit`;
 					history.pushState( {}, 'Oauth Authorize Details', url );
 
 					// Update the form field for dt_redirect_uri and post id.
@@ -337,4 +522,12 @@ if ( beginAuthorize ) {
 			} );
 		}
 	} );
+}
+
+/**
+ * Check if an element is hidden or not.
+ * @param {*} el Element to check.
+ */
+function isHidden( el ) {
+	return ( null === el.offsetParent );
 }

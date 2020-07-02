@@ -14,9 +14,10 @@
 		}
 	],
 	"require": {
-		"php": ">=5.2.0"
+		"php": ">=5.2.0",
+		"ext-json": "*"
 	},
 	"autoload": {
-		"files": ["plugin-update-checker.php"]
+		"files": ["load-v4p9.php"]
 	}
 }
