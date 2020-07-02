@@ -10,6 +10,7 @@ gulp.task( 'copy', (done) => {
 
 	gulp.src(
 		[
+			'readme.txt',
 			'README.md',
 			'CHANGELOG.md',
 			'composer.json',

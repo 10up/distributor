@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file, per [the Ke
 
 ## [Unreleased] - TBD
 
-## [1.6.0] - TBD
+## [1.6.0] - 2020-07-02
 ### Added
 - Authorization Setup Wizard for External Connections leveraging [Application Passwords](https://github.com/WordPress/application-passwords) (props [@adamsilverstein](https://github.com/adamsilverstein), [@dkotter](https://github.com/dkotter), [@dinhtungdu](https://github.com/dinhtungdu), [@helen](https://github.com/helen), [@jeffpaul](https://github.com/jeffpaul), [@hearvox](https://github.com/hearvox) via [#368](https://github.com/10up/distributor/pull/368), [#594](https://github.com/10up/distributor/pull/594), [#601](https://github.com/10up/distributor/pull/601))
 - "Select All" and "Clear" options in the Push menu (props [@biggiebangle](https://github.com/biggiebangle), [@dkotter](https://github.com/dkotter), [@oszkarnagy](https://github.com/oszkarnagy), [@helen](https://github.com/helen) via [#495](https://github.com/10up/distributor/pull/495), [#589](https://github.com/10up/distributor/pull/589))
