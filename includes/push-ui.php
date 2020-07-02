@@ -34,7 +34,14 @@ function setup() {
  * @return  bool
  */
 function syndicatable() {
-	if ( ! is_user_logged_in() || ! current_user_can( 'edit_posts' ) ) {
+	/**
+	 * Filter Distributor capabilities allowed to syndicate content.
+	 *
+	 * @hook dt_syndicatable_capabilities
+	 *
+	 * @param string edit_posts The capability allowed to syndicate content.
+	 */
+	if ( ! is_user_logged_in() || ! current_user_can( apply_filters( 'dt_syndicatable_capabilities', 'edit_posts' ) ) ) {
 		return false;
 	}
 
@@ -160,6 +167,16 @@ function get_connections() {
 		}
 
 		// If not admin lets make sure the current user can push to this connection
+		/**
+		 * Filter Distributor capabilities allowed to push content.
+		 *
+		 * @since 1.0.0
+		 * @hook dt_push_capabilities
+		 *
+		 * @param {string} 'manage_options' The capability allowed to push content.
+		 *
+		 * @return {string} The capability allowed to push content.
+		 */
 		if ( ! current_user_can( apply_filters( 'dt_push_capabilities', 'manage_options' ) ) ) {
 			$current_user_roles = (array) wp_get_current_user()->roles;
 
@@ -171,12 +188,25 @@ function get_connections() {
 		$connection = \Distributor\ExternalConnection::instantiate( $external_connection->ID );
 
 		if ( ! is_wp_error( $connection ) ) {
+			$syndicated = false;
+
+			if ( ! empty( $connection_map['external'][ (int) $external_connection->ID ] ) ) {
+				$post_syndicated = $connection_map['external'][ (int) $external_connection->ID ];
+				if ( ! empty( $post_syndicated['post_id'] ) ) {
+					$syndicated = sprintf(
+						'%1$s/?p=%2$d',
+						get_site_url_from_rest_url( $connection->base_url ),
+						$post_syndicated['post_id']
+					);
+				}
+			}
+
 			$dom_connections[ 'external' . $connection->id ] = [
 				'type'       => 'external',
 				'id'         => $connection->id,
 				'url'        => $connection->base_url,
 				'name'       => $connection->name,
-				'syndicated' => ( ! empty( $connection_map['external'][ (int) $external_connection->ID ] ) ) ? true : false,
+				'syndicated' => $syndicated,
 			];
 		}
 	}
@@ -262,15 +292,20 @@ function ajax_push() {
 
 					$external_push_results[ (int) $connection['id'] ] = array(
 						'post_id' => (int) $remote_id,
-						'date'    => date( 'F j, Y g:i a' ),
+						'date'    => gmdate( 'F j, Y g:i a' ),
 						'status'  => 'success',
+						'url'     => sprintf(
+							'%1$s/?p=%2$d',
+							get_site_url_from_rest_url( $external_connection_url ),
+							(int) $remote_id
+						),
 					);
 
 					$external_connection->log_sync( array( $remote_id => $_POST['postId'] ) );
 				} else {
 					$external_push_results[ (int) $connection['id'] ] = array(
 						'post_id' => (int) $remote_id,
-						'date'    => date( 'F j, Y g:i a' ),
+						'date'    => gmdate( 'F j, Y g:i a' ),
 						'status'  => 'fail',
 					);
 				}
@@ -304,16 +339,16 @@ function ajax_push() {
 					'time'    => time(),
 				);
 
-				$internal_push_results[ (int) $connection['id']  ] = array(
+				$internal_push_results[ (int) $connection['id'] ] = array(
 					'post_id' => (int) $remote_id,
 					'url'     => esc_url_raw( $remote_url ),
-					'date'    => date( 'F j, Y g:i a' ),
+					'date'    => gmdate( 'F j, Y g:i a' ),
 					'status'  => 'success',
 				);
 			} else {
 				$internal_push_results[ (int) $connection['id'] ] = array(
 					'post_id' => (int) $remote_id,
-					'date'    => date( 'F j, Y g:i a' ),
+					'date'    => gmdate( 'F j, Y g:i a' ),
 					'status'  => 'fail',
 				);
 			}
@@ -346,7 +381,7 @@ function enqueue_scripts( $hook ) {
 	}
 
 	wp_enqueue_style( 'dt-push', plugins_url( '/dist/css/push.min.css', __DIR__ ), array(), DT_VERSION );
-	wp_enqueue_script( 'dt-push', plugins_url( '/dist/js/push.min.js', __DIR__ ), array( 'jquery', 'underscore', 'hoverIntent' ), DT_VERSION, true );
+	wp_enqueue_script( 'dt-push', plugins_url( '/dist/js/push.min.js', __DIR__ ), array( 'jquery', 'underscore' ), DT_VERSION, true );
 	wp_localize_script(
 		'dt-push',
 		'dt',
@@ -361,11 +396,14 @@ function enqueue_scripts( $hook ) {
 			 *
 			 * Front end ajax requests may require xhrFields with credentials when the front end and
 			 * back end domains do not match. This filter lets themes opt in.
-			 * See https://vip.wordpress.com/documentation/handling-frontend-file-uploads/#handling-ajax-requests
+			 * See {@link https://vip.wordpress.com/documentation/handling-frontend-file-uploads/#handling-ajax-requests}
 			 *
 			 * @since 1.0.0
+			 * @hook dt_ajax_requires_with_credentials
 			 *
-			 * @param bool false Whether front end ajax requests should use xhrFields credentials:true.
+			 * @param {bool} false Whether front end ajax requests should use xhrFields credentials:true.
+			 *
+			 * @return {bool} Whether front end ajax requests should use xhrFields credentials:true.
 			 */
 			'usexhr'               => apply_filters( 'dt_ajax_requires_with_credentials', false ),
 		)
@@ -390,6 +428,41 @@ function menu_button( $wp_admin_bar ) {
 			'href'  => '#',
 		)
 	);
+
+	$wp_admin_bar->add_node(
+		array(
+			'parent' => 'distributor',
+			'id'     => 'distributor-placeholder',
+			'title'  => esc_html__( 'Distributor', 'distributor' ),
+			'href'   => '#',
+		)
+	);
+}
+
+/**
+ * Get Site URL from REST URL.
+ * We can not assume the REST API prefix is wp-json because it can be changed to
+ * a custom prefix.
+ *
+ * @param string $rest_url REST URL. Eg: domain.com/wp-json
+ *
+ * @return string Site URL.
+ */
+function get_site_url_from_rest_url( $rest_url ) {
+	$_url = explode( '/', untrailingslashit( $rest_url ) );
+
+	if ( count( $_url ) < 2 ) {
+		return $rest_url;
+	}
+
+	array_pop( $_url );
+	$url = implode( '/', $_url );
+
+	if ( false === strpos( $url, 'http' ) ) {
+		$url = '//' . $url;
+	}
+
+	return $url;
 }
 
 /**
@@ -445,28 +518,34 @@ function menu_content() {
 						<# if ( 5 < _.keys( connections ).length ) { #>
 							<input type="text" id="dt-connection-search" placeholder="<?php esc_attr_e( 'Search available connections', 'distributor' ); ?>">
 						<# } #>
-
 						<div class="new-connections-list">
 							<# for ( var key in connections ) { #>
-								<# if ( 'external' === connections[ key ]['type'] ) { #>
-									<div class="add-connection<# if ( ! _.isEmpty( connections[ key ]['syndicated'] ) ) { #> syndicated<# } #>" data-connection-type="external" data-connection-id="{{ connections[ key ]['id'] }}">
+								<button
+									class="add-connection<# if ( ! _.isEmpty( connections[ key ]['syndicated'] ) ) { #> syndicated<# } #>"
+									data-connection-type="{{ connections[ key ]['type'] }}"
+									data-connection-id="{{ connections[ key ]['id'] }}"
+									<# if ( ! _.isEmpty( connections[ key ]['syndicated'] ) && connections[ key ]['syndicated'] ) { #>disabled<# } #>
+								>
+									<# if ( 'external' === connections[ key ]['type'] ) { #>
 										<span>{{ connections[ key ]['name'] }}</span>
-									</div>
-								<# } else { #>
-									<div class="add-connection<# if ( ! _.isEmpty( connections[ key ]['syndicated'] ) ) { #> syndicated<# } #>" data-connection-type="internal" data-connection-id="{{ connections[ key ]['id'] }}">
+									<# } else { #>
 										<span>{{ connections[ key ]['url'] }}</span>
-										<# if ( ! _.isEmpty( connections[ key ]['syndicated'] ) ) { #>
-											<a href="{{ connections[ key ]['syndicated'] }}"><?php esc_html_e( 'View', 'distributor' ); ?></a>
-										<# } #>
-									</div>
-								<# } #>
+									<# } #>
+									<# if ( ! _.isEmpty( connections[ key ]['syndicated'] ) && connections[ key ]['syndicated'] ) { #>
+										<a href="{{ connections[ key ]['syndicated'] }}"><?php esc_html_e( 'View', 'distributor' ); ?></a>
+									<# } #>
+								</button>
 							<# } #>
 						</div>
+
+						<button class="button button-primary selectall-connections unavailable"><?php esc_html_e( 'Select All', 'distributor' ); ?></button>
+
 					</div>
 				</div>
 				<div class="connections-selected empty">
 					<header class="with-selected">
 						<?php esc_html_e( 'Selected connections', 'distributor' ); ?>
+						<button class="button button-link selectno-connections unavailable"><?php esc_html_e( 'Clear', 'distributor' ); ?></button>
 					</header>
 					<header class="no-selected">
 						<?php esc_html_e( 'No connections selected', 'distributor' ); ?>
@@ -481,14 +560,19 @@ function menu_content() {
 						/**
 						 * Filter whether the 'As Draft' option appears in the push ui.
 						 *
-						 * @param bool    $as_draft   Whether the 'As Draft' option should appear.
-						 * @param object  $connection The connection being used to push.
-						 * @param WP_Post $post       The post being pushed.
+						 * @hook dt_allow_as_draft_distribute
+						 *
+						 * @param {bool}    $as_draft   Whether the 'As Draft' option should appear.
+						 * @param {object}  $connection The connection being used to push.
+						 * @param {WP_Post} $post       The post being pushed.
+						 *
+						 * @return {bool} Whether the 'As Draft' option should appear.
 						 */
 						$as_draft = apply_filters( 'dt_allow_as_draft_distribute', $as_draft, $connection = null, $post );
 						?>
-						<button class="syndicate-button"><?php esc_html_e( 'Distribute', 'distributor' ); ?></button> <?php if ( $as_draft ) : ?><label class="as-draft" for="dt-as-draft"><input type="checkbox" id="dt-as-draft" checked> <?php esc_html_e( 'As draft', 'distributor' ); ?></label><?php endif; ?>
+						<button class="button button-primary syndicate-button"><?php esc_html_e( 'Distribute', 'distributor' ); ?></button> <?php if ( $as_draft ) : ?><label class="as-draft" for="dt-as-draft"><input type="checkbox" id="dt-as-draft" checked> <?php esc_html_e( 'As draft', 'distributor' ); ?></label><?php endif; ?>
 					</div>
+
 				</div>
 
 				<div class="messages">
@@ -509,17 +593,17 @@ function menu_content() {
 		</script>
 
 		<script id="dt-add-connection" type="text/html">
-			<div class="<# if (selectedConnections[connection.type + connection.id]) { #>added<# }#> add-connection <# if (connection.syndicated) { #>syndicated<# } #>" data-connection-type="{{ connection.type }}" data-connection-id="{{ connection.id }}">
+			<button class="<# if (selectedConnections[connection.type + connection.id]) { #>added<# }#> add-connection <# if (connection.syndicated) { #>syndicated<# } #>" data-connection-type="{{ connection.type }}" data-connection-id="{{ connection.id }}" <# if (connection.syndicated) { #>disabled<# } #>>
 				<# if ('internal' === connection.type) { #>
 					<span>{{ connection.url }}</span>
 				<# } else { #>
 					<span>{{{ connection.name }}}</span>
 				<# } #>
 
-				<# if ('internal' === connection.type && connection.syndicated) { #>
+				<# if (connection.syndicated) { #>
 					<a href="{{ connection.syndicated }}"><?php esc_html_e( 'View', 'distributor' ); ?></a>
 				<# } #>
-			</div>
+			</button>
 		</script>
 
 		<div id="distributor-push-wrapper">
@@ -549,4 +633,3 @@ function menu_content() {
 		<?php
 	}
 }
-
