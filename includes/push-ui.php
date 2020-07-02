@@ -381,7 +381,7 @@ function enqueue_scripts( $hook ) {
 	}
 
 	wp_enqueue_style( 'dt-push', plugins_url( '/dist/css/push.min.css', __DIR__ ), array(), DT_VERSION );
-	wp_enqueue_script( 'dt-push', plugins_url( '/dist/js/push.min.js', __DIR__ ), array( 'jquery', 'underscore', 'hoverIntent' ), DT_VERSION, true );
+	wp_enqueue_script( 'dt-push', plugins_url( '/dist/js/push.min.js', __DIR__ ), array( 'jquery', 'underscore' ), DT_VERSION, true );
 	wp_localize_script(
 		'dt-push',
 		'dt',
@@ -426,6 +426,15 @@ function menu_button( $wp_admin_bar ) {
 			'id'    => 'distributor',
 			'title' => esc_html__( 'Distributor', 'distributor' ),
 			'href'  => '#',
+		)
+	);
+
+	$wp_admin_bar->add_node(
+		array(
+			'parent' => 'distributor',
+			'id'     => 'distributor-placeholder',
+			'title'  => esc_html__( 'Distributor', 'distributor' ),
+			'href'   => '#',
 		)
 	);
 }

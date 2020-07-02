@@ -126,10 +126,6 @@ add_action(
 	}
 );
 
-if ( \Distributor\Utils\is_vip_com() ) {
-	add_filter( 'dt_network_site_connection_enabled', '__return_false', 9 );
-}
-
 if ( class_exists( 'Puc_v4_Factory' ) ) {
 	/**
 	 * Enable updates if we have a valid license
@@ -149,6 +145,8 @@ if ( class_exists( 'Puc_v4_Factory' ) ) {
 			__FILE__,
 			'distributor'
 		);
+
+		$updateChecker->getVcsApi()->enableReleaseAssets();
 
 		$updateChecker->addResultFilter(
 			function( $plugin_info, $http_response = null ) {
