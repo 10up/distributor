@@ -292,7 +292,7 @@ function ajax_push() {
 
 					$external_push_results[ (int) $connection['id'] ] = array(
 						'post_id' => (int) $remote_id,
-						'date'    => date( 'F j, Y g:i a' ),
+						'date'    => gmdate( 'F j, Y g:i a' ),
 						'status'  => 'success',
 						'url'     => sprintf(
 							'%1$s/?p=%2$d',
@@ -305,7 +305,7 @@ function ajax_push() {
 				} else {
 					$external_push_results[ (int) $connection['id'] ] = array(
 						'post_id' => (int) $remote_id,
-						'date'    => date( 'F j, Y g:i a' ),
+						'date'    => gmdate( 'F j, Y g:i a' ),
 						'status'  => 'fail',
 					);
 				}
@@ -342,13 +342,13 @@ function ajax_push() {
 				$internal_push_results[ (int) $connection['id'] ] = array(
 					'post_id' => (int) $remote_id,
 					'url'     => esc_url_raw( $remote_url ),
-					'date'    => date( 'F j, Y g:i a' ),
+					'date'    => gmdate( 'F j, Y g:i a' ),
 					'status'  => 'success',
 				);
 			} else {
 				$internal_push_results[ (int) $connection['id'] ] = array(
 					'post_id' => (int) $remote_id,
-					'date'    => date( 'F j, Y g:i a' ),
+					'date'    => gmdate( 'F j, Y g:i a' ),
 					'status'  => 'fail',
 				);
 			}
@@ -381,7 +381,7 @@ function enqueue_scripts( $hook ) {
 	}
 
 	wp_enqueue_style( 'dt-push', plugins_url( '/dist/css/push.min.css', __DIR__ ), array(), DT_VERSION );
-	wp_enqueue_script( 'dt-push', plugins_url( '/dist/js/push.min.js', __DIR__ ), array( 'jquery', 'underscore', 'hoverIntent' ), DT_VERSION, true );
+	wp_enqueue_script( 'dt-push', plugins_url( '/dist/js/push.min.js', __DIR__ ), array( 'jquery', 'underscore' ), DT_VERSION, true );
 	wp_localize_script(
 		'dt-push',
 		'dt',
@@ -426,6 +426,15 @@ function menu_button( $wp_admin_bar ) {
 			'id'    => 'distributor',
 			'title' => esc_html__( 'Distributor', 'distributor' ),
 			'href'  => '#',
+		)
+	);
+
+	$wp_admin_bar->add_node(
+		array(
+			'parent' => 'distributor',
+			'id'     => 'distributor-placeholder',
+			'title'  => esc_html__( 'Distributor', 'distributor' ),
+			'href'   => '#',
 		)
 	);
 }

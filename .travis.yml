@@ -30,6 +30,8 @@ jobs:
       name: "wp-acceptance: WordPress 5.1"
     - script: travis_retry bash run-wpacceptance.sh fec81ac24227af6554c93d28d9af2bdf
       name: "wp-acceptance: WordPress 5.1 plus Gutenberg 5.3"
+    - script: travis_retry bash run-wpacceptance.sh 803989004f4b101a644ebfe9bb67e712
+      name: "wp-acceptance: WordPress 5.4.2"
 
 notifications:
   email: false

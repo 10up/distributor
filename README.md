@@ -4,7 +4,7 @@
 > Distributor is a WordPress plugin that makes it easy to distribute and reuse content across your websites — whether in a single multisite or across the web.
 
 [![Support Level](https://img.shields.io/badge/support-active-green.svg)](#support-level) [![Build Status](https://travis-ci.org/10up/distributor.svg?branch=master)](https://travis-ci.org/10up/distributor)
-[![Release Version](https://img.shields.io/github/release/10up/distributor.svg)](https://github.com/10up/distributor/releases/latest) ![WordPress tested up to version](https://img.shields.io/badge/WordPress-v5.3%20tested-success.svg) [![License](https://img.shields.io/github/license/10up/distributor.svg)](https://github.com/10up/distributor/blob/develop/LICENSE.md)
+[![Release Version](https://img.shields.io/github/release/10up/distributor.svg)](https://github.com/10up/distributor/releases/latest) ![WordPress tested up to version](https://img.shields.io/badge/WordPress-v5.4.2%20tested-success.svg) [![License](https://img.shields.io/github/license/10up/distributor.svg)](https://github.com/10up/distributor/blob/develop/LICENSE.md)
 
 *You can learn more about Distributor's features at [DistributorPlugin.com](https://distributorplugin.com).*
 
@@ -30,21 +30,20 @@ _Note:_ The latest stable version of the plugin is the _stable_ branch. [Downloa
 Distributor supports safe, SEO-friendly content reuse and sharing via "pushing" and "pulling".
 
 While logged in and editing or viewing any single post (or custom post type) that can be distributed, a `Distributor` admin bar item will appear, that will facilitate sharing ("pushing") that content to any `connection`.
+
 <a href="http://distributorplugin.com/"><img src="https://distributorplugin.com/wp-content/themes/distributor-theme/assets/img/push-screenshot.jpg" alt="Push the content you’re editing or viewing to any of your other sites from the admin bar" width="600"></a>
 
 In the admin dashboard, a top level Distributor menu item links to the "pull" screen. Here, editors can share ("pull") content from any `connection` into the current site.
+
 <a href="http://distributorplugin.com/"><img src="https://distributorplugin.com/wp-content/themes/distributor-theme/assets/img/pull-screenshot.jpg" alt="Pull content from another site from the Distributor admin menu" width="600"></a>
 
 Content this is distributed (via Push or Pull) is connected to the original.  Reposted content receives updates from the original, canonical source automatically.
+
 <a href="http://distributorplugin.com/"><img alt="Distributor intuitively presents the origin and status of any reused content" class="browser-frame" src="https://distributorplugin.com/wp-content/themes/distributor-theme/assets/img/syndicated-screenshot.jpg" width="600"></a>
 
 There are two connection types: `internal` and `external`.
 * Internal connections are other sites inside of the same multisite network. Any user logged into the network can distribute any content in the network to any other sites in the network where that user has permission to publish posts (assuming the site supports the same post type).
 * External connections are external websites, connected by the JSON REST API. External connections can be added in the WordPress admin dashboard under `Distributor` > `External Connections`. Administrators can decide which user roles are allowed to distribute content to and from that connection (Editors and Administrators by default). All users with those roles will inherit the permissions of the user account used to establish the remote connection.
-
-### Gutenberg Support (Beta)
-
-Distributor supports distributing Gutenberg posts but the functionality is currently in beta. We expect this functionality to stabilize as Gutenberg further iterates within WordPress core.
 
 ### Extendability
 
@@ -81,6 +80,8 @@ To help inform our roadmap, keep adopters apprised of major updates and changes 
 **Active:** 10up is actively working on this, and we expect to continue work for the foreseeable future including keeping tested up to the most recent version of WordPress.  Bug reports, feature requests, questions, and pull requests are welcome.
 
 ## Known Caveats/Issues
+
+__Gutenberg Fullscreen Mode__ - [Gutenberg 3.8](https://wptavern.com/gutenberg-3-8-released-adds-full-screen-mode) originally introduced `Fullscreen mode` for the editor and [WordPress 5.4](https://make.wordpress.org/core/2020/03/03/fullscreen-mode-enabled-by-default-in-the-editor/) and [Gutenberg 7.7](https://github.com/WordPress/gutenberg/pull/20611) made that the default setting.  Fullscreen mode creates a problem as the admin bar is no longer visible which means the Distributor push menu is no longer visible.  We are [working on researching a resolution to this issue](https://github.com/10up/distributor/issues/597), but in the meantime we recommend clicking on the three vertical dots in the upper right corner of Gutenberg and disabling fullscreen mode to ensure the admin bar and Distributor push menu is in view.
 
 __Remote Request Timeouts__ - With external connections, HTTP requests are sent back and forth - creating posts, transfering images, syncing post updates, etc. In certain situations, mostly commonly when distributing posts with a large number of images (or very large file sizes), using poorly configured or saturated servers / hosts, or using plugins that add significant weight to post creation, Distributor requests can fail. Although we do some error handling, there are certain cases in which post distribution can fail silently. If distribution requests are taking a long time to load and/or failing, consider adjusting the timeout; you can filter the timeout for pushing external posts using the [`dt_push_post_timeout` filter](https://10up.github.io/distributor/dt_push_post_timeout.html). More advanced handling of large content requests, and improved error handling is on the road map for a future update.
 
