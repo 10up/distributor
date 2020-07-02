@@ -13,7 +13,6 @@ jobs:
     - name: npm install and build
       run: |
         npm install
-        npm run build
         npm run makepot
         npm run release
     - name: Push to Stable
