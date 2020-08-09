@@ -301,8 +301,9 @@ function check_post_types_permissions() {
 	);
 
 	$response = array(
-		'can_get'  => array(),
-		'can_post' => array(),
+		'can_get'          => array(),
+		'can_post'         => array(),
+		'is_authenticated' => get_current_user_id() ? 'yes' : 'no',
 	);
 
 	foreach ( $types as $type ) {

@@ -248,6 +248,10 @@ function checkConnections() {
 					if ( response.data.errors.no_distributor ) {
 						endpointResult.innerText += ` ${ dt.no_distributor }`;
 						wp.a11y.speak( `${ dt.limited_connection } ${ dt.no_distributor }`, 'polite' );
+					} else if ( 'no' === response.data.is_authenticated ) {
+						endpointResult.innerText += ` ${ dt.bad_auth }`;
+						endpointResult.innerText += ` ${ dt.invalid_credentials }`;
+						wp.a11y.speak( `${ dt.limited_connection } ${ dt.bad_auth } ${ dt.invalid_credentials }`, 'polite' );
 					} else {
 						endpointResult.innerText += ` ${ dt.bad_auth }`;
 						wp.a11y.speak( `${ dt.limited_connection } ${ dt.bad_auth }`, 'polite' );
