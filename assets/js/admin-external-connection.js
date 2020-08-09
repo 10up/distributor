@@ -250,11 +250,9 @@ function checkConnections() {
 						wp.a11y.speak( `${ dt.limited_connection } ${ dt.no_distributor }`, 'polite' );
 					} else if ( 'no' === response.data.is_authenticated ) {
 						endpointResult.innerText += ` ${ dt.bad_auth }`;
-						endpointResult.innerText += ` ${ dt.invalid_credentials }`;
-						wp.a11y.speak( `${ dt.limited_connection } ${ dt.bad_auth } ${ dt.invalid_credentials }`, 'polite' );
-					} else {
-						endpointResult.innerText += ` ${ dt.bad_auth }`;
 						wp.a11y.speak( `${ dt.limited_connection } ${ dt.bad_auth }`, 'polite' );
+					} else {
+						wp.a11y.speak( `${ dt.limited_connection }`, 'polite' );
 					}
 
 					warnings.push( dt.no_push );
