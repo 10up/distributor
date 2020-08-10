@@ -470,7 +470,7 @@ function meta_box_external_connection_details( $post ) {
 		?>
 		<div class="updated is-dismissible error">
 			<p>
-				<?php esc_html_e( 'Authorization rejected, please try again.', 'distributor' ); ?>
+		<?php esc_html_e( 'Authorization rejected, please try again.', 'distributor' ); ?>
 			</p>
 		</div>
 		<?php
@@ -558,7 +558,7 @@ function meta_box_external_connection_details( $post ) {
 function dashboard() {
 	global $connection_list_table;
 
-	$_GET['post_type'] = 'dt_ext_connection';
+	$_GET['post_type']     = 'dt_ext_connection';
 	$_REQUEST['all_posts'] = true; // Default to replacite "All" tab
 
 	$connection_list_table->prepare_items();
@@ -737,14 +737,14 @@ function filter_post_updated_messages( $messages ) {
  *
  * @param string $site_url Remote site URL.
  *
- * @return false|string
+ * @return false|string|WP_Error
  */
 function get_rest_url( $site_url ) {
 
 	$source = wp_remote_get( $site_url );
 
 	if ( is_wp_error( $source ) ) {
-		return false;
+		return $source;
 	}
 
 	$dom = new \DOMDocument();
@@ -776,6 +776,22 @@ function get_remote_distributor_info() {
 	}
 
 	$rest_url = get_rest_url( $_POST['url'] );
+
+	if ( is_wp_error( $rest_url ) ) {
+
+		$errors = [];
+
+		foreach ( $rest_url->errors as $code => $messages ) {
+			foreach ( $messages as $message ) {
+				$errors[] = array(
+					'code'    => $code,
+					'message' => $message,
+				);
+			}
+		}
+		wp_send_json_error( [ 'errors' => $errors ] );
+		exit;
+	}
 
 	if ( ! $rest_url ) {
 		wp_send_json_error();

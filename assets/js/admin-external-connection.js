@@ -105,10 +105,20 @@ jQuery( authorizeConnectionButton ).on( 'click', ( event ) => {
 				&& ! Object.prototype.hasOwnProperty.call( response.data, 'version' )
 			) {
 				jQuery( wizardError[0] ).text( dt.no_distributor );
-			} else {
-				jQuery( wizardError[0] ).text( dt.noconnection );
+				return;
 			}
 
+			if (
+				Object.prototype.hasOwnProperty.call( response, 'data' )
+				&& Object.prototype.hasOwnProperty.call( response.data, 'errors' )
+			) {
+				response.data.errors.forEach( ( error ) => {
+					jQuery( wizardError[0] ).append( `${error.message} (${error.code})\n` );
+				} );
+				return;
+			}
+
+			jQuery( wizardError[0] ).text( dt.noconnection );
 			return;
 		}
 
