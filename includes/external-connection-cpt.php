@@ -281,6 +281,7 @@ function admin_enqueue_scripts( $hook ) {
 				'good_connection'           => esc_html__( 'Connection established.', 'distributor' ),
 				'limited_connection'        => esc_html__( 'Limited connection established.', 'distributor' ),
 				'no_push'                   => esc_html__( 'Push distribution unavailable.', 'distributor' ),
+				'no_permissions'            => esc_html__( 'Authentication succeeded but your account does not have permissions to create posts on the external site.', 'distributor' ),
 				'pull_limited'              => esc_html__( 'Pull distribution limited to basic content, i.e. title and content body.', 'distributor' ),
 				'endpoint_suggestion'       => esc_html__( 'Did you mean: ', 'distributor' ),
 				'endpoint_checking_message' => esc_html__( 'Checking endpoint...', 'distributor' ),

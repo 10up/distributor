@@ -248,15 +248,20 @@ function checkConnections() {
 					if ( response.data.errors.no_distributor ) {
 						endpointResult.innerText += ` ${ dt.no_distributor }`;
 						wp.a11y.speak( `${ dt.limited_connection } ${ dt.no_distributor }`, 'polite' );
-					} else if ( 'no' === response.data.is_authenticated ) {
-						endpointResult.innerText += ` ${ dt.bad_auth }`;
-						wp.a11y.speak( `${ dt.limited_connection } ${ dt.bad_auth }`, 'polite' );
 					} else {
 						wp.a11y.speak( `${ dt.limited_connection }`, 'polite' );
 					}
 
 					warnings.push( dt.no_push );
 					warnings.push( dt.pull_limited );
+
+					if ( 'no' === response.data.is_authenticated ) {
+						warnings.push( dt.bad_auth );
+					}
+
+					if ( 'yes' === response.data.is_authenticated ) {
+						warnings.push( dt.no_permissions );
+					}
 
 					warnings.forEach( ( warning ) => {
 						const warningNode       = document.createElement( 'li' );
