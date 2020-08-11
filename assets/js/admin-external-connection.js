@@ -262,9 +262,6 @@ function checkConnections() {
 						wp.a11y.speak( `${ dt.limited_connection }`, 'polite' );
 					}
 
-					warnings.push( dt.no_push );
-					warnings.push( dt.pull_limited );
-
 					if ( 'no' === response.data.is_authenticated ) {
 						warnings.push( dt.bad_auth );
 					}
@@ -272,6 +269,9 @@ function checkConnections() {
 					if ( 'yes' === response.data.is_authenticated ) {
 						warnings.push( dt.no_permissions );
 					}
+
+					warnings.push( dt.no_push );
+					warnings.push( dt.pull_limited );
 
 					warnings.forEach( ( warning ) => {
 						const warningNode       = document.createElement( 'li' );
