@@ -445,6 +445,15 @@ function meta_box_external_connection_details( $post ) {
 		$external_connection_url = '';
 	}
 
+	$external_connection_status = get_post_meta( $post->ID, 'dt_external_connections', true );
+
+	$post_types = get_post_types(
+		array(
+			'show_in_rest' => true,
+		),
+		'objects'
+	);
+
 	$registered_external_connection_types = \Distributor\Connections::factory()->get_registered();
 
 	foreach ( $registered_external_connection_types as $slug => $class ) {
@@ -516,6 +525,34 @@ function meta_box_external_connection_details( $post ) {
 		<span class="description endpoint-result"></span>
 		<ul class="endpoint-errors"></ul>
 	</div>
+
+	<?php if ( ! empty( $external_connection_status ) ) : ?>
+	<div class="post-types-permissions hide-until-authed">
+		<h4><?php esc_html_e( 'Post types permissions', 'distributor' ); ?></h4>
+
+		<table class="wp-list-table widefat">
+			<thead>
+				<th><?php esc_html_e( 'Post types', 'disthibutor' ); ?></th>
+				<th><?php esc_html_e( 'Can pull?', 'disthibutor' ); ?></th>
+				<th><?php esc_html_e( 'Can push?', 'disthibutor' ); ?></th>
+			</thead>
+			<tbody>
+				<?php foreach ( $post_types as $post_type ) : ?>
+					<?php
+					if ( 'dt_subscription' === $post_type->name ) {
+						continue;
+					}
+					?>
+					<tr>
+						<td><?php echo $post_type->label; ?></td>
+						<td><?php echo in_array( $post_type->name, $external_connection_status['can_get'] ) ? __( 'Yes', 'distributor' ) : __( 'No', 'distributor' ); ?></td>
+						<td><?php echo in_array( $post_type->name, $external_connection_status['can_post'] ) ? __( 'Yes', 'distributor' ) : __( 'No', 'distributor' ); ?></td>
+					</tr>
+				<?php endforeach; ?>
+			</tbody>
+		</table>
+	</div>
+	<?php endif; ?>
 
 	<fieldset class="dt-roles-allowed hide-until-authed">
 		<legend><?php esc_html_e( 'Roles Allowed to Push', 'distributor' ); ?></legend>
