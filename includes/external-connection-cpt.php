@@ -795,7 +795,7 @@ function get_rest_url( $site_url ) {
 		}
 	}
 
-	return false;
+	return new \WP_Error( 'rest_api_uri_not_found', __( 'The external site is private or not a WordPress site.', 'distributor' ) );
 }
 
 /**
@@ -815,23 +815,7 @@ function get_remote_distributor_info() {
 	$rest_url = get_rest_url( $_POST['url'] );
 
 	if ( is_wp_error( $rest_url ) ) {
-
-		$errors = [];
-
-		foreach ( $rest_url->errors as $code => $messages ) {
-			foreach ( $messages as $message ) {
-				$errors[] = array(
-					'code'    => $code,
-					'message' => $message,
-				);
-			}
-		}
-		wp_send_json_error( [ 'errors' => $errors ] );
-		exit;
-	}
-
-	if ( ! $rest_url ) {
-		wp_send_json_error();
+		wp_send_json_error( $rest_url );
 		exit;
 	}
 

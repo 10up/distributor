@@ -112,13 +112,18 @@ jQuery( authorizeConnectionButton ).on( 'click', ( event ) => {
 
 			if (
 				Object.prototype.hasOwnProperty.call( response, 'data' )
-				&& Object.prototype.hasOwnProperty.call( response.data, 'errors' )
+				&& Array.isArray( response.data )
+				&& 0 < response.data.length
+				&& Object.prototype.hasOwnProperty.call( response.data[0], 'code' )
+				&& Object.prototype.hasOwnProperty.call( response.data[0], 'message' )
 			) {
 				jQuery( wizardError[0] ).append( '<br/>' );
-				response.data.errors.forEach( ( error ) => {
-					jQuery( wizardError[0] ).append( `${error.message} (${error.code}) <br/>` );
+				response.data.forEach( ( error ) => {
+					jQuery( wizardError[0] ).append( `${error.message} ${error.code ? `(${  error.code  })` : ''} <br/>` );
 				} );
 			}
+
+			return;
 		}
 
 		// Remove -dev from the version number, if running from the develop branch
