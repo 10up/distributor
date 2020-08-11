@@ -108,18 +108,17 @@ jQuery( authorizeConnectionButton ).on( 'click', ( event ) => {
 				return;
 			}
 
+			jQuery( wizardError[0] ).text( dt.noconnection );
+
 			if (
 				Object.prototype.hasOwnProperty.call( response, 'data' )
 				&& Object.prototype.hasOwnProperty.call( response.data, 'errors' )
 			) {
+				jQuery( wizardError[0] ).append( '<br/>' );
 				response.data.errors.forEach( ( error ) => {
-					jQuery( wizardError[0] ).append( `${error.message} (${error.code})\n` );
+					jQuery( wizardError[0] ).append( `${error.message} (${error.code}) <br/>` );
 				} );
-				return;
 			}
-
-			jQuery( wizardError[0] ).text( dt.noconnection );
-			return;
 		}
 
 		// Remove -dev from the version number, if running from the develop branch
