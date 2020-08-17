@@ -895,6 +895,7 @@ function process_media( $url, $post_id, $args = [] ) {
 		// Distributor is in debug mode, display the issue, could be storage related.
 		if ( is_dt_debug() ) {
 			error_log( sprintf( 'Distributor: %s', $file_array['tmp_name']->get_error_message() ) ); // @codingStandardsIgnoreLine
+			set_post_pull_errors( $post_id, $file_array['tmp_name']->get_error_message() );
 		}
 
 		return false;
@@ -906,7 +907,8 @@ function process_media( $url, $post_id, $args = [] ) {
 
 		// Distributor is in debug mode, display the issue, could be storage related.
 		if ( is_dt_debug() ) {
-			error_log( sprintf( 'Distributor: %s', $file_array['tmp_name']->get_error_message() ) ); // @codingStandardsIgnoreLine
+			error_log( sprintf( 'Distributor: %s', $result->get_error_message() ) ); // @codingStandardsIgnoreLine
+			set_post_pull_errors( $post_id, $result->get_error_message() );
 		}
 
 		return false;
@@ -1023,4 +1025,20 @@ function prepare_post( $post ) {
 	$post->terms = prepare_taxonomy_terms( $post->ID );
 	$post->media = prepare_media( $post->ID );
 	return $post;
+}
+
+function set_post_pull_errors( $post_id, $data ) {
+	$errors = get_transient( "dt_post_pull_errors_$post_id" );
+
+	if ( ! $errors ) {
+		$errors = [];
+	}
+
+	if ( is_array( $data ) ) {
+		$errors += $data;
+	} else {
+		$errors[] = $data;
+	}
+
+	set_transient( "dt_post_pull_errors_$post_id", $errors, HOUR_IN_SECONDS );
 }

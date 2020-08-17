@@ -235,12 +235,25 @@ function process_actions() {
 			}
 
 			$post_id_mappings = array();
+			$pull_errors      = array();
 
 			foreach ( $posts as $key => $post_array ) {
 				if ( is_wp_error( $new_posts[ $key ] ) ) {
+					$pull_errors[ $post_array['remote_post_id'] ] = [ $new_posts[ $key ]->get_error_message() ];
 					continue;
 				}
 				$post_id_mappings[ $post_array['remote_post_id'] ] = $new_posts[ $key ];
+
+				$post_errors = get_transient( 'dt_post_pull_errors_' . $new_posts[ $key ] );
+
+				if ( ! empty( $post_errors ) ) {
+					delete_transient( 'dt_post_pull_errors_' . $new_posts[ $key ] );
+					$pull_errors[ $post_array['remote_post_id'] ] = $post_errors;
+				}
+			}
+
+			if ( ! empty( $pull_errors ) ) {
+				set_transient( 'dt_connection_pull_errors_' . $connection->id, $pull_errors, DAY_IN_SECONDS );
 			}
 
 			$connection->log_sync( $post_id_mappings );
@@ -435,6 +448,8 @@ function dashboard() {
 			</div>
 		<?php endif; ?>
 
+		<?php output_pull_errors(); ?>
+
 		<?php $connection_list_table->prepare_items(); ?>
 
 		<?php if ( ! empty( $connection_list_table->pull_error ) ) : ?>
@@ -456,5 +471,58 @@ function dashboard() {
 			</form>
 		<?php endif; ?>
 	</div>
+	<?php
+}
+
+/**
+ * Get pull errors saved in transient and display it to user.
+ *
+ * @todo Log persistent
+ */
+function output_pull_errors() {
+	global $connection_now;
+
+	if ( empty( $_GET['connection_id'] ) ) {
+		return;
+	}
+
+	$pull_errors = get_transient( 'dt_connection_pull_errors_' . $connection_now->id );
+
+	if ( empty( $pull_errors ) ) {
+		return;
+	}
+
+	delete_transient( 'dt_connection_pull_errors_' . $connection_now->id );
+
+	$post_ids = array_keys( $pull_errors );
+
+	$_posts = $connection_now->remote_get( [ 'post__in' => $post_ids ] );
+	$posts  = [];
+
+	if ( empty( $_posts ) ) {
+		return;
+	}
+
+	foreach ( $_posts['items'] as $post ) {
+		$posts[ $post->ID ] = $post->post_title;
+	}
+	?>
+
+	<div id="pull-errors" class="notice notice-warning is-dismissible">
+		<p><?php esc_html_e( 'Some errors occurred while pulling selected posts. Please review the list of the errors bellow for more details.', 'distributor' ); ?></p>
+		<ul>
+			<?php foreach ( $pull_errors as $id => $errors ) : ?>
+			<li>
+				<strong><?php esc_html_e( $posts[ $id ] ); ?>:</strong>
+				<ul>
+				<?php foreach ( $errors as $error ) : ?>
+					<li><?php esc_html_e( $error ); ?></li>
+				<?php endforeach; ?>
+				</ul>
+			</li>
+			<?php endforeach; ?>
+		</ul>
+	</div>
+
 	<?php
 }
