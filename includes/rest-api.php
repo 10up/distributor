@@ -158,12 +158,22 @@ function prepare_distributor_content( $response, $post, $request ) {
 	if ( '1' !== $request->get_param( 'distributor_request' ) ) {
 		return $response;
 	}
+
+	$post_data = $response->get_data();
+
 	// Is the local site is running Gutenberg?
 	if ( \Distributor\Utils\is_using_gutenberg( $post ) ) {
-		$post_data                       = $response->get_data();
 		$post_data['is_using_gutenberg'] = true;
-		$response->set_data( $post_data );
 	}
+
+	$media_errors = get_transient( 'dt_media_errors_' . $post->ID );
+
+	if ( ! empty( $media_errors ) ) {
+		$post_data['push_errors'] = $media_errors;
+		delete_transient( 'dt_media_errors_' . $post->ID );
+	}
+
+	$response->set_data( $post_data );
 
 	return $response;
 }

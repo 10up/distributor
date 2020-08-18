@@ -658,7 +658,15 @@ class WordPressExternalConnection extends ExternalConnection {
 			\Distributor\Subscriptions\create_subscription( $post_id, $body_array['id'], untrailingslashit( $this->base_url ), $signature );
 		}
 
-		return $body_array['id'];
+		$remote_post = array(
+			'id' => $body_array['id'],
+		);
+
+		if ( ! empty( $body['push_errors'] ) ) {
+			$remote_post['push_errors'] = $body['push_errors'];
+		}
+
+		return $remote_post;
 	}
 
 	/**

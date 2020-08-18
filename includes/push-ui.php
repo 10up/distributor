@@ -278,35 +278,36 @@ function ajax_push() {
 					$push_args['post_status'] = $_POST['postStatus'];
 				}
 
-				$remote_id = $external_connection->push( intval( $_POST['postId'] ), $push_args );
+				$remote_post = $external_connection->push( intval( $_POST['postId'] ), $push_args );
 
 				/**
 				 * Record the external connection id's remote post id for this local post
 				 */
 
-				if ( ! is_wp_error( $remote_id ) ) {
+				if ( ! is_wp_error( $remote_post ) ) {
 					$connection_map['external'][ (int) $connection['id'] ] = array(
-						'post_id' => (int) $remote_id,
+						'post_id' => (int) $remote_post['id'],
 						'time'    => time(),
 					);
 
 					$external_push_results[ (int) $connection['id'] ] = array(
-						'post_id' => (int) $remote_id,
+						'post_id' => (int) $remote_post['id'],
 						'date'    => gmdate( 'F j, Y g:i a' ),
 						'status'  => 'success',
 						'url'     => sprintf(
 							'%1$s/?p=%2$d',
 							get_site_url_from_rest_url( $external_connection_url ),
-							(int) $remote_id
+							(int) $remote_post['id']
 						),
+						'errors'  => empty( $remote_post['errors'] ) ? $remote_post['errors'] : array(),
 					);
 
-					$external_connection->log_sync( array( $remote_id => $_POST['postId'] ) );
+					$external_connection->log_sync( array( (int) $remote_post['id'] => $_POST['postId'] ) );
 				} else {
 					$external_push_results[ (int) $connection['id'] ] = array(
-						'post_id' => (int) $remote_id,
-						'date'    => gmdate( 'F j, Y g:i a' ),
-						'status'  => 'fail',
+						'date'   => gmdate( 'F j, Y g:i a' ),
+						'status' => 'fail',
+						'errors'  => array( $remote_post->get_error_message() ),
 					);
 				}
 			}
