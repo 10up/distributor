@@ -244,11 +244,11 @@ function process_actions() {
 				}
 				$post_id_mappings[ $post_array['remote_post_id'] ] = $new_posts[ $key ];
 
-				$post_errors = get_transient( 'dt_post_pull_errors_' . $new_posts[ $key ] );
+				$media_errors = get_transient( 'dt_media_errors_' . $new_posts[ $key ] );
 
-				if ( ! empty( $post_errors ) ) {
-					delete_transient( 'dt_post_pull_errors_' . $new_posts[ $key ] );
-					$pull_errors[ $post_array['remote_post_id'] ] = $post_errors;
+				if ( ! empty( $media_errors ) ) {
+					delete_transient( 'dt_media_errors_' . $new_posts[ $key ] );
+					$pull_errors[ $post_array['remote_post_id'] ] = $media_errors;
 				}
 			}
 

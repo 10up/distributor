@@ -895,7 +895,7 @@ function process_media( $url, $post_id, $args = [] ) {
 		// Distributor is in debug mode, display the issue, could be storage related.
 		if ( is_dt_debug() ) {
 			error_log( sprintf( 'Distributor: %s', $file_array['tmp_name']->get_error_message() ) ); // @codingStandardsIgnoreLine
-			set_post_pull_errors( $post_id, $file_array['tmp_name']->get_error_message() );
+			set_media_errors( $post_id, $file_array['tmp_name']->get_error_message() );
 		}
 
 		return false;
@@ -908,7 +908,7 @@ function process_media( $url, $post_id, $args = [] ) {
 		// Distributor is in debug mode, display the issue, could be storage related.
 		if ( is_dt_debug() ) {
 			error_log( sprintf( 'Distributor: %s', $result->get_error_message() ) ); // @codingStandardsIgnoreLine
-			set_post_pull_errors( $post_id, $result->get_error_message() );
+			set_media_errors( $post_id, $result->get_error_message() );
 		}
 
 		return false;
@@ -1027,8 +1027,14 @@ function prepare_post( $post ) {
 	return $post;
 }
 
-function set_post_pull_errors( $post_id, $data ) {
-	$errors = get_transient( "dt_post_pull_errors_$post_id" );
+/**
+ * Use transient to store media errors temporarily.
+ * 
+ * @param int $post_id Post ID where the media attaches to.
+ * @param array|string $data Error message.
+ */
+function set_media_errors( $post_id, $data ) {
+	$errors = get_transient( "dt_media_errors_$post_id" );
 
 	if ( ! $errors ) {
 		$errors = [];
@@ -1040,5 +1046,5 @@ function set_post_pull_errors( $post_id, $data ) {
 		$errors[] = $data;
 	}
 
-	set_transient( "dt_post_pull_errors_$post_id", $errors, HOUR_IN_SECONDS );
+	set_transient( "dt_media_errors_$post_id", $errors, HOUR_IN_SECONDS );
 }
