@@ -20,6 +20,7 @@ function setup() {
 		function() {
 			add_action( 'rest_api_init', __NAMESPACE__ . '\register_endpoints' );
 			add_action( 'rest_api_init', __NAMESPACE__ . '\register_rest_routes' );
+			add_action( 'rest_api_init', __NAMESPACE__ . '\register_push_errors_field' );
 
 			$post_types = get_post_types(
 				array(
@@ -164,13 +165,6 @@ function prepare_distributor_content( $response, $post, $request ) {
 	// Is the local site is running Gutenberg?
 	if ( \Distributor\Utils\is_using_gutenberg( $post ) ) {
 		$post_data['is_using_gutenberg'] = true;
-	}
-
-	$media_errors = get_transient( 'dt_media_errors_' . $post->ID );
-
-	if ( ! empty( $media_errors ) ) {
-		$post_data['push_errors'] = $media_errors;
-		delete_transient( 'dt_media_errors_' . $post->ID );
 	}
 
 	$response->set_data( $post_data );
@@ -326,4 +320,30 @@ function check_post_types_permissions() {
 	}
 
 	return $response;
+}
+
+/**
+ * Register push errors field so we can send errors over the REST API.
+ */
+function register_push_errors_field( $params ) {
+
+	$post_types = get_post_types(
+		array(
+			'show_in_rest' => true,
+		)
+	);
+
+	foreach ( $post_types as $post_type ) {
+		register_rest_field( $post_type, 'push-errors', array(
+			'get_callback' => function( $params ) {
+				$media_errors = get_transient( 'dt_media_errors_' . $params['id'] );
+
+				if ( ! empty( $media_errors ) ) {
+					delete_transient( 'dt_media_errors_' . $params['id'] );
+					return $media_errors;
+				}
+				return false;
+			}, )
+		);
+	}
 }
