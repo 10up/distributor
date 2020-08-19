@@ -299,7 +299,7 @@ function ajax_push() {
 							get_site_url_from_rest_url( $external_connection_url ),
 							(int) $remote_post['id']
 						),
-						'errors'  => empty( $remote_post['errors'] ) ? $remote_post['errors'] : array(),
+						'errors'  => empty( $remote_post['push-errors'] ) ? array() : $remote_post['push-errors'],
 					);
 
 					$external_connection->log_sync( array( (int) $remote_post['id'] => $_POST['postId'] ) );

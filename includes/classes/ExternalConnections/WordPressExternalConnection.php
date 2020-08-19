@@ -662,8 +662,8 @@ class WordPressExternalConnection extends ExternalConnection {
 			'id' => $body_array['id'],
 		);
 
-		if ( ! empty( $body['push_errors'] ) ) {
-			$remote_post['push_errors'] = $body['push_errors'];
+		if ( ! empty( $body_array['push-errors'] ) ) {
+			$remote_post['push-errors'] = $body_array['push-errors'];
 		}
 
 		return $remote_post;
