@@ -221,17 +221,17 @@ function get_connections() {
  */
 function ajax_push() {
 	if ( ! check_ajax_referer( 'dt-push', 'nonce', false ) ) {
-		wp_send_json_error();
+		wp_send_json_error( new \WP_Error( 'invalid-referal', __( 'Invalid Ajax referer.', 'distributor' ) ) );
 		exit;
 	}
 
 	if ( empty( $_POST['postId'] ) ) {
-		wp_send_json_error();
+		wp_send_json_error( new \WP_Error( 'no-post-id', __( 'No post ID provided.', 'distributor' ) ) );
 		exit;
 	}
 
 	if ( empty( $_POST['connections'] ) ) {
-		wp_send_json_success();
+		wp_send_json_error( new \WP_Error( 'no-connection', __( 'No connection provided.', 'distributor' ) ) );
 		exit;
 	}
 
@@ -348,9 +348,9 @@ function ajax_push() {
 				);
 			} else {
 				$internal_push_results[ (int) $connection['id'] ] = array(
-					'post_id' => (int) $remote_id,
-					'date'    => gmdate( 'F j, Y g:i a' ),
-					'status'  => 'fail',
+					'errors' => array( $remote_id->get_error_message() ),
+					'date'   => gmdate( 'F j, Y g:i a' ),
+					'status' => 'fail',
 				);
 			}
 		}
@@ -391,6 +391,10 @@ function enqueue_scripts( $hook ) {
 			'loadConnectionsNonce' => wp_create_nonce( 'dt-load-connections' ),
 			'postId'               => (int) get_the_ID(),
 			'ajaxurl'              => esc_url( admin_url( 'admin-ajax.php' ) ),
+			'messages'             => array(
+				'ajax_error' => __( 'Ajax error:', 'distributor' ),
+				'empty_result' => __( 'Received empty result.', 'distributor' ),
+			),
 
 			/**
 			 * Filter whether front end ajax requests should use xhrFields credentials:true.
@@ -581,7 +585,9 @@ function menu_content() {
 						<?php esc_html_e( 'Post successfully distributed.', 'distributor' ); ?>
 					</div>
 					<div class="dt-error">
-						<?php esc_html_e( 'There was an issue distributing the post.', 'distributor' ); ?>
+						<?php esc_html_e( 'There were some issues distributing the post.', 'distributor' ); ?>
+						<ul class="details">
+						</ul>
 					</div>
 				</div>
 
