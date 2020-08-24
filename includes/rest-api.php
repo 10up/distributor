@@ -334,16 +334,20 @@ function register_push_errors_field( $params ) {
 	);
 
 	foreach ( $post_types as $post_type ) {
-		register_rest_field( $post_type, 'push-errors', array(
-			'get_callback' => function( $params ) {
-				$media_errors = get_transient( 'dt_media_errors_' . $params['id'] );
+		register_rest_field(
+			$post_type,
+			'push-errors',
+			array(
+				'get_callback' => function( $params ) {
+					$media_errors = get_transient( 'dt_media_errors_' . $params['id'] );
 
-				if ( ! empty( $media_errors ) ) {
-					delete_transient( 'dt_media_errors_' . $params['id'] );
-					return $media_errors;
-				}
-				return false;
-			}, )
+					if ( ! empty( $media_errors ) ) {
+						delete_transient( 'dt_media_errors_' . $params['id'] );
+						return $media_errors;
+					}
+					return false;
+				},
+			)
 		);
 	}
 }

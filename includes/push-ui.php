@@ -307,7 +307,7 @@ function ajax_push() {
 					$external_push_results[ (int) $connection['id'] ] = array(
 						'date'   => gmdate( 'F j, Y g:i a' ),
 						'status' => 'fail',
-						'errors'  => array( $remote_post->get_error_message() ),
+						'errors' => array( $remote_post->get_error_message() ),
 					);
 				}
 			}
@@ -392,7 +392,7 @@ function enqueue_scripts( $hook ) {
 			'postId'               => (int) get_the_ID(),
 			'ajaxurl'              => esc_url( admin_url( 'admin-ajax.php' ) ),
 			'messages'             => array(
-				'ajax_error' => __( 'Ajax error:', 'distributor' ),
+				'ajax_error'   => __( 'Ajax error:', 'distributor' ),
 				'empty_result' => __( 'Received empty result.', 'distributor' ),
 			),
 

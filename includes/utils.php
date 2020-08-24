@@ -1029,8 +1029,8 @@ function prepare_post( $post ) {
 
 /**
  * Use transient to store media errors temporarily.
- * 
- * @param int $post_id Post ID where the media attaches to.
+ *
+ * @param int          $post_id Post ID where the media attaches to.
  * @param array|string $data Error message.
  */
 function set_media_errors( $post_id, $data ) {
