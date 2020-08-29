@@ -98,10 +98,6 @@ jQuery( window ).on( 'load', () => {
 			errorItem.innerText = message;
 			errorDetails.appendChild( errorItem );
 		} );
-
-		// setTimeout( () => {
-		// 	distributorPushWrapper.classList.remove( 'message-error' );
-		// }, 6000 );
 	}
 
 	/**

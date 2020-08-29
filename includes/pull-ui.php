@@ -513,10 +513,10 @@ function output_pull_errors() {
 		<ul>
 			<?php foreach ( $pull_errors as $id => $errors ) : ?>
 			<li>
-				<strong><?php esc_html_e( $posts[ $id ] ); ?>:</strong>
+				<strong><?php echo esc_html( $posts[ $id ] ); ?>:</strong>
 				<ul>
 				<?php foreach ( $errors as $error ) : ?>
-					<li><?php esc_html_e( $error ); ?></li>
+					<li><?php echo esc_html( $error ); ?></li>
 				<?php endforeach; ?>
 				</ul>
 			</li>
