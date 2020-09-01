@@ -137,8 +137,9 @@ function register_rest_routes() {
 		'wp/v2',
 		'distributor/post-types-permissions',
 		array(
-			'methods'  => 'GET',
-			'callback' => __NAMESPACE__ . '\check_post_types_permissions',
+			'methods'             => 'GET',
+			'callback'            => __NAMESPACE__ . '\check_post_types_permissions',
+			'permission_callback' => '__return_true',
 		)
 	);
 }
@@ -273,8 +274,9 @@ function register_endpoints() {
 		'wp/v2',
 		'/dt_meta',
 		array(
-			'methods'  => 'GET',
-			'callback' => __NAMESPACE__ . '\distributor_meta',
+			'methods'             => 'GET',
+			'callback'            => __NAMESPACE__ . '\distributor_meta',
+			'permission_callback' => '__return_true',
 		)
 	);
 
