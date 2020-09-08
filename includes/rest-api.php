@@ -325,7 +325,7 @@ function check_post_types_permissions() {
 /**
  * Register push errors field so we can send errors over the REST API.
  */
-function register_push_errors_field( $params ) {
+function register_push_errors_field() {
 
 	$post_types = get_post_types(
 		array(
