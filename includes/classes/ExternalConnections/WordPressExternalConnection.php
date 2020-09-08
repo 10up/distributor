@@ -480,7 +480,7 @@ class WordPressExternalConnection extends ExternalConnection {
 	 * @param  int   $post_id Post id
 	 * @param  array $args Post args to push.
 	 * @since  0.8
-	 * @return bool|\WP_Error
+	 * @return array|\WP_Error
 	 */
 	public function push( $post_id, $args = array() ) {
 		if ( empty( $post_id ) ) {
