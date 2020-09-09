@@ -60,13 +60,14 @@ class NetworkSiteConnection extends Connection {
 	 * @param  int   $post_id Post ID.
 	 * @param  array $args Push args.
 	 * @since  0.8
-	 * @return int|WP_Error
+	 * @return array|\WP_Error
 	 */
 	public function push( $post_id, $args = array() ) {
 		$post              = get_post( $post_id );
 		$original_blog_id  = get_current_blog_id();
 		$original_post_url = get_permalink( $post_id );
 		$using_gutenberg   = \Distributor\Utils\is_using_gutenberg( $post );
+		$output            = array();
 
 		$new_post_args = array(
 			'post_title'   => get_the_title( $post_id ),
@@ -115,6 +116,8 @@ class NetworkSiteConnection extends Connection {
 		remove_filter( 'wp_insert_post_data', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'maybe_set_modified_date' ), 10, 2 );
 
 		if ( ! is_wp_error( $new_post_id ) ) {
+			$output['id'] = $new_post_id;
+
 			update_post_meta( $new_post_id, 'dt_original_post_id', (int) $post_id );
 			update_post_meta( $new_post_id, 'dt_original_blog_id', (int) $original_blog_id );
 			update_post_meta( $new_post_id, 'dt_syndicate_time', time() );
@@ -144,6 +147,13 @@ class NetworkSiteConnection extends Connection {
 			if ( apply_filters( 'dt_push_post_media', true, $new_post_id, $post->media, $post_id, $args, $this ) ) {
 				Utils\set_media( $new_post_id, $post->media, [ 'use_filesystem' => true ] );
 			};
+
+			$media_errors = get_transient( 'dt_media_errors_' . $new_post_id );
+
+			if ( $media_errors ) {
+				$output['push-errors'] = $media_errors;
+				delete_transient( 'dt_media_errors_' . $new_post_id );
+			}
 		}
 
 		/**
@@ -160,7 +170,11 @@ class NetworkSiteConnection extends Connection {
 
 		restore_current_blog();
 
-		return $new_post_id;
+		if ( is_wp_error( $new_post_id ) ) {
+			return $new_post_id;
+		}
+
+		return $output;
 	}
 
 	/**

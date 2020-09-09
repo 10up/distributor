@@ -101,6 +101,12 @@ class NetworkSiteConnectionsTest extends TestCase {
 			]
 		);
 
+		\WP_Mock::userFunction(
+			'get_transient', [
+				'return' => false,
+			]
+		);
+
 		/**
 		 * We will test the util prepare/set functions later
 		 */
@@ -117,7 +123,7 @@ class NetworkSiteConnectionsTest extends TestCase {
 
 		\WP_Mock::expectFilterAdded( 'wp_insert_post_data', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'maybe_set_modified_date' ), 10, 2 );
 
-		$this->assertTrue( is_int( $this->connection_obj->push( 1 ) ) );
+		$this->assertIsArray( $this->connection_obj->push( 1 ) );
 
 	}
 

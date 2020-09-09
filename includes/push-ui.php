@@ -323,32 +323,33 @@ function ajax_push() {
 				$push_args['post_status'] = esc_attr( $_POST['postStatus'] );
 			}
 
-			$remote_id = $internal_connection->push( intval( $_POST['postId'] ), $push_args );
+			$remote_post = $internal_connection->push( intval( $_POST['postId'] ), $push_args );
 
 			/**
 			 * Record the internal connection id's remote post id for this local post
 			 */
-			if ( ! is_wp_error( $remote_id ) ) {
+			if ( ! is_wp_error( $remote_post ) ) {
 				$origin_site = get_current_blog_id();
 				switch_to_blog( intval( $connection['id'] ) );
-				$remote_url = get_permalink( $remote_id );
-				$internal_connection->log_sync( array( $_POST['postId'] => $remote_id ), $origin_site );
+				$remote_url = get_permalink( $remote_post['id'] );
+				$internal_connection->log_sync( array( $_POST['postId'] => $remote_post['id'] ), $origin_site );
 				restore_current_blog();
 
 				$connection_map['internal'][ (int) $connection['id'] ] = array(
-					'post_id' => (int) $remote_id,
+					'post_id' => (int) $remote_post['id'],
 					'time'    => time(),
 				);
 
 				$internal_push_results[ (int) $connection['id'] ] = array(
-					'post_id' => (int) $remote_id,
+					'post_id' => (int) $remote_post['id'],
 					'url'     => esc_url_raw( $remote_url ),
 					'date'    => gmdate( 'F j, Y g:i a' ),
 					'status'  => 'success',
+					'errors'  => empty( $remote_post['push-errors'] ) ? array() : $remote_post['push-errors'],
 				);
 			} else {
 				$internal_push_results[ (int) $connection['id'] ] = array(
-					'errors' => array( $remote_id->get_error_message() ),
+					'errors' => array( $remote_post->get_error_message() ),
 					'date'   => gmdate( 'F j, Y g:i a' ),
 					'status' => 'fail',
 				);
