@@ -41,6 +41,7 @@ jQuery( window ).on( 'load', () => {
 	let connectionsSearchInput  		= '';
 	let postStatusInput         		= '';
 	let asDraftInput            		= '';
+	let errorDetails            		= '';
 
 	distributorMenuItem.appendChild( distributorPushWrapper );
 
@@ -56,6 +57,7 @@ jQuery( window ).on( 'load', () => {
 		connectionsSearchInput  	= document.getElementById( 'dt-connection-search' );
 		postStatusInput         	= document.getElementById( 'dt-post-status' );
 		asDraftInput            	= document.getElementById( 'dt-as-draft' );
+		errorDetails                = document.querySelector( '.dt-error ul.details' );
 
 		if ( null !== connectionsNewList ){
 			connectionsNewListChildren  = connectionsNewList.querySelectorAll( '.add-connection' );
@@ -87,33 +89,69 @@ jQuery( window ).on( 'load', () => {
 	/**
 	 * Handle UI error changes
 	 */
-	function doError() {
+	function doError( messages ) {
 		distributorPushWrapper.classList.add( 'message-error' );
+		errorDetails.innerText = '';
 
-		setTimeout( () => {
-			distributorPushWrapper.classList.remove( 'message-error' );
-		}, 6000 );
+		_.each( prepareMessages( messages ), function( message ) {
+			const errorItem = document.createElement( 'li' );
+			errorItem.innerText = message;
+			errorDetails.appendChild( errorItem );
+		} );
+	}
+
+	/**
+	 * Prepare error messages for printing.
+	 *
+	 * @param {string|array} messages Error messages.
+	 */
+	function prepareMessages( messages ) {
+		if ( ! _.isArray( messages ) ) {
+			return [ messages ];
+		}
+
+		return _.map( messages, function( message ) {
+			if ( _.isString( message ) ) {
+				return message;
+			}
+			if ( _.has( message, 'message' ) ) {
+				return message.message;
+			}
+		} );
 	}
 
 	/**
 	 * Handle UI success changes
 	 */
 	function doSuccess( results ) {
-		let error = false;
+		let success = false;
+		const errors = {};
 
 		[ 'internal', 'external' ].map( type => {
 			_.each( results[type], ( result, connectionId ) => {
-				if ( 'fail' === result.status ) {
-					error = true;
-				} else {
+				if ( 'success' === result.status ) {
 					dtConnections[ `${type}${ connectionId }` ].syndicated = result.url;
+					success = true;
+				}
+
+				if ( ! _.isEmpty( result.errors ) ) {
+					errors[ `${type}${ connectionId }` ] = result.errors;
 				}
 			} );
 		} );
 
-		if ( error ) {
-			doError();
-		} else {
+		if ( ! _.isEmpty( errors ) ) {
+			const formattedErrors = _.map( errors, function( messages, connectionId ) {
+				return `${dtConnections[ connectionId ].name  }:\n${
+					_.map( messages, function( message ) {
+						return `- ${message}\n`;
+					} )}`;
+			} );
+
+			doError( formattedErrors );
+		}
+
+		if ( success && _.isEmpty( errors ) ) {
 			distributorPushWrapper.classList.add( 'message-success' );
 
 			connectionsSelected.classList.add( 'empty' );
@@ -271,18 +309,23 @@ jQuery( window ).on( 'load', () => {
 			setTimeout( () => {
 				distributorTopMenu.classList.remove( 'syncing' );
 
+				if ( ! response.success ) {
+					doError( response.data );
+					return;
+				}
+
 				if ( ! response.data || ! response.data.results ) {
-					doError();
+					doError( dt.messages.empty_result );
 					return;
 				}
 
 				doSuccess( response.data.results );
 			}, 500 );
-		} ).error( () => {
+		} ).error( ( xhr, textStatus, errorThrown ) => {
 			setTimeout( () => {
 				distributorTopMenu.classList.remove( 'syncing' );
 
-				doError();
+				doError( `${dt.messages.ajax_error} ${errorThrown}` );
 			}, 500 );
 		} );
 	} );

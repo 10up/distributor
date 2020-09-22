@@ -390,7 +390,7 @@
 	}
 }
 
-#wpadminbar #distributor-push-wrapper .messages * {
+#wpadminbar #distributor-push-wrapper .messages > * {
 	display: none;
 }
 
@@ -400,6 +400,14 @@
 
 #wpadminbar #distributor-push-wrapper.message-success .messages .dt-success {
 	display: block;
+}
+
+#wpadminbar #distributor-push-wrapper .messages ul.details {
+	padding-left: 1.5rem;
+}
+
+#wpadminbar #distributor-push-wrapper .messages ul.details li {
+	list-style: disc;
 }
 
 #distributor-push-wrapper .loader-item {

@@ -221,17 +221,17 @@ function get_connections() {
  */
 function ajax_push() {
 	if ( ! check_ajax_referer( 'dt-push', 'nonce', false ) ) {
-		wp_send_json_error();
+		wp_send_json_error( new \WP_Error( 'invalid-referal', __( 'Invalid Ajax referer.', 'distributor' ) ) );
 		exit;
 	}
 
 	if ( empty( $_POST['postId'] ) ) {
-		wp_send_json_error();
+		wp_send_json_error( new \WP_Error( 'no-post-id', __( 'No post ID provided.', 'distributor' ) ) );
 		exit;
 	}
 
 	if ( empty( $_POST['connections'] ) ) {
-		wp_send_json_success();
+		wp_send_json_error( new \WP_Error( 'no-connection', __( 'No connection provided.', 'distributor' ) ) );
 		exit;
 	}
 
@@ -278,35 +278,36 @@ function ajax_push() {
 					$push_args['post_status'] = $_POST['postStatus'];
 				}
 
-				$remote_id = $external_connection->push( intval( $_POST['postId'] ), $push_args );
+				$remote_post = $external_connection->push( intval( $_POST['postId'] ), $push_args );
 
 				/**
 				 * Record the external connection id's remote post id for this local post
 				 */
 
-				if ( ! is_wp_error( $remote_id ) ) {
+				if ( ! is_wp_error( $remote_post ) ) {
 					$connection_map['external'][ (int) $connection['id'] ] = array(
-						'post_id' => (int) $remote_id,
+						'post_id' => (int) $remote_post['id'],
 						'time'    => time(),
 					);
 
 					$external_push_results[ (int) $connection['id'] ] = array(
-						'post_id' => (int) $remote_id,
+						'post_id' => (int) $remote_post['id'],
 						'date'    => gmdate( 'F j, Y g:i a' ),
 						'status'  => 'success',
 						'url'     => sprintf(
 							'%1$s/?p=%2$d',
 							get_site_url_from_rest_url( $external_connection_url ),
-							(int) $remote_id
+							(int) $remote_post['id']
 						),
+						'errors'  => empty( $remote_post['push-errors'] ) ? array() : $remote_post['push-errors'],
 					);
 
-					$external_connection->log_sync( array( $remote_id => $_POST['postId'] ) );
+					$external_connection->log_sync( array( (int) $remote_post['id'] => $_POST['postId'] ) );
 				} else {
 					$external_push_results[ (int) $connection['id'] ] = array(
-						'post_id' => (int) $remote_id,
-						'date'    => gmdate( 'F j, Y g:i a' ),
-						'status'  => 'fail',
+						'date'   => gmdate( 'F j, Y g:i a' ),
+						'status' => 'fail',
+						'errors' => array( $remote_post->get_error_message() ),
 					);
 				}
 			}
@@ -322,34 +323,35 @@ function ajax_push() {
 				$push_args['post_status'] = esc_attr( $_POST['postStatus'] );
 			}
 
-			$remote_id = $internal_connection->push( intval( $_POST['postId'] ), $push_args );
+			$remote_post = $internal_connection->push( intval( $_POST['postId'] ), $push_args );
 
 			/**
 			 * Record the internal connection id's remote post id for this local post
 			 */
-			if ( ! is_wp_error( $remote_id ) ) {
+			if ( ! is_wp_error( $remote_post ) ) {
 				$origin_site = get_current_blog_id();
 				switch_to_blog( intval( $connection['id'] ) );
-				$remote_url = get_permalink( $remote_id );
-				$internal_connection->log_sync( array( $_POST['postId'] => $remote_id ), $origin_site );
+				$remote_url = get_permalink( $remote_post['id'] );
+				$internal_connection->log_sync( array( $_POST['postId'] => $remote_post['id'] ), $origin_site );
 				restore_current_blog();
 
 				$connection_map['internal'][ (int) $connection['id'] ] = array(
-					'post_id' => (int) $remote_id,
+					'post_id' => (int) $remote_post['id'],
 					'time'    => time(),
 				);
 
 				$internal_push_results[ (int) $connection['id'] ] = array(
-					'post_id' => (int) $remote_id,
+					'post_id' => (int) $remote_post['id'],
 					'url'     => esc_url_raw( $remote_url ),
 					'date'    => gmdate( 'F j, Y g:i a' ),
 					'status'  => 'success',
+					'errors'  => empty( $remote_post['push-errors'] ) ? array() : $remote_post['push-errors'],
 				);
 			} else {
 				$internal_push_results[ (int) $connection['id'] ] = array(
-					'post_id' => (int) $remote_id,
-					'date'    => gmdate( 'F j, Y g:i a' ),
-					'status'  => 'fail',
+					'errors' => array( $remote_post->get_error_message() ),
+					'date'   => gmdate( 'F j, Y g:i a' ),
+					'status' => 'fail',
 				);
 			}
 		}
@@ -390,6 +392,10 @@ function enqueue_scripts( $hook ) {
 			'loadConnectionsNonce' => wp_create_nonce( 'dt-load-connections' ),
 			'postId'               => (int) get_the_ID(),
 			'ajaxurl'              => esc_url( admin_url( 'admin-ajax.php' ) ),
+			'messages'             => array(
+				'ajax_error'   => __( 'Ajax error:', 'distributor' ),
+				'empty_result' => __( 'Received empty result.', 'distributor' ),
+			),
 
 			/**
 			 * Filter whether front end ajax requests should use xhrFields credentials:true.
@@ -580,7 +586,9 @@ function menu_content() {
 						<?php esc_html_e( 'Post successfully distributed.', 'distributor' ); ?>
 					</div>
 					<div class="dt-error">
-						<?php esc_html_e( 'There was an issue distributing the post.', 'distributor' ); ?>
+						<?php esc_html_e( 'There were some issues distributing the post.', 'distributor' ); ?>
+						<ul class="details">
+						</ul>
 					</div>
 				</div>
 
