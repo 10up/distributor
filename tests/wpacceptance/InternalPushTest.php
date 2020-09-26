@@ -58,6 +58,8 @@ class InternalPushTest extends \TestCase {
 
 		$I->moveTo( '/wp-admin/post.php?post=40&action=edit' );
 
+		$this->disableFullscreenEditor( $I );
+
 		$I->waitUntilElementVisible( '#wpadminbar' );
 
 		$editor_has_blocks =  $this->editorHasBlocks( $I, true );

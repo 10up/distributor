@@ -1,10 +1,10 @@
-<img alt="Distributor icon" src="https://github.com/10up/distributor/blob/master/assets/img/icon.svg" height="45" width="45" align="left">
+<img alt="Distributor icon" src="https://github.com/10up/distributor/blob/trunk/assets/img/icon.svg" height="45" width="45" align="left">
 
 # Distributor
-> Distributor is a WordPress plugin that makes it easy to syndicate and reuse content across your websites — whether in a single multisite or across the web.
+> Distributor is a WordPress plugin that makes it easy to distribute and reuse content across your websites — whether in a single multisite or across the web.
 
-[![Support Level](https://img.shields.io/badge/support-active-green.svg)](#support-level) [![Build Status](https://travis-ci.org/10up/distributor.svg?branch=master)](https://travis-ci.org/10up/distributor)
-[![Release Version](https://img.shields.io/github/release/10up/distributor.svg)](https://github.com/10up/distributor/releases/latest) ![WordPress tested up to version](https://img.shields.io/badge/WordPress-v5.3%20tested-success.svg) [![License](https://img.shields.io/github/license/10up/distributor.svg)](https://github.com/10up/distributor/blob/develop/LICENSE.md)
+[![Support Level](https://img.shields.io/badge/support-active-green.svg)](#support-level) [![Build Status](https://travis-ci.org/10up/distributor.svg?branch=trunk)](https://travis-ci.org/10up/distributor)
+[![Release Version](https://img.shields.io/github/release/10up/distributor.svg)](https://github.com/10up/distributor/releases/latest) ![WordPress tested up to version](https://img.shields.io/badge/WordPress-v5.4.2%20tested-success.svg) [![License](https://img.shields.io/github/license/10up/distributor.svg)](https://github.com/10up/distributor/blob/develop/LICENSE.md)
 
 *You can learn more about Distributor's features at [DistributorPlugin.com](https://distributorplugin.com).*
 
@@ -30,21 +30,20 @@ _Note:_ The latest stable version of the plugin is the _stable_ branch. [Downloa
 Distributor supports safe, SEO-friendly content reuse and sharing via "pushing" and "pulling".
 
 While logged in and editing or viewing any single post (or custom post type) that can be distributed, a `Distributor` admin bar item will appear, that will facilitate sharing ("pushing") that content to any `connection`.
+
 <a href="http://distributorplugin.com/"><img src="https://distributorplugin.com/wp-content/themes/distributor-theme/assets/img/push-screenshot.jpg" alt="Push the content you’re editing or viewing to any of your other sites from the admin bar" width="600"></a>
 
 In the admin dashboard, a top level Distributor menu item links to the "pull" screen. Here, editors can share ("pull") content from any `connection` into the current site.
+
 <a href="http://distributorplugin.com/"><img src="https://distributorplugin.com/wp-content/themes/distributor-theme/assets/img/pull-screenshot.jpg" alt="Pull content from another site from the Distributor admin menu" width="600"></a>
 
 Content this is distributed (via Push or Pull) is connected to the original.  Reposted content receives updates from the original, canonical source automatically.
+
 <a href="http://distributorplugin.com/"><img alt="Distributor intuitively presents the origin and status of any reused content" class="browser-frame" src="https://distributorplugin.com/wp-content/themes/distributor-theme/assets/img/syndicated-screenshot.jpg" width="600"></a>
 
 There are two connection types: `internal` and `external`.
 * Internal connections are other sites inside of the same multisite network. Any user logged into the network can distribute any content in the network to any other sites in the network where that user has permission to publish posts (assuming the site supports the same post type).
 * External connections are external websites, connected by the JSON REST API. External connections can be added in the WordPress admin dashboard under `Distributor` > `External Connections`. Administrators can decide which user roles are allowed to distribute content to and from that connection (Editors and Administrators by default). All users with those roles will inherit the permissions of the user account used to establish the remote connection.
-
-### Gutenberg Support (Beta)
-
-Distributor supports distributing Gutenberg posts but the functionality is currently in beta. We expect this functionality to stabilize as Gutenberg further iterates within WordPress core.
 
 ### Extendability
 
@@ -59,7 +58,7 @@ Distributor is built with the same extensible approach as WordPress itself, with
 
 ## Installation
 
-For production use, we recommend [registering and downloading the plugin from DistributorPlugin.com](https://distributorplugin.com/#cta) – it's 100% free. You will be emailed a direct link to download the latest, production-ready build. Alternatively, you can [download the latest master build from GitHub](https://github.com/10up/distributor/archive/master.zip).
+For production use, we recommend [registering and downloading the plugin from DistributorPlugin.com](https://distributorplugin.com/#cta) – it's 100% free. You will be emailed a direct link to download the latest, production-ready build. Alternatively, you can [download the latest release from GitHub](https://github.com/10up/distributor/archive/trunk.zip).
 
 You can upload and install the archived (zip) plugin via the WordPress dashboard (`Plugins` > `Add New` -> `Upload Plugin`) or manually inside of the `wp-content/plugins` directory, and activate on the Plugins dashboard.
 
@@ -82,9 +81,11 @@ To help inform our roadmap, keep adopters apprised of major updates and changes 
 
 ## Known Caveats/Issues
 
+__Gutenberg Fullscreen Mode__ - [Gutenberg 3.8](https://wptavern.com/gutenberg-3-8-released-adds-full-screen-mode) originally introduced `Fullscreen mode` for the editor and [WordPress 5.4](https://make.wordpress.org/core/2020/03/03/fullscreen-mode-enabled-by-default-in-the-editor/) and [Gutenberg 7.7](https://github.com/WordPress/gutenberg/pull/20611) made that the default setting.  Fullscreen mode creates a problem as the admin bar is no longer visible which means the Distributor push menu is no longer visible.  We are [working on researching a resolution to this issue](https://github.com/10up/distributor/issues/597), but in the meantime we recommend clicking on the three vertical dots in the upper right corner of Gutenberg and disabling fullscreen mode to ensure the admin bar and Distributor push menu is in view.
+
 __Remote Request Timeouts__ - With external connections, HTTP requests are sent back and forth - creating posts, transfering images, syncing post updates, etc. In certain situations, mostly commonly when distributing posts with a large number of images (or very large file sizes), using poorly configured or saturated servers / hosts, or using plugins that add significant weight to post creation, Distributor requests can fail. Although we do some error handling, there are certain cases in which post distribution can fail silently. If distribution requests are taking a long time to load and/or failing, consider adjusting the timeout; you can filter the timeout for pushing external posts using the [`dt_push_post_timeout` filter](https://10up.github.io/distributor/dt_push_post_timeout.html). More advanced handling of large content requests, and improved error handling is on the road map for a future update.
 
-__Post Meta Associations__ - A distributed post includes all of the post meta from the original version. Sometimes arbitrary post meta references an ID for another piece of content on the original site. Distributor _does not_ "bring along" the referenced content or update references for arbitrary post meta (it will take care of updating references in the case of core WordPress features, such as the featured image ID). This issue is very common when using field management plugins like Advanced Custom Fields (ACF). This can be addressed on a case by case basis by extending the plugin; for external connections, you can manually handle post meta associations using [the `dt_push_post` hook](https://github.com/10up/distributor/blob/master/includes/classes/ExternalConnections/WordPressExternalConnection.php#L646). For internal connections, use the [`dt_push_post` hook](https://10up.github.io/distributor/dt_push_post.html). Note that while named the same, these hooks accept different parameters.
+__Post Meta Associations__ - A distributed post includes all of the post meta from the original version. Sometimes arbitrary post meta references an ID for another piece of content on the original site. Distributor _does not_ "bring along" the referenced content or update references for arbitrary post meta (it will take care of updating references in the case of core WordPress features, such as the featured image ID). This issue is very common when using field management plugins like Advanced Custom Fields (ACF). This can be addressed on a case by case basis by extending the plugin; for external connections, you can manually handle post meta associations using [the `dt_push_post` hook](https://github.com/10up/distributor/blob/f7b60740e679bce4671ccd69a670abadce4f2f93/includes/classes/ExternalConnections/WordPressExternalConnection.php#L646). For internal connections, use the [`dt_push_post` hook](https://10up.github.io/distributor/dt_push_post.html). Note that while named the same, these hooks accept different parameters.
 
 __Deleting Distributed Posts__ - When a post that has been distributed is deleted, the distributed copies will become unlinked ("forked") from the original and thus become editable. Similarly, when a distributed post is unpublished, distributed copies will not be unpublished. More sophisticated "removal" workflow is on the road map for a future update.
 
@@ -93,6 +94,8 @@ __Gutenberg Block Mismatch__ - When distributing a Gutenberg post to another sit
 __Parent Posts__ - Distributor does not "bring along" parent (or child posts). If your post (or custom post type) has a parent or a child, it will distribute it as if it's an orphan.
 
 __Custom Post Type Support__ - Internal Connections (multisite) support multiple post types. In order for distribution to work with External Connections that have custom post type content, that post type needs to be registered with the argument `show_in_rest => true` on the external site.
+
+__Unable to Push to New Custom Post Types__ - If new Custom Post Types are created after establishing an External Connection, you will only be able to `Pull` those from an External Connection. To ensure you are able to `Push` new Custom Post Types to an External Connection, you will need to update the External Connection by editing it and then clicking the `Update connection` button.
 
 __Backwards Compatibility__ - While we strive to be mindful of backwards compatibility much the same way WordPress itself is, we do not currently guarantee continued interoperability between different versions of Distributor. We assume the current userbase for this plugin has a high degree of control over any site that has been set up as an external connection and urge you to keep Distributor up to date.
 
@@ -132,4 +135,4 @@ Please read [CODE_OF_CONDUCT.md](https://github.com/10up/distributor/blob/develo
 
 ## Like what you see?
 
-<a href="http://10up.com/contact/"><img src="https://10updotcom-wpengine.s3.amazonaws.com/uploads/2016/10/10up-Github-Banner.png" width="850"></a>
+<a href="http://10up.com/contact/"><img src="https://10up.com/uploads/2016/10/10up-Github-Banner.png" width="850"></a>

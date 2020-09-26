@@ -18,3 +18,8 @@
 .status-sync .check-column {
 	display: none;
 }
+
+#pull-errors ul ul {
+	list-style: disc;
+	padding-left: 20px;
+}

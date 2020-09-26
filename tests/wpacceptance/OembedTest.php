@@ -65,6 +65,8 @@ class OembedTests extends \TestCase {
 
 		$I->moveTo( 'wp-admin/post-new.php?post_type=dt_ext_connection' );
 
+		$I->click( '.manual-setup-button' );
+
 		$I->typeInField( '#title', 'Test External Connection' );
 
 		$I->typeInField( '#dt_username', 'wpsnapshots' );
@@ -75,7 +77,7 @@ class OembedTests extends \TestCase {
 
 		$I->waitUntilElementContainsText( 'Connection established', '.endpoint-result' );
 
-		$I->pressEnterKey( '#create-connection' );
+		$I->click( '#create-connection' );
 
 		$I->waitUntilElementVisible( '.notice-success' );
 		$url = $I->getCurrentUrl();
@@ -116,6 +118,8 @@ class OembedTests extends \TestCase {
 
 		$I->moveTo( 'two/wp-admin/post-new.php?post_type=dt_ext_connection' );
 
+		$I->click( '.manual-setup-button' );
+
 		$I->typeInField( '#title', 'Test External Connection' );
 
 		$I->typeInField( '#dt_username', 'wpsnapshots' );
@@ -126,7 +130,7 @@ class OembedTests extends \TestCase {
 
 		$I->waitUntilElementContainsText( 'Connection established', '.endpoint-result' );
 
-		$I->pressEnterKey( '#create-connection' );
+		$I->click( '#create-connection' );
 
 		$I->waitUntilElementVisible( '.notice-success' );
 

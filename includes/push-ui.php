@@ -188,12 +188,25 @@ function get_connections() {
 		$connection = \Distributor\ExternalConnection::instantiate( $external_connection->ID );
 
 		if ( ! is_wp_error( $connection ) ) {
+			$syndicated = false;
+
+			if ( ! empty( $connection_map['external'][ (int) $external_connection->ID ] ) ) {
+				$post_syndicated = $connection_map['external'][ (int) $external_connection->ID ];
+				if ( ! empty( $post_syndicated['post_id'] ) ) {
+					$syndicated = sprintf(
+						'%1$s/?p=%2$d',
+						get_site_url_from_rest_url( $connection->base_url ),
+						$post_syndicated['post_id']
+					);
+				}
+			}
+
 			$dom_connections[ 'external' . $connection->id ] = [
 				'type'       => 'external',
 				'id'         => $connection->id,
 				'url'        => $connection->base_url,
 				'name'       => $connection->name,
-				'syndicated' => ! empty( $connection_map['external'][ (int) $external_connection->ID ] ) ? $connection_map['external'][ (int) $external_connection->ID ] : false,
+				'syndicated' => $syndicated,
 			];
 		}
 	}
@@ -208,17 +221,17 @@ function get_connections() {
  */
 function ajax_push() {
 	if ( ! check_ajax_referer( 'dt-push', 'nonce', false ) ) {
-		wp_send_json_error();
+		wp_send_json_error( new \WP_Error( 'invalid-referal', __( 'Invalid Ajax referer.', 'distributor' ) ) );
 		exit;
 	}
 
 	if ( empty( $_POST['postId'] ) ) {
-		wp_send_json_error();
+		wp_send_json_error( new \WP_Error( 'no-post-id', __( 'No post ID provided.', 'distributor' ) ) );
 		exit;
 	}
 
 	if ( empty( $_POST['connections'] ) ) {
-		wp_send_json_success();
+		wp_send_json_error( new \WP_Error( 'no-connection', __( 'No connection provided.', 'distributor' ) ) );
 		exit;
 	}
 
@@ -265,30 +278,36 @@ function ajax_push() {
 					$push_args['post_status'] = $_POST['postStatus'];
 				}
 
-				$remote_id = $external_connection->push( intval( $_POST['postId'] ), $push_args );
+				$remote_post = $external_connection->push( intval( $_POST['postId'] ), $push_args );
 
 				/**
 				 * Record the external connection id's remote post id for this local post
 				 */
 
-				if ( ! is_wp_error( $remote_id ) ) {
+				if ( ! is_wp_error( $remote_post ) ) {
 					$connection_map['external'][ (int) $connection['id'] ] = array(
-						'post_id' => (int) $remote_id,
+						'post_id' => (int) $remote_post['id'],
 						'time'    => time(),
 					);
 
 					$external_push_results[ (int) $connection['id'] ] = array(
-						'post_id' => (int) $remote_id,
-						'date'    => date( 'F j, Y g:i a' ),
+						'post_id' => (int) $remote_post['id'],
+						'date'    => gmdate( 'F j, Y g:i a' ),
 						'status'  => 'success',
+						'url'     => sprintf(
+							'%1$s/?p=%2$d',
+							get_site_url_from_rest_url( $external_connection_url ),
+							(int) $remote_post['id']
+						),
+						'errors'  => empty( $remote_post['push-errors'] ) ? array() : $remote_post['push-errors'],
 					);
 
-					$external_connection->log_sync( array( $remote_id => $_POST['postId'] ) );
+					$external_connection->log_sync( array( (int) $remote_post['id'] => $_POST['postId'] ) );
 				} else {
 					$external_push_results[ (int) $connection['id'] ] = array(
-						'post_id' => (int) $remote_id,
-						'date'    => date( 'F j, Y g:i a' ),
-						'status'  => 'fail',
+						'date'   => gmdate( 'F j, Y g:i a' ),
+						'status' => 'fail',
+						'errors' => array( $remote_post->get_error_message() ),
 					);
 				}
 			}
@@ -304,34 +323,35 @@ function ajax_push() {
 				$push_args['post_status'] = esc_attr( $_POST['postStatus'] );
 			}
 
-			$remote_id = $internal_connection->push( intval( $_POST['postId'] ), $push_args );
+			$remote_post = $internal_connection->push( intval( $_POST['postId'] ), $push_args );
 
 			/**
 			 * Record the internal connection id's remote post id for this local post
 			 */
-			if ( ! is_wp_error( $remote_id ) ) {
+			if ( ! is_wp_error( $remote_post ) ) {
 				$origin_site = get_current_blog_id();
 				switch_to_blog( intval( $connection['id'] ) );
-				$remote_url = get_permalink( $remote_id );
-				$internal_connection->log_sync( array( $_POST['postId'] => $remote_id ), $origin_site );
+				$remote_url = get_permalink( $remote_post['id'] );
+				$internal_connection->log_sync( array( $_POST['postId'] => $remote_post['id'] ), $origin_site );
 				restore_current_blog();
 
 				$connection_map['internal'][ (int) $connection['id'] ] = array(
-					'post_id' => (int) $remote_id,
+					'post_id' => (int) $remote_post['id'],
 					'time'    => time(),
 				);
 
-				$internal_push_results[ (int) $connection['id']  ] = array(
-					'post_id' => (int) $remote_id,
+				$internal_push_results[ (int) $connection['id'] ] = array(
+					'post_id' => (int) $remote_post['id'],
 					'url'     => esc_url_raw( $remote_url ),
-					'date'    => date( 'F j, Y g:i a' ),
+					'date'    => gmdate( 'F j, Y g:i a' ),
 					'status'  => 'success',
+					'errors'  => empty( $remote_post['push-errors'] ) ? array() : $remote_post['push-errors'],
 				);
 			} else {
 				$internal_push_results[ (int) $connection['id'] ] = array(
-					'post_id' => (int) $remote_id,
-					'date'    => date( 'F j, Y g:i a' ),
-					'status'  => 'fail',
+					'errors' => array( $remote_post->get_error_message() ),
+					'date'   => gmdate( 'F j, Y g:i a' ),
+					'status' => 'fail',
 				);
 			}
 		}
@@ -363,7 +383,7 @@ function enqueue_scripts( $hook ) {
 	}
 
 	wp_enqueue_style( 'dt-push', plugins_url( '/dist/css/push.min.css', __DIR__ ), array(), DT_VERSION );
-	wp_enqueue_script( 'dt-push', plugins_url( '/dist/js/push.min.js', __DIR__ ), array( 'jquery', 'underscore', 'hoverIntent' ), DT_VERSION, true );
+	wp_enqueue_script( 'dt-push', plugins_url( '/dist/js/push.min.js', __DIR__ ), array( 'jquery', 'underscore' ), DT_VERSION, true );
 	wp_localize_script(
 		'dt-push',
 		'dt',
@@ -372,6 +392,10 @@ function enqueue_scripts( $hook ) {
 			'loadConnectionsNonce' => wp_create_nonce( 'dt-load-connections' ),
 			'postId'               => (int) get_the_ID(),
 			'ajaxurl'              => esc_url( admin_url( 'admin-ajax.php' ) ),
+			'messages'             => array(
+				'ajax_error'   => __( 'Ajax error:', 'distributor' ),
+				'empty_result' => __( 'Received empty result.', 'distributor' ),
+			),
 
 			/**
 			 * Filter whether front end ajax requests should use xhrFields credentials:true.
@@ -410,6 +434,41 @@ function menu_button( $wp_admin_bar ) {
 			'href'  => '#',
 		)
 	);
+
+	$wp_admin_bar->add_node(
+		array(
+			'parent' => 'distributor',
+			'id'     => 'distributor-placeholder',
+			'title'  => esc_html__( 'Distributor', 'distributor' ),
+			'href'   => '#',
+		)
+	);
+}
+
+/**
+ * Get Site URL from REST URL.
+ * We can not assume the REST API prefix is wp-json because it can be changed to
+ * a custom prefix.
+ *
+ * @param string $rest_url REST URL. Eg: domain.com/wp-json
+ *
+ * @return string Site URL.
+ */
+function get_site_url_from_rest_url( $rest_url ) {
+	$_url = explode( '/', untrailingslashit( $rest_url ) );
+
+	if ( count( $_url ) < 2 ) {
+		return $rest_url;
+	}
+
+	array_pop( $_url );
+	$url = implode( '/', $_url );
+
+	if ( false === strpos( $url, 'http' ) ) {
+		$url = '//' . $url;
+	}
+
+	return $url;
 }
 
 /**
@@ -462,33 +521,37 @@ function menu_content() {
 
 				<div class="connections-selector">
 					<div>
-						<button class="selectall-connections unavailable"><?php esc_html_e( 'Select All', 'distributor' ); ?></button>
-						<button class="selectno-connections unavailable"><?php esc_html_e( 'None', 'distributor' ); ?></button>
 						<# if ( 5 < _.keys( connections ).length ) { #>
 							<input type="text" id="dt-connection-search" placeholder="<?php esc_attr_e( 'Search available connections', 'distributor' ); ?>">
 						<# } #>
-
 						<div class="new-connections-list">
 							<# for ( var key in connections ) { #>
-								<# if ( 'external' === connections[ key ]['type'] ) { #>
-									<div class="add-connection<# if ( ! _.isEmpty( connections[ key ]['syndicated'] ) ) { #> syndicated<# } #>" data-connection-type="external" data-connection-id="{{ connections[ key ]['id'] }}">
+								<button
+									class="add-connection<# if ( ! _.isEmpty( connections[ key ]['syndicated'] ) ) { #> syndicated<# } #>"
+									data-connection-type="{{ connections[ key ]['type'] }}"
+									data-connection-id="{{ connections[ key ]['id'] }}"
+									<# if ( ! _.isEmpty( connections[ key ]['syndicated'] ) && connections[ key ]['syndicated'] ) { #>disabled<# } #>
+								>
+									<# if ( 'external' === connections[ key ]['type'] ) { #>
 										<span>{{ connections[ key ]['name'] }}</span>
-									</div>
-								<# } else { #>
-									<div class="add-connection<# if ( ! _.isEmpty( connections[ key ]['syndicated'] ) ) { #> syndicated<# } #>" data-connection-type="internal" data-connection-id="{{ connections[ key ]['id'] }}">
+									<# } else { #>
 										<span>{{ connections[ key ]['url'] }}</span>
-										<# if ( ! _.isEmpty( connections[ key ]['syndicated'] ) ) { #>
-											<a href="{{ connections[ key ]['syndicated'] }}"><?php esc_html_e( 'View', 'distributor' ); ?></a>
-										<# } #>
-									</div>
-								<# } #>
+									<# } #>
+									<# if ( ! _.isEmpty( connections[ key ]['syndicated'] ) && connections[ key ]['syndicated'] ) { #>
+										<a href="{{ connections[ key ]['syndicated'] }}"><?php esc_html_e( 'View', 'distributor' ); ?></a>
+									<# } #>
+								</button>
 							<# } #>
 						</div>
+
+						<button class="button button-primary selectall-connections unavailable"><?php esc_html_e( 'Select All', 'distributor' ); ?></button>
+
 					</div>
 				</div>
 				<div class="connections-selected empty">
 					<header class="with-selected">
 						<?php esc_html_e( 'Selected connections', 'distributor' ); ?>
+						<button class="button button-link selectno-connections unavailable"><?php esc_html_e( 'Clear', 'distributor' ); ?></button>
 					</header>
 					<header class="no-selected">
 						<?php esc_html_e( 'No connections selected', 'distributor' ); ?>
@@ -513,7 +576,7 @@ function menu_content() {
 						 */
 						$as_draft = apply_filters( 'dt_allow_as_draft_distribute', $as_draft, $connection = null, $post );
 						?>
-						<button class="syndicate-button"><?php esc_html_e( 'Distribute', 'distributor' ); ?></button> <?php if ( $as_draft ) : ?><label class="as-draft" for="dt-as-draft"><input type="checkbox" id="dt-as-draft" checked> <?php esc_html_e( 'As draft', 'distributor' ); ?></label><?php endif; ?>
+						<button class="button button-primary syndicate-button"><?php esc_html_e( 'Distribute', 'distributor' ); ?></button> <?php if ( $as_draft ) : ?><label class="as-draft" for="dt-as-draft"><input type="checkbox" id="dt-as-draft" checked> <?php esc_html_e( 'As draft', 'distributor' ); ?></label><?php endif; ?>
 					</div>
 
 				</div>
@@ -523,7 +586,9 @@ function menu_content() {
 						<?php esc_html_e( 'Post successfully distributed.', 'distributor' ); ?>
 					</div>
 					<div class="dt-error">
-						<?php esc_html_e( 'There was an issue distributing the post.', 'distributor' ); ?>
+						<?php esc_html_e( 'There were some issues distributing the post.', 'distributor' ); ?>
+						<ul class="details">
+						</ul>
 					</div>
 				</div>
 
@@ -536,17 +601,17 @@ function menu_content() {
 		</script>
 
 		<script id="dt-add-connection" type="text/html">
-			<div class="<# if (selectedConnections[connection.type + connection.id]) { #>added<# }#> add-connection <# if (connection.syndicated) { #>syndicated<# } #>" data-connection-type="{{ connection.type }}" data-connection-id="{{ connection.id }}">
+			<button class="<# if (selectedConnections[connection.type + connection.id]) { #>added<# }#> add-connection <# if (connection.syndicated) { #>syndicated<# } #>" data-connection-type="{{ connection.type }}" data-connection-id="{{ connection.id }}" <# if (connection.syndicated) { #>disabled<# } #>>
 				<# if ('internal' === connection.type) { #>
 					<span>{{ connection.url }}</span>
 				<# } else { #>
 					<span>{{{ connection.name }}}</span>
 				<# } #>
 
-				<# if ('internal' === connection.type && connection.syndicated) { #>
+				<# if (connection.syndicated) { #>
 					<a href="{{ connection.syndicated }}"><?php esc_html_e( 'View', 'distributor' ); ?></a>
 				<# } #>
-			</div>
+			</button>
 		</script>
 
 		<div id="distributor-push-wrapper">

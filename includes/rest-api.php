@@ -19,6 +19,8 @@ function setup() {
 		'init',
 		function() {
 			add_action( 'rest_api_init', __NAMESPACE__ . '\register_endpoints' );
+			add_action( 'rest_api_init', __NAMESPACE__ . '\register_rest_routes' );
+			add_action( 'rest_api_init', __NAMESPACE__ . '\register_push_errors_field' );
 
 			$post_types = get_post_types(
 				array(
@@ -129,6 +131,21 @@ function process_distributor_attributes( $post, $request, $update ) {
 }
 
 /**
+ * Register custom routes to handle distributor specific functionality.
+ */
+function register_rest_routes() {
+	register_rest_route(
+		'wp/v2',
+		'distributor/post-types-permissions',
+		array(
+			'methods'             => 'GET',
+			'callback'            => __NAMESPACE__ . '\check_post_types_permissions',
+			'permission_callback' => '__return_true',
+		)
+	);
+}
+
+/**
  * Filter the data requested over REST API when a post is pulled.
  *
  * @param \WP_REST_Response $response Response object.
@@ -143,12 +160,15 @@ function prepare_distributor_content( $response, $post, $request ) {
 	if ( '1' !== $request->get_param( 'distributor_request' ) ) {
 		return $response;
 	}
+
+	$post_data = $response->get_data();
+
 	// Is the local site is running Gutenberg?
 	if ( \Distributor\Utils\is_using_gutenberg( $post ) ) {
-		$post_data                       = $response->get_data();
 		$post_data['is_using_gutenberg'] = true;
-		$response->set_data( $post_data );
 	}
+
+	$response->set_data( $post_data );
 
 	return $response;
 }
@@ -252,4 +272,84 @@ function register_endpoints() {
 			),
 		)
 	);
+
+	// Register a distributor meta endpoint
+	register_rest_route(
+		'wp/v2',
+		'/dt_meta',
+		array(
+			'methods'             => 'GET',
+			'callback'            => __NAMESPACE__ . '\distributor_meta',
+			'permission_callback' => '__return_true',
+		)
+	);
+
+}
+
+/**
+ * Return plugin meta information.
+ */
+function distributor_meta() {
+	return array(
+		'version' => DT_VERSION,
+	);
+}
+
+/**
+ * Check user permissions for available post types
+ */
+function check_post_types_permissions() {
+	$types = get_post_types(
+		array(
+			'show_in_rest' => true,
+		),
+		'objects'
+	);
+
+	$response = array(
+		'can_get'          => array(),
+		'can_post'         => array(),
+		'is_authenticated' => get_current_user_id() ? 'yes' : 'no',
+	);
+
+	foreach ( $types as $type ) {
+		$caps                  = $type->cap;
+		$response['can_get'][] = $type->name;
+
+		if ( current_user_can( $caps->edit_posts ) && current_user_can( $caps->create_posts ) && current_user_can( $caps->publish_posts ) ) {
+			$response['can_post'][] = $type->name;
+		}
+	}
+
+	return $response;
+}
+
+/**
+ * Register push errors field so we can send errors over the REST API.
+ */
+function register_push_errors_field() {
+
+	$post_types = get_post_types(
+		array(
+			'show_in_rest' => true,
+		)
+	);
+
+	foreach ( $post_types as $post_type ) {
+		register_rest_field(
+			$post_type,
+			'push-errors',
+			array(
+				'get_callback' => function( $params ) {
+					$media_errors = get_transient( 'dt_media_errors_' . $params['id'] );
+
+					if ( ! empty( $media_errors ) ) {
+						delete_transient( 'dt_media_errors_' . $params['id'] );
+						return $media_errors;
+					}
+					return false;
+				},
+			)
+		);
+	}
 }

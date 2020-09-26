@@ -36,12 +36,15 @@ class TestCase extends \WPAcceptance\PHPUnit\TestCase {
 			$info['original_front_url'] = $I->getElementAttribute( '#wp-admin-bar-preview a', 'href' );
 		}
 
+		$this->disableFullscreenEditor( $I );
+
 		$I->waitUntilElementVisible( '#wp-admin-bar-distributor a' );
 
 		$this->dismissNUXTip( $I );
 
 		$I->moveMouse( '#wp-admin-bar-distributor a' );
 
+		$I->click( '#wp-admin-bar-distributor a' );
 		$I->click( '#wp-admin-bar-distributor a' );
 
 		$I->waitUntilElementVisible( '#distributor-push-wrapper .new-connections-list' );
@@ -273,5 +276,16 @@ class TestCase extends \WPAcceptance\PHPUnit\TestCase {
 		$actor->typeInField( '#dt_external_connection_url', $connection_url );
 		$actor->pressEnterKey( '#create-connection' );
 		$actor->waitUntilElementVisible( '.notice-success' );
+	}
+
+	/**
+	 * Disable new default fullscreen mode in WP 5.4.
+	 *
+	 * @param \WPAcceptance\PHPUnit\Actor $actor The actor.
+	 */
+	protected function disableFullscreenEditor( $actor ) {
+		$script = "if ( !! wp.data && wp.data.select( 'core/edit-post' ).isFeatureActive( 'fullscreenMode' ) ) { wp.data.dispatch( 'core/edit-post' ).toggleFeature( 'fullscreenMode' ); }";
+
+		$actor->executeJavascript( $script );
 	}
 }
