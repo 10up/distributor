@@ -49,7 +49,7 @@ There are two connection types: `internal` and `external`.
 
 Distributor is built with the same extensible approach as WordPress itself, with [fully documented hooks and filters](https://10up.github.io/distributor/) to customize its default behavior and create custom distribution workflows.  You can even create connections to other platforms.
 
-## Requirements
+## Essential Requirements
 
 * PHP 5.6+
 * [WordPress](http://wordpress.org) 4.7+
