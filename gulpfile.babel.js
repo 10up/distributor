@@ -38,15 +38,15 @@ gulp.task( 'watch', () => {
 	gulp.watch( './assets/js/*.js', gulp.series( 'js' ) );
 } );
 
-/**
- * Gulp task to run the default release processes in a sequential order.
- */
+/*
+Gulp task to run the default  sequential order in a release processes .
+
+
+*/
 gulp.task( 'release', ( callback ) => {
 	return runSequence(
-		'css',
-		'js',
-		'copy',
-		callback()
+		'css','js','copy',callback()
+		
 	);
 } );
 
