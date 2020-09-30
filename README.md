@@ -25,7 +25,7 @@ _Note:_ The latest stable version of the plugin is the _stable_ branch. [Downloa
 * [Changelog](#changelog)
 * [Contributing](#contributing)
 
-## Features
+## Features:vast features
 
 Distributor supports safe, SEO-friendly content reuse and sharing via "pushing" and "pulling".
 
