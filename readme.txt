@@ -21,7 +21,7 @@ Distributor makes it easy to distribute and reuse content across your websites â
 
 **Connections**
 
-There are two connection types: `internal` and `external`.
+There are two connection types: `internal` and `external`. Following has been described below :
 
 * Internal connections are other sites inside of the same multisite network. Any user logged into the network can distribute any content in the network to any other sites in the network where that user has permission to publish posts (assuming the site supports the same post type).
 * External connections are external websites, connected by the JSON REST API. External connections can be added in the WordPress admin dashboard under `Distributor` > `External Connections`. Administrators can decide which user roles are allowed to distribute content to and from that connection (Editors and Administrators by default). All users with those roles will inherit the permissions of the user account used to establish the remote connection.
