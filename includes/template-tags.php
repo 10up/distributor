@@ -3,9 +3,7 @@
  * These functions are intended to be used within themes and plugins
  *
  * @package  distributor
- */
-
-/**
+ *
  * Determine if post is unlinked
  *
  * @param  int $post_id Post ID.
