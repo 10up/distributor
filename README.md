@@ -136,3 +136,4 @@ Please read [CODE_OF_CONDUCT.md](https://github.com/10up/distributor/blob/develo
 ## Like what you see?
 
 <a href="http://10up.com/contact/"><img src="https://10up.com/uploads/2016/10/10up-Github-Banner.png" width="850"></a>
+## Thank you.
