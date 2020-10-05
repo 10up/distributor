@@ -575,8 +575,28 @@ function menu_content() {
 						 * @return {bool} Whether the 'As Draft' option should appear.
 						 */
 						$as_draft = apply_filters( 'dt_allow_as_draft_distribute', $as_draft, $connection = null, $post );
+
+						/**
+						 * Filter whether the 'As Draft' option is checked by default.
+						 *
+						 * @hook dt_as_draft_distribute_default
+						 *
+						 * @param {bool}    $checked    Whether the 'As Draft' option is checked by default.
+						 * @param {object}  $connection The connection being used to push.
+						 * @param {WP_Post} $post       The post being pushed.
+						 *
+						 * @return {bool} Whether the 'As Draft' option should appear.
+						 */
+						$as_draft_checked = apply_filters( 'dt_as_draft_distribute_default', true, $connection = null, $post );
 						?>
-						<button class="button button-primary syndicate-button"><?php esc_html_e( 'Distribute', 'distributor' ); ?></button> <?php if ( $as_draft ) : ?><label class="as-draft" for="dt-as-draft"><input type="checkbox" id="dt-as-draft" checked> <?php esc_html_e( 'As draft', 'distributor' ); ?></label><?php endif; ?>
+						<button class="button button-primary syndicate-button">
+							<?php esc_html_e( 'Distribute', 'distributor' ); ?>
+						</button>
+						<?php if ( $as_draft ) : ?>
+							<label class="as-draft" for="dt-as-draft">
+								<input type="checkbox" id="dt-as-draft" <?php checked( $as_draft_checked ); ?>> <?php esc_html_e( 'As draft', 'distributor' ); ?>
+							</label>
+						<?php endif; ?>
 					</div>
 
 				</div>
