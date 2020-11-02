@@ -183,6 +183,8 @@ add_action(
 		) {
 			\Distributor\Connections::factory()->register( '\Distributor\InternalConnections\NetworkSiteConnection' );
 		}
+
+		load_plugin_textdomain( 'distributor', false, dirname( plugin_basename( __FILE__ ) ) . '/lang' );
 	},
 	1
 );
