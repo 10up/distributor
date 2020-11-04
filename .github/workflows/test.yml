@@ -17,7 +17,7 @@ jobs:
 
     strategy:
       matrix:
-        snapshot: ['wp-4.9', 'wp-4.9-gutenberg-4.9', 'wp-5.4.2']
+        snapshot: ["3593222a181f0f91824947dbd06985d5", "9ea863cebfcbb416c6334a6bef6552f0", "803989004f4b101a644ebfe9bb67e712"]
 
     steps:
     - name: Checkout
@@ -37,7 +37,7 @@ jobs:
       run: ./vendor/bin/wpsnapshots configure 10up --aws_key=${{ secrets.AWS_ACCESS_KEY_ID }} --aws_secret=${{ secrets.AWS_SECRET_ACCESS_KEY }} --user_name=wp-acceptance --user_email=travis@10up.com
 
     - name: Test
-      run: ./vendor/bin/wpacceptance run --snapshot_name=${{ matrix.snapshot }}
+      run: ./vendor/bin/wpacceptance run --snapshot_id=${{ matrix.snapshot }}
 
   phpunit:
     runs-on: ubuntu-latest
