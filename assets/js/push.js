@@ -1,6 +1,7 @@
 import jQuery from 'jquery';
 import _ from 'underscores';
 import { dt } from 'window';
+import Mustache from 'mustache';
 
 let selectedConnections = {},
 	searchString        = '';
@@ -10,14 +11,19 @@ const processTemplate = _.memoize( ( id ) => {
 		return false;
 	}
 
-	// Use WordPress style Backbone template syntax
-	const options = {
-		evaluate:    /<#([\s\S]+?)#>/g,
-		interpolate: /{{{([\s\S]+?)}}}/g,
-		escape:      /{{([^}]+?)}}(?!})/g
-	};
+	if ( element.attributes.template ) {
+		Mustache.parse( element.innerHTML );
+		return 'mustache';
+	} else {
+		// Use WordPress style Backbone template syntax
+		const options = {
+			evaluate:    /<#([\s\S]+?)#>/g,
+			interpolate: /{{{([\s\S]+?)}}}/g,
+			escape:      /{{([^}]+?)}}(?!})/g
+		};
 
-	return _.template( element.innerHTML, null, options );
+		return _.template( element.innerHTML, null, options );
+	}
 } );
 
 jQuery( window ).on( 'load', () => {
@@ -172,6 +178,8 @@ jQuery( window ).on( 'load', () => {
 	*/
 	function showConnections() {
 		connectionsNewList.innerText = '';
+		const template = processTemplate( 'dt-add-connection' );
+		let showConnection = '';
 
 		_.each( dtConnections, ( connection ) => {
 			if ( '' !== searchString ) {
@@ -183,10 +191,17 @@ jQuery( window ).on( 'load', () => {
 				}
 			}
 
-			const showConnection = processTemplate( 'dt-add-connection' )( {
-				connection: connection,
-				selectedConnections: selectedConnections
-			} );
+			if ( 'mustache' === template ) {
+				showConnection = Mustache.render( document.getElementById( 'dt-add-connection' ).innerHTML, {
+					connection: connection,
+					selectedConnections: selectedConnections
+				} );
+			} else {
+				showConnection = template( {
+					connection: connection,
+					selectedConnections: selectedConnections
+				} );
+			}
 
 			connectionsNewList.innerHTML += showConnection;
 		} );
@@ -241,6 +256,7 @@ jQuery( window ).on( 'load', () => {
 			postId: dt.postId
 		};
 
+		const template = processTemplate( 'dt-show-connections' );
 		const xhr = dt.usexhr ? { withCredentials: true } : false;
 
 		jQuery.ajax( {
@@ -257,9 +273,21 @@ jQuery( window ).on( 'load', () => {
 
 			dtConnections = response.data;
 
-			distributorPushWrapper.innerHTML = processTemplate( 'dt-show-connections' )( {
-				connections: dtConnections,
-			} );
+			if ( 'mustache' === template ) {
+				const mustacheData = { 'connections' : [] };
+				for ( const prop in dtConnections ) {
+					mustacheData['connections'].push( dtConnections[prop] );
+				}
+
+				distributorPushWrapper.innerHTML = Mustache.render( document.getElementById( 'dt-show-connections' ).innerHTML, {
+					connections: mustacheData['connections'],
+					foundConnections: mustacheData['connections'].length
+				} );
+			} else {
+				distributorPushWrapper.innerHTML = template( {
+					connections: dtConnections,
+				} );
+			}
 
 			setVariables();
 		} ).error( () => {

@@ -7,6 +7,8 @@
 
 namespace Distributor\PushUI;
 
+use AmpProject\Dom\Document;
+
 /**
  * Setup actions and filters
  *
@@ -18,6 +20,7 @@ function setup() {
 		function() {
 			add_action( 'admin_enqueue_scripts', __NAMESPACE__ . '\enqueue_scripts' );
 			add_action( 'wp_enqueue_scripts', __NAMESPACE__ . '\enqueue_scripts' );
+			add_filter( 'amp_dev_mode_element_xpaths', __NAMESPACE__ . '\add_dev_mode_to_assets' );
 			add_action( 'wp_ajax_dt_load_connections', __NAMESPACE__ . '\get_connections' );
 			add_action( 'wp_ajax_dt_push', __NAMESPACE__ . '\ajax_push' );
 			add_action( 'admin_bar_menu', __NAMESPACE__ . '\menu_button', 999 );
@@ -417,6 +420,32 @@ function enqueue_scripts( $hook ) {
 }
 
 /**
+ * Add the amp dev mode to assets we need for distribution to work
+ *
+ * @param array $xpaths Current array of element paths
+ * @return array
+ */
+function add_dev_mode_to_assets( $xpaths = [] ) {
+	if ( ! syndicatable() ) {
+		return;
+	}
+
+	$ids = [
+		'dt-push-css',
+		'dt-push-js',
+		'dt-push-js-extra',
+		'jquery-core-js',
+		'underscore-js',
+	];
+
+	foreach ( $ids as $id ) {
+		$xpaths[] = sprintf( '//*[ @id = "%s" ]', $id );
+	}
+
+	return $xpaths;
+}
+
+/**
  * Let's setup our distributor menu in the toolbar
  *
  * @param object $wp_admin_bar Admin bar object.
@@ -511,108 +540,14 @@ function menu_content() {
 		</div>
 		<?php
 	} else {
+		if ( function_exists( 'amp_is_request' ) && amp_is_request() ) {
+			include DT_PLUGIN_PATH . 'templates/show-connections-amp.php';
+			include DT_PLUGIN_PATH . 'templates/add-connection-amp.php';
+		} else {
+			include DT_PLUGIN_PATH . 'templates/show-connections.php';
+			include DT_PLUGIN_PATH . 'templates/add-connection.php';
+		}
 		?>
-
-		<script id="dt-show-connections" type="text/html">
-			<div class="inner">
-			<# if ( ! _.isEmpty( connections ) ) { #>
-				<?php /* translators: %s the post title */ ?>
-				<p><?php echo sprintf( esc_html__( 'Distribute &quot;%s&quot; to other connections.', 'distributor' ), esc_html( get_the_title( $post->ID ) ) ); ?></p>
-
-				<div class="connections-selector">
-					<div>
-						<# if ( 5 < _.keys( connections ).length ) { #>
-							<input type="text" id="dt-connection-search" placeholder="<?php esc_attr_e( 'Search available connections', 'distributor' ); ?>">
-						<# } #>
-						<div class="new-connections-list">
-							<# for ( var key in connections ) { #>
-								<button
-									class="add-connection<# if ( ! _.isEmpty( connections[ key ]['syndicated'] ) ) { #> syndicated<# } #>"
-									data-connection-type="{{ connections[ key ]['type'] }}"
-									data-connection-id="{{ connections[ key ]['id'] }}"
-									<# if ( ! _.isEmpty( connections[ key ]['syndicated'] ) && connections[ key ]['syndicated'] ) { #>disabled<# } #>
-								>
-									<# if ( 'external' === connections[ key ]['type'] ) { #>
-										<span>{{ connections[ key ]['name'] }}</span>
-									<# } else { #>
-										<span>{{ connections[ key ]['url'] }}</span>
-									<# } #>
-									<# if ( ! _.isEmpty( connections[ key ]['syndicated'] ) && connections[ key ]['syndicated'] ) { #>
-										<a href="{{ connections[ key ]['syndicated'] }}"><?php esc_html_e( 'View', 'distributor' ); ?></a>
-									<# } #>
-								</button>
-							<# } #>
-						</div>
-
-						<button class="button button-primary selectall-connections unavailable"><?php esc_html_e( 'Select All', 'distributor' ); ?></button>
-
-					</div>
-				</div>
-				<div class="connections-selected empty">
-					<header class="with-selected">
-						<?php esc_html_e( 'Selected connections', 'distributor' ); ?>
-						<button class="button button-link selectno-connections unavailable"><?php esc_html_e( 'Clear', 'distributor' ); ?></button>
-					</header>
-					<header class="no-selected">
-						<?php esc_html_e( 'No connections selected', 'distributor' ); ?>
-					</header>
-
-					<div class="selected-connections-list"></div>
-
-					<div class="action-wrapper">
-						<input type="hidden" id="dt-post-status" value="<?php echo esc_attr( $post->post_status ); ?>">
-						<?php
-						$as_draft = ( 'draft' !== $post->post_status ) ? true : false;
-						/**
-						 * Filter whether the 'As Draft' option appears in the push ui.
-						 *
-						 * @hook dt_allow_as_draft_distribute
-						 *
-						 * @param {bool}    $as_draft   Whether the 'As Draft' option should appear.
-						 * @param {object}  $connection The connection being used to push.
-						 * @param {WP_Post} $post       The post being pushed.
-						 *
-						 * @return {bool} Whether the 'As Draft' option should appear.
-						 */
-						$as_draft = apply_filters( 'dt_allow_as_draft_distribute', $as_draft, $connection = null, $post );
-						?>
-						<button class="button button-primary syndicate-button"><?php esc_html_e( 'Distribute', 'distributor' ); ?></button> <?php if ( $as_draft ) : ?><label class="as-draft" for="dt-as-draft"><input type="checkbox" id="dt-as-draft" checked> <?php esc_html_e( 'As draft', 'distributor' ); ?></label><?php endif; ?>
-					</div>
-
-				</div>
-
-				<div class="messages">
-					<div class="dt-success">
-						<?php esc_html_e( 'Post successfully distributed.', 'distributor' ); ?>
-					</div>
-					<div class="dt-error">
-						<?php esc_html_e( 'There were some issues distributing the post.', 'distributor' ); ?>
-						<ul class="details">
-						</ul>
-					</div>
-				</div>
-
-			<# } else { #>
-				<p class="no-connections-notice">
-					<?php esc_html_e( 'No connections available for distribution.', 'distributor' ); ?>
-				</p>
-			<# } #>
-			</div>
-		</script>
-
-		<script id="dt-add-connection" type="text/html">
-			<button class="<# if (selectedConnections[connection.type + connection.id]) { #>added<# }#> add-connection <# if (connection.syndicated) { #>syndicated<# } #>" data-connection-type="{{ connection.type }}" data-connection-id="{{ connection.id }}" <# if (connection.syndicated) { #>disabled<# } #>>
-				<# if ('internal' === connection.type) { #>
-					<span>{{ connection.url }}</span>
-				<# } else { #>
-					<span>{{{ connection.name }}}</span>
-				<# } #>
-
-				<# if (connection.syndicated) { #>
-					<a href="{{ connection.syndicated }}"><?php esc_html_e( 'View', 'distributor' ); ?></a>
-				<# } #>
-			</button>
-		</script>
 
 		<div id="distributor-push-wrapper">
 			<div class="inner">
