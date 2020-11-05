@@ -32,10 +32,9 @@ jobs:
       with:
         php-version: '7.2'
         coverage: none
-        tools: composer:v1
 
     - name: Install dependencies
-      run: composer install
+      run: composer install --ignore-platform-reqs
 
     - name: Setup WP Snapshots
       run: ./vendor/bin/wpsnapshots configure 10up --aws_key=${{ secrets.AWS_ACCESS_KEY_ID }} --aws_secret=${{ secrets.AWS_SECRET_ACCESS_KEY }} --user_name=wpacceptance --user_email=wpacceptance@10up.com
@@ -55,10 +54,9 @@ jobs:
       with:
         php-version: '7.2'
         coverage: none
-        tools: composer:v1
 
     - name: Install dependencies
-      run: composer install
+      run: composer install --ignore-platform-reqs
 
     - name: PHPUnit
       run: './vendor/bin/phpunit'
