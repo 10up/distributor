@@ -8,19 +8,5 @@
     ],
     "enforce_clean_db": true,
     "bootstrap": "tests\/wpacceptance\/bootstrap.php",
-    "repository": "10up",
-    "snapshots": [
-      {
-        "snapshot_name": "wp-4.9",
-        "snapshot_id": "3593222a181f0f91824947dbd06985d5"
-      },
-      {
-        "snapshot_name": "wp-4.9-gutenberg-4.9",
-        "snapshot_id": "9ea863cebfcbb416c6334a6bef6552f0"
-      },
-      {
-        "snapshot_name": "wp-5.4.2",
-        "snapshot_id": "803989004f4b101a644ebfe9bb67e712"
-      }
-    ]
+    "repository": "10up"
 }

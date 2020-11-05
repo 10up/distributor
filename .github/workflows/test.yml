@@ -17,7 +17,11 @@ jobs:
 
     strategy:
       matrix:
-        snapshot: ["3593222a181f0f91824947dbd06985d5", "9ea863cebfcbb416c6334a6bef6552f0", "803989004f4b101a644ebfe9bb67e712"]
+        snapshot: [
+          "3593222a181f0f91824947dbd06985d5", # WP 4.9
+          "9ea863cebfcbb416c6334a6bef6552f0", # WP 4.9 & Gutenberg 4.9
+          "803989004f4b101a644ebfe9bb67e712", # WP 5.4
+        ]
 
     steps:
     - name: Checkout
