@@ -22,9 +22,9 @@
 							{{#syndicated}} disabled="true"{{/syndicated}}
 						>
 								<span>{{{name}}}</span>
-							{{#syndicated}}
-								<a href="{{{syndicated}}}"><?php esc_html_e( 'View', 'distributor' ); ?></a>
-							{{/syndicated}}
+								{{#syndicated}}
+									<a href="{{{syndicated}}}"><?php esc_html_e( 'View', 'distributor' ); ?></a>
+								{{/syndicated}}
 						</button>
 					{{/connections}}
 				</div>

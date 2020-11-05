@@ -7,8 +7,6 @@
 
 namespace Distributor\PushUI;
 
-use AmpProject\Dom\Document;
-
 /**
  * Setup actions and filters
  *

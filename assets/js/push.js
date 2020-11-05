@@ -192,9 +192,14 @@ jQuery( window ).on( 'load', () => {
 			}
 
 			if ( 'mustache' === template ) {
+				if ( selectedConnections[connection.type + connection.id] ) {
+					connection.added = true;
+				} else {
+					connection.added = false;
+				}
+
 				showConnection = Mustache.render( document.getElementById( 'dt-add-connection' ).innerHTML, {
 					connection: connection,
-					selectedConnections: selectedConnections
 				} );
 			} else {
 				showConnection = template( {
@@ -276,12 +281,12 @@ jQuery( window ).on( 'load', () => {
 			if ( 'mustache' === template ) {
 				const mustacheData = { 'connections' : [] };
 				for ( const prop in dtConnections ) {
-					mustacheData['connections'].push( dtConnections[prop] );
+					mustacheData.connections.push( dtConnections[prop] );
 				}
 
 				distributorPushWrapper.innerHTML = Mustache.render( document.getElementById( 'dt-show-connections' ).innerHTML, {
-					connections: mustacheData['connections'],
-					foundConnections: mustacheData['connections'].length
+					connections: mustacheData.connections,
+					foundConnections: mustacheData.connections.length
 				} );
 			} else {
 				distributorPushWrapper.innerHTML = template( {
@@ -404,7 +409,6 @@ jQuery( window ).on( 'load', () => {
 
 			element.appendChild( removeLink );
 			element.classList = 'added-connection';
-
 			connectionsSelectedList.appendChild( element );
 
 			if ( selectNoConnections.classList.contains ( 'unavailable' ) ) {
