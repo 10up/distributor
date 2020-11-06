@@ -10,7 +10,7 @@
 			class="add-connection{{#added}} added{{/added}}{{#syndicated}} syndicated{{/syndicated}}"
 			data-connection-type="{{{type}}}"
 			data-connection-id="{{{id}}}"
-			{{#syndicated}} disabled="true"{{/syndicated}}
+			{{#syndicated}}disabled{{/syndicated}}
 		>
 			<span>{{{name}}}</span>
 
