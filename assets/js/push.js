@@ -93,6 +93,28 @@ jQuery( window ).on( 'load', () => {
 	}
 
 	/**
+	 * Set the disabled attribute on connections already syndicated
+	 *
+	 * This is currently only used for the mustache templates, which
+	 * are only used in AMP contexts. Seems the AMP plugin will
+	 * strip out any normal disabled attributes, so we handle that here
+	 * instead of in the template.
+	 */
+	function setDisabledConnections() {
+		connectionsNewList = distributorPushWrapper.querySelector( '.new-connections-list' );
+
+		if ( null !== connectionsNewList ) {
+			connectionsNewListChildren = connectionsNewList.querySelectorAll( '.add-connection' );
+
+			_.each( connectionsNewListChildren, ( element ) => {
+				if ( element.classList.contains ( 'syndicated' ) ) {
+					element.disabled = true;
+				}
+			} );
+		}
+	}
+
+	/**
 	 * Handle UI error changes
 	 */
 	function doError( messages ) {
@@ -192,10 +214,15 @@ jQuery( window ).on( 'load', () => {
 			}
 
 			if ( 'mustache' === template ) {
+				// Modify connection data to match what mustache wants
 				if ( selectedConnections[connection.type + connection.id] ) {
 					connection.added = true;
 				} else {
 					connection.added = false;
+				}
+
+				if ( 'internal' === connection.type ) {
+					connection.internal = true;
 				}
 
 				showConnection = Mustache.render( document.getElementById( 'dt-add-connection' ).innerHTML, {
@@ -213,6 +240,10 @@ jQuery( window ).on( 'load', () => {
 
 		if ( '' === connectionsNewList.innerHTML ) {
 			connectionsNewList.innerHTML = '<p class="no-results">No results</p>';
+		}
+
+		if ( 'mustache' === template ) {
+			setDisabledConnections();
 		}
 	}
 
@@ -279,15 +310,23 @@ jQuery( window ).on( 'load', () => {
 			dtConnections = response.data;
 
 			if ( 'mustache' === template ) {
+				// Manipulate the data to match what mustache needs
 				const mustacheData = { 'connections' : [] };
-				for ( const prop in dtConnections ) {
-					mustacheData.connections.push( dtConnections[prop] );
-				}
+				_.each( dtConnections, ( connection ) => {
+					if ( 'internal' === connection.type ) {
+						connection.internal = true;
+					}
+
+					mustacheData.connections.push( connection );
+				} );
 
 				distributorPushWrapper.innerHTML = Mustache.render( document.getElementById( 'dt-show-connections' ).innerHTML, {
 					connections: mustacheData.connections,
-					foundConnections: mustacheData.connections.length
+					foundConnections: mustacheData.connections.length,
+					showSearch: 5 < mustacheData.connections.length,
 				} );
+
+				setDisabledConnections();
 			} else {
 				distributorPushWrapper.innerHTML = template( {
 					connections: dtConnections,

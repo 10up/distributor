@@ -12,16 +12,23 @@
 
 		<div class="connections-selector">
 			<div>
-				<input type="text" id="dt-connection-search" placeholder="<?php esc_attr_e( 'Search available connections', 'distributor' ); ?>">
+				{{#showSearch}}
+					<input type="text" id="dt-connection-search" placeholder="<?php esc_attr_e( 'Search available connections', 'distributor' ); ?>">
+				{{/showSearch}}
 				<div class="new-connections-list">
 					{{#connections}}
 						<button
 							class="add-connection{{#syndicated}} syndicated{{/syndicated}}"
 							data-connection-type="{{{type}}}"
 							data-connection-id="{{{id}}}"
-							{{#syndicated}}disabled{{/syndicated}}
 						>
-								<span>{{{name}}}</span>
+								{{#internal}}
+									<span>{{{url}}}</span>
+								{{/internal}}
+								{{^internal}}
+									<span>{{{name}}}</span>
+								{{/internal}}
+
 								{{#syndicated}}
 									<a href="{{{syndicated}}}"><?php esc_html_e( 'View', 'distributor' ); ?></a>
 								{{/syndicated}}

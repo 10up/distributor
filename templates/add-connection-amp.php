@@ -10,9 +10,13 @@
 			class="add-connection{{#added}} added{{/added}}{{#syndicated}} syndicated{{/syndicated}}"
 			data-connection-type="{{{type}}}"
 			data-connection-id="{{{id}}}"
-			{{#syndicated}}disabled{{/syndicated}}
 		>
-			<span>{{{name}}}</span>
+			{{#internal}}
+				<span>{{{url}}}</span>
+			{{/internal}}
+			{{^internal}}
+				<span>{{{name}}}</span>
+			{{/internal}}
 
 			{{#syndicated}}
 				<a href="{{{syndicated}}}"><?php esc_html_e( 'View', 'distributor' ); ?></a>
