@@ -12,7 +12,6 @@ _Note:_ The latest stable version of the plugin is the _stable_ branch. [Downloa
 
 ## Table of Contents
 * [Features](#features)
-  * [Gutenberg Support](#gutenberg-support-beta)
 * [Requirements](#requirements)
 * [Installation](#installation)
   * [Registration](#registration)
