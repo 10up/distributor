@@ -57,7 +57,7 @@ Distributor is built with the same extensible approach as WordPress itself, with
 
 ## Installation
 
-For production use, we recommend [registering and downloading the plugin from DistributorPlugin.com](https://distributorplugin.com/#cta) – it's 100% free. You will be emailed a direct link to download the latest, production-ready build. Alternatively, you can [download the latest release from GitHub](https://github.com/10up/distributor/archive/trunk.zip).
+For Production use, we recommend [registering and downloading the plugin from DistributorPlugin.com](https://distributorplugin.com/#cta) – it's 100% free. You will be emailed a direct link to download the latest, production-ready build. Alternatively, you can [download the latest release from GitHub](https://github.com/10up/distributor/archive/trunk.zip).
 
 You can upload and install the archived (zip) plugin via the WordPress dashboard (`Plugins` > `Add New` -> `Upload Plugin`) or manually inside of the `wp-content/plugins` directory, and activate on the Plugins dashboard.
 
@@ -73,6 +73,46 @@ To help inform our roadmap, keep adopters apprised of major updates and changes 
 4. On remotesite.com, ensure that [Application Passwords](https://wordpress.org/plugins/application-passwords/) is installed. (_Note: Using this plugin instead of a normal WordPress users password helps limit the use of your primary password and will allow you to revoke access to Distributor in the future if needed._) Then navigate to the user profile that will be used to create the External Connection on mainsite.com and then to the `Application Passwords` section of the user profile (not the `Account Management` section).  Add a label for the New Application Password Name (e.g., `mainsite.com`) and click `Add New`.  Now copy the password provided into mainsite.com's External Connections `Password` field.
 5. On mainsite.com, add the `External Connection URL` (e.g., http://remotesite.com/wp-json).  You should see a green circle and "_Connection established._".
 6. Ensure the roles selected in `Roles Allowed to Push` are the ones you want to support, then press the `Create Connection` button.  You should now be able to push from mainsite.com to remotesite.com.  If you want to pull from remotesite.com to mainsite.com, simply repeat these instructions swapping mainsite.com and remotesite.com.
+
+## How to Distribute Content
+
+There are two methods for distributing content between multiple WordPress sites, Push and Pull.  Pushing allows you to share content from your site to one or more connected sites while Pulling allows you to bring content into your site from one of your connected sites.  In either method, once content has been distributed it will stay in sync with any changes made to the origin post (when Pushing the origin is the site being Pushed from, when Pulling the origin is the site being Pulled from).
+
+### Pushing Content
+
+The `Distributor` menu in the WP Admin Bar will appear after a piece of content has been published.  Hovering over that menu item will expose the Push menu that displays the list of connected sites on the left, the list of sites that have been selected for push distribution on the right, and a button to `Distribute` the content to those selected sites.
+
+<img src="/assets/img/screenshot-1.png" alt="Push menu exposed when viewing published content on the front-end" width="300">
+
+The same Push menu and set of Distributor options are also available after publishing a piece of content within the WordPress Block Editor.
+
+<img src="/assets/img/screenshot-2.png" alt="Push menu exposed when viewing published content in the Block Editor" width="300">
+
+After you click the `Distribute` button, Distributor will push the content to the selected connected sites, showing a `View` link when those pieces of content have been distributed, and noting `Post successfully distributed.` once the content has completed distributing to selected sites.
+
+<img src="/assets/img/screenshot-3.png" alt="Push menu showing details after content distribution" width="300">
+
+When viewing that piece of content in the Block Editor, there will be a Distributor notice in the `Status & visibility` section noting how many sites the content has been distributed to.
+
+<img src="/assets/img/screenshot-4.png" alt="Block Editor sidebar showing Distributor count of sites that content has been distributed to (via Push and Pull)" width="300">
+
+The same Push menu is available in the WP Admin Bar if you are using the Classic Editor.  The Distributor notice is also available in the `Publish` metabox noting how many sites the content has been distributed to.
+
+<img src="/assets/img/screenshot-5.png" alt="Classic Editor showing the Push menu and metabox showing Distributor count of sites that content has been distributed to (via Push and Pull)" width="300">
+
+### Pulling Content
+
+Navigating to the `Distributor` > `Pull Content` screen in the WP Admin will present you with a dropdown to select any of the sites you are connected to and will display all available pieces of content that can be Pulled into the current site.  You can select Posts, Pages, and other Custom Post Types to filter on this screen; you can use the Bulk Edit menu to Pull or Skip more than one piece of content at a time; and you can use individual row actions on each piece of content pull, view, or skip each piece of content.
+
+<img src="/assets/img/screenshot-6.png" alt="Pull Content screen showing row actions and a single post selected for Pulling" width="300">
+
+After you have Bulk Pulled several pieces of content or used the row actions to Pull a single piece of content, the Pull Content screen will show a confirmation message that the Pull action was successful and redirect you to the `Pulled` list view to see all the items that have been pulled into the current site.  The same process will happen if you opt to Skip specific piece(s) of content.
+
+<img src="/assets/img/screenshot-7.png" alt="Pull Content screen showing confirmation on content being pulled" width="300">
+
+You can navigate to the `Posts` > `All Posts` table list view to see all content that has been pushed or pulled to the current site via the Distributor column denoted with the Distributor icon (<img alt="Distributor icon" src="https://github.com/10up/distributor/blob/trunk/assets/img/icon.svg" height="45" width="45">).  Rows that include the Distributor icon will link off that icon to the origin site and post where that content was either pushed or pulled from.
+
+<img src="/assets/img/screenshot-8.png" alt="All Posts screen showing Distributor links for pushed and pulled content" width="300">
 
 ## Support Level
 
@@ -106,7 +146,7 @@ __Distributing Post Date__ - By default, the "post date" on distributed stories 
 
 __Distributing Canonical URL__ - By default, canonical URL of distributed post will point to original content, which corresponds to SEO best practices. This can be overridden by extending Distributor with custom code and removing Distributor's default front end canonical URL filtering (look for `'get_canonical_url'` and `'wpseo_canonical'`).
 
-__Drafts as preferred Status__ - By default, drafts are the preferred status and can't be changed at the source site.
+__Drafts as Preferred Status__ - By default, drafts are the preferred status and can't be changed at the source site.
 
 ## Developers
 
