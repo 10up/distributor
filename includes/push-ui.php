@@ -456,6 +456,7 @@ function add_dev_mode_to_assets( $tag, $handle ) {
 
 	$script_handles = [
 		'jquery',
+		'jquery-core',
 		'underscore',
 	];
 
@@ -565,7 +566,7 @@ function menu_content() {
 		</div>
 		<?php
 	} else {
-		if ( function_exists( 'amp_is_request' ) && amp_is_request() ) {
+		if ( function_exists( 'amp_is_request' ) && amp_is_request() && ! is_admin() ) {
 			include DT_PLUGIN_PATH . 'templates/show-connections-amp.php';
 			include DT_PLUGIN_PATH . 'templates/add-connection-amp.php';
 		} else {
