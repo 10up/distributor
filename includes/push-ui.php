@@ -18,7 +18,8 @@ function setup() {
 		function() {
 			add_action( 'admin_enqueue_scripts', __NAMESPACE__ . '\enqueue_scripts' );
 			add_action( 'wp_enqueue_scripts', __NAMESPACE__ . '\enqueue_scripts' );
-			add_filter( 'amp_dev_mode_element_xpaths', __NAMESPACE__ . '\add_dev_mode_to_assets' );
+			add_filter( 'amp_dev_mode_element_xpaths', __NAMESPACE__ . '\add_element_xpaths' );
+			add_filter( 'script_loader_tag', __NAMESPACE__ . '\add_dev_mode_to_assets', 10, 2 );
 			add_action( 'wp_ajax_dt_load_connections', __NAMESPACE__ . '\get_connections' );
 			add_action( 'wp_ajax_dt_push', __NAMESPACE__ . '\ajax_push' );
 			add_action( 'admin_bar_menu', __NAMESPACE__ . '\menu_button', 999 );
@@ -418,22 +419,20 @@ function enqueue_scripts( $hook ) {
 }
 
 /**
- * Add the amp dev mode to assets we need for distribution to work
+ * Add the elements we want amp dev mode added to
  *
  * @param array $xpaths Current array of element paths
  * @return array
  */
-function add_dev_mode_to_assets( $xpaths = [] ) {
+function add_element_xpaths( $xpaths = [] ) {
 	if ( ! syndicatable() ) {
-		return;
+		return $xpaths;
 	}
 
 	$ids = [
 		'dt-push-css',
 		'dt-push-js',
 		'dt-push-js-extra',
-		'jquery-core-js',
-		'underscore-js',
 	];
 
 	foreach ( $ids as $id ) {
@@ -441,6 +440,34 @@ function add_dev_mode_to_assets( $xpaths = [] ) {
 	}
 
 	return $xpaths;
+}
+
+/**
+ * Add the amp dev mode to assets we need for distribution to work
+ *
+ * @param string $tag The `<script>` tag for the enqueued script.
+ * @param string $handle The script's registered handle.
+ * @return string
+ */
+function add_dev_mode_to_assets( $tag, $handle ) {
+	if ( is_admin() || ! syndicatable() || ! function_exists( 'amp_is_request' ) || ! amp_is_request() ) {
+		return $tag;
+	}
+
+	$script_handles = [
+		'jquery',
+		'underscore',
+	];
+
+	if ( in_array( $handle, $script_handles, true ) ) {
+		$tag = preg_replace(
+			'/(?<=<script)(?=\s|>)/i',
+			' data-ampdevmode',
+			$tag
+		);
+	}
+
+	return $tag;
 }
 
 /**
