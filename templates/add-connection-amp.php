@@ -1,7 +1,10 @@
 <?php
 /**
  * Add connection AMP template
+ *
+ * @package  distributor
  */
+
 ?>
 
 <script id="dt-add-connection" type="text/plain" template="amp-mustache" data-ampdevmode>

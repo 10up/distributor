@@ -1,7 +1,10 @@
 <?php
 /**
  * Add connection template
+ *
+ * @package  distributor
  */
+
 ?>
 
 <script id="dt-add-connection" type="text/html">

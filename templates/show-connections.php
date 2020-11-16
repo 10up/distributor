@@ -1,7 +1,10 @@
 <?php
 /**
  * Show connections template
+ *
+ * @package  distributor
  */
+
 ?>
 
 <script id="dt-show-connections" type="text/html">
