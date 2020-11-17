@@ -142,11 +142,10 @@ function remove_quick_edit( $actions, $post ) {
 function add_linked_class( $classes ) {
 	global $post, $pagenow;
 
-	if ( 'post.php' !== $pagenow && 'post-new.php' !== $pagenow ) {
-		return ''; // Must stick to docblock, cannot return void.
-	}
-
-	if ( empty( $_GET['post'] ) ) { // @codingStandardsIgnoreLine No nonce needed.
+	if (
+		'post.php' !== $pagenow && 'post-new.php' !== $pagenow
+		|| empty( $_GET['post'] ) // @codingStandardsIgnoreLine No nonce needed.
+	) {
 		return $classes;
 	}
 
