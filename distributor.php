@@ -19,6 +19,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 define( 'DT_VERSION', '1.6.0-dev' );
 define( 'DT_PLUGIN_FILE', preg_replace( '#^.*plugins/(.*)$#i', '$1', __FILE__ ) );
+define( 'DT_PLUGIN_PATH', plugin_dir_path( __FILE__ ) );
 
 // Define a constant if we're network activated to allow plugin to respond accordingly.
 $active_plugins = get_site_option( 'active_sitewide_plugins' );
