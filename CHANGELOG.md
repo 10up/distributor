@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file, per [the Ke
 
 ## [Unreleased] - TBD
 
-## [1.6.1] - TBD
+## [1.6.1] - 2020-11-19
 ### Added
 - Support for the [official AMP plugin](https://github.com/ampproject/amp-wp) and front-end Push distribution via `amp-dev-mode` and new Mustache templates (props [@dkotter](https://github.com/dkotter), [@dinhtungdu](https://github.com/dinhtungdu), [@rickalee](https://github.com/rickalee) via [#665](https://github.com/10up/distributor/pull/665)).
 - Better error reporting when creating External Connections and Pushing or Pulling content (props [@dinhtungdu](https://github.com/dinhtungdu), [@dkotter](https://github.com/dkotter) via [#630](https://github.com/10up/distributor/pull/630)).
