@@ -146,7 +146,7 @@ class WordPressExternalConnectionTest extends TestCase {
 		);
 
 		$this->assertInstanceOf( \WP_Error::class, $this->connection->push( 0 ) );
-		$this->assertTrue( is_int( $this->connection->push( 1 ) ) );
+		$this->assertTrue( is_array( $this->connection->push( 1 ) ) );
 
 		/**
 		 * Let's ensure \Distributor\Subscriptions\create_subscription is called when the X-Distributor header is
@@ -170,7 +170,7 @@ class WordPressExternalConnectionTest extends TestCase {
 			]
 		);
 
-		$this->assertTrue( is_int( $this->connection->push( 1 ) ) );
+		$this->assertTrue( is_array( $this->connection->push( 1 ) ) );
 	}
 
 	/**

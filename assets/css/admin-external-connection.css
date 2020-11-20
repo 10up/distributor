@@ -56,6 +56,7 @@
 
 #dt_external_connection_details p,
 #dt_external_connection_details .dt-roles-allowed,
+#dt_external_connection_details .post-types-permissions,
 #dt_external_connection_details .connection-field-wrap {
 	margin-bottom: 2em;
 }

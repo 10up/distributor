@@ -10,6 +10,7 @@ gulp.task( 'copy', (done) => {
 
 	gulp.src(
 		[
+			'readme.txt',
 			'README.md',
 			'CHANGELOG.md',
 			'composer.json',
@@ -18,6 +19,7 @@ gulp.task( 'copy', (done) => {
 			'dist/**/*',
 			'includes/**/*',
 			'lang/**/*',
+			'templates/**/*',
 			'vendor/georgestephanis/application-passwords/**/*',
 			'vendor/yahnis-elsts/plugin-update-checker/**/*',
 		],

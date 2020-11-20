@@ -4,7 +4,7 @@ global:
 - WP_VERSION=latest
 
 before_script:
-  - composer install
+  - composer install --ignore-platform-reqs
   - npm install
   - if [ -n "$AWS_ACCESS_KEY" ]; then ./vendor/bin/wpsnapshots configure 10up --aws_key=$AWS_ACCESS_KEY --aws_secret=$SECRET_ACCESS_KEY --user_name=Travis --user_email=travis@10up.com; fi
 
@@ -26,10 +26,6 @@ jobs:
       name: "wp-acceptance: WordPress 4.9"
     - script: travis_retry bash run-wpacceptance.sh 9ea863cebfcbb416c6334a6bef6552f0
       name: "wp-acceptance: WordPress 4.9 plus Gutenberg 4.9"
-    - script: travis_retry bash run-wpacceptance.sh 01ccbe4d2c4dbcd00b226885b759114e
-      name: "wp-acceptance: WordPress 5.1"
-    - script: travis_retry bash run-wpacceptance.sh fec81ac24227af6554c93d28d9af2bdf
-      name: "wp-acceptance: WordPress 5.1 plus Gutenberg 5.3"
     - script: travis_retry bash run-wpacceptance.sh 803989004f4b101a644ebfe9bb67e712
       name: "wp-acceptance: WordPress 5.4.2"
 
@@ -37,4 +33,3 @@ notifications:
   email: false
 sudo: required
 services: docker
-

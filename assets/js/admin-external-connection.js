@@ -105,8 +105,22 @@ jQuery( authorizeConnectionButton ).on( 'click', ( event ) => {
 				&& ! Object.prototype.hasOwnProperty.call( response.data, 'version' )
 			) {
 				jQuery( wizardError[0] ).text( dt.no_distributor );
-			} else {
-				jQuery( wizardError[0] ).text( dt.noconnection );
+				return;
+			}
+
+			jQuery( wizardError[0] ).text( dt.noconnection );
+
+			if (
+				Object.prototype.hasOwnProperty.call( response, 'data' )
+				&& Array.isArray( response.data )
+				&& 0 < response.data.length
+				&& Object.prototype.hasOwnProperty.call( response.data[0], 'code' )
+				&& Object.prototype.hasOwnProperty.call( response.data[0], 'message' )
+			) {
+				jQuery( wizardError[0] ).append( '<br/>' );
+				response.data.forEach( ( error ) => {
+					jQuery( wizardError[0] ).append( `${error.message} ${error.code ? `(${  error.code  })` : ''} <br/>` );
+				} );
 			}
 
 			return;
@@ -249,8 +263,15 @@ function checkConnections() {
 						endpointResult.innerText += ` ${ dt.no_distributor }`;
 						wp.a11y.speak( `${ dt.limited_connection } ${ dt.no_distributor }`, 'polite' );
 					} else {
-						endpointResult.innerText += ` ${ dt.bad_auth }`;
-						wp.a11y.speak( `${ dt.limited_connection } ${ dt.bad_auth }`, 'polite' );
+						wp.a11y.speak( `${ dt.limited_connection }`, 'polite' );
+					}
+
+					if ( 'no' === response.data.is_authenticated ) {
+						warnings.push( dt.bad_auth );
+					}
+
+					if ( 'yes' === response.data.is_authenticated ) {
+						warnings.push( dt.no_permissions );
 					}
 
 					warnings.push( dt.no_push );

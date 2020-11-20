@@ -20,6 +20,7 @@ function setup() {
 		function() {
 			add_action( 'rest_api_init', __NAMESPACE__ . '\register_endpoints' );
 			add_action( 'rest_api_init', __NAMESPACE__ . '\register_rest_routes' );
+			add_action( 'rest_api_init', __NAMESPACE__ . '\register_push_errors_field' );
 
 			$post_types = get_post_types(
 				array(
@@ -137,8 +138,9 @@ function register_rest_routes() {
 		'wp/v2',
 		'distributor/post-types-permissions',
 		array(
-			'methods'  => 'GET',
-			'callback' => __NAMESPACE__ . '\check_post_types_permissions',
+			'methods'             => 'GET',
+			'callback'            => __NAMESPACE__ . '\check_post_types_permissions',
+			'permission_callback' => '__return_true',
 		)
 	);
 }
@@ -158,12 +160,15 @@ function prepare_distributor_content( $response, $post, $request ) {
 	if ( '1' !== $request->get_param( 'distributor_request' ) ) {
 		return $response;
 	}
+
+	$post_data = $response->get_data();
+
 	// Is the local site is running Gutenberg?
 	if ( \Distributor\Utils\is_using_gutenberg( $post ) ) {
-		$post_data                       = $response->get_data();
 		$post_data['is_using_gutenberg'] = true;
-		$response->set_data( $post_data );
 	}
+
+	$response->set_data( $post_data );
 
 	return $response;
 }
@@ -273,8 +278,9 @@ function register_endpoints() {
 		'wp/v2',
 		'/dt_meta',
 		array(
-			'methods'  => 'GET',
-			'callback' => __NAMESPACE__ . '\distributor_meta',
+			'methods'             => 'GET',
+			'callback'            => __NAMESPACE__ . '\distributor_meta',
+			'permission_callback' => '__return_true',
 		)
 	);
 
@@ -301,8 +307,9 @@ function check_post_types_permissions() {
 	);
 
 	$response = array(
-		'can_get'  => array(),
-		'can_post' => array(),
+		'can_get'          => array(),
+		'can_post'         => array(),
+		'is_authenticated' => get_current_user_id() ? 'yes' : 'no',
 	);
 
 	foreach ( $types as $type ) {
@@ -315,4 +322,34 @@ function check_post_types_permissions() {
 	}
 
 	return $response;
+}
+
+/**
+ * Register push errors field so we can send errors over the REST API.
+ */
+function register_push_errors_field() {
+
+	$post_types = get_post_types(
+		array(
+			'show_in_rest' => true,
+		)
+	);
+
+	foreach ( $post_types as $post_type ) {
+		register_rest_field(
+			$post_type,
+			'push-errors',
+			array(
+				'get_callback' => function( $params ) {
+					$media_errors = get_transient( 'dt_media_errors_' . $params['id'] );
+
+					if ( ! empty( $media_errors ) ) {
+						delete_transient( 'dt_media_errors_' . $params['id'] );
+						return $media_errors;
+					}
+					return false;
+				},
+			)
+		);
+	}
 }

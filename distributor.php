@@ -2,7 +2,7 @@
 /**
  * Plugin Name:       Distributor
  * Description:       Makes it easy to distribute and reuse content across your websites, whether inside of a multisite or across the web.
- * Version:           1.6.0
+ * Version:           1.6.1
  * Author:            10up Inc.
  * Author URI:        https://distributorplugin.com
  * License:           GPLv2 or later
@@ -17,8 +17,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly.
 }
 
-define( 'DT_VERSION', '1.6.0-dev' );
+define( 'DT_VERSION', '1.6.1-dev' );
 define( 'DT_PLUGIN_FILE', preg_replace( '#^.*plugins/(.*)$#i', '$1', __FILE__ ) );
+define( 'DT_PLUGIN_PATH', plugin_dir_path( __FILE__ ) );
 
 // Define a constant if we're network activated to allow plugin to respond accordingly.
 $active_plugins = get_site_option( 'active_sitewide_plugins' );
