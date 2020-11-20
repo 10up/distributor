@@ -17,7 +17,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly.
 }
 
-define( 'DT_VERSION', '1.6.1' );
+define( 'DT_VERSION', '1.6.1-dev' );
 define( 'DT_PLUGIN_FILE', preg_replace( '#^.*plugins/(.*)$#i', '$1', __FILE__ ) );
 
 // Define a constant if we're network activated to allow plugin to respond accordingly.
