@@ -19,6 +19,7 @@ gulp.task( 'copy', (done) => {
 			'dist/**/*',
 			'includes/**/*',
 			'lang/**/*',
+			'templates/**/*',
 			'vendor/georgestephanis/application-passwords/**/*',
 			'vendor/yahnis-elsts/plugin-update-checker/**/*',
 		],
