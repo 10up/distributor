@@ -125,7 +125,7 @@ function get_connections() {
 					'type'       => 'internal',
 					'id'         => $connection->site->blog_id,
 					'url'        => untrailingslashit( preg_replace( '#(https?:\/\/|www\.)#i', '', get_site_url( $connection->site->blog_id ) ) ),
-					'name'       => $connection->site->blogname,
+					'name'       => html_entity_decode( $connection->site->blogname ),
 					'syndicated' => $syndicated,
 				];
 			}
@@ -207,7 +207,7 @@ function get_connections() {
 				'type'       => 'external',
 				'id'         => $connection->id,
 				'url'        => $connection->base_url,
-				'name'       => $connection->name,
+				'name'       => html_entity_decode( $connection->name ),
 				'syndicated' => $syndicated,
 			];
 		}

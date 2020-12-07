@@ -270,7 +270,7 @@ function send_notifications( $post ) {
 			'post_id'   => $remote_post_id,
 			'signature' => $signature,
 			'post_data' => [
-				'title'             => get_the_title( $post_id ),
+				'title'             => html_entity_decode( get_the_title( $post_id ) ),
 				'slug'              => $post->post_name,
 				'post_type'         => $post->post_type,
 				'content'           => Utils\get_processed_content( $post->post_content ),
