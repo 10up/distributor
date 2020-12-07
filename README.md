@@ -85,37 +85,37 @@ There are two methods for distributing content between multiple WordPress sites,
 
 The `Distributor` menu in the WP Admin Bar will appear after a piece of content has been published.  Hovering over that menu item will expose the Push menu that displays the list of connected sites on the left, the list of sites that have been selected for push distribution on the right, and a button to `Distribute` the content to those selected sites.
 
-<img src="/assets/img/screenshot-1.png" alt="Push menu exposed when viewing published content on the front-end" width="300">
+<img src="/.github/screenshots/screenshot-1.png" alt="Push menu exposed when viewing published content on the front-end" width="300">
 
 The same Push menu and set of Distributor options are also available after publishing a piece of content within the WordPress Block Editor.
 
-<img src="/assets/img/screenshot-2.png" alt="Push menu exposed when viewing published content in the Block Editor" width="300">
+<img src="/.github/screenshots/screenshot-2.png" alt="Push menu exposed when viewing published content in the Block Editor" width="300">
 
 After you click the `Distribute` button, Distributor will push the content to the selected connected sites, showing a `View` link when those pieces of content have been distributed, and noting `Post successfully distributed.` once the content has completed distributing to selected sites.
 
-<img src="/assets/img/screenshot-3.png" alt="Push menu showing details after content distribution" width="300">
+<img src="/.github/screenshots/screenshot-3.png" alt="Push menu showing details after content distribution" width="300">
 
 When viewing that piece of content in the Block Editor, there will be a Distributor notice in the `Status & visibility` section noting how many sites the content has been distributed to.
 
-<img src="/assets/img/screenshot-4.png" alt="Block Editor sidebar showing Distributor count of sites that content has been distributed to (via Push and Pull)" width="300">
+<img src="/.github/screenshots/screenshot-4.png" alt="Block Editor sidebar showing Distributor count of sites that content has been distributed to (via Push and Pull)" width="300">
 
 The same Push menu is available in the WP Admin Bar if you are using the Classic Editor.  The Distributor notice is also available in the `Publish` metabox noting how many sites the content has been distributed to.
 
-<img src="/assets/img/screenshot-5.png" alt="Classic Editor showing the Push menu and metabox showing Distributor count of sites that content has been distributed to (via Push and Pull)" width="300">
+<img src="/.github/screenshots/screenshot-5.png" alt="Classic Editor showing the Push menu and metabox showing Distributor count of sites that content has been distributed to (via Push and Pull)" width="300">
 
 ### Pulling Content
 
 Navigating to the `Distributor` > `Pull Content` screen in the WP Admin will present you with a dropdown to select any of the sites you are connected to and will display all available pieces of content that can be Pulled into the current site.  You can select Posts, Pages, and other Custom Post Types to filter on this screen; you can use the Bulk Edit menu to Pull or Skip more than one piece of content at a time; and you can use individual row actions on each piece of content pull, view, or skip each piece of content.
 
-<img src="/assets/img/screenshot-6.png" alt="Pull Content screen showing row actions and a single post selected for Pulling" width="300">
+<img src="/.github/screenshots/screenshot-6.png" alt="Pull Content screen showing row actions and a single post selected for Pulling" width="300">
 
 After you have Bulk Pulled several pieces of content or used the row actions to Pull a single piece of content, the Pull Content screen will show a confirmation message that the Pull action was successful and redirect you to the `Pulled` list view to see all the items that have been pulled into the current site.  The same process will happen if you opt to Skip specific piece(s) of content.
 
-<img src="/assets/img/screenshot-7.png" alt="Pull Content screen showing confirmation on content being pulled" width="300">
+<img src="/.github/screenshots/screenshot-7.png" alt="Pull Content screen showing confirmation on content being pulled" width="300">
 
 You can navigate to the `Posts` > `All Posts` table list view to see all content that has been pushed or pulled to the current site via the Distributor column denoted with the Distributor icon (<img alt="Distributor icon" src="https://github.com/10up/distributor/blob/trunk/assets/img/icon.svg" height="45" width="45">).  Rows that include the Distributor icon will link off that icon to the origin site and post where that content was either pushed or pulled from.
 
-<img src="/assets/img/screenshot-8.png" alt="All Posts screen showing Distributor links for pushed and pulled content" width="300">
+<img src="/.github/screenshots/screenshot-8.png" alt="All Posts screen showing Distributor links for pushed and pulled content" width="300">
 
 ## Support Level
 
