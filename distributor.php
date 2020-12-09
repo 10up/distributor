@@ -113,7 +113,10 @@ require_once __DIR__ . '/includes/debug-info.php';
 add_action(
 	'plugins_loaded',
 	function() {
-		if ( ! class_exists( 'Application_Passwords' ) ) {
+		if (
+			! class_exists( 'Application_Passwords' ) && ! class_exists( 'WP_Application_Passwords' )
+			|| class_exists( 'WP_Application_Passwords' ) && function_exists( 'wp_is_application_passwords_available' ) && ! wp_is_application_passwords_available()
+		) {
 			require_once __DIR__ . '/vendor/georgestephanis/application-passwords/application-passwords.php';
 		}
 	}
