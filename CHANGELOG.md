@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file, per [the Ke
 
 ## [Unreleased] - TBD
 
+## [1.6.2] - 2020-12-10
+### Fixed
+- Handles case where Application Passwords is available in WordPress core starting with v5.6 (props [@dinhtungdu](https://github.com/dinhtungdu), [@jeffpaul](https://github.com/jeffpaul) via [#676](https://github.com/10up/distributor/pull/676)).
+- Issue with HTML entity character encoding in a distributed post's title (props  [@dinhtungdu](https://github.com/dinhtungdu), [@rickalee](https://github.com/rickalee) via [#672](https://github.com/10up/distributor/pull/672)).
+- Moved readme screenshots to directory that won't be part of bundled release, helping to minimize the distributed ZIP file size (props [@jeffpaul](https://github.com/jeffpaul), [@helen](https://github.com/helen) via [#673](https://github.com/10up/distributor/pull/673)).
+
 ## [1.6.1] - 2020-11-19
 ### Added
 - Support for the [official AMP plugin](https://github.com/ampproject/amp-wp) and front-end Push distribution via `amp-dev-mode` and new Mustache templates (props [@dkotter](https://github.com/dkotter), [@dinhtungdu](https://github.com/dinhtungdu), [@rickalee](https://github.com/rickalee) via [#665](https://github.com/10up/distributor/pull/665)).
