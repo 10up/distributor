@@ -1,6 +1,6 @@
 === Distributor ===
 Contributors: 10up
-Tags: content, distribution, syndication, management,
+Tags: content, distribution, syndication, management
 Requires at least: 4.7
 Tested up to: 5.4.2
 Requires PHP: 5.6
