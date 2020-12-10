@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file, per [the Ke
 
 ## [Unreleased] - TBD
 
-## [1.6.2] - 2020-12-10
+## [1.6.2] - 2020-12-15
 ### Fixed
 - Handles case where Application Passwords is available in WordPress core starting with v5.6 (props [@dinhtungdu](https://github.com/dinhtungdu), [@jeffpaul](https://github.com/jeffpaul) via [#676](https://github.com/10up/distributor/pull/676)).
 - Issue with HTML entity character encoding in a distributed post's title (props  [@dinhtungdu](https://github.com/dinhtungdu), [@rickalee](https://github.com/rickalee) via [#672](https://github.com/10up/distributor/pull/672)).
