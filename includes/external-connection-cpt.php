@@ -270,8 +270,14 @@ function admin_enqueue_scripts( $hook ) {
 		wp_enqueue_style( 'dt-admin-external-connection', plugins_url( '/dist/css/admin-external-connection.min.css', __DIR__ ), array(), DT_VERSION );
 		wp_enqueue_script( 'dt-admin-external-connection', plugins_url( '/dist/js/admin-external-connection.min.js', __DIR__ ), array( 'jquery', 'underscore', 'wp-a11y' ), DT_VERSION, true );
 
-		$blog_name     = get_bloginfo( 'name ' );
-		$wizard_return = get_wizard_return_data();
+		$blog_name        = get_bloginfo( 'name ' );
+		$wizard_return    = get_wizard_return_data();
+		$wizard_available = true;
+
+		if ( function_exists( 'wp_is_application_passwords_available' ) && ! wp_is_application_passwords_available() ) {
+			$wizard_available = false;
+		}
+
 		wp_localize_script(
 			'dt-admin-external-connection',
 			'dt',
@@ -298,6 +304,7 @@ function admin_enqueue_scripts( $hook ) {
 				/* translators: %1$s: site name, %2$s: site URL */
 				'distributor_from'          => sprintf( esc_html__( 'Distributor on %1$s (%2$s)', 'distributor' ), $blog_name, esc_url( home_url() ) ),
 				'wizard_return'             => $wizard_return,
+				'wizard_available'          => $wizard_available,
 			)
 		);
 
