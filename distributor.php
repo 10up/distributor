@@ -113,10 +113,33 @@ require_once __DIR__ . '/includes/debug-info.php';
 add_action(
 	'plugins_loaded',
 	function() {
-		if (
-			! class_exists( 'Application_Passwords' ) && ! class_exists( 'WP_Application_Passwords' )
-			|| class_exists( 'WP_Application_Passwords' ) && function_exists( 'wp_is_application_passwords_available' ) && ! wp_is_application_passwords_available()
-		) {
+		if ( function_exists( 'wp_is_application_passwords_available' ) ) {
+			if ( ! wp_is_application_passwords_available() ) {
+				add_action(
+					'admin_notices',
+					function() {
+						if ( get_current_screen()->id !== 'toplevel_page_distributor' ) {
+							return;
+						}
+						?>
+						<div class="notice notice-warning">
+							<p>
+								<?php
+								echo wp_kses_post(
+									sprintf(
+										/* translators: %s is the URL to the guide to enable Application Password for non HTTPS sites. */
+										__( 'Your site is not using HTTPS or is a local environment. Follow this <a href="%s">guide</a> to enable Application Password.', 'distributor' ),
+										'https://github.com/10up/distributor/'
+									)
+								);
+								?>
+							</p>
+						</div>
+						<?php
+					}
+				);
+			}
+		} elseif ( ! class_exists( 'Application_Passwords' ) ) {
 			require_once __DIR__ . '/vendor/georgestephanis/application-passwords/application-passwords.php';
 		}
 	}

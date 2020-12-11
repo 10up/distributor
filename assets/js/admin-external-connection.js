@@ -299,7 +299,11 @@ function checkConnections() {
 // Initialize after load.
 setTimeout( () => {
 	// Repopulate fields on wizard flow.
-	const { wizard_return } = dt;
+	const { wizard_return, wizard_available } = dt;
+
+	if ( ! wizard_available ) {
+		jQuery( manualSetupButton ).trigger( 'click' );
+	}
 
 	if ( wizard_return ) {
 		if ( '' === titleField.value ) {
