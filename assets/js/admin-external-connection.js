@@ -151,9 +151,8 @@ jQuery( authorizeConnectionButton ).on( 'click', ( event ) => {
 		);
 
 		const authURL = addQueryArgs(
-			`${ siteURL }wp-admin/admin.php`,
+			`${ siteURL }wp-admin/${ dt.auth_page }`,
 			{
-				page: 'auth_app',
 				app_name: dt.distributor_from, /*eslint camelcase: 0*/
 				success_url: encodeURI( successURL ), /*eslint camelcase: 0*/
 				reject_url:  encodeURI( failureURL ), /*eslint camelcase: 0*/

@@ -174,9 +174,9 @@ In WordPress 5.6, Application Passwords is merged into the WordPress core with s
 ```php
 add_filter( 'wp_is_application_passwords_available', '__return_true' );
 
-add_action('wp_authorize_application_password_request_errors', function( $error ) {
+add_action( 'wp_authorize_application_password_request_errors', function( $error ) {
     $error->remove( 'invalid_redirect_scheme' );
-});
+} );
 ```
 
 ## Changelog
