@@ -167,6 +167,18 @@ You can define a constant `DISTRIBUTOR_DEBUG` to `true` to increase the ease of 
 
 Enabling this will also provide more debugging information in your error log for image side loading issues. The specific logging method may change in the future.
 
+### Application Passwords and WordPress 5.6
+
+In WordPress 5.6, Application Passwords is merged into the WordPress core with some limitations. From 5.6, Application Passwords is enabled by default only for live sites with HTTPS. To enable Application Passwords for development sites, you will need the following snippet:
+
+```php
+add_filter( 'wp_is_application_passwords_available', '__return_true' );
+
+add_action('wp_authorize_application_password_request_errors', function( $error ) {
+    $error->remove( 'invalid_redirect_scheme' );
+});
+```
+
 ## Changelog
 
 A complete listing of all notable changes to Distributor are documented in [CHANGELOG.md](https://github.com/10up/distributor/blob/develop/CHANGELOG.md).
