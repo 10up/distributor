@@ -24,6 +24,7 @@ _Note:_ The latest stable version of the plugin is the _stable_ branch. [Downloa
   * [Running Locally](#running-locally)
   * [Testing](#testing)
   * [Debugging](#debugging)
+  * [Application Passwords](#application-passwords-and-wordpress-56)
 * [Changelog](#changelog)
 * [Contributing](#contributing)
 
@@ -169,7 +170,7 @@ Enabling this will also provide more debugging information in your error log for
 
 ### Application Passwords and WordPress 5.6
 
-In WordPress 5.6, Application Passwords is merged into the WordPress core with some limitations. From 5.6, Application Passwords is enabled by default only for live sites with HTTPS. To enable Application Passwords for development sites, you will need the following snippet:
+In WordPress 5.6, Application Passwords was merged into WordPress core with some limitations. From 5.6, Application Passwords is enabled by default only for live sites with HTTPS. To enable Application Passwords for development sites, you will need the following snippet:
 
 ```php
 add_filter( 'wp_is_application_passwords_available', '__return_true' );
