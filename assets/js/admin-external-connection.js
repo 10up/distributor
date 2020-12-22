@@ -150,8 +150,10 @@ jQuery( authorizeConnectionButton ).on( 'click', ( event ) => {
 			}
 		);
 
+		const auth_page = 'core_has_application_password' in response.data && response.data.core_has_application_password ? 'authorize-application.php' : 'admin.php?page=auth_app';
+
 		const authURL = addQueryArgs(
-			`${ siteURL }wp-admin/${ dt.auth_page }`,
+			`${ siteURL }wp-admin/${ auth_page }`,
 			{
 				app_name: dt.distributor_from, /*eslint camelcase: 0*/
 				success_url: encodeURI( successURL ), /*eslint camelcase: 0*/

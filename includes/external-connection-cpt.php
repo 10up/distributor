@@ -305,7 +305,6 @@ function admin_enqueue_scripts( $hook ) {
 				'distributor_from'          => sprintf( esc_html__( 'Distributor on %1$s (%2$s)', 'distributor' ), $blog_name, esc_url( home_url() ) ),
 				'wizard_return'             => $wizard_return,
 				'wizard_available'          => $wizard_available,
-				'auth_page'                 => function_exists( 'wp_is_application_passwords_available' ) ? 'authorize-application.php' : 'admin.php?page=auth_app',
 			)
 		);
 
