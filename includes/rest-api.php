@@ -291,8 +291,9 @@ function register_endpoints() {
  */
 function distributor_meta() {
 	return array(
-		'version'                       => DT_VERSION,
- 		'core_has_application_password' => function_exists( 'wp_is_application_passwords_available' ),
+		'version'                             => DT_VERSION,
+		'core_has_application_passwords'       => function_exists( 'wp_is_application_passwords_available' ),
+		'core_application_passwords_available' => function_exists( 'wp_is_application_passwords_available' ) && ! wp_is_application_passwords_available() ? false : true,
 	);
 }
 

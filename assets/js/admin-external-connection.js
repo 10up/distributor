@@ -135,6 +135,11 @@ jQuery( authorizeConnectionButton ).on( 'click', ( event ) => {
 			return;
 		}
 
+		if( 'core_application_passwords_available' in response.data && ! response.data.core_application_passwords_available ) {
+			jQuery( wizardError[0] ).text( dt.application_passwords_not_available );
+			return;
+		}
+
 		const successURL = addQueryArgs( document.location.href,
 			{
 				setupStatus: 'success',
@@ -150,7 +155,7 @@ jQuery( authorizeConnectionButton ).on( 'click', ( event ) => {
 			}
 		);
 
-		const auth_page = 'core_has_application_password' in response.data && response.data.core_has_application_password ? 'authorize-application.php' : 'admin.php?page=auth_app';
+		const auth_page = 'core_has_application_passwords' in response.data && response.data.core_has_application_passwords ? 'authorize-application.php' : 'admin.php?page=auth_app';
 
 		const authURL = addQueryArgs(
 			`${ siteURL }wp-admin/${ auth_page }`,
@@ -300,11 +305,7 @@ function checkConnections() {
 // Initialize after load.
 setTimeout( () => {
 	// Repopulate fields on wizard flow.
-	const { wizard_return, wizard_available } = dt;
-
-	if ( ! wizard_available ) {
-		jQuery( manualSetupButton ).trigger( 'click' );
-	}
+	const { wizard_return } = dt;
 
 	if ( wizard_return ) {
 		if ( '' === titleField.value ) {
