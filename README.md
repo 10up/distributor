@@ -24,6 +24,7 @@ _Note:_ The latest stable version of the plugin is the _stable_ branch. [Downloa
   * [Running Locally](#running-locally)
   * [Testing](#testing)
   * [Debugging](#debugging)
+  * [Application Passwords](#application-passwords-and-wordpress-56)
 * [Changelog](#changelog)
 * [Contributing](#contributing)
 
@@ -70,7 +71,7 @@ To help inform our roadmap, keep adopters apprised of major updates and changes 
 
 ### Setup External Connections using Application Passwords
 
-1. Ensure Distributor is installed on BOTH sites being connected.  We'll refer to these as mainsite.com and remotesite.com.
+1. Ensure that the current version of Distributor is active on BOTH sites being connected.  We'll refer to these as mainsite.com and remotesite.com.
 2. On mainsite.com, navigate to `Distributor` > `External Connections` and click `Add New`.
 3. Enter a label for the connection (e.g., `remotesite.com`), select `Username / Password` for the `Authentication Method`, and a username from remotesite.com.
 4. On remotesite.com, ensure that [Application Passwords](https://wordpress.org/plugins/application-passwords/) is installed. (_Note: Using this plugin instead of a normal WordPress users password helps limit the use of your primary password and will allow you to revoke access to Distributor in the future if needed._) Then navigate to the user profile that will be used to create the External Connection on mainsite.com and then to the `Application Passwords` section of the user profile (not the `Account Management` section).  Add a label for the New Application Password Name (e.g., `mainsite.com`) and click `Add New`.  Now copy the password provided into mainsite.com's External Connections `Password` field.
@@ -168,6 +169,18 @@ The plugin contains a standard test suite compatible with PHPUnit. If you want t
 You can define a constant `DISTRIBUTOR_DEBUG` to `true` to increase the ease of debugging in Distributor. This will make all remote requests blocking and expose the subscription post type.
 
 Enabling this will also provide more debugging information in your error log for image side loading issues. The specific logging method may change in the future.
+
+### Application Passwords and WordPress 5.6
+
+In WordPress 5.6, Application Passwords was merged into WordPress core with some limitations. From 5.6, Application Passwords is enabled by default only for live sites with HTTPS. To enable Application Passwords for development sites, you will need the following snippet:
+
+```php
+add_filter( 'wp_is_application_passwords_available', '__return_true' );
+
+add_action( 'wp_authorize_application_password_request_errors', function( $error ) {
+    $error->remove( 'invalid_redirect_scheme' );
+} );
+```
 
 ## Changelog
 

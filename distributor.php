@@ -127,9 +127,9 @@ add_action(
 								<?php
 								echo wp_kses_post(
 									sprintf(
-										/* translators: %s is the URL to the guide to enable Application Password for non HTTPS sites. */
-										__( 'Your site is not using HTTPS or is a local environment. Follow this <a href="%s">guide</a> to enable Application Password.', 'distributor' ),
-										'https://github.com/10up/distributor/'
+										/* translators: %s is the URL to the guide to enable Application Passwords for non HTTPS sites. */
+										__( 'Your site is not using HTTPS or is a local environment. Follow this <a href="%s">guide</a> to enable Application Passwords.', 'distributor' ),
+										'https://github.com/10up/distributor#application-passwords-and-wordpress-56'
 									)
 								);
 								?>
