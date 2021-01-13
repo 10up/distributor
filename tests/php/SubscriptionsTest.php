@@ -380,6 +380,13 @@ class SubscriptionsTest extends TestCase {
 			]
 		);
 
+		\WP_Mock::userFunction(
+			'get_bloginfo', [
+				'args'   => 'charset',
+				'return' => 'UTF-8',
+			]
+		);
+
 		Subscriptions\send_notifications( $post_id );
 
 		$this->assertConditionsMet();
@@ -539,6 +546,13 @@ class SubscriptionsTest extends TestCase {
 		\WP_Mock::userFunction(
 			'remove_filter', [
 				'times' => 1,
+			]
+		);
+
+		\WP_Mock::userFunction(
+			'get_bloginfo', [
+				'args'   => 'charset',
+				'return' => 'UTF-8',
 			]
 		);
 

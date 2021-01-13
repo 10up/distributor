@@ -70,7 +70,7 @@ class NetworkSiteConnection extends Connection {
 		$output            = array();
 
 		$new_post_args = array(
-			'post_title'   => get_the_title( $post_id ),
+			'post_title'   => html_entity_decode( get_the_title( $post_id ), ENT_QUOTES, get_bloginfo( 'charset' ) ),
 			'post_name'    => $post->post_name,
 			'post_content' => Utils\get_processed_content( $post->post_content ),
 			'post_excerpt' => $post->post_excerpt,
