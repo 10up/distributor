@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file, per [the Ke
 
 ## [Unreleased] - TBD
 
-## [1.6.2] - 2020-12-15
+## [1.6.2] - 2021-01-14
 ### Fixed
 - Handles case where Application Passwords is available in WordPress core starting with 5.6 (props [@dinhtungdu](https://github.com/dinhtungdu), [@dkotter](https://github.com/dkotter), [@jeffpaul](https://github.com/jeffpaul), [@j0HnC0untry](https://github.com/j0HnC0untry), [@dfardon](https://github.com/dfardon), [@anilpainuly121](https://github.com/anilpainuly121) via [#676](https://github.com/10up/distributor/pull/676), [#681](https://github.com/10up/distributor/pull/681), [#682](https://github.com/10up/distributor/pull/682)).
 - Update bundled version of Application Passwords to 1.1.2 (props [@dkotter](https://github.com/dkotter), [@vimalagarwalasentech](https://github.com/vimalagarwalasentech) via [#693](https://github.com/10up/distributor/pull/693)).
