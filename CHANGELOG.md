@@ -4,6 +4,17 @@ All notable changes to this project will be documented in this file, per [the Ke
 
 ## [Unreleased] - TBD
 
+## [1.6.2] - 2021-01-14
+### Fixed
+- Handles case where Application Passwords is available in WordPress core starting with 5.6 (props [@dinhtungdu](https://github.com/dinhtungdu), [@dkotter](https://github.com/dkotter), [@jeffpaul](https://github.com/jeffpaul), [@j0HnC0untry](https://github.com/j0HnC0untry), [@dfardon](https://github.com/dfardon), [@anilpainuly121](https://github.com/anilpainuly121) via [#676](https://github.com/10up/distributor/pull/676), [#681](https://github.com/10up/distributor/pull/681), [#682](https://github.com/10up/distributor/pull/682)).
+- Update bundled version of Application Passwords to 1.1.2 (props [@dkotter](https://github.com/dkotter), [@vimalagarwalasentech](https://github.com/vimalagarwalasentech) via [#693](https://github.com/10up/distributor/pull/693)).
+- Issue with HTML entity character encoding in a distributed post's title (props  [@dinhtungdu](https://github.com/dinhtungdu), [@dkotter](https://github.com/dkotter), [@rickalee](https://github.com/rickalee) via [#672](https://github.com/10up/distributor/pull/672)).
+- Bumped WordPress tested-up-to version to 5.6 (props [@jeffpaul](https://github.com/jeffpaul) via [#683](https://github.com/10up/distributor/pull/683)).
+- Moved readme screenshots to directory that won't be part of bundled release, helping to minimize the distributed ZIP file size (props [@jeffpaul](https://github.com/jeffpaul), [@helen](https://github.com/helen) via [#673](https://github.com/10up/distributor/pull/673)).
+
+## Security
+- Bump `ini` from 1.3.5 to 1.3.7 (props [@dependabot](https://github.com/apps/dependabot) via [#680](https://github.com/10up/distributor/pull/680)).
+
 ## [1.6.1] - 2020-11-19
 ### Added
 - Support for the [official AMP plugin](https://github.com/ampproject/amp-wp) and front-end Push distribution via `amp-dev-mode` and new Mustache templates (props [@dkotter](https://github.com/dkotter), [@dinhtungdu](https://github.com/dinhtungdu), [@rickalee](https://github.com/rickalee) via [#665](https://github.com/10up/distributor/pull/665)).
@@ -227,6 +238,7 @@ This adds a post type selector when viewing the Pull Content list for both exter
 - Initial closed release.
 
 [Unreleased]: https://github.com/10up/distributor/compare/trunk...develop
+[1.6.2]: https://github.com/10up/distributor/compare/1.6.1...1.6.2
 [1.6.1]: https://github.com/10up/distributor/compare/1.6.0...1.6.1
 [1.6.0]: https://github.com/10up/distributor/compare/1.5.0...1.6.0
 [1.5.0]: https://github.com/10up/distributor/compare/1.4.1...1.5.0

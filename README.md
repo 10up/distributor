@@ -4,7 +4,7 @@
 > Distributor is a WordPress plugin that makes it easy to distribute and reuse content across your websites — whether in a single multisite or across the web.
 
 [![Support Level](https://img.shields.io/badge/support-active-green.svg)](#support-level) [![Build Status](https://travis-ci.org/10up/distributor.svg?branch=trunk)](https://travis-ci.org/10up/distributor)
-[![Release Version](https://img.shields.io/github/release/10up/distributor.svg)](https://github.com/10up/distributor/releases/latest) ![WordPress tested up to version](https://img.shields.io/badge/WordPress-v5.4.2%20tested-success.svg) [![License](https://img.shields.io/github/license/10up/distributor.svg)](https://github.com/10up/distributor/blob/develop/LICENSE.md)
+[![Release Version](https://img.shields.io/github/release/10up/distributor.svg)](https://github.com/10up/distributor/releases/latest) ![WordPress tested up to version](https://img.shields.io/badge/WordPress-v5.6%20tested-success.svg) [![License](https://img.shields.io/github/license/10up/distributor.svg)](https://github.com/10up/distributor/blob/develop/LICENSE.md)
 
 *You can learn more about Distributor's features at [DistributorPlugin.com](https://distributorplugin.com).*
 
@@ -24,6 +24,7 @@ _Note:_ The latest stable version of the plugin is the _stable_ branch. [Downloa
   * [Running Locally](#running-locally)
   * [Testing](#testing)
   * [Debugging](#debugging)
+  * [Application Passwords](#application-passwords-and-wordpress-56)
 * [Changelog](#changelog)
 * [Contributing](#contributing)
 
@@ -70,7 +71,7 @@ To help inform our roadmap, keep adopters apprised of major updates and changes 
 
 ### Setup External Connections using Application Passwords
 
-1. Ensure Distributor is installed on BOTH sites being connected.  We'll refer to these as mainsite.com and remotesite.com.
+1. Ensure that the current version of Distributor is active on BOTH sites being connected.  We'll refer to these as mainsite.com and remotesite.com.
 2. On mainsite.com, navigate to `Distributor` > `External Connections` and click `Add New`.
 3. Enter a label for the connection (e.g., `remotesite.com`), select `Username / Password` for the `Authentication Method`, and a username from remotesite.com.
 4. On remotesite.com, ensure that [Application Passwords](https://wordpress.org/plugins/application-passwords/) is installed. (_Note: Using this plugin instead of a normal WordPress users password helps limit the use of your primary password and will allow you to revoke access to Distributor in the future if needed._) Then navigate to the user profile that will be used to create the External Connection on mainsite.com and then to the `Application Passwords` section of the user profile (not the `Account Management` section).  Add a label for the New Application Password Name (e.g., `mainsite.com`) and click `Add New`.  Now copy the password provided into mainsite.com's External Connections `Password` field.
@@ -85,43 +86,45 @@ There are two methods for distributing content between multiple WordPress sites,
 
 The `Distributor` menu in the WP Admin Bar will appear after a piece of content has been published.  Hovering over that menu item will expose the Push menu that displays the list of connected sites on the left, the list of sites that have been selected for push distribution on the right, and a button to `Distribute` the content to those selected sites.
 
-<img src="/assets/img/screenshot-1.png" alt="Push menu exposed when viewing published content on the front-end" width="300">
+<img src="/.github/screenshots/screenshot-1.png" alt="Push menu exposed when viewing published content on the front-end" width="300">
 
 The same Push menu and set of Distributor options are also available after publishing a piece of content within the WordPress Block Editor.
 
-<img src="/assets/img/screenshot-2.png" alt="Push menu exposed when viewing published content in the Block Editor" width="300">
+<img src="/.github/screenshots/screenshot-2.png" alt="Push menu exposed when viewing published content in the Block Editor" width="300">
 
 After you click the `Distribute` button, Distributor will push the content to the selected connected sites, showing a `View` link when those pieces of content have been distributed, and noting `Post successfully distributed.` once the content has completed distributing to selected sites.
 
-<img src="/assets/img/screenshot-3.png" alt="Push menu showing details after content distribution" width="300">
+<img src="/.github/screenshots/screenshot-3.png" alt="Push menu showing details after content distribution" width="300">
 
 When viewing that piece of content in the Block Editor, there will be a Distributor notice in the `Status & visibility` section noting how many sites the content has been distributed to.
 
-<img src="/assets/img/screenshot-4.png" alt="Block Editor sidebar showing Distributor count of sites that content has been distributed to (via Push and Pull)" width="300">
+<img src="/.github/screenshots/screenshot-4.png" alt="Block Editor sidebar showing Distributor count of sites that content has been distributed to (via Push and Pull)" width="300">
 
 The same Push menu is available in the WP Admin Bar if you are using the Classic Editor.  The Distributor notice is also available in the `Publish` metabox noting how many sites the content has been distributed to.
 
-<img src="/assets/img/screenshot-5.png" alt="Classic Editor showing the Push menu and metabox showing Distributor count of sites that content has been distributed to (via Push and Pull)" width="300">
+<img src="/.github/screenshots/screenshot-5.png" alt="Classic Editor showing the Push menu and metabox showing Distributor count of sites that content has been distributed to (via Push and Pull)" width="300">
 
 ### Pulling Content
 
 Navigating to the `Distributor` > `Pull Content` screen in the WP Admin will present you with a dropdown to select any of the sites you are connected to and will display all available pieces of content that can be Pulled into the current site.  You can select Posts, Pages, and other Custom Post Types to filter on this screen; you can use the Bulk Edit menu to Pull or Skip more than one piece of content at a time; and you can use individual row actions on each piece of content pull, view, or skip each piece of content.
 
-<img src="/assets/img/screenshot-6.png" alt="Pull Content screen showing row actions and a single post selected for Pulling" width="300">
+<img src="/.github/screenshots/screenshot-6.png" alt="Pull Content screen showing row actions and a single post selected for Pulling" width="300">
 
 After you have Bulk Pulled several pieces of content or used the row actions to Pull a single piece of content, the Pull Content screen will show a confirmation message that the Pull action was successful and redirect you to the `Pulled` list view to see all the items that have been pulled into the current site.  The same process will happen if you opt to Skip specific piece(s) of content.
 
-<img src="/assets/img/screenshot-7.png" alt="Pull Content screen showing confirmation on content being pulled" width="300">
+<img src="/.github/screenshots/screenshot-7.png" alt="Pull Content screen showing confirmation on content being pulled" width="300">
 
 You can navigate to the `Posts` > `All Posts` table list view to see all content that has been pushed or pulled to the current site via the Distributor column denoted with the Distributor icon (<img alt="Distributor icon" src="https://github.com/10up/distributor/blob/trunk/assets/img/icon.svg" height="45" width="45">).  Rows that include the Distributor icon will link off that icon to the origin site and post where that content was either pushed or pulled from.
 
-<img src="/assets/img/screenshot-8.png" alt="All Posts screen showing Distributor links for pushed and pulled content" width="300">
+<img src="/.github/screenshots/screenshot-8.png" alt="All Posts screen showing Distributor links for pushed and pulled content" width="300">
 
 ## Support Level
 
 **Active:** 10up is actively working on this, and we expect to continue work for the foreseeable future including keeping tested up to the most recent version of WordPress.  Bug reports, feature requests, questions, and pull requests are welcome.
 
 ## Known Caveats/Issues
+
+__WordPress 5.6 and External Connections__ - As of [WordPress 5.6](https://wordpress.org/news/2020/12/simone/) the functionality from the [Application Passwords plugin](https://wordpress.org/plugins/application-passwords/) is now part of WordPress core.  Distributor utilizes Application Passwords to help authenticate separate WordPress installs via External Connections.  As of Distributor 1.6.0 there is an Authorization Wizard to assist in the creation of External Connections that leverages a version of Application Passwords that is bundled with Distributor versions 1.6.0 or newer.  These versions will have a conflict when used on WordPress 5.6 and will require that you use the manual creation process for External Connections until a fix can be released (currently targeted for the next 1.6.2 release).
 
 __Gutenberg Fullscreen Mode__ - [Gutenberg 3.8](https://wptavern.com/gutenberg-3-8-released-adds-full-screen-mode) originally introduced `Fullscreen mode` for the editor and [WordPress 5.4](https://make.wordpress.org/core/2020/03/03/fullscreen-mode-enabled-by-default-in-the-editor/) and [Gutenberg 7.7](https://github.com/WordPress/gutenberg/pull/20611) made that the default setting.  Fullscreen mode creates a problem as the admin bar is no longer visible which means the Distributor push menu is no longer visible.  We are [working on researching a resolution to this issue](https://github.com/10up/distributor/issues/597), but in the meantime we recommend clicking on the three vertical dots in the upper right corner of Gutenberg and disabling fullscreen mode to ensure the admin bar and Distributor push menu is in view.
 
@@ -166,6 +169,18 @@ The plugin contains a standard test suite compatible with PHPUnit. If you want t
 You can define a constant `DISTRIBUTOR_DEBUG` to `true` to increase the ease of debugging in Distributor. This will make all remote requests blocking and expose the subscription post type.
 
 Enabling this will also provide more debugging information in your error log for image side loading issues. The specific logging method may change in the future.
+
+### Application Passwords and WordPress 5.6
+
+In WordPress 5.6, Application Passwords was merged into WordPress core with some limitations. From 5.6, Application Passwords is enabled by default only for live sites with HTTPS. To enable Application Passwords for development sites, you will need the following snippet:
+
+```php
+add_filter( 'wp_is_application_passwords_available', '__return_true' );
+
+add_action( 'wp_authorize_application_password_request_errors', function( $error ) {
+    $error->remove( 'invalid_redirect_scheme' );
+} );
+```
 
 ## Changelog
 
