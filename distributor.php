@@ -2,7 +2,7 @@
 /**
  * Plugin Name:       Distributor
  * Description:       Makes it easy to distribute and reuse content across your websites, whether inside of a multisite or across the web.
- * Version:           1.6.1
+ * Version:           1.6.2
  * Author:            10up Inc.
  * Author URI:        https://distributorplugin.com
  * License:           GPLv2 or later
@@ -17,7 +17,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly.
 }
 
-define( 'DT_VERSION', '1.6.1' );
+define( 'DT_VERSION', '1.6.2' );
 define( 'DT_PLUGIN_FILE', preg_replace( '#^.*plugins/(.*)$#i', '$1', __FILE__ ) );
 define( 'DT_PLUGIN_PATH', plugin_dir_path( __FILE__ ) );
 
@@ -113,7 +113,33 @@ require_once __DIR__ . '/includes/debug-info.php';
 add_action(
 	'plugins_loaded',
 	function() {
-		if ( ! class_exists( 'Application_Passwords' ) ) {
+		if ( function_exists( 'wp_is_application_passwords_available' ) ) {
+			if ( ! wp_is_application_passwords_available() ) {
+				add_action(
+					'admin_notices',
+					function() {
+						if ( get_current_screen()->id !== 'toplevel_page_distributor' ) {
+							return;
+						}
+						?>
+						<div class="notice notice-warning">
+							<p>
+								<?php
+								echo wp_kses_post(
+									sprintf(
+										/* translators: %s is the URL to the guide to enable Application Passwords for non HTTPS sites. */
+										__( 'Your site is not using HTTPS or is a local environment. Follow this <a href="%s">guide</a> to enable Application Passwords.', 'distributor' ),
+										'https://github.com/10up/distributor#application-passwords-and-wordpress-56'
+									)
+								);
+								?>
+							</p>
+						</div>
+						<?php
+					}
+				);
+			}
+		} elseif ( ! class_exists( 'Application_Passwords' ) ) {
 			require_once __DIR__ . '/vendor/georgestephanis/application-passwords/application-passwords.php';
 		}
 	}

@@ -543,7 +543,7 @@ class WordPressExternalConnection extends ExternalConnection {
 		 * Now let's push
 		 */
 		$post_body = [
-			'title'                          => get_the_title( $post_id ),
+			'title'                          => html_entity_decode( get_the_title( $post_id ), ENT_QUOTES, get_bloginfo( 'charset' ) ),
 			'slug'                           => $post->post_name,
 			'content'                        => Utils\get_processed_content( $post->post_content ),
 			'type'                           => $post->post_type,
