@@ -205,15 +205,16 @@ function process_actions() {
 				break;
 			}
 
-			$posts     = (array) $_GET['post'];
-			$post_type = sanitize_text_field( $_GET['pull_post_type'] );
+			$posts       = (array) $_GET['post'];
+			$post_type   = sanitize_text_field( $_GET['pull_post_type'] );
+			$post_status = ! empty( $_GET['dt_as_draft'] ) && 'draft' === $_GET['dt_as_draft'] ? 'draft' : '';
 
 			$posts = array_map(
-				function( $remote_post_id ) use ( $post_type ) {
+				function( $remote_post_id ) use ( $post_type, $post_status ) {
 						return [
 							'remote_post_id' => $remote_post_id,
 							'post_type'      => $post_type,
-							'post_status'    => 'draft',
+							'post_status'    => $post_status,
 						];
 				},
 				$posts

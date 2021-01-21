@@ -1,4 +1,5 @@
 import jQuery from 'jquery';
+import { addQueryArgs } from '@wordpress/url';
 
 const chooseConnection = document.getElementById( 'pull_connections' );
 const choosePostType = document.getElementById( 'pull_post_type' );
@@ -6,6 +7,8 @@ const choosePostTypeBtn = document.getElementById( 'pull_post_type_submit' );
 const searchField = document.getElementById( 'post-search-input' );
 const searchBtn = document.getElementById( 'search-submit' );
 const form = document.getElementById( 'posts-filter' );
+const asDraftCheckboxes = document.querySelectorAll( '[name=dt_as_draft]' );
+const pullLinks = document.querySelectorAll( '.distributor_page_pull .pull a' );
 
 jQuery( chooseConnection ).on( 'change', ( event ) => {
 
@@ -36,6 +39,36 @@ if ( chooseConnection && choosePostType && form ) {
 			document.location = `${ getURL() }&s=${ search }`;
 
 			document.body.className += ' dt-loading';
+		} );
+	}
+
+	if ( asDraftCheckboxes && pullLinks ) {
+		jQuery( asDraftCheckboxes ).on( 'change', ( event ) => {
+			if ( event.currentTarget.checked ) {
+				for ( let i = 0; i < asDraftCheckboxes.length; ++i ) {
+					asDraftCheckboxes[i].checked = true;
+				}
+
+				for ( let i = 0; i < pullLinks.length; ++i ) {
+					pullLinks[i].href = addQueryArgs( pullLinks[i].href,
+						{
+							dt_as_draft: 'draft', /*eslint camelcase: 0*/
+						}
+					);
+				}
+			} else {
+				for ( let i = 0; i < asDraftCheckboxes.length; ++i ) {
+					asDraftCheckboxes[i].checked = false;
+				}
+
+				for ( let i = 0; i < pullLinks.length; ++i ) {
+					pullLinks[i].href = addQueryArgs( pullLinks[i].href,
+						{
+							dt_as_draft: '', /*eslint camelcase: 0*/
+						}
+					);
+				}
+			}
 		} );
 	}
 }

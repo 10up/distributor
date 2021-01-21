@@ -309,8 +309,25 @@ class PullListTable extends \WP_List_Table {
 				$actions = [];
 				$disable = true;
 			} else {
+				/**
+				 * Filter the default value of the 'Pull in as draft' option in the pull ui
+				 *
+				 * @hook dt_pull_as_draft
+				 *
+				 * @param {bool}   $as_draft   Whether the 'Pull in as draft' option should be checked.
+				 * @param {object} $connection The connection being used to pull from.
+				 *
+				 * @return {bool}
+				 */
+				$as_draft = apply_filters( 'dt_pull_as_draft', true, $connection_now );
+
+				$draft = 'draft';
+				if ( ! $as_draft ) {
+					$draft = '';
+				}
+
 				$actions = [
-					'pull' => sprintf( '<a href="%s">%s</a>', esc_url( wp_nonce_url( admin_url( 'admin.php?page=pull&action=syndicate&_wp_http_referer=' . rawurlencode( $_SERVER['REQUEST_URI'] ) . '&post=' . $item->ID . '&connection_type=' . $connection_type . '&connection_id=' . $connection_id . '&pull_post_type=' . $item->post_type ), 'bulk-distributor_page_pull' ) ), esc_html__( 'Pull', 'distributor' ) ),
+					'pull' => sprintf( '<a href="%s">%s</a>', esc_url( wp_nonce_url( admin_url( 'admin.php?page=pull&action=syndicate&_wp_http_referer=' . rawurlencode( $_SERVER['REQUEST_URI'] ) . '&post=' . $item->ID . '&connection_type=' . $connection_type . '&connection_id=' . $connection_id . '&pull_post_type=' . $item->post_type . '&dt_as_draft=' . $draft ), 'bulk-distributor_page_pull' ) ), esc_html__( 'Pull', 'distributor' ) ),
 					'view' => '<a href="' . esc_url( $item->link ) . '">' . esc_html__( 'View', 'distributor' ) . '</a>',
 					'skip' => sprintf( '<a href="%s">%s</a>', esc_url( wp_nonce_url( admin_url( 'admin.php?page=pull&action=skip&_wp_http_referer=' . rawurlencode( $_SERVER['REQUEST_URI'] ) . '&post=' . $item->ID . '&connection_type=' . $connection_type . '&connection_id=' . $connection_id ), 'dt_skip' ) ), esc_html__( 'Skip', 'distributor' ) ),
 				];
@@ -545,6 +562,17 @@ class PullListTable extends \WP_List_Table {
 					<?php endforeach; ?>
 				</select>
 				<input type="submit" name="filter_action" id="pull_post_type_submit" class="button" value="<?php esc_attr_e( 'Filter', 'distributor' ); ?>">
+
+				<?php
+				if ( empty( $_GET['status'] ) || 'pulled' !== $_GET['status']  ) :
+					// Filter documented above.
+					$as_draft = apply_filters( 'dt_pull_as_draft', true, $connection_now );
+				?>
+
+					<label class="as-draft" for="dt-as-draft-<?php echo esc_attr( $which ); ?>">
+						<input type="checkbox" id="dt-as-draft-<?php echo esc_attr( $which ); ?>" name="dt_as_draft" value="draft" <?php checked( $as_draft ); ?>> <?php esc_html_e( 'Pull in as draft', 'distributor' ); ?>
+					</label>
+				<?php endif; ?>
 			</div>
 
 			<?php
