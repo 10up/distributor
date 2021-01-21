@@ -411,6 +411,10 @@ class WordPressExternalConnection extends ExternalConnection {
 				unset( $post_array['post_parent'] );
 			}
 
+			if ( ! empty( $item_array['post_status'] ) ) {
+				$post_array['post_status'] = $item_array['post_status'];
+			}
+
 			// Remove date stuff
 			unset( $post_array['post_date'] );
 			unset( $post_array['post_date_gmt'] );

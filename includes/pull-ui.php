@@ -213,6 +213,7 @@ function process_actions() {
 						return [
 							'remote_post_id' => $remote_post_id,
 							'post_type'      => $post_type,
+							'post_status'    => 'draft',
 						];
 				},
 				$posts
