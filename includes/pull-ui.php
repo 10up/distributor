@@ -409,9 +409,14 @@ function dashboard() {
 				<?php
 				$connection_now->pull_post_types = \Distributor\Utils\available_pull_post_types( $connection_now, $connection_type );
 
-				// Set the post type we want to pull
+				// Ensure we have at least one post type to pull
+				$connection_now->pull_post_type = '';
+				if ( ! empty( $connection_now->pull_post_types ) ) {
+					$connection_now->pull_post_type = $connection_now->pull_post_types[0]['slug'];
+				}
+
+				// Set the post type we want to pull (if any)
 				// This is either from a query param, "post" post type, or the first in the list
-				$connection_now->pull_post_type = $connection_now->pull_post_types[0]['slug'];
 				foreach ( $connection_now->pull_post_types as $post_type ) {
 					if ( isset( $_GET['pull_post_type'] ) ) { // @codingStandardsIgnoreLine No nonce needed here.
 						if ( $_GET['pull_post_type'] === $post_type['slug'] ) { // @codingStandardsIgnoreLine Comparing values, no nonce needed.
