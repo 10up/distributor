@@ -221,6 +221,7 @@ function process_actions() {
 			if ( 'external' === $_GET['connection_type'] ) {
 				$connection = \Distributor\ExternalConnection::instantiate( intval( $_GET['connection_id'] ) );
 				$new_posts  = $connection->pull( $posts );
+				$error_key  = "external_{$connection->id}";
 
 				foreach ( $posts as $key => $post_array ) {
 					if ( is_wp_error( $new_posts[ $key ] ) ) {
@@ -232,6 +233,7 @@ function process_actions() {
 				$site       = get_site( intval( $_GET['connection_id'] ) );
 				$connection = new \Distributor\InternalConnections\NetworkSiteConnection( $site );
 				$new_posts  = $connection->pull( $posts );
+				$error_key  = "internal_{$connection->site->blog_id}";
 			}
 
 			$post_id_mappings = array();
@@ -253,7 +255,7 @@ function process_actions() {
 			}
 
 			if ( ! empty( $pull_errors ) ) {
-				set_transient( 'dt_connection_pull_errors_' . $connection->id, $pull_errors, DAY_IN_SECONDS );
+				set_transient( 'dt_connection_pull_errors_' . $error_key, $pull_errors, DAY_IN_SECONDS );
 			}
 
 			$connection->log_sync( $post_id_mappings );
@@ -491,13 +493,19 @@ function output_pull_errors() {
 		return;
 	}
 
-	$pull_errors = get_transient( 'dt_connection_pull_errors_' . $connection_now->id );
+	if ( is_a( $connection_now, '\Distributor\ExternalConnection' ) ) {
+		$error_key = "external_{$connection_now->id}";
+	} else {
+		$error_key = "internal_{$connection_now->site->blog_id}";
+	}
+
+	$pull_errors = get_transient( 'dt_connection_pull_errors_' . $error_key );
 
 	if ( empty( $pull_errors ) ) {
 		return;
 	}
 
-	delete_transient( 'dt_connection_pull_errors_' . $connection_now->id );
+	delete_transient( 'dt_connection_pull_errors_' . $error_key );
 
 	$post_ids = array_keys( $pull_errors );
 
