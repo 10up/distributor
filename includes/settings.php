@@ -238,9 +238,9 @@ function license_key_callback() {
 	</div>
 
 	<?php if ( false === $settings['valid_license'] ) : ?>
-	<p class="description">
-		<?php echo wp_kses_post( __( 'Registration is 100% free and provides update notifications and upgrades inside the dashboard. <a href="https://distributorplugin.com/#cta">Register for your key</a>.', 'distributor' ) ); ?>
-	</p>
+		<p class="description">
+			<?php echo wp_kses_post( __( 'Registration is 100% free and provides update notifications and upgrades inside the dashboard. <a href="https://distributorplugin.com/#cta">Register for your key</a>.', 'distributor' ) ); ?>
+		</p>
 	<?php
 	endif;
 }
@@ -366,9 +366,9 @@ function network_settings_screen() {
 						</div>
 
 						<?php if ( false === $settings['valid_license'] ) : ?>
-						<p class="description">
-							<?php echo wp_kses_post( __( 'Registration is 100% free and provides update notifications and upgrades inside the dashboard. <a href="https://distributorplugin.com/#cta">Register for your key</a>.', 'distributor' ) ); ?>
-						</p>
+							<p class="description">
+								<?php echo wp_kses_post( __( 'Registration is 100% free and provides update notifications and upgrades inside the dashboard. <a href="https://distributorplugin.com/#cta">Register for your key</a>.', 'distributor' ) ); ?>
+							</p>
 						<?php endif; ?>
 					</td>
 				</tr>
