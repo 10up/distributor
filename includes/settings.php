@@ -237,7 +237,7 @@ function license_key_callback() {
 		<input name="dt_settings[license_key]" type="text" placeholder="<?php esc_html_e( 'Registration Key', 'distributor' ); ?>" value="<?php echo esc_attr( $license_key ); ?>" id="dt_settings_license_key">
 	</div>
 
-	<?php if ( false === $settings['valid_license'] ) : ?>
+	<?php if ( true !== $settings['valid_license'] ) : ?>
 		<p class="description">
 			<?php echo wp_kses_post( __( 'Registration is 100% free and provides update notifications and upgrades inside the dashboard. <a href="https://distributorplugin.com/#cta">Register for your key</a>.', 'distributor' ) ); ?>
 		</p>
@@ -365,7 +365,7 @@ function network_settings_screen() {
 							<input name="dt_settings[email]" type="email" placeholder="<?php esc_html_e( 'Email', 'distributor' ); ?>" value="<?php echo esc_attr( $email ); ?>"> <input name="dt_settings[license_key]" type="text" placeholder="<?php esc_html_e( 'Registration Key', 'distributor' ); ?>" value="<?php echo esc_attr( $license_key ); ?>">
 						</div>
 
-						<?php if ( false === $settings['valid_license'] ) : ?>
+						<?php if ( true !== $settings['valid_license'] ) : ?>
 							<p class="description">
 								<?php echo wp_kses_post( __( 'Registration is 100% free and provides update notifications and upgrades inside the dashboard. <a href="https://distributorplugin.com/#cta">Register for your key</a>.', 'distributor' ) ); ?>
 							</p>
