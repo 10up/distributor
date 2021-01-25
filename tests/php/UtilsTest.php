@@ -659,8 +659,8 @@ class UtilsTest extends TestCase {
 				'times'  => 1,
 				'args'   => [ $media_post->ID ],
 				'return' => [
-					'meta1' => [ true ],
-					'meta2' => [ false ],
+					'meta1'                   => [ true ],
+					'meta2'                   => [ false ],
 					'_wp_attachment_metadata' => [ true ],
 				],
 			]
