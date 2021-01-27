@@ -358,7 +358,7 @@ class PullListTable extends \WP_List_Table {
 	public function prepare_items() {
 		global $connection_now;
 
-		if ( empty( $connection_now ) ) {
+		if ( empty( $connection_now ) || empty( $connection_now->pull_post_type ) ) {
 			return;
 		}
 
