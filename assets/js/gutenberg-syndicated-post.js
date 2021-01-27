@@ -11,7 +11,7 @@ if ( '0' !== dtGutenberg.originalSourceId || '0' !== dtGutenberg.originalBlogId 
 	if ( parseInt( dtGutenberg.originalDelete ) ) {
 		message = wp.i18n.sprintf( wp.i18n.__( 'This %1$s was distributed from %2$s. However, the original has been deleted.' ), dtGutenberg.postTypeSingular, dtGutenberg.originalLocationName );
 	} else if ( ! parseInt( dtGutenberg.unlinked ) ) {
-		message = wp.i18n.sprintf( wp.i18n.__( 'Distributed from %s. The original will update this unless you', 'distributor' ), dtGutenberg.originalLocationName );
+		message = wp.i18n.sprintf( wp.i18n.__( 'Distributed from %s. The original will update this version unless you', 'distributor' ), dtGutenberg.originalLocationName );
 
 		actions.push( {
 			label: wp.i18n. __( 'unlink from original.', 'distributor' ),
