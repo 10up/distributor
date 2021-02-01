@@ -633,7 +633,7 @@ class WordPressExternalConnection extends ExternalConnection {
 		);
 
 		// Action documented in includes/classes/InternalConnections/NetworkSiteConnection.php.
-		do_action( 'dt_push_post', $response, $post_body, $type_url, $post_id, $args, $this );
+		do_action( 'dt_push_post', $response, $post, $args, $this );
 
 		if ( is_wp_error( $response ) ) {
 			return $response;

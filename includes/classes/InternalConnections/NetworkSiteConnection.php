@@ -115,6 +115,8 @@ class NetworkSiteConnection extends Connection {
 
 		remove_filter( 'wp_insert_post_data', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'maybe_set_modified_date' ), 10, 2 );
 
+		$new_post = get_post( $new_post_id );
+
 		if ( ! is_wp_error( $new_post_id ) ) {
 			$output['id'] = $new_post_id;
 
@@ -161,12 +163,12 @@ class NetworkSiteConnection extends Connection {
 		 *
 		 * @hook dt_push_post
 		 *
-		 * @param {int}        $new_post_id   The newly created post ID.
-		 * @param {int}        $post_id       The original post ID.
-		 * @param {array}      $args          The arguments passed into wp_insert_post.
-		 * @param {Connection} $this          The Distributor connection being pushed to.
+		 * @param {WP_Post}    $new_post	The newly created post.
+		 * @param {WP_Post}    $post_id     The original post.
+		 * @param {array}      $args        The arguments passed into wp_insert_post.
+		 * @param {Connection} $this        The Distributor connection being pushed to.
 		 */
-		do_action( 'dt_push_post', $new_post_id, $post_id, $args, $this );
+		do_action( 'dt_push_post', $new_post, $post, $args, $this );
 
 		restore_current_blog();
 
