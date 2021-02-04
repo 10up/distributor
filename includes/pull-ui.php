@@ -116,6 +116,15 @@ function admin_enqueue_scripts( $hook ) {
 
 	wp_enqueue_script( 'dt-admin-pull', plugins_url( '/dist/js/admin-pull.min.js', __DIR__ ), array( 'jquery' ), DT_VERSION, true );
 	wp_enqueue_style( 'dt-admin-pull', plugins_url( '/dist/css/admin-pull-table.min.css', __DIR__ ), array(), DT_VERSION );
+
+	wp_localize_script(
+		'dt-admin-pull',
+		'dt',
+		[
+			'pull'     => __( 'Pull', 'distributor' ),
+			'as_draft' => __( 'Pull as draft', 'distributor' ),
+		]
+	);
 }
 
 /**

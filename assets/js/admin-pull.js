@@ -1,5 +1,6 @@
 import jQuery from 'jquery';
 import { addQueryArgs } from '@wordpress/url';
+import { dt } from 'window';
 
 const chooseConnection = document.getElementById( 'pull_connections' );
 const choosePostType = document.getElementById( 'pull_post_type' );
@@ -9,6 +10,7 @@ const searchBtn = document.getElementById( 'search-submit' );
 const form = document.getElementById( 'posts-filter' );
 const asDraftCheckboxes = document.querySelectorAll( '[name=dt_as_draft]' );
 const pullLinks = document.querySelectorAll( '.distributor_page_pull .pull a' );
+const { pull: pullText, as_draft: pullAsDraftText } = dt;
 
 jQuery( chooseConnection ).on( 'change', ( event ) => {
 
@@ -55,6 +57,7 @@ if ( chooseConnection && choosePostType && form ) {
 							dt_as_draft: 'draft', /*eslint camelcase: 0*/
 						}
 					);
+					pullLinks[i].text = pullAsDraftText;
 				}
 			} else {
 				for ( let i = 0; i < asDraftCheckboxes.length; ++i ) {
@@ -67,6 +70,7 @@ if ( chooseConnection && choosePostType && form ) {
 							dt_as_draft: '', /*eslint camelcase: 0*/
 						}
 					);
+					pullLinks[i].text = pullText;
 				}
 			}
 		} );

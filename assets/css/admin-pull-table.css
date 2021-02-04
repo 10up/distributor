@@ -9,6 +9,15 @@
 			cursor: default;
 		}
 	}
+
+	& .dt-pull-post-type {
+		display: flex;
+		align-items: center;
+
+		& .dt-as-draft {
+			padding-left: 10px;
+		}
+	}
 }
 
 .wp-list-table .disabled {
