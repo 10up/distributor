@@ -116,6 +116,15 @@ function admin_enqueue_scripts( $hook ) {
 
 	wp_enqueue_script( 'dt-admin-pull', plugins_url( '/dist/js/admin-pull.min.js', __DIR__ ), array( 'jquery' ), DT_VERSION, true );
 	wp_enqueue_style( 'dt-admin-pull', plugins_url( '/dist/css/admin-pull-table.min.css', __DIR__ ), array(), DT_VERSION );
+
+	wp_localize_script(
+		'dt-admin-pull',
+		'dt',
+		[
+			'pull'     => __( 'Pull', 'distributor' ),
+			'as_draft' => __( 'Pull as draft', 'distributor' ),
+		]
+	);
 }
 
 /**
@@ -205,14 +214,16 @@ function process_actions() {
 				break;
 			}
 
-			$posts     = (array) $_GET['post'];
-			$post_type = sanitize_text_field( $_GET['pull_post_type'] );
+			$posts       = (array) $_GET['post'];
+			$post_type   = sanitize_text_field( $_GET['pull_post_type'] );
+			$post_status = ! empty( $_GET['dt_as_draft'] ) && 'draft' === $_GET['dt_as_draft'] ? 'draft' : '';
 
 			$posts = array_map(
-				function( $remote_post_id ) use ( $post_type ) {
+				function( $remote_post_id ) use ( $post_type, $post_status ) {
 						return [
 							'remote_post_id' => $remote_post_id,
 							'post_type'      => $post_type,
+							'post_status'    => $post_status,
 						];
 				},
 				$posts
