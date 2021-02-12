@@ -527,6 +527,7 @@ class PullListTable extends \WP_List_Table {
 	public function get_bulk_actions() {
 		if ( empty( $_GET['status'] ) || 'new' === $_GET['status'] ) { // @codingStandardsIgnoreLine Nonce not required.
 			$actions = [
+				'-1'             => esc_html__( 'Bulk Action', 'distributor' ),
 				'bulk-syndicate' => esc_html__( 'Pull', 'distributor' ),
 				'bulk-skip'      => esc_html__( 'Skip', 'distributor' ),
 			];
