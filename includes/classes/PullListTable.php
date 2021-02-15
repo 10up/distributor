@@ -383,7 +383,7 @@ class PullListTable extends \WP_List_Table {
 	/**
 	 * Generates content for a single row of the table.
 	 *
-	 * @param object|array $item The current item.
+	 * @param \WP_Post $item The current post object.
 	 */
 	public function single_row( $item ) {
 		/**
