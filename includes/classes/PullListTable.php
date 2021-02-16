@@ -64,7 +64,12 @@ class PullListTable extends \WP_List_Table {
 			unset( $columns['cb'] );
 		}
 
-		return $columns;
+		/**
+		 * Filters the columns displayed in the pull list table.
+		 *
+		 * @param array $columns An associative array of column headings.
+		 */
+		return apply_filters( 'dt_pull_list_table_columns', $columns );
 	}
 
 	/**
@@ -264,6 +269,14 @@ class PullListTable extends \WP_List_Table {
 				return $url;
 		}
 
+		/**
+		 * Fires for each column in the pull list table.
+		 *
+		 * @param string $column_name The name of the column to display.
+		 * @param \WP_Post $item The post/item to output in the column.
+		 */
+		do_action( 'dt_pull_list_table_custom_column', $column_name, $item );
+
 		return '';
 	}
 
@@ -365,6 +378,25 @@ class PullListTable extends \WP_List_Table {
 		if ( $disable ) {
 			echo '</div>';
 		}
+	}
+
+	/**
+	 * Generates content for a single row of the table.
+	 *
+	 * @param \WP_Post $item The current post object.
+	 */
+	public function single_row( $item ) {
+		/**
+		 * Filters the class used on the table row on the pull list table.
+		 *
+		 * @param string $class The class name.
+		 * @param \WP_Post $item The current post object.
+		 */
+		$class = sanitize_html_class( apply_filters( 'dt_pull_list_table_tr_class', 'dt-table-row', $item ) );
+
+		echo sprintf( '<tr class="%s">', esc_attr( $class ) );
+		$this->single_row_columns( $item );
+		echo '</tr>';
 	}
 
 	/**
@@ -564,10 +596,10 @@ class PullListTable extends \WP_List_Table {
 				<input type="submit" name="filter_action" id="pull_post_type_submit" class="button" value="<?php esc_attr_e( 'Filter', 'distributor' ); ?>">
 
 				<?php
-				if ( empty( $_GET['status'] ) || 'pulled' !== $_GET['status']  ) :
+				if ( empty( $_GET['status'] ) || 'pulled' !== $_GET['status'] ) :
 					// Filter documented above.
 					$as_draft = apply_filters( 'dt_pull_as_draft', true, $connection_now );
-				?>
+					?>
 
 					<label class="dt-as-draft" for="dt-as-draft-<?php echo esc_attr( $which ); ?>">
 						<input type="checkbox" id="dt-as-draft-<?php echo esc_attr( $which ); ?>" name="dt_as_draft" value="draft" <?php checked( $as_draft ); ?>> <?php esc_html_e( 'Pull in as draft', 'distributor' ); ?>
