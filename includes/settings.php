@@ -32,6 +32,8 @@ function setup() {
 			add_action( 'after_plugin_row', __NAMESPACE__ . '\update_notice', 10, 3 );
 			add_action( 'admin_print_styles', __NAMESPACE__ . '\plugin_update_styles' );
 			add_action( 'admin_enqueue_scripts', __NAMESPACE__ . '\admin_enqueue_scripts' );
+
+			add_filter( 'pre_set_site_transient_update_plugins', __NAMESPACE__ . '\auto_update_plugins_setting' );
 		}
 	);
 }
@@ -105,7 +107,7 @@ function update_notice( $plugin_file, $plugin_data, $status ) {
 	?>
 
 	<tr class="plugin-update-tr <?php if ( $active ) : ?>active<?php endif; ?>" id="distributor-update" >
-		<td colspan="3" class="plugin-update colspanchange">
+		<td colspan="4" class="plugin-update colspanchange">
 			<div class="update-message notice inline notice-warning notice-alt">
 				<p>
 					<?php /* translators: %s: distributor notice url */ ?>
@@ -453,4 +455,82 @@ function sanitize_settings( $settings ) {
 	}
 
 	return $new_settings;
+}
+
+/**
+ * Enable auto-update of plugin.
+ *
+ * @param stdClass $transient Transient cache object.
+ *
+ * @return stdClass
+ */
+function auto_update_plugins_setting( $transient ) {
+	$current_version = defined( 'DT_VERSION' ) ? DT_VERSION : null;
+	$update = check_for_updates( $current_version );
+	if ( $update ) {
+		$transient->response['distributor/distributor.php'] = $update;
+	} else {
+		$item = (object) array(
+			'id'            => 'distributor/distributor.php',
+			'slug'          => 'distributor',
+			'plugin'        => 'distributor/distributor.php',
+			'new_version'   => $current_version,
+			'url'           => 'https://github.com/10up/distributor',
+			'package'       => '',
+			'icons'         => array(),
+			'banners'       => array(),
+			'banners_rtl'   => array(),
+			'tested'        => '',
+			'requires_php'  => '',
+			'compatibility' => new \stdClass(),
+		);
+
+		$transient->no_update['distributor/distributor.php'] = $item;
+	}
+
+	return $transient;
+}
+
+/**
+ * Compare latest release version from plugin with the current installed version.
+ *
+ * @param string $current_version Current installed version.
+ *
+ * @return false|object
+ */
+function check_for_updates( $current_version ) {
+	$request = wp_safe_remote_get( 'https://api.github.com/repos/10up/distributor/releases?per_page=1' );
+
+	if ( is_wp_error( $request ) ) {
+		return false;
+	}
+
+	$request = wp_remote_retrieve_body( $request );
+	$request = json_decode( $request );
+	$release  = ( $request[0] )? $request[0] : false;
+
+	if ( ! $release ) {
+		return false;
+	}
+
+	if ( version_compare( $current_version, $release->tag_name, '>' ) ) {
+		return false;
+	}
+
+	$item = (object) array(
+		'id'            => 'distributor/distributor.php',
+		'slug'          => 'distributor',
+		'plugin'        => 'distributor/distributor.php',
+		'new_version'   => $release->tag_name,
+		'url'           => 'https://github.com/10up/distributor',
+		'package'       => $release->zipball_url,
+		'icons'         => array(),
+		'banners'       => array(),
+		'banners_rtl'   => array(),
+		'tested'        => '',
+		'requires_php'  => '',
+		'compatibility' => new \stdClass(),
+	);
+
+	return $item;
 }
