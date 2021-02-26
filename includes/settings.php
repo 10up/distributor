@@ -465,6 +465,16 @@ function sanitize_settings( $settings ) {
  * @return stdClass
  */
 function auto_update_plugins_setting( $transient ) {
+	if ( ! DT_IS_NETWORK ) {
+		$valid_license = \Distributor\Utils\get_settings()['valid_license'];
+	} else {
+		$valid_license = \Distributor\Utils\get_network_settings()['valid_license'];
+	}
+
+	if ( ! $valid_license ) {
+		return $transient;
+	}
+
 	$current_version = defined( 'DT_VERSION' ) ? DT_VERSION : null;
 	$update = check_for_updates( $current_version );
 	if ( $update ) {
