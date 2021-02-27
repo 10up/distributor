@@ -1,7 +1,14 @@
 {
   "name": "distributor",
-  "description": "Syndicate content to and from external websites and within multisite blogs.",
-  "author": "Taylor Lovett, 10up",
+  "version": "1.6.2",
+  "description": "Distributor is a WordPress plugin that makes it easy to distribute and reuse content across your websites — whether in a single multisite or across the web.",
+  "homepage": "https://github.com/10up/distributor#readme",
+  "license": "GPL-2.0-or-later",
+  "author": {
+    "name": "10up",
+    "email": "opensource@10up.com",
+    "url": "https://10up.com"
+  },
   "scripts": {
     "build": "gulp",
     "lint": "eslint assets/js",
@@ -11,32 +18,36 @@
     "css": "gulp css",
     "postinstall": "gulp",
     "makepot": "wpi18n makepot && echo '.pot file updated'",
-    "release": "rm -rf release/ && git worktree prune && npm run build && git worktree add -B stable release origin/stable && gulp copy",
+    "release": "rm -rf release/ && git worktree prune && npm run build && git fetch && git worktree add -B stable release origin/stable && gulp copy",
     "build:docs": "rm -rf hook_docs && jsdoc -c hookdoc-conf.json distributor.php includes"
   },
   "devDependencies": {
     "@10up/eslint-config": "^1.0.9",
-    "@babel/cli": "^7.6.2",
-    "@babel/core": "^7.6.2",
-    "@babel/preset-env": "^7.6.2",
-    "@babel/preset-react": "^7.0.0",
-    "@babel/register": "^7.6.2",
-    "babel-eslint": "^10.0.3",
-    "babel-loader": "^8.0.6",
+    "@babel/cli": "^7.8.4",
+    "@babel/core": "^7.9.6",
+    "@babel/preset-env": "^7.9.6",
+    "@babel/preset-react": "^7.9.4",
+    "@babel/register": "^7.9.0",
+    "@types/mustache": "^4.0.1",
+    "@wordpress/url": "^2.5.0",
+    "babel-eslint": "^10.1.0",
+    "babel-loader": "^8.1.0",
+    "compare-versions": "^3.6.0",
     "cssnano": "^4.1.10",
     "del": "^5.1.0",
-    "eslint": "^6.4.0",
-    "eslint-loader": "^3.0.1",
+    "eslint": "^6.8.0",
+    "eslint-loader": "^3.0.4",
     "gulp": "^4.0.2",
-    "gulp-cli": "^2.2.0",
+    "gulp-cli": "^2.2.1",
     "gulp-filter": "^6.0.0",
     "gulp-livereload": "^4.0.2",
     "gulp-postcss": "^8.0.0",
     "gulp-rename": "^1.4.0",
     "gulp-replace": "^1.0.0",
     "gulp-sourcemaps": "^2.6.5",
-    "gulp4-run-sequence": "^1.0.0",
+    "gulp4-run-sequence": "^1.0.1",
     "imports-loader": "^0.8.0",
+    "jsdoc": "^3.6.4",
     "natives": "^1.1.6",
     "node-wp-i18n": "^1.2.3",
     "postcss-cssnext": "^3.1.0",
@@ -44,12 +55,14 @@
     "pump": "^3.0.0",
     "require-dir": "^1.2.0",
     "run-sequence": "^2.2.1",
-    "webpack": "^4.41.0",
+    "webpack": "^4.43.0",
     "webpack-stream": "^5.2.1",
-    "jsdoc": "^3.6.3",
     "wp-hookdoc": "^0.2.0"
   },
   "engines": {
     "node": ">=8.9.10"
+  },
+  "dependencies": {
+    "mustache": "^4.0.1"
   }
 }

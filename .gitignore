@@ -3,5 +3,8 @@ node_modules
 .idea*
 vendor/*
 !vendor/yahnis-elsts
+!vendor/georgestephanis
 release/*
 dist/*
+screenshots/
+lang/

@@ -411,6 +411,10 @@ class WordPressExternalConnection extends ExternalConnection {
 				unset( $post_array['post_parent'] );
 			}
 
+			if ( ! empty( $item_array['post_status'] ) ) {
+				$post_array['post_status'] = $item_array['post_status'];
+			}
+
 			// Remove date stuff
 			unset( $post_array['post_date'] );
 			unset( $post_array['post_date_gmt'] );
@@ -480,7 +484,7 @@ class WordPressExternalConnection extends ExternalConnection {
 	 * @param  int   $post_id Post id
 	 * @param  array $args Post args to push.
 	 * @since  0.8
-	 * @return bool|\WP_Error
+	 * @return array|\WP_Error
 	 */
 	public function push( $post_id, $args = array() ) {
 		if ( empty( $post_id ) ) {
@@ -543,7 +547,7 @@ class WordPressExternalConnection extends ExternalConnection {
 		 * Now let's push
 		 */
 		$post_body = [
-			'title'                          => get_the_title( $post_id ),
+			'title'                          => html_entity_decode( get_the_title( $post_id ), ENT_QUOTES, get_bloginfo( 'charset' ) ),
 			'slug'                           => $post->post_name,
 			'content'                        => Utils\get_processed_content( $post->post_content ),
 			'type'                           => $post->post_type,
@@ -658,7 +662,15 @@ class WordPressExternalConnection extends ExternalConnection {
 			\Distributor\Subscriptions\create_subscription( $post_id, $body_array['id'], untrailingslashit( $this->base_url ), $signature );
 		}
 
-		return $body_array['id'];
+		$remote_post = array(
+			'id' => $body_array['id'],
+		);
+
+		if ( ! empty( $body_array['push-errors'] ) ) {
+			$remote_post['push-errors'] = $body_array['push-errors'];
+		}
+
+		return $remote_post;
 	}
 
 	/**
@@ -733,6 +745,7 @@ class WordPressExternalConnection extends ExternalConnection {
 		} else {
 			$response = wp_remote_get( untrailingslashit( $this->base_url ), $this->auth_handler->format_get_args( array( 'timeout' => self::$timeout ) ) );
 		}
+
 		$body = wp_remote_retrieve_body( $response );
 
 		if ( is_wp_error( $response ) || empty( $body ) ) {
@@ -787,70 +800,67 @@ class WordPressExternalConnection extends ExternalConnection {
 		} else {
 			$types_response = wp_remote_get( $types_path, $this->auth_handler->format_get_args( array( 'timeout' => self::$timeout ) ) );
 		}
-		$types_body = wp_remote_retrieve_body( $types_response );
 
-		if ( is_wp_error( $types_response ) || empty( $types_body ) ) {
+		$types_body = wp_remote_retrieve_body( $types_response );
+		$types      = json_decode( $types_body, true );
+
+		if ( is_wp_error( $types_response ) || 200 !== wp_remote_retrieve_response_code( $types_response ) || empty( $types_body ) || empty( $types ) ) {
 			$output['errors']['no_types'] = 'no_types';
 		} else {
-			$types = json_decode( $types_body, true );
+			$can_get  = array();
+			$can_post = array();
 
-			if ( 200 !== wp_remote_retrieve_response_code( $types_response ) || empty( $types ) ) {
-				$output['errors']['no_types'] = 'no_types';
+			$permission_url = untrailingslashit( $this->base_url ) . '/' . self::$namespace . '/distributor/post-types-permissions';
+
+			if ( function_exists( 'vip_safe_wp_remote_get' ) && \Distributor\Utils\is_vip_com() ) {
+				$permission_response = vip_safe_wp_remote_get(
+					$permission_url,
+					false,
+					3,
+					3,
+					10,
+					$this->auth_handler->format_get_args()
+				);
 			} else {
-				$can_get  = array();
-				$can_post = array();
-
-				$permission_url = untrailingslashit( $this->base_url ) . '/' . self::$namespace . '/distributor/post-types-permissions';
-
-				if ( function_exists( 'vip_safe_wp_remote_get' ) && \Distributor\Utils\is_vip_com() ) {
-					$permission_response = vip_safe_wp_remote_get(
-						$permission_url,
-						false,
-						3,
-						3,
-						10,
-						$this->auth_handler->format_get_args()
-					);
-				} else {
-
-					$permission_response = wp_remote_get(
-						$permission_url,
-						$this->auth_handler->format_get_args(
-							array(
-								'timeout' => self::$timeout,
-							)
+				$permission_response = wp_remote_get(
+					$permission_url,
+					$this->auth_handler->format_get_args(
+						array(
+							'timeout' => self::$timeout,
 						)
-					);
-				}
-
-				$permissions = json_decode( wp_remote_retrieve_body( $permission_response ) );
-
-				if (
-					is_wp_error( $permission_response )
-					|| empty( $permissions )
-					|| ! isset( $permissions->can_get )
-					|| ! isset( $permissions->can_post )
-				) {
-					$output['errors']['no_permissions'] = 'no_permissions';
-				} else {
-					$can_get = array_values(
-						array_filter(
-							$permissions->can_get,
-							[ $this, 'not_distributor_internal_post_type' ]
-						)
-					);
-
-					$can_post = array_values(
-						array_filter(
-							$permissions->can_post,
-							[ $this, 'not_distributor_internal_post_type' ]
-						)
-					);
-				}
-
-				$output['can_get']  = $can_get;
-				$output['can_post'] = $can_post;
+					)
+				);
 			}
+
+			$permissions = json_decode( wp_remote_retrieve_body( $permission_response ) );
+
+			$output['is_authenticated'] = isset( $permissions->is_authenticated ) ? $permissions->is_authenticated : 'na';
+
+			if (
+				is_wp_error( $permission_response )
+				|| empty( $permissions )
+				|| ! isset( $permissions->can_get )
+				|| ! isset( $permissions->can_post )
+			) {
+				$output['errors']['no_permissions'] = 'no_permissions';
+			} else {
+				$can_get = array_values(
+					array_filter(
+						$permissions->can_get,
+						[ $this, 'not_distributor_internal_post_type' ]
+					)
+				);
+
+				$can_post = array_values(
+					array_filter(
+						$permissions->can_post,
+						[ $this, 'not_distributor_internal_post_type' ]
+					)
+				);
+			}
+
+			$output['can_get']  = $can_get;
+			$output['can_post'] = $can_post;
 		}
 
 		return $output;

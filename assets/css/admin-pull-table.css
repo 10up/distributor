@@ -9,6 +9,15 @@
 			cursor: default;
 		}
 	}
+
+	& .dt-pull-post-type {
+		display: flex;
+		align-items: center;
+
+		& .dt-as-draft {
+			padding-left: 10px;
+		}
+	}
 }
 
 .wp-list-table .disabled {
@@ -17,4 +26,9 @@
 
 .status-sync .check-column {
 	display: none;
+}
+
+#pull-errors ul ul {
+	list-style: disc;
+	padding-left: 20px;
 }

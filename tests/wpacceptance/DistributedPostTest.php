@@ -75,7 +75,7 @@ class DistributedPost extends \TestCase {
 
 		// Make sure we see distributed status admin notice and that it shows as linked
 		if ( $editor_has_blocks ) {
-			$I->seeText( 'Distributed from Site One. The original will update this unless youunlink from original.View Original', '.components-notice__content' );
+			$I->seeText( 'Distributed from Site One. The original will update this version unless you unlink from original.View Original', '.components-notice__content' );
 			$element = $I->getElement( '.components-notice__action' );
 			$I->seeText( 'unlink from original.', '.components-notice__action' );
 		} else {

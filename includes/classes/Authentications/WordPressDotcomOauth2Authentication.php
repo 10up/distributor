@@ -111,17 +111,17 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 				<a href="https://developer.wordpress.com/apps/"><?php esc_html_e( 'create an application with the WordPress.com applications manager', 'distributor' ); ?></a>.</p>
 				<p><?php esc_html_e( 'Use the following redirect URL when creating your application: ', 'distributor' ); ?><br />
 				<strong><?php echo esc_url( admin_url( 'post.php' ) ); ?></strong></p>
-			</div>
-			<?php
+				<?php
 
-			/**
-			 * On the new connection screen, at first only show a button to save the connection. Oauth requires a return redirect
-			 * and we need to save to generate a post id we can redirect back to before continuing.
-			 */
-			?>
-			<p class='oauth-begin-authentication-wrapper<?php echo ( ! $adding_new_connection ? ' hidden' : '' ); ?>'>
-			<button name="save" type="button" class="button button-primary button-large" id="begin-authorization"><?php esc_attr_e( 'Start Setup', 'distributor' ); ?></button>
+				/**
+				 * On the new connection screen, at first only show a button to save the connection. Oauth requires a return redirect
+				 * and we need to save to generate a post id we can redirect back to before continuing.
+				 */
+				?>
+				<p class='oauth-begin-authentication-wrapper<?php echo ( ! $adding_new_connection ? ' hidden' : '' ); ?>'>
+				<button name="save" type="button" class="button button-primary button-large" id="begin-authorization"><?php esc_attr_e( 'Start Setup', 'distributor' ); ?></button>
 			</p>
+			</div>
 			<?php
 
 			// Render the credentials fields.

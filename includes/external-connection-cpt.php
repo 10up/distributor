@@ -22,6 +22,7 @@ function setup() {
 			add_action( 'save_post', __NAMESPACE__ . '\save_post' );
 			add_action( 'admin_enqueue_scripts', __NAMESPACE__ . '\admin_enqueue_scripts' );
 			add_action( 'wp_ajax_dt_verify_external_connection', __NAMESPACE__ . '\ajax_verify_external_connection' );
+			add_action( 'wp_ajax_dt_get_remote_info', __NAMESPACE__ . '\get_remote_distributor_info' );
 			add_filter( 'manage_dt_ext_connection_posts_columns', __NAMESPACE__ . '\filter_columns' );
 			add_action( 'manage_dt_ext_connection_posts_custom_column', __NAMESPACE__ . '\action_custom_columns', 10, 2 );
 			add_action( 'admin_menu', __NAMESPACE__ . '\add_menu_item' );
@@ -83,7 +84,7 @@ function output_status_column( $column_name, $post_id ) {
 			class="connection-status <?php echo esc_attr( $status ); ?>"
 			<?php if ( ! empty( $last_checked ) ) : ?>
 				<?php /* translators: %s: human readable time difference */ ?>
-				title="<?php printf( esc_html__( 'Last Checked on %s' ), esc_html( date( 'F j, Y, g:i a', ( $last_checked + ( get_option( 'gmt_offset' ) * HOUR_IN_SECONDS ) ) ) ) ); ?>"
+				title="<?php printf( esc_html__( 'Last Checked on %s' ), esc_html( gmdate( 'F j, Y, g:i a', ( $last_checked + ( get_option( 'gmt_offset' ) * HOUR_IN_SECONDS ) ) ) ) ); ?>"
 			<?php endif; ?>
 		></span>
 		<a href="<?php echo esc_url( get_edit_post_link( $post_id ) ); ?>"><?php esc_html_e( '(Verify)', 'distributor' ); ?></a>
@@ -269,24 +270,36 @@ function admin_enqueue_scripts( $hook ) {
 		wp_enqueue_style( 'dt-admin-external-connection', plugins_url( '/dist/css/admin-external-connection.min.css', __DIR__ ), array(), DT_VERSION );
 		wp_enqueue_script( 'dt-admin-external-connection', plugins_url( '/dist/js/admin-external-connection.min.js', __DIR__ ), array( 'jquery', 'underscore', 'wp-a11y' ), DT_VERSION, true );
 
+		$blog_name        = get_bloginfo( 'name ' );
+		$wizard_return    = get_wizard_return_data();
+
 		wp_localize_script(
 			'dt-admin-external-connection',
 			'dt',
 			array(
-				'nonce'                     => wp_create_nonce( 'dt-verify-ext-conn' ),
-				'bad_connection'            => esc_html__( 'No connection found.', 'distributor' ),
-				'good_connection'           => esc_html__( 'Connection established.', 'distributor' ),
-				'limited_connection'        => esc_html__( 'Limited connection established.', 'distributor' ),
-				'no_push'                   => esc_html__( 'Push distribution unavailable.', 'distributor' ),
-				'pull_limited'              => esc_html__( 'Pull distribution limited to basic content, i.e. title and content body.', 'distributor' ),
-				'endpoint_suggestion'       => esc_html__( 'Did you mean: ', 'distributor' ),
-				'endpoint_checking_message' => esc_html__( 'Checking endpoint...', 'distributor' ),
-				'bad_auth'                  => esc_html__( 'Authentication failed.', 'distributor' ),
-				'change'                    => esc_html__( 'Change', 'distributor' ),
-				'cancel'                    => esc_html__( 'Cancel', 'distributor' ),
-				'no_distributor'            => esc_html__( 'Distributor not installed on remote site.', 'distributor' ),
-				'roles_warning'             => esc_html__( 'Be careful assigning less trusted roles push privileges as they will inherit the capabilities of the user on the remote site.', 'distributor' ),
-				'admin_url'                 => admin_url(),
+				'nonce'                               => wp_create_nonce( 'dt-verify-ext-conn' ),
+				'bad_connection'                      => esc_html__( 'No connection found.', 'distributor' ),
+				'good_connection'                     => esc_html__( 'Connection established.', 'distributor' ),
+				'limited_connection'                  => esc_html__( 'Limited connection established.', 'distributor' ),
+				'no_push'                             => esc_html__( 'Push distribution unavailable.', 'distributor' ),
+				'no_permissions'                      => esc_html__( 'Authentication succeeded but your account does not have permissions to create posts on the external site.', 'distributor' ),
+				'pull_limited'                        => esc_html__( 'Pull distribution limited to basic content, i.e. title and content body.', 'distributor' ),
+				'endpoint_suggestion'                 => esc_html__( 'Did you mean: ', 'distributor' ),
+				'endpoint_checking_message'           => esc_html__( 'Checking endpoint...', 'distributor' ),
+				'bad_auth'                            => esc_html__( 'Authentication failed due to invalid credentials.', 'distributor' ),
+				'change'                              => esc_html__( 'Change', 'distributor' ),
+				'cancel'                              => esc_html__( 'Cancel', 'distributor' ),
+				'invalid_url'                         => esc_html__( 'Please enter a valid URL, including the HTTP(S).', 'distributor' ),
+				'norest'                              => esc_html__( 'No REST API endpoint was located for this site.', 'distributor' ),
+				'noconnection'                        => esc_html__( 'Unable to connect to site.', 'distributor' ),
+				'minversion'                          => esc_html__( 'Remote site requires Distributor version 1.6.0 or greater. Upgrade Distributor on the remote site to use the Authentication Wizard.', 'distributor' ),
+				'no_distributor'                      => esc_html__( 'Distributor not installed on remote site.', 'distributor' ),
+				'roles_warning'                       => esc_html__( 'Be careful assigning less trusted roles push privileges as they will inherit the capabilities of the user on the remote site.', 'distributor' ),
+				'admin_url'                           => admin_url(),
+				/* translators: %1$s: site name, %2$s: site URL */
+				'distributor_from'                    => sprintf( esc_html__( 'Distributor on %1$s (%2$s)', 'distributor' ), $blog_name, esc_url( home_url() ) ),
+				'wizard_return'                       => $wizard_return,
+				'application_passwords_not_available' => __( 'Application Passwords is not available on the remote site. Please set up connection manually!', 'distributor' ),
 			)
 		);
 
@@ -296,6 +309,23 @@ function admin_enqueue_scripts( $hook ) {
 	if ( ! empty( $_GET['page'] ) && 'distributor' === $_GET['page'] ) { // @codingStandardsIgnoreLine Nonce not required
 		wp_enqueue_style( 'dt-admin-external-connections', plugins_url( '/dist/css/admin-external-connections.min.css', __DIR__ ), array(), DT_VERSION );
 	}
+}
+
+/**
+ * Get the data returned as part of the external applications passwords flow.
+ */
+function get_wizard_return_data() {
+	$wizard_return = false;
+	if ( isset( $_GET['setupStatus'] ) && 'success' === sanitize_key( $_GET['setupStatus'] ) ) { // @codingStandardsIgnoreLine Nonce isn't needed here.
+		$wizard_return = array(
+			'titleField'           => isset( $_GET['titleField'] ) ? sanitize_text_field( urldecode( $_GET['titleField'] ) ) : '', // @codingStandardsIgnoreLine Nonce isn't needed here.
+			'externalSiteUrlField' => isset( $_GET['externalSiteUrlField'] ) ? sanitize_text_field( urldecode( $_GET['externalSiteUrlField'] ) ) : '', // @codingStandardsIgnoreLine Nonce isn't needed here.
+			'restRoot' => isset( $_GET['restRoot'] ) ? sanitize_text_field( urldecode( $_GET['restRoot'] ) ) : '', // @codingStandardsIgnoreLine Nonce isn't needed here.
+			'user_login'           => isset( $_GET['user_login'] ) ? sanitize_text_field( $_GET['user_login'] ) : '', // @codingStandardsIgnoreLine Nonce isn't needed here.
+			'password'             => isset( $_GET['password'] ) ? sanitize_text_field( $_GET['password'] ) : '', // @codingStandardsIgnoreLine Nonce isn't needed here.
+		);
+	}
+	return $wizard_return;
 }
 
 /**
@@ -417,6 +447,15 @@ function meta_box_external_connection_details( $post ) {
 		$external_connection_url = '';
 	}
 
+	$external_connection_status = get_post_meta( $post->ID, 'dt_external_connections', true );
+
+	$post_types = get_post_types(
+		array(
+			'show_in_rest' => true,
+		),
+		'objects'
+	);
+
 	$registered_external_connection_types = \Distributor\Connections::factory()->get_registered();
 
 	foreach ( $registered_external_connection_types as $slug => $class ) {
@@ -437,21 +476,31 @@ function meta_box_external_connection_details( $post ) {
 		$allowed_roles[] = 'administrator';
 	}
 	?>
-
+	<?php
+		if ( isset( $_GET['setupStatus'] ) && 'failure' === sanitize_key( $_GET['setupStatus'] ) ) { // @codingStandardsIgnoreLine Nonce is checked above.
+		?>
+		<div class="updated is-dismissible error">
+			<p>
+		<?php esc_html_e( 'Authorization rejected, please try again.', 'distributor' ); ?>
+			</p>
+		</div>
+		<?php
+	}
+	?>
 	<?php
 	if ( 1 === count( $registered_external_connection_types ) ) :
 		$registered_connection_types_keys = array_keys( $registered_external_connection_types );
 		?>
 		<input id="dt_external_connection_type" class="external-connection-type-field" type="hidden" name="dt_external_connection_type" value="<?php echo esc_attr( $registered_connection_types_keys[0] ); ?>">
 	<?php else : ?>
-		<p>
+		<div class="choose-authentication">
 			<label for="dt_external_connection_type"><?php esc_html_e( 'Authentication Method', 'distributor' ); ?></label><br>
 			<select name="dt_external_connection_type" class="external-connection-type-field" id="dt_external_connection_type">
 				<?php foreach ( $registered_external_connection_types as $slug => $external_connection_class ) : ?>
 					<option <?php selected( $slug, $external_connection_type ); ?> value="<?php echo esc_attr( $slug ); ?>"><?php echo esc_attr( $external_connection_class::$label ); ?></option>
 				<?php endforeach; ?>
 			</select>
-		</p>
+		</div>
 	<?php endif; ?>
 
 	<?php
@@ -465,7 +514,7 @@ function meta_box_external_connection_details( $post ) {
 		$is_hidden = ! $selected;
 		$index++;
 		?>
-		<div class="auth-credentials <?php echo ( $is_hidden ? 'hidden ' : '' ); ?><?php echo esc_attr( $auth_handler_class_again::$slug ); ?> <?php echo esc_attr( $external_connection_class::$slug ); ?>">
+		<div class="auth-credentials <?php echo esc_attr( $auth_handler_class_again::$slug ); ?> <?php echo esc_attr( $external_connection_class::$slug ); ?>">
 			<?php $auth_handler_class_again::credentials_form( $auth ); ?>
 		</div>
 	<?php endforeach; ?>
@@ -478,6 +527,34 @@ function meta_box_external_connection_details( $post ) {
 		<span class="description endpoint-result"></span>
 		<ul class="endpoint-errors"></ul>
 	</div>
+
+	<?php if ( ! empty( $external_connection_status ) ) : ?>
+		<div class="post-types-permissions hide-until-authed">
+			<h4><?php esc_html_e( 'Post types permissions', 'distributor' ); ?></h4>
+
+			<table class="wp-list-table widefat">
+				<thead>
+					<th><?php esc_html_e( 'Post types', 'distributor' ); ?></th>
+					<th><?php esc_html_e( 'Can pull?', 'distributor' ); ?></th>
+					<th><?php esc_html_e( 'Can push?', 'distributor' ); ?></th>
+				</thead>
+				<tbody>
+					<?php foreach ( $post_types as $post_type ) : ?>
+						<?php
+						if ( 'dt_subscription' === $post_type->name ) {
+							continue;
+						}
+						?>
+						<tr>
+							<td><?php echo esc_html( $post_type->label ); ?></td>
+							<td><?php echo in_array( $post_type->name, $external_connection_status['can_get'] ) ? esc_html__( 'Yes', 'distributor' ) : esc_html__( 'No', 'distributor' ); ?></td>
+							<td><?php echo in_array( $post_type->name, $external_connection_status['can_post'] ) ? esc_html__( 'Yes', 'distributor' ) : esc_html__( 'No', 'distributor' ); ?></td>
+						</tr>
+					<?php endforeach; ?>
+				</tbody>
+			</table>
+		</div>
+	<?php endif; ?>
 
 	<fieldset class="dt-roles-allowed hide-until-authed">
 		<legend><?php esc_html_e( 'Roles Allowed to Push', 'distributor' ); ?></legend>
@@ -520,14 +597,18 @@ function meta_box_external_connection_details( $post ) {
 function dashboard() {
 	global $connection_list_table;
 
-	$_GET['post_type'] = 'dt_ext_connection';
+	$_GET['post_type']     = 'dt_ext_connection';
+	$_REQUEST['all_posts'] = true; // Default to replacite "All" tab
 
 	$connection_list_table->prepare_items();
 	?>
 
 	<div class="wrap">
-		<h1><?php esc_html_e( 'External Connections', 'distributor' ); ?> <a href="<?php echo esc_url( admin_url( 'post-new.php?post_type=dt_ext_connection' ) ); ?>" class="page-title-action"><?php esc_html_e( 'Add New', 'distributor' ); ?></a></h1>
+		<h1 class="wp-heading-inline"><?php esc_html_e( 'External Connections', 'distributor' ); ?></h1>
+		<a href="<?php echo esc_url( admin_url( 'post-new.php?post_type=dt_ext_connection' ) ); ?>" class="page-title-action"><?php esc_html_e( 'Add New', 'distributor' ); ?></a>
+		<hr class="wp-header-end">
 
+		<h2 class="screen-reader-text"><?php esc_html_e( 'Filter connections list', 'distributor' ); ?></h2>
 		<?php $connection_list_table->views(); ?>
 
 		<form id="posts-filter" method="get">
@@ -634,6 +715,7 @@ function setup_cpt() {
 		'search_items'       => esc_html__( 'Search External Connections', 'distributor' ),
 		'not_found'          => esc_html__( 'No external connections found.', 'distributor' ),
 		'not_found_in_trash' => esc_html__( 'No external connections found in trash.', 'distributor' ),
+		'filter_items_list'  => esc_html__( 'Filter connections list', 'distributor' ),
 		'parent_item_colon'  => '',
 		'menu_name'          => esc_html__( 'Distributor', 'distributor' ),
 	);
@@ -687,3 +769,73 @@ function filter_post_updated_messages( $messages ) {
 	return $messages;
 }
 
+/**
+ * Get the REST API root of the remote site.
+ *
+ * @since  1.6.0
+ *
+ * @param string $site_url Remote site URL.
+ *
+ * @return false|string|WP_Error
+ */
+function get_rest_url( $site_url ) {
+
+	$source = wp_remote_get( $site_url );
+
+	if ( is_wp_error( $source ) ) {
+		return $source;
+	}
+
+	$dom = new \DOMDocument();
+	// The HTML may be imperfect, use @ to suppress warnings.
+	@$dom->loadHTML( wp_remote_retrieve_body( $source ) ); // phpcs:ignore
+	$links = $dom->getElementsByTagName( 'link' );
+
+	foreach ( $links as $link ) {
+		if ( 'https://api.w.org/' === $link->getAttribute( 'rel' ) ) {
+			return $link->getAttribute( 'href' );
+		}
+	}
+
+	return new \WP_Error( 'rest_api_uri_not_found', __( 'The external site is private or not a WordPress site.', 'distributor' ) );
+}
+
+/**
+ * Get the Distributor version of the remote site.
+ *
+ * @since  1.6.0
+ */
+function get_remote_distributor_info() {
+	if (
+		! check_ajax_referer( 'dt-verify-ext-conn', 'nonce', false )
+		|| empty( $_POST['url'] )
+	) {
+		wp_send_json_error();
+		exit;
+	}
+
+	$rest_url = get_rest_url( $_POST['url'] );
+
+	if ( is_wp_error( $rest_url ) ) {
+		wp_send_json_error( $rest_url );
+		exit;
+	}
+
+	$route = $rest_url . 'wp/v2/dt_meta';
+
+	if ( function_exists( 'vip_safe_wp_remote_get' ) && \Distributor\Utils\is_vip_com() ) {
+		$response = vip_safe_wp_remote_get( $route, false, 3, 3, 10 );
+	} else {
+		$response = wp_remote_get( $route, [ 'timeout' => 5 ] );
+	}
+
+	$body = json_decode( wp_remote_retrieve_body( $response ), true );
+
+	if ( empty( $body['version'] ) ) {
+		wp_send_json_error( [ 'rest_url' => $rest_url ] );
+		exit;
+	}
+
+	wp_send_json_success( array_merge( $body, [ 'rest_url' => $rest_url ] ) );
+	exit;
+}

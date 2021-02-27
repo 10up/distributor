@@ -64,7 +64,12 @@ class PullListTable extends \WP_List_Table {
 			unset( $columns['cb'] );
 		}
 
-		return $columns;
+		/**
+		 * Filters the columns displayed in the pull list table.
+		 *
+		 * @param array $columns An associative array of column headings.
+		 */
+		return apply_filters( 'dt_pull_list_table_columns', $columns );
 	}
 
 	/**
@@ -192,7 +197,7 @@ class PullListTable extends \WP_List_Table {
 						/* translators: %s: a human readable time */
 						$h_time = sprintf( esc_html__( '%s ago', 'distributor' ), human_time_diff( $syndicated_at ) );
 					} else {
-						$h_time = date( 'F j, Y', $syndicated_at );
+						$h_time = gmdate( 'F j, Y', $syndicated_at );
 					}
 
 					/* translators: %s: time of pull */
@@ -264,6 +269,14 @@ class PullListTable extends \WP_List_Table {
 				return $url;
 		}
 
+		/**
+		 * Fires for each column in the pull list table.
+		 *
+		 * @param string $column_name The name of the column to display.
+		 * @param \WP_Post $item The post/item to output in the column.
+		 */
+		do_action( 'dt_pull_list_table_custom_column', $column_name, $item );
+
 		return '';
 	}
 
@@ -309,8 +322,25 @@ class PullListTable extends \WP_List_Table {
 				$actions = [];
 				$disable = true;
 			} else {
+				/**
+				 * Filter the default value of the 'Pull in as draft' option in the pull ui
+				 *
+				 * @hook dt_pull_as_draft
+				 *
+				 * @param {bool}   $as_draft   Whether the 'Pull in as draft' option should be checked.
+				 * @param {object} $connection The connection being used to pull from.
+				 *
+				 * @return {bool}
+				 */
+				$as_draft = apply_filters( 'dt_pull_as_draft', true, $connection_now );
+
+				$draft = 'draft';
+				if ( ! $as_draft ) {
+					$draft = '';
+				}
+
 				$actions = [
-					'pull' => sprintf( '<a href="%s">%s</a>', esc_url( wp_nonce_url( admin_url( 'admin.php?page=pull&action=syndicate&_wp_http_referer=' . rawurlencode( $_SERVER['REQUEST_URI'] ) . '&post=' . $item->ID . '&connection_type=' . $connection_type . '&connection_id=' . $connection_id . '&pull_post_type=' . $item->post_type ), 'bulk-distributor_page_pull' ) ), esc_html__( 'Pull', 'distributor' ) ),
+					'pull' => sprintf( '<a href="%s">%s</a>', esc_url( wp_nonce_url( admin_url( 'admin.php?page=pull&action=syndicate&_wp_http_referer=' . rawurlencode( $_SERVER['REQUEST_URI'] ) . '&post=' . $item->ID . '&connection_type=' . $connection_type . '&connection_id=' . $connection_id . '&pull_post_type=' . $item->post_type . '&dt_as_draft=' . $draft ), 'bulk-distributor_page_pull' ) ), $draft ? esc_html__( 'Pull as draft', 'distributor' ) : esc_html__( 'Pull', 'distributor' ) ),
 					'view' => '<a href="' . esc_url( $item->link ) . '">' . esc_html__( 'View', 'distributor' ) . '</a>',
 					'skip' => sprintf( '<a href="%s">%s</a>', esc_url( wp_nonce_url( admin_url( 'admin.php?page=pull&action=skip&_wp_http_referer=' . rawurlencode( $_SERVER['REQUEST_URI'] ) . '&post=' . $item->ID . '&connection_type=' . $connection_type . '&connection_id=' . $connection_id ), 'dt_skip' ) ), esc_html__( 'Skip', 'distributor' ) ),
 				];
@@ -351,6 +381,25 @@ class PullListTable extends \WP_List_Table {
 	}
 
 	/**
+	 * Generates content for a single row of the table.
+	 *
+	 * @param \WP_Post $item The current post object.
+	 */
+	public function single_row( $item ) {
+		/**
+		 * Filters the class used on the table row on the pull list table.
+		 *
+		 * @param string $class The class name.
+		 * @param \WP_Post $item The current post object.
+		 */
+		$class = sanitize_html_class( apply_filters( 'dt_pull_list_table_tr_class', 'dt-table-row', $item ) );
+
+		echo sprintf( '<tr class="%s">', esc_attr( $class ) );
+		$this->single_row_columns( $item );
+		echo '</tr>';
+	}
+
+	/**
 	 * Remotely get items for display in table
 	 *
 	 * @since  0.8
@@ -358,7 +407,7 @@ class PullListTable extends \WP_List_Table {
 	public function prepare_items() {
 		global $connection_now;
 
-		if ( empty( $connection_now ) ) {
+		if ( empty( $connection_now ) || empty( $connection_now->pull_post_type ) ) {
 			return;
 		}
 
@@ -380,7 +429,7 @@ class PullListTable extends \WP_List_Table {
 		$remote_get_args = [
 			'posts_per_page' => $per_page,
 			'paged'          => $current_page,
-			'post_type'      => $connection_now->pull_post_type ?: 'post',
+			'post_type'      => $connection_now->pull_post_type ? $connection_now->pull_post_type : 'post',
 			'orderby'        => 'ID', // this is because of include/exclude truncation
 			'order'          => 'DESC', // default but specifying to be safe
 		];
@@ -510,6 +559,7 @@ class PullListTable extends \WP_List_Table {
 	public function get_bulk_actions() {
 		if ( empty( $_GET['status'] ) || 'new' === $_GET['status'] ) { // @codingStandardsIgnoreLine Nonce not required.
 			$actions = [
+				'-1'             => esc_html__( 'Bulk Actions', 'distributor' ),
 				'bulk-syndicate' => esc_html__( 'Pull', 'distributor' ),
 				'bulk-skip'      => esc_html__( 'Skip', 'distributor' ),
 			];
@@ -535,7 +585,7 @@ class PullListTable extends \WP_List_Table {
 		if ( $connection_now && $connection_now->pull_post_types && $connection_now->pull_post_type ) :
 			?>
 
-			<div class="alignleft actions">
+			<div class="alignleft actions dt-pull-post-type">
 				<label for="pull_post_type" class="screen-reader-text">Content to Pull</label>
 				<select id="pull_post_type" name="pull_post_type">
 					<?php foreach ( $connection_now->pull_post_types as $post_type ) : ?>
@@ -545,6 +595,17 @@ class PullListTable extends \WP_List_Table {
 					<?php endforeach; ?>
 				</select>
 				<input type="submit" name="filter_action" id="pull_post_type_submit" class="button" value="<?php esc_attr_e( 'Filter', 'distributor' ); ?>">
+
+				<?php
+				if ( empty( $_GET['status'] ) || 'pulled' !== $_GET['status'] ) :
+					// Filter documented above.
+					$as_draft = apply_filters( 'dt_pull_as_draft', true, $connection_now );
+					?>
+
+					<label class="dt-as-draft" for="dt-as-draft-<?php echo esc_attr( $which ); ?>">
+						<input type="checkbox" id="dt-as-draft-<?php echo esc_attr( $which ); ?>" name="dt_as_draft" value="draft" <?php checked( $as_draft ); ?>> <?php esc_html_e( 'Pull in as draft', 'distributor' ); ?>
+					</label>
+				<?php endif; ?>
 			</div>
 
 			<?php

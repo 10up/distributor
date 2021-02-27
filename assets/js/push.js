@@ -1,6 +1,7 @@
 import jQuery from 'jquery';
 import _ from 'underscores';
 import { dt } from 'window';
+import Mustache from 'mustache';
 
 let selectedConnections = {},
 	searchString        = '';
@@ -10,18 +11,25 @@ const processTemplate = _.memoize( ( id ) => {
 		return false;
 	}
 
-	// Use WordPress style Backbone template syntax
-	const options = {
-		evaluate:    /<#([\s\S]+?)#>/g,
-		interpolate: /{{{([\s\S]+?)}}}/g,
-		escape:      /{{([^}]+?)}}(?!})/g
-	};
+	if ( element.attributes.template ) {
+		Mustache.parse( element.innerHTML );
+		return 'mustache';
+	} else {
+		// Use WordPress style Backbone template syntax
+		const options = {
+			evaluate:    /<#([\s\S]+?)#>/g,
+			interpolate: /{{{([\s\S]+?)}}}/g,
+			escape:      /{{([^}]+?)}}(?!})/g
+		};
 
-	return _.template( element.innerHTML, null, options );
+		return _.template( element.innerHTML, null, options );
+	}
 } );
 
 jQuery( window ).on( 'load', () => {
-	const distributorMenuItem     = document.querySelector( '#wp-admin-bar-distributor' );
+	const distributorAdminItem    = document.querySelector( '#wp-admin-bar-distributor > a' );
+	const distributorTopMenu      = document.querySelector( '#wp-admin-bar-distributor' );
+	const distributorMenuItem     = document.querySelector( '#wp-admin-bar-distributor #wp-admin-bar-distributor-placeholder' );
 	const distributorPushWrapper  = document.querySelector( '#distributor-push-wrapper' );
 
 	if ( ! distributorMenuItem || ! distributorPushWrapper ) {
@@ -37,9 +45,9 @@ jQuery( window ).on( 'load', () => {
 	let selectAllConnections 			= '';
 	let selectNoConnections				= '';
 	let connectionsSearchInput  		= '';
-	let actionWrapper           		= '';
 	let postStatusInput         		= '';
 	let asDraftInput            		= '';
+	let errorDetails            		= '';
 
 	distributorMenuItem.appendChild( distributorPushWrapper );
 
@@ -53,9 +61,9 @@ jQuery( window ).on( 'load', () => {
 		selectAllConnections 		= distributorPushWrapper.querySelector( '.selectall-connections' );
 		selectNoConnections 		= distributorPushWrapper.querySelector( '.selectno-connections' );
 		connectionsSearchInput  	= document.getElementById( 'dt-connection-search' );
-		actionWrapper           	= distributorPushWrapper.querySelector( '.action-wrapper' );
 		postStatusInput         	= document.getElementById( 'dt-post-status' );
 		asDraftInput            	= document.getElementById( 'dt-as-draft' );
+		errorDetails                = document.querySelector( '.dt-error ul.details' );
 
 		if ( null !== connectionsNewList ){
 			connectionsNewListChildren  = connectionsNewList.querySelectorAll( '.add-connection' );
@@ -76,7 +84,7 @@ jQuery( window ).on( 'load', () => {
 		 * Disable select all button if all connections are syndicated and set variable for total connections available
 		 */
 		_.each( connectionsNewListChildren, ( element ) => {
-			if ( !element.classList.contains ( 'syndicated' ) ) {
+			if ( ! element.classList.contains ( 'syndicated' ) ) {
 				selectAllConnections.classList.remove( 'unavailable' );
 				connectionsAvailableTotal ++;
 			}
@@ -85,35 +93,93 @@ jQuery( window ).on( 'load', () => {
 	}
 
 	/**
+	 * Set the disabled attribute on connections already syndicated
+	 *
+	 * This is currently only used for the mustache templates, which
+	 * are only used in AMP contexts. Seems the AMP plugin will
+	 * strip out any normal disabled attributes, so we handle that here
+	 * instead of in the template.
+	 */
+	function setDisabledConnections() {
+		connectionsNewList = distributorPushWrapper.querySelector( '.new-connections-list' );
+
+		if ( null !== connectionsNewList ) {
+			connectionsNewListChildren = connectionsNewList.querySelectorAll( '.add-connection' );
+
+			_.each( connectionsNewListChildren, ( element ) => {
+				if ( element.classList.contains ( 'syndicated' ) ) {
+					element.disabled = true;
+				}
+			} );
+		}
+	}
+
+	/**
 	 * Handle UI error changes
 	 */
-	function doError() {
+	function doError( messages ) {
 		distributorPushWrapper.classList.add( 'message-error' );
+		errorDetails.innerText = '';
 
-		setTimeout( () => {
-			distributorPushWrapper.classList.remove( 'message-error' );
-		}, 6000 );
+		_.each( prepareMessages( messages ), function( message ) {
+			const errorItem = document.createElement( 'li' );
+			errorItem.innerText = message;
+			errorDetails.appendChild( errorItem );
+		} );
+	}
+
+	/**
+	 * Prepare error messages for printing.
+	 *
+	 * @param {string|array} messages Error messages.
+	 */
+	function prepareMessages( messages ) {
+		if ( ! _.isArray( messages ) ) {
+			return [ messages ];
+		}
+
+		return _.map( messages, function( message ) {
+			if ( _.isString( message ) ) {
+				return message;
+			}
+			if ( _.has( message, 'message' ) ) {
+				return message.message;
+			}
+		} );
 	}
 
 	/**
 	 * Handle UI success changes
 	 */
 	function doSuccess( results ) {
-		let error = false;
+		let success = false;
+		const errors = {};
 
 		[ 'internal', 'external' ].map( type => {
 			_.each( results[type], ( result, connectionId ) => {
-				if ( 'fail' === result.status ) {
-					error = true;
-				} else {
+				if ( 'success' === result.status ) {
 					dtConnections[ `${type}${ connectionId }` ].syndicated = result.url;
+					success = true;
+				}
+
+				if ( ! _.isEmpty( result.errors ) ) {
+					errors[ `${type}${ connectionId }` ] = result.errors;
 				}
 			} );
 		} );
 
-		if ( error ) {
-			doError();
-		} else {
+		if ( ! _.isEmpty( errors ) ) {
+			const formattedErrors = _.map( errors, function( messages, connectionId ) {
+				return `${dtConnections[ connectionId ].name  }:\n${
+					_.map( messages, function( message ) {
+						return `- ${message}\n`;
+					} )}`;
+			} );
+
+			doError( formattedErrors );
+		}
+
+		if ( success && _.isEmpty( errors ) ) {
 			distributorPushWrapper.classList.add( 'message-success' );
 
 			connectionsSelected.classList.add( 'empty' );
@@ -134,6 +200,8 @@ jQuery( window ).on( 'load', () => {
 	*/
 	function showConnections() {
 		connectionsNewList.innerText = '';
+		const template = processTemplate( 'dt-add-connection' );
+		let showConnection = '';
 
 		_.each( dtConnections, ( connection ) => {
 			if ( '' !== searchString ) {
@@ -145,13 +213,38 @@ jQuery( window ).on( 'load', () => {
 				}
 			}
 
-			const showConnection = processTemplate( 'dt-add-connection' )( {
-				connection: connection,
-				selectedConnections: selectedConnections
-			} );
+			if ( 'mustache' === template ) {
+				// Modify connection data to match what mustache wants
+				if ( selectedConnections[connection.type + connection.id] ) {
+					connection.added = true;
+				} else {
+					connection.added = false;
+				}
+
+				if ( 'internal' === connection.type ) {
+					connection.internal = true;
+				}
+
+				showConnection = Mustache.render( document.getElementById( 'dt-add-connection' ).innerHTML, {
+					connection: connection,
+				} );
+			} else {
+				showConnection = template( {
+					connection: connection,
+					selectedConnections: selectedConnections
+				} );
+			}
 
 			connectionsNewList.innerHTML += showConnection;
 		} );
+
+		if ( '' === connectionsNewList.innerHTML ) {
+			connectionsNewList.innerHTML = '<p class="no-results">No results</p>';
+		}
+
+		if ( 'mustache' === template ) {
+			setDisabledConnections();
+		}
 	}
 
 	/**
@@ -181,11 +274,10 @@ jQuery( window ).on( 'load', () => {
 	}
 
 	/**
-	 * Handle distributor push dropdown menu hover using hoverIntent.
+	 * Handle distributor push dropdown menu.
 	 */
 	function distributorMenuEntered() {
 		distributorMenuItem.focus();
-		document.body.classList.toggle( 'distributor-show' );
 
 		if ( distributorPushWrapper.classList.contains( 'loaded' ) ) {
 			return;
@@ -200,6 +292,7 @@ jQuery( window ).on( 'load', () => {
 			postId: dt.postId
 		};
 
+		const template = processTemplate( 'dt-show-connections' );
 		const xhr = dt.usexhr ? { withCredentials: true } : false;
 
 		jQuery.ajax( {
@@ -216,9 +309,29 @@ jQuery( window ).on( 'load', () => {
 
 			dtConnections = response.data;
 
-			distributorPushWrapper.innerHTML = processTemplate( 'dt-show-connections' )( {
-				connections: dtConnections,
-			} );
+			if ( 'mustache' === template ) {
+				// Manipulate the data to match what mustache needs
+				const mustacheData = { 'connections' : [] };
+				_.each( dtConnections, ( connection ) => {
+					if ( 'internal' === connection.type ) {
+						connection.internal = true;
+					}
+
+					mustacheData.connections.push( connection );
+				} );
+
+				distributorPushWrapper.innerHTML = Mustache.render( document.getElementById( 'dt-show-connections' ).innerHTML, {
+					connections: mustacheData.connections,
+					foundConnections: mustacheData.connections.length,
+					showSearch: 5 < mustacheData.connections.length,
+				} );
+
+				setDisabledConnections();
+			} else {
+				distributorPushWrapper.innerHTML = template( {
+					connections: dtConnections,
+				} );
+			}
 
 			setVariables();
 		} ).error( () => {
@@ -227,25 +340,26 @@ jQuery( window ).on( 'load', () => {
 		} );
 	}
 
-	/**
-	 * Handle exiting the distributor menu.
-	 */
-	function distributorMenuExited() {
-		distributorMenuItem.blur();
-		document.body.classList.toggle( 'distributor-show' );
-	}
+	// Event listerners when to fetch distributor data.
+	distributorAdminItem.addEventListener( 'keydown', function( e ) {
+		// Pressing Enter.
+		if ( ( 13 === e.keyCode ) ) {
+			distributorMenuEntered();
+		}
+	}, false );
 
-	jQuery( distributorMenuItem ).hoverIntent( distributorMenuEntered, 300, distributorMenuExited );
+	distributorAdminItem.addEventListener( 'touchstart', distributorMenuEntered, false );
+	distributorAdminItem.addEventListener( 'mouseenter', distributorMenuEntered, false );
 
 	/**
 	 * Do syndication ajax
 	 */
 	jQuery( distributorPushWrapper ).on( 'click', '.syndicate-button', () => {
-		if ( actionWrapper.classList.contains( 'loading' ) ) {
+		if ( distributorTopMenu.classList.contains( 'syncing' ) ) {
 			return;
 		}
 
-		actionWrapper.classList.add( 'loading' );
+		distributorTopMenu.classList.add( 'syncing' );
 
 		const data = {
 			action: 'dt_push',
@@ -265,20 +379,25 @@ jQuery( window ).on( 'load', () => {
 			data: data
 		} ).done( ( response ) => {
 			setTimeout( () => {
-				actionWrapper.classList.remove( 'loading' );
+				distributorTopMenu.classList.remove( 'syncing' );
+
+				if ( ! response.success ) {
+					doError( response.data );
+					return;
+				}
 
 				if ( ! response.data || ! response.data.results ) {
-					doError();
+					doError( dt.messages.empty_result );
 					return;
 				}
 
 				doSuccess( response.data.results );
 			}, 500 );
-		} ).error( () => {
+		} ).error( ( xhr, textStatus, errorThrown ) => {
 			setTimeout( () => {
-				actionWrapper.classList.remove( 'loading' );
+				distributorTopMenu.classList.remove( 'syncing' );
 
-				doError();
+				doError( `${dt.messages.ajax_error} ${errorThrown}` );
 			}, 500 );
 		} );
 	} );
@@ -322,15 +441,13 @@ jQuery( window ).on( 'load', () => {
 
 			selectedConnections[type + id] = dtConnections[type + id];
 
-			const element       = event.currentTarget.cloneNode();
-			element.innerText = event.currentTarget.innerText;
+			const element = event.currentTarget.cloneNode( true );
 
 			const removeLink = document.createElement( 'span' );
 			removeLink.classList.add( 'remove-connection' );
 
 			element.appendChild( removeLink );
 			element.classList = 'added-connection';
-
 			connectionsSelectedList.appendChild( element );
 
 			if ( selectNoConnections.classList.contains ( 'unavailable' ) ) {
@@ -410,10 +527,10 @@ jQuery( window ).on( 'load', () => {
 	/**
 	 * Remove a connection from selected connections and the UI list
 	 */
-	jQuery( distributorPushWrapper ).on( 'click', '.remove-connection', ( event ) => {
-		event.currentTarget.parentNode.parentNode.removeChild( event.currentTarget.parentNode );
-		const type = event.currentTarget.parentNode.getAttribute( 'data-connection-type' );
-		const id   = event.currentTarget.parentNode.getAttribute( 'data-connection-id' );
+	jQuery( distributorPushWrapper ).on( 'click', '.added-connection', ( event ) => {
+		event.currentTarget.parentNode.removeChild( event.currentTarget );
+		const type = event.currentTarget.getAttribute( 'data-connection-type' );
+		const id   = event.currentTarget.getAttribute( 'data-connection-id' );
 
 		delete selectedConnections[type + id];
 

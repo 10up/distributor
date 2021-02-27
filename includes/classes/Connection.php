@@ -18,7 +18,7 @@ abstract class Connection {
 	 * @param  int   $item_id Item ID to push if an update.
 	 * @param  array $args Array of args to push.
 	 * @since  0.8
-	 * @return bool|WP_Error
+	 * @return array|\WP_Error
 	 */
 	abstract public function push( $item_id, $args = array() );
 

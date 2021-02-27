@@ -116,6 +116,15 @@ function admin_enqueue_scripts( $hook ) {
 
 	wp_enqueue_script( 'dt-admin-pull', plugins_url( '/dist/js/admin-pull.min.js', __DIR__ ), array( 'jquery' ), DT_VERSION, true );
 	wp_enqueue_style( 'dt-admin-pull', plugins_url( '/dist/css/admin-pull-table.min.css', __DIR__ ), array(), DT_VERSION );
+
+	wp_localize_script(
+		'dt-admin-pull',
+		'dt',
+		[
+			'pull'     => __( 'Pull', 'distributor' ),
+			'as_draft' => __( 'Pull as draft', 'distributor' ),
+		]
+	);
 }
 
 /**
@@ -205,14 +214,16 @@ function process_actions() {
 				break;
 			}
 
-			$posts     = (array) $_GET['post'];
-			$post_type = sanitize_text_field( $_GET['pull_post_type'] );
+			$posts       = (array) $_GET['post'];
+			$post_type   = sanitize_text_field( $_GET['pull_post_type'] );
+			$post_status = ! empty( $_GET['dt_as_draft'] ) && 'draft' === $_GET['dt_as_draft'] ? 'draft' : '';
 
 			$posts = array_map(
-				function( $remote_post_id ) use ( $post_type ) {
+				function( $remote_post_id ) use ( $post_type, $post_status ) {
 						return [
 							'remote_post_id' => $remote_post_id,
 							'post_type'      => $post_type,
+							'post_status'    => $post_status,
 						];
 				},
 				$posts
@@ -221,6 +232,7 @@ function process_actions() {
 			if ( 'external' === $_GET['connection_type'] ) {
 				$connection = \Distributor\ExternalConnection::instantiate( intval( $_GET['connection_id'] ) );
 				$new_posts  = $connection->pull( $posts );
+				$error_key  = "external_{$connection->id}";
 
 				foreach ( $posts as $key => $post_array ) {
 					if ( is_wp_error( $new_posts[ $key ] ) ) {
@@ -232,15 +244,29 @@ function process_actions() {
 				$site       = get_site( intval( $_GET['connection_id'] ) );
 				$connection = new \Distributor\InternalConnections\NetworkSiteConnection( $site );
 				$new_posts  = $connection->pull( $posts );
+				$error_key  = "internal_{$connection->site->blog_id}";
 			}
 
 			$post_id_mappings = array();
+			$pull_errors      = array();
 
 			foreach ( $posts as $key => $post_array ) {
 				if ( is_wp_error( $new_posts[ $key ] ) ) {
+					$pull_errors[ $post_array['remote_post_id'] ] = [ $new_posts[ $key ]->get_error_message() ];
 					continue;
 				}
 				$post_id_mappings[ $post_array['remote_post_id'] ] = $new_posts[ $key ];
+
+				$media_errors = get_transient( 'dt_media_errors_' . $new_posts[ $key ] );
+
+				if ( ! empty( $media_errors ) ) {
+					delete_transient( 'dt_media_errors_' . $new_posts[ $key ] );
+					$pull_errors[ $post_array['remote_post_id'] ] = $media_errors;
+				}
+			}
+
+			if ( ! empty( $pull_errors ) ) {
+				set_transient( 'dt_connection_pull_errors_' . $error_key, $pull_errors, DAY_IN_SECONDS );
 			}
 
 			$connection->log_sync( $post_id_mappings );
@@ -253,7 +279,8 @@ function process_actions() {
 				setcookie( 'dt-duplicated', 1, time() + DAY_IN_SECONDS, ADMIN_COOKIE_PATH, COOKIE_DOMAIN, is_ssl() );
 			}
 
-			wp_safe_redirect( wp_get_referer() );
+			// Redirect to the pulled content tab
+			wp_safe_redirect( add_query_arg( 'status', 'pulled', wp_get_referer() ) );
 			exit;
 		case 'bulk-skip':
 		case 'skip':
@@ -296,7 +323,8 @@ function process_actions() {
 
 			setcookie( 'dt-skipped', 1, time() + DAY_IN_SECONDS, ADMIN_COOKIE_PATH, COOKIE_DOMAIN, is_ssl() );
 
-			wp_safe_redirect( wp_get_referer() );
+			// Redirect to the skipped content tab
+			wp_safe_redirect( add_query_arg( 'status', 'skipped', wp_get_referer() ) );
 			exit;
 	}
 }
@@ -394,9 +422,14 @@ function dashboard() {
 				<?php
 				$connection_now->pull_post_types = \Distributor\Utils\available_pull_post_types( $connection_now, $connection_type );
 
-				// Set the post type we want to pull
+				// Ensure we have at least one post type to pull
+				$connection_now->pull_post_type = '';
+				if ( ! empty( $connection_now->pull_post_types ) ) {
+					$connection_now->pull_post_type = $connection_now->pull_post_types[0]['slug'];
+				}
+
+				// Set the post type we want to pull (if any)
 				// This is either from a query param, "post" post type, or the first in the list
-				$connection_now->pull_post_type = $connection_now->pull_post_types[0]['slug'];
 				foreach ( $connection_now->pull_post_types as $post_type ) {
 					if ( isset( $_GET['pull_post_type'] ) ) { // @codingStandardsIgnoreLine No nonce needed here.
 						if ( $_GET['pull_post_type'] === $post_type['slug'] ) { // @codingStandardsIgnoreLine Comparing values, no nonce needed.
@@ -433,6 +466,8 @@ function dashboard() {
 			</div>
 		<?php endif; ?>
 
+		<?php output_pull_errors(); ?>
+
 		<?php $connection_list_table->prepare_items(); ?>
 
 		<?php if ( ! empty( $connection_list_table->pull_error ) ) : ?>
@@ -454,5 +489,64 @@ function dashboard() {
 			</form>
 		<?php endif; ?>
 	</div>
+	<?php
+}
+
+/**
+ * Get pull errors saved in transient and display it to user.
+ *
+ * @todo Log persistent
+ */
+function output_pull_errors() {
+	global $connection_now;
+
+	if ( empty( $_GET['connection_id'] ) ) {
+		return;
+	}
+
+	if ( is_a( $connection_now, '\Distributor\ExternalConnection' ) ) {
+		$error_key = "external_{$connection_now->id}";
+	} else {
+		$error_key = "internal_{$connection_now->site->blog_id}";
+	}
+
+	$pull_errors = get_transient( 'dt_connection_pull_errors_' . $error_key );
+
+	if ( empty( $pull_errors ) ) {
+		return;
+	}
+
+	delete_transient( 'dt_connection_pull_errors_' . $error_key );
+
+	$post_ids = array_keys( $pull_errors );
+
+	$_posts = $connection_now->remote_get( [ 'post__in' => $post_ids ] );
+	$posts  = [];
+
+	if ( empty( $_posts ) ) {
+		return;
+	}
+
+	foreach ( $_posts['items'] as $post ) {
+		$posts[ $post->ID ] = $post->post_title;
+	}
+	?>
+
+	<div id="pull-errors" class="notice notice-warning is-dismissible">
+		<p><?php esc_html_e( 'Some errors occurred while pulling selected posts. Please review the list of the errors bellow for more details.', 'distributor' ); ?></p>
+		<ul>
+			<?php foreach ( $pull_errors as $id => $errors ) : ?>
+			<li>
+				<strong><?php echo esc_html( $posts[ $id ] ); ?>:</strong>
+				<ul>
+				<?php foreach ( $errors as $error ) : ?>
+					<li><?php echo esc_html( $error ); ?></li>
+				<?php endforeach; ?>
+				</ul>
+			</li>
+			<?php endforeach; ?>
+		</ul>
+	</div>
+
 	<?php
 }

@@ -60,16 +60,17 @@ class NetworkSiteConnection extends Connection {
 	 * @param  int   $post_id Post ID.
 	 * @param  array $args Push args.
 	 * @since  0.8
-	 * @return int|WP_Error
+	 * @return array|\WP_Error
 	 */
 	public function push( $post_id, $args = array() ) {
 		$post              = get_post( $post_id );
 		$original_blog_id  = get_current_blog_id();
 		$original_post_url = get_permalink( $post_id );
 		$using_gutenberg   = \Distributor\Utils\is_using_gutenberg( $post );
+		$output            = array();
 
 		$new_post_args = array(
-			'post_title'   => get_the_title( $post_id ),
+			'post_title'   => html_entity_decode( get_the_title( $post_id ), ENT_QUOTES, get_bloginfo( 'charset' ) ),
 			'post_name'    => $post->post_name,
 			'post_content' => Utils\get_processed_content( $post->post_content ),
 			'post_excerpt' => $post->post_excerpt,
@@ -78,9 +79,7 @@ class NetworkSiteConnection extends Connection {
 			'post_status'  => 'publish',
 		);
 
-		$media = \Distributor\Utils\prepare_media( $post_id );
-		$terms = \Distributor\Utils\prepare_taxonomy_terms( $post_id );
-		$meta  = \Distributor\Utils\prepare_meta( $post_id );
+		$post = Utils\prepare_post( $post );
 
 		switch_to_blog( $this->site->blog_id );
 
@@ -117,6 +116,8 @@ class NetworkSiteConnection extends Connection {
 		remove_filter( 'wp_insert_post_data', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'maybe_set_modified_date' ), 10, 2 );
 
 		if ( ! is_wp_error( $new_post_id ) ) {
+			$output['id'] = $new_post_id;
+
 			update_post_meta( $new_post_id, 'dt_original_post_id', (int) $post_id );
 			update_post_meta( $new_post_id, 'dt_original_blog_id', (int) $original_blog_id );
 			update_post_meta( $new_post_id, 'dt_syndicate_time', time() );
@@ -126,8 +127,8 @@ class NetworkSiteConnection extends Connection {
 				update_post_meta( $new_post_id, 'dt_original_post_parent', (int) $post->post_parent );
 			}
 
-			\Distributor\Utils\set_meta( $new_post_id, $meta );
-			\Distributor\Utils\set_taxonomy_terms( $new_post_id, $terms );
+			Utils\set_meta( $new_post_id, $post->meta );
+			Utils\set_taxonomy_terms( $new_post_id, $post->terms );
 
 			/**
 			 * Allow bypassing of all media processing.
@@ -143,9 +144,16 @@ class NetworkSiteConnection extends Connection {
 			 *
 			 * @return {bool} If Distributor should push the post media.
 			 */
-			if ( apply_filters( 'dt_push_post_media', true, $new_post_id, $media, $post_id, $args, $this ) ) {
-				\Distributor\Utils\set_media( $new_post_id, $media );
+			if ( apply_filters( 'dt_push_post_media', true, $new_post_id, $post->media, $post_id, $args, $this ) ) {
+				Utils\set_media( $new_post_id, $post->media, [ 'use_filesystem' => true ] );
 			};
+
+			$media_errors = get_transient( 'dt_media_errors_' . $new_post_id );
+
+			if ( $media_errors ) {
+				$output['push-errors'] = $media_errors;
+				delete_transient( 'dt_media_errors_' . $new_post_id );
+			}
 		}
 
 		/**
@@ -162,7 +170,11 @@ class NetworkSiteConnection extends Connection {
 
 		restore_current_blog();
 
-		return $new_post_id;
+		if ( is_wp_error( $new_post_id ) ) {
+			return $new_post_id;
+		}
+
+		return $output;
 	}
 
 	/**
@@ -215,6 +227,10 @@ class NetworkSiteConnection extends Connection {
 				unset( $post_array['post_parent'] );
 			}
 
+			if ( ! empty( $item_array['post_status'] ) ) {
+				$post_array['post_status'] = $item_array['post_status'];
+			}
+
 			add_filter( 'wp_insert_post_data', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'maybe_set_modified_date' ), 10, 2 );
 
 			// Filter documented in includes/classes/ExternalConnections/WordPressExternalConnection.php
@@ -250,7 +266,7 @@ class NetworkSiteConnection extends Connection {
 				 * @return {bool} If Distributor should set the post media.
 				 */
 				if ( apply_filters( 'dt_pull_post_media', true, $new_post_id, $post->media, $item_array['remote_post_id'], $post_array, $this ) ) {
-					\Distributor\Utils\set_media( $new_post_id, $post->media );
+					\Distributor\Utils\set_media( $new_post_id, $post->media, [ 'use_filesystem' => true ] );
 				};
 			}
 
@@ -435,12 +451,7 @@ class NetworkSiteConnection extends Connection {
 			$formatted_posts = [];
 
 			foreach ( $posts as $post ) {
-				$post->link  = get_permalink( $post->ID );
-				$post->meta  = \Distributor\Utils\prepare_meta( $post->ID );
-				$post->terms = \Distributor\Utils\prepare_taxonomy_terms( $post->ID );
-				$post->media = \Distributor\Utils\prepare_media( $post->ID );
-
-				$formatted_posts[] = $post;
+				$formatted_posts[] = Utils\prepare_post( $post );
 			}
 
 			restore_current_blog();
@@ -462,12 +473,7 @@ class NetworkSiteConnection extends Connection {
 			if ( empty( $post ) ) {
 				$formatted_post = false;
 			} else {
-				$post->link  = get_permalink( $id );
-				$post->meta  = \Distributor\Utils\prepare_meta( $id );
-				$post->terms = \Distributor\Utils\prepare_taxonomy_terms( $id );
-				$post->media = \Distributor\Utils\prepare_media( $id );
-
-				$formatted_post = $post;
+				$formatted_post = Utils\prepare_post( $post );
 			}
 
 			restore_current_blog();

@@ -1,15 +1,33 @@
 {
   "name": "10up/distributor",
   "type": "wordpress-plugin",
+  "description": "Distributor is a WordPress plugin that makes it easy to distribute and reuse content across your websites — whether in a single multisite or across the web.",
+  "homepage": "https://distributorplugin.com/",
+  "license": "GPL-2.0-or-later",
   "authors": [
     {
-      "name": "Taylor Lovett",
-      "email": "taylor.lovett@10up.com"
+      "name": "10up",
+      "email": "opensource@10up.com"
+    }
+  ],
+  "repositories": [
+    {
+        "type":"package",
+        "package": {
+          "name": "georgestephanis/application-passwords",
+          "version":"0.1.2",
+          "source": {
+              "url": "https://github.com/WordPress/application-passwords.git",
+              "type": "git",
+              "reference":"0eef095b4dc984c26ee8149c01a323be83da715a"
+            }
+        }
     }
   ],
   "require": {
     "php": ">=5.6",
     "yahnis-elsts/plugin-update-checker": "^4.4",
+    "georgestephanis/application-passwords": "0.1.2",
     "ext-json": "*"
   },
   "autoload": {
@@ -17,11 +35,12 @@
       "Distributor\\": "includes/classes/"
     }
   },
+
   "require-dev": {
+    "10up/wpacceptance": "dev-master",
     "10up/wp_mock": "~0.4",
     "phpunit/phpunit": "~7.5",
-    "10up/phpcs-composer": "dev-master",
-    "10up/wpacceptance": "dev-master"
+    "10up/phpcs-composer": "dev-master"
   },
   "scripts": {
     "lint": "./vendor/bin/phpcs . --runtime-set testVersion 5.6-",

@@ -56,6 +56,7 @@
 
 #dt_external_connection_details p,
 #dt_external_connection_details .dt-roles-allowed,
+#dt_external_connection_details .post-types-permissions,
 #dt_external_connection_details .connection-field-wrap {
 	margin-bottom: 2em;
 }
@@ -195,4 +196,56 @@
 input[type="text"].error-required,
 input[type="password"].error-required {
 	border: 2px solid red;
+}
+
+
+.post-new-php .external-connection-setup,
+.post-new-php .connection-field-wrap,
+.post-new-php .dt-roles-allowed,
+.post-new-php .dt-submit-connection {
+	display: none;
+}
+
+.post-php .external-connection-wizard {
+	display: none;
+}
+
+.post-new-php .external-connection-wizard {
+	display: none;
+}
+
+.post-new-php #wpbody.wp .external-connection-wizard {
+	display: inline-block;
+}
+
+.post-new-php .auth-credentials.dotcom-oauth2,
+.post-php #wpbody.wp .auth-credentials.dotcom-oauth2 {
+	display: none;
+}
+
+.post-new-php #wpbody.wpdotcom .auth-credentials.dotcom-oauth2 {
+	display: inline-block;
+}
+
+.post-php .choose-authentication,
+.post-php #wpbody.wpdotcom .external-connection-setup {
+	display: none;
+}
+
+.manual-setup-button {
+	padding-left: 5px;
+}
+
+.dt-wizard-status {
+	display: none;
+}
+
+.dt-wizard-status .spinner {
+	float: none;
+	margin-top: 0;
+	margin-left: 0;
+}
+
+.dt-wizard-error {
+	color: #a00;
 }

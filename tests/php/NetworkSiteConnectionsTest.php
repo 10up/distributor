@@ -29,6 +29,7 @@ class NetworkSiteConnectionsTest extends TestCase {
 		\WP_Mock::userFunction(
 			'get_post', [
 				'return' => (object) [
+					'ID'           => 111,
 					'post_content' => '',
 					'post_excerpt' => '',
 					'post_type'    => '',
@@ -40,6 +41,13 @@ class NetworkSiteConnectionsTest extends TestCase {
 		\WP_Mock::userFunction(
 			'get_current_blog_id', [
 				'return' => 925,
+			]
+		);
+
+		\WP_Mock::userFunction(
+			'get_bloginfo', [
+				'args'   => 'charset',
+				'return' => 'UTF-8',
 			]
 		);
 
@@ -100,6 +108,12 @@ class NetworkSiteConnectionsTest extends TestCase {
 			]
 		);
 
+		\WP_Mock::userFunction(
+			'get_transient', [
+				'return' => false,
+			]
+		);
+
 		/**
 		 * We will test the util prepare/set functions later
 		 */
@@ -116,7 +130,7 @@ class NetworkSiteConnectionsTest extends TestCase {
 
 		\WP_Mock::expectFilterAdded( 'wp_insert_post_data', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'maybe_set_modified_date' ), 10, 2 );
 
-		$this->assertTrue( is_int( $this->connection_obj->push( 1 ) ) );
+		$this->assertIsArray( $this->connection_obj->push( 1 ) );
 
 	}
 
@@ -143,6 +157,7 @@ class NetworkSiteConnectionsTest extends TestCase {
 		\WP_Mock::userFunction(
 			'get_post', [
 				'return' => (object) [
+					'ID'        => 111,
 					'post_tite' => 'My post title',
 					'meta'      => [],
 				],
@@ -269,6 +284,7 @@ class NetworkSiteConnectionsTest extends TestCase {
 		\WP_Mock::userFunction(
 			'get_post', [
 				'return' => (object) [
+					'ID'         => 111,
 					'post_title' => 'my title',
 				],
 			]

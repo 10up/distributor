@@ -34,8 +34,8 @@ gulp.task( 'css', ( callback ) => {
  */
 gulp.task( 'watch', () => {
 	livereload.listen( { basePath: 'dist' } );
-	gulp.watch( './assets/css/*.css', ['css'] );
-	gulp.watch( './assets/js/*.js', ['js'] );
+	gulp.watch( './assets/css/*.css', gulp.series( 'css' ) );
+	gulp.watch( './assets/js/*.js', gulp.series( 'js' ) );
 } );
 
 /**
