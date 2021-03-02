@@ -422,10 +422,15 @@ class PullListTable extends \WP_List_Table {
 
 		$current_page = $this->get_pagenum();
 
-		if ( empty( $connection_now->pull_post_type ) || 'all' === $connection_now->pull_post_type ) {
-			$post_type = wp_list_pluck( $connection_now->pull_post_types, 'slug' );
+		// Support 'View all' filtering for internal connections.
+		if ( is_a( $connection_now, '\Distributor\InternalConnections\NetworkSiteConnection' ) ) {
+			if ( empty( $connection_now->pull_post_type ) || 'all' === $connection_now->pull_post_type ) {
+				$post_type = wp_list_pluck( $connection_now->pull_post_types, 'slug' );
+			} else {
+				$post_type = $connection_now->pull_post_type;
+			}
 		} else {
-			$post_type = $connection_now->pull_post_type;
+			$post_type = $connection_now->pull_post_type ? $connection_now->pull_post_type : 'post';
 		}
 
 		$remote_get_args = [
@@ -584,15 +589,23 @@ class PullListTable extends \WP_List_Table {
 	public function extra_tablenav( $which ) {
 		global $connection_now;
 
+		if ( is_a( $connection_now, '\Distributor\InternalConnections\NetworkSiteConnection' ) ) {
+			$connection_type = 'internal';
+		} else {
+			$connection_type = 'external';
+		}
+
 		if ( $connection_now && $connection_now->pull_post_types && $connection_now->pull_post_type ) :
 			?>
 
 			<div class="alignleft actions dt-pull-post-type">
 				<label for="pull_post_type" class="screen-reader-text">Content to Pull</label>
 				<select id="pull_post_type" name="pull_post_type">
-					<option <?php selected( $connection_now->pull_post_type, 'all' ); ?> value="all">
-						<?php esc_html_e( 'View all', 'distributor' ); ?>
-					</option>
+					<?php if ( 'internal' === $connection_type ) : ?>
+						<option <?php selected( $connection_now->pull_post_type, 'all' ); ?> value="all">
+							<?php esc_html_e( 'View all', 'distributor' ); ?>
+						</option>
+					<?php endif; ?>
 					<?php foreach ( $connection_now->pull_post_types as $post_type ) : ?>
 						<option <?php selected( $connection_now->pull_post_type, $post_type['slug'] ); ?> value="<?php echo esc_attr( $post_type['slug'] ); ?>">
 							<?php echo esc_html( $post_type['name'] ); ?>
