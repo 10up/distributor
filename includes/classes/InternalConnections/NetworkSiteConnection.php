@@ -338,17 +338,18 @@ class NetworkSiteConnection extends Connection {
 	 *
 	 * This let's us grab all the IDs of posts we've PULLED from a given site
 	 *
-	 * @param array $item_id_mappings Mapping to log; key = origin post ID, value = new post ID.
-	 * @param int   $blog_id Blog ID
+	 * @param array   $item_id_mappings Mapping to log; key = origin post ID, value = new post ID.
+	 * @param int     $blog_id Blog ID
+	 * @param boolean $overwrite Whether to overwrite the sync log for this site. Default false.
 	 * @since 0.8
 	 */
-	public function log_sync( array $item_id_mappings, $blog_id = 0 ) {
+	public function log_sync( array $item_id_mappings, $blog_id = 0, $overwrite = false ) {
 		$blog_id = 0 === $blog_id ? $this->site->blog_id : $blog_id;
 
 		$sync_log = get_option( 'dt_sync_log', array() );
 
 		$current_site_log = [];
-		if ( ! empty( $sync_log[ $blog_id ] ) ) {
+		if ( ! empty( $sync_log[ $blog_id ] ) && false === $overwrite ) {
 			$current_site_log = $sync_log[ $blog_id ];
 		}
 
@@ -366,6 +367,25 @@ class NetworkSiteConnection extends Connection {
 
 		// Action documented in includes/classes/ExternalConnection.php.
 		do_action( 'dt_log_sync', $item_id_mappings, $sync_log, $this );
+	}
+
+	/**
+	 * Return the sync log for a specific site
+	 *
+	 * @param int $blog_id Blog ID
+	 * @return array
+	 */
+	public function get_sync_log( $blog_id = 0 ) {
+		$blog_id = 0 === $blog_id ? $this->site->blog_id : $blog_id;
+
+		$sync_log = get_option( 'dt_sync_log', [] );
+
+		$current_site_log = [];
+		if ( ! empty( $sync_log[ $blog_id ] ) ) {
+			$current_site_log = $sync_log[ $blog_id ];
+		}
+
+		return $current_site_log;
 	}
 
 	/**

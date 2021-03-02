@@ -59,11 +59,6 @@ class PullListTable extends \WP_List_Table {
 			'date' => esc_html__( 'Date', 'distributor' ),
 		];
 
-		// Remove checkbox column on the Pulled view
-		if ( isset( $_GET['status'] ) && 'pulled' === $_GET['status'] ) { // @codingStandardsIgnoreLine Nonce not needed.
-			unset( $columns['cb'] );
-		}
-
 		/**
 		 * Filters the columns displayed in the pull list table.
 		 *
@@ -346,8 +341,17 @@ class PullListTable extends \WP_List_Table {
 				];
 			}
 		} elseif ( 'skipped' === $_GET['status'] ) { // @codingStandardsIgnoreLine Nonce not needed.
+			// Filter documented above.
+			$as_draft = apply_filters( 'dt_pull_as_draft', true, $connection_now );
+			$draft    = 'draft';
+			if ( ! $as_draft ) {
+				$draft = '';
+			}
+
 			$actions = [
-				'view' => '<a href="' . esc_url( $item->link ) . '">' . esc_html__( 'View', 'distributor' ) . '</a>',
+				'pull'   => sprintf( '<a href="%s">%s</a>', esc_url( wp_nonce_url( admin_url( 'admin.php?page=pull&action=syndicate&_wp_http_referer=' . rawurlencode( $_SERVER['REQUEST_URI'] ) . '&post=' . $item->ID . '&connection_type=' . $connection_type . '&connection_id=' . $connection_id . '&pull_post_type=' . $item->post_type . '&dt_as_draft=' . $draft ), 'bulk-distributor_page_pull' ) ), $draft ? esc_html__( 'Pull as draft', 'distributor' ) : esc_html__( 'Pull', 'distributor' ) ),
+				'unskip' => sprintf( '<a href="%s">%s</a>', esc_url( wp_nonce_url( admin_url( 'admin.php?page=pull&action=unskip&_wp_http_referer=' . rawurlencode( $_SERVER['REQUEST_URI'] ) . '&post=' . $item->ID . '&connection_type=' . $connection_type . '&connection_id=' . $connection_id ), 'dt_unskip' ) ), esc_html__( 'Unskip', 'distributor' ) ),
+				'view'   => '<a href="' . esc_url( $item->link ) . '">' . esc_html__( 'View', 'distributor' ) . '</a>',
 			];
 		} elseif ( 'pulled' === $_GET['status'] ) { // @codingStandardsIgnoreLine Nonce not needed
 
@@ -537,7 +541,7 @@ class PullListTable extends \WP_List_Table {
 	 * @param \WP_Post $post The current WP_Post object.
 	 */
 	public function column_cb( $post ) {
-		if ( isset( $this->sync_log[ $post->ID ] ) ) {
+		if ( isset( $this->sync_log[ $post->ID ] ) && false !== $this->sync_log[ $post->ID ] ) {
 			return;
 		}
 		?>
@@ -565,7 +569,9 @@ class PullListTable extends \WP_List_Table {
 			];
 		} elseif ( 'skipped' === $_GET['status'] ) { // @codingStandardsIgnoreLine Nonce not required.
 			$actions = [
+				'-1'             => esc_html__( 'Bulk Actions', 'distributor' ),
 				'bulk-syndicate' => esc_html__( 'Pull', 'distributor' ),
+				'bulk-unskip'    => esc_html__( 'Unskip', 'distributor' ),
 			];
 		} else {
 			$actions = [];
