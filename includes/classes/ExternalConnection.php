@@ -77,9 +77,9 @@ abstract class ExternalConnection extends Connection {
 	public function log_sync( array $item_id_mappings, $connection_id = 0, $overwrite = false ) {
 		$connection_id = 0 === $connection_id ? $this->id : $connection_id;
 
-		$sync_log = get_post_meta( $connection_id, 'dt_sync_log', true );
+		$sync_log = $this->get_sync_log( $connection_id );
 
-		if ( empty( $sync_log ) || true === $overwrite ) {
+		if ( true === $overwrite ) {
 			$sync_log = array();
 		}
 
