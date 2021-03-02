@@ -248,32 +248,21 @@ class PullListTable extends \WP_List_Table {
 	}
 
 	/**
-	 * Output standard table columns (not name)
+	 * Output standard table columns.
 	 *
 	 * @param  array|\WP_Post $item Item to output.
 	 * @param  string         $column_name Column name.
 	 *
-	 * @return string Url, post title, or empty string.
+	 * @return string.
 	 * @since  0.8
 	 */
 	public function column_default( $item, $column_name ) {
-		switch ( $column_name ) {
-			case 'name':
-				return $item->post_title;
-			case 'url':
-				$url = get_post_meta( $item->ID, 'dt_external_connection_url', true );
+		if ( 'post_type' === $column_name ) {
+			$post_type = get_post_type_object( $item->post_type );
 
-				if ( empty( $url ) ) {
-					$url = esc_html__( 'None', 'distributor' );
-				}
-
-				return $url;
-			case 'post_type':
-				$post_type = get_post_type_object( $item->post_type );
-
-				if ( $post_type && isset( $post_type->labels->singular_name ) ) {
-					return $post_type->labels->singular_name;
-				}
+			if ( $post_type && isset( $post_type->labels->singular_name ) ) {
+				return $post_type->labels->singular_name;
+			}
 		}
 
 		/**
