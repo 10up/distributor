@@ -344,9 +344,12 @@ class NetworkSiteConnection extends Connection {
 	 * @since 0.8
 	 */
 	public function log_sync( array $item_id_mappings, $blog_id = 0, $overwrite = false ) {
-		$blog_id = 0 === $blog_id ? $this->site->blog_id : $blog_id;
+		$blog_id          = 0 === $blog_id ? $this->site->blog_id : $blog_id;
+		$current_site_log = [];
 
-		$current_site_log = $this->get_sync_log( $blog_id );
+		if ( false === $overwrite ) {
+			$current_site_log = $this->get_sync_log( $blog_id );
+		}
 
 		foreach ( $item_id_mappings as $old_item_id => $new_item_id ) {
 			if ( empty( $new_item_id ) || is_wp_error( $new_item_id ) ) {
