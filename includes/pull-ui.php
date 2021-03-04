@@ -422,10 +422,10 @@ function dashboard() {
 				<?php
 				$connection_now->pull_post_types = \Distributor\Utils\available_pull_post_types( $connection_now, $connection_type );
 
-				// Ensure we have at least one post type to pull
+				// Ensure we have at least one post type to pull.
 				$connection_now->pull_post_type = '';
 				if ( ! empty( $connection_now->pull_post_types ) ) {
-					$connection_now->pull_post_type = $connection_now->pull_post_types[0]['slug'];
+					$connection_now->pull_post_type = ( 'internal' === $connection_type ) ? 'all' : $connection_now->pull_post_types[0]['slug'];
 				}
 
 				// Set the post type we want to pull (if any)
@@ -437,7 +437,7 @@ function dashboard() {
 							break;
 						}
 					} else {
-						if ( 'post' === $post_type['slug'] ) {
+						if ( 'post' === $post_type['slug'] && 'external' === $connection_type ) {
 							$connection_now->pull_post_type = $post_type['slug'];
 							break;
 						}

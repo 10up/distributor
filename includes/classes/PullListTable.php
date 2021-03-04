@@ -54,9 +54,10 @@ class PullListTable extends \WP_List_Table {
 	 */
 	public function get_columns() {
 		$columns = [
-			'cb'   => '<input type="checkbox" />',
-			'name' => esc_html__( 'Name', 'distributor' ),
-			'date' => esc_html__( 'Date', 'distributor' ),
+			'cb'        => '<input type="checkbox" />',
+			'name'      => esc_html__( 'Name', 'distributor' ),
+			'post_type' => esc_html__( 'Post Type', 'distributor' ),
+			'date'      => esc_html__( 'Date', 'distributor' ),
 		];
 
 		// Remove checkbox column on the Pulled view
@@ -247,26 +248,21 @@ class PullListTable extends \WP_List_Table {
 	}
 
 	/**
-	 * Output standard table columns (not name)
+	 * Output standard table columns.
 	 *
 	 * @param  array|\WP_Post $item Item to output.
 	 * @param  string         $column_name Column name.
 	 *
-	 * @return string Url, post title, or empty string.
+	 * @return string.
 	 * @since  0.8
 	 */
 	public function column_default( $item, $column_name ) {
-		switch ( $column_name ) {
-			case 'name':
-				return $item['post_title'];
-			case 'url':
-				$url = get_post_meta( $item->ID, 'dt_external_connection_url', true );
+		if ( 'post_type' === $column_name ) {
+			$post_type = get_post_type_object( $item->post_type );
 
-				if ( empty( $url ) ) {
-					$url = esc_html__( 'None', 'distributor' );
-				}
-
-				return $url;
+			if ( $post_type && isset( $post_type->labels->singular_name ) ) {
+				return $post_type->labels->singular_name;
+			}
 		}
 
 		/**
@@ -426,10 +422,21 @@ class PullListTable extends \WP_List_Table {
 
 		$current_page = $this->get_pagenum();
 
+		// Support 'View all' filtering for internal connections.
+		if ( is_a( $connection_now, '\Distributor\InternalConnections\NetworkSiteConnection' ) ) {
+			if ( empty( $connection_now->pull_post_type ) || 'all' === $connection_now->pull_post_type ) {
+				$post_type = wp_list_pluck( $connection_now->pull_post_types, 'slug' );
+			} else {
+				$post_type = $connection_now->pull_post_type;
+			}
+		} else {
+			$post_type = $connection_now->pull_post_type ? $connection_now->pull_post_type : 'post';
+		}
+
 		$remote_get_args = [
 			'posts_per_page' => $per_page,
 			'paged'          => $current_page,
-			'post_type'      => $connection_now->pull_post_type ? $connection_now->pull_post_type : 'post',
+			'post_type'      => $post_type,
 			'orderby'        => 'ID', // this is because of include/exclude truncation
 			'order'          => 'DESC', // default but specifying to be safe
 		];
@@ -582,12 +589,23 @@ class PullListTable extends \WP_List_Table {
 	public function extra_tablenav( $which ) {
 		global $connection_now;
 
+		if ( is_a( $connection_now, '\Distributor\InternalConnections\NetworkSiteConnection' ) ) {
+			$connection_type = 'internal';
+		} else {
+			$connection_type = 'external';
+		}
+
 		if ( $connection_now && $connection_now->pull_post_types && $connection_now->pull_post_type ) :
 			?>
 
 			<div class="alignleft actions dt-pull-post-type">
 				<label for="pull_post_type" class="screen-reader-text">Content to Pull</label>
 				<select id="pull_post_type" name="pull_post_type">
+					<?php if ( 'internal' === $connection_type ) : ?>
+						<option <?php selected( $connection_now->pull_post_type, 'all' ); ?> value="all">
+							<?php esc_html_e( 'View all', 'distributor' ); ?>
+						</option>
+					<?php endif; ?>
 					<?php foreach ( $connection_now->pull_post_types as $post_type ) : ?>
 						<option <?php selected( $connection_now->pull_post_type, $post_type['slug'] ); ?> value="<?php echo esc_attr( $post_type['slug'] ); ?>">
 							<?php echo esc_html( $post_type['name'] ); ?>
