@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file, per [the Ke
 
 ## [Unreleased] - TBD
 
-## [1.6.3] - TBD
+## [1.6.3] - 2021-03-09
 ### Added
 - Ability to pull content in draft status, option to set `post_status` of pulled content (props [@dkotter](https://github.com/dkotter), [@dinhtungdu](https://github.com/dinhtungdu), [@francisco-domo](https://github.com/francisco-domo) via [#701](https://github.com/10up/distributor/pull/701)).
 - Introduce `View all` post type filter on Pull Content screen (props [@elliott-stocks](https://github.com/elliott-stocks), [@dkotter](https://github.com/dkotter), [@jeffpaul](https://github.com/jeffpaul), [@oszkarnagy](https://github.com/oszkarnagy) via [#725](https://github.com/10up/distributor/pull/725)).
