@@ -4,6 +4,27 @@ All notable changes to this project will be documented in this file, per [the Ke
 
 ## [Unreleased] - TBD
 
+## [1.6.3] - TBD
+### Added
+- Ability to pull content in draft status, option to set `post_status` of pulled content (props [@dkotter](https://github.com/dkotter), [@dinhtungdu](https://github.com/dinhtungdu), [@francisco-domo](https://github.com/francisco-domo) via [#701](https://github.com/10up/distributor/pull/701)).
+- Introduce `View all` post type filter on Pull Content screen (props [@elliott-stocks](https://github.com/elliott-stocks), [@dkotter](https://github.com/dkotter), [@jeffpaul](https://github.com/jeffpaul), [@oszkarnagy](https://github.com/oszkarnagy) via [#725](https://github.com/10up/distributor/pull/725)).
+- Add ability to Unskip or Pull items from the Skipped tab on the Pull screen (props [@dkotter](https://github.com/dkotter), [@elliott-stocks](https://github.com/elliott-stocks), [@jeffpaul](https://github.com/jeffpaul), [@oszkarnagy](https://github.com/oszkarnagy), [@zacnboat](https://github.com/zacnboat) via [#728](https://github.com/10up/distributor/pull/728)).
+- Support for plugins / themes to add additional columns to the Pull Content list table (props [@elliott-stocks](https://github.com/elliott-stocks) via [#721](https://github.com/10up/distributor/pull/721)).
+- Test coverage to ensure meta denylist is applied to attachments (props [@dhanendran](https://github.com/dhanendran), [@helen](https://github.com/helen) via [#706](https://github.com/10up/distributor/pull/706)).
+
+### Changed
+- Notification text for added consistency (props [@cdwieber](https://github.com/cdwieber), [@jeffpaul](https://github.com/jeffpaul) via [#696](https://github.com/10up/distributor/pull/696)).
+- Hide registration notice once Distributor has been successfully registered (props [@dhanendran](https://github.com/dhanendran), [@dkotter](https://github.com/dkotter), [@dinhtungdu](https://github.com/dinhtungdu), [@hearvox](https://github.com/hearvox) via [#702](https://github.com/10up/distributor/pull/702)).
+- Documentation updates (props [@jeffpaul](https://github.com/jeffpaul), [@rosspbauer](https://github.com/rosspbauer)).
+
+### Fixed
+- Allow pulled posts to use block editor (props [@davidmpurdy](https://github.com/davidmpurdy), [@dkotter](https://github.com/dkotter) via [#581](https://github.com/10up/distributor/pull/581)).
+- Ensure Distributor push menu in adminbar displays for appropriate post types (props [@dkotter](https://github.com/dkotter), [@avag-novembit](https://github.com/avag-novembit), [@jeffpaul](https://github.com/jeffpaul) via [#694](https://github.com/10up/distributor/pull/694)).
+- Block editor check for posts that have no `post_content` set (props [@dkotter](https://github.com/dkotter), [@andrewortolano](https://github.com/andrewortolano), [@xyralothep](https://github.com/xyralothep), [@ggutenberg](https://github.com/ggutenberg), [@jmslbam](https://github.com/jmslbam) via [#710](https://github.com/10up/distributor/pull/710)).
+- Pull Content UI errors that resulted in displaying incorrect post type content and PHP notices (props [@dkotter](https://github.com/dkotter), [@grappler](https://github.com/grappler) via [#703](https://github.com/10up/distributor/pull/703)).
+- Reset the `last_changed_sites` option when a new site is created, also ensures initialization works on sites created with WP CLI (props [@dkotter](https://github.com/dkotter), [@sbrow](https://github.com/sbrow), [@helen](https://github.com/helen) via [#716](https://github.com/10up/distributor/pull/716)).
+- Ensure Bulk Skip option in Pull Content screen correctly skips posts (props [@dhanendran](https://github.com/dhanendran), [@dkotter](https://github.com/dkotter), [@jeffpaul](https://github.com/jeffpaul), [@zacnboat](https://github.com/zacnboat) via [#717](https://github.com/10up/distributor/pull/717)).
+
 ## [1.6.2] - 2021-01-14
 ### Fixed
 - Handles case where Application Passwords is available in WordPress core starting with 5.6 (props [@dinhtungdu](https://github.com/dinhtungdu), [@dkotter](https://github.com/dkotter), [@jeffpaul](https://github.com/jeffpaul), [@j0HnC0untry](https://github.com/j0HnC0untry), [@dfardon](https://github.com/dfardon), [@anilpainuly121](https://github.com/anilpainuly121) via [#676](https://github.com/10up/distributor/pull/676), [#681](https://github.com/10up/distributor/pull/681), [#682](https://github.com/10up/distributor/pull/682)).
@@ -57,7 +78,7 @@ All notable changes to this project will be documented in this file, per [the Ke
 - Run [WP Acceptance](https://github.com/10up/wpacceptance/) tests in parallel in Travis (props [@adamsilverstein](https://github.com/adamsilverstein) via [#439](https://github.com/10up/distributor/pull/439)).
 
 ### Fixed
-- Gutenberg compatibility issues ([@dkotter](https://github.com/dkotter), [@dinhtungdu](https://github.com/dinhtungdu) via [#579](https://github.com/10up/distributor/pull/579)).
+- Block editor compatibility issues ([@dkotter](https://github.com/dkotter), [@dinhtungdu](https://github.com/dinhtungdu) via [#579](https://github.com/10up/distributor/pull/579)).
 - Issue where push menu would disappear when push is in progress (props [@dinhtungdu](https://github.com/dinhtungdu), [@dkotter](https://github.com/dkotter), [@helen](https://github.com/helen) via [#538](https://github.com/10up/distributor/pull/538)).
 - Undefined variable issue causing external pushes to not fully work (props [@dkotter](https://github.com/dkotter) via [#578](https://github.com/10up/distributor/pull/578)).
 - Check for value of remote post id to verify push result (props [@dinhtungdu](https://github.com/dinhtungdu), [@eriktad](https://github.com/eriktad), [@arsendovlatyan](https://github.com/arsendovlatyan) via [#574](https://github.com/10up/distributor/pull/574)).
@@ -224,11 +245,11 @@ This adds a post type selector when viewing the Pull Content list for both exter
 
 ## [1.2.1] - 2018-07-06
 ### Fixed
-- Gutenberg bugs; parent post bug.
+- Block editor bugs; parent post bug.
 
 ## [1.2.0] - 2018-05-27
 ### Added
-- Gutenberg support, public release.
+- Block editor support, public release.
 
 ## [1.1.0] - 2018-01-19
 ### Added
@@ -238,6 +259,7 @@ This adds a post type selector when viewing the Pull Content list for both exter
 - Initial closed release.
 
 [Unreleased]: https://github.com/10up/distributor/compare/trunk...develop
+[1.6.3]: https://github.com/10up/distributor/compare/1.6.2...1.6.3
 [1.6.2]: https://github.com/10up/distributor/compare/1.6.1...1.6.2
 [1.6.1]: https://github.com/10up/distributor/compare/1.6.0...1.6.1
 [1.6.0]: https://github.com/10up/distributor/compare/1.5.0...1.6.0

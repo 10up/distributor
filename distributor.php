@@ -17,7 +17,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly.
 }
 
-define( 'DT_VERSION', '1.6.2' );
+define( 'DT_VERSION', '1.6.3' );
 define( 'DT_PLUGIN_FILE', preg_replace( '#^.*plugins/(.*)$#i', '$1', __FILE__ ) );
 define( 'DT_PLUGIN_PATH', plugin_dir_path( __FILE__ ) );
 

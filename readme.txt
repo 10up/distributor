@@ -1,12 +1,12 @@
 === Distributor ===
-Contributors: 10up
-Tags: content, distribution, syndication, management
+Contributors:      10up
+Tags:              content, distribution, syndication, management
 Requires at least: 4.7
-Tested up to: 5.6
-Requires PHP: 5.6
-Stable tag: 1.6.3-dev
-License: GPLv2 or later
-License URI: http://www.gnu.org/licenses/gpl-2.0.html
+Tested up to:      5.6
+Requires PHP:      5.6
+Stable tag:        1.6.3-dev
+License:           GPLv2 or later
+License URI:       http://www.gnu.org/licenses/gpl-2.0.html
 
 Distributor makes it easy to distribute and reuse content across your websites — whether in a single multisite or across the web.
 
