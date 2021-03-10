@@ -15,6 +15,7 @@ All notable changes to this project will be documented in this file, per [the Ke
 ### Changed
 - Notification text for added consistency (props [@cdwieber](https://github.com/cdwieber), [@jeffpaul](https://github.com/jeffpaul) via [#696](https://github.com/10up/distributor/pull/696)).
 - Hide registration notice once Distributor has been successfully registered (props [@dhanendran](https://github.com/dhanendran), [@dkotter](https://github.com/dkotter), [@dinhtungdu](https://github.com/dinhtungdu), [@hearvox](https://github.com/hearvox) via [#702](https://github.com/10up/distributor/pull/702)).
+- Documentation updates (props [@jeffpaul](https://github.com/jeffpaul), [@rosspbauer](https://github.com/rosspbauer)).
 
 ### Fixed
 - Allow pulled posts to use block editor (props [@davidmpurdy](https://github.com/davidmpurdy), [@dkotter](https://github.com/dkotter) via [#581](https://github.com/10up/distributor/pull/581)).
