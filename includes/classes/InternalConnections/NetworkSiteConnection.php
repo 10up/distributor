@@ -227,6 +227,10 @@ class NetworkSiteConnection extends Connection {
 				unset( $post_array['post_parent'] );
 			}
 
+			if ( ! empty( $item_array['post_status'] ) ) {
+				$post_array['post_status'] = $item_array['post_status'];
+			}
+
 			add_filter( 'wp_insert_post_data', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'maybe_set_modified_date' ), 10, 2 );
 
 			// Filter documented in includes/classes/ExternalConnections/WordPressExternalConnection.php
@@ -334,18 +338,17 @@ class NetworkSiteConnection extends Connection {
 	 *
 	 * This let's us grab all the IDs of posts we've PULLED from a given site
 	 *
-	 * @param array $item_id_mappings Mapping to log; key = origin post ID, value = new post ID.
-	 * @param int   $blog_id Blog ID
+	 * @param array   $item_id_mappings Mapping to log; key = origin post ID, value = new post ID.
+	 * @param int     $blog_id Blog ID
+	 * @param boolean $overwrite Whether to overwrite the sync log for this site. Default false.
 	 * @since 0.8
 	 */
-	public function log_sync( array $item_id_mappings, $blog_id = 0 ) {
-		$blog_id = 0 === $blog_id ? $this->site->blog_id : $blog_id;
-
-		$sync_log = get_option( 'dt_sync_log', array() );
-
+	public function log_sync( array $item_id_mappings, $blog_id = 0, $overwrite = false ) {
+		$blog_id          = 0 === $blog_id ? $this->site->blog_id : $blog_id;
 		$current_site_log = [];
-		if ( ! empty( $sync_log[ $blog_id ] ) ) {
-			$current_site_log = $sync_log[ $blog_id ];
+
+		if ( false === $overwrite ) {
+			$current_site_log = $this->get_sync_log( $blog_id );
 		}
 
 		foreach ( $item_id_mappings as $old_item_id => $new_item_id ) {
@@ -362,6 +365,25 @@ class NetworkSiteConnection extends Connection {
 
 		// Action documented in includes/classes/ExternalConnection.php.
 		do_action( 'dt_log_sync', $item_id_mappings, $sync_log, $this );
+	}
+
+	/**
+	 * Return the sync log for a specific site
+	 *
+	 * @param int $blog_id Blog ID
+	 * @return array
+	 */
+	public function get_sync_log( $blog_id = 0 ) {
+		$blog_id = 0 === $blog_id ? $this->site->blog_id : $blog_id;
+
+		$sync_log = get_option( 'dt_sync_log', [] );
+
+		$current_site_log = [];
+		if ( ! empty( $sync_log[ $blog_id ] ) ) {
+			$current_site_log = $sync_log[ $blog_id ];
+		}
+
+		return $current_site_log;
 	}
 
 	/**
@@ -492,6 +514,7 @@ class NetworkSiteConnection extends Connection {
 		add_action( 'wp_trash_post', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'separate_syndicated_on_delete' ) );
 		add_action( 'untrash_post', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'connect_syndicated_on_untrash' ) );
 		add_action( 'clean_site_cache', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'set_sites_last_changed_time' ) );
+		add_action( 'wp_insert_site', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'set_sites_last_changed_time' ) );
 		add_action( 'add_user_to_blog', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'rebuild_user_authorized_sites_cache' ) );
 		add_action( 'remove_user_from_blog', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'rebuild_user_authorized_sites_cache' ) );
 	}

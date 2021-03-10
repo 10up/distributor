@@ -55,7 +55,7 @@ function syndicatable() {
 			return false;
 		}
 	} else {
-		if ( ! is_single() ) {
+		if ( ! is_singular( \Distributor\Utils\distributable_post_types() ) ) {
 			return false;
 		}
 	}
