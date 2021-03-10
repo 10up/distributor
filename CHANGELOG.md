@@ -7,7 +7,8 @@ All notable changes to this project will be documented in this file, per [the Ke
 ## [1.6.3] - TBD
 ### Added
 - Ability to pull content in draft status, option to set `post_status` of pulled content (props [@dkotter](https://github.com/dkotter), [@dinhtungdu](https://github.com/dinhtungdu), [@francisco-domo](https://github.com/francisco-domo) via [#701](https://github.com/10up/distributor/pull/701)).
-- Introduce `View all` post type filter on Pull Content screen (props [@elliott-stocks](https://github.com/elliott-stocks), [@dkotter](https://github.com/dkotter), [@jeffpaul](https://github.com/jeffpaul) via [#725](https://github.com/10up/distributor/pull/725)).
+- Introduce `View all` post type filter on Pull Content screen (props [@elliott-stocks](https://github.com/elliott-stocks), [@dkotter](https://github.com/dkotter), [@jeffpaul](https://github.com/jeffpaul), [@oszkarnagy](https://github.com/oszkarnagy) via [#725](https://github.com/10up/distributor/pull/725)).
+- Add ability to Unskip or Pull items from the Skipped tab on the Pull screen (props [@dkotter](https://github.com/dkotter), [@elliott-stocks](https://github.com/elliott-stocks), [@jeffpaul](https://github.com/jeffpaul), [@oszkarnagy](https://github.com/oszkarnagy), [@zacnboat](https://github.com/zacnboat) via [#728](https://github.com/10up/distributor/pull/728)).
 - Support for plugins / themes to add additional columns to the Pull Content list table (props [@elliott-stocks](https://github.com/elliott-stocks) via [#721](https://github.com/10up/distributor/pull/721)).
 - Test coverage to ensure meta denylist is applied to attachments (props [@dhanendran](https://github.com/dhanendran), [@helen](https://github.com/helen) via [#706](https://github.com/10up/distributor/pull/706)).
 
