@@ -453,7 +453,7 @@ jQuery( externalConnectionTypeField ).on( 'change', () => {
 	wpbody.className = slug;
 
 	if ( 'wp' === slug ) {
-		jQuery( '.external-connection-setup, .hide-until-authed' ).show();
+		jQuery( '.external-connection-wizard' ).show();
 	} else {
 		jQuery( '.external-connection-setup, .hide-until-authed' ).hide();
 	}
