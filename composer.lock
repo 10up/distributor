@@ -144,12 +144,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/10up/wpacceptance.git",
-                "reference": "1997d91d6f51a2758f295cf0d00663dba0179f28"
+                "reference": "47151642d4e3c373bdcc1b3ee5b00fe817b6073c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/10up/wpacceptance/zipball/1997d91d6f51a2758f295cf0d00663dba0179f28",
-                "reference": "1997d91d6f51a2758f295cf0d00663dba0179f28",
+                "url": "https://api.github.com/repos/10up/wpacceptance/zipball/47151642d4e3c373bdcc1b3ee5b00fe817b6073c",
+                "reference": "47151642d4e3c373bdcc1b3ee5b00fe817b6073c",
                 "shasum": ""
             },
             "require": {
@@ -193,7 +193,7 @@
                 "testing",
                 "wordpress"
             ],
-            "time": "2020-08-10T15:55:29+00:00"
+            "time": "2021-03-08T15:25:19+00:00"
         },
         {
             "name": "10up/wpinstructions",
@@ -489,12 +489,12 @@
             "version": "v1.4.1",
             "source": {
                 "type": "git",
-                "url": "https://github.com/clue/php-stream-filter.git",
+                "url": "https://github.com/clue/stream-filter.git",
                 "reference": "5a58cc30a8bd6a4eb8f856adf61dd3e013f53f71"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/clue/php-stream-filter/zipball/5a58cc30a8bd6a4eb8f856adf61dd3e013f53f71",
+                "url": "https://api.github.com/repos/clue/stream-filter/zipball/5a58cc30a8bd6a4eb8f856adf61dd3e013f53f71",
                 "reference": "5a58cc30a8bd6a4eb8f856adf61dd3e013f53f71",
                 "shasum": ""
             },
@@ -533,6 +533,16 @@
                 "stream",
                 "stream_filter_append",
                 "stream_filter_register"
+            ],
+            "funding": [
+                {
+                    "url": "https://clue.engineering/support",
+                    "type": "custom"
+                },
+                {
+                    "url": "https://github.com/clue",
+                    "type": "github"
+                }
             ],
             "time": "2019-04-09T12:31:48+00:00"
         },
@@ -5105,12 +5115,12 @@
             "version": "1.8.0",
             "source": {
                 "type": "git",
-                "url": "https://github.com/webmozart/assert.git",
+                "url": "https://github.com/webmozarts/assert.git",
                 "reference": "ab2cb0b3b559010b75981b1bdce728da3ee90ad6"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/webmozart/assert/zipball/ab2cb0b3b559010b75981b1bdce728da3ee90ad6",
+                "url": "https://api.github.com/repos/webmozarts/assert/zipball/ab2cb0b3b559010b75981b1bdce728da3ee90ad6",
                 "reference": "ab2cb0b3b559010b75981b1bdce728da3ee90ad6",
                 "shasum": ""
             },
