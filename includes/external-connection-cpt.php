@@ -270,8 +270,8 @@ function admin_enqueue_scripts( $hook ) {
 		wp_enqueue_style( 'dt-admin-external-connection', plugins_url( '/dist/css/admin-external-connection.min.css', __DIR__ ), array(), DT_VERSION );
 		wp_enqueue_script( 'dt-admin-external-connection', plugins_url( '/dist/js/admin-external-connection.min.js', __DIR__ ), array( 'jquery', 'underscore', 'wp-a11y' ), DT_VERSION, true );
 
-		$blog_name        = get_bloginfo( 'name ' );
-		$wizard_return    = get_wizard_return_data();
+		$blog_name     = get_bloginfo( 'name ' );
+		$wizard_return = get_wizard_return_data();
 
 		wp_localize_script(
 			'dt-admin-external-connection',
