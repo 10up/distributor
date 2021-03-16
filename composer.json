@@ -43,8 +43,8 @@
     "10up/phpcs-composer": "dev-master"
   },
   "scripts": {
-    "lint": "phpcs . --runtime-set testVersion 5.6-",
-    "lint-fix": "phpcbf . --runtime-set testVersion 5.6-"
+    "lint": "phpcs .",
+    "lint-fix": "phpcbf ."
   },
   "minimum-stability": "dev",
   "prefer-stable": true
