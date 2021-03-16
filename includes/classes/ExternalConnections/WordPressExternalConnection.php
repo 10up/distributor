@@ -411,6 +411,10 @@ class WordPressExternalConnection extends ExternalConnection {
 				unset( $post_array['post_parent'] );
 			}
 
+			if ( ! empty( $item_array['post_status'] ) ) {
+				$post_array['post_status'] = $item_array['post_status'];
+			}
+
 			// Remove date stuff
 			unset( $post_array['post_date'] );
 			unset( $post_array['post_date_gmt'] );
@@ -543,7 +547,7 @@ class WordPressExternalConnection extends ExternalConnection {
 		 * Now let's push
 		 */
 		$post_body = [
-			'title'                          => get_the_title( $post_id ),
+			'title'                          => html_entity_decode( get_the_title( $post_id ), ENT_QUOTES, get_bloginfo( 'charset' ) ),
 			'slug'                           => $post->post_name,
 			'content'                        => Utils\get_processed_content( $post->post_content ),
 			'type'                           => $post->post_type,
@@ -913,8 +917,8 @@ class WordPressExternalConnection extends ExternalConnection {
 		$obj->comment_status    = $post['comment_status'];
 		$obj->ping_status       = $post['ping_status'];
 
-		// Use raw content if both remote and local are using Gutenberg.
-		$obj->post_content = Utils\is_using_gutenberg( new \WP_Post( $obj ) ) && isset( $post['is_using_gutenberg'] ) ?
+		// Use raw content if remote post uses Gutenberg and the local post type is compatible with it.
+		$obj->post_content = Utils\dt_use_block_editor_for_post_type ( $obj->post_type ) && isset( $post['is_using_gutenberg'] ) ?
 			$post['content']['raw'] :
 			Utils\get_processed_content( $post['content']['raw'] );
 

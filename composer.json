@@ -3,7 +3,7 @@
   "type": "wordpress-plugin",
   "description": "Distributor is a WordPress plugin that makes it easy to distribute and reuse content across your websites — whether in a single multisite or across the web.",
   "homepage": "https://distributorplugin.com/",
-  "license": "GPL-2.0",
+  "license": "GPL-2.0-or-later",
   "authors": [
     {
       "name": "10up",
@@ -15,11 +15,11 @@
         "type":"package",
         "package": {
           "name": "georgestephanis/application-passwords",
-          "version":"0.1.1",
+          "version":"0.1.2",
           "source": {
               "url": "https://github.com/WordPress/application-passwords.git",
               "type": "git",
-              "reference":"aaa502d70190d13fbc45d58ff47db1635f7dbe1c"
+              "reference":"0eef095b4dc984c26ee8149c01a323be83da715a"
             }
         }
     }
@@ -27,7 +27,7 @@
   "require": {
     "php": ">=5.6",
     "yahnis-elsts/plugin-update-checker": "^4.4",
-    "georgestephanis/application-passwords": "0.1.1",
+    "georgestephanis/application-passwords": "0.1.2",
     "ext-json": "*"
   },
   "autoload": {

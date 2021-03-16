@@ -38,6 +38,10 @@ function setup_list_table() {
 		$dt_pull_messages['skipped'] = 1;
 
 		setcookie( 'dt-skipped', 1, time() - 60, ADMIN_COOKIE_PATH, COOKIE_DOMAIN, is_ssl() );
+	} elseif ( ! empty( $_COOKIE['dt-unskipped'] ) ) {
+		$dt_pull_messages['unskipped'] = 1;
+
+		setcookie( 'dt-unskipped', 1, time() - 60, ADMIN_COOKIE_PATH, COOKIE_DOMAIN, is_ssl() );
 	} elseif ( ! empty( $_COOKIE['dt-syndicated'] ) ) {
 		$dt_pull_messages['syndicated'] = 1;
 
@@ -116,6 +120,15 @@ function admin_enqueue_scripts( $hook ) {
 
 	wp_enqueue_script( 'dt-admin-pull', plugins_url( '/dist/js/admin-pull.min.js', __DIR__ ), array( 'jquery' ), DT_VERSION, true );
 	wp_enqueue_style( 'dt-admin-pull', plugins_url( '/dist/css/admin-pull-table.min.css', __DIR__ ), array(), DT_VERSION );
+
+	wp_localize_script(
+		'dt-admin-pull',
+		'dt',
+		[
+			'pull'     => __( 'Pull', 'distributor' ),
+			'as_draft' => __( 'Pull as draft', 'distributor' ),
+		]
+	);
 }
 
 /**
@@ -205,14 +218,16 @@ function process_actions() {
 				break;
 			}
 
-			$posts     = (array) $_GET['post'];
-			$post_type = sanitize_text_field( $_GET['pull_post_type'] );
+			$posts       = (array) $_GET['post'];
+			$post_type   = sanitize_text_field( $_GET['pull_post_type'] );
+			$post_status = ! empty( $_GET['dt_as_draft'] ) && 'draft' === $_GET['dt_as_draft'] ? 'draft' : '';
 
 			$posts = array_map(
-				function( $remote_post_id ) use ( $post_type ) {
+				function( $remote_post_id ) use ( $post_type, $post_status ) {
 						return [
 							'remote_post_id' => $remote_post_id,
 							'post_type'      => $post_type,
+							'post_status'    => $post_status,
 						];
 				},
 				$posts
@@ -221,6 +236,7 @@ function process_actions() {
 			if ( 'external' === $_GET['connection_type'] ) {
 				$connection = \Distributor\ExternalConnection::instantiate( intval( $_GET['connection_id'] ) );
 				$new_posts  = $connection->pull( $posts );
+				$error_key  = "external_{$connection->id}";
 
 				foreach ( $posts as $key => $post_array ) {
 					if ( is_wp_error( $new_posts[ $key ] ) ) {
@@ -232,6 +248,7 @@ function process_actions() {
 				$site       = get_site( intval( $_GET['connection_id'] ) );
 				$connection = new \Distributor\InternalConnections\NetworkSiteConnection( $site );
 				$new_posts  = $connection->pull( $posts );
+				$error_key  = "internal_{$connection->site->blog_id}";
 			}
 
 			$post_id_mappings = array();
@@ -253,7 +270,7 @@ function process_actions() {
 			}
 
 			if ( ! empty( $pull_errors ) ) {
-				set_transient( 'dt_connection_pull_errors_' . $connection->id, $pull_errors, DAY_IN_SECONDS );
+				set_transient( 'dt_connection_pull_errors_' . $error_key, $pull_errors, DAY_IN_SECONDS );
 			}
 
 			$connection->log_sync( $post_id_mappings );
@@ -312,6 +329,52 @@ function process_actions() {
 
 			// Redirect to the skipped content tab
 			wp_safe_redirect( add_query_arg( 'status', 'skipped', wp_get_referer() ) );
+			exit;
+		case 'bulk-unskip':
+		case 'unskip':
+			if ( ! wp_verify_nonce( $_GET['_wpnonce'], 'dt_unskip' ) && ! wp_verify_nonce( $_GET['_wpnonce'], 'bulk-distributor_page_pull' ) ) {
+				exit;
+			}
+
+			// Filter documented above.
+			if ( ! current_user_can( apply_filters( 'dt_pull_capabilities', 'manage_options' ) ) ) {
+				wp_die(
+					'<h1>' . esc_html__( 'Cheatin&#8217; uh?', 'distributor' ) . '</h1>' .
+					'<p>' . esc_html__( 'Sorry, you are not allowed to add this item.', 'distributor' ) . '</p>',
+					403
+				);
+			}
+
+			if ( empty( $_GET['connection_type'] ) || empty( $_GET['connection_id'] ) || empty( $_GET['post'] ) ) {
+				break;
+			}
+
+			if ( 'external' === $_GET['connection_type'] ) {
+				$connection = \Distributor\ExternalConnection::instantiate( intval( $_GET['connection_id'] ) );
+			} else {
+				$site       = get_site( intval( $_GET['connection_id'] ) );
+				$connection = new \Distributor\InternalConnections\NetworkSiteConnection( $site );
+			}
+
+			$posts = $_GET['post'];
+			if ( ! is_array( $posts ) ) {
+				$posts = [ $posts ];
+			}
+
+			$sync_log = $connection->get_sync_log( intval( $_GET['connection_id'] ) );
+
+			foreach ( $posts as $post_id ) {
+				if ( array_key_exists( $post_id, $sync_log ) ) {
+					unset( $sync_log[ $post_id ] );
+				}
+			}
+
+			$connection->log_sync( $sync_log, intval( $_GET['connection_id'] ), true );
+
+			setcookie( 'dt-unskipped', 1, time() + DAY_IN_SECONDS, ADMIN_COOKIE_PATH, COOKIE_DOMAIN, is_ssl() );
+
+			// Redirect to the new content tab
+			wp_safe_redirect( add_query_arg( 'status', 'new', wp_get_referer() ) );
 			exit;
 	}
 }
@@ -409,9 +472,14 @@ function dashboard() {
 				<?php
 				$connection_now->pull_post_types = \Distributor\Utils\available_pull_post_types( $connection_now, $connection_type );
 
-				// Set the post type we want to pull
+				// Ensure we have at least one post type to pull.
+				$connection_now->pull_post_type = '';
+				if ( ! empty( $connection_now->pull_post_types ) ) {
+					$connection_now->pull_post_type = ( 'internal' === $connection_type ) ? 'all' : $connection_now->pull_post_types[0]['slug'];
+				}
+
+				// Set the post type we want to pull (if any)
 				// This is either from a query param, "post" post type, or the first in the list
-				$connection_now->pull_post_type = $connection_now->pull_post_types[0]['slug'];
 				foreach ( $connection_now->pull_post_types as $post_type ) {
 					if ( isset( $_GET['pull_post_type'] ) ) { // @codingStandardsIgnoreLine No nonce needed here.
 						if ( $_GET['pull_post_type'] === $post_type['slug'] ) { // @codingStandardsIgnoreLine Comparing values, no nonce needed.
@@ -419,7 +487,7 @@ function dashboard() {
 							break;
 						}
 					} else {
-						if ( 'post' === $post_type['slug'] ) {
+						if ( 'post' === $post_type['slug'] && 'external' === $connection_type ) {
 							$connection_now->pull_post_type = $post_type['slug'];
 							break;
 						}
@@ -433,6 +501,12 @@ function dashboard() {
 		<?php if ( ! empty( $dt_pull_messages ) && ! empty( $dt_pull_messages['skipped'] ) ) : ?>
 			<div id="message" class="updated notice is-dismissible">
 				<p><?php esc_html_e( 'Post(s) have been marked as skipped.', 'distributor' ); ?></p>
+			</div>
+		<?php endif; ?>
+
+		<?php if ( ! empty( $dt_pull_messages ) && ! empty( $dt_pull_messages['unskipped'] ) ) : ?>
+			<div id="message" class="updated notice is-dismissible">
+				<p><?php esc_html_e( 'Post(s) have been unskipped.', 'distributor' ); ?></p>
 			</div>
 		<?php endif; ?>
 
@@ -486,13 +560,19 @@ function output_pull_errors() {
 		return;
 	}
 
-	$pull_errors = get_transient( 'dt_connection_pull_errors_' . $connection_now->id );
+	if ( is_a( $connection_now, '\Distributor\ExternalConnection' ) ) {
+		$error_key = "external_{$connection_now->id}";
+	} else {
+		$error_key = "internal_{$connection_now->site->blog_id}";
+	}
+
+	$pull_errors = get_transient( 'dt_connection_pull_errors_' . $error_key );
 
 	if ( empty( $pull_errors ) ) {
 		return;
 	}
 
-	delete_transient( 'dt_connection_pull_errors_' . $connection_now->id );
+	delete_transient( 'dt_connection_pull_errors_' . $error_key );
 
 	$post_ids = array_keys( $pull_errors );
 

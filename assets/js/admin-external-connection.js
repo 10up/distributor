@@ -135,6 +135,11 @@ jQuery( authorizeConnectionButton ).on( 'click', ( event ) => {
 			return;
 		}
 
+		if( 'core_application_passwords_available' in response.data && ! response.data.core_application_passwords_available ) {
+			jQuery( wizardError[0] ).text( dt.application_passwords_not_available );
+			return;
+		}
+
 		const successURL = addQueryArgs( document.location.href,
 			{
 				setupStatus: 'success',
@@ -150,10 +155,11 @@ jQuery( authorizeConnectionButton ).on( 'click', ( event ) => {
 			}
 		);
 
+		const auth_page = 'core_has_application_passwords' in response.data && response.data.core_has_application_passwords ? 'authorize-application.php' : 'admin.php?page=auth_app';
+
 		const authURL = addQueryArgs(
-			`${ siteURL }wp-admin/admin.php`,
+			`${ siteURL }wp-admin/${ auth_page }`,
 			{
-				page: 'auth_app',
 				app_name: dt.distributor_from, /*eslint camelcase: 0*/
 				success_url: encodeURI( successURL ), /*eslint camelcase: 0*/
 				reject_url:  encodeURI( failureURL ), /*eslint camelcase: 0*/

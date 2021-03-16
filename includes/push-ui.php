@@ -55,7 +55,7 @@ function syndicatable() {
 			return false;
 		}
 	} else {
-		if ( ! is_single() ) {
+		if ( ! is_singular( \Distributor\Utils\distributable_post_types() ) ) {
 			return false;
 		}
 	}
@@ -125,7 +125,7 @@ function get_connections() {
 					'type'       => 'internal',
 					'id'         => $connection->site->blog_id,
 					'url'        => untrailingslashit( preg_replace( '#(https?:\/\/|www\.)#i', '', get_site_url( $connection->site->blog_id ) ) ),
-					'name'       => $connection->site->blogname,
+					'name'       => html_entity_decode( $connection->site->blogname, ENT_QUOTES, get_bloginfo( 'charset' ) ),
 					'syndicated' => $syndicated,
 				];
 			}
@@ -207,7 +207,7 @@ function get_connections() {
 				'type'       => 'external',
 				'id'         => $connection->id,
 				'url'        => $connection->base_url,
-				'name'       => $connection->name,
+				'name'       => html_entity_decode( $connection->name, ENT_QUOTES, get_bloginfo( 'charset' ) ),
 				'syndicated' => $syndicated,
 			];
 		}
