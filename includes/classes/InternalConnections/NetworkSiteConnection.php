@@ -343,7 +343,7 @@ class NetworkSiteConnection extends Connection {
 	 * @param boolean $overwrite Whether to overwrite the sync log for this site. Default false.
 	 * @since 0.8
 	 */
-	public function log_sync( array $item_id_mappings, $blog_id = 0, $overwrite = false ) {
+	public function log_sync( array $item_id_mappings, $blog_id = 0, bool $overwrite = false ) {
 		$blog_id          = 0 === $blog_id ? $this->site->blog_id : $blog_id;
 		$current_site_log = [];
 
