@@ -74,7 +74,7 @@ abstract class ExternalConnection extends Connection {
 	 * @param boolean $overwrite Whether to overwrite the sync log for this connection. Default false.
 	 * @since 0.8
 	 */
-	public function log_sync( array $item_id_mappings, $connection_id = 0, bool $overwrite = false ) {
+	public function log_sync( array $item_id_mappings, $connection_id = 0, $overwrite = false ) {
 		$connection_id = 0 === $connection_id ? $this->id : $connection_id;
 
 		$sync_log = $this->get_sync_log( $connection_id );
