@@ -48,7 +48,7 @@ abstract class Connection {
 	 * @param boolean $overwrite Whether to overwrite the sync log. Optional.
 	 * @since 0.8
 	 */
-	abstract public function log_sync( array $item_id_mappings, $id, bool $overwrite );
+	abstract public function log_sync( array $item_id_mappings, $id, $overwrite );
 
 	/**
 	 * Get the sync log

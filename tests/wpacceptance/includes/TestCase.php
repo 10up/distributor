@@ -42,10 +42,7 @@ class TestCase extends \WPAcceptance\PHPUnit\TestCase {
 
 		$this->dismissNUXTip( $I );
 
-		$I->moveMouse( '#wp-admin-bar-distributor a' );
-
-		$I->click( '#wp-admin-bar-distributor a' );
-		$I->click( '#wp-admin-bar-distributor a' );
+		$I->hover( '#wp-admin-bar-distributor a' );
 
 		$I->waitUntilElementVisible( '#distributor-push-wrapper .new-connections-list' );
 
