@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file, per [the Ke
 
 ## [Unreleased] - TBD
 
-## [1.6.4] - 2021-03-23
+## [1.6.4] - 2021-03-24
 ### Added
 - Plugin banner and icon assets (props [@JackieKjome](https://github.com/JackieKjome) via [#736](https://github.com/10up/distributor/pull/736)).
 
