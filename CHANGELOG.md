@@ -4,7 +4,22 @@ All notable changes to this project will be documented in this file, per [the Ke
 
 ## [Unreleased] - TBD
 
-## [1.6.3] - TBD
+## [1.6.4] - 2021-03-24
+### Added
+- Plugin banner and icon assets (props [@JackieKjome](https://github.com/JackieKjome) via [#736](https://github.com/10up/distributor/pull/736)).
+
+### Changed
+- Continuous Integration: Switch from Travis to GH Actions for linting and PHPUnit testing (props [@dinhtungdu](https://github.com/dinhtungdu) via [#663](https://github.com/10up/distributor/pull/663)).
+
+### Fixed
+- PHP fatal error with the `log_sync` function (props [@dkotter](https://github.com/dkotter), [@SieBer15](https://github.com/SieBer15) via [#742](https://github.com/10up/distributor/pull/742)).
+- UI bug that displayed incorrect options when switching External Connection types (props [@dhanendran](https://github.com/dhanendran), [@dkotter](https://github.com/dkotter), [@helen](https://github.com/helen) via [#727](https://github.com/10up/distributor/pull/727)).
+
+### Security
+- Bump `elliptic` from 6.5.3 to 6.5.4 (props [@dependabot](https://github.com/apps/dependabot) via [#733](https://github.com/10up/distributor/pull/733)).
+- Bump `yargs-parser` from 5.0.0 to 5.0.1 (props [@dependabot](https://github.com/apps/dependabot) via [#740](https://github.com/10up/distributor/pull/740)).
+
+## [1.6.3] - 2021-03-09
 ### Added
 - Ability to pull content in draft status, option to set `post_status` of pulled content (props [@dkotter](https://github.com/dkotter), [@dinhtungdu](https://github.com/dinhtungdu), [@francisco-domo](https://github.com/francisco-domo) via [#701](https://github.com/10up/distributor/pull/701)).
 - Introduce `View all` post type filter on Pull Content screen (props [@elliott-stocks](https://github.com/elliott-stocks), [@dkotter](https://github.com/dkotter), [@jeffpaul](https://github.com/jeffpaul), [@oszkarnagy](https://github.com/oszkarnagy) via [#725](https://github.com/10up/distributor/pull/725)).
@@ -259,6 +274,7 @@ This adds a post type selector when viewing the Pull Content list for both exter
 - Initial closed release.
 
 [Unreleased]: https://github.com/10up/distributor/compare/trunk...develop
+[1.6.4]: https://github.com/10up/distributor/compare/1.6.3...1.6.4
 [1.6.3]: https://github.com/10up/distributor/compare/1.6.2...1.6.3
 [1.6.2]: https://github.com/10up/distributor/compare/1.6.1...1.6.2
 [1.6.1]: https://github.com/10up/distributor/compare/1.6.0...1.6.1

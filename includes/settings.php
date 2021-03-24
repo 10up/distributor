@@ -241,7 +241,7 @@ function license_key_callback() {
 		<p class="description">
 			<?php echo wp_kses_post( __( 'Registration is 100% free and provides update notifications and upgrades inside the dashboard. <a href="https://distributorplugin.com/#cta">Register for your key</a>.', 'distributor' ) ); ?>
 		</p>
-	<?php
+		<?php
 	endif;
 }
 
