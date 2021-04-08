@@ -584,6 +584,7 @@ function enqueue_gutenberg_edit_scripts() {
 			'originalLocationName' => sanitize_text_field( $original_location_name ),
 			'unlinkNonceUrl'       => wp_nonce_url( add_query_arg( 'action', 'unlink', admin_url( sprintf( $post_type_object->_edit_link, $post->ID ) ) ), "unlink-post_{$post->ID}" ),
 			'linkNonceUrl'         => wp_nonce_url( add_query_arg( 'action', 'link', admin_url( sprintf( $post_type_object->_edit_link, $post->ID ) ) ), "link-post_{$post->ID}" ),
+			'supportedPostTypes'   => \Distributor\Utils\distributable_post_types(),
 		]
 	);
 }

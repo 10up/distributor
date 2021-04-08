@@ -121,10 +121,19 @@ const DistributorIcon = () => {
  * Add the Distributor panel to Gutenberg
  */
 const DistributorPlugin = () => {
+	const postType = useSelect( ( select ) =>
+		select( 'core/editor' ).getCurrentPostType(),
+	'' );
 	const postStatus = useSelect( ( select ) =>
 		select( 'core/editor' ).getCurrentPostAttribute( 'status' ),
 	'' );
 
+	// Only load if we are on a supported post type
+	if ( dtGutenberg.supportedPostTypes && dtGutenberg.supportedPostTypes[ postType ] === undefined ) {
+		return null;
+	}
+
+	// If we are on a non-published item, change what we show
 	if ( 'publish' !== postStatus ) {
 		return (
 			<PluginDocumentSettingPanel title={ __( 'Distributor', 'distributor' ) } icon={ DistributorIcon }>
