@@ -11,3 +11,17 @@
 	font-weight: bold;
 	font-size: 14px;
 }
+
+@media (min-width: 783px) {
+	body.is-showing-distributor.is-fullscreen-mode #wpadminbar {
+		display: block;
+	}
+
+	body.is-showing-distributor.is-fullscreen-mode .interface-interface-skeleton {
+		top: 32px;
+	}
+}
+
+.distributor-toggle {
+	margin-bottom: 8px;
+}
