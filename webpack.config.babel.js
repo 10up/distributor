@@ -34,13 +34,19 @@ module.exports = {
 				query: {
 					configFile: './.eslintrc.json'
 				}
-			}
+			},
+			{
+				test: /\.svg$/,
+				use: [{
+					loader: 'svg-react-loader'
+				}]
+			},
 		]
 	},
 	mode: 'production',
-
 	externals: {
 		jquery: 'jQuery',
+		react: 'React',
 		underscores: '_',
 		window: 'window',
 		wp: 'wp'
