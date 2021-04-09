@@ -120,6 +120,11 @@ const DistributorIcon = () => (
  * Add the Distributor panel to Gutenberg
  */
 const DistributorPlugin = () => {
+	// Ensure the user has proper permissions
+	if ( dtGutenberg.noPermissions && 1 === parseInt( dtGutenberg.noPermissions ) ) {
+		return null;
+	}
+
 	const postType = useSelect( ( select ) =>
 		select( 'core/editor' ).getCurrentPostType(),
 	'' );

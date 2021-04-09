@@ -586,6 +586,7 @@ function enqueue_gutenberg_edit_scripts() {
 			'linkNonceUrl'         => wp_nonce_url( add_query_arg( 'action', 'link', admin_url( sprintf( $post_type_object->_edit_link, $post->ID ) ) ), "link-post_{$post->ID}" ),
 			'supportedPostTypes'   => \Distributor\Utils\distributable_post_types(),
 			'supportedPostStati'   => \Distributor\Utils\distributable_post_statuses(),
+			'noPermissions'        => ! is_user_logged_in() || ! current_user_can( apply_filters( 'dt_syndicatable_capabilities', 'edit_posts' ) ),
 		]
 	);
 }
