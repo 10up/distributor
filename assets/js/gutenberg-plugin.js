@@ -4,7 +4,6 @@ import PluginIcon from '../img/icon.svg'; // eslint-disable-line no-unused-vars
 const { Icon } = wp.components; // eslint-disable-line no-unused-vars
 const { select, useSelect } = wp.data;
 const { PluginDocumentSettingPanel } = wp.editPost; // eslint-disable-line no-unused-vars
-const { useState } = wp.element;
 const { __, sprintf } = wp.i18n;
 const { registerPlugin } = wp.plugins;
 
@@ -12,36 +11,44 @@ const { registerPlugin } = wp.plugins;
  * Add ability to show the admin bar, if needed
  */
 const RenderShowAdminBar = () => { // eslint-disable-line no-unused-vars
-	const [ text, setText ] = useState( __( 'Show Distributor admin bar', 'distributor' ) );
 	const bodyClasses = document.body.classList;
 	const isFullScreenMode = select( 'core/edit-post' ).isFeatureActive( 'fullscreenMode' );
+	const distributorTopMenu = document.querySelector( '#wp-admin-bar-distributor' );
+	const distributorAdminItem = document.querySelector( '#wp-admin-bar-distributor > a' );
 
 	// Don't show anything if this is a distributed item
 	if ( 0 !== parseInt( dtGutenberg.syndicationTime ) ) {
 		return null;
 	}
 
-	// If in fullscreen mode, show our toggle
-	if ( isFullScreenMode ) {
+	if ( ! distributorTopMenu || ! distributorAdminItem ) {
 		return (
-			<div
-				className="distributor-toggle"
-				onClick={ () => {
-					bodyClasses.toggle( 'is-showing-distributor' );
-					bodyClasses.contains( 'is-showing-distributor' ) ?
-						setText( __( 'Hide Distributor admin bar', 'distributor' ) ) :
-						setText( __( 'Show Distributor admin bar', 'distributor' ) );
-				} }
-			>
-				<button className="components-button is-secondary" type="button">{ text }</button>
+			<div className="distributor-toggle">
+				<span>{ __( 'Refresh page to see distribution options', 'distributor' ) }</span>
 			</div>
 		);
 	}
 
 	return (
-		<p>
-			{ __( 'Hover over the Distributor item in the top admin bar to see distribution options', 'distributor' ) }
-		</p>
+		<div
+			className="distributor-toggle"
+			onClick={ () => {
+				const mouseEvent = new MouseEvent( 'mouseenter' );
+
+				if ( isFullScreenMode ) {
+					bodyClasses.add( 'is-showing-distributor' );
+				} else {
+					bodyClasses.remove( 'is-showing-distributor' );
+				}
+
+				distributorTopMenu.classList.toggle( 'hover' );
+				distributorAdminItem.dispatchEvent( mouseEvent );
+			} }
+		>
+			<button className="components-button is-secondary" type="button">
+				{ sprintf( __( 'Distribute %1$s', 'distributor' ), dtGutenberg.postTypeSingular || 'Content' ) }
+			</button>
+		</div>
 	);
 };
 
