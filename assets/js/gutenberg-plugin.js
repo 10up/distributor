@@ -120,13 +120,13 @@ const DistributorPlugin = () => {
 		select( 'core/editor' ).getCurrentPostAttribute( 'status' ),
 	'' );
 
-	// Only load if we are on a supported post type
+	// Ensure we are on a supported post type
 	if ( dtGutenberg.supportedPostTypes && dtGutenberg.supportedPostTypes[ postType ] === undefined ) {
 		return null;
 	}
 
-	// If we are on a non-published item, change what we show
-	if ( 'publish' !== postStatus ) {
+	// If we are on a non-supported post status, change what we show
+	if ( dtGutenberg.supportedPostStati && ! dtGutenberg.supportedPostStati.includes( postStatus ) ) {
 		return (
 			<PluginDocumentSettingPanel
 				title={ __( 'Distributor', 'distributor' ) }
