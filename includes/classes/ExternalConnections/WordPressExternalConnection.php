@@ -966,6 +966,7 @@ class WordPressExternalConnection extends ExternalConnection {
 		add_filter( 'wpseo_canonical', array( '\Distributor\ExternalConnections\WordPressExternalConnection', 'wpseo_canonical_url' ) );
 		add_filter( 'wpseo_opengraph_url', array( '\Distributor\ExternalConnections\WordPressExternalConnection', 'wpseo_og_url' ) );
 		add_filter( 'the_author', array( '\Distributor\ExternalConnections\WordPressExternalConnection', 'the_author_distributed' ) );
+		add_filter( 'get_the_author_display_name', array( '\Distributor\ExternalConnections\WordPressExternalConnection', 'the_author_distributed' ) );
 		add_filter( 'author_link', array( '\Distributor\ExternalConnections\WordPressExternalConnection', 'author_posts_url_distributed' ), 10, 3 );
 	}
 
@@ -985,21 +986,13 @@ class WordPressExternalConnection extends ExternalConnection {
 			return $link;
 		}
 
-		$settings = Utils\get_settings();
+		$author_data = self::get_author_data( $post );
 
-		if ( empty( $settings['override_author_byline'] ) ) {
+		if ( empty( $author_data ) ) {
 			return $link;
 		}
 
-		$original_source_id = get_post_meta( $post->ID, 'dt_original_source_id', true );
-		$original_site_url  = get_post_meta( $post->ID, 'dt_original_site_url', true );
-		$unlinked           = (bool) get_post_meta( $post->ID, 'dt_unlinked', true );
-
-		if ( empty( $original_source_id ) || empty( $original_site_url ) || $unlinked ) {
-			return $link;
-		}
-
-		return $original_site_url;
+		return $author_data['url'];
 	}
 
 	/**
@@ -1016,10 +1009,43 @@ class WordPressExternalConnection extends ExternalConnection {
 			return $author;
 		}
 
+		$author_data = self::get_author_data( $post );
+
+		if ( empty( $author_data ) ) {
+			return $author;
+		}
+
+		return $author_data['name'];
+	}
+
+	/**
+	 * Prepare data for author filters.
+	 *
+	 * @param  WP_Post $post The post object.
+	 * @since  1.6.5
+	 * @return array
+	 */
+	public static function get_author_data( $post ) {
 		$settings = Utils\get_settings();
 
 		if ( empty( $settings['override_author_byline'] ) ) {
-			return $author;
+			$original_author = get_post_meta( $post->ID, 'dt_original_author', true );
+			/**
+			 * Filter whether to use the original author or the remote site author.
+			 *
+			 * @since 1.6.5
+			 * @hook dt_use_original_author
+			 *
+			 * @param {WP_Post} $post The post object.
+			 *
+			 * @return {bool} Whether to use the original author for distributed post.
+			 */
+			if ( apply_filters( 'dt_use_original_author', true, $post ) ) {
+				if ( is_array( $original_author ) && ! empty( $original_author['name'] ) && ! empty( $original_author['url'] ) ) {
+					return $original_author;
+				}
+			}
+			return [];
 		}
 
 		$original_source_id = get_post_meta( $post->ID, 'dt_original_source_id', true );
@@ -1028,10 +1054,13 @@ class WordPressExternalConnection extends ExternalConnection {
 		$unlinked           = (bool) get_post_meta( $post->ID, 'dt_unlinked', true );
 
 		if ( empty( $original_source_id ) || empty( $original_site_url ) || empty( $original_site_name ) || $unlinked ) {
-			return $author;
+			return [
+				'name' => $original_site_name,
+				'url'  => $original_site_url,
+			];
 		}
 
-		return $original_site_name;
+		return [];
 	}
 
 	/**
