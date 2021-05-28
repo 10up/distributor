@@ -248,7 +248,8 @@ function register_endpoints() {
 		'distributor_original_site_name',
 		array(
 			'get_callback'    => function( $post_array ) {
-				return esc_html( get_post_meta( $post_array['id'], 'dt_original_site_name', true ) );
+				$site_name = get_post_meta( $post_array['id'], 'dt_original_site_name', true );
+				return empty( $site_name ) ? get_bloginfo( 'name' ) : esc_html( $site_name );
 			},
 			'update_callback' => function( $value, $post ) { },
 			'schema'          => array(
@@ -263,7 +264,8 @@ function register_endpoints() {
 		'distributor_original_site_url',
 		array(
 			'get_callback'    => function( $post_array ) {
-				return esc_url_raw( get_post_meta( $post_array['id'], 'dt_original_site_url', true ) );
+				$site_url = get_post_meta( $post_array['id'], 'dt_original_site_url', true );
+				return empty( $site_url ) ? home_url() : esc_html( $site_url );
 			},
 			'update_callback' => function( $value, $post ) { },
 			'schema'          => array(
