@@ -371,6 +371,15 @@ function prepare_meta( $post_id ) {
 	$meta          = get_post_meta( $post_id );
 	$prepared_meta = array();
 
+
+	$author_id                 = get_post_field( 'post_author', $post_id );
+	$meta['dt_original_author'] = array(
+		array(
+			'name' => get_the_author_meta( 'display_name', $author_id ),
+			'url'  => get_author_posts_url( $author_id ),
+		)
+	);
+
 	$blacklisted_meta = blacklisted_meta();
 
 	// Transfer all meta
