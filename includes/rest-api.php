@@ -265,7 +265,7 @@ function register_endpoints() {
 		array(
 			'get_callback'    => function( $post_array ) {
 				$site_url = get_post_meta( $post_array['id'], 'dt_original_site_url', true );
-				return empty( $site_url ) ? home_url() : esc_html( $site_url );
+				return empty( $site_url ) ? home_url() : esc_url_raw( $site_url );
 			},
 			'update_callback' => function( $value, $post ) { },
 			'schema'          => array(
