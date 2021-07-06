@@ -248,7 +248,13 @@ function register_endpoints() {
 		'distributor_original_site_name',
 		array(
 			'get_callback'    => function( $post_array ) {
-				return esc_html( get_post_meta( $post_array['id'], 'dt_original_site_name', true ) );
+				$site_name = get_post_meta( $post_array['id'], 'dt_original_site_name', true );
+
+				if ( ! $site_name ) {
+					$site_name = get_bloginfo( 'name' );
+				}
+
+				return esc_html( $site_name );
 			},
 			'update_callback' => function( $value, $post ) { },
 			'schema'          => array(
@@ -263,7 +269,13 @@ function register_endpoints() {
 		'distributor_original_site_url',
 		array(
 			'get_callback'    => function( $post_array ) {
-				return esc_url_raw( get_post_meta( $post_array['id'], 'dt_original_site_url', true ) );
+				$site_url = get_post_meta( $post_array['id'], 'dt_original_site_url', true );
+
+				if ( ! $site_url ) {
+					$site_url = home_url();
+				}
+
+				return esc_url_raw( $site_url );
 			},
 			'update_callback' => function( $value, $post ) { },
 			'schema'          => array(
