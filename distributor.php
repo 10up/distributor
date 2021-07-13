@@ -1,6 +1,8 @@
 <?php
 /**
  * Plugin Name:       Distributor
+ * Plugin URI:        https://github.com/10up/distributor
+ * Update URI:        https://distributorplugin.com
  * Description:       Makes it easy to distribute and reuse content across your websites, whether inside of a multisite or across the web.
  * Version:           1.6.5-dev
  * Author:            10up Inc.
@@ -8,7 +10,6 @@
  * License:           GPLv2 or later
  * Text Domain:       distributor
  * Domain Path:       /lang/
- * GitHub Plugin URI: https://github.com/10up/distributor
  *
  * @package distributor
  */
