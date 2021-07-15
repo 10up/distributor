@@ -982,6 +982,9 @@ function get_processed_content( $post_content ) {
  * @return string
  */
 function get_rest_url( $blog_id, $post_id ) {
+	if ( ! is_multisite() ) {
+		return apply_filters( 'dt_get_rest_url', false, $blog_id, $post_id );
+	}
 
 	switch_to_blog( $blog_id );
 
