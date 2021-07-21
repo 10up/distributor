@@ -19,7 +19,7 @@ jobs:
         with:
           token: ${{ github.token }}
           daysUntilClose: 14 # Number of days of inactivity before an Issue is closed for lack of response
-          responseRequiredLabel: "reporter feedback" # Label indicating that a response from the original author is required
+          responseRequiredLabel: "Reporter Feedback" # Label indicating that a response from the original author is required
           closeComment: >
             This issue has been automatically closed because there has been no response
             to our request for more information. With only the
