@@ -340,6 +340,24 @@ jQuery( window ).on( 'load', () => {
 		} );
 	}
 
+	/**
+	 * Close distributor menu when a click occurs outside of it
+	 */
+	function maybeCloseDistributorMenu( e ) {
+		if ( ! distributorTopMenu.classList.contains( 'hover' ) ) {
+			return;
+		}
+
+		const $target = jQuery( e.target );
+
+		if ( ! $target.closest( distributorTopMenu ).length ) {
+			const toggle = document.querySelector( '.distributor-toggle .components-button' );
+			if ( e.target !== toggle ) {
+				distributorTopMenu.classList.remove( 'hover' );
+			}
+		}
+	}
+
 	// Event listerners when to fetch distributor data.
 	distributorAdminItem.addEventListener( 'keydown', function( e ) {
 		// Pressing Enter.
@@ -350,6 +368,7 @@ jQuery( window ).on( 'load', () => {
 
 	distributorAdminItem.addEventListener( 'touchstart', distributorMenuEntered, false );
 	distributorAdminItem.addEventListener( 'mouseenter', distributorMenuEntered, false );
+	document.addEventListener( 'click', maybeCloseDistributorMenu, true );
 
 	/**
 	 * Do syndication ajax

@@ -30,22 +30,23 @@ const RenderShowAdminBar = () => { // eslint-disable-line no-unused-vars
 	}
 
 	return (
-		<div
-			className="distributor-toggle"
-			onClick={ () => {
-				const mouseEvent = new MouseEvent( 'mouseenter' );
+		<div className="distributor-toggle">
+			<button
+				className="components-button is-secondary"
+				type="button"
+				onClick={ () => {
+					const mouseEvent = new MouseEvent( 'mouseenter' );
 
-				if ( isFullScreenMode ) {
-					bodyClasses.add( 'is-showing-distributor' );
-				} else {
-					bodyClasses.remove( 'is-showing-distributor' );
-				}
+					if ( isFullScreenMode ) {
+						bodyClasses.add( 'is-showing-distributor' );
+					} else {
+						bodyClasses.remove( 'is-showing-distributor' );
+					}
 
-				distributorTopMenu.classList.toggle( 'hover' );
-				distributorAdminItem.dispatchEvent( mouseEvent );
-			} }
-		>
-			<button className="components-button is-secondary" type="button">
+					distributorTopMenu.classList.toggle( 'hover' );
+					distributorAdminItem.dispatchEvent( mouseEvent );
+				} }
+			>
 				{ sprintf( __( 'Distribute %1$s', 'distributor' ), dtGutenberg.postTypeSingular || 'Content' ) }
 			</button>
 		</div>
