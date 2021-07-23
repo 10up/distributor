@@ -344,7 +344,7 @@ function link() {
 	/**
 	 * For external connections we use a saved update since we might not have access to sync from original
 	 */
-	if ( empty( $original_source_id ) ) {
+	if ( empty( $original_source_id ) && is_multisite() ) {
 		$original_post_id = get_post_meta( $post_id, 'dt_original_post_id', true );
 		$original_blog_id = get_post_meta( $post_id, 'dt_original_blog_id', true );
 
@@ -423,7 +423,7 @@ function syndicated_message( $post ) {
 	$post_url           = get_post_meta( $post->ID, 'dt_original_post_url', true );
 	$original_site_name = get_post_meta( $post->ID, 'dt_original_site_name', true );
 
-	if ( ! empty( $original_blog_id ) ) {
+	if ( ! empty( $original_blog_id ) && is_multisite() ) {
 		switch_to_blog( $original_blog_id );
 		$original_location_name = get_bloginfo( 'name' );
 		restore_current_blog();
@@ -537,7 +537,7 @@ function enqueue_gutenberg_edit_scripts() {
 		$total_connections = count( $connection_map['internal'] ) + count( $connection_map['external'] );
 	}
 
-	if ( ! empty( $original_blog_id ) ) {
+	if ( ! empty( $original_blog_id ) && is_multisite() ) {
 		switch_to_blog( $original_blog_id );
 		$original_location_name = get_bloginfo( 'name' );
 		restore_current_blog();
