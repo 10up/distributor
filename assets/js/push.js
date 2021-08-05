@@ -51,6 +51,12 @@ jQuery( window ).on( 'load', () => {
 
 	distributorMenuItem.appendChild( distributorPushWrapper );
 
+	// Add our overlay div
+	const overlayDiv = document.createElement( 'div' );
+	overlayDiv.id = 'distributor-overlay';
+	const contentNode = document.getElementById( 'wpadminbar' );
+	contentNode.parentNode.insertBefore( overlayDiv, contentNode );
+
 	/**
 	 * Set variables after connections have been rendered
 	 */
@@ -279,6 +285,13 @@ jQuery( window ).on( 'load', () => {
 	function distributorMenuEntered() {
 		distributorMenuItem.focus();
 
+		// Show or hide the overlay
+		if ( overlayDiv.classList.contains( 'show' ) && ! distributorTopMenu.classList.contains( 'hover' ) ) {
+			overlayDiv.classList.remove( 'show' );
+		} else {
+			overlayDiv.classList.add( 'show' );
+		}
+
 		if ( distributorPushWrapper.classList.contains( 'loaded' ) ) {
 			return;
 		}
@@ -343,32 +356,61 @@ jQuery( window ).on( 'load', () => {
 	/**
 	 * Close distributor menu when a click occurs outside of it
 	 */
-	function maybeCloseDistributorMenu( e ) {
+	function maybeCloseDistributorMenu() {
 		if ( ! distributorTopMenu.classList.contains( 'hover' ) ) {
 			return;
 		}
 
-		const $target = jQuery( e.target );
-
-		if ( ! $target.closest( distributorTopMenu ).length ) {
-			const toggle = document.querySelector( '.distributor-toggle .components-button' );
-			if ( e.target !== toggle ) {
-				distributorTopMenu.classList.remove( 'hover' );
-			}
-		}
+		overlayDiv.classList.remove( 'show' );
+		distributorTopMenu.classList.remove( 'hover' );
 	}
 
-	// Event listerners when to fetch distributor data.
+	// Event listeners when to fetch distributor data.
 	distributorAdminItem.addEventListener( 'keydown', function( e ) {
 		// Pressing Enter.
 		if ( ( 13 === e.keyCode ) ) {
 			distributorMenuEntered();
 		}
+
+		// Pressing Escape.
+		if ( 27 === e.keyCode ) {
+			overlayDiv.classList.remove( 'show' );
+		}
 	}, false );
+
+	// Listen for hover events to remove overlay div
+	window.hoverintent(
+		distributorTopMenu,
+		hoverIn,
+		hoverOut
+	).options( {
+		timeout: 190
+	} );
+
+	/**
+	 * Distributor menu hovered on
+	 *
+	 * Not currently using as this is handled in the
+	 * distributorMenuEntered function.
+	 */
+	function hoverIn() {
+		return null;
+	}
+
+	/**
+	 * Distributor menu hovered out
+	 *
+	 * Used to remove the overlay.
+	 */
+	function hoverOut() {
+		if ( ! distributorTopMenu.classList.contains( 'hover' ) ) {
+			overlayDiv.classList.remove( 'show' );
+		}
+	}
 
 	distributorAdminItem.addEventListener( 'touchstart', distributorMenuEntered, false );
 	distributorAdminItem.addEventListener( 'mouseenter', distributorMenuEntered, false );
-	document.addEventListener( 'click', maybeCloseDistributorMenu, true );
+	overlayDiv.addEventListener( 'click', maybeCloseDistributorMenu, true );
 
 	/**
 	 * Do syndication ajax
@@ -379,6 +421,7 @@ jQuery( window ).on( 'load', () => {
 		}
 
 		distributorTopMenu.classList.add( 'syncing' );
+		overlayDiv.classList.add( 'syncing' );
 
 		const data = {
 			action: 'dt_push',
@@ -399,6 +442,7 @@ jQuery( window ).on( 'load', () => {
 		} ).done( ( response ) => {
 			setTimeout( () => {
 				distributorTopMenu.classList.remove( 'syncing' );
+				overlayDiv.classList.remove( 'syncing' );
 
 				if ( ! response.success ) {
 					doError( response.data );
@@ -415,6 +459,7 @@ jQuery( window ).on( 'load', () => {
 		} ).error( ( xhr, textStatus, errorThrown ) => {
 			setTimeout( () => {
 				distributorTopMenu.classList.remove( 'syncing' );
+				overlayDiv.classList.remove( 'syncing' );
 
 				doError( `${dt.messages.ajax_error} ${errorThrown}` );
 			}, 500 );
