@@ -9,6 +9,7 @@
 
 @custom-media --small-screen (min-width: 480px);
 @custom-media --medium-screen (min-width: 768px);
+@custom-media --gutenberg-small-screen (max-width: 782px);
 
 #distributor-push-wrapper,
 #wpadminbar #wp-admin-bar-distributor-placeholder > .ab-item {
@@ -432,6 +433,12 @@
 		width: 100%;
 		float: none;
 		padding-left: 0;
+	}
+}
+
+.distributor-panel {
+	@media (--gutenberg-small-screen) {
+		display: none;
 	}
 }
 
