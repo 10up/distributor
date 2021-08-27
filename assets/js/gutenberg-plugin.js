@@ -126,12 +126,8 @@ const DistributorPlugin = () => {
 		return null;
 	}
 
-	const postType = useSelect( ( select ) =>
-		select( 'core/editor' ).getCurrentPostType(),
-	'' );
-	const postStatus = useSelect( ( select ) =>
-		select( 'core/editor' ).getCurrentPostAttribute( 'status' ),
-	'' );
+	const postType = useSelect( select => select( 'core/editor' ).getCurrentPostType() );
+	const postStatus = useSelect( select => select( 'core/editor' ).getCurrentPostAttribute( 'status' ) );
 
 	// Ensure we are on a supported post type
 	if ( dtGutenberg.supportedPostTypes && dtGutenberg.supportedPostTypes[ postType ] === undefined ) {
