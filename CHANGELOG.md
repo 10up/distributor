@@ -4,6 +4,28 @@ All notable changes to this project will be documented in this file, per [the Ke
 
 ## [Unreleased] - TBD
 
+## [1.6.5] - TBD
+### Added
+- Better support for the Block Editor's fullscreen mode via a new Distributor panel with a toggle option (props [@dkotter](https://github.com/dkotter), [@dinhtungdu](https://github.com/dinhtungdu), [@helen](https://github.com/helen), [@jeffpaul](https://github.com/jeffpaul) via [#750](https://github.com/10up/distributor/pull/750)).
+- `Update URI` header to ensure only legitimate Distributor updates are applied to this install (props [@jeffpaul](https://github.com/jeffpaul) via [#778](https://github.com/10up/distributor/pull/778)).
+- Issue management automation via GitHub Actions (props [@jeffpaul](https://github.com/jeffpaul) [#782](https://github.com/10up/distributor/pull/782)).
+
+### Changed
+- Update `subscriptions.php` hook priority so plugins hooked to `save_post` can process before syncing happens (props [@pascalknecht](https://github.com/pascalknecht), [@dkotter](https://github.com/dkotter), [@dinhtungdu](https://github.com/dinhtungdu) via [#590](https://github.com/10up/distributor/pull/590)).
+- Documentation updates (props [@jeffpaul](https://github.com/jeffpaul) via [#770](https://github.com/10up/distributor/pull/770)).
+
+### Fixed
+- Ensure original site information is set properly on content Pulled from external connections (props [@dkotter](https://github.com/dkotter), [@justiny](https://github.com/justiny) via [#776](https://github.com/10up/distributor/pull/776)).
+- Ensure we are on a multisite before using `switch_to_blog` (props [@dkotter](https://github.com/dkotter), [@Drmzindec](https://github.com/Drmzindec) via [#780](https://github.com/10up/distributor/pull/780)).
+
+### Security
+- Bump `y18n` from 3.2.1 to 3.2.2 (props [@dependabot](https://github.com/apps/dependabot) via [#747](https://github.com/10up/distributor/pull/747)).
+- Bump `rmccue/requests` from 1.7.0 to 1.8.0 (props [@dependabot](https://github.com/apps/dependabot) via [#756](https://github.com/10up/distributor/pull/756)).
+- Bump `ssri` from 6.0.1 to 6.0.2 (props [@dependabot](https://github.com/apps/dependabot) via [#757](https://github.com/10up/distributor/pull/757)).
+- Bump `lodash` from 4.17.19 to 4.17.21 (props [@dependabot](https://github.com/apps/dependabot) via [#759](https://github.com/10up/distributor/pull/759)).
+- Bump `hosted-git-info` from 2.8.8 to 2.8.9 (props [@dependabot](https://github.com/apps/dependabot) via [#760](https://github.com/10up/distributor/pull/760)).
+- Bump `path-parse` from 1.0.6 to 1.0.7 (props [@dependabot](https://github.com/apps/dependabot) via [#785](https://github.com/10up/distributor/pull/785)).
+
 ## [1.6.4] - 2021-03-24
 ### Added
 - Plugin banner and icon assets (props [@JackieKjome](https://github.com/JackieKjome) via [#736](https://github.com/10up/distributor/pull/736)).
@@ -274,6 +296,7 @@ This adds a post type selector when viewing the Pull Content list for both exter
 - Initial closed release.
 
 [Unreleased]: https://github.com/10up/distributor/compare/trunk...develop
+[1.6.5]: https://github.com/10up/distributor/compare/1.6.4...1.6.5
 [1.6.4]: https://github.com/10up/distributor/compare/1.6.3...1.6.4
 [1.6.3]: https://github.com/10up/distributor/compare/1.6.2...1.6.3
 [1.6.2]: https://github.com/10up/distributor/compare/1.6.1...1.6.2
