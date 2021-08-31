@@ -55,6 +55,7 @@
     "pump": "^3.0.0",
     "require-dir": "^1.2.0",
     "run-sequence": "^2.2.1",
+    "svg-react-loader": "^0.4.6",
     "webpack": "^4.43.0",
     "webpack-stream": "^5.2.1",
     "wp-hookdoc": "^0.2.0"
