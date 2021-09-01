@@ -43,7 +43,7 @@ function distributor_get_original_post_link( $post_id = null ) {
 	$original_site_name = get_post_meta( $post_id, 'dt_original_site_name', true );
 	$original_post_url  = get_post_meta( $post_id, 'dt_original_post_url', true );
 
-	if ( ! empty( $original_blog_id ) && ! empty( $original_post_id ) ) {
+	if ( ! empty( $original_blog_id ) && ! empty( $original_post_id ) && is_multisite() ) {
 		switch_to_blog( $original_blog_id );
 
 		$link = get_permalink( $original_post_id );
@@ -85,7 +85,7 @@ function distributor_get_original_site_name( $post_id = null ) {
 	$original_blog_id   = get_post_meta( $post_id, 'dt_original_blog_id', true );
 	$original_site_name = get_post_meta( $post_id, 'dt_original_site_name', true );
 
-	if ( ! empty( $original_blog_id ) ) {
+	if ( ! empty( $original_blog_id ) && is_multisite() ) {
 		switch_to_blog( $original_blog_id );
 
 		$text = get_bloginfo( 'name' );
@@ -127,7 +127,7 @@ function distributor_get_original_site_url( $post_id = null ) {
 	$original_blog_id  = get_post_meta( $post_id, 'dt_original_blog_id', true );
 	$original_site_url = get_post_meta( $post_id, 'dt_original_site_url', true );
 
-	if ( ! empty( $original_blog_id ) ) {
+	if ( ! empty( $original_blog_id ) && is_multisite() ) {
 		switch_to_blog( $original_blog_id );
 
 		$url = home_url();

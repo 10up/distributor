@@ -15,6 +15,8 @@ gulp.task( 'copy', (done) => {
 			'CHANGELOG.md',
 			'composer.json',
 			'distributor.php',
+			'.github/workflows/*',
+			'.gitattributes',
 			'assets/img/*',
 			'dist/**/*',
 			'includes/**/*',

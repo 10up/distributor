@@ -51,6 +51,11 @@ jQuery( window ).on( 'load', () => {
 
 	distributorMenuItem.appendChild( distributorPushWrapper );
 
+	// Add our overlay div
+	const overlayDiv = document.createElement( 'div' );
+	overlayDiv.id = 'distributor-overlay';
+	distributorTopMenu.parentNode.insertBefore( overlayDiv, distributorTopMenu.nextSibling );
+
 	/**
 	 * Set variables after connections have been rendered
 	 */
@@ -279,6 +284,9 @@ jQuery( window ).on( 'load', () => {
 	function distributorMenuEntered() {
 		distributorMenuItem.focus();
 
+		// Determine if we need to hide the admin bar
+		maybeHideAdminBar();
+
 		if ( distributorPushWrapper.classList.contains( 'loaded' ) ) {
 			return;
 		}
@@ -340,7 +348,26 @@ jQuery( window ).on( 'load', () => {
 		} );
 	}
 
-	// Event listerners when to fetch distributor data.
+	/**
+	 * Close distributor menu when a click occurs outside of it
+	 */
+	function maybeCloseDistributorMenu() {
+		// If a distribution is in progress, don't close things
+		if ( distributorTopMenu.classList.contains( 'syncing' ) ) {
+			return;
+		}
+
+		// If the Distributor menu is showing, hide everything
+		if ( distributorTopMenu.classList.contains( 'hover' ) ) {
+			distributorTopMenu.classList.remove( 'hover' );
+			document.body.classList.remove( 'is-showing-distributor' );
+		}
+
+		// Determine if we need to hide the admin bar
+		maybeHideAdminBar();
+	}
+
+	// Event listeners when to fetch distributor data.
 	distributorAdminItem.addEventListener( 'keydown', function( e ) {
 		// Pressing Enter.
 		if ( ( 13 === e.keyCode ) ) {
@@ -348,8 +375,34 @@ jQuery( window ).on( 'load', () => {
 		}
 	}, false );
 
+	// In full screen mode, add hoverintent to remove admin bar on hover out
+	if ( document.body.classList.contains( 'is-fullscreen-mode' ) ) {
+		window.hoverintent(
+			distributorTopMenu,
+			function() { return null; },
+			maybeHideAdminBar
+		).options( {
+			timeout: 180
+		} );
+	}
+
+	/**
+	 * Distributor menu hovered out
+	 *
+	 * Used to remove the admin bar from showing.
+	 */
+	function maybeHideAdminBar() {
+		if (
+			! distributorTopMenu.classList.contains( 'hover' ) &&
+			! distributorTopMenu.classList.contains( 'syncing' )
+		) {
+			document.body.classList.remove( 'is-showing-distributor' );
+		}
+	}
+
 	distributorAdminItem.addEventListener( 'touchstart', distributorMenuEntered, false );
 	distributorAdminItem.addEventListener( 'mouseenter', distributorMenuEntered, false );
+	overlayDiv.addEventListener( 'click', maybeCloseDistributorMenu, true );
 
 	/**
 	 * Do syndication ajax
@@ -380,6 +433,9 @@ jQuery( window ).on( 'load', () => {
 		} ).done( ( response ) => {
 			setTimeout( () => {
 				distributorTopMenu.classList.remove( 'syncing' );
+
+				// Maybe hide the admin bar
+				maybeHideAdminBar();
 
 				if ( ! response.success ) {
 					doError( response.data );
