@@ -16,6 +16,7 @@ gulp.task( 'copy', (done) => {
 			'composer.json',
 			'distributor.php',
 			'.github/workflows/*',
+			'.gitattributes',
 			'assets/img/*',
 			'dist/**/*',
 			'includes/**/*',
