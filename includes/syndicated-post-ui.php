@@ -344,7 +344,7 @@ function link() {
 	/**
 	 * For external connections we use a saved update since we might not have access to sync from original
 	 */
-	if ( empty( $original_source_id ) ) {
+	if ( empty( $original_source_id ) && is_multisite() ) {
 		$original_post_id = get_post_meta( $post_id, 'dt_original_post_id', true );
 		$original_blog_id = get_post_meta( $post_id, 'dt_original_blog_id', true );
 
@@ -423,7 +423,7 @@ function syndicated_message( $post ) {
 	$post_url           = get_post_meta( $post->ID, 'dt_original_post_url', true );
 	$original_site_name = get_post_meta( $post->ID, 'dt_original_site_name', true );
 
-	if ( ! empty( $original_blog_id ) ) {
+	if ( ! empty( $original_blog_id ) && is_multisite() ) {
 		switch_to_blog( $original_blog_id );
 		$original_location_name = get_bloginfo( 'name' );
 		restore_current_blog();
@@ -537,7 +537,7 @@ function enqueue_gutenberg_edit_scripts() {
 		$total_connections = count( $connection_map['internal'] ) + count( $connection_map['external'] );
 	}
 
-	if ( ! empty( $original_blog_id ) ) {
+	if ( ! empty( $original_blog_id ) && is_multisite() ) {
 		switch_to_blog( $original_blog_id );
 		$original_location_name = get_bloginfo( 'name' );
 		restore_current_blog();
@@ -564,7 +564,7 @@ function enqueue_gutenberg_edit_scripts() {
 	}
 
 	wp_enqueue_script( 'dt-gutenberg-syndicated-post', plugins_url( '/dist/js/gutenberg-syndicated-post.min.js', __DIR__ ), [ 'wp-blocks' ], DT_VERSION, true );
-	wp_enqueue_script( 'dt-gutenberg-syndicated-status-plugin', plugins_url( '/dist/js/gutenberg-status-plugin.min.js', __DIR__ ), [ 'wp-blocks', 'wp-edit-post' ], DT_VERSION, true );
+	wp_enqueue_script( 'dt-gutenberg-plugin', plugins_url( '/dist/js/gutenberg-plugin.min.js', __DIR__ ), [ 'wp-blocks', 'wp-components', 'wp-data', 'wp-element', 'wp-edit-post', 'wp-i18n', 'wp-plugins' ], DT_VERSION, true );
 
 	wp_localize_script(
 		'dt-gutenberg-syndicated-post',
@@ -584,6 +584,9 @@ function enqueue_gutenberg_edit_scripts() {
 			'originalLocationName' => sanitize_text_field( $original_location_name ),
 			'unlinkNonceUrl'       => wp_nonce_url( add_query_arg( 'action', 'unlink', admin_url( sprintf( $post_type_object->_edit_link, $post->ID ) ) ), "unlink-post_{$post->ID}" ),
 			'linkNonceUrl'         => wp_nonce_url( add_query_arg( 'action', 'link', admin_url( sprintf( $post_type_object->_edit_link, $post->ID ) ) ), "link-post_{$post->ID}" ),
+			'supportedPostTypes'   => \Distributor\Utils\distributable_post_types(),
+			'supportedPostStati'   => \Distributor\Utils\distributable_post_statuses(),
+			'noPermissions'        => ! is_user_logged_in() || ! current_user_can( apply_filters( 'dt_syndicatable_capabilities', 'edit_posts' ) ),
 		]
 	);
 }

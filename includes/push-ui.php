@@ -542,7 +542,7 @@ function menu_content() {
 	$original_blog_id = get_post_meta( $post->ID, 'dt_original_blog_id', true );
 	$original_post_id = get_post_meta( $post->ID, 'dt_original_post_id', true );
 
-	if ( ! empty( $original_blog_id ) && ! empty( $original_post_id ) && ! $unlinked ) {
+	if ( ! empty( $original_blog_id ) && ! empty( $original_post_id ) && ! $unlinked && is_multisite() ) {
 		switch_to_blog( $original_blog_id );
 		$post_url  = get_permalink( $original_post_id );
 		$site_url  = home_url();
