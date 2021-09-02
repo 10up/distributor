@@ -6,7 +6,7 @@ All notable changes to this project will be documented in this file, per [the Ke
 
 ## [1.6.5] - 2021-09-01
 ### Added
-- Better support for the Block Editor's fullscreen mode via a new Distributor panel with a toggle option (props [@dkotter](https://github.com/dkotter), [@dinhtungdu](https://github.com/dinhtungdu), [@helen](https://github.com/helen), [@jeffpaul](https://github.com/jeffpaul) via [#750](https://github.com/10up/distributor/pull/750)) and [#790](https://github.com/10up/distributor/pull/790)).
+- Better support for the Block Editor's fullscreen mode via a new Distributor panel with a toggle option (props [@dkotter](https://github.com/dkotter), [@dinhtungdu](https://github.com/dinhtungdu), [@helen](https://github.com/helen), [@jeffpaul](https://github.com/jeffpaul) via [#750](https://github.com/10up/distributor/pull/750), [#790](https://github.com/10up/distributor/pull/790)).
 - `Update URI` header to ensure only legitimate Distributor updates are applied to this install (props [@jeffpaul](https://github.com/jeffpaul) via [#778](https://github.com/10up/distributor/pull/778)).
 - Issue management automation via GitHub Actions (props [@jeffpaul](https://github.com/jeffpaul) [#782](https://github.com/10up/distributor/pull/782)).
 
