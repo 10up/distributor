@@ -127,8 +127,41 @@ class NetworkSiteConnection extends Connection {
 				update_post_meta( $new_post_id, 'dt_original_post_parent', (int) $post->post_parent );
 			}
 
-			Utils\set_meta( $new_post_id, $post->meta );
-			Utils\set_taxonomy_terms( $new_post_id, $post->terms );
+			/**
+			 * Allow bypassing of all meta processing.
+			 *
+			 * @hook dt_push_post_meta
+			 *
+			 * @param {bool}       true           If Distributor should push the post meta.
+			 * @param {int}        $new_post_id   The newly created post ID.
+			 * @param {array}      $terms         Meta attached to the post, formatted by {@link \Distributor\Utils\prepare_meta()}.
+			 * @param {int}        $post_id       The original post ID.
+			 * @param {array}      $args          The arguments passed into wp_insert_post.
+			 * @param {Connection} $this          The distributor connection being pushed to.
+			 *
+			 * @return {bool} If Distributor should push the post meta.
+			 */
+			if ( apply_filters( 'dt_push_post_meta', true, $new_post_id, $post->meta, $post_id, $args, $this ) ) {
+				Utils\set_meta( $new_post_id, $post->meta );
+			}
+
+			/**
+			 * Allow bypassing of all term processing.
+			 *
+			 * @hook dt_push_post_terms
+			 *
+			 * @param {bool}       true           If Distributor should push the post terms.
+			 * @param {int}        $new_post_id   The newly created post ID.
+			 * @param {array}      $terms         Terms attached to the post, formatted by {@link \Distributor\Utils\prepare_taxonomy_terms()}.
+			 * @param {int}        $post_id       The original post ID.
+			 * @param {array}      $args          The arguments passed into wp_insert_post.
+			 * @param {Connection} $this          The distributor connection being pushed to.
+			 *
+			 * @return {bool} If Distributor should push the post terms.
+			 */
+			if ( apply_filters( 'dt_push_post_terms', true, $new_post_id, $post->terms, $post_id, $args, $this ) ) {
+				Utils\set_taxonomy_terms( $new_post_id, $post->terms );
+			}
 
 			/**
 			 * Allow bypassing of all media processing.
