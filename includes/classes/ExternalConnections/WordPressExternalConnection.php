@@ -454,11 +454,17 @@ class WordPressExternalConnection extends ExternalConnection {
 			}
 
 			if ( ! empty( $post_array['meta'] ) ) {
-				\Distributor\Utils\set_meta( $new_post, $post_array['meta'] );
+				// Filter documented in includes/classes/InternalConnections/NetworkSiteConnection.php.
+				if ( apply_filters( 'dt_pull_post_meta', true, $new_post, $post_array['meta'], $item_array['remote_post_id'], $post_array, $this ) ) {
+					\Distributor\Utils\set_meta( $new_post, $post_array['meta'] );
+				}
 			}
 
 			if ( ! empty( $post_array['terms'] ) ) {
-				\Distributor\Utils\set_taxonomy_terms( $new_post, $post_array['terms'] );
+				// Filter documented in includes/classes/InternalConnections/NetworkSiteConnection.php.
+				if ( apply_filters( 'dt_pull_post_terms', true, $new_post, $post_array['terms'], $item_array['remote_post_id'], $post_array, $this ) ) {
+					\Distributor\Utils\set_taxonomy_terms( $new_post, $post_array['terms'] );
+				}
 			}
 
 			if ( ! empty( $post_array['media'] ) ) {
