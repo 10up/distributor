@@ -594,6 +594,7 @@ function menu_content() {
 				<div class="loader-messages messages">
 					<div class="dt-error">
 						<?php esc_html_e( 'There was an issue loading connections.', 'distributor' ); ?>
+						<ul class="details"></ul>
 					</div>
 				</div>
 			</div>
