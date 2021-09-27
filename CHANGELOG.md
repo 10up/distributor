@@ -8,6 +8,9 @@ All notable changes to this project will be documented in this file, per [the Ke
 ### Added
 - Add filters to control terms and meta distribution for internal connections: `dt_push_post_meta` and `dt_push_post_terms` (props [@dinhtungdu](https://github.com/dinhtungdu), [@dkotter](https://github.com/dkotter) via [#800](https://github.com/10up/distributor/pull/800)).
 
+### Fixed
+- Ensure error messages are shown properly if an error happens during a push (props [@dkotter](https://github.com/dkotter), [@Drmzindec](https://github.com/Drmzindec) via [#803](https://github.com/10up/distributor/pull/803)).
+
 ## [1.6.5] - 2021-09-01
 ### Added
 - Better support for the Block Editor's fullscreen mode via a new Distributor panel with a toggle option (props [@dkotter](https://github.com/dkotter), [@dinhtungdu](https://github.com/dinhtungdu), [@helen](https://github.com/helen), [@jeffpaul](https://github.com/jeffpaul) via [#750](https://github.com/10up/distributor/pull/750), [#790](https://github.com/10up/distributor/pull/790)).
