@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file, per [the Ke
 
 ## [Unreleased] - TBD
 
-## [1.6.6] - 2021-09-27
+## [1.6.6] - 2021-09-28
 ### Added
 - Add filters to control terms and meta distribution for internal connections: `dt_push_post_meta` and `dt_push_post_terms` (props [@dinhtungdu](https://github.com/dinhtungdu), [@dkotter](https://github.com/dkotter) via [#800](https://github.com/10up/distributor/pull/800)).
 
