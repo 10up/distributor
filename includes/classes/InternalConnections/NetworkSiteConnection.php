@@ -127,8 +127,41 @@ class NetworkSiteConnection extends Connection {
 				update_post_meta( $new_post_id, 'dt_original_post_parent', (int) $post->post_parent );
 			}
 
-			Utils\set_meta( $new_post_id, $post->meta );
-			Utils\set_taxonomy_terms( $new_post_id, $post->terms );
+			/**
+			 * Allow bypassing of all meta processing.
+			 *
+			 * @hook dt_push_post_meta
+			 *
+			 * @param {bool}       true           If Distributor should push the post meta.
+			 * @param {int}        $new_post_id   The newly created post ID.
+			 * @param {array}      $terms         Meta attached to the post, formatted by {@link \Distributor\Utils\prepare_meta()}.
+			 * @param {int}        $post_id       The original post ID.
+			 * @param {array}      $args          The arguments passed into wp_insert_post.
+			 * @param {Connection} $this          The distributor connection being pushed to.
+			 *
+			 * @return {bool} If Distributor should push the post meta.
+			 */
+			if ( apply_filters( 'dt_push_post_meta', true, $new_post_id, $post->meta, $post_id, $args, $this ) ) {
+				Utils\set_meta( $new_post_id, $post->meta );
+			}
+
+			/**
+			 * Allow bypassing of all term processing.
+			 *
+			 * @hook dt_push_post_terms
+			 *
+			 * @param {bool}       true           If Distributor should push the post terms.
+			 * @param {int}        $new_post_id   The newly created post ID.
+			 * @param {array}      $terms         Terms attached to the post, formatted by {@link \Distributor\Utils\prepare_taxonomy_terms()}.
+			 * @param {int}        $post_id       The original post ID.
+			 * @param {array}      $args          The arguments passed into wp_insert_post.
+			 * @param {Connection} $this          The distributor connection being pushed to.
+			 *
+			 * @return {bool} If Distributor should push the post terms.
+			 */
+			if ( apply_filters( 'dt_push_post_terms', true, $new_post_id, $post->terms, $post_id, $args, $this ) ) {
+				Utils\set_taxonomy_terms( $new_post_id, $post->terms );
+			}
 
 			/**
 			 * Allow bypassing of all media processing.
@@ -248,8 +281,41 @@ class NetworkSiteConnection extends Connection {
 					update_post_meta( $new_post_id, 'dt_original_post_parent', (int) $post->post_parent );
 				}
 
-				\Distributor\Utils\set_meta( $new_post_id, $post->meta );
-				\Distributor\Utils\set_taxonomy_terms( $new_post_id, $post->terms );
+				/**
+				 * Allow bypassing of all meta processing.
+				 *
+				 * @hook dt_pull_post_meta
+				 *
+				 * @param {bool}                  true            If Distributor should set the post meta.
+				 * @param {int}                   $new_post_id    The newly created post ID.
+				 * @param {array}                 $post->meta    List of meta items attached to the post, formatted by {@link \Distributor\Utils\prepare_meta()}.
+				 * @param {int}                   $remote_post_id The original post ID.
+				 * @param {array}                 $post_array     The arguments passed into wp_insert_post.
+				 * @param {NetworkSiteConnection} $this           The Distributor connection being pulled from.
+				 *
+				 * @return {bool} If Distributor should set the post meta.
+				 */
+				if ( apply_filters( 'dt_pull_post_meta', true, $new_post_id, $post->meta, $item_array['remote_post_id'], $post_array, $this ) ) {
+					\Distributor\Utils\set_meta( $new_post_id, $post->meta );
+				}
+
+				/**
+				 * Allow bypassing of all terms processing.
+				 *
+				 * @hook dt_pull_post_terms
+				 *
+				 * @param {bool}                  true            If Distributor should set the post terms.
+				 * @param {int}                   $new_post_id    The newly created post ID.
+				 * @param {array}                 $post->terms    List of terms items attached to the post, formatted by {@link \Distributor\Utils\prepare_taxonomy_terms()}.
+				 * @param {int}                   $remote_post_id The original post ID.
+				 * @param {array}                 $post_array     The arguments passed into wp_insert_post.
+				 * @param {NetworkSiteConnection} $this           The Distributor connection being pulled from.
+				 *
+				 * @return {bool} If Distributor should set the post terms.
+				 */
+				if ( apply_filters( 'dt_pull_post_terms', true, $new_post_id, $post->terms, $item_array['remote_post_id'], $post_array, $this ) ) {
+					\Distributor\Utils\set_taxonomy_terms( $new_post_id, $post->terms );
+				}
 
 				/**
 				 * Allow bypassing of all media processing.
