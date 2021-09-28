@@ -80,6 +80,7 @@
 			</div>
 			<div class="dt-error">
 				<?php esc_html_e( 'There were some issues distributing the post.', 'distributor' ); ?>
+				<ul class="details"></ul>
 			</div>
 		</div>
 
