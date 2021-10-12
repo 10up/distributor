@@ -547,8 +547,8 @@ function meta_box_external_connection_details( $post ) {
 						?>
 						<tr>
 							<td><?php echo esc_html( $post_type->label ); ?></td>
-							<td><?php echo in_array( $post_type->name, $external_connection_status['can_get'] ) ? esc_html__( 'Yes', 'distributor' ) : esc_html__( 'No', 'distributor' ); ?></td>
-							<td><?php echo in_array( $post_type->name, $external_connection_status['can_post'] ) ? esc_html__( 'Yes', 'distributor' ) : esc_html__( 'No', 'distributor' ); ?></td>
+							<td><?php echo in_array( $post_type->name, $external_connection_status['can_get'], true ) ? esc_html__( 'Yes', 'distributor' ) : esc_html__( 'No', 'distributor' ); ?></td>
+							<td><?php echo in_array( $post_type->name, $external_connection_status['can_post'], true ) ? esc_html__( 'Yes', 'distributor' ) : esc_html__( 'No', 'distributor' ); ?></td>
 						</tr>
 					<?php endforeach; ?>
 				</tbody>

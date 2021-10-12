@@ -621,7 +621,8 @@ class PullListTable extends \WP_List_Table {
 				<input type="submit" name="filter_action" id="pull_post_type_submit" class="button" value="<?php esc_attr_e( 'Filter', 'distributor' ); ?>">
 
 				<?php
-				if ( empty( $_GET['status'] ) || 'pulled' !== $_GET['status'] ) :
+				$status = filter_input( INPUT_GET, 'status', FILTER_SANITIZE_STRING );
+				if ( empty( $status ) || 'pulled' !== $status ) :
 					// Filter documented above.
 					$as_draft = apply_filters( 'dt_pull_as_draft', true, $connection_now );
 					?>

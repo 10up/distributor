@@ -915,7 +915,7 @@ function process_media( $url, $post_id, $args = [] ) {
 	}
 
 	// Make sure we clean up.
-	@unlink( $file_array['tmp_name'] );
+	@unlink( $file_array['tmp_name'] ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
 
 	if ( $save_source_file_path ) {
 		update_post_meta( $result, 'dt_original_file_path', sanitize_text_field( $source_file ) );

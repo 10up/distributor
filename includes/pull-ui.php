@@ -556,7 +556,8 @@ function dashboard() {
 function output_pull_errors() {
 	global $connection_now;
 
-	if ( empty( $_GET['connection_id'] ) ) {
+	$connection_id = filter_input( INPUT_GET, 'connection_id', FILTER_SANITIZE_NUMBER_INT );
+	if ( empty( $connection_id ) ) {
 		return;
 	}
 
