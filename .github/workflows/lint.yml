@@ -46,3 +46,16 @@ jobs:
       uses: chekalsky/phpcs-action@v1
       with:
         phpcs_bin_path: './vendor/bin/phpcs .'
+  vipcs:
+    name: vipcs
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: VIPCS check
+        uses: 10up/wpcs-action@master
+        with:
+          enable_warnings: true
+          standard: 'WordPress-VIP-Go'
+          is_vipcs: true
+          excludes: 'tests'
