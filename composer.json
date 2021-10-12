@@ -40,7 +40,8 @@
     "10up/wpacceptance": "dev-master",
     "10up/wp_mock": "~0.4",
     "phpunit/phpunit": "~7.5",
-    "10up/phpcs-composer": "dev-master"
+    "10up/phpcs-composer": "dev-master",
+    "automattic/vipwpcs": "^2.3"
   },
   "scripts": {
     "lint": "phpcs .",

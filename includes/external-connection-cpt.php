@@ -247,8 +247,10 @@ function ajax_verify_external_connection() {
 
 	$auth_handler = new $external_connection_class::$auth_handler_class( $auth );
 
+	$url = filter_input( INPUT_POST, 'url', FILTER_VALIDATE_URL );
+
 	// Init with placeholders since we haven't created yet
-	$external_connection = new $external_connection_class( 'connection-test', esc_url( $_POST['url'] ), 0, $auth_handler );
+	$external_connection = new $external_connection_class( 'connection-test', $url, 0, $auth_handler );
 
 	$external_connections = $external_connection->check_connections();
 
@@ -812,7 +814,8 @@ function get_remote_distributor_info() {
 		exit;
 	}
 
-	$rest_url = get_rest_url( esc_url( $_POST['url'] ) );
+	$url      = filter_input( INPUT_POST, 'url', FILTER_VALIDATE_URL );
+	$rest_url = get_rest_url( $url );
 
 	if ( is_wp_error( $rest_url ) ) {
 		wp_send_json_error( $rest_url );

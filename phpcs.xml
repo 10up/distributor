@@ -2,4 +2,6 @@
 <ruleset name="Project Rules">
 	<rule ref="10up-Default">
 	</rule>
+	<rule ref="WordPress-VIP-Go">
+	</rule>
 </ruleset>
