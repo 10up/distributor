@@ -53,9 +53,8 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
       - name: VIPCS check
-        uses: 10up/wpcs-action@master
+        uses: 10up/wpcs-action@v1.3.2
         with:
           enable_warnings: true
           standard: 'WordPress-VIP-Go'
-          is_vipcs: true
           excludes: 'tests'
