@@ -145,7 +145,7 @@ class WordPressExternalConnection extends ExternalConnection {
 
 				$query_args['include'] = $args['post__in'];
 			} elseif ( isset( $args['post__not_in'] ) ) {
-				$query_args['exclude'] = $args['post__not_in'];
+				$query_args['exclude'] = $args['post__not_in']; // phpcs:ignore WordPressVIPMinimum.Performance.WPQueryParams.PostNotIn_exclude
 			}
 
 			if ( ! empty( $args['s'] ) ) {
@@ -191,7 +191,7 @@ class WordPressExternalConnection extends ExternalConnection {
 					$this->auth_handler->format_get_args()
 				);
 			} else {
-				$types_response = wp_remote_get(
+				$types_response = wp_remote_get( // phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.wp_remote_get_wp_remote_get
 					$types_path,
 					$this->auth_handler->format_get_args( array( 'timeout' => self::$timeout ) )
 				);
@@ -310,7 +310,7 @@ class WordPressExternalConnection extends ExternalConnection {
 				$this->auth_handler->format_get_args()
 			);
 		} else {
-			$posts_response = wp_remote_get( apply_filters( 'dt_remote_get_url', $posts_url, $args, $this ), $this->auth_handler->format_get_args( array( 'timeout' => 45 ) ) );
+			$posts_response = wp_remote_get( apply_filters( 'dt_remote_get_url', $posts_url, $args, $this ), $this->auth_handler->format_get_args( array( 'timeout' => 45 ) ) ); // phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.wp_remote_get_wp_remote_get, WordPressVIPMinimum.Performance.RemoteRequestTimeout.timeout_timeout
 		}
 
 		if ( is_wp_error( $posts_response ) ) {
@@ -519,7 +519,7 @@ class WordPressExternalConnection extends ExternalConnection {
 				$this->auth_handler->format_get_args()
 			);
 		} else {
-			$response = wp_remote_get(
+			$response = wp_remote_get( // phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.wp_remote_get_wp_remote_get
 				$types_path,
 				$this->auth_handler->format_get_args(
 					array(
@@ -596,7 +596,7 @@ class WordPressExternalConnection extends ExternalConnection {
 					$this->auth_handler->format_get_args()
 				);
 			} else {
-				$post_exists_response = wp_remote_get( $existing_post_url, $this->auth_handler->format_get_args( array( 'timeout' => self::$timeout ) ) );
+				$post_exists_response = wp_remote_get( $existing_post_url, $this->auth_handler->format_get_args( array( 'timeout' => self::$timeout ) ) ); // phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.wp_remote_get_wp_remote_get
 			}
 
 			if ( ! is_wp_error( $post_exists_response ) ) {
@@ -700,7 +700,7 @@ class WordPressExternalConnection extends ExternalConnection {
 				$this->auth_handler->format_get_args()
 			);
 		} else {
-			$types_response = wp_remote_get(
+			$types_response = wp_remote_get( // phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.wp_remote_get_wp_remote_get
 				$types_path,
 				$this->auth_handler->format_get_args( array( 'timeout' => self::$timeout ) )
 			);
@@ -749,7 +749,7 @@ class WordPressExternalConnection extends ExternalConnection {
 				$this->auth_handler->format_get_args()
 			);
 		} else {
-			$response = wp_remote_get( untrailingslashit( $this->base_url ), $this->auth_handler->format_get_args( array( 'timeout' => self::$timeout ) ) );
+			$response = wp_remote_get( untrailingslashit( $this->base_url ), $this->auth_handler->format_get_args( array( 'timeout' => self::$timeout ) ) ); // phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.wp_remote_get_wp_remote_get
 		}
 
 		$body = wp_remote_retrieve_body( $response );
@@ -804,7 +804,7 @@ class WordPressExternalConnection extends ExternalConnection {
 				$this->auth_handler->format_get_args()
 			);
 		} else {
-			$types_response = wp_remote_get( $types_path, $this->auth_handler->format_get_args( array( 'timeout' => self::$timeout ) ) );
+			$types_response = wp_remote_get( $types_path, $this->auth_handler->format_get_args( array( 'timeout' => self::$timeout ) ) ); // phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.wp_remote_get_wp_remote_get
 		}
 
 		$types_body = wp_remote_retrieve_body( $types_response );
@@ -828,7 +828,7 @@ class WordPressExternalConnection extends ExternalConnection {
 					$this->auth_handler->format_get_args()
 				);
 			} else {
-				$permission_response = wp_remote_get(
+				$permission_response = wp_remote_get( // phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.wp_remote_get_wp_remote_get
 					$permission_url,
 					$this->auth_handler->format_get_args(
 						array(

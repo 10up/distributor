@@ -12,7 +12,7 @@
 		<# if ('internal' === connection.type) { #>
 			<span>{{ connection.url }}</span>
 		<# } else { #>
-			<span>{{{ connection.name }}}</span>
+			<span>{{{ connection.name }}}</span> <?php // phpcs:ignore WordPressVIPMinimum.Security.Mustache.OutputNotation ?>
 		<# } #>
 
 		<# if (connection.syndicated) { #>

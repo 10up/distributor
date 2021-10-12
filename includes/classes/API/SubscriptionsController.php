@@ -143,10 +143,10 @@ class SubscriptionsController extends \WP_REST_Controller {
 		if ( ! empty( $GLOBALS['wp']->query_vars['rest_route'] ) ) {
 			$path = $GLOBALS['wp']->query_vars['rest_route'];
 		} else {
-			$path = $_SERVER['REQUEST_URI'];
+			$path = $_SERVER['REQUEST_URI']; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.ValidatedSanitizedInput.InputNotValidated
 		}
 
-		$request = new \WP_REST_Request( $_SERVER['REQUEST_METHOD'], $path );
+		$request = new \WP_REST_Request( $_SERVER['REQUEST_METHOD'], $path ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.ValidatedSanitizedInput.InputNotValidated
 		$request->set_body_params( wp_unslash( $_POST ) ); // phpcs:ignore
 
 		// If this is not a subscription request, return the original value.

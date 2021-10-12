@@ -7,6 +7,8 @@
 
 namespace Distributor\PushUI;
 
+use function Aws\filter;
+
 /**
  * Setup actions and filters
  *
@@ -227,17 +229,23 @@ function ajax_push() {
 		exit;
 	}
 
-	if ( empty( $_POST['postId'] ) ) {
+	$post_id = filter_input( INPUT_POST, 'postId', FILTER_VALIDATE_INT );
+
+	if ( empty( $post_id ) ) {
 		wp_send_json_error( new \WP_Error( 'no-post-id', __( 'No post ID provided.', 'distributor' ) ) );
 		exit;
 	}
 
-	if ( empty( $_POST['connections'] ) ) {
+	$connections = filter_input( INPUT_POST, 'connections', FILTER_REQUIRE_ARRAY );
+
+	if ( empty( $connections ) ) {
 		wp_send_json_error( new \WP_Error( 'no-connection', __( 'No connection provided.', 'distributor' ) ) );
 		exit;
 	}
 
-	$connection_map = get_post_meta( intval( $_POST['postId'] ), 'dt_connection_map', true );
+	$post_status = filter_input( INPUT_POST, 'postStatus', FILTER_SANITIZE_STRING );
+
+	$connection_map = get_post_meta( $post_id, 'dt_connection_map', true );
 	if ( empty( $connection_map ) ) {
 		$connection_map = array();
 	}
@@ -253,7 +261,7 @@ function ajax_push() {
 	$external_push_results = array();
 	$internal_push_results = array();
 
-	foreach ( $_POST['connections'] as $connection ) {
+	foreach ( $connections as $connection ) {
 		if ( 'external' === $connection['type'] ) {
 			$external_connection_type = get_post_meta( $connection['id'], 'dt_external_connection_type', true );
 			$external_connection_url  = get_post_meta( $connection['id'], 'dt_external_connection_url', true );
@@ -276,11 +284,11 @@ function ajax_push() {
 					$push_args['remote_post_id'] = (int) $connection_map['external'][ (int) $connection['id'] ]['post_id'];
 				}
 
-				if ( ! empty( $_POST['postStatus'] ) ) {
-					$push_args['post_status'] = $_POST['postStatus'];
+				if ( ! empty( $post_status ) ) {
+					$push_args['post_status'] = $post_status;
 				}
 
-				$remote_post = $external_connection->push( intval( $_POST['postId'] ), $push_args );
+				$remote_post = $external_connection->push( $post_id, $push_args );
 
 				/**
 				 * Record the external connection id's remote post id for this local post
@@ -304,7 +312,7 @@ function ajax_push() {
 						'errors'  => empty( $remote_post['push-errors'] ) ? array() : $remote_post['push-errors'],
 					);
 
-					$external_connection->log_sync( array( (int) $remote_post['id'] => $_POST['postId'] ) );
+					$external_connection->log_sync( array( (int) $remote_post['id'] => $post_id ) );
 				} else {
 					$external_push_results[ (int) $connection['id'] ] = array(
 						'date'   => gmdate( 'F j, Y g:i a' ),
@@ -321,11 +329,11 @@ function ajax_push() {
 				$push_args['remote_post_id'] = (int) $connection_map['internal'][ (int) $connection['id'] ]['post_id'];
 			}
 
-			if ( ! empty( $_POST['postStatus'] ) ) {
-				$push_args['post_status'] = esc_attr( $_POST['postStatus'] );
+			if ( ! empty( $post_status ) ) {
+				$push_args['post_status'] = $post_status;
 			}
 
-			$remote_post = $internal_connection->push( intval( $_POST['postId'] ), $push_args );
+			$remote_post = $internal_connection->push( $post_id, $push_args );
 
 			/**
 			 * Record the internal connection id's remote post id for this local post
@@ -334,7 +342,7 @@ function ajax_push() {
 				$origin_site = get_current_blog_id();
 				switch_to_blog( intval( $connection['id'] ) );
 				$remote_url = get_permalink( $remote_post['id'] );
-				$internal_connection->log_sync( array( $_POST['postId'] => $remote_post['id'] ), $origin_site );
+				$internal_connection->log_sync( array( $post_id => $remote_post['id'] ), $origin_site );
 				restore_current_blog();
 
 				$connection_map['internal'][ (int) $connection['id'] ] = array(
@@ -359,7 +367,7 @@ function ajax_push() {
 		}
 	}
 
-	update_post_meta( intval( $_POST['postId'] ), 'dt_connection_map', $connection_map );
+	update_post_meta( $post_id, 'dt_connection_map', $connection_map );
 
 	wp_send_json_success(
 		array(

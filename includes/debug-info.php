@@ -221,7 +221,7 @@ function get_external_connection_version( $url ) {
 	if ( function_exists( 'vip_safe_wp_remote_get' ) && \Distributor\Utils\is_vip_com() ) {
 		$response = vip_safe_wp_remote_get( $route, false, 3, 3, 10 );
 	} else {
-		$response = wp_remote_get( $route, [ 'timeout' => 5 ] );
+		$response = wp_remote_get( $route, [ 'timeout' => 5 ] ); // phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.wp_remote_get_wp_remote_get, WordPressVIPMinimum.Performance.RemoteRequestTimeout.timeout_timeout
 	}
 
 	$body = json_decode( wp_remote_retrieve_body( $response ), true );

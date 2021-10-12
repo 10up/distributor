@@ -37,19 +37,19 @@ function setup_list_table() {
 	if ( ! empty( $_COOKIE['dt-skipped'] ) ) {
 		$dt_pull_messages['skipped'] = 1;
 
-		setcookie( 'dt-skipped', 1, time() - 60, ADMIN_COOKIE_PATH, COOKIE_DOMAIN, is_ssl() );
+		setcookie( 'dt-skipped', 1, time() - 60, ADMIN_COOKIE_PATH, COOKIE_DOMAIN, is_ssl() ); // phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.cookies_setcookie
 	} elseif ( ! empty( $_COOKIE['dt-unskipped'] ) ) {
 		$dt_pull_messages['unskipped'] = 1;
 
-		setcookie( 'dt-unskipped', 1, time() - 60, ADMIN_COOKIE_PATH, COOKIE_DOMAIN, is_ssl() );
+		setcookie( 'dt-unskipped', 1, time() - 60, ADMIN_COOKIE_PATH, COOKIE_DOMAIN, is_ssl() ); // phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.cookies_setcookie
 	} elseif ( ! empty( $_COOKIE['dt-syndicated'] ) ) {
 		$dt_pull_messages['syndicated'] = 1;
 
-		setcookie( 'dt-syndicated', 1, time() - 60, ADMIN_COOKIE_PATH, COOKIE_DOMAIN, is_ssl() );
+		setcookie( 'dt-syndicated', 1, time() - 60, ADMIN_COOKIE_PATH, COOKIE_DOMAIN, is_ssl() ); // phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.cookies_setcookie
 	} elseif ( ! empty( $_COOKIE['dt-duplicated'] ) ) {
 		$dt_pull_messages['duplicated'] = 1;
 
-		setcookie( 'dt-duplicated', 1, time() - 60, ADMIN_COOKIE_PATH, COOKIE_DOMAIN, is_ssl() );
+		setcookie( 'dt-duplicated', 1, time() - 60, ADMIN_COOKIE_PATH, COOKIE_DOMAIN, is_ssl() ); // phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.cookies_setcookie
 	}
 
 	$external_connections = new \WP_Query(
@@ -198,10 +198,12 @@ function process_actions() {
 	global $connection_list_table;
 	global $dt_pull_messages;
 
+	$nonce = filter_input( INPUT_GET, '_wpnonce', FILTER_SANITIZE_STRING );
+
 	switch ( $connection_list_table->current_action() ) {
 		case 'syndicate':
 		case 'bulk-syndicate':
-			if ( ! wp_verify_nonce( $_GET['_wpnonce'], 'bulk-distributor_page_pull' ) ) {
+			if ( ! wp_verify_nonce( $nonce, 'bulk-distributor_page_pull' ) ) {
 				exit;
 			}
 
@@ -214,12 +216,15 @@ function process_actions() {
 				);
 			}
 
-			if ( empty( $_GET['connection_type'] ) || empty( $_GET['connection_id'] ) || empty( $_GET['post'] ) ) {
+			$connection_type = filter_input( INPUT_GET, 'connection_type', FILTER_SANITIZE_STRING );
+			$connection_id   = filter_input( INPUT_GET, 'connection_id', FILTER_VALIDATE_INT );
+			$posts           = filter_input( INPUT_GET, 'post', FILTER_REQUIRE_ARRAY );
+
+			if ( empty( $connection_type ) || empty( $connection_id ) || empty( $posts ) ) {
 				break;
 			}
 
-			$posts       = (array) $_GET['post'];
-			$post_type   = sanitize_text_field( $_GET['pull_post_type'] );
+			$post_type   = filter_input( INPUT_GET, 'pull_post_type', FILTER_SANITIZE_STRING );
 			$post_status = ! empty( $_GET['dt_as_draft'] ) && 'draft' === $_GET['dt_as_draft'] ? 'draft' : '';
 
 			$posts = array_map(
@@ -233,8 +238,8 @@ function process_actions() {
 				$posts
 			);
 
-			if ( 'external' === $_GET['connection_type'] ) {
-				$connection = \Distributor\ExternalConnection::instantiate( intval( $_GET['connection_id'] ) );
+			if ( 'external' === $connection_type ) {
+				$connection = \Distributor\ExternalConnection::instantiate( $connection_id );
 				$new_posts  = $connection->pull( $posts );
 				$error_key  = "external_{$connection->id}";
 
@@ -245,7 +250,7 @@ function process_actions() {
 					\Distributor\Subscriptions\create_remote_subscription( $connection, $post_array['remote_post_id'], $new_posts[ $key ] );
 				}
 			} else {
-				$site       = get_site( intval( $_GET['connection_id'] ) );
+				$site       = get_site( $connection_id );
 				$connection = new \Distributor\InternalConnections\NetworkSiteConnection( $site );
 				$new_posts  = $connection->pull( $posts );
 				$error_key  = "internal_{$connection->site->blog_id}";
@@ -276,11 +281,11 @@ function process_actions() {
 			$connection->log_sync( $post_id_mappings );
 
 			if ( empty( $dt_pull_messages['duplicated'] ) ) {
-				setcookie( 'dt-syndicated', 1, time() + DAY_IN_SECONDS, ADMIN_COOKIE_PATH, COOKIE_DOMAIN, is_ssl() );
+				setcookie( 'dt-syndicated', 1, time() + DAY_IN_SECONDS, ADMIN_COOKIE_PATH, COOKIE_DOMAIN, is_ssl() ); // phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.cookies_setcookie
 			}
 
 			if ( ! empty( $dt_pull_messages['duplicated'] ) ) {
-				setcookie( 'dt-duplicated', 1, time() + DAY_IN_SECONDS, ADMIN_COOKIE_PATH, COOKIE_DOMAIN, is_ssl() );
+				setcookie( 'dt-duplicated', 1, time() + DAY_IN_SECONDS, ADMIN_COOKIE_PATH, COOKIE_DOMAIN, is_ssl() ); // phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.cookies_setcookie
 			}
 
 			// Redirect to the pulled content tab
@@ -288,7 +293,7 @@ function process_actions() {
 			exit;
 		case 'bulk-skip':
 		case 'skip':
-			if ( ! wp_verify_nonce( $_GET['_wpnonce'], 'dt_skip' ) && ! wp_verify_nonce( $_GET['_wpnonce'], 'bulk-distributor_page_pull' ) ) {
+			if ( ! wp_verify_nonce( $nonce, 'dt_skip' ) && ! wp_verify_nonce( $nonce, 'bulk-distributor_page_pull' ) ) {
 				exit;
 			}
 
@@ -301,18 +306,21 @@ function process_actions() {
 				);
 			}
 
-			if ( empty( $_GET['connection_type'] ) || empty( $_GET['connection_id'] ) || empty( $_GET['post'] ) ) {
+			$connection_type = filter_input( INPUT_GET, 'connection_type', FILTER_SANITIZE_STRING );
+			$connection_id   = filter_input( INPUT_GET, 'connection_id', FILTER_VALIDATE_INT );
+			$posts           = filter_input( INPUT_GET, 'post', FILTER_REQUIRE_ARRAY );
+
+			if ( empty( $connection_type ) || empty( $connection_id ) || empty( $posts ) ) {
 				break;
 			}
 
-			if ( 'external' === $_GET['connection_type'] ) {
-				$connection = \Distributor\ExternalConnection::instantiate( intval( $_GET['connection_id'] ) );
+			if ( 'external' === $connection_type ) {
+				$connection = \Distributor\ExternalConnection::instantiate( $connection_id );
 			} else {
-				$site       = get_site( intval( $_GET['connection_id'] ) );
+				$site       = get_site( $connection_id );
 				$connection = new \Distributor\InternalConnections\NetworkSiteConnection( $site );
 			}
 
-			$posts = $_GET['post'];
 			if ( ! is_array( $posts ) ) {
 				$posts = [ $posts ];
 			}
@@ -325,14 +333,14 @@ function process_actions() {
 
 			$connection->log_sync( $post_mapping );
 
-			setcookie( 'dt-skipped', 1, time() + DAY_IN_SECONDS, ADMIN_COOKIE_PATH, COOKIE_DOMAIN, is_ssl() );
+			setcookie( 'dt-skipped', 1, time() + DAY_IN_SECONDS, ADMIN_COOKIE_PATH, COOKIE_DOMAIN, is_ssl() ); // phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.cookies_setcookie
 
 			// Redirect to the skipped content tab
 			wp_safe_redirect( add_query_arg( 'status', 'skipped', wp_get_referer() ) );
 			exit;
 		case 'bulk-unskip':
 		case 'unskip':
-			if ( ! wp_verify_nonce( $_GET['_wpnonce'], 'dt_unskip' ) && ! wp_verify_nonce( $_GET['_wpnonce'], 'bulk-distributor_page_pull' ) ) {
+			if ( ! wp_verify_nonce( $nonce, 'dt_unskip' ) && ! wp_verify_nonce( $nonce, 'bulk-distributor_page_pull' ) ) {
 				exit;
 			}
 
@@ -345,23 +353,26 @@ function process_actions() {
 				);
 			}
 
-			if ( empty( $_GET['connection_type'] ) || empty( $_GET['connection_id'] ) || empty( $_GET['post'] ) ) {
+			$connection_type = filter_input( INPUT_GET, 'connection_type', FILTER_SANITIZE_STRING );
+			$connection_id   = filter_input( INPUT_GET, 'connection_id', FILTER_VALIDATE_INT );
+			$posts           = filter_input( INPUT_GET, 'post', FILTER_REQUIRE_ARRAY );
+
+			if ( empty( $connection_type ) || empty( $connection_id ) || empty( $posts ) ) {
 				break;
 			}
 
-			if ( 'external' === $_GET['connection_type'] ) {
-				$connection = \Distributor\ExternalConnection::instantiate( intval( $_GET['connection_id'] ) );
+			if ( 'external' === $connection_type ) {
+				$connection = \Distributor\ExternalConnection::instantiate( $connection_id );
 			} else {
-				$site       = get_site( intval( $_GET['connection_id'] ) );
+				$site       = get_site( $connection_id );
 				$connection = new \Distributor\InternalConnections\NetworkSiteConnection( $site );
 			}
 
-			$posts = $_GET['post'];
 			if ( ! is_array( $posts ) ) {
 				$posts = [ $posts ];
 			}
 
-			$sync_log = $connection->get_sync_log( intval( $_GET['connection_id'] ) );
+			$sync_log = $connection->get_sync_log( $connection_id );
 
 			foreach ( $posts as $post_id ) {
 				if ( array_key_exists( $post_id, $sync_log ) ) {
@@ -369,9 +380,9 @@ function process_actions() {
 				}
 			}
 
-			$connection->log_sync( $sync_log, intval( $_GET['connection_id'] ), true );
+			$connection->log_sync( $sync_log, $connection_id, true );
 
-			setcookie( 'dt-unskipped', 1, time() + DAY_IN_SECONDS, ADMIN_COOKIE_PATH, COOKIE_DOMAIN, is_ssl() );
+			setcookie( 'dt-unskipped', 1, time() + DAY_IN_SECONDS, ADMIN_COOKIE_PATH, COOKIE_DOMAIN, is_ssl() ); // phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.cookies_setcookie
 
 			// Redirect to the new content tab
 			wp_safe_redirect( add_query_arg( 'status', 'new', wp_get_referer() ) );
@@ -426,7 +437,7 @@ function dashboard() {
 				<select id="pull_connections" name="connection" method="get">
 					<?php if ( ! empty( $internal_connection_group ) ) : ?>
 						<?php if ( ! empty( $external_connection_group ) ) : ?>
-							<optgroup label="<?php esc_html_e( 'Network Connections', 'distributor' ); ?>">
+							<optgroup label="<?php esc_attr_e( 'Network Connections', 'distributor' ); ?>">
 						<?php endif; ?>
 							<?php
 							foreach ( $internal_connection_group as $connection ) :
@@ -448,7 +459,7 @@ function dashboard() {
 
 					<?php if ( ! empty( $external_connection_group ) ) : ?>
 						<?php if ( ! empty( $internal_connection_group ) ) : ?>
-							<optgroup label="<?php esc_html_e( 'External Connections', 'distributor' ); ?>">
+							<optgroup label="<?php esc_attr_e( 'External Connections', 'distributor' ); ?>">
 						<?php endif; ?>
 							<?php
 							foreach ( $external_connection_group as $connection ) :

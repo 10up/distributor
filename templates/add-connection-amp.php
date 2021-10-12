@@ -1,4 +1,4 @@
-<?php
+<?php // phpcs:disable WordPressVIPMinimum.Security.Mustache.OutputNotation
 /**
  * Add connection AMP template
  *

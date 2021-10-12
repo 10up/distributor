@@ -286,7 +286,7 @@ function unlink() {
 	$post_id = intval( $_GET['post'] );
 
 	if ( empty( $_GET['_wpnonce'] ) ||
-		! wp_verify_nonce( $_GET['_wpnonce'], 'unlink-post_' . $post_id ) ||
+		! wp_verify_nonce( $_GET['_wpnonce'], 'unlink-post_' . $post_id ) || // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 		/**
 		 * Filters whether the post can be unlinked.
 		 *
@@ -333,7 +333,7 @@ function link() {
 
 	$post_id = intval( $_GET['post'] );
 
-	if ( empty( $_GET['_wpnonce'] ) || ! wp_verify_nonce( $_GET['_wpnonce'], 'link-post_' . $post_id ) ) {
+	if ( empty( $_GET['_wpnonce'] ) || ! wp_verify_nonce( $_GET['_wpnonce'], 'link-post_' . $post_id ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 		return;
 	}
 

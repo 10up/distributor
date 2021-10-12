@@ -512,7 +512,7 @@ class NetworkSiteConnection extends Connection {
 			$query_args['paged']          = ( empty( $args['paged'] ) ) ? 1 : $args['paged'];
 
 			if ( isset( $args['meta_query'] ) ) {
-				$query_args['meta_query'] = $args['meta_query'];
+				$query_args['meta_query'] = $args['meta_query']; // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
 			}
 
 			if ( isset( $args['s'] ) ) {
@@ -1110,7 +1110,7 @@ class NetworkSiteConnection extends Connection {
 				$request
 			);
 		} else {
-			$response = wp_remote_get(
+			$response = wp_remote_get( // phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.wp_remote_get_wp_remote_get
 				$rest_url,
 				$request
 			);
