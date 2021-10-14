@@ -15,7 +15,7 @@ _Note:_ The latest stable version of the plugin is the _stable_ branch. [Downloa
 * [Requirements](#requirements)
 * [Installation](#installation)
   * [Registration](#registration)
-  * [Setup External Connections](#setup-external-connections-using-application-passwords)
+  * [Set Up External Connections](#set-up-external-connections-using-application-passwords)
 * [How to Distribute Content](#how-to-distribute-content)
   * [Pushing Content](#pushing-content)
   * [Pulling Content](#pulling-content)
