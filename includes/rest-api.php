@@ -143,6 +143,74 @@ function register_rest_routes() {
 			'permission_callback' => '__return_true',
 		)
 	);
+
+	register_rest_route(
+		'wp/v2',
+		'distributor/list-pull-content',
+		array(
+			'methods'             => 'POST',
+			'callback'            => __NAMESPACE__ . '\get_pull_content',
+			'permission_callback' => '__return_true',
+			'args'                => get_pull_content_list_args(),
+		)
+	);
+}
+
+/**
+ * Set the accepted arguments for the pull content list endpoint
+ *
+ * @return array
+ */
+function get_pull_content_list_args() {
+	return array(
+		'exclude'     => array(
+			'description' => esc_html__( 'Ensure result set excludes specific IDs.', 'distributor' ),
+			'type'        => 'array',
+			'items'       => array(
+				'type' => 'integer',
+			),
+			'default'     => array(),
+		),
+		'page'        => array(
+			'description'       => esc_html__( 'Current page of the collection.', 'distributor' ),
+			'type'              => 'integer',
+			'default'           => 1,
+			'sanitize_callback' => 'absint',
+			'validate_callback' => 'rest_validate_request_arg',
+			'minimum'           => 1,
+		),
+		'per_page'    => array(
+			'description'       => esc_html__( 'Maximum number of items to be returned in result set.', 'distributor' ),
+			'type'              => 'integer',
+			'default'           => 10,
+			'minimum'           => 1,
+			'maximum'           => 100,
+			'sanitize_callback' => 'absint',
+			'validate_callback' => 'rest_validate_request_arg',
+		),
+		'post_type'   => array(
+			'description'       => esc_html__( 'Limit results to content matching a certain type.', 'distributor' ),
+			'type'              => 'string',
+			'default'           => 'post',
+			'sanitize_callback' => 'sanitize_text_field',
+			'validate_callback' => 'rest_validate_request_arg',
+		),
+		'search'      => array(
+			'description'       => esc_html__( 'Limit results to those matching a string.', 'distributor' ),
+			'type'              => 'string',
+			'sanitize_callback' => 'sanitize_text_field',
+			'validate_callback' => 'rest_validate_request_arg',
+		),
+		'post_status' => array(
+			'default'     => 'publish',
+			'description' => esc_html__( 'Limit result set to content assigned one or more statuses.', 'distributor' ),
+			'type'        => 'array',
+			'items'       => array(
+				'enum' => array_merge( array_keys( get_post_stati() ), array( 'any' ) ),
+				'type' => 'string',
+			),
+		),
+	);
 }
 
 /**
@@ -336,6 +404,125 @@ function check_post_types_permissions() {
 	}
 
 	return $response;
+}
+
+/**
+ * Get a list of content to show on the Pull screen
+ *
+ * @param \WP_Rest_Request $request API request arguments
+ * @return \WP_REST_Response|\WP_Error
+ */
+function get_pull_content( $request ) {
+	$args = [
+		'posts_per_page' => isset( $request['per_page'] ) ? $request['per_page'] : 10,
+		'paged'          => isset( $request['page'] ) ? $request['page'] : 1,
+		'post_type'      => isset( $request['post_type'] ) ? $request['post_type'] : 'post',
+		'post_status'    => isset( $request['post_status'] ) ? $request['post_status'] : array( 'any' ),
+	];
+
+	if ( ! empty( $request['search'] ) ) {
+		$args['s'] = urldecode( $request['search'] );
+	}
+
+	if ( ! empty( $request['exclude'] ) ) {
+		$args['post__not_in'] = $request['exclude'];
+	}
+
+	// Filter documented in includes/classes/ExternalConnections/WordPressExternalConnection.php
+	$query = new \WP_Query( apply_filters( 'dt_remote_get_query_args', $args, $request ) );
+
+	if ( empty( $query->posts ) ) {
+		return rest_ensure_response( array() );
+	}
+
+	$page        = (int) $args['paged'];
+	$total_posts = $query->found_posts;
+
+	$max_pages = ceil( $total_posts / (int) $query->query_vars['posts_per_page'] );
+
+	if ( $page > $max_pages && $total_posts > 0 ) {
+		return new \WP_Error(
+			'rest_post_invalid_page_number',
+			esc_html__( 'The page number requested is larger than the number of pages available.', 'distributor' ),
+			array( 'status' => 400 )
+		);
+	}
+
+	$formatted_posts = array();
+	foreach ( $query->posts as $post ) {
+		if ( ! check_read_permission( $post ) ) {
+			continue;
+		}
+
+		$formatted_posts[] = array(
+			'id'             => $post->ID,
+			'title'          => array( 'rendered' => $post->post_title ),
+			'excerpt'        => array( 'rendered' => $post->post_excerpt ),
+			'content'        => array( 'raw' => $post->post_content ),
+			'password'       => $post->post_password,
+			'date'           => $post->post_date,
+			'date_gmt'       => $post->post_date_gmt,
+			'guid'           => array( 'rendered' => $post->guid ),
+			'modified'       => $post->post_modified,
+			'modified_gmt'   => $post->post_modified_gmt,
+			'type'           => $post->post_type,
+			'link'           => get_the_permalink( $post ),
+			'comment_status' => $post->comment_status,
+			'ping_status'    => $post->ping_status,
+		);
+	}
+
+	$response = rest_ensure_response( $formatted_posts );
+
+	$response->header( 'X-WP-Total', (int) $total_posts );
+	$response->header( 'X-WP-TotalPages', (int) $max_pages );
+
+	return $response;
+}
+
+/**
+ * Checks if a post can be read.
+ *
+ * Copied from WordPress core.
+ *
+ * @param \WP_Post $post Post object.
+ * @return bool
+ */
+function check_read_permission( $post ) {
+	// Validate the post type.
+	$post_type = \get_post_type_object( $post->post_type );
+
+	if ( empty( $post_type ) || empty( $post_type->show_in_rest ) ) {
+		return false;
+	}
+
+	// Is the post readable?
+	if ( 'publish' === $post->post_status || \current_user_can( 'read_post', $post->ID ) ) {
+		return true;
+	}
+
+	$post_status_obj = \get_post_status_object( $post->post_status );
+	if ( $post_status_obj && $post_status_obj->public ) {
+		return true;
+	}
+
+	// Can we read the parent if we're inheriting?
+	if ( 'inherit' === $post->post_status && $post->post_parent > 0 ) {
+		$parent = \get_post( $post->post_parent );
+		if ( $parent ) {
+			return check_read_permission( $parent );
+		}
+	}
+
+	/*
+	* If there isn't a parent, but the status is set to inherit, assume
+	* it's published (as per get_post_status()).
+	*/
+	if ( 'inherit' === $post->post_status ) {
+		return true;
+	}
+
+	return false;
 }
 
 /**

@@ -441,8 +441,7 @@ class PullListTable extends \WP_List_Table {
 			'posts_per_page' => $per_page,
 			'paged'          => $current_page,
 			'post_type'      => $post_type,
-			'orderby'        => 'ID', // this is because of include/exclude truncation
-			'order'          => 'DESC', // default but specifying to be safe
+			'dt_pull_list'   => true, // custom argument used to only run code on this screen
 		];
 
 		if ( ! empty( $_GET['s'] ) ) { // @codingStandardsIgnoreLine Nonce isn't required.
@@ -478,15 +477,11 @@ class PullListTable extends \WP_List_Table {
 		}
 
 		if ( empty( $_GET['status'] ) || 'new' === $_GET['status'] ) { // @codingStandardsIgnoreLine Nonce not required.
-			// Sort from highest ID (newest) to low so the slice only affects later pagination.
-			rsort( $skipped, SORT_NUMERIC );
-			rsort( $syndicated, SORT_NUMERIC );
+			$post_ids = array_merge( $skipped, $syndicated );
 
-			// This is somewhat arbitrarily set to 200 and should probably be made filterable eventually.
-			// IDs can get rather large and 400 easily exceeds typical header size limits.
-			$post_ids = array_slice( array_merge( $skipped, $syndicated ), 0, 200, true );
-
-			$remote_get_args['post__not_in'] = $post_ids;
+			if ( ! empty( $post_ids ) ) {
+				$remote_get_args['post__not_in'] = $post_ids;
+			}
 
 			$remote_get_args['meta_query'] = [
 				[
