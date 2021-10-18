@@ -150,7 +150,7 @@ function register_rest_routes() {
 		array(
 			'methods'             => 'POST',
 			'callback'            => __NAMESPACE__ . '\get_pull_content',
-			'permission_callback' => '__return_true',
+			'permission_callback' => 'is_user_logged_in',
 			'args'                => get_pull_content_list_args(),
 		)
 	);
