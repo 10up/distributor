@@ -198,7 +198,6 @@ function get_pull_content_list_args() {
 		'search'      => array(
 			'description'       => esc_html__( 'Limit results to those matching a string.', 'distributor' ),
 			'type'              => 'string',
-			'sanitize_callback' => 'sanitize_text_field',
 			'validate_callback' => 'rest_validate_request_arg',
 		),
 		'post_status' => array(
