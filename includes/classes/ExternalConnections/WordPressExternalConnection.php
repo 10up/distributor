@@ -452,6 +452,18 @@ class WordPressExternalConnection extends ExternalConnection {
 
 		$total_posts = ! empty( $response_headers['X-WP-Total'] ) ? $response_headers['X-WP-Total'] : count( $formatted_posts );
 
+		/**
+		 * Filter the items returned when using `WordPressExternalConnection::remote_post`
+		 *
+		 * @since 1.6.7
+		 * @hook dt_remote_post
+		 *
+		 * @param {array} $items The items returned from the POST request.
+		 * @param {array} $args The arguments used in the POST request.
+		 * @param {WordPressExternalConnection} $this The current connection object.
+		 *
+		 * @return {array} The items returned from a remote POST request.
+		 */
 		return apply_filters(
 			'dt_remote_post',
 			[
