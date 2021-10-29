@@ -427,8 +427,7 @@ function get_pull_content( $request ) {
 		$args['post__not_in'] = $request['exclude'];
 	}
 
-	// Filter documented in includes/classes/ExternalConnections/WordPressExternalConnection.php
-	$query = new \WP_Query( apply_filters( 'dt_remote_get_query_args', $args, $request ) );
+	$query = new \WP_Query( $args, $request );
 
 	if ( empty( $query->posts ) ) {
 		return rest_ensure_response( array() );
