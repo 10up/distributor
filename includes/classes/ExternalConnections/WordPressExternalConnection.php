@@ -165,6 +165,19 @@ class WordPressExternalConnection extends ExternalConnection {
 			}
 		}
 
+		// When running a query for the Pull screen with excluded items, make a POST request instead
+		if ( empty( $id ) && isset( $args['post__not_in'] ) && isset( $args['dt_pull_list'] ) ) {
+			$query_args['post_type'] = isset( $post_type ) ? $post_type : 'post';
+			$query_args['per_page']  = isset( $posts_per_page ) ? $posts_per_page : 20;
+
+			$posts_response = $this->remote_post(
+				untrailingslashit( $this->base_url ) . '/' . self::$namespace . '/distributor/list-pull-content',
+				$query_args
+			);
+
+			return $posts_response;
+		}
+
 		static $types_urls;
 		$types_urls = array();
 
@@ -368,6 +381,110 @@ class WordPressExternalConnection extends ExternalConnection {
 		} else {
 			return apply_filters( 'dt_remote_get', $this->to_wp_post( $posts ), $args, $this );
 		}
+	}
+
+	/**
+	 * Make a remote_post request.
+	 *
+	 * @param string $url Endpoint URL.
+	 * @param array  $args Query arguments
+	 * @return array|\WP_Error
+	 */
+	public function remote_post( $url = '', $args = array() ) {
+		if ( ! $url ) {
+			return new \WP_Error( 'endpoint-error', esc_html__( 'Endpoint URL must be set', 'distributor' ) );
+		}
+
+		$request = wp_remote_post(
+			$url,
+			$this->auth_handler->format_post_args(
+				array(
+					/**
+					 * Filter the timeout used when calling `remote_post`
+					 *
+					 * @since 1.6.7
+					 * @hook dt_remote_post_timeout
+					 *
+					 * @param int $timeout The timeout to use for the remote post. Default `45`.
+					 * @param array $args The request arguments
+					 *
+					 * @return int The timeout to use for the remote_post call.
+					 */
+					'timeout' => apply_filters( 'dt_remote_post_timeout', 45, $args ),
+					/**
+					 * Filter the remote_post query arguments
+					 *
+					 * @since 1.6.7
+					 * @hook dt_remote_post_query_args
+					 *
+					 * @param {array}  $args The request arguments.
+					 * @param {WordPressExternalConnection} $this The current connection object.
+					 *
+					 * @return {array} The query arguments.
+					 */
+					'body'    => apply_filters( 'dt_remote_post_query_args', $args, $this ),
+				)
+			)
+		);
+
+		if ( is_wp_error( $request ) ) {
+			return $request;
+		}
+
+		$response_code = wp_remote_retrieve_response_code( $request );
+
+		if ( 200 !== $response_code ) {
+			if ( 404 === $response_code ) {
+				return new \WP_Error( 'bad-endpoint', esc_html__( 'Could not connect to API endpoint.', 'distributor' ) );
+			}
+
+			$posts_body = json_decode( wp_remote_retrieve_body( $request ), true );
+
+			$code    = empty( $posts_body['code'] ) ? 'endpoint-error' : esc_html( $posts_body['code'] );
+			$message = empty( $posts_body['message'] ) ? esc_html__( 'API endpoint error.', 'distributor' ) : esc_html( $posts_body['message'] );
+
+			return new \WP_Error( $code, $message );
+		}
+
+		$posts_body       = wp_remote_retrieve_body( $request );
+		$response_headers = wp_remote_retrieve_headers( $request );
+
+		if ( empty( $posts_body ) ) {
+			return new \WP_Error( 'no-response-body', esc_html__( 'Response body is empty', 'distributor' ) );
+		}
+
+		$posts           = json_decode( $posts_body, true );
+		$formatted_posts = array();
+
+		foreach ( $posts as $post ) {
+			$post['full_connection'] = ! empty( $response_headers['X-Distributor'] );
+
+			$formatted_posts[] = $this->to_wp_post( $post );
+		}
+
+		$total_posts = ! empty( $response_headers['X-WP-Total'] ) ? $response_headers['X-WP-Total'] : count( $formatted_posts );
+
+		/**
+		 * Filter the items returned when using `WordPressExternalConnection::remote_post`
+		 *
+		 * @since 1.6.7
+		 * @hook dt_remote_post
+		 *
+		 * @param {array} $items The items returned from the POST request.
+		 * @param {array} $args The arguments used in the POST request.
+		 * @param {WordPressExternalConnection} $this The current connection object.
+		 *
+		 * @return {array} The items returned from a remote POST request.
+		 */
+		return apply_filters(
+			'dt_remote_post',
+			[
+				'items'       => $formatted_posts,
+				'total_items' => $total_posts,
+			],
+			$args,
+			$this
+		);
 	}
 
 	/**
