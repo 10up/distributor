@@ -7,8 +7,6 @@
 
 namespace Distributor\PushUI;
 
-use function Aws\filter;
-
 /**
  * Setup actions and filters
  *
