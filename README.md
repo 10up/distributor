@@ -4,7 +4,7 @@
 
 > Distributor is a WordPress plugin that makes it easy to distribute and reuse content across your websites — whether in a single multisite or across the web.
 
-[![Support Level](https://img.shields.io/badge/support-active-green.svg)](#support-level) [![Tests](https://github.com/10up/distributor/actions/workflows/test.yml/badge.svg)](https://github.com/10up/distributor/actions/workflows/test.yml) [![Linting](https://github.com/10up/distributor/actions/workflows/lint.yml/badge.svg)](https://github.com/10up/distributor/actions/workflows/lint.yml) [![Code scanning](https://github.com/10up/distributor/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/10up/distributor/actions/workflows/codeql-analysis.yml) [![Release Version](https://img.shields.io/github/release/10up/distributor.svg)](https://github.com/10up/distributor/releases/latest) ![WordPress tested up to version](https://img.shields.io/badge/WordPress-v5.7%20tested-success.svg) [![License](https://img.shields.io/github/license/10up/distributor.svg)](https://github.com/10up/distributor/blob/develop/LICENSE.md)
+[![Support Level](https://img.shields.io/badge/support-active-green.svg)](#support-level) [![Tests](https://github.com/10up/distributor/actions/workflows/test.yml/badge.svg)](https://github.com/10up/distributor/actions/workflows/test.yml) [![Linting](https://github.com/10up/distributor/actions/workflows/lint.yml/badge.svg)](https://github.com/10up/distributor/actions/workflows/lint.yml) [![Code scanning](https://github.com/10up/distributor/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/10up/distributor/actions/workflows/codeql-analysis.yml) [![Release Version](https://img.shields.io/github/release/10up/distributor.svg)](https://github.com/10up/distributor/releases/latest) ![WordPress tested up to version](https://img.shields.io/badge/WordPress-v5.8%20tested-success.svg) [![License](https://img.shields.io/github/license/10up/distributor.svg)](https://github.com/10up/distributor/blob/develop/LICENSE.md)
 
 *You can learn more about Distributor's features at [DistributorPlugin.com](https://distributorplugin.com) and documentation at the [Distributor documentation site](https://10up.github.io/distributor/).*
 
@@ -15,7 +15,7 @@ _Note:_ The latest stable version of the plugin is the _stable_ branch. [Downloa
 * [Requirements](#requirements)
 * [Installation](#installation)
   * [Registration](#registration)
-  * [Setup External Connections](#setup-external-connections-using-application-passwords)
+  * [Set Up External Connections](#set-up-external-connections-using-application-passwords)
 * [How to Distribute Content](#how-to-distribute-content)
   * [Pushing Content](#pushing-content)
   * [Pulling Content](#pulling-content)
