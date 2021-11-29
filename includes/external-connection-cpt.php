@@ -235,7 +235,11 @@ function ajax_verify_external_connection() {
 		exit;
 	}
 
-	$auth         = filter_input( INPUT_POST, 'auth', FILTER_REQUIRE_ARRAY );
+	$auth = array();
+	if ( ! empty( $_POST['auth'] ) ) {
+		$auth = $_POST['auth']; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+	}
+
 	$current_auth = get_post_meta( intval( sanitize_key( $_POST['endpointId'] ) ), 'dt_external_connection_auth', true ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotValidated
 
 	if ( ! empty( $current_auth ) ) {
@@ -383,8 +387,12 @@ function save_post( $post_id ) {
 		// Create an instance of the connection to test connections
 		$external_connection_class = \Distributor\Connections::factory()->get_registered()[ sanitize_key( $_POST['dt_external_connection_type'] ) ];
 
-		$auth = filter_input( INPUT_POST, 'dt_external_connection_auth', FILTER_REQUIRE_ARRAY );
-		$url  = filter_input( INPUT_POST, 'dt_external_connection_url', FILTER_VALIDATE_URL );
+		$auth = array();
+		if ( ! empty( $_POST['dt_external_connection_auth'] ) ) {
+			$auth = $_POST['dt_external_connection_auth']; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+		}
+
+		$url = filter_input( INPUT_POST, 'dt_external_connection_url', FILTER_VALIDATE_URL );
 
 		$current_auth = get_post_meta( $post_id, 'dt_external_connection_auth', true );
 
@@ -402,7 +410,7 @@ function save_post( $post_id ) {
 		update_post_meta( $post_id, 'dt_external_connection_check_time', time() );
 	}
 
-	if ( ! empty( $auth ) ) {
+	if ( ! empty( $_POST['dt_external_connection_auth'] ) ) {
 		$current_auth = get_post_meta( $post_id, 'dt_external_connection_auth', true );
 		if ( empty( $current_auth ) ) {
 			$current_auth = array();
@@ -411,7 +419,7 @@ function save_post( $post_id ) {
 		$connection_class         = \Distributor\Connections::factory()->get_registered()[ sanitize_key( $_POST['dt_external_connection_type'] ) ];
 		$auth_handler_class_again = $connection_class::$auth_handler_class;
 
-		$auth_creds = $auth_handler_class_again::prepare_credentials( array_merge( (array) $current_auth, $auth ) );
+		$auth_creds = $auth_handler_class_again::prepare_credentials( array_merge( (array) $current_auth, $_POST['dt_external_connection_auth'] ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 
 		$auth_handler_class_again::store_credentials( $post_id, $auth_creds );
 	}
