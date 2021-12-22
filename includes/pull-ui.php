@@ -528,6 +528,15 @@ function dashboard() {
 
 		<?php if ( ! empty( $connection_list_table->pull_error ) ) : ?>
 			<p><?php esc_html_e( 'Could not pull content from connection due to error.', 'distributor' ); ?></p>
+			<ul>
+				<?php foreach ( $connection_list_table->pull_error as $error ) : ?>
+				<li>
+					<ul>
+						<li><?php echo esc_html( $error ); ?></li>
+					</ul>
+				</li>
+				<?php endforeach; ?>
+			</ul>
 		<?php else : ?>
 			<?php $connection_list_table->views(); ?>
 
