@@ -581,8 +581,8 @@ class NetworkSiteConnection extends Connection {
 		add_action( 'untrash_post', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'connect_syndicated_on_untrash' ) );
 		add_action( 'clean_site_cache', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'set_sites_last_changed_time' ) );
 		add_action( 'wp_insert_site', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'set_sites_last_changed_time' ) );
-		add_action( 'add_user_to_blog', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'rebuild_user_authorized_sites_cache' ) );
-		add_action( 'remove_user_from_blog', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'rebuild_user_authorized_sites_cache' ) );
+		add_action( 'add_user_to_blog', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'clear_authorized_sites_cache' ) );
+		add_action( 'remove_user_from_blog', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'clear_authorized_sites_cache' ) );
 	}
 
 	/**
@@ -822,8 +822,7 @@ class NetworkSiteConnection extends Connection {
 		$last_changed = get_site_option( 'last_changed_sites' );
 
 		if ( ! $last_changed ) {
-			$last_changed = microtime();
-			self::set_sites_last_changed_time();
+			$last_changed = self::set_sites_last_changed_time();
 		}
 
 		$cache_key        = "authorized_sites:$user_id:$context:$last_changed";
@@ -890,22 +889,29 @@ class NetworkSiteConnection extends Connection {
 	 * will have caching enabled, so we also store it
 	 * in a site option.
 	 *
-	 * @return void
+	 * @return string
 	 */
 	public static function set_sites_last_changed_time() {
-		update_site_option( 'last_changed_sites', microtime() );
+		$time = microtime();
+		update_site_option( 'last_changed_sites', $time );
+
+		return $time;
 	}
 
 	/**
-	 * Rebuild the authorized sites cache for a specific user.
+	 * Clear the authorized sites cache for a specific user.
 	 *
 	 * @param int $user_id Current user ID.
-	 *
-	 * @return void
 	 */
-	public static function rebuild_user_authorized_sites_cache( $user_id ) {
-		self::build_available_authorized_sites( $user_id, 'push', true );
-		self::build_available_authorized_sites( $user_id, 'pull', true );
+	public static function clear_authorized_sites_cache( $user_id = false ) {
+		$last_changed = get_site_option( 'last_changed_sites' );
+
+		if ( ! $last_changed ) {
+			$last_changed = self::set_sites_last_changed_time();
+		}
+
+		delete_transient( "authorized_sites:$user_id:push:$last_changed" );
+		delete_transient( "authorized_sites:$user_id:pull:$last_changed" );
 	}
 
 	/**
