@@ -637,7 +637,12 @@ class NetworkSiteConnection extends Connection {
 		}
 
 		foreach ( $connection_map['internal'] as $blog_id => $post_array ) {
-			$connection = new self( get_site( $blog_id ) );
+			$site = get_site( $blog_id );
+			if ( ! $site || ! is_a( $site, '\WP_Site' ) ) {
+				continue;
+			}
+
+			$connection = new self( $site );
 
 			switch_to_blog( $blog_id );
 
