@@ -907,11 +907,11 @@ class NetworkSiteConnection extends Connection {
 		$last_changed = get_site_option( 'last_changed_sites' );
 
 		if ( ! $last_changed ) {
-			$last_changed = self::set_sites_last_changed_time();
+			self::set_sites_last_changed_time();
+		} else {
+			delete_transient( "authorized_sites:$user_id:push:$last_changed" );
+			delete_transient( "authorized_sites:$user_id:pull:$last_changed" );
 		}
-
-		delete_transient( "authorized_sites:$user_id:push:$last_changed" );
-		delete_transient( "authorized_sites:$user_id:pull:$last_changed" );
 	}
 
 	/**
