@@ -395,6 +395,22 @@ class WordPressExternalConnection extends ExternalConnection {
 			return new \WP_Error( 'endpoint-error', esc_html__( 'Endpoint URL must be set', 'distributor' ) );
 		}
 
+		/**
+		* Filter the remote_post query arguments
+		*
+		* @since 1.6.7
+		* @hook dt_remote_post_query_args
+		*
+		* @param {array}  $args The request arguments.
+		* @param {WordPressExternalConnection} $this The current connection object.
+		*
+		* @return {array} The query arguments.
+		*/
+		$body = apply_filters( 'dt_remote_post_query_args', $args, $this );
+
+		// Add request parameter to specify Distributor request
+		$body['distributor_request'] = '1';
+
 		$request = wp_remote_post(
 			$url,
 			$this->auth_handler->format_post_args(
@@ -411,18 +427,7 @@ class WordPressExternalConnection extends ExternalConnection {
 					 * @return int The timeout to use for the remote_post call.
 					 */
 					'timeout' => apply_filters( 'dt_remote_post_timeout', 45, $args ),
-					/**
-					 * Filter the remote_post query arguments
-					 *
-					 * @since 1.6.7
-					 * @hook dt_remote_post_query_args
-					 *
-					 * @param {array}  $args The request arguments.
-					 * @param {WordPressExternalConnection} $this The current connection object.
-					 *
-					 * @return {array} The query arguments.
-					 */
-					'body'    => apply_filters( 'dt_remote_post_query_args', $args, $this ),
+					'body'    => $body,
 				)
 			)
 		);
