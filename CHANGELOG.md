@@ -4,6 +4,21 @@ All notable changes to this project will be documented in this file, per [the Ke
 
 ## [Unreleased] - TBD
 
+## [1.6.8] - 2022-02-02
+### Added
+- New hook `dt_get_pull_content_rest_query_args` to filter `WP_Query` args for the `list-pull-content` REST endpoint (props [@theskinnyghost](https://github.com/theskinnyghost), [@dkotter](https://github.com/dkotter) via [#839](https://github.com/10up/distributor/pull/839)).
+
+### Changed
+- Clear out a user's authorized site list instead of rebuilding it on site changes (props [@dkotter](https://github.com/dkotter) , [@cadic](https://github.com/cadic) via [#829](https://github.com/10up/distributor/pull/829)).
+
+### Fixed
+- Ensure the connection information we have is valid prior to using that for deletion (props [@dkotter](https://github.com/dkotter), [@LucyTurtle](https://github.com/LucyTurtle) via [#830](https://github.com/10up/distributor/pull/830)).
+- Ensure users can enter a per page limit of greater than 100 and have that properly used on the Pull Content screen for External Connections (props [@dkotter](https://github.com/dkotter), [@iamdharmesh](https://github.com/iamdharmesh), [@jmstew3](https://github.com/jmstew3) via [#831](https://github.com/10up/distributor/pull/831)).
+- Ensure the [Snippets tutorials](https://10up.github.io/distributor/tutorial-snippets.html) have a proper height (props [@dkotter](https://github.com/dkotter), [@pcrumm](https://github.com/pcrumm) via [#836](https://github.com/10up/distributor/pull/836)).
+
+### Security
+- Bump `actions/checkout` in GitHub Action workflow files from v1/v2 to v2.4.0 (props [@faisal-alvi](https://github.com/faisal-alvi) via [#828](https://github.com/10up/distributor/pull/828)).
+
 ## [1.6.7] - 2021-11-09
 ### Added
 - Added `Snippets` page to [Distributor's documentation site](https://10up.github.io/distributor/) with helpful filters and callbacks (props [@claytoncollie](https://github.com/claytoncollie) via [#817](https://github.com/10up/distributor/pull/817)).
@@ -310,6 +325,7 @@ This adds a post type selector when viewing the Pull Content list for both exter
 - Initial closed release.
 
 [Unreleased]: https://github.com/10up/distributor/compare/trunk...develop
+[1.6.8]: https://github.com/10up/distributor/compare/1.6.7...1.6.8
 [1.6.7]: https://github.com/10up/distributor/compare/1.6.6...1.6.7
 [1.6.6]: https://github.com/10up/distributor/compare/1.6.5...1.6.6
 [1.6.5]: https://github.com/10up/distributor/compare/1.6.4...1.6.5
