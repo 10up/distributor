@@ -514,7 +514,7 @@ class PullListTable extends \WP_List_Table {
 		$remote_get = $connection_now->remote_get( $remote_get_args );
 
 		if ( is_wp_error( $remote_get ) ) {
-			$this->pull_error = true;
+			$this->pull_error = $remote_get->get_error_messages();
 
 			return;
 		}

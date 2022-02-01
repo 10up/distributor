@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file, per [the Ke
 
 ## [Unreleased] - TBD
 
+## [1.6.7] - 2021-11-09
+### Added
+- Added `Snippets` page to [Distributor's documentation site](https://10up.github.io/distributor/) with helpful filters and callbacks (props [@claytoncollie](https://github.com/claytoncollie) via [#817](https://github.com/10up/distributor/pull/817)).
+
+### Fixed
+- Change how the `New` tab on the Pull Content screen is populated for External Connections (props [@dkotter](https://github.com/dkotter), [@dinhtungdu](https://github.com/dinhtungdu), [@cadic](https://github.com/cadic), [@helen](https://github.com/helen), [@jjgrainger](https://github.com/jjgrainger), [@jakemgold](https://github.com/jakemgold), [Lily Bonney](https://www.linkedin.com/in/lilybonney/), [Mollie Pugh](https://www.linkedin.com/in/molliepugh/), [Martina Haines](https://www.linkedin.com/in/martinahaines/) via [#811](https://github.com/10up/distributor/pull/811)).
+
 ## [1.6.6] - 2021-09-28
 ### Added
 - Add filters to control terms and meta distribution for internal connections: `dt_push_post_meta` and `dt_push_post_terms` (props [@dinhtungdu](https://github.com/dinhtungdu), [@dkotter](https://github.com/dkotter) via [#800](https://github.com/10up/distributor/pull/800)).
@@ -303,6 +310,8 @@ This adds a post type selector when viewing the Pull Content list for both exter
 - Initial closed release.
 
 [Unreleased]: https://github.com/10up/distributor/compare/trunk...develop
+[1.6.7]: https://github.com/10up/distributor/compare/1.6.6...1.6.7
+[1.6.6]: https://github.com/10up/distributor/compare/1.6.5...1.6.6
 [1.6.5]: https://github.com/10up/distributor/compare/1.6.4...1.6.5
 [1.6.4]: https://github.com/10up/distributor/compare/1.6.3...1.6.4
 [1.6.3]: https://github.com/10up/distributor/compare/1.6.2...1.6.3

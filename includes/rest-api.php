@@ -171,7 +171,7 @@ function get_pull_content_list_args() {
 			),
 			'default'     => array(),
 		),
-		'page'        => array(
+		'page'           => array(
 			'description'       => esc_html__( 'Current page of the collection.', 'distributor' ),
 			'type'              => 'integer',
 			'default'           => 1,
@@ -179,28 +179,27 @@ function get_pull_content_list_args() {
 			'validate_callback' => 'rest_validate_request_arg',
 			'minimum'           => 1,
 		),
-		'per_page'    => array(
+		'posts_per_page' => array(
 			'description'       => esc_html__( 'Maximum number of items to be returned in result set.', 'distributor' ),
 			'type'              => 'integer',
-			'default'           => 10,
+			'default'           => 20,
 			'minimum'           => 1,
-			'maximum'           => 100,
 			'sanitize_callback' => 'absint',
 			'validate_callback' => 'rest_validate_request_arg',
 		),
-		'post_type'   => array(
+		'post_type'      => array(
 			'description'       => esc_html__( 'Limit results to content matching a certain type.', 'distributor' ),
 			'type'              => 'string',
 			'default'           => 'post',
 			'sanitize_callback' => 'sanitize_text_field',
 			'validate_callback' => 'rest_validate_request_arg',
 		),
-		'search'      => array(
+		'search'         => array(
 			'description'       => esc_html__( 'Limit results to those matching a string.', 'distributor' ),
 			'type'              => 'string',
 			'validate_callback' => 'rest_validate_request_arg',
 		),
-		'post_status' => array(
+		'post_status'    => array(
 			'default'     => 'publish',
 			'description' => esc_html__( 'Limit result set to content assigned one or more statuses.', 'distributor' ),
 			'type'        => 'array',
@@ -413,7 +412,7 @@ function check_post_types_permissions() {
  */
 function get_pull_content( $request ) {
 	$args = [
-		'posts_per_page' => isset( $request['per_page'] ) ? $request['per_page'] : 10,
+		'posts_per_page' => isset( $request['posts_per_page'] ) ? $request['posts_per_page'] : 20,
 		'paged'          => isset( $request['page'] ) ? $request['page'] : 1,
 		'post_type'      => isset( $request['post_type'] ) ? $request['post_type'] : 'post',
 		'post_status'    => isset( $request['post_status'] ) ? $request['post_status'] : array( 'any' ),
