@@ -426,6 +426,20 @@ function get_pull_content( $request ) {
 		$args['post__not_in'] = $request['exclude'];
 	}
 
+	/**
+	 * Filters WP_Query arguments when querying posts via the REST API.
+	 *
+	 * Enables adding extra arguments or setting defaults for a post collection request.
+	 *
+	 * @hook dt_get_pull_content_rest_query_args
+	 *
+	 * @param {array}           $args    Array of arguments for WP_Query.
+	 * @param {WP_REST_Request} $request The REST API request.
+	 *
+	 * @return {array} The array of arguments for WP_Query.
+	 */
+	$args = apply_filters( 'dt_get_pull_content_rest_query_args', $args, $request );
+
 	$query = new \WP_Query( $args, $request );
 
 	if ( empty( $query->posts ) ) {
