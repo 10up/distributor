@@ -167,8 +167,8 @@ class WordPressExternalConnection extends ExternalConnection {
 
 		// When running a query for the Pull screen with excluded items, make a POST request instead
 		if ( empty( $id ) && isset( $args['post__not_in'] ) && isset( $args['dt_pull_list'] ) ) {
-			$query_args['post_type'] = isset( $post_type ) ? $post_type : 'post';
-			$query_args['per_page']  = isset( $posts_per_page ) ? $posts_per_page : 20;
+			$query_args['post_type']      = isset( $post_type ) ? $post_type : 'post';
+			$query_args['posts_per_page'] = isset( $posts_per_page ) ? $posts_per_page : 20;
 
 			$posts_response = $this->remote_post(
 				untrailingslashit( $this->base_url ) . '/' . self::$namespace . '/distributor/list-pull-content',
