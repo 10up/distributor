@@ -949,8 +949,24 @@ function dt_use_block_editor_for_post_type( $post_type ) {
 		return false;
 	}
 
-	// Filter documented in WordPress core.
-	return apply_filters( 'use_block_editor_for_post_type', true, $post_type );
+	// In some contexts this function doesn't exist so we can't reliably use the filter.
+	if ( function_exists( 'use_block_editor_for_post_type' ) ) {
+		// Filter documented in WordPress core.
+		return apply_filters( 'use_block_editor_for_post_type', true, $post_type );
+	}
+
+	/**
+	 * Filters whether an item is able to be edited in the block editor.
+	 *
+	 * @since 1.6.9
+	 * @hook dt_use_block_editor_for_post_type
+	 *
+	 * @param bool   $use_block_editor Whether the post type uses the block editor. Default true.
+	 * @param string $post_type        The post type being checked.
+	 *
+	 * @return bool Whether the post type uses the block editor.
+	 */
+	return apply_filters( 'dt_use_block_editor_for_post_type', true, $post_type );
 }
 
 /**
