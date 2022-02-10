@@ -15,7 +15,7 @@ _Note:_ The latest stable version of the plugin is the _stable_ branch. [Downloa
 * [Requirements](#requirements)
 * [Installation](#installation)
   * [Registration](#registration)
-  * [Set Up External Connections](#set-up-external-connections-using-application-passwords)
+  * [Set Up External Connections](#set-up-external-connections)
 * [How to Distribute Content](#how-to-distribute-content)
   * [Pushing Content](#pushing-content)
   * [Pulling Content](#pulling-content)
@@ -46,7 +46,7 @@ Content this is distributed (via Push or Pull) is connected to the original.  Re
 
 There are two connection types: `internal` and `external`.
 * Internal connections are other sites inside of the same multisite network. Any user logged into the network can distribute any content in the network to any other sites in the network where that user has permission to publish posts (assuming the site supports the same post type).
-* External connections are external websites, connected by the JSON REST API using [Application Passwords](https://wordpress.org/plugins/application-passwords/). External connections can be added in the WordPress admin dashboard under `Distributor` > `External Connections`. Administrators can decide which user roles are allowed to distribute content to and from that connection (Editors and Administrators by default). All users with those roles will inherit the permissions of the user account used to establish the remote connection.
+* External connections are external websites, connected by the JSON REST API using the Authorization Setup Wizard for External Connections leveraging Application Passwords. External connections can be added in the WordPress admin dashboard under `Distributor` > `External Connections`. Administrators can decide which user roles are allowed to distribute content to and from that connection (Editors and Administrators by default). All users with those roles will inherit the permissions of the user account used to establish the remote connection.
 
 ### Extendability
 
@@ -69,15 +69,15 @@ You can upload and install the archived (zip) plugin via the WordPress dashboard
 
 To help inform our roadmap, keep adopters apprised of major updates and changes that could impact their websites, and solicit opportunities for beta testing and feedback, we’re asking for a little bit of information in exchange for a free key that unlocks update notifications and 1-click upgrades inside the WordPress dashboard. Your information is kept confidential. You can [register here](https://distributorplugin.com/#cta) and input your key in Distributor settings in the dashboard (network dashboard for multisite users).  Note that you need to input the email address you used to register Distributor (included in the email with your registration key) as that is linked to the registration key.
 
-### Set up External Connections using Application Passwords
+### Set up External Connections
 
 1. Ensure that the current version of Distributor is active on BOTH sites being connected.  We'll refer to these as mainsite.com and remotesite.com.
-1. On mainsite.com, navigate to `Distributor` > `External Connections` and click `Add New`.
-1. Enter a label for the connection (e.g., `remotesite.com`).
-1. Select `Username / Password` for the `Authentication Method`, open the `manually set up connection` link, and input a username from remotesite.com.
-1. Navigate to the user profile (on remotesite.com) that will be used to create the External Connection on mainsite.com and then to the `Application Passwords` section of the user profile. Add a label for the New Application Password Name (e.g., `mainsite.com`) and click `Add New Application Password`. Now copy the password provided into mainsite.com's External Connections `Password` field.
-1. On mainsite.com External Connections' page, add the `External Connection URL` (e.g., http://remotesite.com/wp-json).  You should see a green circle and "_Connection established._".
-1. Ensure the roles selected in `Roles Allowed to Push` are the ones you want to support, then press the `Create Connection` button.  You should now be able to push from mainsite.com to remotesite.com.  If you want to pull from remotesite.com to mainsite.com, simply repeat these instructions swapping mainsite.com and remotesite.com.
+1. On remotesite.com, navigate to `Distributor` > `External Connections` and click `Add New`.
+1. Enter a label for the connection (e.g., `mainsite.com`).
+1. Enter the URL for your main site for `mainsite.com` field and press the `Authorize Connection` button. 
+1. You will be prompted to enter the user name and password of an administrative role of the `mainsite.com` if you are not already logged into `mainsite.com`
+1. At the Authorize Application screen, enter the name of the remote site (e.g. Remotesite.com ) and press the 'Yes, I approve of this connection' button
+1. Review the roles selected in `Roles Allowed to Push` are the ones you want to support, update if necessary, then press the `Update Connection` button.
 
 ## How to Distribute Content
 
