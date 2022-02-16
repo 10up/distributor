@@ -21,6 +21,7 @@ function setup() {
 		'admin_init',
 		function() {
 			if ( ! apply_filters( 'dt_debug_info_enabled', true ) ) {
+				$test = (real) 'test';
 				return;
 			}
 			add_filter( 'debug_information', __NAMESPACE__ . '\add_debug_info' );
