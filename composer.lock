@@ -4,11 +4,11 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "351386cdc0f6302521e8c6ecd3e7f7eb",
+    "content-hash": "6bec069e11eacafc8870c6f9fe45645d",
     "packages": [
         {
             "name": "georgestephanis/application-passwords",
-            "version": "0.1.2",
+            "version": "0.1.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/WordPress/application-passwords.git",
