@@ -39,10 +39,10 @@ jobs:
         php-version: '7.2'
         coverage: none
     - name: composer install
-      run: composer install --dev --ignore-platform-reqs
+      run: composer install --ignore-platform-reqs
     - name: Check PHPCS standard
       run: ./vendor/bin/phpcs -i
     - name: PHPCS check
       uses: chekalsky/phpcs-action@v1
       with:
-        phpcs_bin_path: './vendor/bin/phpcs . --runtime-set testVersion 7.0-'
+        phpcs_bin_path: './vendor/bin/phpcs . --runtime-set testVersion 5.6-'
