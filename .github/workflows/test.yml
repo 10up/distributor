@@ -63,7 +63,7 @@ jobs:
         tools: phpunit-polyfills
 
     - name: Install dependencies
-      run: composer install
+      run: composer update -W
 
     - name: PHPUnit
       run: './vendor/bin/phpunit'
