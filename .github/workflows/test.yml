@@ -55,10 +55,11 @@ jobs:
       uses: actions/checkout@v2.4.0
 
     - name: Set PHP version
-      uses: shivammathur/setup-php@v2
+      uses: shivammathur/setup-php@v2.17.0
       with:
-        php-version: '7.2'
+        php-version: '5.6'
         coverage: none
+        tools: phpunit-polyfills
 
     - name: Install dependencies
       run: composer install --ignore-platform-reqs
