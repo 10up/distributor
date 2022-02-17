@@ -46,6 +46,7 @@ jobs:
     name: ${{ matrix.php }} on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false
       matrix:
         php: [ '5.6', '7.0', '7.1', '7.2', '7.3', '7.4', '8.0', '8.1' ]
         os: [ ubuntu-latest ]
@@ -57,12 +58,12 @@ jobs:
     - name: Set PHP version
       uses: shivammathur/setup-php@2.17.0
       with:
-        php-version: '5.6'
+        php-version: ${{ matrix.php }}
         coverage: none
         tools: phpunit-polyfills
 
     - name: Install dependencies
-      run: composer install --ignore-platform-reqs
+      run: composer install
 
     - name: PHPUnit
       run: './vendor/bin/phpunit'
