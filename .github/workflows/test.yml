@@ -43,7 +43,12 @@ jobs:
   #     run: ./vendor/bin/wpacceptance run --snapshot_id=${{ matrix.snapshot }}
 
   phpunit:
-    runs-on: ubuntu-latest
+    name: ${{ matrix.php }} on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        php: [ '5.6', '7.0', '7.1', '7.2', '7.3', '7.4', '8.0', '8.1' ]
+        os: [ ubuntu-latest ]
 
     steps:
     - name: Checkout

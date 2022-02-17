@@ -37,14 +37,15 @@
   },
 
   "require-dev": {
+    "10up/phpcs-composer": "dev-master",
     "10up/wpacceptance": "dev-master",
     "10up/wp_mock": "~0.4",
-    "phpunit/phpunit": "~7.5",
-    "10up/phpcs-composer": "dev-master"
+    "yoast/phpunit-polyfills": "^1.0"
   },
   "scripts": {
     "lint": "phpcs . --runtime-set testVersion 5.6-",
-    "lint-fix": "phpcbf ."
+    "lint-fix": "phpcbf .",
+    "test": "@php ./vendor/phpunit/phpunit/phpunit"
   },
   "minimum-stability": "dev",
   "prefer-stable": true,
