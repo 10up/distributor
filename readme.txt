@@ -2,7 +2,7 @@
 Contributors:      10up
 Tags:              content, distribution, syndication, management
 Requires at least: 4.7
-Tested up to:      5.8
+Tested up to:      5.9
 Requires PHP:      5.6
 Stable tag:        1.6.8
 License:           GPLv2 or later
