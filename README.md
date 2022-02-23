@@ -72,11 +72,11 @@ To help inform our roadmap, keep adopters apprised of major updates and changes 
 ### Set up External Connections
 
 1. Ensure that the current version of Distributor is active on BOTH sites being connected.  We'll refer to these as mainsite.com and remotesite.com.
-1. On remotesite.com, navigate to `Distributor` > `External Connections` and click `Add New`.
-1. Enter a label for the connection (e.g., `mainsite.com`).
-1. Enter the URL for your main site for `mainsite.com` field and press the `Authorize Connection` button. 
-1. You will be prompted to enter the user name and password of an administrative role of the `mainsite.com` if you are not already logged into `mainsite.com`
-1. At the Authorize Application screen, enter the name of the remote site (e.g. Remotesite.com ) and press the 'Yes, I approve of this connection' button
+1. On mainsite.com, navigate to `Distributor` > `External Connections` and click `Add New`.
+1. Enter a label for the connection (e.g., `remotesite`).
+1. Enter the URL (e.g. `https://remotesite.com`) for your remote site below the External Site URL and press the `Authorize Connection` button. 
+1. You will be prompted to enter the user name and password of an administrative role of the `remotesite.com` if you are not already logged into `remotesite.com` and then redirected to the Authorize Application screen.
+1. At the Authorize Application screen, enter the name of the main site and press the 'Yes, I approve of this connection' button
 1. Review the roles selected in `Roles Allowed to Push` are the ones you want to support, update if necessary, then press the `Update Connection` button.
 
 ## How to Distribute Content
