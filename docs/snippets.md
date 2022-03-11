@@ -6,7 +6,7 @@
 add_filter( 'distributable_post_types', 'client_prefix_filter_post_types' );
 /**
  * Filter the post types we can distribute.
- * 
+ *
  * @see https://10up.github.io/distributor/distributable_post_types.html
  *
  * @return array
@@ -22,7 +22,7 @@ function client_prefix_filter_post_types() : array {
 add_filter( 'dt_syndicatable_capabilities', 'client_prefix_filter_user_capabilities' );
 /**
  * Filter the user capabilities that are allowed to distribute content.
- * 
+ *
  * @see https://10up.github.io/distributor/dt_syndicatable_capabilities.html
  *
  * @return string
@@ -38,7 +38,7 @@ function client_prefix_filter_user_capabilities() : string {
 add_filter( 'dt_authorized_sites', 'client_prefix_filter_authorized_sites', 10, 2 );
 /**
  * Filter certain sites from the authorized sites list.
- * 
+ *
  * @see https://10up.github.io/distributor/dt_authorized_sites.html
  *
  * @param array  $authorized_sites Authorized sites.
@@ -54,4 +54,22 @@ function client_prefix_filter_authorized_sites( array $authorized_sites, string 
 		}
 	);
 }
+```
+
+### Remove canonical links for both Internal and External Connections
+
+```php
+/**
+ * Stop Distributor from changing the canonical links.
+ *
+ * This removes Distributor's canonical functionality from
+ * both Internal and External Connections and for those sites
+ * that use Yoast SEO.
+ */
+add_action( 'template_redirect', function () {
+    remove_filter( 'get_canonical_url', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'canonical_url' ), 10, 2 );
+    remove_filter( 'wpseo_canonical', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'wpseo_canonical_url' ) );
+    remove_filter( 'get_canonical_url', array( '\Distributor\ExternalConnections\WordPressExternalConnection', 'canonical_url' ), 10, 2 );
+    remove_filter( 'wpseo_canonical', array( '\Distributor\ExternalConnections\WordPressExternalConnection', 'wpseo_canonical_url' ) );
+}, 20 );
 ```
