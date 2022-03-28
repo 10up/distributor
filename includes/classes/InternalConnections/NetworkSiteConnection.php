@@ -1102,6 +1102,8 @@ class NetworkSiteConnection extends Connection {
 		 * Allow filtering of the HTTP request args before updating content
 		 * via a REST API call.
 		 *
+		 * @hook dt_update_content_via_request_args
+		 *
 		 * @param {array}                 list            List of request args.
 		 * @param {int}                   $new_post_id    The new post ID.
 		 * @param {NetworkSiteConnection} $this           The distributor connection being pulled from.

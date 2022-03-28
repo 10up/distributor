@@ -1021,7 +1021,9 @@ function get_rest_url( $blog_id, $post_id ) {
 	restore_current_blog();
 
 	/**
-	 * Allow filtering of the REST API URL used for pulling post content,
+	 * Allow filtering of the REST API URL used for pulling post content.
+	 *
+	 * @hook dt_get_rest_url
 	 *
 	 * @param {string} $rest_url The default REST URL to the post.
 	 * @param {int}    $blog_id  The blog ID.

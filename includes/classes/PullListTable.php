@@ -63,6 +63,8 @@ class PullListTable extends \WP_List_Table {
 		/**
 		 * Filters the columns displayed in the pull list table.
 		 *
+		 * @hook dt_pull_list_table_columns
+		 *
 		 * @param {array} $columns An associative array of column headings.
 		 *
 		 * @return {array} An associative array of column headings.
@@ -392,6 +394,8 @@ class PullListTable extends \WP_List_Table {
 	public function single_row( $item ) {
 		/**
 		 * Filters the class used on the table row on the pull list table.
+		 *
+		 * @hook dt_pull_list_table_tr_class
 		 *
 		 * @param {string}  $class The class name.
 		 * @param {WP_Post} $item  The current post object.
