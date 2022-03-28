@@ -288,7 +288,7 @@ class NetworkSiteConnection extends Connection {
 				 *
 				 * @param {bool}                  true            If Distributor should set the post meta.
 				 * @param {int}                   $new_post_id    The newly created post ID.
-				 * @param {array}                 $post->meta    List of meta items attached to the post, formatted by {@link \Distributor\Utils\prepare_meta()}.
+				 * @param {array}                 $post->meta     List of meta items attached to the post, formatted by {@link \Distributor\Utils\prepare_meta()}.
 				 * @param {int}                   $remote_post_id The original post ID.
 				 * @param {array}                 $post_array     The arguments passed into wp_insert_post.
 				 * @param {NetworkSiteConnection} $this           The Distributor connection being pulled from.
@@ -363,12 +363,14 @@ class NetworkSiteConnection extends Connection {
 			/**
 			 * Allow the sync'ed post to be updated via a REST request get the rendered content.
 			 *
-			 * @since ?
 			 * @hook dt_pull_post_apply_rendered_content
 			 *
-			 * @param bool  false        Apply rendered content after a pull? Defaults to false.
-			 * @param int   $new_post_id The new post ID.
-			 * @param array $post_array  The post array used to create the new post.
+			 * @param {bool}        false          Apply rendered content after a pull? Defaults to false.
+			 * @param {int}         $new_post_id   The new post ID.
+			 * @param {Connection}  $this          The Distributor connection pulling the post.
+			 * @param {array}       $post_array    The post array used to create the new post.
+			 *
+			 * @return {bool} Whether to apply rendered content after a pull.
 			 */
 			if ( apply_filters( 'dt_pull_post_apply_rendered_content', false, $new_post_id, $this, $post_array ) ) {
 				$this->update_content_via_rest( $new_post_id );
@@ -785,8 +787,7 @@ class NetworkSiteConnection extends Connection {
 		 * @see \Distributor\InternalConnections\NetworkSiteConnection::get_available_authorized_sites()
 		 *
 		 * @param {array}  $authorized_sites Array of `WP_Site` object and post type objects the user can edit.
-		 * }
-		 * @param {string} $context The context of the authorization.
+		 * @param {string} $context          The context of the authorization.
 		 *
 		 * @return {array} Array of `WP_Site` object and post type objects.
 		 */
@@ -805,8 +806,7 @@ class NetworkSiteConnection extends Connection {
 		 * @hook dt_authorized_sites
 		 *
 		 * @param {array}  $authorized_sites An array of `WP_Site` objects and the post type objects the user can edit.
-		 * }
-		 * @param {string} $context The context of the authorization.
+		 * @param {string} $context          The context of the authorization.
 		 *
 		 * @return {array} An array of `WP_Site` objects and the post type objects.
 		 */
@@ -1102,12 +1102,11 @@ class NetworkSiteConnection extends Connection {
 		 * Allow filtering of the HTTP request args before updating content
 		 * via a REST API call.
 		 *
-		 * @since ?
+		 * @param {array}                 list            List of request args.
+		 * @param {int}                   $new_post_id    The new post ID.
+		 * @param {NetworkSiteConnection} $this           The distributor connection being pulled from.
 		 *
-		 * @param array                 list            List of request args.
-		 * @param int                   $new_post_id    The new post ID.
-		 * @param array                 $post_array     The post array used to create the new post.
-		 * @param NetworkSiteConnection $this           The distributor connection being pulled from.
+		 * @return {array} List of filtered request args.
 		 */
 		$request = apply_filters( 'dt_update_content_via_request_args', [], $new_post_id, $this );
 
