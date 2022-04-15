@@ -351,6 +351,7 @@ This adds a post type selector when viewing the Pull Content list for both exter
 - Initial closed release.
 
 [Unreleased]: https://github.com/10up/distributor/compare/trunk...develop
+[1.6.9]: https://github.com/10up/distributor/compare/1.6.8...1.6.9
 [1.6.8]: https://github.com/10up/distributor/compare/1.6.7...1.6.8
 [1.6.7]: https://github.com/10up/distributor/compare/1.6.6...1.6.7
 [1.6.6]: https://github.com/10up/distributor/compare/1.6.5...1.6.6
