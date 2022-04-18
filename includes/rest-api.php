@@ -419,7 +419,7 @@ function get_pull_content( $request ) {
 	];
 
 	if ( ! empty( $request['search'] ) ) {
-		$args['s'] = urldecode( $request['search'] );
+		$args['s'] = rawurldecode( $request['search'] );
 	}
 
 	if ( ! empty( $request['exclude'] ) ) {
@@ -440,7 +440,7 @@ function get_pull_content( $request ) {
 	 */
 	$args = apply_filters( 'dt_get_pull_content_rest_query_args', $args, $request );
 
-	$query = new \WP_Query( $args, $request );
+	$query = new \WP_Query( $args );
 
 	if ( empty( $query->posts ) ) {
 		return rest_ensure_response( array() );
