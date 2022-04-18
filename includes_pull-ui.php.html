@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Source: includes/pull-ui.php - 10up Distributor Hook Docs</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+
+	<link href="https://fonts.googleapis.com/css?family=IBM+Plex+Mono|IBM+Plex+Sans:300,400|Playfair+Display:900&display=swap" rel="stylesheet"> 
+    <link type="text/css" rel="stylesheet" href="styles-10up.css">
+</head>
+
+<body>
+
+<div id="main">
+
+	
+    <h1 class="page-title">Source: includes/pull-ui.php</h1>
+	
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>&lt;?php
+/**
+ * Pull UI functionality
+ *
+ * @package  distributor
+ */
+
+namespace Distributor\PullUI;
+
+/**
+ * Setup actions and filters
+ *
+ * @since 0.8
+ */
+function setup() {
+	add_action(
+		'plugins_loaded',
+		function() {
+			add_action( 'admin_menu', __NAMESPACE__ . '\action_admin_menu' );
+			add_action( 'admin_enqueue_scripts', __NAMESPACE__ . '\admin_enqueue_scripts' );
+			add_action( 'load-distributor_page_pull', __NAMESPACE__ . '\setup_list_table' );
+			add_filter( 'set-screen-option', __NAMESPACE__ . '\set_screen_option', 10, 3 );
+		}
+	);
+}
+
+/**
+ * Create list table
+ *
+ * @since 0.8
+ */
+function setup_list_table() {
+	global $connection_list_table;
+	global $connection_now;
+	global $dt_pull_messages;
+
+	if ( ! empty( $_COOKIE['dt-skipped'] ) ) {
+		$dt_pull_messages['skipped'] = 1;
+
+		setcookie( 'dt-skipped', 1, time() - 60, ADMIN_COOKIE_PATH, COOKIE_DOMAIN, is_ssl() );
+	} elseif ( ! empty( $_COOKIE['dt-unskipped'] ) ) {
+		$dt_pull_messages['unskipped'] = 1;
+
+		setcookie( 'dt-unskipped', 1, time() - 60, ADMIN_COOKIE_PATH, COOKIE_DOMAIN, is_ssl() );
+	} elseif ( ! empty( $_COOKIE['dt-syndicated'] ) ) {
+		$dt_pull_messages['syndicated'] = 1;
+
+		setcookie( 'dt-syndicated', 1, time() - 60, ADMIN_COOKIE_PATH, COOKIE_DOMAIN, is_ssl() );
+	} elseif ( ! empty( $_COOKIE['dt-duplicated'] ) ) {
+		$dt_pull_messages['duplicated'] = 1;
+
+		setcookie( 'dt-duplicated', 1, time() - 60, ADMIN_COOKIE_PATH, COOKIE_DOMAIN, is_ssl() );
+	}
+
+	$external_connections = new \WP_Query(
+		array(
+			'post_type'      => 'dt_ext_connection',
+			'fields'         => 'ids',
+			'no_found_rows'  => true,
+			'posts_per_page' => 100,
+		)
+	);
+
+	$connection_list_table = new \Distributor\PullListTable();
+
+	if ( ! empty( \Distributor\Connections::factory()->get_registered()['networkblog'] ) ) {
+		$sites = \Distributor\InternalConnections\NetworkSiteConnection::get_available_authorized_sites( 'pull' );
+
+		foreach ( $sites as $site_array ) {
+			$internal_connection                         = new \Distributor\InternalConnections\NetworkSiteConnection( $site_array['site'] );
+			$connection_list_table->connection_objects[] = $internal_connection;
+
+			if ( ! empty( $_GET['connection_id'] ) &amp;&amp; ! empty( $_GET['connection_type'] ) &amp;&amp; 'internal' === $_GET['connection_type'] &amp;&amp; (int) $internal_connection->site->blog_id === (int) $_GET['connection_id'] ) { // @codingStandardsIgnoreLine Content is type casted, no need for nonce.
+				$connection_now = $internal_connection;
+			}
+		}
+	}
+
+	foreach ( $external_connections->posts as $external_connection_id ) {
+		$external_connection_type = get_post_meta( $external_connection_id, 'dt_external_connection_type', true );
+
+		if ( empty( \Distributor\Connections::factory()->get_registered()[ $external_connection_type ] ) ) {
+			continue;
+		}
+
+		$external_connection_status = get_post_meta( $external_connection_id, 'dt_external_connections', true );
+
+		if ( empty( $external_connection_status ) || empty( $external_connection_status['can_get'] ) ) {
+			continue;
+		}
+
+		$external_connection = \Distributor\ExternalConnection::instantiate( $external_connection_id );
+
+		if ( ! is_wp_error( $external_connection ) ) {
+			$connection_list_table->connection_objects[] = $external_connection;
+
+			if ( ! empty( $_GET['connection_id'] ) &amp;&amp; ! empty( $_GET['connection_type'] ) &amp;&amp; 'external' === $_GET['connection_type'] &amp;&amp; (int) $external_connection_id === (int) $_GET['connection_id'] ) { // @codingStandardsIgnoreLine Content is type casted, no need for nonce.
+				$connection_now = $external_connection;
+			}
+		}
+	}
+
+	if ( empty( $connection_now ) &amp;&amp; ! empty( $connection_list_table->connection_objects ) ) {
+		$connection_now = $connection_list_table->connection_objects[0];
+	}
+
+	process_actions();
+}
+
+/**
+ * Enqueue admin scripts for pull
+ *
+ * @param  string $hook WP hook.
+ * @since  0.8
+ */
+function admin_enqueue_scripts( $hook ) {
+	if ( 'distributor_page_pull' !== $hook || empty( $_GET['page'] ) || 'pull' !== $_GET['page'] ) { // @codingStandardsIgnoreLine Comparing values, not using them.
+		return;
+	}
+
+	wp_enqueue_script( 'dt-admin-pull', plugins_url( '/dist/js/admin-pull.min.js', __DIR__ ), array( 'jquery' ), DT_VERSION, true );
+	wp_enqueue_style( 'dt-admin-pull', plugins_url( '/dist/css/admin-pull-table.min.css', __DIR__ ), array(), DT_VERSION );
+
+	wp_localize_script(
+		'dt-admin-pull',
+		'dt',
+		[
+			'pull'     => __( 'Pull', 'distributor' ),
+			'as_draft' => __( 'Pull as draft', 'distributor' ),
+		]
+	);
+}
+
+/**
+ * Set up admin menu
+ *
+ * @since 0.8
+ */
+function action_admin_menu() {
+	$hook = add_submenu_page(
+		'distributor',
+		esc_html__( 'Pull Content', 'distributor' ),
+		esc_html__( 'Pull Content', 'distributor' ),
+		/**
+		 * Filter Distributor capabilities allowed to pull content.
+		 *
+		 * @since 1.0.0
+		 * @hook dt_pull_capabilities
+		 *
+		 * @param {string} 'manage_options' The capability allowed to pull content.
+		 *
+		 * @return {string} The capability allowed to pull content.
+		 */
+		apply_filters( 'dt_pull_capabilities', 'manage_options' ),
+		'pull',
+		__NAMESPACE__ . '\dashboard'
+	);
+
+	add_action( "load-$hook", __NAMESPACE__ . '\screen_option' );
+}
+
+/**
+ * Set screen option for posts per page
+ *
+ * @param  string $status Option status.
+ * @param  string $option Option.
+ * @param  mixed  $value New value.
+ * @since  0.8
+ * @return mixed
+ */
+function set_screen_option( $status, $option, $value ) {
+	return 'pull_posts_per_page' === $option ? $value : $status;
+}
+
+/**
+ * Set up screen options
+ *
+ * @since 0.8
+ */
+function screen_option() {
+
+	$option = 'per_page';
+	$args   = [
+		'label'   => esc_html__( 'Posts per page', 'distributor' ),
+		'option'  => 'pull_posts_per_page',
+		'default' => get_option( 'posts_per_page' ),
+	];
+
+	add_screen_option( $option, $args );
+}
+
+/**
+ * Process content changing actions
+ *
+ * @since  0.8
+ */
+function process_actions() {
+	global $connection_list_table;
+	global $dt_pull_messages;
+
+	switch ( $connection_list_table->current_action() ) {
+		case 'syndicate':
+		case 'bulk-syndicate':
+			if ( ! wp_verify_nonce( $_GET['_wpnonce'], 'bulk-distributor_page_pull' ) ) {
+				exit;
+			}
+
+			// Filter documented above.
+			if ( ! current_user_can( apply_filters( 'dt_pull_capabilities', 'manage_options' ) ) ) {
+				wp_die(
+					'&lt;h1>' . esc_html__( 'Cheatin&amp;#8217; uh?', 'distributor' ) . '&lt;/h1>' .
+					'&lt;p>' . esc_html__( 'Sorry, you are not allowed to add this item.', 'distributor' ) . '&lt;/p>',
+					403
+				);
+			}
+
+			if ( empty( $_GET['connection_type'] ) || empty( $_GET['connection_id'] ) || empty( $_GET['post'] ) ) {
+				break;
+			}
+
+			$posts       = (array) $_GET['post'];
+			$post_type   = sanitize_text_field( $_GET['pull_post_type'] );
+			$post_status = ! empty( $_GET['dt_as_draft'] ) &amp;&amp; 'draft' === $_GET['dt_as_draft'] ? 'draft' : '';
+
+			$posts = array_map(
+				function( $remote_post_id ) use ( $post_type, $post_status ) {
+						return [
+							'remote_post_id' => $remote_post_id,
+							'post_type'      => $post_type,
+							'post_status'    => $post_status,
+						];
+				},
+				$posts
+			);
+
+			if ( 'external' === $_GET['connection_type'] ) {
+				$connection = \Distributor\ExternalConnection::instantiate( intval( $_GET['connection_id'] ) );
+				$new_posts  = $connection->pull( $posts );
+				$error_key  = "external_{$connection->id}";
+
+				foreach ( $posts as $key => $post_array ) {
+					if ( is_wp_error( $new_posts[ $key ] ) ) {
+						continue;
+					}
+					\Distributor\Subscriptions\create_remote_subscription( $connection, $post_array['remote_post_id'], $new_posts[ $key ] );
+				}
+			} else {
+				$site       = get_site( intval( $_GET['connection_id'] ) );
+				$connection = new \Distributor\InternalConnections\NetworkSiteConnection( $site );
+				$new_posts  = $connection->pull( $posts );
+				$error_key  = "internal_{$connection->site->blog_id}";
+			}
+
+			$post_id_mappings = array();
+			$pull_errors      = array();
+
+			foreach ( $posts as $key => $post_array ) {
+				if ( is_wp_error( $new_posts[ $key ] ) ) {
+					$pull_errors[ $post_array['remote_post_id'] ] = [ $new_posts[ $key ]->get_error_message() ];
+					continue;
+				}
+				$post_id_mappings[ $post_array['remote_post_id'] ] = $new_posts[ $key ];
+
+				$media_errors = get_transient( 'dt_media_errors_' . $new_posts[ $key ] );
+
+				if ( ! empty( $media_errors ) ) {
+					delete_transient( 'dt_media_errors_' . $new_posts[ $key ] );
+					$pull_errors[ $post_array['remote_post_id'] ] = $media_errors;
+				}
+			}
+
+			if ( ! empty( $pull_errors ) ) {
+				set_transient( 'dt_connection_pull_errors_' . $error_key, $pull_errors, DAY_IN_SECONDS );
+			}
+
+			$connection->log_sync( $post_id_mappings );
+
+			if ( empty( $dt_pull_messages['duplicated'] ) ) {
+				setcookie( 'dt-syndicated', 1, time() + DAY_IN_SECONDS, ADMIN_COOKIE_PATH, COOKIE_DOMAIN, is_ssl() );
+			}
+
+			if ( ! empty( $dt_pull_messages['duplicated'] ) ) {
+				setcookie( 'dt-duplicated', 1, time() + DAY_IN_SECONDS, ADMIN_COOKIE_PATH, COOKIE_DOMAIN, is_ssl() );
+			}
+
+			// Redirect to the pulled content tab
+			wp_safe_redirect( add_query_arg( 'status', 'pulled', wp_get_referer() ) );
+			exit;
+		case 'bulk-skip':
+		case 'skip':
+			if ( ! wp_verify_nonce( $_GET['_wpnonce'], 'dt_skip' ) &amp;&amp; ! wp_verify_nonce( $_GET['_wpnonce'], 'bulk-distributor_page_pull' ) ) {
+				exit;
+			}
+
+			// Filter documented above.
+			if ( ! current_user_can( apply_filters( 'dt_pull_capabilities', 'manage_options' ) ) ) {
+				wp_die(
+					'&lt;h1>' . esc_html__( 'Cheatin&amp;#8217; uh?', 'distributor' ) . '&lt;/h1>' .
+					'&lt;p>' . esc_html__( 'Sorry, you are not allowed to add this item.', 'distributor' ) . '&lt;/p>',
+					403
+				);
+			}
+
+			if ( empty( $_GET['connection_type'] ) || empty( $_GET['connection_id'] ) || empty( $_GET['post'] ) ) {
+				break;
+			}
+
+			if ( 'external' === $_GET['connection_type'] ) {
+				$connection = \Distributor\ExternalConnection::instantiate( intval( $_GET['connection_id'] ) );
+			} else {
+				$site       = get_site( intval( $_GET['connection_id'] ) );
+				$connection = new \Distributor\InternalConnections\NetworkSiteConnection( $site );
+			}
+
+			$posts = $_GET['post'];
+			if ( ! is_array( $posts ) ) {
+				$posts = [ $posts ];
+			}
+
+			$post_mapping = array();
+
+			foreach ( $posts as $post_id ) {
+				$post_mapping[ $post_id ] = false;
+			}
+
+			$connection->log_sync( $post_mapping );
+
+			setcookie( 'dt-skipped', 1, time() + DAY_IN_SECONDS, ADMIN_COOKIE_PATH, COOKIE_DOMAIN, is_ssl() );
+
+			// Redirect to the skipped content tab
+			wp_safe_redirect( add_query_arg( 'status', 'skipped', wp_get_referer() ) );
+			exit;
+		case 'bulk-unskip':
+		case 'unskip':
+			if ( ! wp_verify_nonce( $_GET['_wpnonce'], 'dt_unskip' ) &amp;&amp; ! wp_verify_nonce( $_GET['_wpnonce'], 'bulk-distributor_page_pull' ) ) {
+				exit;
+			}
+
+			// Filter documented above.
+			if ( ! current_user_can( apply_filters( 'dt_pull_capabilities', 'manage_options' ) ) ) {
+				wp_die(
+					'&lt;h1>' . esc_html__( 'Cheatin&amp;#8217; uh?', 'distributor' ) . '&lt;/h1>' .
+					'&lt;p>' . esc_html__( 'Sorry, you are not allowed to add this item.', 'distributor' ) . '&lt;/p>',
+					403
+				);
+			}
+
+			if ( empty( $_GET['connection_type'] ) || empty( $_GET['connection_id'] ) || empty( $_GET['post'] ) ) {
+				break;
+			}
+
+			if ( 'external' === $_GET['connection_type'] ) {
+				$connection = \Distributor\ExternalConnection::instantiate( intval( $_GET['connection_id'] ) );
+			} else {
+				$site       = get_site( intval( $_GET['connection_id'] ) );
+				$connection = new \Distributor\InternalConnections\NetworkSiteConnection( $site );
+			}
+
+			$posts = $_GET['post'];
+			if ( ! is_array( $posts ) ) {
+				$posts = [ $posts ];
+			}
+
+			$sync_log = $connection->get_sync_log( intval( $_GET['connection_id'] ) );
+
+			foreach ( $posts as $post_id ) {
+				if ( array_key_exists( $post_id, $sync_log ) ) {
+					unset( $sync_log[ $post_id ] );
+				}
+			}
+
+			$connection->log_sync( $sync_log, intval( $_GET['connection_id'] ), true );
+
+			setcookie( 'dt-unskipped', 1, time() + DAY_IN_SECONDS, ADMIN_COOKIE_PATH, COOKIE_DOMAIN, is_ssl() );
+
+			// Redirect to the new content tab
+			wp_safe_redirect( add_query_arg( 'status', 'new', wp_get_referer() ) );
+			exit;
+	}
+}
+
+/**
+ * Output pull dashboard with custom list table
+ *
+ * @since 0.8
+ */
+function dashboard() {
+	global $connection_list_table;
+	global $connection_now;
+	global $dt_pull_messages;
+
+	if ( ! empty( $connection_now ) ) {
+		if ( is_a( $connection_now, '\Distributor\ExternalConnection' ) ) {
+			$connection_type = 'external';
+			$connection_id   = $connection_now->id;
+		} else {
+			$connection_type = 'internal';
+			$connection_id   = $connection_now->site->blog_id;
+		}
+	}
+
+	$internal_connection_group = array();
+	$external_connection_group = array();
+
+	foreach ( $connection_list_table->connection_objects as $connection ) {
+		if ( is_a( $connection, '\Distributor\ExternalConnection' ) ) {
+			$external_connection_group[] = $connection;
+		} else {
+			$internal_connection_group[] = $connection;
+		}
+	}
+	?>
+
+	&lt;div class="wrap nosubsub">
+		&lt;h1>
+			&lt;?php
+			if ( empty( $connection_list_table->connection_objects ) ) :
+				$connection_now = 0;
+				?>
+				&lt;?php esc_html_e( 'No Connections to Pull from,', 'distributor' ); ?>
+
+				&lt;a href="&lt;?php echo esc_url( admin_url( 'post-new.php?post_type=dt_ext_connection' ) ); ?>">&lt;?php esc_html_e( 'Create One?', 'distributor' ); ?>&lt;/a>
+
+			&lt;?php else : ?>
+				&lt;?php esc_html_e( 'Pull Content from', 'distributor' ); ?>
+				&lt;select id="pull_connections" name="connection" method="get">
+					&lt;?php if ( ! empty( $internal_connection_group ) ) : ?>
+						&lt;?php if ( ! empty( $external_connection_group ) ) : ?>
+							&lt;optgroup label="&lt;?php esc_html_e( 'Network Connections', 'distributor' ); ?>">
+						&lt;?php endif; ?>
+							&lt;?php
+							foreach ( $internal_connection_group as $connection ) :
+								$selected = false;
+								$type     = 'internal';
+								$name     = untrailingslashit( $connection->site->domain . $connection->site->path );
+								$id       = $connection->site->blog_id;
+
+								if ( is_a( $connection_now, '\Distributor\InternalConnections\NetworkSiteConnection' ) &amp;&amp; (int) $connection_now->site->blog_id === (int) $id ) {
+									$selected = true;
+								}
+								?>
+								&lt;option &lt;?php selected( true, $selected ); ?> data-pull-url="&lt;?php echo esc_url( admin_url( 'admin.php?page=pull&amp;connection_type=' . $type . '&amp;connection_id=' . $id ) ); ?>">&lt;?php echo esc_html( $name ); ?>&lt;/option>
+							&lt;?php endforeach; ?>
+						&lt;?php if ( ! empty( $external_connection_group ) ) : ?>
+							&lt;/optgroup>
+						&lt;?php endif; ?>
+					&lt;?php endif; ?>
+
+					&lt;?php if ( ! empty( $external_connection_group ) ) : ?>
+						&lt;?php if ( ! empty( $internal_connection_group ) ) : ?>
+							&lt;optgroup label="&lt;?php esc_html_e( 'External Connections', 'distributor' ); ?>">
+						&lt;?php endif; ?>
+							&lt;?php
+							foreach ( $external_connection_group as $connection ) :
+								$type     = 'external';
+								$selected = false;
+								$name     = $connection->name;
+								$id       = $connection->id;
+
+								if ( is_a( $connection_now, '\Distributor\ExternalConnection' ) &amp;&amp; (int) $connection_now->id === (int) $id ) {
+									$selected = true;
+								}
+								?>
+								&lt;option &lt;?php selected( true, $selected ); ?> data-pull-url="&lt;?php echo esc_url( admin_url( 'admin.php?page=pull&amp;connection_type=' . $type . '&amp;connection_id=' . $id ) ); ?>">&lt;?php echo esc_html( $name ); ?>&lt;/option>
+							&lt;?php endforeach; ?>
+						&lt;?php if ( ! empty( $internal_connection_group ) ) : ?>
+							&lt;/optgroup>
+						&lt;?php endif; ?>
+					&lt;?php endif; ?>
+				&lt;/select>
+
+				&lt;?php
+				$connection_now->pull_post_types = \Distributor\Utils\available_pull_post_types( $connection_now, $connection_type );
+
+				// Ensure we have at least one post type to pull.
+				$connection_now->pull_post_type = '';
+				if ( ! empty( $connection_now->pull_post_types ) ) {
+					$connection_now->pull_post_type = ( 'internal' === $connection_type ) ? 'all' : $connection_now->pull_post_types[0]['slug'];
+				}
+
+				// Set the post type we want to pull (if any)
+				// This is either from a query param, "post" post type, or the first in the list
+				foreach ( $connection_now->pull_post_types as $post_type ) {
+					if ( isset( $_GET['pull_post_type'] ) ) { // @codingStandardsIgnoreLine No nonce needed here.
+						if ( $_GET['pull_post_type'] === $post_type['slug'] ) { // @codingStandardsIgnoreLine Comparing values, no nonce needed.
+							$connection_now->pull_post_type = $post_type['slug'];
+							break;
+						}
+					} else {
+						if ( 'post' === $post_type['slug'] &amp;&amp; 'external' === $connection_type ) {
+							$connection_now->pull_post_type = $post_type['slug'];
+							break;
+						}
+					}
+				}
+				?>
+
+			&lt;?php endif; ?>
+		&lt;/h1>
+
+		&lt;?php if ( ! empty( $dt_pull_messages ) &amp;&amp; ! empty( $dt_pull_messages['skipped'] ) ) : ?>
+			&lt;div id="message" class="updated notice is-dismissible">
+				&lt;p>&lt;?php esc_html_e( 'Post(s) have been marked as skipped.', 'distributor' ); ?>&lt;/p>
+			&lt;/div>
+		&lt;?php endif; ?>
+
+		&lt;?php if ( ! empty( $dt_pull_messages ) &amp;&amp; ! empty( $dt_pull_messages['unskipped'] ) ) : ?>
+			&lt;div id="message" class="updated notice is-dismissible">
+				&lt;p>&lt;?php esc_html_e( 'Post(s) have been unskipped.', 'distributor' ); ?>&lt;/p>
+			&lt;/div>
+		&lt;?php endif; ?>
+
+		&lt;?php if ( ! empty( $dt_pull_messages ) &amp;&amp; ! empty( $dt_pull_messages['syndicated'] ) ) : ?>
+			&lt;div id="message" class="updated notice is-dismissible">
+				&lt;p>&lt;?php esc_html_e( 'Post(s) have been pulled.', 'distributor' ); ?>&lt;/p>
+			&lt;/div>
+		&lt;?php endif; ?>
+
+		&lt;?php if ( ! empty( $dt_pull_messages ) &amp;&amp; ! empty( $dt_pull_messages['duplicated'] ) ) : ?>
+			&lt;div id="message" class="notice notice-warning is-dismissible">
+				&lt;p>&lt;?php esc_html_e( 'Post(s) have been already distributed.', 'distributor' ); ?>&lt;/p>
+			&lt;/div>
+		&lt;?php endif; ?>
+
+		&lt;?php output_pull_errors(); ?>
+
+		&lt;?php $connection_list_table->prepare_items(); ?>
+
+		&lt;?php if ( ! empty( $connection_list_table->pull_error ) ) : ?>
+			&lt;p>&lt;?php esc_html_e( 'Could not pull content from connection due to error.', 'distributor' ); ?>&lt;/p>
+			&lt;ul>
+				&lt;?php foreach ( $connection_list_table->pull_error as $error ) : ?>
+				&lt;li>
+					&lt;ul>
+						&lt;li>&lt;?php echo esc_html( $error ); ?>&lt;/li>
+					&lt;/ul>
+				&lt;/li>
+				&lt;?php endforeach; ?>
+			&lt;/ul>
+		&lt;?php else : ?>
+			&lt;?php $connection_list_table->views(); ?>
+
+			&lt;form id="posts-filter" class="status-&lt;?php echo ( ! empty( $_GET['status'] ) ) ? esc_attr( $_GET['status'] ) : 'new'; // @codingStandardsIgnoreLine Nonce not needed. ?>" method="get">
+				&lt;?php if ( ! empty( $connection_list_table->connection_objects ) ) : ?>
+					&lt;input type="hidden" name="connection_type" value="&lt;?php echo esc_attr( $connection_type ); ?>">
+					&lt;input type="hidden" name="connection_id" value="&lt;?php echo esc_attr( $connection_id ); ?>">
+				&lt;?php endif; ?>
+
+				&lt;input type="hidden" name="page" value="pull">
+
+				&lt;?php $connection_list_table->search_box( esc_html__( 'Search', 'distributor' ), 'post' ); ?>
+
+				&lt;?php $connection_list_table->display(); ?>
+			&lt;/form>
+		&lt;?php endif; ?>
+	&lt;/div>
+	&lt;?php
+}
+
+/**
+ * Get pull errors saved in transient and display it to user.
+ *
+ * @todo Log persistent
+ */
+function output_pull_errors() {
+	global $connection_now;
+
+	if ( empty( $_GET['connection_id'] ) ) {
+		return;
+	}
+
+	if ( is_a( $connection_now, '\Distributor\ExternalConnection' ) ) {
+		$error_key = "external_{$connection_now->id}";
+	} else {
+		$error_key = "internal_{$connection_now->site->blog_id}";
+	}
+
+	$pull_errors = get_transient( 'dt_connection_pull_errors_' . $error_key );
+
+	if ( empty( $pull_errors ) ) {
+		return;
+	}
+
+	delete_transient( 'dt_connection_pull_errors_' . $error_key );
+
+	$post_ids = array_keys( $pull_errors );
+
+	$_posts = $connection_now->remote_get( [ 'post__in' => $post_ids ] );
+	$posts  = [];
+
+	if ( empty( $_posts ) ) {
+		return;
+	}
+
+	foreach ( $_posts['items'] as $post ) {
+		$posts[ $post->ID ] = $post->post_title;
+	}
+	?>
+
+	&lt;div id="pull-errors" class="notice notice-warning is-dismissible">
+		&lt;p>&lt;?php esc_html_e( 'Some errors occurred while pulling selected posts. Please review the list of the errors bellow for more details.', 'distributor' ); ?>&lt;/p>
+		&lt;ul>
+			&lt;?php foreach ( $pull_errors as $id => $errors ) : ?>
+			&lt;li>
+				&lt;strong>&lt;?php echo esc_html( $posts[ $id ] ); ?>:&lt;/strong>
+				&lt;ul>
+				&lt;?php foreach ( $errors as $error ) : ?>
+					&lt;li>&lt;?php echo esc_html( $error ); ?>&lt;/li>
+				&lt;?php endforeach; ?>
+				&lt;/ul>
+			&lt;/li>
+			&lt;?php endforeach; ?>
+		&lt;/ul>
+	&lt;/div>
+
+	&lt;?php
+}
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+
+    <footer>
+		<a href="https://distributorplugin.com/">Distributor Plugin</a> &bull;
+		<a href="https://github.com/10up/distributor/">Distributor on GitHub</a> &bull;
+		<a href="https://10up.com/careers">Careers at 10up</a>
+	</footer>
+
+	
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Actions</h3><ul><li><a href="dt_after_set_meta.html">dt_after_set_meta</a></li><li><a href="dt_link_post.html">dt_link_post</a></li><li><a href="dt_log_sync.html">dt_log_sync</a></li><li><a href="dt_oauth_admin_notices.html">dt_oauth_admin_notices</a></li><li><a href="dt_process_distributor_attributes.html">dt_process_distributor_attributes</a></li><li><a href="dt_process_subscription_attributes.html">dt_process_subscription_attributes</a></li><li><a href="dt_pull_filters.html">dt_pull_filters</a></li><li><a href="dt_pull_list_table_custom_column.html">dt_pull_list_table_custom_column</a></li><li><a href="dt_pull_post.html">dt_pull_post</a></li><li><a href="dt_push_post.html">dt_push_post</a></li><li><a href="dt_unlink_post.html">dt_unlink_post</a></li></ul><h3>Filters</h3><ul><li><a href="distributable_post_types.html">distributable_post_types</a></li><li><a href="distributor_get_original_site_link.html">distributor_get_original_site_link</a></li><li><a href="dt_ajax_requires_with_credentials.html">dt_ajax_requires_with_credentials</a></li><li><a href="dt_allow_post_unlink.html">dt_allow_post_unlink</a></li><li><a href="dt_allowed_media_extensions.html">dt_allowed_media_extensions</a></li><li><a href="dt_auth_format_get_args.html">dt_auth_format_get_args</a></li><li><a href="dt_auth_format_post_args.html">dt_auth_format_post_args</a></li><li><a href="dt_auth_prepare_credentials.html">dt_auth_prepare_credentials</a></li><li><a href="dt_authorized_sites.html">dt_authorized_sites</a></li><li><a href="dt_available_pull_post_types.html">dt_available_pull_post_types</a></li><li><a href="dt_blacklisted_meta.html">dt_blacklisted_meta</a></li><li><a href="dt_capabilities.html">dt_capabilities</a></li><li><a href="dt_create_missing_terms.html">dt_create_missing_terms</a></li><li><a href="dt_debug_info_enabled.html">dt_debug_info_enabled</a></li><li><a href="dt_distributable_post_statuses.html">dt_distributable_post_statuses</a></li><li><a href="dt_external_capabilities.html">dt_external_capabilities</a></li><li><a href="dt_get_media_details.html">dt_get_media_details</a></li><li><a href="dt_get_pull_content_rest_query_args.html">dt_get_pull_content_rest_query_args</a></li><li><a href="dt_get_rest_url.html">dt_get_rest_url</a></li><li><a href="dt_item_mapping.html">dt_item_mapping</a></li><li><a href="dt_media_item_formatted.html">dt_media_item_formatted</a></li><li><a href="dt_media_processing_filename.html">dt_media_processing_filename</a></li><li><a href="dt_network_site_connection_enabled.html">dt_network_site_connection_enabled</a></li><li><a href="dt_pre_get_authorized_sites.html">dt_pre_get_authorized_sites</a></li><li><a href="dt_process_media_args.html">dt_process_media_args</a></li><li><a href="dt_process_media_save_source_file_path.html">dt_process_media_save_source_file_path</a></li><li><a href="dt_pull_as_draft.html">dt_pull_as_draft</a></li><li><a href="dt_pull_capabilities.html">dt_pull_capabilities</a></li><li><a href="dt_pull_list_table_columns.html">dt_pull_list_table_columns</a></li><li><a href="dt_pull_list_table_tr_class.html">dt_pull_list_table_tr_class</a></li><li><a href="dt_pull_post_apply_rendered_content.html">dt_pull_post_apply_rendered_content</a></li><li><a href="dt_pull_post_args.html">dt_pull_post_args</a></li><li><a href="dt_pull_post_media.html">dt_pull_post_media</a></li><li><a href="dt_pull_post_meta.html">dt_pull_post_meta</a></li><li><a href="dt_pull_post_terms.html">dt_pull_post_terms</a></li><li><a href="dt_push_capabilities.html">dt_push_capabilities</a></li><li><a href="dt_push_post_args.html">dt_push_post_args</a></li><li><a href="dt_push_post_media.html">dt_push_post_media</a></li><li><a href="dt_push_post_meta.html">dt_push_post_meta</a></li><li><a href="dt_push_post_terms.html">dt_push_post_terms</a></li><li><a href="dt_push_post_timeout.html">dt_push_post_timeout</a></li><li><a href="dt_remote_get.html">dt_remote_get</a></li><li><a href="dt_remote_get_query_args.html">dt_remote_get_query_args</a></li><li><a href="dt_remote_get_url.html">dt_remote_get_url</a></li><li><a href="dt_remote_post.html">dt_remote_post</a></li><li><a href="dt_remote_post_query_args.html">dt_remote_post_query_args</a></li><li><a href="dt_remote_post_timeout.html">dt_remote_post_timeout</a></li><li><a href="dt_set_media_args.html">dt_set_media_args</a></li><li><a href="dt_subscription_post_args.html">dt_subscription_post_args</a></li><li><a href="dt_subscription_post_timeout.html">dt_subscription_post_timeout</a></li><li><a href="dt_sync_media_delete_and_replace.html">dt_sync_media_delete_and_replace</a></li><li><a href="dt_sync_meta.html">dt_sync_meta</a></li><li><a href="dt_syncable_taxonomies.html">dt_syncable_taxonomies</a></li><li><a href="dt_syndicatable_capabilities.html">dt_syndicatable_capabilities</a></li><li><a href="dt_update_content_via_request_args.html">dt_update_content_via_request_args</a></li><li><a href="dt_update_term_hierarchy.html">dt_update_term_hierarchy</a></li><li><a href="dt_use_block_editor_for_post_type.html">dt_use_block_editor_for_post_type</a></li></ul><h3>Tutorials</h3><ul><li><a href="tutorial-snippets.html">snippets</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

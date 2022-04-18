@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Source: includes/classes/Authentications/WordPressDotcomOauth2Authentication.php - 10up Distributor Hook Docs</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+
+	<link href="https://fonts.googleapis.com/css?family=IBM+Plex+Mono|IBM+Plex+Sans:300,400|Playfair+Display:900&display=swap" rel="stylesheet"> 
+    <link type="text/css" rel="stylesheet" href="styles-10up.css">
+</head>
+
+<body>
+
+<div id="main">
+
+	
+    <h1 class="page-title">Source: includes/classes/Authentications/WordPressDotcomOauth2Authentication.php</h1>
+	
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>&lt;?php
+/**
+ * WP.com OAuth functionality
+ *
+ * @package  distributor
+ */
+
+namespace Distributor\Authentications;
+
+use \Distributor\Authentication as Authentication;
+
+/**
+ * Enables WordPress.com Oauth2 authentication.
+ */
+class WordPressDotcomOauth2Authentication extends Authentication {
+	/**
+	 * Auth handler slug
+	 *
+	 * @var string
+	 */
+	public static $slug = 'dotcom-oauth2';
+
+	/**
+	 * Does the auth handler require creds
+	 *
+	 * @var boolean
+	 */
+	public static $requires_credentials = true;
+
+	/**
+	 * Auth hanlder pretty label
+	 *
+	 * @var string
+	 */
+	public static $label = 'WordPress.com Oauth2';
+
+	const REQUEST_TOKEN_URL  = 'https://public-api.wordpress.com/oauth2/token';
+	const AUTHORIZE_URL      = 'https://public-api.wordpress.com/oauth2/authorize';
+	const VALIDATE_TOKEN_URL = 'https://public-api.wordpress.com/oauth2/token-info';
+	const ACCESS_TOKEN_KEY   = 'rest_api_access_token';
+	const API_CLIENT_ID      = 'rest_api_client_id';
+	const API_CLIENT_SECRET  = 'rest_api_client_secret';
+	const API_REDIRECT_URI   = 'rest_api_redirect_uri';
+
+	/**
+	 * Output the credentials form.
+	 *
+	 * @param  array $args Array of creds.
+	 * @since  1.1.0
+	 */
+	public static function credentials_form( $args = array() ) {
+
+		// Check if we need to display the form, or request a token?
+		$code = isset( $_GET['code'] ) ? sanitize_text_field( wp_unslash( $_GET['code'] ) ) : false; // @codingStandardsIgnoreLine Nonce not required.
+
+		/**
+		 * A code is present as a query parameter in the URL when the user has authorized the connection
+		 * and is redirected back to the edit screen. The next step in the authorization flow is to request a token
+		 * using the code.
+		 */
+		if ( ! empty( $code ) ) {
+
+			// Attempt to fetch an access token using the code. If successful, the token will be stored as in ACCESS_TOKEN_KEY.
+			self::fetch_access_token( $code );
+		}
+
+		// Load the access token if available.
+		$saved_access_token = self::get_authentication_option_by_key( self::ACCESS_TOKEN_KEY );
+
+		// Do we have a valid token?
+		$is_valid_token = self::is_valid_token();
+
+		// Grab the existing id &amp; secret if any.
+		$client_id     = isset( $args[ self::API_CLIENT_ID ] ) ? $args[ self::API_CLIENT_ID ] : '';
+		$client_secret = isset( $args[ self::API_CLIENT_SECRET ] ) ? $args[ self::API_CLIENT_SECRET ] : '';
+
+		// Check if we are on the new connection screen.
+		$screen                = get_current_screen();
+		$adding_new_connection = isset( $screen->action ) &amp;&amp; 'add' === $screen->action;
+
+		// Calculate the redirect_uri to use for authorization (the current admin url &amp; query vars).
+		$redirect_uri                   = esc_url(
+			( is_ssl() ? 'https://' : 'http://' ) .
+			sanitize_text_field( isset( $_SERVER['HTTP_HOST'] ) ? $_SERVER['HTTP_HOST'] : '' ) . // Input var okay. WPCS: CSRF ok.
+			sanitize_text_field( isset( $_SERVER['SCRIPT_NAME'] ) ? $_SERVER['SCRIPT_NAME'] : '' ) . // WPCS: input var ok.
+			'?' .
+			sanitize_text_field( isset( $_SERVER['QUERY_STRING'] ) ? $_SERVER['QUERY_STRING'] : '' ) // WPCS: input var ok.
+		);
+		$args[ self::API_REDIRECT_URI ] = $redirect_uri;
+
+		/**
+		 * Display any authorization or token errors.
+		 *
+		 * @hook dt_oauth_admin_notices
+		 */
+		do_action( 'dt_oauth_admin_notices' );
+
+		// If anything is missing, we aren't authorized - show the credentials form.
+		if (
+			! $is_valid_token &amp;&amp; (
+				empty( $saved_access_token ) ||
+				empty( $client_id ) ||
+				empty( $client_secret ) ||
+				empty( $redirect_uri ) ||
+				empty( $code )
+			)
+		) {
+			?>
+			&lt;div class="card">
+				&lt;p>&lt;?php esc_html_e( 'To connect, first ', 'distributor' ); ?>
+				&lt;a href="https://developer.wordpress.com/apps/">&lt;?php esc_html_e( 'create an application with the WordPress.com applications manager', 'distributor' ); ?>&lt;/a>.&lt;/p>
+				&lt;p>&lt;?php esc_html_e( 'Use the following redirect URL when creating your application: ', 'distributor' ); ?>&lt;br />
+				&lt;strong>&lt;?php echo esc_url( admin_url( 'post.php' ) ); ?>&lt;/strong>&lt;/p>
+				&lt;?php
+
+				/**
+				 * On the new connection screen, at first only show a button to save the connection. Oauth requires a return redirect
+				 * and we need to save to generate a post id we can redirect back to before continuing.
+				 */
+				?>
+				&lt;p class='oauth-begin-authentication-wrapper&lt;?php echo ( ! $adding_new_connection ? ' hidden' : '' ); ?>'>
+				&lt;button name="save" type="button" class="button button-primary button-large" id="begin-authorization">&lt;?php esc_attr_e( 'Start Setup', 'distributor' ); ?>&lt;/button>
+			&lt;/p>
+			&lt;/div>
+			&lt;?php
+
+			// Render the credentials fields.
+			self::credentials_partial( $args, $adding_new_connection );
+
+		} else {
+			// The connection is already authorized and we have a valid token. Show the green connection status and
+			?>
+		&lt;div id="message" class="oauth-connection-established">&lt;p>&lt;span class="message-header">&amp;#10003 &lt;?php esc_html_e( 'Connection Authorized', 'distributor' ); ?>&lt;/span>&lt;br/>&lt;a id="oauth-authentication-change-credentials" href="#">&lt;?php esc_html_e( 'Change credentials.', 'distributor' ); ?>&lt;/a>&lt;/p>&lt;/div>
+			&lt;?php
+			// Render the credentials field in a hidden div so they can be shown when clicking 'Change credentials'.
+			self::credentials_partial( $args, true );
+			?>
+		&lt;script type="text/javascript">
+
+			// Remove the code credentials from the URL to prevent refresh from initiating a new flow.
+			if ( window.location.href.indexOf( 'code' ) > 0 ) {
+				window.history.pushState( {}, window.location.title, window.location.href.split( '&amp;code=' )[0] );
+			}
+		&lt;/script>
+			&lt;?php
+		}
+	}
+
+	/**
+	 * Helper function to output the credentials section of the authorization form.
+	 *
+	 * @param array   $args        The authentication arguments.
+	 * @param boolean $hidden      Should the entire section be hidden?
+	 */
+	public static function credentials_partial( $args, $hidden = false ) {
+
+		/**
+		 * Grab the existing credentials.
+		 */
+		$client_id     = isset( $args[ self::API_CLIENT_ID ] ) ? $args[ self::API_CLIENT_ID ] : '';
+		$client_secret = isset( $args[ self::API_CLIENT_SECRET ] ) ? $args[ self::API_CLIENT_SECRET ] : '';
+		$redirect_uri  = isset( $args[ self::API_REDIRECT_URI ] ) ? $args[ self::API_REDIRECT_URI ] : '';
+		?>
+			&lt;div class="oauth-authentication-details-wrapper&lt;?php echo ( $hidden ? ' hidden' : '' ); ?>">
+				&lt;h3 >
+					&lt;?php esc_html_e( 'WordPress.com Application Client ID and Client Secret: ', 'distributor' ); ?>
+				&lt;/h3>
+				&lt;p>
+					&lt;label for="dt_client_id">&lt;?php esc_html_e( 'Client ID', 'distributor' ); ?>&lt;/label>&lt;br />
+					&lt;input type="text" name="dt_external_connection_auth[client_id]" data-auth-field="client_id" value="&lt;?php echo esc_attr( $client_id ); ?>" class="regular-text auth-field" id="dt_client_id">&lt;br />
+
+					&lt;label for="dt_client_secret">&lt;?php esc_html_e( 'Client Secret', 'distributor' ); ?>&lt;/label>&lt;br />
+					&lt;input type="password" name="dt_external_connection_auth[client_secret]" data-auth-field="client_secret" value="&lt;?php echo esc_attr( $client_secret ); ?>" class="regular-text auth-field" id="dt_client_secret">
+				&lt;/p>
+					&lt;input type="hidden" name="dt_external_connection_auth[redirect_uri]" data-auth-field="redirect_uri" value="&lt;?php echo esc_attr( $redirect_uri ); ?>" class="regular-text  auth-field" id="dt_redirect_uri">
+					&lt;input type="hidden" id="dt_created_post_id" name="dt_external_connection_auth[dt_created_post_id]">
+				&lt;input name="save" type="submit" class="button button-primary button-large" id="create-oauth-connection" value="&lt;?php esc_attr_e( 'Authorize Connection with WordPress.com', 'distributor' ); ?>">
+			&lt;/div>
+		&lt;?php
+	}
+
+	/**
+	 * Helper function extract a single option by key.
+	 *
+	 * @param  string $key Key to get.
+	 * @since  1.2
+	 * @return  bool|string
+	 */
+	public static function get_authentication_option_by_key( $key ) {
+		global $post;
+		$external_connection_id = $post ? $post->ID : false;
+
+		if ( $external_connection_id ) {
+			$current_values = get_post_meta( $external_connection_id, 'dt_external_connection_auth', true );
+			if ( isset( $current_values[ $key ] ) ) {
+				return $current_values[ $key ];
+			}
+		}
+		return false;
+
+	}
+
+	/**
+	 * Helper function gets all options.
+	 *
+	 * @since  1.2
+	 * @return  bool|string
+	 */
+	public static function get_authentication_options() {
+		global $post;
+		$external_connection_id = $post ? $post->ID : false;
+		if ( $external_connection_id ) {
+			return get_post_meta( $external_connection_id, 'dt_external_connection_auth', true );
+		}
+		return false;
+	}
+
+	/**
+	 * Helper function to set a single option by key.
+	 *
+	 * @param  string $key Key to set.
+	 * @param  string $value Value to set.
+	 * @since  1.2
+	 */
+	public static function set_authentication_option_by_key( $key, $value ) {
+		global $post;
+		$external_connection_id = $post ? $post->ID : false;
+
+		if ( $external_connection_id ) {
+			$current_values         = get_post_meta( $external_connection_id, 'dt_external_connection_auth', true );
+			$current_values[ $key ] = $value;
+			update_post_meta( $external_connection_id, 'dt_external_connection_auth', $current_values );
+		}
+	}
+
+	/**
+	 * Prepare credentials saving.
+	 *
+	 * @param  array $args Array of creds.
+	 * @since  1.1.0
+	 * @return array
+	 */
+	public static function prepare_credentials( $args ) {
+		$auth = array();
+
+		if ( ! empty( $args['client_id'] ) ) {
+			$auth[ self::API_CLIENT_ID ] = sanitize_text_field( $args['client_id'] );
+		}
+
+		if ( ! empty( $args['client_secret'] ) ) {
+			$auth[ self::API_CLIENT_SECRET ] = sanitize_text_field( $args['client_secret'] );
+		}
+
+		if ( ! empty( $args['redirect_uri'] ) ) {
+			$auth[ self::API_REDIRECT_URI ] = sanitize_text_field( $args['redirect_uri'] );
+		}
+
+		if ( ! empty( $args['redirect_uri'] ) ) {
+			$auth[ self::API_REDIRECT_URI ] = sanitize_text_field( $args['redirect_uri'] );
+		}
+
+		if ( ! empty( $args['dt_created_post_id'] ) ) {
+			$auth['dt_created_post_id'] = sanitize_text_field( $args['dt_created_post_id'] );
+		}
+		// Filter documented in includes/classes/Authentications/WordPressBasicAuth.php.
+		return apply_filters( 'dt_auth_prepare_credentials', $auth, $args, self::$slug );
+	}
+
+	/**
+	 * Store the authorization credentials.
+	 *
+	 * If the credentials are new, start the authorization process.
+	 *
+	 * @param int   $external_connection_id External connection ID.
+	 * @param array $args Array of creds to store.
+	 * @since 1.1.0
+	 */
+	public static function store_credentials( $external_connection_id, $args ) {
+
+		$current_values = get_post_meta( $external_connection_id, 'dt_external_connection_auth', true );
+
+		// Don't attempt to authorize blank values.
+		if (
+			! isset( $args[ self::API_CLIENT_ID ] ) ||
+			'' === $args[ self::API_CLIENT_ID ] ||
+			! isset( $args[ self::API_CLIENT_SECRET ] ) ||
+			'' === $args[ self::API_CLIENT_SECRET ]
+		) {
+			return;
+		}
+
+		$access_token               = isset( $current_values[ self::ACCESS_TOKEN_KEY ] ) ? $current_values[ self::ACCESS_TOKEN_KEY ] : '';
+		$created_id                 = isset( $args['dt_created_post_id'] ) ? $args['dt_created_post_id'] : false;
+		$args['dt_created_post_id'] = false;
+		if (
+			empty( $access_token ) ||
+			$current_values[ self::API_CLIENT_ID ] !== $args[ self::API_CLIENT_ID ] ||
+			$current_values[ self::API_CLIENT_SECRET ] !== $args[ self::API_CLIENT_SECRET ]
+		) {
+			update_post_meta( $created_id ? $created_id : $external_connection_id, 'dt_external_connection_auth', $args );
+			self::get_authorization_code( $args );
+		} else {
+			$args[ self::ACCESS_TOKEN_KEY ] = $access_token;
+			update_post_meta( $external_connection_id, 'dt_external_connection_auth', $args );
+		}
+	}
+
+	/**
+	 * Add the Bearer: {Token} authorization header for get requests.
+	 *
+	 * @param  array $args Array of creds to format.
+	 * @param  array $context Current context.
+	 * @since  1.1.0
+	 * @return array
+	 */
+	public function format_get_args( $args = array(), $context = array() ) {
+		$saved_access_token = isset( $this->{self::ACCESS_TOKEN_KEY} ) ?
+			$this->{self::ACCESS_TOKEN_KEY} :
+			false;
+
+		if ( $saved_access_token ) {
+			$args['headers'] = array(
+				'Authorization' => 'Bearer ' . $saved_access_token,
+			);
+		}
+
+		return parent::format_get_args( $args, $context );
+	}
+
+	/**
+	 * Add the Bearer: {Token} authorization header for post requests.
+	 *
+	 * @param  array $args Array of creds to format.
+	 * @param  array $context Current context.
+	 * @since  1.1.0
+	 * @return array
+	 */
+	public function format_post_args( $args, $context = array() ) {
+		$saved_access_token = isset( $this->{self::ACCESS_TOKEN_KEY} ) ?
+			$this->{self::ACCESS_TOKEN_KEY} :
+			false;
+
+		if ( $saved_access_token ) {
+			$args['headers'] = array(
+				'Authorization' => 'Bearer ' . $saved_access_token,
+			);
+		}
+		return parent::format_post_args( $args, $context );
+	}
+
+	/**
+	 * Authorize the request using the code and secret key. If successful, save the access token.
+	 *
+	 * @param  string $code Code used to fetch access token.
+	 * @since 1.1.0
+	 */
+	public static function fetch_access_token( $code ) {
+		global $post;
+
+		$external_connection_id = $post ? $post->ID : false;
+
+		$options = self::get_authentication_options();
+		if ( ! $options ) {
+			return false;
+		}
+
+		$client_id     = $options[ self::API_CLIENT_ID ];
+		$client_secret = $options[ self::API_CLIENT_SECRET ];
+		$redirect_uri  = $options[ self::API_REDIRECT_URI ];
+
+		if (
+			empty( $client_id ) ||
+			empty( $client_secret ) ||
+			empty( $redirect_uri ) ||
+			empty( $code ) ||
+			! $external_connection_id
+		) {
+			self::log_authentication_error( ' Admin Settings form input date not saved. Please try saving the credentials again. ' );
+			return false;
+		}
+
+		try {
+			$params = array(
+				'client_id'     => $client_id,
+				'client_secret' => $client_secret,
+				'grant_type'    => 'authorization_code',
+				'code'          => $code,
+				'redirect_uri'  => $redirect_uri,
+			);
+
+			$args = array(
+				'body' => $params,
+			);
+
+			// Request a token.
+			$response = wp_remote_post( esc_url_raw( self::REQUEST_TOKEN_URL ), $args );
+
+			if ( is_wp_error( $response ) ) {
+				self::log_authentication_error( ' fetch_access_token() Failed -- ' . $response->get_error_message() );
+				return false;
+			}
+
+			$response_body = wp_remote_retrieve_body( $response );
+			$auth          = json_decode( $response_body );
+
+			if ( empty( $auth->access_token ) ) {
+				self::log_authentication_error( ' fetch_access_token() Failed -- ' . $response_body );
+				return false;
+			}
+
+			// Success! Store the token.
+			self::set_authentication_option_by_key( self::ACCESS_TOKEN_KEY, $auth->access_token );
+			return true;
+
+		} catch ( \Exception $ex ) {
+			self::log_authentication_error( ' fetch_access_token() Failed -- ' . $ex->getMessage() );
+			return false;
+		}
+	}
+
+	/**
+	 * Begin the authorization process which retrieves an authorization code.
+	 *
+	 * @param  array $options Array of options.
+	 * @since 1.1.0
+	 * @return  bool|string
+	 */
+	public static function get_authorization_code( $options ) {
+		$client_id    = $options[ self::API_CLIENT_ID ];
+		$redirect_uri = $options[ self::API_REDIRECT_URI ];
+
+		if ( empty( $client_id ) || empty( $redirect_uri ) ) {
+			self::log_authentication_error( ' Admin Settings Form values not saved. Please try saving the credentials again. ' );
+			return false;
+		}
+		try {
+
+			$args = array(
+				'response_type' => 'code',
+				'scope'         => 'global',
+				'client_id'     => $client_id,
+				'redirect_uri'  => $redirect_uri,
+			);
+
+			$query_param   = http_build_query( $args );
+			$authorize_url = self::AUTHORIZE_URL . '?' . $query_param;
+
+			// Allow wp_safe_redirect to redirect to the .com authorization endpoint.
+			add_filter(
+				'allowed_redirect_hosts',
+				function( $content ) {
+					$content[] = 'public-api.wordpress.com';
+					return $content;
+				}
+			);
+
+			// Redirect to the wordpress.com oauth authorize URL (https://public-api.wordpress.com/oauth2/authorize).
+			wp_safe_redirect( esc_url_raw( $authorize_url ) );
+			exit;
+
+		} catch ( \Exception $ex ) {
+
+			self::log_authentication_error( ' fetch_access_token() Failed -- ' . $ex->getMessage() );
+			return false;
+		}
+
+	}
+
+	/**
+	 * Check if the saved token is valid or not.
+	 *
+	 * @since 1.1.0
+	 * @param  int $count Count.
+	 * @return boolean Is the token valid?
+	 */
+	public static function is_valid_token( $count = 1 ) {
+
+		$options = self::get_authentication_options();
+		if ( ! $options ) {
+			return false;
+		}
+
+		$client_id    = isset( $options[ self::API_CLIENT_ID ] ) ? $options[ self::API_CLIENT_ID ] : '';
+		$access_token = isset( $options[ self::ACCESS_TOKEN_KEY ] ) ? $options[ self::ACCESS_TOKEN_KEY ] : '';
+
+		if ( empty( $client_id ) || empty( $access_token ) ) {
+			return false;
+		}
+
+		$query = array(
+			'client_id' => (string) $client_id,
+			'token'     => $access_token,
+		);
+
+		$params = http_build_query( $query );
+
+		/**
+		 * Recommended function is vip_safe_wp_remote_get() but since it has a max timeout of 3 secs which
+		 * is not feasible since the token check response time can be greater than 3 secs.
+		 */
+		// @codingStandardsIgnoreStart
+		$args = array(
+			'timeout' => 500,
+		);
+		$response = wp_remote_get( esc_url_raw( self::VALIDATE_TOKEN_URL ) . '?' . $params, $args );
+		// @codingStandardsIgnoreEnd
+
+		if ( is_wp_error( $response ) ) {
+
+			self::log_authentication_error( 'Failed to validate token giving error ' . $response->get_error_message() );
+			$count ++;
+			if ( $count &lt;= 3 ) {
+				self::is_valid_token( $count );
+			}
+
+			return false;
+		}
+		$response_body = wp_remote_retrieve_body( $response );
+
+		if ( ! empty( $response_body ) ) {
+			$token_info = json_decode( $response_body, true );
+
+			if ( ! empty( $token_info['client_id'] ) &amp;&amp; $token_info['client_id'] === $client_id ) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+}
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+
+    <footer>
+		<a href="https://distributorplugin.com/">Distributor Plugin</a> &bull;
+		<a href="https://github.com/10up/distributor/">Distributor on GitHub</a> &bull;
+		<a href="https://10up.com/careers">Careers at 10up</a>
+	</footer>
+
+	
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Actions</h3><ul><li><a href="dt_after_set_meta.html">dt_after_set_meta</a></li><li><a href="dt_link_post.html">dt_link_post</a></li><li><a href="dt_log_sync.html">dt_log_sync</a></li><li><a href="dt_oauth_admin_notices.html">dt_oauth_admin_notices</a></li><li><a href="dt_process_distributor_attributes.html">dt_process_distributor_attributes</a></li><li><a href="dt_process_subscription_attributes.html">dt_process_subscription_attributes</a></li><li><a href="dt_pull_filters.html">dt_pull_filters</a></li><li><a href="dt_pull_list_table_custom_column.html">dt_pull_list_table_custom_column</a></li><li><a href="dt_pull_post.html">dt_pull_post</a></li><li><a href="dt_push_post.html">dt_push_post</a></li><li><a href="dt_unlink_post.html">dt_unlink_post</a></li></ul><h3>Filters</h3><ul><li><a href="distributable_post_types.html">distributable_post_types</a></li><li><a href="distributor_get_original_site_link.html">distributor_get_original_site_link</a></li><li><a href="dt_ajax_requires_with_credentials.html">dt_ajax_requires_with_credentials</a></li><li><a href="dt_allow_post_unlink.html">dt_allow_post_unlink</a></li><li><a href="dt_allowed_media_extensions.html">dt_allowed_media_extensions</a></li><li><a href="dt_auth_format_get_args.html">dt_auth_format_get_args</a></li><li><a href="dt_auth_format_post_args.html">dt_auth_format_post_args</a></li><li><a href="dt_auth_prepare_credentials.html">dt_auth_prepare_credentials</a></li><li><a href="dt_authorized_sites.html">dt_authorized_sites</a></li><li><a href="dt_available_pull_post_types.html">dt_available_pull_post_types</a></li><li><a href="dt_blacklisted_meta.html">dt_blacklisted_meta</a></li><li><a href="dt_capabilities.html">dt_capabilities</a></li><li><a href="dt_create_missing_terms.html">dt_create_missing_terms</a></li><li><a href="dt_debug_info_enabled.html">dt_debug_info_enabled</a></li><li><a href="dt_distributable_post_statuses.html">dt_distributable_post_statuses</a></li><li><a href="dt_external_capabilities.html">dt_external_capabilities</a></li><li><a href="dt_get_media_details.html">dt_get_media_details</a></li><li><a href="dt_get_pull_content_rest_query_args.html">dt_get_pull_content_rest_query_args</a></li><li><a href="dt_get_rest_url.html">dt_get_rest_url</a></li><li><a href="dt_item_mapping.html">dt_item_mapping</a></li><li><a href="dt_media_item_formatted.html">dt_media_item_formatted</a></li><li><a href="dt_media_processing_filename.html">dt_media_processing_filename</a></li><li><a href="dt_network_site_connection_enabled.html">dt_network_site_connection_enabled</a></li><li><a href="dt_pre_get_authorized_sites.html">dt_pre_get_authorized_sites</a></li><li><a href="dt_process_media_args.html">dt_process_media_args</a></li><li><a href="dt_process_media_save_source_file_path.html">dt_process_media_save_source_file_path</a></li><li><a href="dt_pull_as_draft.html">dt_pull_as_draft</a></li><li><a href="dt_pull_capabilities.html">dt_pull_capabilities</a></li><li><a href="dt_pull_list_table_columns.html">dt_pull_list_table_columns</a></li><li><a href="dt_pull_list_table_tr_class.html">dt_pull_list_table_tr_class</a></li><li><a href="dt_pull_post_apply_rendered_content.html">dt_pull_post_apply_rendered_content</a></li><li><a href="dt_pull_post_args.html">dt_pull_post_args</a></li><li><a href="dt_pull_post_media.html">dt_pull_post_media</a></li><li><a href="dt_pull_post_meta.html">dt_pull_post_meta</a></li><li><a href="dt_pull_post_terms.html">dt_pull_post_terms</a></li><li><a href="dt_push_capabilities.html">dt_push_capabilities</a></li><li><a href="dt_push_post_args.html">dt_push_post_args</a></li><li><a href="dt_push_post_media.html">dt_push_post_media</a></li><li><a href="dt_push_post_meta.html">dt_push_post_meta</a></li><li><a href="dt_push_post_terms.html">dt_push_post_terms</a></li><li><a href="dt_push_post_timeout.html">dt_push_post_timeout</a></li><li><a href="dt_remote_get.html">dt_remote_get</a></li><li><a href="dt_remote_get_query_args.html">dt_remote_get_query_args</a></li><li><a href="dt_remote_get_url.html">dt_remote_get_url</a></li><li><a href="dt_remote_post.html">dt_remote_post</a></li><li><a href="dt_remote_post_query_args.html">dt_remote_post_query_args</a></li><li><a href="dt_remote_post_timeout.html">dt_remote_post_timeout</a></li><li><a href="dt_set_media_args.html">dt_set_media_args</a></li><li><a href="dt_subscription_post_args.html">dt_subscription_post_args</a></li><li><a href="dt_subscription_post_timeout.html">dt_subscription_post_timeout</a></li><li><a href="dt_sync_media_delete_and_replace.html">dt_sync_media_delete_and_replace</a></li><li><a href="dt_sync_meta.html">dt_sync_meta</a></li><li><a href="dt_syncable_taxonomies.html">dt_syncable_taxonomies</a></li><li><a href="dt_syndicatable_capabilities.html">dt_syndicatable_capabilities</a></li><li><a href="dt_update_content_via_request_args.html">dt_update_content_via_request_args</a></li><li><a href="dt_update_term_hierarchy.html">dt_update_term_hierarchy</a></li><li><a href="dt_use_block_editor_for_post_type.html">dt_use_block_editor_for_post_type</a></li></ul><h3>Tutorials</h3><ul><li><a href="tutorial-snippets.html">snippets</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>
