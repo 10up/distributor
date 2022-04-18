@@ -9,6 +9,7 @@ All notable changes to this project will be documented in this file, per [the Ke
 ### Added
 
 - Dependency security scanning (props [@jeffpaul](https://github.com/jeffpaul), [@dkotter](https://github.com/dkotter) via [#869](https://github.com/10up/distributor/pull/869)).
+- Added new code snippet to [Snippets](https://10up.github.io/distributor/tutorial-snippets.html) page detailing how to remove canonical links (props [@dkotter](https://github.com/dkotter) via [#855](https://github.com/10up/distributor/pull/855)).
 
 ### Changed
 
