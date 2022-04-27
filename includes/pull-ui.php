@@ -165,7 +165,6 @@ function action_admin_menu() {
 		 * Filter Distributor capabilities allowed to pull content.
 		 *
 		 * @since 1.0.0
-		 * @hook dt_pull_capabilities
 		 *
 		 * @param {string} 'manage_options' The capability allowed to pull content.
 		 *
