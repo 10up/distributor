@@ -97,7 +97,7 @@ function setup_list_table() {
 		}
 
 		// If user can't pull all connection, check for individual connections.
-		if( ! $can_pull_all_connections ) {
+		if ( ! $can_pull_all_connections ) {
 			// Check if current user's role is allowed for Pull.
 			$pull_allowed_roles = get_post_meta( $external_connection_id, 'dt_external_connection_pull_allowed_roles', true );
 			if ( empty( $pull_allowed_roles ) ) {
