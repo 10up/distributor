@@ -184,9 +184,10 @@ function get_formatted_external_connnections() {
 	}
 
 	foreach ( $external_connections->posts as $external_connection_id ) {
-		$external_connection_type          = get_post_meta( $external_connection_id, 'dt_external_connection_type', true );
-		$external_connection_status        = get_post_meta( $external_connection_id, 'dt_external_connections', true );
-		$external_connection_allowed_roles = get_post_meta( $external_connection_id, 'dt_external_connection_allowed_roles', true );
+		$external_connection_type               = get_post_meta( $external_connection_id, 'dt_external_connection_type', true );
+		$external_connection_status             = get_post_meta( $external_connection_id, 'dt_external_connections', true );
+		$external_connection_push_allowed_roles      = get_post_meta( $external_connection_id, 'dt_external_connection_allowed_roles', true );
+		$external_connection_pull_allowed_roles = get_post_meta( $external_connection_id, 'dt_external_connection_pull_allowed_roles', true );
 
 		if ( empty( Connections::factory()->get_registered()[ $external_connection_type ] ) ) {
 			continue;
@@ -208,7 +209,8 @@ function get_formatted_external_connnections() {
 			__( 'Status', 'distributor' )                => get_external_connection_status( $external_connection_status ),
 			__( 'Auth method', 'distributor' )           => 'wp' === $external_connection_type ? __( 'Username / Password', 'distributor' ) : __( 'WordPress.com Application', 'distributor' ),
 			__( 'Username', 'distributor' )              => $external_connection->auth_handler->username,
-			__( 'Roles Allowed to Push', 'distributor' ) => implode( ', ', $external_connection_allowed_roles ),
+			__( 'Roles Allowed to Push', 'distributor' ) => implode( ', ', $external_connection_push_allowed_roles ),
+			__( 'Roles Allowed to Pull', 'distributor' ) => implode( ', ', $external_connection_pull_allowed_roles ),
 			__( 'Additional data', 'distributor' )       => preg_replace( '/,"/', ', "', wp_json_encode( $external_connection_status ) ),
 		];
 

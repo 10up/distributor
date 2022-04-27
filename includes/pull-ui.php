@@ -76,6 +76,13 @@ function setup_list_table() {
 		}
 	}
 
+	// Current user roles.
+	$current_user_roles = (array) wp_get_current_user()->roles;
+
+	// Check if user has cap to pull any external connection.
+	$pull_capabilities        = apply_filters( 'dt_pull_capabilities', 'manage_options' );
+	$can_pull_all_connections = current_user_can( esc_html( $pull_capabilities ) );
+
 	foreach ( $external_connections->posts as $external_connection_id ) {
 		$external_connection_type = get_post_meta( $external_connection_id, 'dt_external_connection_type', true );
 
@@ -87,6 +94,19 @@ function setup_list_table() {
 
 		if ( empty( $external_connection_status ) || empty( $external_connection_status['can_get'] ) ) {
 			continue;
+		}
+
+		// If user can't pull all connection, check for individual connections.
+		if( ! $can_pull_all_connections ) {
+			// Check if current user's role is allowed for Pull.
+			$pull_allowed_roles = get_post_meta( $external_connection_id, 'dt_external_connection_pull_allowed_roles', true );
+			if ( empty( $pull_allowed_roles ) ) {
+				$pull_allowed_roles = array( 'administrator', 'editor' );
+			}
+
+			if ( count( array_intersect( $current_user_roles, $pull_allowed_roles ) ) < 1 ) {
+				continue;
+			}
 		}
 
 		$external_connection = \Distributor\ExternalConnection::instantiate( $external_connection_id );
@@ -151,7 +171,7 @@ function action_admin_menu() {
 		 *
 		 * @return {string} The capability allowed to pull content.
 		 */
-		apply_filters( 'dt_pull_capabilities', 'manage_options' ),
+		 'read',
 		'pull',
 		__NAMESPACE__ . '\dashboard'
 	);
@@ -203,15 +223,6 @@ function process_actions() {
 		case 'bulk-syndicate':
 			if ( ! wp_verify_nonce( $_GET['_wpnonce'], 'bulk-distributor_page_pull' ) ) {
 				exit;
-			}
-
-			// Filter documented above.
-			if ( ! current_user_can( apply_filters( 'dt_pull_capabilities', 'manage_options' ) ) ) {
-				wp_die(
-					'<h1>' . esc_html__( 'Cheatin&#8217; uh?', 'distributor' ) . '</h1>' .
-					'<p>' . esc_html__( 'Sorry, you are not allowed to add this item.', 'distributor' ) . '</p>',
-					403
-				);
 			}
 
 			if ( empty( $_GET['connection_type'] ) || empty( $_GET['connection_id'] ) || empty( $_GET['post'] ) ) {
@@ -292,15 +303,6 @@ function process_actions() {
 				exit;
 			}
 
-			// Filter documented above.
-			if ( ! current_user_can( apply_filters( 'dt_pull_capabilities', 'manage_options' ) ) ) {
-				wp_die(
-					'<h1>' . esc_html__( 'Cheatin&#8217; uh?', 'distributor' ) . '</h1>' .
-					'<p>' . esc_html__( 'Sorry, you are not allowed to add this item.', 'distributor' ) . '</p>',
-					403
-				);
-			}
-
 			if ( empty( $_GET['connection_type'] ) || empty( $_GET['connection_id'] ) || empty( $_GET['post'] ) ) {
 				break;
 			}
@@ -334,15 +336,6 @@ function process_actions() {
 		case 'unskip':
 			if ( ! wp_verify_nonce( $_GET['_wpnonce'], 'dt_unskip' ) && ! wp_verify_nonce( $_GET['_wpnonce'], 'bulk-distributor_page_pull' ) ) {
 				exit;
-			}
-
-			// Filter documented above.
-			if ( ! current_user_can( apply_filters( 'dt_pull_capabilities', 'manage_options' ) ) ) {
-				wp_die(
-					'<h1>' . esc_html__( 'Cheatin&#8217; uh?', 'distributor' ) . '</h1>' .
-					'<p>' . esc_html__( 'Sorry, you are not allowed to add this item.', 'distributor' ) . '</p>',
-					403
-				);
 			}
 
 			if ( empty( $_GET['connection_type'] ) || empty( $_GET['connection_id'] ) || empty( $_GET['post'] ) ) {
