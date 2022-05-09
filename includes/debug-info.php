@@ -186,7 +186,7 @@ function get_formatted_external_connnections() {
 	foreach ( $external_connections->posts as $external_connection_id ) {
 		$external_connection_type               = get_post_meta( $external_connection_id, 'dt_external_connection_type', true );
 		$external_connection_status             = get_post_meta( $external_connection_id, 'dt_external_connections', true );
-		$external_connection_push_allowed_roles      = get_post_meta( $external_connection_id, 'dt_external_connection_allowed_roles', true );
+		$external_connection_push_allowed_roles = get_post_meta( $external_connection_id, 'dt_external_connection_allowed_roles', true );
 		$external_connection_pull_allowed_roles = get_post_meta( $external_connection_id, 'dt_external_connection_pull_allowed_roles', true );
 
 		if ( empty( Connections::factory()->get_registered()[ $external_connection_type ] ) ) {
