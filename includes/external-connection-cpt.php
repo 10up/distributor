@@ -677,15 +677,6 @@ function add_menu_item() {
 	$hook = add_menu_page(
 		'Distributor',
 		'Distributor',
-		/**
-		 * Filter Distributor capabilities allowed to view external connections.
-		 *
-		 * @since 1.0.0
-		 *
-		 * @param {string} 'manage_options' The capability allowed to view external connections.
-		 *
-		 * @return {string} The capability allowed to view external connections.
-		 */
 		 'read',
 		'distributor',
 		__NAMESPACE__ . '\dashboard',

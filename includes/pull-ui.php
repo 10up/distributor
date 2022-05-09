@@ -79,9 +79,17 @@ function setup_list_table() {
 	// Current user roles.
 	$current_user_roles = (array) wp_get_current_user()->roles;
 
-	// Check if user has cap to pull any external connection.
+	/**
+	 * Filter the allowed Distributor capability to pull content.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param {string} 'manage_options' The capability allowed to view external connections.
+	 *
+	 * @return {string} The capability allowed to view external connections.
+	 */
 	$pull_capabilities        = apply_filters( 'dt_pull_capabilities', 'manage_options' );
-	$can_pull_all_connections = current_user_can( esc_html( $pull_capabilities ) );
+	$can_pull_all_connections = current_user_can( $pull_capabilities );
 
 	foreach ( $external_connections->posts as $external_connection_id ) {
 		$external_connection_type = get_post_meta( $external_connection_id, 'dt_external_connection_type', true );
