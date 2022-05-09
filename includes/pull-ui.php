@@ -169,7 +169,7 @@ function action_admin_menu() {
 		'distributor',
 		esc_html__( 'Pull Content', 'distributor' ),
 		esc_html__( 'Pull Content', 'distributor' ),
-		 'read',
+		'read',
 		'pull',
 		__NAMESPACE__ . '\dashboard'
 	);
