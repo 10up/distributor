@@ -163,7 +163,7 @@ function register_rest_routes() {
  */
 function get_pull_content_list_args() {
 	return array(
-		'exclude'     => array( // phpcs:ignore WordPressVIPMinimum.Performance.WPQueryParams.PostNotIn_exclude
+		'exclude'        => array( // phpcs:ignore WordPressVIPMinimum.Performance.WPQueryParams.PostNotIn_exclude
 			'description' => esc_html__( 'Ensure result set excludes specific IDs.', 'distributor' ),
 			'type'        => 'array',
 			'items'       => array(
