@@ -20,6 +20,16 @@ function setup() {
 	add_action(
 		'admin_init',
 		function() {
+			/**
+			 * Filter whether the debug info is enabled. Enabled by default, return false to disable.
+			 *
+			 * @since 2.0.0
+			 * @hook dt_debug_info_enabled
+			 *
+			 * @param {bool} true Whether the debug info should be enabled.
+			 *
+			 * @return {bool} Whether the debug info should be enabled.
+			 */
 			if ( ! apply_filters( 'dt_debug_info_enabled', true ) ) {
 				return;
 			}

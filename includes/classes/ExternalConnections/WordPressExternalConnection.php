@@ -323,6 +323,7 @@ class WordPressExternalConnection extends ExternalConnection {
 				$this->auth_handler->format_get_args()
 			);
 		} else {
+			// Filter documented above.
 			$posts_response = wp_remote_get( apply_filters( 'dt_remote_get_url', $posts_url, $args, $this ), $this->auth_handler->format_get_args( array( 'timeout' => 45 ) ) ); // phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.wp_remote_get_wp_remote_get, WordPressVIPMinimum.Performance.RemoteRequestTimeout.timeout_timeout
 		}
 
@@ -369,6 +370,7 @@ class WordPressExternalConnection extends ExternalConnection {
 				$total_posts = count( $formatted_posts );
 			}
 
+			// Filter documented above.
 			return apply_filters(
 				'dt_remote_get',
 				[
@@ -379,6 +381,7 @@ class WordPressExternalConnection extends ExternalConnection {
 				$this
 			);
 		} else {
+			// Filter documented above.
 			return apply_filters( 'dt_remote_get', $this->to_wp_post( $posts ), $args, $this );
 		}
 	}
@@ -395,6 +398,22 @@ class WordPressExternalConnection extends ExternalConnection {
 			return new \WP_Error( 'endpoint-error', esc_html__( 'Endpoint URL must be set', 'distributor' ) );
 		}
 
+		/**
+		* Filter the remote_post query arguments
+		*
+		* @since 1.6.7
+		* @hook dt_remote_post_query_args
+		*
+		* @param {array}  $args The request arguments.
+		* @param {WordPressExternalConnection} $this The current connection object.
+		*
+		* @return {array} The query arguments.
+		*/
+		$body = apply_filters( 'dt_remote_post_query_args', $args, $this );
+
+		// Add request parameter to specify Distributor request
+		$body['distributor_request'] = '1';
+
 		$request = wp_remote_post(
 			$url,
 			$this->auth_handler->format_post_args(
@@ -405,24 +424,13 @@ class WordPressExternalConnection extends ExternalConnection {
 					 * @since 1.6.7
 					 * @hook dt_remote_post_timeout
 					 *
-					 * @param int $timeout The timeout to use for the remote post. Default `45`.
-					 * @param array $args The request arguments
+					 * @param {int}   $timeout The timeout to use for the remote post. Default `45`.
+					 * @param {array} $args    The request arguments.
 					 *
-					 * @return int The timeout to use for the remote_post call.
+					 * @return {int} The timeout to use for the remote_post call.
 					 */
 					'timeout' => apply_filters( 'dt_remote_post_timeout', 45, $args ),
-					/**
-					 * Filter the remote_post query arguments
-					 *
-					 * @since 1.6.7
-					 * @hook dt_remote_post_query_args
-					 *
-					 * @param {array}  $args The request arguments.
-					 * @param {WordPressExternalConnection} $this The current connection object.
-					 *
-					 * @return {array} The query arguments.
-					 */
-					'body'    => apply_filters( 'dt_remote_post_query_args', $args, $this ),
+					'body'    => $body,
 				)
 			)
 		);
@@ -470,9 +478,9 @@ class WordPressExternalConnection extends ExternalConnection {
 		 * @since 1.6.7
 		 * @hook dt_remote_post
 		 *
-		 * @param {array} $items The items returned from the POST request.
-		 * @param {array} $args The arguments used in the POST request.
-		 * @param {WordPressExternalConnection} $this The current connection object.
+		 * @param {array}                       $items The items returned from the POST request.
+		 * @param {array}                       $args  The arguments used in the POST request.
+		 * @param {WordPressExternalConnection} $this  The current connection object.
 		 *
 		 * @return {array} The items returned from a remote POST request.
 		 */
@@ -592,7 +600,7 @@ class WordPressExternalConnection extends ExternalConnection {
 				}
 			}
 
-			// Filter documented in includes/classes/InternalConnections/NetworkSiteConnection.php.
+			// Action documented in includes/classes/InternalConnections/NetworkSiteConnection.php.
 			do_action( 'dt_pull_post', $new_post, $this, $post_array );
 
 			$created_posts[] = $new_post;

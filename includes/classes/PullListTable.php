@@ -63,7 +63,11 @@ class PullListTable extends \WP_List_Table {
 		/**
 		 * Filters the columns displayed in the pull list table.
 		 *
-		 * @param array $columns An associative array of column headings.
+		 * @hook dt_pull_list_table_columns
+		 *
+		 * @param {array} $columns An associative array of column headings.
+		 *
+		 * @return {array} An associative array of column headings.
 		 */
 		return apply_filters( 'dt_pull_list_table_columns', $columns );
 	}
@@ -263,8 +267,10 @@ class PullListTable extends \WP_List_Table {
 		/**
 		 * Fires for each column in the pull list table.
 		 *
-		 * @param string $column_name The name of the column to display.
-		 * @param \WP_Post $item The post/item to output in the column.
+		 * @hook dt_pull_list_table_custom_column
+		 *
+		 * @param {string}  $column_name The name of the column to display.
+		 * @param {WP_Post} $item        The post/item to output in the column.
 		 */
 		do_action( 'dt_pull_list_table_custom_column', $column_name, $item );
 
@@ -321,7 +327,7 @@ class PullListTable extends \WP_List_Table {
 				 * @param {bool}   $as_draft   Whether the 'Pull in as draft' option should be checked.
 				 * @param {object} $connection The connection being used to pull from.
 				 *
-				 * @return {bool}
+				 * @return {bool} Whether the 'Pull in as draft' option should be checked.
 				 */
 				$as_draft = apply_filters( 'dt_pull_as_draft', true, $connection_now );
 
@@ -389,8 +395,12 @@ class PullListTable extends \WP_List_Table {
 		/**
 		 * Filters the class used on the table row on the pull list table.
 		 *
-		 * @param string $class The class name.
-		 * @param \WP_Post $item The current post object.
+		 * @hook dt_pull_list_table_tr_class
+		 *
+		 * @param {string}  $class The class name.
+		 * @param {WP_Post} $item  The current post object.
+		 *
+		 * @return {string} The class name.
 		 */
 		$class = sanitize_html_class( apply_filters( 'dt_pull_list_table_tr_class', 'dt-table-row', $item ) );
 

@@ -41,7 +41,9 @@ function syndicatable() {
 	 *
 	 * @hook dt_syndicatable_capabilities
 	 *
-	 * @param string edit_posts The capability allowed to syndicate content.
+	 * @param {string} edit_posts The capability allowed to syndicate content.
+	 *
+	 * @return {string} The capability allowed to syndicate content.
 	 */
 	if ( ! is_user_logged_in() || ! current_user_can( apply_filters( 'dt_syndicatable_capabilities', 'edit_posts' ) ) ) {
 		return false;

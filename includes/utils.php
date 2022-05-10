@@ -608,11 +608,11 @@ function set_media( $post_id, $media, $args = [] ) {
 	 * @since 1.6.0
 	 * @hook dt_set_media_args
 	 *
-	 * @param array $args    List of args.
-	 * @param int   $post_id Post ID.
-	 * @param array $media   Array of media posts.
+	 * @param {array} $args    List of args.
+	 * @param {int}   $post_id Post ID.
+	 * @param {array} $media   Array of media posts.
 	 *
-	 * @return array set_media args
+	 * @return {array} set_media args.
 	 */
 	$args = apply_filters( 'dt_set_media_args', $args, $post_id, $media );
 
@@ -734,8 +734,8 @@ function format_media_post( $media_post ) {
 	 *
 	 * @hook dt_get_media_details
 	 *
-	 * @param {array|false} $metadata  Array of media metadata. `false` on failure.
-	 * @param {int}    $media_post->ID The media post ID.
+	 * @param {array|false} $metadata       Array of media metadata. `false` on failure.
+	 * @param {int}         $media_post->ID The media post ID.
 	 *
 	 * @return {array} Array of media metadata.
 	 */
@@ -798,11 +798,11 @@ function process_media( $url, $post_id, $args = [] ) {
 	 * @since 1.3.7
 	 * @hook dt_allowed_media_extensions
 	 *
-	 * @param array $allowed_extensions Allowed extensions array.
-	 * @param string $url Media url.
-	 * @param int $post_id Post ID.
+	 * @param {array}  $allowed_extensions Allowed extensions array.
+	 * @param {string} $url                Media url.
+	 * @param {int}    $post_id            Post ID.
 	 *
-	 * @return array Media extensions to be processed.
+	 * @return {array} Media extensions to be processed.
 	 */
 	$allowed_extensions = apply_filters( 'dt_allowed_media_extensions', array( 'jpg', 'jpeg', 'jpe', 'gif', 'png' ), $url, $post_id );
 	preg_match( '/[^\?]+\.(' . implode( '|', $allowed_extensions ) . ')\b/i', $url, $matches );
@@ -864,9 +864,9 @@ function process_media( $url, $post_id, $args = [] ) {
 				 * @since 1.6.0
 				 * @hook dt_process_media_save_source_file_path
 				 *
-				 * @param boolean $save_file Whether to save the source file path. Default `false`.
+				 * @param {boolean} $save_file Whether to save the source file path. Default `false`.
 				 *
-				 * @return boolean Whether to save the source file path or not.
+				 * @return {boolean} Whether to save the source file path or not.
 				 */
 				$save_source_file_path = apply_filters( 'dt_process_media_save_source_file_path', false );
 
@@ -949,8 +949,24 @@ function dt_use_block_editor_for_post_type( $post_type ) {
 		return false;
 	}
 
-	// Filter documented in WordPress core.
-	return apply_filters( 'use_block_editor_for_post_type', true, $post_type );
+	// In some contexts this function doesn't exist so we can't reliably use the filter.
+	if ( function_exists( 'use_block_editor_for_post_type' ) ) {
+		// Filter documented in WordPress core.
+		return apply_filters( 'use_block_editor_for_post_type', true, $post_type );
+	}
+
+	/**
+	 * Filters whether an item is able to be edited in the block editor.
+	 *
+	 * @since 1.6.9
+	 * @hook dt_use_block_editor_for_post_type
+	 *
+	 * @param {bool}   $use_block_editor Whether the post type uses the block editor. Default true.
+	 * @param {string} $post_type        The post type being checked.
+	 *
+	 * @return {bool} Whether the post type uses the block editor.
+	 */
+	return apply_filters( 'dt_use_block_editor_for_post_type', true, $post_type );
 }
 
 /**
@@ -983,6 +999,7 @@ function get_processed_content( $post_content ) {
  */
 function get_rest_url( $blog_id, $post_id ) {
 	if ( ! is_multisite() ) {
+		// Filter documented below.
 		return apply_filters( 'dt_get_rest_url', false, $blog_id, $post_id );
 	}
 
@@ -991,6 +1008,7 @@ function get_rest_url( $blog_id, $post_id ) {
 	$post = get_post( $post_id );
 	if ( ! is_a( $post, '\WP_Post' ) ) {
 		restore_current_blog();
+		// Filter documented below.
 		return apply_filters( 'dt_get_rest_url', false, $blog_id, $post_id );
 	}
 
@@ -1003,13 +1021,15 @@ function get_rest_url( $blog_id, $post_id ) {
 	restore_current_blog();
 
 	/**
-	 * Allow filtering of the REST API URL used for pulling post contewnt,
+	 * Allow filtering of the REST API URL used for pulling post content.
 	 *
-	 * @since ?
+	 * @hook dt_get_rest_url
 	 *
-	 * @param string $rest_url The defaukt REST URL to the post.
-	 * @param int $blog_id     The blog ID.
-	 * @param int $post_id     The post ID being retrieved.
+	 * @param {string} $rest_url The default REST URL to the post.
+	 * @param {int}    $blog_id  The blog ID.
+	 * @param {int}    $post_id  The post ID being retrieved.
+	 *
+	 * @return {string} REST API URL for pulling post content.
 	 */
 	return apply_filters( 'dt_get_rest_url', $rest_url, $blog_id, $post_id );
 }
