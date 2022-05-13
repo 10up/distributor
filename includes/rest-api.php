@@ -411,10 +411,13 @@ function check_post_types_permissions() {
  * @return \WP_REST_Response|\WP_Error
  */
 function get_pull_content( $request ) {
+	$post_type = isset( $request['post_type'] ) ? $request['post_type'] : 'all';
+	$post_type = 'all' === $post_type ? array( 'post', 'page' ) : $post_type;
+
 	$args = [
 		'posts_per_page' => isset( $request['posts_per_page'] ) ? $request['posts_per_page'] : 20,
 		'paged'          => isset( $request['page'] ) ? $request['page'] : 1,
-		'post_type'      => isset( $request['post_type'] ) ? $request['post_type'] : 'post',
+		'post_type'      => $post_type,
 		'post_status'    => isset( $request['post_status'] ) ? $request['post_status'] : array( 'any' ),
 	];
 
