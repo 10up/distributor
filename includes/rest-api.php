@@ -417,7 +417,7 @@ function get_pull_content( $request ) {
 	$args = [
 		'posts_per_page' => isset( $request['posts_per_page'] ) ? $request['posts_per_page'] : 20,
 		'paged'          => isset( $request['page'] ) ? $request['page'] : 1,
-		'post_type'      => $post_type,
+		'post_type'      => array( 'post', 'page' ),
 		'post_status'    => isset( $request['post_status'] ) ? $request['post_status'] : array( 'any' ),
 	];
 
