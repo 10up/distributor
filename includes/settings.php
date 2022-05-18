@@ -468,7 +468,7 @@ function auto_update_plugin() {
 		$valid_license = Utils\get_network_settings()['valid_license'];
 	}
 
-	if ( $valid_license ) {
+	if ( $valid_license && class_exists( 'Puc_v4_Factory' ) ) {
 		\Puc_v4_Factory::buildUpdateChecker(
 			'https://github.com/10up/distributor/',
 			__FILE__,
