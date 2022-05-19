@@ -43,11 +43,19 @@ abstract class Connection {
 	/**
 	 * Log a sync
 	 *
-	 * @param array $item_id_mappings Mapping to store; key = origin post ID, value = new post ID.
-	 * @param int   $id Blog or Connection ID. Optional.
+	 * @param array   $item_id_mappings Mapping to store; key = origin post ID, value = new post ID.
+	 * @param int     $id Blog or Connection ID. Optional.
+	 * @param boolean $overwrite Whether to overwrite the sync log. Optional.
 	 * @since 0.8
 	 */
-	abstract public function log_sync( array $item_id_mappings, $id );
+	abstract public function log_sync( array $item_id_mappings, $id, $overwrite );
+
+	/**
+	 * Get the sync log
+	 *
+	 * @param int $id Blog or Connection ID. Optional.
+	 */
+	abstract public function get_sync_log( $id );
 
 	/**
 	 * Get available post types from a connection

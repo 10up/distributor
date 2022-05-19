@@ -1,5 +1,4 @@
 {
-    "snapshot_id": "3593222a181f0f91824947dbd06985d5",
     "name": "distributor",
     "exclude": [
         ".\/node_modules"

@@ -176,6 +176,7 @@ function remote_get_setup() {
 		]
 	);
 
+	// todo: the response is missing post_type
 	\WP_Mock::userFunction(
 		'wp_remote_retrieve_body', [
 			'return' => json_encode(
@@ -283,7 +284,9 @@ class TestInternalConnection extends \Distributor\Connection {
 
 	public function remote_get( $args ) { }
 
-	public function log_sync( array $item_id_mappings, $id ) { }
+	public function log_sync( array $item_id_mappings, $id, $overwrite ) {}
+
+	public function get_sync_log( $id ) {}
 
 	public function get_post_types() { }
 }

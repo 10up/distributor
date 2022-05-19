@@ -41,7 +41,9 @@ function syndicatable() {
 	 *
 	 * @hook dt_syndicatable_capabilities
 	 *
-	 * @param string edit_posts The capability allowed to syndicate content.
+	 * @param {string} edit_posts The capability allowed to syndicate content.
+	 *
+	 * @return {string} The capability allowed to syndicate content.
 	 */
 	if ( ! is_user_logged_in() || ! current_user_can( apply_filters( 'dt_syndicatable_capabilities', 'edit_posts' ) ) ) {
 		return false;
@@ -542,7 +544,7 @@ function menu_content() {
 	$original_blog_id = get_post_meta( $post->ID, 'dt_original_blog_id', true );
 	$original_post_id = get_post_meta( $post->ID, 'dt_original_post_id', true );
 
-	if ( ! empty( $original_blog_id ) && ! empty( $original_post_id ) && ! $unlinked ) {
+	if ( ! empty( $original_blog_id ) && ! empty( $original_post_id ) && ! $unlinked && is_multisite() ) {
 		switch_to_blog( $original_blog_id );
 		$post_url  = get_permalink( $original_post_id );
 		$site_url  = home_url();
@@ -594,6 +596,7 @@ function menu_content() {
 				<div class="loader-messages messages">
 					<div class="dt-error">
 						<?php esc_html_e( 'There was an issue loading connections.', 'distributor' ); ?>
+						<ul class="details"></ul>
 					</div>
 				</div>
 			</div>

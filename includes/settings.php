@@ -242,7 +242,7 @@ function license_key_callback() {
 		<p class="description">
 			<?php echo wp_kses_post( __( 'Registration is 100% free and provides update notifications and upgrades inside the dashboard. <a href="https://distributorplugin.com/#cta">Register for your key</a>.', 'distributor' ) ); ?>
 		</p>
-	<?php
+		<?php
 	endif;
 }
 
@@ -306,11 +306,15 @@ function network_admin_menu() {
 function settings_screen() {
 	?>
 	<div class="wrap">
-		<h1><?php esc_html_e( 'Distributor Settings', 'distributor' ); ?></h1>
-
-		<a class="distributor-help-link" target="_blank" href="https://github.com/10up/distributor#installation">
-			<span class="dashicons dashicons-info"></span> <?php esc_html_e( 'Help', 'distributor' ); ?>
-		</a>
+		<h1 class="distributor-title distributor-title--settings">
+			<span class="distributor-title__text">
+				<?php esc_html_e( 'Distributor Settings', 'distributor' ); ?>
+			</span>
+			<a class="distributor-help-link" target="_blank" href="https://github.com/10up/distributor#installation">
+				<span class="dashicons dashicons-info"></span>
+				<span class="distributor-help-link__text"><?php esc_html_e( 'Help', 'distributor' ); ?></span>
+			</a>
+		</h1>
 
 		<form action="options.php" method="post">
 
@@ -337,11 +341,15 @@ function network_settings_screen() {
 	?>
 
 	<div class="wrap">
-		<h1><?php esc_html_e( 'Distributor Network Settings', 'distributor' ); ?></h1>
-
-		<a class="distributor-help-link" target="_blank" href="https://github.com/10up/distributor#installation">
-			<span class="dashicons dashicons-info"></span> <?php esc_html_e( 'Help', 'distributor' ); ?>
-		</a>
+		<h1 class="distributor-title distributor-title--settings">
+			<span class="distributor-title__text">
+				<?php esc_html_e( 'Distributor Network Settings', 'distributor' ); ?>
+			</span>
+			<a class="distributor-help-link" target="_blank" href="https://github.com/10up/distributor#installation">
+				<span class="dashicons dashicons-info"></span>
+				<span class="distributor-help-link__text"><?php esc_html_e( 'Help', 'distributor' ); ?></span>
+			</a>
+		</h1>
 
 		<form action="" method="post">
 		<?php settings_fields( 'dt-settings' ); ?>

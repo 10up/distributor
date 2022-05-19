@@ -165,6 +165,19 @@ class WordPressExternalConnection extends ExternalConnection {
 			}
 		}
 
+		// When running a query for the Pull screen with excluded items, make a POST request instead
+		if ( empty( $id ) && isset( $args['post__not_in'] ) && isset( $args['dt_pull_list'] ) ) {
+			$query_args['post_type']      = isset( $post_type ) ? $post_type : 'post';
+			$query_args['posts_per_page'] = isset( $posts_per_page ) ? $posts_per_page : 20;
+
+			$posts_response = $this->remote_post(
+				untrailingslashit( $this->base_url ) . '/' . self::$namespace . '/distributor/list-pull-content',
+				$query_args
+			);
+
+			return $posts_response;
+		}
+
 		static $types_urls;
 		$types_urls = array();
 
@@ -310,6 +323,7 @@ class WordPressExternalConnection extends ExternalConnection {
 				$this->auth_handler->format_get_args()
 			);
 		} else {
+			// Filter documented above.
 			$posts_response = wp_remote_get( apply_filters( 'dt_remote_get_url', $posts_url, $args, $this ), $this->auth_handler->format_get_args( array( 'timeout' => 45 ) ) );
 		}
 
@@ -356,6 +370,7 @@ class WordPressExternalConnection extends ExternalConnection {
 				$total_posts = count( $formatted_posts );
 			}
 
+			// Filter documented above.
 			return apply_filters(
 				'dt_remote_get',
 				[
@@ -366,8 +381,118 @@ class WordPressExternalConnection extends ExternalConnection {
 				$this
 			);
 		} else {
+			// Filter documented above.
 			return apply_filters( 'dt_remote_get', $this->to_wp_post( $posts ), $args, $this );
 		}
+	}
+
+	/**
+	 * Make a remote_post request.
+	 *
+	 * @param string $url Endpoint URL.
+	 * @param array  $args Query arguments
+	 * @return array|\WP_Error
+	 */
+	public function remote_post( $url = '', $args = array() ) {
+		if ( ! $url ) {
+			return new \WP_Error( 'endpoint-error', esc_html__( 'Endpoint URL must be set', 'distributor' ) );
+		}
+
+		/**
+		* Filter the remote_post query arguments
+		*
+		* @since 1.6.7
+		* @hook dt_remote_post_query_args
+		*
+		* @param {array}  $args The request arguments.
+		* @param {WordPressExternalConnection} $this The current connection object.
+		*
+		* @return {array} The query arguments.
+		*/
+		$body = apply_filters( 'dt_remote_post_query_args', $args, $this );
+
+		// Add request parameter to specify Distributor request
+		$body['distributor_request'] = '1';
+
+		$request = wp_remote_post(
+			$url,
+			$this->auth_handler->format_post_args(
+				array(
+					/**
+					 * Filter the timeout used when calling `remote_post`
+					 *
+					 * @since 1.6.7
+					 * @hook dt_remote_post_timeout
+					 *
+					 * @param {int}   $timeout The timeout to use for the remote post. Default `45`.
+					 * @param {array} $args    The request arguments.
+					 *
+					 * @return {int} The timeout to use for the remote_post call.
+					 */
+					'timeout' => apply_filters( 'dt_remote_post_timeout', 45, $args ),
+					'body'    => $body,
+				)
+			)
+		);
+
+		if ( is_wp_error( $request ) ) {
+			return $request;
+		}
+
+		$response_code = wp_remote_retrieve_response_code( $request );
+
+		if ( 200 !== $response_code ) {
+			if ( 404 === $response_code ) {
+				return new \WP_Error( 'bad-endpoint', esc_html__( 'Could not connect to API endpoint.', 'distributor' ) );
+			}
+
+			$posts_body = json_decode( wp_remote_retrieve_body( $request ), true );
+
+			$code    = empty( $posts_body['code'] ) ? 'endpoint-error' : esc_html( $posts_body['code'] );
+			$message = empty( $posts_body['message'] ) ? esc_html__( 'API endpoint error.', 'distributor' ) : esc_html( $posts_body['message'] );
+
+			return new \WP_Error( $code, $message );
+		}
+
+		$posts_body       = wp_remote_retrieve_body( $request );
+		$response_headers = wp_remote_retrieve_headers( $request );
+
+		if ( empty( $posts_body ) ) {
+			return new \WP_Error( 'no-response-body', esc_html__( 'Response body is empty', 'distributor' ) );
+		}
+
+		$posts           = json_decode( $posts_body, true );
+		$formatted_posts = array();
+
+		foreach ( $posts as $post ) {
+			$post['full_connection'] = ! empty( $response_headers['X-Distributor'] );
+
+			$formatted_posts[] = $this->to_wp_post( $post );
+		}
+
+		$total_posts = ! empty( $response_headers['X-WP-Total'] ) ? $response_headers['X-WP-Total'] : count( $formatted_posts );
+
+		/**
+		 * Filter the items returned when using `WordPressExternalConnection::remote_post`
+		 *
+		 * @since 1.6.7
+		 * @hook dt_remote_post
+		 *
+		 * @param {array}                       $items The items returned from the POST request.
+		 * @param {array}                       $args  The arguments used in the POST request.
+		 * @param {WordPressExternalConnection} $this  The current connection object.
+		 *
+		 * @return {array} The items returned from a remote POST request.
+		 */
+		return apply_filters(
+			'dt_remote_post',
+			[
+				'items'       => $formatted_posts,
+				'total_items' => $total_posts,
+			],
+			$args,
+			$this
+		);
 	}
 
 	/**
@@ -454,11 +579,17 @@ class WordPressExternalConnection extends ExternalConnection {
 			}
 
 			if ( ! empty( $post_array['meta'] ) ) {
-				\Distributor\Utils\set_meta( $new_post, $post_array['meta'] );
+				// Filter documented in includes/classes/InternalConnections/NetworkSiteConnection.php.
+				if ( apply_filters( 'dt_pull_post_meta', true, $new_post, $post_array['meta'], $item_array['remote_post_id'], $post_array, $this ) ) {
+					\Distributor\Utils\set_meta( $new_post, $post_array['meta'] );
+				}
 			}
 
 			if ( ! empty( $post_array['terms'] ) ) {
-				\Distributor\Utils\set_taxonomy_terms( $new_post, $post_array['terms'] );
+				// Filter documented in includes/classes/InternalConnections/NetworkSiteConnection.php.
+				if ( apply_filters( 'dt_pull_post_terms', true, $new_post, $post_array['terms'], $item_array['remote_post_id'], $post_array, $this ) ) {
+					\Distributor\Utils\set_taxonomy_terms( $new_post, $post_array['terms'] );
+				}
 			}
 
 			if ( ! empty( $post_array['media'] ) ) {
@@ -469,7 +600,7 @@ class WordPressExternalConnection extends ExternalConnection {
 				}
 			}
 
-			// Filter documented in includes/classes/InternalConnections/NetworkSiteConnection.php.
+			// Action documented in includes/classes/InternalConnections/NetworkSiteConnection.php.
 			do_action( 'dt_pull_post', $new_post, $this, $post_array );
 
 			$created_posts[] = $new_post;
@@ -917,8 +1048,8 @@ class WordPressExternalConnection extends ExternalConnection {
 		$obj->comment_status    = $post['comment_status'];
 		$obj->ping_status       = $post['ping_status'];
 
-		// Use raw content if both remote and local are using Gutenberg.
-		$obj->post_content = Utils\is_using_gutenberg( new \WP_Post( $obj ) ) && isset( $post['is_using_gutenberg'] ) ?
+		// Use raw content if remote post uses Gutenberg and the local post type is compatible with it.
+		$obj->post_content = Utils\dt_use_block_editor_for_post_type( $obj->post_type ) && isset( $post['is_using_gutenberg'] ) ?
 			$post['content']['raw'] :
 			Utils\get_processed_content( $post['content']['raw'] );
 

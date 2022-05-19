@@ -38,6 +38,10 @@ function setup_list_table() {
 		$dt_pull_messages['skipped'] = 1;
 
 		setcookie( 'dt-skipped', 1, time() - 60, ADMIN_COOKIE_PATH, COOKIE_DOMAIN, is_ssl() );
+	} elseif ( ! empty( $_COOKIE['dt-unskipped'] ) ) {
+		$dt_pull_messages['unskipped'] = 1;
+
+		setcookie( 'dt-unskipped', 1, time() - 60, ADMIN_COOKIE_PATH, COOKIE_DOMAIN, is_ssl() );
 	} elseif ( ! empty( $_COOKIE['dt-syndicated'] ) ) {
 		$dt_pull_messages['syndicated'] = 1;
 
@@ -326,6 +330,52 @@ function process_actions() {
 			// Redirect to the skipped content tab
 			wp_safe_redirect( add_query_arg( 'status', 'skipped', wp_get_referer() ) );
 			exit;
+		case 'bulk-unskip':
+		case 'unskip':
+			if ( ! wp_verify_nonce( $_GET['_wpnonce'], 'dt_unskip' ) && ! wp_verify_nonce( $_GET['_wpnonce'], 'bulk-distributor_page_pull' ) ) {
+				exit;
+			}
+
+			// Filter documented above.
+			if ( ! current_user_can( apply_filters( 'dt_pull_capabilities', 'manage_options' ) ) ) {
+				wp_die(
+					'<h1>' . esc_html__( 'Cheatin&#8217; uh?', 'distributor' ) . '</h1>' .
+					'<p>' . esc_html__( 'Sorry, you are not allowed to add this item.', 'distributor' ) . '</p>',
+					403
+				);
+			}
+
+			if ( empty( $_GET['connection_type'] ) || empty( $_GET['connection_id'] ) || empty( $_GET['post'] ) ) {
+				break;
+			}
+
+			if ( 'external' === $_GET['connection_type'] ) {
+				$connection = \Distributor\ExternalConnection::instantiate( intval( $_GET['connection_id'] ) );
+			} else {
+				$site       = get_site( intval( $_GET['connection_id'] ) );
+				$connection = new \Distributor\InternalConnections\NetworkSiteConnection( $site );
+			}
+
+			$posts = $_GET['post'];
+			if ( ! is_array( $posts ) ) {
+				$posts = [ $posts ];
+			}
+
+			$sync_log = $connection->get_sync_log( intval( $_GET['connection_id'] ) );
+
+			foreach ( $posts as $post_id ) {
+				if ( array_key_exists( $post_id, $sync_log ) ) {
+					unset( $sync_log[ $post_id ] );
+				}
+			}
+
+			$connection->log_sync( $sync_log, intval( $_GET['connection_id'] ), true );
+
+			setcookie( 'dt-unskipped', 1, time() + DAY_IN_SECONDS, ADMIN_COOKIE_PATH, COOKIE_DOMAIN, is_ssl() );
+
+			// Redirect to the new content tab
+			wp_safe_redirect( add_query_arg( 'status', 'new', wp_get_referer() ) );
+			exit;
 	}
 }
 
@@ -422,10 +472,10 @@ function dashboard() {
 				<?php
 				$connection_now->pull_post_types = \Distributor\Utils\available_pull_post_types( $connection_now, $connection_type );
 
-				// Ensure we have at least one post type to pull
+				// Ensure we have at least one post type to pull.
 				$connection_now->pull_post_type = '';
 				if ( ! empty( $connection_now->pull_post_types ) ) {
-					$connection_now->pull_post_type = $connection_now->pull_post_types[0]['slug'];
+					$connection_now->pull_post_type = ( 'internal' === $connection_type ) ? 'all' : $connection_now->pull_post_types[0]['slug'];
 				}
 
 				// Set the post type we want to pull (if any)
@@ -437,7 +487,7 @@ function dashboard() {
 							break;
 						}
 					} else {
-						if ( 'post' === $post_type['slug'] ) {
+						if ( 'post' === $post_type['slug'] && 'external' === $connection_type ) {
 							$connection_now->pull_post_type = $post_type['slug'];
 							break;
 						}
@@ -451,6 +501,12 @@ function dashboard() {
 		<?php if ( ! empty( $dt_pull_messages ) && ! empty( $dt_pull_messages['skipped'] ) ) : ?>
 			<div id="message" class="updated notice is-dismissible">
 				<p><?php esc_html_e( 'Post(s) have been marked as skipped.', 'distributor' ); ?></p>
+			</div>
+		<?php endif; ?>
+
+		<?php if ( ! empty( $dt_pull_messages ) && ! empty( $dt_pull_messages['unskipped'] ) ) : ?>
+			<div id="message" class="updated notice is-dismissible">
+				<p><?php esc_html_e( 'Post(s) have been unskipped.', 'distributor' ); ?></p>
 			</div>
 		<?php endif; ?>
 
@@ -472,8 +528,19 @@ function dashboard() {
 
 		<?php if ( ! empty( $connection_list_table->pull_error ) ) : ?>
 			<p><?php esc_html_e( 'Could not pull content from connection due to error.', 'distributor' ); ?></p>
+			<ul>
+				<?php foreach ( $connection_list_table->pull_error as $error ) : ?>
+				<li>
+					<ul>
+						<li><?php echo esc_html( $error ); ?></li>
+					</ul>
+				</li>
+				<?php endforeach; ?>
+			</ul>
 		<?php else : ?>
 			<?php $connection_list_table->views(); ?>
+
+			<?php $connection_list_table->search_box( esc_html__( 'Search', 'distributor' ), 'post' ); ?>
 
 			<form id="posts-filter" class="status-<?php echo ( ! empty( $_GET['status'] ) ) ? esc_attr( $_GET['status'] ) : 'new'; // @codingStandardsIgnoreLine Nonce not needed. ?>" method="get">
 				<?php if ( ! empty( $connection_list_table->connection_objects ) ) : ?>
@@ -482,8 +549,6 @@ function dashboard() {
 				<?php endif; ?>
 
 				<input type="hidden" name="page" value="pull">
-
-				<?php $connection_list_table->search_box( esc_html__( 'Search', 'distributor' ), 'post' ); ?>
 
 				<?php $connection_list_table->display(); ?>
 			</form>
