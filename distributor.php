@@ -184,6 +184,26 @@ if ( class_exists( 'Puc_v4_Factory' ) ) {
 				return $plugin_info;
 			}
 		);
+
+		add_filter(
+			'pre_set_site_transient_update_plugins',
+			function( $transient ) use ( $updateChecker ) {
+				$update = $updateChecker->getUpdate();
+
+				if ( $update ) {
+					// Update is available.
+					$transient->response[ $update->filename ] = $update->toWpFormat();
+				} else {
+					// No update is available.
+					$update = $updateChecker->getUpdateState()->getUpdate();
+					// Adding the plugin info to the `no_update` property is required
+					// for the enable/disable auto-updates links to correctly appear in UI.
+					$transient->no_update[ $update->filename ] = $update;
+				}
+
+				return $transient;
+			}
+		);
 		// @codingStandardsIgnoreEnd
 	}
 }
