@@ -124,7 +124,7 @@ function update_notice( $plugin_file, $plugin_data, $status ) {
  */
 function maybe_notice() {
 	if ( 0 === strpos( get_current_screen()->parent_base, 'distributor' ) ) {
-		if ( preg_match( '/-dev$/', DT_VERSION ) ) {
+		if ( file_exists( DT_PLUGIN_PATH . 'composer.lock' ) ) {
 			?>
 			<div class="notice notice-warning">
 			<?php /* translators: %1$s: npm commands, %2$s: distributor url */ ?>
