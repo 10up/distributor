@@ -199,6 +199,12 @@ function set_meta( $post_id, $meta ) {
 				$meta_value = maybe_unserialize( $meta_value );
 			}
 
+			json_decode( $meta_value );
+			// Adds slashes to a string or recursively adds slashes to strings within an array for the JSON
+			if ( json_last_error() === JSON_ERROR_NONE || '_elementor_data' === $meta_key ) {
+				$meta_value = \wp_slash( $meta_value );
+			}
+
 			if ( $has_prev_value ) {
 				update_post_meta( $post_id, $meta_key, $meta_value, $prev_value );
 			} else {
