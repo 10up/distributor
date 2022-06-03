@@ -105,7 +105,7 @@ function update_notice( $plugin_file, $plugin_data, $status ) {
 	?>
 
 	<tr class="plugin-update-tr <?php if ( $active ) : ?>active<?php endif; ?>" id="distributor-update" >
-		<td colspan="3" class="plugin-update colspanchange">
+		<td colspan="4" class="plugin-update colspanchange">
 			<div class="update-message notice inline notice-warning notice-alt">
 				<p>
 					<?php /* translators: %s: distributor notice url */ ?>
