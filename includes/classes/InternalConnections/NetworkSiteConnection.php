@@ -86,7 +86,7 @@ class NetworkSiteConnection extends Connection {
 		// Distribute raw HTML when going from Gutenberg enabled to Gutenberg enabled.
 		$remote_using_gutenberg = \Distributor\Utils\is_using_gutenberg( $post );
 		if ( $using_gutenberg && $remote_using_gutenberg ) {
-			$new_post_args['post_content'] = $post->post_content;
+			$new_post_args['post_content'] = wp_slash($post->post_content);
 		}
 
 		// Handle existing posts.
