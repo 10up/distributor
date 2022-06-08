@@ -86,7 +86,7 @@ class NetworkSiteConnection extends Connection {
 		// Distribute raw HTML when going from Gutenberg enabled to Gutenberg enabled.
 		$remote_using_gutenberg = \Distributor\Utils\is_using_gutenberg( $post );
 		if ( $using_gutenberg && $remote_using_gutenberg ) {
-			$new_post_args['post_content'] = $post->post_content;
+			$new_post_args['post_content'] = wp_slash($post->post_content);
 		}
 
 		// Handle existing posts.
@@ -262,6 +262,10 @@ class NetworkSiteConnection extends Connection {
 
 			if ( ! empty( $item_array['post_status'] ) ) {
 				$post_array['post_status'] = $item_array['post_status'];
+			}
+			
+			if( ! empty($post_array['post_content'])){
+				$post_array['post_content'] = wp_slash($post_array['post_content']);
 			}
 
 			add_filter( 'wp_insert_post_data', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'maybe_set_modified_date' ), 10, 2 );
