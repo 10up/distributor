@@ -263,7 +263,6 @@ class NetworkSiteConnection extends Connection {
 			if ( ! empty( $item_array['post_status'] ) ) {
 				$post_array['post_status'] = $item_array['post_status'];
 			}
-			
 			if ( ! empty( $post_array['post_content'] ) ) {
 				$post_array['post_content'] = wp_slash( $post_array['post_content'] );
 			}
