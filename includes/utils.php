@@ -29,6 +29,8 @@ function is_vip_com() {
  *  - WordPress 5.0, Classic editor plugin active, using the block editor.
  *
  * @since  1.2
+ * @since  1.7 Update Gutenberg plugin sniff to avoid deprecated function.
+ *             Update Classic Editor sniff to account for mu-plugins.
  *
  * @param object $post The post object.
  * @return boolean
