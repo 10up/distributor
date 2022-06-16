@@ -71,12 +71,18 @@ function is_using_gutenberg( $post ) {
 
 	$use_block_editor = false;
 
-	if ( ! function_exists( 'is_plugin_active' ) ) {
-		require_once ABSPATH . '/wp-admin/includes/plugin.php';
-	}
-
-	if ( is_plugin_active( 'classic-editor/classic-editor.php' ) ) {
-		$use_block_editor = ( get_option( 'classic-editor-replace' ) === 'no-replace' );
+	if ( class_exists( 'Classic_Editor' ) && is_callable( array( 'Classic_Editor', 'init_actions' ) ) ) {
+		$allow_site_override = true;
+		if ( is_multisite() ) {
+			$use_block_editor    = ( get_site_option( 'classic-editor-replace' ) === 'no-replace' );
+			$allow_site_override = ( get_site_option( 'classic-editor-allow-sites' ) === 'allow' );
+		}
+		if (
+			$allow_site_override &&
+			get_option( 'classic-editor-replace' )
+		) {
+			$use_block_editor = ( get_option( 'classic-editor-replace' ) === 'no-replace' );
+		}
 	}
 
 	if ( $use_block_editor && is_a( $post, '\WP_Post' ) && class_exists( '\Gutenberg_Ramp' ) ) {
