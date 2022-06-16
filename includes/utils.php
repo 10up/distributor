@@ -74,14 +74,14 @@ function is_using_gutenberg( $post ) {
 	if ( class_exists( 'Classic_Editor' ) && is_callable( array( 'Classic_Editor', 'init_actions' ) ) ) {
 		$allow_site_override = true;
 		if ( is_multisite() ) {
-			$use_block_editor    = ( get_site_option( 'classic-editor-replace' ) === 'no-replace' );
-			$allow_site_override = ( get_site_option( 'classic-editor-allow-sites' ) === 'allow' );
+			$use_block_editor    = ( get_site_option( 'classic-editor-replace', 'no-replace' ) === 'no-replace' );
+			$allow_site_override = ( get_site_option( 'classic-editor-allow-sites', 'allow' ) === 'allow' );
 		}
 		if (
 			$allow_site_override &&
 			get_option( 'classic-editor-replace' )
 		) {
-			$use_block_editor = ( get_option( 'classic-editor-replace' ) === 'no-replace' );
+			$use_block_editor = ( get_option( 'classic-editor-replace', 'no-replace' ) === 'no-replace' );
 		}
 	}
 
