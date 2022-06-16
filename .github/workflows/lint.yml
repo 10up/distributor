@@ -1,5 +1,9 @@
 name: Linting
 
+env:
+  COMPOSER_VERSION: "2"
+  COMPOSER_CACHE: "${{ github.workspace }}/.composer-cache"
+
 on:
   push:
     branches:
@@ -30,18 +34,36 @@ jobs:
   phpcs:
     name: phpcs
     runs-on: ubuntu-latest
+
     steps:
     - name: Checkout
       uses: actions/checkout@v2.4.0
+
+     - name: Set standard 10up cache directories
+      run: |
+        composer config -g cache-dir "${{ env.COMPOSER_CACHE }}"
+
+    - name: Prepare composer cache
+      uses: actions/cache@v2
+      with:
+        path: ${{ env.COMPOSER_CACHE }}
+        key: composer-${{ env.COMPOSER_VERSION }}-${{ hashFiles('**/composer.lock') }}
+        restore-keys: |
+          composer-${{ env.COMPOSER_VERSION }}-
+
     - name: Set PHP version
       uses: shivammathur/setup-php@v2
       with:
-        php-version: '7.2'
+        php-version: '7.4'
         coverage: none
-    - name: composer install
+        tools: composer:v2
+
+    - name: Install dependencies
       run: composer install --ignore-platform-reqs
+
     - name: Check PHPCS standard
       run: ./vendor/bin/phpcs -i
+
     - name: PHPCS check
       uses: chekalsky/phpcs-action@v1
       with:
