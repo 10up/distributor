@@ -36,7 +36,7 @@ function is_vip_com() {
 function is_using_gutenberg( $post ) {
 	global $wp_version;
 
-	$gutenberg_available = function_exists( 'the_gutenberg_project' );
+	$gutenberg_available = function_exists( 'gutenberg_pre_init' );
 	$version_5_plus      = version_compare( $wp_version, '5', '>=' );
 
 	if ( ! $gutenberg_available && ! $version_5_plus ) {
