@@ -105,7 +105,7 @@ function update_notice( $plugin_file, $plugin_data, $status ) {
 	?>
 
 	<tr class="plugin-update-tr <?php if ( $active ) : ?>active<?php endif; ?>" id="distributor-update" >
-		<td colspan="3" class="plugin-update colspanchange">
+		<td colspan="4" class="plugin-update colspanchange">
 			<div class="update-message notice inline notice-warning notice-alt">
 				<p>
 					<?php /* translators: %s: distributor notice url */ ?>
@@ -124,7 +124,7 @@ function update_notice( $plugin_file, $plugin_data, $status ) {
  */
 function maybe_notice() {
 	if ( 0 === strpos( get_current_screen()->parent_base, 'distributor' ) ) {
-		if ( preg_match( '/-dev$/', DT_VERSION ) ) {
+		if ( file_exists( DT_PLUGIN_PATH . 'composer.lock' ) ) {
 			?>
 			<div class="notice notice-warning">
 			<?php /* translators: %1$s: npm commands, %2$s: distributor url */ ?>
@@ -305,11 +305,15 @@ function network_admin_menu() {
 function settings_screen() {
 	?>
 	<div class="wrap">
-		<h1><?php esc_html_e( 'Distributor Settings', 'distributor' ); ?></h1>
-
-		<a class="distributor-help-link" target="_blank" href="https://github.com/10up/distributor#installation">
-			<span class="dashicons dashicons-info"></span> <?php esc_html_e( 'Help', 'distributor' ); ?>
-		</a>
+		<h1 class="distributor-title distributor-title--settings">
+			<span class="distributor-title__text">
+				<?php esc_html_e( 'Distributor Settings', 'distributor' ); ?>
+			</span>
+			<a class="distributor-help-link" target="_blank" href="https://github.com/10up/distributor#installation">
+				<span class="dashicons dashicons-info"></span>
+				<span class="distributor-help-link__text"><?php esc_html_e( 'Help', 'distributor' ); ?></span>
+			</a>
+		</h1>
 
 		<form action="options.php" method="post">
 
@@ -336,11 +340,15 @@ function network_settings_screen() {
 	?>
 
 	<div class="wrap">
-		<h1><?php esc_html_e( 'Distributor Network Settings', 'distributor' ); ?></h1>
-
-		<a class="distributor-help-link" target="_blank" href="https://github.com/10up/distributor#installation">
-			<span class="dashicons dashicons-info"></span> <?php esc_html_e( 'Help', 'distributor' ); ?>
-		</a>
+		<h1 class="distributor-title distributor-title--settings">
+			<span class="distributor-title__text">
+				<?php esc_html_e( 'Distributor Network Settings', 'distributor' ); ?>
+			</span>
+			<a class="distributor-help-link" target="_blank" href="https://github.com/10up/distributor#installation">
+				<span class="dashicons dashicons-info"></span>
+				<span class="distributor-help-link__text"><?php esc_html_e( 'Help', 'distributor' ); ?></span>
+			</a>
+		</h1>
 
 		<form action="" method="post">
 		<?php settings_fields( 'dt-settings' ); ?>

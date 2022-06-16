@@ -126,11 +126,8 @@ jQuery( authorizeConnectionButton ).on( 'click', ( event ) => {
 			return;
 		}
 
-		// Remove -dev from the version number, if running from the develop branch
-		const version = response.data.version.replace( /-dev/, '' );
-
 		// Requires Distributor version 1.6.0.
-		if ( compareVersions.compare( version, '1.6.0', '<' ) ) {
+		if ( compareVersions.compare( response.data.version, '1.6.0', '<' ) ) {
 			jQuery( wizardError[0] ).text( dt.minversion );
 			return;
 		}

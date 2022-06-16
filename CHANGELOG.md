@@ -4,6 +4,33 @@ All notable changes to this project will be documented in this file, per [the Ke
 
 ## [Unreleased] - TBD
 
+## [1.6.9] - 2022-04-18
+
+### Added
+
+- Dependency security scanning (props [@jeffpaul](https://github.com/jeffpaul), [@dkotter](https://github.com/dkotter) via [#869](https://github.com/10up/distributor/pull/869)).
+- Added new code snippet to [Snippets](https://10up.github.io/distributor/tutorial-snippets.html) page detailing how to remove canonical links (props [@dkotter](https://github.com/dkotter) via [#855](https://github.com/10up/distributor/pull/855)).
+
+### Changed
+
+- Update the version of the bundled Application Passwords plugin to 0.1.3 (props [@claytoncollie](https://github.com/claytoncollie), [@Sidsector9](https://github.com/Sidsector9) via [#824](https://github.com/10up/distributor/pull/824)).
+- Clarified the instructions for setting up External Connections (props [@skorasaurus](https://github.com/skorasaurus), [@jeffpaul](https://github.com/jeffpaul) via [#838](https://github.com/10up/distributor/pull/838)).
+- Minor changes to the `remote_post` method (props [@dkotter](https://github.com/dkotter), [@cadic](https://github.com/cadic) via [#841](https://github.com/10up/distributor/pull/841)).
+- Bump WordPress "tested up to" version to 5.9 (props [@mohitwp](https://github.com/mohitwp), [@jeffpaul](https://github.com/jeffpaul), [@iamdharmesh](https://github.com/iamdharmesh) via [#854](https://github.com/10up/distributor/pull/854)).
+
+### Fixed
+
+- Ensure content updates work for distributed items that use the block editor in WordPress 5.9+ (props [@dkotter](https://github.com/dkotter), [@cadic](https://github.com/cadic) via [#845](https://github.com/10up/distributor/pull/845)).
+- Tidied up the position and style of the help icon that shows on the Distributor settings page (props [@willhowat](https://github.com/willhowat), [@dkotter](https://github.com/dkotter) via [#871](https://github.com/10up/distributor/pull/871)).
+
+### Security
+
+- Bump `tar` from 4.4.8 to 4.4.19 (props [@dependabot](https://github.com/apps/dependabot) via [#843](https://github.com/10up/distributor/pull/843)).
+- Bump `ajv` from 6.12.2 to 6.12.6 (props [@dependabot](https://github.com/apps/dependabot) via [#849](https://github.com/10up/distributor/pull/849)).
+- Bump `lodash.template` from 4.4.0 to 4.5.0 (props [@dependabot](https://github.com/apps/dependabot) via [#850](https://github.com/10up/distributor/pull/850)).
+- Bump `copy-props` from 2.0.4 to 2.0.5 (props [@dependabot](https://github.com/apps/dependabot) via [#851](https://github.com/10up/distributor/pull/851)).
+- Bump `guzzlehttp/psr7` from 1.6.1 to 1.8.5 (props [@dependabot](https://github.com/apps/dependabot) via [#866](https://github.com/10up/distributor/pull/866)).
+
 ## [1.6.8] - 2022-02-02
 ### Added
 - New hook `dt_get_pull_content_rest_query_args` to filter `WP_Query` args for the `list-pull-content` REST endpoint (props [@theskinnyghost](https://github.com/theskinnyghost), [@dkotter](https://github.com/dkotter) via [#839](https://github.com/10up/distributor/pull/839)).
@@ -325,6 +352,7 @@ This adds a post type selector when viewing the Pull Content list for both exter
 - Initial closed release.
 
 [Unreleased]: https://github.com/10up/distributor/compare/trunk...develop
+[1.6.9]: https://github.com/10up/distributor/compare/1.6.8...1.6.9
 [1.6.8]: https://github.com/10up/distributor/compare/1.6.7...1.6.8
 [1.6.7]: https://github.com/10up/distributor/compare/1.6.6...1.6.7
 [1.6.6]: https://github.com/10up/distributor/compare/1.6.5...1.6.6
