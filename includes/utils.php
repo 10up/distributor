@@ -1071,3 +1071,43 @@ function set_media_errors( $post_id, $data ) {
 
 	set_transient( "dt_media_errors_$post_id", $errors, HOUR_IN_SECONDS );
 }
+
+/**
+ * Reduce arguments passed to wp_insert_post to approved arguments only.
+ *
+ * @link http://developer.wordpress.org/reference/functions/wp_insert_post/ wp_insert_post() documentation.
+ *
+ * @param array $post_args Arguments used for wp_insert_post() or wp_update_post().
+ *
+ * @return array Arguments cleaned of any not expected by the core function.
+ */
+function post_args_allow_list( $post_args ) {
+	$allowed_post_keys = array(
+		'ID',
+		'post_author',
+		'post_date',
+		'post_date_gmt',
+		'post_content',
+		'post_content_filtered',
+		'post_title',
+		'post_excerpt',
+		'post_status',
+		'post_password',
+		'post_name',
+		'to_ping',
+		'pinged',
+		'post_modified',
+		'post_modified_gmt',
+		'post_parent',
+		'menu_order',
+		'post_mime_type',
+		'guid',
+		'import_id',
+		'post_category',
+		'tags_input',
+		'tax_input',
+		'meta_input',
+	);
+
+	return array_intersect_key( $post_args, array_flip( $allowed_post_keys ) );
+}
