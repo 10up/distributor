@@ -242,7 +242,7 @@ class UtilsTest extends TestCase {
 					$term_id,
 					$taxonomy,
 					[
-						'parent' => 0,
+						'parent' => '',
 					]
 				],
 				'return' => [ 'term_id' => $term_id ],
@@ -332,7 +332,7 @@ class UtilsTest extends TestCase {
 					$term_id,
 					$taxonomy,
 					[
-						'parent' => 0,
+						'parent' => '',
 					]
 				],
 				'return' => [ 'term_id' => $term_id ],

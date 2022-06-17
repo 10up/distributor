@@ -24,9 +24,7 @@ jobs:
       fail-fast: false
       matrix:
         # We claim to support from 5.6+ but WP Mock only supports 7.1+
-        # Also an issue with WP Mock not working on PHPUnit 9.5+, which PHP 7.3+ needs.
-        #php: [ '5.6', '7.0', '7.1', '7.2', '7.3', '7.4', '8.0', '8.1' ]
-        php: [ '7.1', '7.2' ]
+        php: [ '7.1', '7.2', '7.3', '7.4', '8.0', '8.1' ]
         os: [ ubuntu-latest ]
 
     steps:
