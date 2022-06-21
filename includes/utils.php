@@ -195,18 +195,12 @@ function set_meta( $post_id, $meta ) {
 				$prev_value = maybe_unserialize( $existing_meta[ $meta_key ][ $meta_placement ] );
 			}
 
-			$is_json = false;
-
 			if ( ! is_array( $meta_value ) ) {
-				json_decode( $meta_value );
-				$is_json    = json_last_error() === 0 ? true : false;
 				$meta_value = maybe_unserialize( $meta_value );
 			}
 
-			// Adds slashes to a string or recursively adds slashes to strings within an array for the JSON
-			if ( function_exists( 'wp_slash' ) && ( $is_json || '_elementor_data' === $meta_key ) ) {
-				$meta_value = wp_slash( $meta_value );
-			}
+			// Adds slashes to a string or recursively adds slashes to strings within an array to avoid JSON decode failure while migrating metadata
+			$meta_value = wp_slash( $meta_value );
 
 			if ( $has_prev_value ) {
 				update_post_meta( $post_id, $meta_key, $meta_value, $prev_value );
