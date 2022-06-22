@@ -46,6 +46,13 @@ class UtilsTest extends TestCase {
 			]
 		);
 
+		\WP_Mock::userFunction(
+			'wp_slash', [
+				'times'  => 2,
+				'return_arg' => 0,
+			]
+		);
+
 		\WP_Mock::expectAction( 'dt_after_set_meta', [ 'key' => [ 'value' ] ], [], 1 );
 
 		\WP_Mock::expectAction( 'dt_after_set_meta', [ 'key' => [ [ 'value' ] ] ], [ 'key' => [ 'value' ] ], 1 );
@@ -129,6 +136,13 @@ class UtilsTest extends TestCase {
 			]
 		);
 
+		\WP_Mock::userFunction(
+			'wp_slash', [
+				'times'  => 5,
+				'return_arg' => 0,
+			]
+		);
+
 		Utils\set_meta(
 			1, [
 				'key'  => [ 'value' ],
@@ -178,6 +192,13 @@ class UtilsTest extends TestCase {
 				'times'  => 1,
 				'args'   => [ 1, 'key2', [ 0 => 'test' ], [ 0 => 'test' ] ],
 				'return' => [],
+			]
+		);
+
+		\WP_Mock::userFunction(
+			'wp_slash', [
+				'times'  => 2,
+				'return_arg' => 0,
 			]
 		);
 
@@ -824,6 +845,13 @@ class UtilsTest extends TestCase {
 						'post_excerpt' => $attached_media_post->post_excerpt,
 					],
 				],
+			]
+		);
+
+		\WP_Mock::userFunction(
+			'wp_slash', [
+				'times'  => 2,
+				'return_arg' => 0,
 			]
 		);
 
