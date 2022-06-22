@@ -564,7 +564,6 @@ function meta_box_external_connection_details( $post ) {
 
 					foreach ( $post_types as $post_type ) : ?>
 						<?php
-						// Don't show the given post types.
 						if ( in_array( $post_type->name, $hide_from_list, true ) ) {
 							continue;
 						}
