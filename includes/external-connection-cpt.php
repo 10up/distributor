@@ -544,7 +544,7 @@ function meta_box_external_connection_details( $post ) {
 					$hide_from_list = get_post_types(
 						array(
 							'_builtin'     => true,
-							'show_in_rest' => true
+							'show_in_rest' => true,
 						)
 					);
 					unset( $hide_from_list['post'], $hide_from_list['page'] );
