@@ -543,8 +543,9 @@ function meta_box_external_connection_details( $post ) {
 					// Hide the built-in post types except 'post' and 'page'.
 					$hide_from_list = get_post_types( [ '_builtin' => true, 'show_in_rest' => true ] );
 					unset( $hide_from_list['post'], $hide_from_list['page'] );
-					$hide_from_list = array_values( $hide_from_list ); // Default is keyed by the post type 'post' => 'post', etc
 
+					// Default is keyed by the post type 'post' => 'post', etc; hence using `array_values`.
+					$hide_from_list = array_values( $hide_from_list );
 
 					// Hide 'dt_subscription' post type.
 					$hide_from_list[] = 'dt_subscription';
