@@ -838,4 +838,27 @@ class UtilsTest extends TestCase {
 	 * Todo finish process_media
 	 */
 
+	 /**
+	  * Test post_args_allow_list
+	  *
+	  * @since x.x.x
+	  */
+	function test_post_args_allow_list() {
+		$post_args = [
+			'post_title'   => 'Test Title',
+			'post_content' => 'Test Content',
+			'post_excerpt' => 'Test Excerpt',
+			'link'         => 'https://github.com/10up/distributor/issues/879',
+			'dt_source'    => 'https://github.com/10up/distributor/pull/895',
+		];
+
+		$expected = [
+			'post_title'   => 'Test Title',
+			'post_content' => 'Test Content',
+			'post_excerpt' => 'Test Excerpt',
+		];
+
+		$actual = Utils\post_args_allow_list( $post_args );
+		$this->assertSame( $expected, $actual );
+	}
 }
