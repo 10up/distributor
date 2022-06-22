@@ -39,7 +39,7 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v2.4.0
 
-     - name: Set standard 10up cache directories
+    - name: Set standard 10up cache directories
       run: |
         composer config -g cache-dir "${{ env.COMPOSER_CACHE }}"
 
