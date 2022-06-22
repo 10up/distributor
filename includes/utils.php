@@ -199,13 +199,10 @@ function set_meta( $post_id, $meta ) {
 				$meta_value = maybe_unserialize( $meta_value );
 			}
 
-			// Adds slashes to a string or recursively adds slashes to strings within an array to avoid JSON decode failure while migrating metadata
-			$meta_value = wp_slash( $meta_value );
-
 			if ( $has_prev_value ) {
-				update_post_meta( $post_id, $meta_key, $meta_value, $prev_value );
+				update_post_meta( $post_id, wp_slash( $meta_key ), wp_slash( $meta_value ), $prev_value );
 			} else {
-				add_post_meta( $post_id, $meta_key, $meta_value );
+				add_post_meta( $post_id, wp_slash( $meta_key ), wp_slash( $meta_value ) );
 			}
 		}
 	}
