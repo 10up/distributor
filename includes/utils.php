@@ -1075,6 +1075,8 @@ function set_media_errors( $post_id, $data ) {
 /**
  * Reduce arguments passed to wp_insert_post to approved arguments only.
  *
+ * @since x.x.x
+ *
  * @link http://developer.wordpress.org/reference/functions/wp_insert_post/ wp_insert_post() documentation.
  *
  * @param array $post_args Arguments used for wp_insert_post() or wp_update_post().
