@@ -541,7 +541,12 @@ function meta_box_external_connection_details( $post ) {
 				<tbody>
 					<?php
 					// Hide the built-in post types except 'post' and 'page'.
-					$hide_from_list = get_post_types( [ '_builtin' => true, 'show_in_rest' => true ] );
+					$hide_from_list = get_post_types(
+						array(
+							'_builtin'     => true,
+							'show_in_rest' => true
+						)
+					);
 					unset( $hide_from_list['post'], $hide_from_list['page'] );
 
 					// Default is keyed by the post type 'post' => 'post', etc; hence using `array_values`.
@@ -562,8 +567,7 @@ function meta_box_external_connection_details( $post ) {
 					 */
 					$hide_from_list = apply_filters( 'dt_hide_post_types_from_permission_list', $hide_from_list );
 
-					foreach ( $post_types as $post_type ) : ?>
-						<?php
+					foreach ( $post_types as $post_type ) :
 						if ( in_array( $post_type->name, $hide_from_list, true ) ) {
 							continue;
 						}
