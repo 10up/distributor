@@ -1,0 +1,14 @@
+{
+  "core": null,
+  "plugins": ["."],
+  "config": {
+    "WP_ALLOW_MULTISITE": true
+  },
+  "env": {
+    "tests": {
+      "mappings": {
+        "wp-cli.yml": "./tests/bin/wp-cli.yml"
+      }
+    }
+  }
+}
