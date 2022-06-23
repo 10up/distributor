@@ -327,7 +327,7 @@ function get_excluded_post_types_from_permission_list() {
 	 * @since x.x.x
 	 * @hook dt_hide_post_types_from_permission_list
 	 *
-	 * @param {array} The list of post types.
+	 * @param {array} The list of hidden post types.
 	 *
 	 * @return {bool} The updated array with the list of post types that should be hidden.
 	 */
