@@ -302,7 +302,7 @@ function distributable_post_types() {
 /**
  * Return post types that should be excluded from the permission list.
  *
- * @since  x.x.x
+ * @since  1.7.0
  * @return array
  */
 function get_excluded_post_types_from_permission_list() {
@@ -324,7 +324,7 @@ function get_excluded_post_types_from_permission_list() {
 	/**
 	 * Filter to update the list of post types that should be hidden from the "Post types permissions" list.
 	 *
-	 * @since x.x.x
+	 * @since 1.7.0
 	 * @hook dt_hide_post_types_from_permission_list
 	 *
 	 * @param {array} The list of hidden post types.
