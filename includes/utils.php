@@ -300,6 +300,41 @@ function distributable_post_types() {
 }
 
 /**
+ * Return post types that should be excluded from the permission list.
+ *
+ * @since  x.x.x
+ * @return array
+ */
+function get_excluded_post_types_from_permission_list() {
+	// Hide the built-in post types except 'post' and 'page'.
+	$hide_from_list = get_post_types(
+		array(
+			'_builtin'     => true,
+			'show_in_rest' => true,
+		)
+	);
+	unset( $hide_from_list['post'], $hide_from_list['page'] );
+
+	// Default is keyed by the post type 'post' => 'post', etc; hence using `array_values`.
+	$hide_from_list = array_values( $hide_from_list );
+
+	// Hide 'dt_subscription' post type.
+	$hide_from_list[] = 'dt_subscription';
+
+	/**
+	 * Filter to update the list of post types that should be hidden from the "Post types permissions" list.
+	 *
+	 * @since x.x.x
+	 * @hook dt_hide_post_types_from_permission_list
+	 *
+	 * @param {array} The list of post types.
+	 *
+	 * @return {bool} The updated array with the list of post types that should be hidden.
+	 */
+	return apply_filters( 'dt_hide_post_types_from_permission_list', $hide_from_list );
+}
+
+/**
  * Return post statuses that are allowed to be distributed.
  *
  * @since  1.0

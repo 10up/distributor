@@ -540,32 +540,7 @@ function meta_box_external_connection_details( $post ) {
 				</thead>
 				<tbody>
 					<?php
-					// Hide the built-in post types except 'post' and 'page'.
-					$hide_from_list = get_post_types(
-						array(
-							'_builtin'     => true,
-							'show_in_rest' => true,
-						)
-					);
-					unset( $hide_from_list['post'], $hide_from_list['page'] );
-
-					// Default is keyed by the post type 'post' => 'post', etc; hence using `array_values`.
-					$hide_from_list = array_values( $hide_from_list );
-
-					// Hide 'dt_subscription' post type.
-					$hide_from_list[] = 'dt_subscription';
-
-					/**
-					 * Filter to update the list of post types that should be hidden from the "Post types permissions" list.
-					 *
-					 * @since x.x.x
-					 * @hook dt_hide_post_types_from_permission_list
-					 *
-					 * @param {array} The list of post types..
-					 *
-					 * @return {bool} The updated array with the list of post types that should be hidden.
-					 */
-					$hide_from_list = apply_filters( 'dt_hide_post_types_from_permission_list', $hide_from_list );
+					$hide_from_list = \Distributor\Utils\get_excluded_post_types_from_permission_list();
 
 					foreach ( $post_types as $post_type ) :
 						if ( in_array( $post_type->name, $hide_from_list, true ) ) {
