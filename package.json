@@ -26,7 +26,6 @@
     "env:start": "wp-env start",
     "env:stop": "wp-env stop",
     "to-multisite": "wp-env run tests-cli \"wp core multisite-convert --title='Distributor Multisite'\"",
-    "create-pages": "wp-env run tests-cli \"wp post create --post_type=page --post_title='Accessible page' --post_status='publish'\" && wp-env run tests-cli \"wp post create --post_type=page --post_title='Page to redirect' --post_status='publish'\"",
     "postenv:start": "./tests/bin/initialize.sh"
   },
   "devDependencies": {
