@@ -325,13 +325,13 @@ function get_excluded_post_types_from_permission_list() {
 	 * Filter to update the list of post types that should be hidden from the "Post types permissions" list.
 	 *
 	 * @since 1.7.0
-	 * @hook dt_hide_post_types_from_permission_list
+	 * @hook dt_excluded_post_types_from_permission_list
 	 *
 	 * @param {array} The list of hidden post types.
 	 *
 	 * @return {bool} The updated array with the list of post types that should be hidden.
 	 */
-	return apply_filters( 'dt_hide_post_types_from_permission_list', $hide_from_list );
+	return apply_filters( 'dt_excluded_post_types_from_permission_list', $hide_from_list );
 }
 
 /**
