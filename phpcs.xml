@@ -13,6 +13,9 @@
 
 			<property name="customSanitizingFunctions" type="array">
 				<element value="wp_trim_words" />
+
+				<!-- Plugin custom sanitizing function -->
+				<element value="distributor_sanitize_connection" />
 			</property>
 		</properties>
 	</rule>
