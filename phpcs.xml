@@ -4,4 +4,16 @@
 	</rule>
 	<rule ref="WordPress-VIP-Go">
 	</rule>
+
+	<rule ref="WordPress.Security.ValidatedSanitizedInput">
+		<properties>
+			<property name="customUnslashingSanitizingFunctions" type="array">
+				<element value="wp_verify_nonce" />
+			</property>
+
+			<property name="customSanitizingFunctions" type="array">
+				<element value="wp_trim_words" />
+			</property>
+		</properties>
+	</rule>
 </ruleset>
