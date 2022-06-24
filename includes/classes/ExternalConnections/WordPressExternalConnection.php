@@ -145,6 +145,7 @@ class WordPressExternalConnection extends ExternalConnection {
 
 				$query_args['include'] = $args['post__in'];
 			} elseif ( isset( $args['post__not_in'] ) ) {
+				// phpcs:ignore WordPressVIPMinimum.Performance.WPQueryParams.PostNotIn_exclude
 				$query_args['exclude'] = $args['post__not_in'];
 			}
 
