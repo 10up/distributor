@@ -1121,3 +1121,30 @@ function post_args_allow_list( $post_args ) {
 
 	return array_intersect_key( $post_args, array_flip( $allowed_post_keys ) );
 }
+
+/**
+ * Make a remote GET request.
+ *
+ * Wrapper function for wp_remote_get() and vip_safe_wp_remote_get(). The order
+ * of parameters differs from vip_safe_wp_remote_get() to promote the arguments array
+ * to the second parameter.
+ *
+ * See {@see http://developer.wordpress.org/reference/classes/WP_Http/request/ WP_Http::request} for $args defaults.
+ *
+ * @param  string $url       The URL to request.
+ * @param  array  $args      Optional. An array of arguments to pass to wp_remote_get()/vip_safe_wp_remote_get().
+ * @param  mixed  $fallback  Optional. Fallback value to return if the request fails. Default false. VIP only.
+ * @param  int    $threshold Optional. The number of fails required before subsequent requests automatically return the fallback value. Defaults to 3, with a maximum of 10. VIP only.
+ * @param  int    $timeout   Optional. The timeout for WP VIP requests. Default 3, 1-5 valid. VIP only, use $args for others.
+ * @param  int    $retries   Optional. The number of retries to attempt. Deafult 10. VIP only.
+ *
+ * @return mixed The response from the remote request. On VIP if the request fails, the fallback value is returned.
+ */
+function remote_http_get( $url, $args = array(), $fallback = false, $threshold = 3, $timeout = 3, $retries = 10 ) {
+	if ( function_exists( 'vip_safe_wp_remote_get' ) && is_vip_com() ) {
+		return vip_safe_wp_remote_get( $url, $fallback, $threshold, $timeout, $retries, $args );
+	}
+
+	// phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.wp_remote_get_wp_remote_get -- fallback for non VIP.
+	return wp_remote_get( $url, $args );
+}
