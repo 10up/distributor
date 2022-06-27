@@ -1114,21 +1114,7 @@ class NetworkSiteConnection extends Connection {
 		 */
 		$request = apply_filters( 'dt_update_content_via_request_args', [], $new_post_id, $this );
 
-		if ( function_exists( 'vip_safe_wp_remote_get' ) && \Distributor\Utils\is_vip_com() ) {
-			$response = vip_safe_wp_remote_get(
-				$rest_url,
-				false,
-				3,
-				3,
-				10,
-				$request
-			);
-		} else {
-			$response = wp_remote_get(
-				$rest_url,
-				$request
-			);
-		}
+		$response = Utils\remote_http_get( $rest_url, $request );
 
 		$body = false;
 		$code = wp_remote_retrieve_response_code( $response );
