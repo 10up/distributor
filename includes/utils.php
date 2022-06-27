@@ -148,6 +148,7 @@ function check_license_key( $email, $license_key ) {
 	$request = wp_remote_post(
 		'https://distributorplugin.com/wp-json/distributor-theme/v1/validate-license',
 		[
+			// phpcs:ignore WordPressVIPMinimum.Performance.RemoteRequestTimeout.timeout_timeout
 			'timeout' => 10,
 			'body'    => [
 				'license_key' => $license_key,
@@ -923,6 +924,7 @@ function process_media( $url, $post_id, $args = [] ) {
 	}
 
 	// Make sure we clean up.
+	//phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged, WordPressVIPMinimum.Functions.RestrictedFunctions.file_ops_unlink
 	@unlink( $file_array['tmp_name'] );
 
 	if ( $save_source_file_path ) {
