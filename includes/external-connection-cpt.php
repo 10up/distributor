@@ -539,9 +539,11 @@ function meta_box_external_connection_details( $post ) {
 					<th><?php esc_html_e( 'Can push?', 'distributor' ); ?></th>
 				</thead>
 				<tbody>
-					<?php foreach ( $post_types as $post_type ) : ?>
-						<?php
-						if ( 'dt_subscription' === $post_type->name ) {
+					<?php
+					$hide_from_list = \Distributor\Utils\get_excluded_post_types_from_permission_list();
+
+					foreach ( $post_types as $post_type ) :
+						if ( in_array( $post_type->name, $hide_from_list, true ) ) {
 							continue;
 						}
 						?>
