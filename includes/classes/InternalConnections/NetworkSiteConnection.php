@@ -516,6 +516,7 @@ class NetworkSiteConnection extends Connection {
 			$query_args['paged']          = ( empty( $args['paged'] ) ) ? 1 : $args['paged'];
 
 			if ( isset( $args['meta_query'] ) ) {
+				// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
 				$query_args['meta_query'] = $args['meta_query'];
 			}
 
