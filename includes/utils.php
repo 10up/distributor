@@ -318,9 +318,6 @@ function get_excluded_post_types_from_permission_list() {
 	// Default is keyed by the post type 'post' => 'post', etc; hence using `array_values`.
 	$hide_from_list = array_values( $hide_from_list );
 
-	// Hide 'dt_subscription' post type.
-	$hide_from_list[] = 'dt_subscription';
-
 	/**
 	 * Filter to update the list of post types that should be hidden from the "Post types permissions" list.
 	 *
@@ -331,7 +328,12 @@ function get_excluded_post_types_from_permission_list() {
 	 *
 	 * @return {bool} The updated array with the list of post types that should be hidden.
 	 */
-	return apply_filters( 'dt_excluded_post_types_from_permission_list', $hide_from_list );
+	$hide_from_list = apply_filters( 'dt_excluded_post_types_from_permission_list', $hide_from_list );
+
+	// Strict Hide 'dt_subscription' post type.
+	$hide_from_list[] = 'dt_subscription';
+
+	return $hide_from_list;
 }
 
 /**
