@@ -208,9 +208,9 @@ function set_meta( $post_id, $meta ) {
 			}
 
 			if ( $has_prev_value ) {
-				update_post_meta( $post_id, $meta_key, $meta_value, $prev_value );
+				update_post_meta( $post_id, wp_slash( $meta_key ), wp_slash( $meta_value ), $prev_value );
 			} else {
-				add_post_meta( $post_id, $meta_key, $meta_value );
+				add_post_meta( $post_id, wp_slash( $meta_key ), wp_slash( $meta_value ) );
 			}
 		}
 	}
