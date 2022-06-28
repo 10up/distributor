@@ -48,7 +48,7 @@ class UtilsTest extends TestCase {
 
 		\WP_Mock::userFunction(
 			'wp_slash', [
-				'times'  => 4,
+				'times'      => 4,
 				'return_arg' => 0,
 			]
 		);
@@ -138,7 +138,7 @@ class UtilsTest extends TestCase {
 
 		\WP_Mock::userFunction(
 			'wp_slash', [
-				'times'  => 10,
+				'times'      => 10,
 				'return_arg' => 0,
 			]
 		);
@@ -197,7 +197,7 @@ class UtilsTest extends TestCase {
 
 		\WP_Mock::userFunction(
 			'wp_slash', [
-				'times'  => 4,
+				'times'      => 4,
 				'return_arg' => 0,
 			]
 		);
@@ -850,7 +850,7 @@ class UtilsTest extends TestCase {
 
 		\WP_Mock::userFunction(
 			'wp_slash', [
-				'times'  => 4,
+				'times'      => 4,
 				'return_arg' => 0,
 			]
 		);
