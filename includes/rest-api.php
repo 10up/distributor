@@ -527,9 +527,9 @@ function check_read_permission( $post ) {
 	}
 
 	/*
-	* If there isn't a parent, but the status is set to inherit, assume
-	* it's published (as per get_post_status()).
-	*/
+	 * When there isn't a parent, but the status is set to inherit, assume
+	 * it's published (as per get_post_status()).
+	 */
 	if ( 'inherit' === $post->post_status ) {
 		return true;
 	}
