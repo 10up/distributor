@@ -785,7 +785,7 @@ function filter_post_updated_messages( $messages ) {
  */
 function get_rest_url( $site_url ) {
 
-	$source = Utils\remote_http_get( $site_url );
+	$source = Utils\remote_http_request( $site_url );
 
 	if ( is_wp_error( $source ) ) {
 		return $source;
@@ -829,7 +829,7 @@ function get_remote_distributor_info() {
 	$route = $rest_url . 'wp/v2/dt_meta';
 
 	// phpcs:ignore WordPressVIPMinimum.Performance.RemoteRequestTimeout.timeout_timeout -- not used on VIP.
-	$response = Utils\remote_http_get( $route, [ 'timeout' => 5 ] );
+	$response = Utils\remote_http_request( $route, [ 'timeout' => 5 ] );
 
 	$body = json_decode( wp_remote_retrieve_body( $response ), true );
 

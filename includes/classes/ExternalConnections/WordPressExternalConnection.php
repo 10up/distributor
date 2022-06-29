@@ -195,7 +195,7 @@ class WordPressExternalConnection extends ExternalConnection {
 
 			$types_path = untrailingslashit( $this->base_url ) . '/' . $path . '/types';
 
-			$types_response = Utils\remote_http_get(
+			$types_response = Utils\remote_http_request(
 				$types_path,
 				$this->auth_handler->format_get_args( array( 'timeout' => self::$timeout ) )
 			);
@@ -291,7 +291,7 @@ class WordPressExternalConnection extends ExternalConnection {
 		// Add request parameter to specify Distributor request
 		$posts_url = add_query_arg( 'distributor_request', '1', $posts_url );
 
-		$posts_response = Utils\remote_http_get(
+		$posts_response = Utils\remote_http_request(
 			/**
 			 * Filter the URL that remote_get will use
 			 *
@@ -617,7 +617,7 @@ class WordPressExternalConnection extends ExternalConnection {
 
 		$types_path = untrailingslashit( $this->base_url ) . '/' . $path . '/types';
 
-		$response = Utils\remote_http_get(
+		$response = Utils\remote_http_request(
 			$types_path,
 			$this->auth_handler->format_get_args( array( 'timeout' => self::$timeout ) )
 		);
@@ -678,7 +678,7 @@ class WordPressExternalConnection extends ExternalConnection {
 		if ( ! empty( $args['remote_post_id'] ) ) {
 			$existing_post_url = untrailingslashit( $type_url ) . '/' . $args['remote_post_id'];
 
-			$post_exists_response = Utils\remote_http_get( $existing_post_url, $this->auth_handler->format_get_args( array( 'timeout' => self::$timeout ) ) );
+			$post_exists_response = Utils\remote_http_request( $existing_post_url, $this->auth_handler->format_get_args( array( 'timeout' => self::$timeout ) ) );
 
 			if ( ! is_wp_error( $post_exists_response ) ) {
 				$post_exists_response_code = wp_remote_retrieve_response_code( $post_exists_response );
@@ -771,7 +771,7 @@ class WordPressExternalConnection extends ExternalConnection {
 
 		$types_path = untrailingslashit( $this->base_url ) . '/' . $path . '/types';
 
-		$types_response = Utils\remote_http_get(
+		$types_response = Utils\remote_http_request(
 			$types_path,
 			$this->auth_handler->format_get_args( array( 'timeout' => self::$timeout ) )
 		);
@@ -809,7 +809,7 @@ class WordPressExternalConnection extends ExternalConnection {
 			'endpoint_suggestion' => false,
 		);
 
-		$response = Utils\remote_http_get( untrailingslashit( $this->base_url ), $this->auth_handler->format_get_args( array( 'timeout' => self::$timeout ) ) );
+		$response = Utils\remote_http_request( untrailingslashit( $this->base_url ), $this->auth_handler->format_get_args( array( 'timeout' => self::$timeout ) ) );
 
 		$body = wp_remote_retrieve_body( $response );
 
@@ -853,7 +853,7 @@ class WordPressExternalConnection extends ExternalConnection {
 
 		$types_path = untrailingslashit( $this->base_url ) . '/' . self::$namespace . '/types';
 
-		$types_response = Utils\remote_http_get( $types_path, $this->auth_handler->format_get_args( array( 'timeout' => self::$timeout ) ) );
+		$types_response = Utils\remote_http_request( $types_path, $this->auth_handler->format_get_args( array( 'timeout' => self::$timeout ) ) );
 
 		$types_body = wp_remote_retrieve_body( $types_response );
 		$types      = json_decode( $types_body, true );
@@ -865,7 +865,7 @@ class WordPressExternalConnection extends ExternalConnection {
 			$can_post = array();
 
 			$permission_url      = untrailingslashit( $this->base_url ) . '/' . self::$namespace . '/distributor/post-types-permissions';
-			$permission_response = Utils\remote_http_get(
+			$permission_response = Utils\remote_http_request(
 				$permission_url,
 				$this->auth_handler->format_get_args(
 					array(

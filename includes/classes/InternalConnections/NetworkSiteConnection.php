@@ -1115,7 +1115,7 @@ class NetworkSiteConnection extends Connection {
 		 */
 		$request = apply_filters( 'dt_update_content_via_request_args', [], $new_post_id, $this );
 
-		$response = Utils\remote_http_get( $rest_url, $request );
+		$response = Utils\remote_http_request( $rest_url, $request );
 
 		$body = false;
 		$code = wp_remote_retrieve_response_code( $response );

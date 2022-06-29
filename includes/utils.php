@@ -1125,28 +1125,38 @@ function post_args_allow_list( $post_args ) {
 }
 
 /**
- * Make a remote GET request.
+ * Make a remote HTTP request.
  *
- * Wrapper function for wp_remote_get() and vip_safe_wp_remote_get(). The order
- * of parameters differs from vip_safe_wp_remote_get() to promote the arguments array
+ * Wrapper function for wp_remote_request() and vip_safe_wp_remote_request(). The order
+ * of parameters differs from vip_safe_wp_remote_request() to promote the arguments array
  * to the second parameter.
+ *
+ * The default request type is a GET request although the function can be used for other
+ * HTTP methods by setting the method in the $args array.
  *
  * See {@see http://developer.wordpress.org/reference/classes/WP_Http/request/ WP_Http::request} for $args defaults.
  *
  * @param  string $url       The URL to request.
  * @param  array  $args      Optional. An array of arguments to pass to wp_remote_get()/vip_safe_wp_remote_get().
  * @param  mixed  $fallback  Optional. Fallback value to return if the request fails. Default ''. VIP only.
- * @param  int    $threshold Optional. The number of fails required before subsequent requests automatically return the fallback value. Defaults to 3, with a maximum of 10. VIP only.
- * @param  int    $timeout   Optional. The timeout for WP VIP requests. Default 3, 1-5 valid. VIP only, use $args for others.
- * @param  int    $retries   Optional. The number of retries to attempt. Default 10. VIP only.
+ * @param  int    $threshold Optional. The number of fails required before subsequent requests automatically
+ *                           return the fallback value. Defaults to 3, with a maximum of 10. VIP only.
+ * @param  int    $timeout   Optional. The timeout for WP VIP requests. Use $args['timeout'] for others. VIP only.
+ *                                     All requests have a maximum of 5 seconds except:
+ *                                     - `POST` requests made via WP CLI have a maximum of 30 seconds.
+ *                                     - `POST` requests within the WP Admin have a maximum of 15 seconds.
+ * @param  int    $retries   Optional. The number of retries to attempt. Minimum and default is 10,
+ *                                     lower values will be increased to 10. VIP only.
  *
  * @return mixed The response from the remote request. On VIP if the request fails, the fallback value is returned.
  */
-function remote_http_get( $url, $args = array(), $fallback = '', $threshold = 3, $timeout = 3, $retries = 10 ) {
-	if ( function_exists( 'vip_safe_wp_remote_get' ) && is_vip_com() ) {
-		return vip_safe_wp_remote_get( $url, $fallback, $threshold, $timeout, $retries, $args );
+function remote_http_request( $url, $args = array(), $fallback = '', $threshold = 3, $timeout = 3, $retries = 10 ) {
+	$default_args = array( 'method' => 'GET' );
+	$args         = wp_parse_args( $args, $default_args );
+
+	if ( function_exists( 'vip_safe_wp_remote_request' ) && is_vip_com() ) {
+		return vip_safe_wp_remote_request( $url, $fallback, $threshold, $timeout, $retries, $args );
 	}
 
-	// phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.wp_remote_get_wp_remote_get -- fallback for non VIP.
-	return wp_remote_get( $url, $args );
+	return wp_remote_request( $url, $args );
 }

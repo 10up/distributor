@@ -230,7 +230,7 @@ function get_external_connection_version( $url ) {
 	$route = trailingslashit( $url ) . 'wp/v2/dt_meta';
 
 	// phpcs:ignore WordPressVIPMinimum.Performance.RemoteRequestTimeout.timeout_timeout
-	$response = Utils\remote_http_get( $route, [ 'timeout' => 5 ] );
+	$response = Utils\remote_http_request( $route, [ 'timeout' => 5 ] );
 	$body     = json_decode( wp_remote_retrieve_body( $response ), true );
 
 	if ( empty( $body['version'] ) ) {
