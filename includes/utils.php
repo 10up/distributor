@@ -1151,9 +1151,6 @@ function post_args_allow_list( $post_args ) {
  * @return mixed The response from the remote request. On VIP if the request fails, the fallback value is returned.
  */
 function remote_http_request( $url, $args = array(), $fallback = '', $threshold = 3, $timeout = 3, $retries = 10 ) {
-	$default_args = array( 'method' => 'GET' );
-	$args         = wp_parse_args( $args, $default_args );
-
 	if ( function_exists( 'vip_safe_wp_remote_request' ) && is_vip_com() ) {
 		return vip_safe_wp_remote_request( $url, $fallback, $threshold, $timeout, $retries, $args );
 	}
