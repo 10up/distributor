@@ -99,4 +99,4 @@ jobs:
       run: composer install --ignore-platform-reqs
 
     - name: Check WordPress VIP standard
-      run: ./vendor/bin/phpcs --standard=WordPress-VIP-Go -si --extensions=php includes templates distributor.php vendor/yahnis-elsts vendor/georgestephanis
+      run: ./vendor/bin/phpcs --standard=WordPress-VIP-Go -s --extensions=php includes templates distributor.php vendor/yahnis-elsts vendor/georgestephanis
