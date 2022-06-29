@@ -1138,7 +1138,7 @@ function post_args_allow_list( $post_args ) {
  * @param  mixed  $fallback  Optional. Fallback value to return if the request fails. Default ''. VIP only.
  * @param  int    $threshold Optional. The number of fails required before subsequent requests automatically return the fallback value. Defaults to 3, with a maximum of 10. VIP only.
  * @param  int    $timeout   Optional. The timeout for WP VIP requests. Default 3, 1-5 valid. VIP only, use $args for others.
- * @param  int    $retries   Optional. The number of retries to attempt. Deafult 10. VIP only.
+ * @param  int    $retries   Optional. The number of retries to attempt. Default 10. VIP only.
  *
  * @return mixed The response from the remote request. On VIP if the request fails, the fallback value is returned.
  */
