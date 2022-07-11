@@ -68,35 +68,3 @@ jobs:
       uses: chekalsky/phpcs-action@v1
       with:
         phpcs_bin_path: './vendor/bin/phpcs . --runtime-set testVersion 5.6-'
-  vipcs:
-    name: WP VIP Coding Standards
-    runs-on: ubuntu-latest
-
-    steps:
-    - name: Checkout
-      uses: actions/checkout@v2.4.0
-
-    - name: Set standard 10up cache directories
-      run: |
-        composer config -g cache-dir "${{ env.COMPOSER_CACHE }}"
-
-    - name: Prepare composer cache
-      uses: actions/cache@v2
-      with:
-        path: ${{ env.COMPOSER_CACHE }}
-        key: composer-${{ env.COMPOSER_VERSION }}-${{ hashFiles('**/composer.lock') }}
-        restore-keys: |
-          composer-${{ env.COMPOSER_VERSION }}-
-
-    - name: Set PHP version
-      uses: shivammathur/setup-php@v2
-      with:
-        php-version: '7.4'
-        coverage: none
-        tools: composer:v2
-
-    - name: Install dependencies
-      run: composer install --ignore-platform-reqs
-
-    - name: Check WordPress VIP standard
-      run: ./vendor/bin/phpcs --standard=WordPress-VIP-Go -s --extensions=php includes templates distributor.php
