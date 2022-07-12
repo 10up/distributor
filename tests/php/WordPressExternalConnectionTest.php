@@ -99,7 +99,7 @@ class WordPressExternalConnectionTest extends TestCase {
 		);
 
 		\WP_Mock::userFunction(
-			'wp_remote_get', [
+			'wp_remote_request', [
 				'return' => $body,
 			]
 		);
@@ -331,7 +331,7 @@ class WordPressExternalConnectionTest extends TestCase {
 			]
 		);
 
-		\WP_Mock::userFunction( 'wp_remote_get' );
+		\WP_Mock::userFunction( 'wp_remote_request' );
 		\WP_Mock::userFunction( 'untrailingslashit' );
 
 		$check = $this->connection->check_connections();
@@ -357,7 +357,7 @@ class WordPressExternalConnectionTest extends TestCase {
 			]
 		);
 
-		\WP_Mock::userFunction( 'wp_remote_get' );
+		\WP_Mock::userFunction( 'wp_remote_request' );
 		\WP_Mock::userFunction( 'untrailingslashit' );
 
 		\WP_Mock::userFunction(

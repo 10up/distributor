@@ -99,6 +99,7 @@ add_filter(
 require_once __DIR__ . '/vendor/yahnis-elsts/plugin-update-checker/plugin-update-checker.php';
 
 require_once __DIR__ . '/includes/utils.php';
+require_once __DIR__ . '/includes/global-functions.php';
 require_once __DIR__ . '/includes/external-connection-cpt.php';
 require_once __DIR__ . '/includes/push-ui.php';
 require_once __DIR__ . '/includes/pull-ui.php';
