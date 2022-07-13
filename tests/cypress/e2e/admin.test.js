@@ -1,7 +1,7 @@
 describe( 'Admin can login and make sure plugin is activated', () => {
 	before( () => {
 		cy.login();
-		cy.visitAdminPage( 'network/plugins.php' );
+		cy.visit( '/wp-admin/network/plugins.php' );
 	} );
 
 	it( 'Can deactivate and activate plugin ', () => {
