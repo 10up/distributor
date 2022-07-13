@@ -1,14 +1,19 @@
 {
   "core": null,
-  "plugins": [".", "./tests/test-plugins"],
+  "plugins": [
+    ".",
+    "./tests/test-plugins"
+  ],
   "config": {
-    "WP_ALLOW_MULTISITE": true
+    "WP_ALLOW_MULTISITE": true,
+    "WP_ENV_TESTS_PORT": 80
   },
   "env": {
     "tests": {
       "mappings": {
         "wp-cli.yml": "./tests/bin/wp-cli.yml"
-      }
+      },
+      "WP_ENV_TESTS_PORT": 80
     }
   }
 }
