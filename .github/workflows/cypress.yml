@@ -37,5 +37,8 @@ jobs:
     - name: Convert to multisite
       run: npm run to-multisite
 
+    - name: Copy .htaccess
+      run: npm run copy-htaccess
+
     - name: Test
       run: npm run cypress:run

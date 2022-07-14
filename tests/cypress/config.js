@@ -30,7 +30,6 @@ const setBaseUrl = async (on, config) => {
     const port = wpEnvConfig.env.tests.port || null;
 
     if (port) {
-      // config.baseUrl = wpEnvConfig.env.tests.config.WP_TESTS_DOMAIN;
       config.baseUrl = 'http://localhost:80/';
     }
   }

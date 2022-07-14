@@ -26,6 +26,7 @@
     "env:start": "wp-env start",
     "env:stop": "wp-env stop",
     "to-multisite": "wp-env run tests-cli \"wp core multisite-convert --title='Distributor Multisite'\"",
+    "copy-htaccess": "wp-env run tests-cli \"cp wp-content/plugins/distributor/tests/cypress/.htaccess .htaccess\"",
     "postenv:start": "./tests/bin/initialize.sh"
   },
   "devDependencies": {
