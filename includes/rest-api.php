@@ -163,6 +163,7 @@ function register_rest_routes() {
  */
 function get_pull_content_list_args() {
 	return array(
+		// phpcs:ignore WordPressVIPMinimum.Performance.WPQueryParams.PostNotIn_exclude
 		'exclude'        => array(
 			'description' => esc_html__( 'Ensure result set excludes specific IDs.', 'distributor' ),
 			'type'        => 'array',
@@ -526,9 +527,9 @@ function check_read_permission( $post ) {
 	}
 
 	/*
-	* If there isn't a parent, but the status is set to inherit, assume
-	* it's published (as per get_post_status()).
-	*/
+	 * When there isn't a parent, but the status is set to inherit, assume
+	 * it's published (as per get_post_status()).
+	 */
 	if ( 'inherit' === $post->post_status ) {
 		return true;
 	}

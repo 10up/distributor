@@ -148,6 +148,7 @@ function check_license_key( $email, $license_key ) {
 	$request = wp_remote_post(
 		'https://distributorplugin.com/wp-json/distributor-theme/v1/validate-license',
 		[
+			// phpcs:ignore WordPressVIPMinimum.Performance.RemoteRequestTimeout.timeout_timeout
 			'timeout' => 10,
 			'body'    => [
 				'license_key' => $license_key,
@@ -208,9 +209,9 @@ function set_meta( $post_id, $meta ) {
 			}
 
 			if ( $has_prev_value ) {
-				update_post_meta( $post_id, $meta_key, $meta_value, $prev_value );
+				update_post_meta( $post_id, wp_slash( $meta_key ), wp_slash( $meta_value ), $prev_value );
 			} else {
-				add_post_meta( $post_id, $meta_key, $meta_value );
+				add_post_meta( $post_id, wp_slash( $meta_key ), wp_slash( $meta_value ) );
 			}
 		}
 	}
@@ -333,6 +334,43 @@ function distributable_post_types() {
 	 * @return {array} Post types that are distributable.
 	 */
 	return apply_filters( 'distributable_post_types', $push_post_types );
+}
+
+/**
+ * Return post types that should be excluded from the permission list.
+ *
+ * @since  1.7.0
+ * @return array
+ */
+function get_excluded_post_types_from_permission_list() {
+	// Hide the built-in post types except 'post' and 'page'.
+	$hide_from_list = get_post_types(
+		array(
+			'_builtin'     => true,
+			'show_in_rest' => true,
+		)
+	);
+	unset( $hide_from_list['post'], $hide_from_list['page'] );
+
+	// Default is keyed by the post type 'post' => 'post', etc; hence using `array_values`.
+	$hide_from_list = array_values( $hide_from_list );
+
+	/**
+	 * Filter to update the list of post types that should be hidden from the "Post types permissions" list.
+	 *
+	 * @since 1.7.0
+	 * @hook dt_excluded_post_types_from_permission_list
+	 *
+	 * @param {array} The list of hidden post types.
+	 *
+	 * @return {bool} The updated array with the list of post types that should be hidden.
+	 */
+	$hide_from_list = apply_filters( 'dt_excluded_post_types_from_permission_list', $hide_from_list );
+
+	// Strict Hide 'dt_subscription' post type.
+	$hide_from_list[] = 'dt_subscription';
+
+	return $hide_from_list;
 }
 
 /**
@@ -951,6 +989,7 @@ function process_media( $url, $post_id, $args = [] ) {
 	}
 
 	// Make sure we clean up.
+	//phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged, WordPressVIPMinimum.Functions.RestrictedFunctions.file_ops_unlink
 	@unlink( $file_array['tmp_name'] );
 
 	if ( $save_source_file_path ) {
@@ -1148,4 +1187,38 @@ function post_args_allow_list( $post_args ) {
 	);
 
 	return array_intersect_key( $post_args, array_flip( $allowed_post_keys ) );
+}
+
+/**
+ * Make a remote HTTP request.
+ *
+ * Wrapper function for wp_remote_request() and vip_safe_wp_remote_request(). The order
+ * of parameters differs from vip_safe_wp_remote_request() to promote the arguments array
+ * to the second parameter.
+ *
+ * The default request type is a GET request although the function can be used for other
+ * HTTP methods by setting the method in the $args array.
+ *
+ * See {@see http://developer.wordpress.org/reference/classes/WP_Http/request/ WP_Http::request} for $args defaults.
+ *
+ * @param  string $url       The URL to request.
+ * @param  array  $args      Optional. An array of arguments to pass to wp_remote_get()/vip_safe_wp_remote_get().
+ * @param  mixed  $fallback  Optional. Fallback value to return if the request fails. Default ''. VIP only.
+ * @param  int    $threshold Optional. The number of fails required before subsequent requests automatically
+ *                           return the fallback value. Defaults to 3, with a maximum of 10. VIP only.
+ * @param  int    $timeout   Optional. The timeout for WP VIP requests. Use $args['timeout'] for others. VIP only.
+ *                                     All requests have a maximum of 5 seconds except:
+ *                                     - `POST` requests made via WP CLI have a maximum of 30 seconds.
+ *                                     - `POST` requests within the WP Admin have a maximum of 15 seconds.
+ * @param  int    $retries   Optional. The number of retries to attempt. Minimum and default is 10,
+ *                                     lower values will be increased to 10. VIP only.
+ *
+ * @return mixed The response from the remote request. On VIP if the request fails, the fallback value is returned.
+ */
+function remote_http_request( $url, $args = array(), $fallback = '', $threshold = 3, $timeout = 3, $retries = 10 ) {
+	if ( function_exists( 'vip_safe_wp_remote_request' ) && is_vip_com() ) {
+		return vip_safe_wp_remote_request( $url, $fallback, $threshold, $timeout, $retries, $args );
+	}
+
+	return wp_remote_request( $url, $args );
 }
