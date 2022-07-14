@@ -2,7 +2,8 @@
   "core": null,
   "plugins": [
     ".",
-    "./tests/test-plugins"
+    "./tests/test-plugins",
+    "./tests/Basic-Auth-master"
   ],
   "config": {
     "WP_ALLOW_MULTISITE": true
@@ -12,13 +13,6 @@
       "port": 80,
       "mappings": {
         "wp-cli.yml": "./tests/bin/wp-cli.yml"
-      },
-      "config": {
-        "WP_DEBUG": true,
-        "SCRIPT_DEBUG": true,
-        "WP_TESTS_DOMAIN": "http://localhost:80/",
-        "WP_SITEURL": "http://localhost:80/",
-        "WP_HOME": "http://localhost:80/"
       }
     }
   }

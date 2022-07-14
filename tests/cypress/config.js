@@ -18,7 +18,7 @@ module.exports = defineConfig({
 
 /**
  * Set WP URL as baseUrl in Cypress config.
- * 
+ *
  * @param {Function} on    function that used to register listeners on various events.
  * @param {object} config  Cypress Config object.
  * @returns config Updated Cypress Config object.
@@ -30,7 +30,8 @@ const setBaseUrl = async (on, config) => {
     const port = wpEnvConfig.env.tests.port || null;
 
     if (port) {
-      config.baseUrl = wpEnvConfig.env.tests.config.WP_TESTS_DOMAIN;
+      // config.baseUrl = wpEnvConfig.env.tests.config.WP_TESTS_DOMAIN;
+      config.baseUrl = 'http://localhost:80/';
     }
   }
 
