@@ -2,7 +2,6 @@
   "core": null,
   "plugins": [
     ".",
-    "./tests/test-plugins",
     "./tests/Basic-Auth-master"
   ],
   "config": {
