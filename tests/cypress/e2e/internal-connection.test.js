@@ -1,6 +1,9 @@
 describe( 'Admin can add a new external connection', () => {
 	before( () => {
 		cy.login();
+		cy.visit( '/wp-admin/network/plugins.php' );
+		cy.contains( 'strong', 'Distributor' ).closest( 'td' ).find( '.activate > a' ).click();
+		cy.contains( 'strong', 'JSON Basic Authentication' ).closest( 'td' ).find( '.activate > a' ).click();
 	} );
 
 	it( 'Check if a an external connection exists, if not, add it', () => {
