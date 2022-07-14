@@ -10,10 +10,10 @@
   },
   "env": {
     "tests": {
+      "port": 80,
       "mappings": {
         "wp-cli.yml": "./tests/bin/wp-cli.yml"
-      },
-      "WP_ENV_TESTS_PORT": 80
+      }
     }
   }
 }
