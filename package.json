@@ -71,7 +71,7 @@
     "wp-hookdoc": "^0.2.0"
   },
   "engines": {
-    "node": ">=8.9.10"
+    "node": ">=14"
   },
   "dependencies": {
     "mustache": "^4.0.1"
