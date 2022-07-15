@@ -4,9 +4,6 @@
     ".",
     "./tests/Basic-Auth-master"
   ],
-  "config": {
-    "WP_ALLOW_MULTISITE": true
-  },
   "env": {
     "tests": {
       "port": 80,
