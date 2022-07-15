@@ -9,6 +9,7 @@
     "email": "opensource@10up.com",
     "url": "https://10up.com"
   },
+  "type": "module",
   "scripts": {
     "build": "gulp",
     "lint": "eslint assets/js",
