@@ -292,7 +292,7 @@ function available_pull_post_types( $connection, $type ) {
  * @return array
  */
 function distributable_post_types( $output = 'names' ) {
-	$post_types = get_post_types( [ 'show_in_rest' => true ] , $output );
+	$post_types = get_post_types( [ 'show_in_rest' => true ], $output );
 
 	$exclude_post_types = [
 		'attachment',
@@ -302,7 +302,7 @@ function distributable_post_types( $output = 'names' ) {
 		'wp_template',
 		'wp_template_part',
 		'dt_ext_connection',
-		'dt_subscription'
+		'dt_subscription',
 	];
 
 	foreach ( $exclude_post_types as $exclude_post_type ) {
