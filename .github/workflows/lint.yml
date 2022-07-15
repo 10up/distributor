@@ -19,7 +19,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Delete package-lock.json
-      run: rm -package-lock.json
+      run: rm package-lock.json
 
     - uses: actions/checkout@v2.4.0
     - name: install node v14
