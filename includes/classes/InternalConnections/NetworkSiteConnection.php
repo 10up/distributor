@@ -86,7 +86,7 @@ class NetworkSiteConnection extends Connection {
 		// Distribute raw HTML when going from Gutenberg enabled to Gutenberg enabled.
 		$remote_using_gutenberg = \Distributor\Utils\is_using_gutenberg( $post );
 		if ( $using_gutenberg && $remote_using_gutenberg ) {
-			$new_post_args['post_content'] = wp_slash( $post->post_content );
+			$new_post_args['post_content'] = $post->post_content;
 		}
 
 		// Handle existing posts.
@@ -112,7 +112,7 @@ class NetworkSiteConnection extends Connection {
 		add_filter( 'wp_insert_post_data', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'maybe_set_modified_date' ), 10, 2 );
 		// Filter documented in includes/classes/ExternalConnections/WordPressExternalConnection.php
 		$new_post_args = Utils\post_args_allow_list( apply_filters( 'dt_push_post_args', $new_post_args, $post, $args, $this ) );
-		$new_post_id   = wp_insert_post( $new_post_args );
+		$new_post_id   = wp_insert_post( wp_slash( $new_post_args ) );
 
 		remove_filter( 'wp_insert_post_data', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'maybe_set_modified_date' ), 10, 2 );
 
@@ -265,15 +265,11 @@ class NetworkSiteConnection extends Connection {
 				$post_array['post_status'] = $item_array['post_status'];
 			}
 
-			if ( ! empty( $post_array['post_content'] ) ) {
-				$post_array['post_content'] = wp_slash( $post_array['post_content'] );
-			}
-
 			add_filter( 'wp_insert_post_data', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'maybe_set_modified_date' ), 10, 2 );
 
 			// Filter documented in includes/classes/ExternalConnections/WordPressExternalConnection.php
 			$new_post_args = Utils\post_args_allow_list( apply_filters( 'dt_pull_post_args', $post_array, $item_array['remote_post_id'], $post, $this ) );
-			$new_post_id   = wp_insert_post( $new_post_args );
+			$new_post_id   = wp_insert_post( wp_slash( $new_post_args ) );
 
 			remove_filter( 'wp_insert_post_data', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'maybe_set_modified_date' ), 10, 2 );
 
