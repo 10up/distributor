@@ -10,6 +10,7 @@ namespace Distributor\DebugInfo;
 use Distributor\Connections;
 use Distributor\ExternalConnection;
 use Distributor\InternalConnections\NetworkSiteConnection;
+use Distributor\Utils;
 
 /**
  * Setup actions and filters
@@ -228,13 +229,9 @@ function get_formatted_external_connnections() {
 function get_external_connection_version( $url ) {
 	$route = trailingslashit( $url ) . 'wp/v2/dt_meta';
 
-	if ( function_exists( 'vip_safe_wp_remote_get' ) && \Distributor\Utils\is_vip_com() ) {
-		$response = vip_safe_wp_remote_get( $route, false, 3, 3, 10 );
-	} else {
-		$response = wp_remote_get( $route, [ 'timeout' => 5 ] );
-	}
-
-	$body = json_decode( wp_remote_retrieve_body( $response ), true );
+	// phpcs:ignore WordPressVIPMinimum.Performance.RemoteRequestTimeout.timeout_timeout
+	$response = Utils\remote_http_request( $route, [ 'timeout' => 5 ] );
+	$body     = json_decode( wp_remote_retrieve_body( $response ), true );
 
 	if ( empty( $body['version'] ) ) {
 		return __( 'N/A', 'distributor' );
