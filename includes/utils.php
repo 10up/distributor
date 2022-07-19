@@ -311,19 +311,6 @@ function distributable_post_types() {
 	}
 
 	/**
-	 * Filter the post types that should be available for push.
-	 *
-	 * Helpful for sites that want to push custom post type content to another site.
-	 *
-	 * @hook dt_available_push_post_types
-	 *
-	 * @param {array} Post types that are distributable. Default all post types except `dt_ext_connection` and `dt_subscription`.
-	 *
-	 * @return {array} Post types available for push.
-	 */
-	$push_post_types = apply_filters( 'dt_available_push_post_types', array_diff( $post_types, [ 'dt_ext_connection', 'dt_subscription' ] ) );
-
-	/**
 	 * Filter post types that are distributable.
 	 *
 	 * @since 1.0.0
@@ -333,7 +320,7 @@ function distributable_post_types() {
 	 *
 	 * @return {array} Post types that are distributable.
 	 */
-	return apply_filters( 'distributable_post_types', $push_post_types );
+	return apply_filters( 'distributable_post_types', array_diff( $post_types, [ 'dt_ext_connection', 'dt_subscription' ] ) );
 }
 
 /**
