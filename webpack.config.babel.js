@@ -1,6 +1,6 @@
 import path from 'path';
 
-const DIST_PATH = path.resolve('./dist/js');
+const DIST_PATH = path.resolve( './dist/js' );
 
 module.exports = {
 	cache: true,
@@ -11,7 +11,7 @@ module.exports = {
 		'admin-distributed-post': './assets/js/admin-distributed-post.js',
 		push: './assets/js/push.js',
 		'gutenberg-syndicated-post': './assets/js/gutenberg-syndicated-post.js',
-		'gutenberg-status-plugin': './assets/js/gutenberg-status-plugin.js',
+		'gutenberg-plugin': './assets/js/gutenberg-plugin.js',
 	},
 	output: {
 		path: DIST_PATH,
@@ -34,16 +34,22 @@ module.exports = {
 				query: {
 					configFile: './.eslintrc.json'
 				}
-			}
+			},
+			{
+				test: /\.svg$/,
+				use: [{
+					loader: 'svg-react-loader'
+				}]
+			},
 		]
 	},
 	mode: 'production',
-
 	externals: {
 		jquery: 'jQuery',
+		react: 'React',
 		underscores: '_',
 		window: 'window',
 		wp: 'wp'
 	},
 	stats: { colors: true },
-}
+};

@@ -46,6 +46,13 @@ class UtilsTest extends TestCase {
 			]
 		);
 
+		\WP_Mock::userFunction(
+			'wp_slash', [
+				'times'      => 4,
+				'return_arg' => 0,
+			]
+		);
+
 		\WP_Mock::expectAction( 'dt_after_set_meta', [ 'key' => [ 'value' ] ], [], 1 );
 
 		\WP_Mock::expectAction( 'dt_after_set_meta', [ 'key' => [ [ 'value' ] ] ], [ 'key' => [ 'value' ] ], 1 );
@@ -129,6 +136,13 @@ class UtilsTest extends TestCase {
 			]
 		);
 
+		\WP_Mock::userFunction(
+			'wp_slash', [
+				'times'      => 10,
+				'return_arg' => 0,
+			]
+		);
+
 		Utils\set_meta(
 			1, [
 				'key'  => [ 'value' ],
@@ -178,6 +192,13 @@ class UtilsTest extends TestCase {
 				'times'  => 1,
 				'args'   => [ 1, 'key2', [ 0 => 'test' ], [ 0 => 'test' ] ],
 				'return' => [],
+			]
+		);
+
+		\WP_Mock::userFunction(
+			'wp_slash', [
+				'times'      => 4,
+				'return_arg' => 0,
 			]
 		);
 
@@ -242,7 +263,7 @@ class UtilsTest extends TestCase {
 					$term_id,
 					$taxonomy,
 					[
-						'parent' => 0,
+						'parent' => '',
 					]
 				],
 				'return' => [ 'term_id' => $term_id ],
@@ -332,7 +353,7 @@ class UtilsTest extends TestCase {
 					$term_id,
 					$taxonomy,
 					[
-						'parent' => 0,
+						'parent' => '',
 					]
 				],
 				'return' => [ 'term_id' => $term_id ],
@@ -592,6 +613,94 @@ class UtilsTest extends TestCase {
 	}
 
 	/**
+	 * Test format media with no `_wp_attachment_metadata`
+	 *
+	 * @group Utils
+	 * @runInSeparateProcess
+	 */
+	public function test_format_media_no_attachment_meta() {
+		$media_post                 = new \stdClass();
+		$media_post->ID             = 1;
+		$media_post->post_parent    = 10;
+		$media_post->post_title     = 'title';
+		$media_post->post_content   = 'content';
+		$media_post->post_excerpt   = 'excerpt';
+		$media_post->post_mime_type = 'image/png';
+
+		\WP_Mock::userFunction(
+			'get_post_thumbnail_id', [
+				'times'  => 1,
+				'args'   => [ $media_post->post_parent ],
+				'return' => 0,
+			]
+		);
+
+		\WP_Mock::userFunction(
+			'get_post_meta', [
+				'times'  => 1,
+				'args'   => [ $media_post->ID, '_wp_attachment_image_alt', true ],
+				'return' => 'alt',
+			]
+		);
+
+		\WP_Mock::userFunction(
+			'wp_attachment_is_image', [
+				'times'  => 1,
+				'args'   => [ $media_post->ID ],
+				'return' => true,
+			]
+		);
+
+		\WP_Mock::userFunction(
+			'wp_get_attachment_metadata', [
+				'times'  => 1,
+				'args'   => [ $media_post->ID ],
+				'return' => [ 'test' => 1 ],
+			]
+		);
+
+		\WP_Mock::userFunction(
+			'wp_get_attachment_url', [
+				'times'  => 1,
+				'args'   => [ $media_post->ID ],
+				'return' => 'http://mediaitem.com',
+			]
+		);
+
+		\WP_Mock::userFunction(
+			'get_attached_file', [
+				'times'  => 1,
+				'args'   => [ $media_post->ID ],
+				'return' => '/var/www/html/wp-content/uploads/mediaitem.jpg',
+			]
+		);
+
+		\WP_Mock::userFunction(
+			'get_post_meta', [
+				'times'  => 1,
+				'args'   => [ $media_post->ID ],
+				'return' => [
+					'meta1'                   => [ true ],
+					'meta2'                   => [ false ],
+					'_wp_attachment_metadata' => [ true ],
+				],
+			]
+		);
+
+		\WP_Mock::userFunction(
+			'remove_filter', [
+				'times' => 1,
+			]
+		);
+
+		$formatted_media = Utils\format_media_post( $media_post );
+
+		$this->assertFalse( array_key_exists( '_wp_attachment_metadata', $formatted_media['meta'] ) );
+
+		return $formatted_media;
+	}
+
+	/**
 	 * Test set media
 	 *
 	 * @since 1.0
@@ -739,6 +848,13 @@ class UtilsTest extends TestCase {
 			]
 		);
 
+		\WP_Mock::userFunction(
+			'wp_slash', [
+				'times'      => 4,
+				'return_arg' => 0,
+			]
+		);
+
 		Utils\set_media( $post_id, [ $media_item ], [ 'use_filesystem' => false ] );
 	}
 
@@ -750,4 +866,27 @@ class UtilsTest extends TestCase {
 	 * Todo finish process_media
 	 */
 
+	 /**
+	  * Test post_args_allow_list
+	  *
+	  * @since x.x.x
+	  */
+	function test_post_args_allow_list() {
+		$post_args = [
+			'post_title'   => 'Test Title',
+			'post_content' => 'Test Content',
+			'post_excerpt' => 'Test Excerpt',
+			'link'         => 'https://github.com/10up/distributor/issues/879',
+			'dt_source'    => 'https://github.com/10up/distributor/pull/895',
+		];
+
+		$expected = [
+			'post_title'   => 'Test Title',
+			'post_content' => 'Test Content',
+			'post_excerpt' => 'Test Excerpt',
+		];
+
+		$actual = Utils\post_args_allow_list( $post_args );
+		$this->assertSame( $expected, $actual );
+	}
 }

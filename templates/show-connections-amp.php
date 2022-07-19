@@ -4,7 +4,7 @@
  *
  * @package  distributor
  */
-
+//phpcs:ignoreFile WordPressVIPMinimum.Security.Mustache.OutputNotation
 ?>
 
 <script id="dt-show-connections" type="text/plain" template="amp-mustache" data-ampdevmode>
@@ -82,6 +82,7 @@
 			</div>
 			<div class="dt-error">
 				<?php esc_html_e( 'There were some issues distributing the post.', 'distributor' ); ?>
+				<ul class="details"></ul>
 			</div>
 		</div>
 

@@ -41,7 +41,9 @@ function syndicatable() {
 	 *
 	 * @hook dt_syndicatable_capabilities
 	 *
-	 * @param string edit_posts The capability allowed to syndicate content.
+	 * @param {string} edit_posts The capability allowed to syndicate content.
+	 *
+	 * @return {string} The capability allowed to syndicate content.
 	 */
 	if ( ! is_user_logged_in() || ! current_user_can( apply_filters( 'dt_syndicatable_capabilities', 'edit_posts' ) ) ) {
 		return false;
@@ -55,7 +57,7 @@ function syndicatable() {
 			return false;
 		}
 	} else {
-		if ( ! is_single() ) {
+		if ( ! is_singular( \Distributor\Utils\distributable_post_types() ) ) {
 			return false;
 		}
 	}
@@ -236,6 +238,7 @@ function ajax_push() {
 		wp_send_json_error( new \WP_Error( 'no-connection', __( 'No connection provided.', 'distributor' ) ) );
 		exit;
 	}
+	$connections = array_filter( array_map( 'distributor_sanitize_connection', wp_unslash( $_POST['connections'] ) ) );
 
 	$connection_map = get_post_meta( intval( $_POST['postId'] ), 'dt_connection_map', true );
 	if ( empty( $connection_map ) ) {
@@ -253,7 +256,7 @@ function ajax_push() {
 	$external_push_results = array();
 	$internal_push_results = array();
 
-	foreach ( $_POST['connections'] as $connection ) {
+	foreach ( $connections as $connection ) {
 		if ( 'external' === $connection['type'] ) {
 			$external_connection_type = get_post_meta( $connection['id'], 'dt_external_connection_type', true );
 			$external_connection_url  = get_post_meta( $connection['id'], 'dt_external_connection_url', true );
@@ -277,7 +280,7 @@ function ajax_push() {
 				}
 
 				if ( ! empty( $_POST['postStatus'] ) ) {
-					$push_args['post_status'] = $_POST['postStatus'];
+					$push_args['post_status'] = sanitize_key( wp_unslash( $_POST['postStatus'] ) );
 				}
 
 				$remote_post = $external_connection->push( intval( $_POST['postId'] ), $push_args );
@@ -304,7 +307,7 @@ function ajax_push() {
 						'errors'  => empty( $remote_post['push-errors'] ) ? array() : $remote_post['push-errors'],
 					);
 
-					$external_connection->log_sync( array( (int) $remote_post['id'] => $_POST['postId'] ) );
+					$external_connection->log_sync( array( (int) $remote_post['id'] => absint( wp_unslash( $_POST['postId'] ) ) ) );
 				} else {
 					$external_push_results[ (int) $connection['id'] ] = array(
 						'date'   => gmdate( 'F j, Y g:i a' ),
@@ -322,7 +325,7 @@ function ajax_push() {
 			}
 
 			if ( ! empty( $_POST['postStatus'] ) ) {
-				$push_args['post_status'] = esc_attr( $_POST['postStatus'] );
+				$push_args['post_status'] = sanitize_key( wp_unslash( $_POST['postStatus'] ) );
 			}
 
 			$remote_post = $internal_connection->push( intval( $_POST['postId'] ), $push_args );
@@ -542,7 +545,7 @@ function menu_content() {
 	$original_blog_id = get_post_meta( $post->ID, 'dt_original_blog_id', true );
 	$original_post_id = get_post_meta( $post->ID, 'dt_original_post_id', true );
 
-	if ( ! empty( $original_blog_id ) && ! empty( $original_post_id ) && ! $unlinked ) {
+	if ( ! empty( $original_blog_id ) && ! empty( $original_post_id ) && ! $unlinked && is_multisite() ) {
 		switch_to_blog( $original_blog_id );
 		$post_url  = get_permalink( $original_post_id );
 		$site_url  = home_url();
@@ -594,6 +597,7 @@ function menu_content() {
 				<div class="loader-messages messages">
 					<div class="dt-error">
 						<?php esc_html_e( 'There was an issue loading connections.', 'distributor' ); ?>
+						<ul class="details"></ul>
 					</div>
 				</div>
 			</div>

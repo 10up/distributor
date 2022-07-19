@@ -4,6 +4,120 @@ All notable changes to this project will be documented in this file, per [the Ke
 
 ## [Unreleased] - TBD
 
+## [1.6.9] - 2022-04-18
+
+### Added
+
+- Dependency security scanning (props [@jeffpaul](https://github.com/jeffpaul), [@dkotter](https://github.com/dkotter) via [#869](https://github.com/10up/distributor/pull/869)).
+- Added new code snippet to [Snippets](https://10up.github.io/distributor/tutorial-snippets.html) page detailing how to remove canonical links (props [@dkotter](https://github.com/dkotter) via [#855](https://github.com/10up/distributor/pull/855)).
+
+### Changed
+
+- Update the version of the bundled Application Passwords plugin to 0.1.3 (props [@claytoncollie](https://github.com/claytoncollie), [@Sidsector9](https://github.com/Sidsector9) via [#824](https://github.com/10up/distributor/pull/824)).
+- Clarified the instructions for setting up External Connections (props [@skorasaurus](https://github.com/skorasaurus), [@jeffpaul](https://github.com/jeffpaul) via [#838](https://github.com/10up/distributor/pull/838)).
+- Minor changes to the `remote_post` method (props [@dkotter](https://github.com/dkotter), [@cadic](https://github.com/cadic) via [#841](https://github.com/10up/distributor/pull/841)).
+- Bump WordPress "tested up to" version to 5.9 (props [@mohitwp](https://github.com/mohitwp), [@jeffpaul](https://github.com/jeffpaul), [@iamdharmesh](https://github.com/iamdharmesh) via [#854](https://github.com/10up/distributor/pull/854)).
+
+### Fixed
+
+- Ensure content updates work for distributed items that use the block editor in WordPress 5.9+ (props [@dkotter](https://github.com/dkotter), [@cadic](https://github.com/cadic) via [#845](https://github.com/10up/distributor/pull/845)).
+- Tidied up the position and style of the help icon that shows on the Distributor settings page (props [@willhowat](https://github.com/willhowat), [@dkotter](https://github.com/dkotter) via [#871](https://github.com/10up/distributor/pull/871)).
+
+### Security
+
+- Bump `tar` from 4.4.8 to 4.4.19 (props [@dependabot](https://github.com/apps/dependabot) via [#843](https://github.com/10up/distributor/pull/843)).
+- Bump `ajv` from 6.12.2 to 6.12.6 (props [@dependabot](https://github.com/apps/dependabot) via [#849](https://github.com/10up/distributor/pull/849)).
+- Bump `lodash.template` from 4.4.0 to 4.5.0 (props [@dependabot](https://github.com/apps/dependabot) via [#850](https://github.com/10up/distributor/pull/850)).
+- Bump `copy-props` from 2.0.4 to 2.0.5 (props [@dependabot](https://github.com/apps/dependabot) via [#851](https://github.com/10up/distributor/pull/851)).
+- Bump `guzzlehttp/psr7` from 1.6.1 to 1.8.5 (props [@dependabot](https://github.com/apps/dependabot) via [#866](https://github.com/10up/distributor/pull/866)).
+
+## [1.6.8] - 2022-02-02
+### Added
+- New hook `dt_get_pull_content_rest_query_args` to filter `WP_Query` args for the `list-pull-content` REST endpoint (props [@theskinnyghost](https://github.com/theskinnyghost), [@dkotter](https://github.com/dkotter) via [#839](https://github.com/10up/distributor/pull/839)).
+
+### Changed
+- Clear out a user's authorized site list instead of rebuilding it on site changes (props [@dkotter](https://github.com/dkotter) , [@cadic](https://github.com/cadic) via [#829](https://github.com/10up/distributor/pull/829)).
+
+### Fixed
+- Ensure the connection information we have is valid prior to using that for deletion (props [@dkotter](https://github.com/dkotter), [@LucyTurtle](https://github.com/LucyTurtle) via [#830](https://github.com/10up/distributor/pull/830)).
+- Ensure users can enter a per page limit of greater than 100 and have that properly used on the Pull Content screen for External Connections (props [@dkotter](https://github.com/dkotter), [@iamdharmesh](https://github.com/iamdharmesh), [@jmstew3](https://github.com/jmstew3) via [#831](https://github.com/10up/distributor/pull/831)).
+- Ensure the [Snippets tutorials](https://10up.github.io/distributor/tutorial-snippets.html) have a proper height (props [@dkotter](https://github.com/dkotter), [@pcrumm](https://github.com/pcrumm) via [#836](https://github.com/10up/distributor/pull/836)).
+
+### Security
+- Bump `actions/checkout` in GitHub Action workflow files from v1/v2 to v2.4.0 (props [@faisal-alvi](https://github.com/faisal-alvi) via [#828](https://github.com/10up/distributor/pull/828)).
+
+## [1.6.7] - 2021-11-09
+### Added
+- Added `Snippets` page to [Distributor's documentation site](https://10up.github.io/distributor/) with helpful filters and callbacks (props [@claytoncollie](https://github.com/claytoncollie) via [#817](https://github.com/10up/distributor/pull/817)).
+
+### Fixed
+- Change how the `New` tab on the Pull Content screen is populated for External Connections (props [@dkotter](https://github.com/dkotter), [@dinhtungdu](https://github.com/dinhtungdu), [@cadic](https://github.com/cadic), [@helen](https://github.com/helen), [@jjgrainger](https://github.com/jjgrainger), [@jakemgold](https://github.com/jakemgold), [Lily Bonney](https://www.linkedin.com/in/lilybonney/), [Mollie Pugh](https://www.linkedin.com/in/molliepugh/), [Martina Haines](https://www.linkedin.com/in/martinahaines/) via [#811](https://github.com/10up/distributor/pull/811)).
+
+## [1.6.6] - 2021-09-28
+### Added
+- Add filters to control terms and meta distribution for internal connections: `dt_push_post_meta` and `dt_push_post_terms` (props [@dinhtungdu](https://github.com/dinhtungdu), [@dkotter](https://github.com/dkotter) via [#800](https://github.com/10up/distributor/pull/800)).
+
+### Fixed
+- Ensure error messages are shown properly if an error happens during a push (props [@dkotter](https://github.com/dkotter), [@Drmzindec](https://github.com/Drmzindec) via [#803](https://github.com/10up/distributor/pull/803)).
+
+## [1.6.5] - 2021-09-01
+### Added
+- Better support for the Block Editor's fullscreen mode via a new Distributor panel with a toggle option (props [@dkotter](https://github.com/dkotter), [@dinhtungdu](https://github.com/dinhtungdu), [@helen](https://github.com/helen), [@jeffpaul](https://github.com/jeffpaul) via [#750](https://github.com/10up/distributor/pull/750), [#790](https://github.com/10up/distributor/pull/790)).
+- `Update URI` header to ensure only legitimate Distributor updates are applied to this install (props [@jeffpaul](https://github.com/jeffpaul) via [#778](https://github.com/10up/distributor/pull/778)).
+- Issue management automation via GitHub Actions (props [@jeffpaul](https://github.com/jeffpaul) [#782](https://github.com/10up/distributor/pull/782)).
+
+### Changed
+- Update `subscriptions.php` hook priority so plugins hooked to `save_post` can process before syncing happens (props [@pascalknecht](https://github.com/pascalknecht), [@dkotter](https://github.com/dkotter), [@dinhtungdu](https://github.com/dinhtungdu) via [#590](https://github.com/10up/distributor/pull/590)).
+- Documentation updates (props [@jeffpaul](https://github.com/jeffpaul) via [#770](https://github.com/10up/distributor/pull/770)).
+
+### Fixed
+- Ensure original site information is set properly on content Pulled from external connections (props [@dkotter](https://github.com/dkotter), [@justiny](https://github.com/justiny) via [#776](https://github.com/10up/distributor/pull/776)).
+- Ensure we are on a multisite before using `switch_to_blog` (props [@dkotter](https://github.com/dkotter), [@Drmzindec](https://github.com/Drmzindec) via [#780](https://github.com/10up/distributor/pull/780)).
+
+### Security
+- Bump `y18n` from 3.2.1 to 3.2.2 (props [@dependabot](https://github.com/apps/dependabot) via [#747](https://github.com/10up/distributor/pull/747)).
+- Bump `rmccue/requests` from 1.7.0 to 1.8.0 (props [@dependabot](https://github.com/apps/dependabot) via [#756](https://github.com/10up/distributor/pull/756)).
+- Bump `ssri` from 6.0.1 to 6.0.2 (props [@dependabot](https://github.com/apps/dependabot) via [#757](https://github.com/10up/distributor/pull/757)).
+- Bump `lodash` from 4.17.19 to 4.17.21 (props [@dependabot](https://github.com/apps/dependabot) via [#759](https://github.com/10up/distributor/pull/759)).
+- Bump `hosted-git-info` from 2.8.8 to 2.8.9 (props [@dependabot](https://github.com/apps/dependabot) via [#760](https://github.com/10up/distributor/pull/760)).
+- Bump `path-parse` from 1.0.6 to 1.0.7 (props [@dependabot](https://github.com/apps/dependabot) via [#785](https://github.com/10up/distributor/pull/785)).
+
+## [1.6.4] - 2021-03-24
+### Added
+- Plugin banner and icon assets (props [@JackieKjome](https://github.com/JackieKjome) via [#736](https://github.com/10up/distributor/pull/736)).
+
+### Changed
+- Continuous Integration: Switch from Travis to GH Actions for linting and PHPUnit testing (props [@dinhtungdu](https://github.com/dinhtungdu) via [#663](https://github.com/10up/distributor/pull/663)).
+
+### Fixed
+- PHP fatal error with the `log_sync` function (props [@dkotter](https://github.com/dkotter), [@SieBer15](https://github.com/SieBer15) via [#742](https://github.com/10up/distributor/pull/742)).
+- UI bug that displayed incorrect options when switching External Connection types (props [@dhanendran](https://github.com/dhanendran), [@dkotter](https://github.com/dkotter), [@helen](https://github.com/helen) via [#727](https://github.com/10up/distributor/pull/727)).
+
+### Security
+- Bump `elliptic` from 6.5.3 to 6.5.4 (props [@dependabot](https://github.com/apps/dependabot) via [#733](https://github.com/10up/distributor/pull/733)).
+- Bump `yargs-parser` from 5.0.0 to 5.0.1 (props [@dependabot](https://github.com/apps/dependabot) via [#740](https://github.com/10up/distributor/pull/740)).
+
+## [1.6.3] - 2021-03-09
+### Added
+- Ability to pull content in draft status, option to set `post_status` of pulled content (props [@dkotter](https://github.com/dkotter), [@dinhtungdu](https://github.com/dinhtungdu), [@francisco-domo](https://github.com/francisco-domo) via [#701](https://github.com/10up/distributor/pull/701)).
+- Introduce `View all` post type filter on Pull Content screen (props [@elliott-stocks](https://github.com/elliott-stocks), [@dkotter](https://github.com/dkotter), [@jeffpaul](https://github.com/jeffpaul), [@oszkarnagy](https://github.com/oszkarnagy) via [#725](https://github.com/10up/distributor/pull/725)).
+- Add ability to Unskip or Pull items from the Skipped tab on the Pull screen (props [@dkotter](https://github.com/dkotter), [@elliott-stocks](https://github.com/elliott-stocks), [@jeffpaul](https://github.com/jeffpaul), [@oszkarnagy](https://github.com/oszkarnagy), [@zacnboat](https://github.com/zacnboat) via [#728](https://github.com/10up/distributor/pull/728)).
+- Support for plugins / themes to add additional columns to the Pull Content list table (props [@elliott-stocks](https://github.com/elliott-stocks) via [#721](https://github.com/10up/distributor/pull/721)).
+- Test coverage to ensure meta denylist is applied to attachments (props [@dhanendran](https://github.com/dhanendran), [@helen](https://github.com/helen) via [#706](https://github.com/10up/distributor/pull/706)).
+
+### Changed
+- Notification text for added consistency (props [@cdwieber](https://github.com/cdwieber), [@jeffpaul](https://github.com/jeffpaul) via [#696](https://github.com/10up/distributor/pull/696)).
+- Hide registration notice once Distributor has been successfully registered (props [@dhanendran](https://github.com/dhanendran), [@dkotter](https://github.com/dkotter), [@dinhtungdu](https://github.com/dinhtungdu), [@hearvox](https://github.com/hearvox) via [#702](https://github.com/10up/distributor/pull/702)).
+- Documentation updates (props [@jeffpaul](https://github.com/jeffpaul), [@rosspbauer](https://github.com/rosspbauer)).
+
+### Fixed
+- Allow pulled posts to use block editor (props [@davidmpurdy](https://github.com/davidmpurdy), [@dkotter](https://github.com/dkotter) via [#581](https://github.com/10up/distributor/pull/581)).
+- Ensure Distributor push menu in adminbar displays for appropriate post types (props [@dkotter](https://github.com/dkotter), [@avag-novembit](https://github.com/avag-novembit), [@jeffpaul](https://github.com/jeffpaul) via [#694](https://github.com/10up/distributor/pull/694)).
+- Block editor check for posts that have no `post_content` set (props [@dkotter](https://github.com/dkotter), [@andrewortolano](https://github.com/andrewortolano), [@xyralothep](https://github.com/xyralothep), [@ggutenberg](https://github.com/ggutenberg), [@jmslbam](https://github.com/jmslbam) via [#710](https://github.com/10up/distributor/pull/710)).
+- Pull Content UI errors that resulted in displaying incorrect post type content and PHP notices (props [@dkotter](https://github.com/dkotter), [@grappler](https://github.com/grappler) via [#703](https://github.com/10up/distributor/pull/703)).
+- Reset the `last_changed_sites` option when a new site is created, also ensures initialization works on sites created with WP CLI (props [@dkotter](https://github.com/dkotter), [@sbrow](https://github.com/sbrow), [@helen](https://github.com/helen) via [#716](https://github.com/10up/distributor/pull/716)).
+- Ensure Bulk Skip option in Pull Content screen correctly skips posts (props [@dhanendran](https://github.com/dhanendran), [@dkotter](https://github.com/dkotter), [@jeffpaul](https://github.com/jeffpaul), [@zacnboat](https://github.com/zacnboat) via [#717](https://github.com/10up/distributor/pull/717)).
+
 ## [1.6.2] - 2021-01-14
 ### Fixed
 - Handles case where Application Passwords is available in WordPress core starting with 5.6 (props [@dinhtungdu](https://github.com/dinhtungdu), [@dkotter](https://github.com/dkotter), [@jeffpaul](https://github.com/jeffpaul), [@j0HnC0untry](https://github.com/j0HnC0untry), [@dfardon](https://github.com/dfardon), [@anilpainuly121](https://github.com/anilpainuly121) via [#676](https://github.com/10up/distributor/pull/676), [#681](https://github.com/10up/distributor/pull/681), [#682](https://github.com/10up/distributor/pull/682)).
@@ -57,7 +171,7 @@ All notable changes to this project will be documented in this file, per [the Ke
 - Run [WP Acceptance](https://github.com/10up/wpacceptance/) tests in parallel in Travis (props [@adamsilverstein](https://github.com/adamsilverstein) via [#439](https://github.com/10up/distributor/pull/439)).
 
 ### Fixed
-- Gutenberg compatibility issues ([@dkotter](https://github.com/dkotter), [@dinhtungdu](https://github.com/dinhtungdu) via [#579](https://github.com/10up/distributor/pull/579)).
+- Block editor compatibility issues ([@dkotter](https://github.com/dkotter), [@dinhtungdu](https://github.com/dinhtungdu) via [#579](https://github.com/10up/distributor/pull/579)).
 - Issue where push menu would disappear when push is in progress (props [@dinhtungdu](https://github.com/dinhtungdu), [@dkotter](https://github.com/dkotter), [@helen](https://github.com/helen) via [#538](https://github.com/10up/distributor/pull/538)).
 - Undefined variable issue causing external pushes to not fully work (props [@dkotter](https://github.com/dkotter) via [#578](https://github.com/10up/distributor/pull/578)).
 - Check for value of remote post id to verify push result (props [@dinhtungdu](https://github.com/dinhtungdu), [@eriktad](https://github.com/eriktad), [@arsendovlatyan](https://github.com/arsendovlatyan) via [#574](https://github.com/10up/distributor/pull/574)).
@@ -224,11 +338,11 @@ This adds a post type selector when viewing the Pull Content list for both exter
 
 ## [1.2.1] - 2018-07-06
 ### Fixed
-- Gutenberg bugs; parent post bug.
+- Block editor bugs; parent post bug.
 
 ## [1.2.0] - 2018-05-27
 ### Added
-- Gutenberg support, public release.
+- Block editor support, public release.
 
 ## [1.1.0] - 2018-01-19
 ### Added
@@ -238,6 +352,13 @@ This adds a post type selector when viewing the Pull Content list for both exter
 - Initial closed release.
 
 [Unreleased]: https://github.com/10up/distributor/compare/trunk...develop
+[1.6.9]: https://github.com/10up/distributor/compare/1.6.8...1.6.9
+[1.6.8]: https://github.com/10up/distributor/compare/1.6.7...1.6.8
+[1.6.7]: https://github.com/10up/distributor/compare/1.6.6...1.6.7
+[1.6.6]: https://github.com/10up/distributor/compare/1.6.5...1.6.6
+[1.6.5]: https://github.com/10up/distributor/compare/1.6.4...1.6.5
+[1.6.4]: https://github.com/10up/distributor/compare/1.6.3...1.6.4
+[1.6.3]: https://github.com/10up/distributor/compare/1.6.2...1.6.3
 [1.6.2]: https://github.com/10up/distributor/compare/1.6.1...1.6.2
 [1.6.1]: https://github.com/10up/distributor/compare/1.6.0...1.6.1
 [1.6.0]: https://github.com/10up/distributor/compare/1.5.0...1.6.0

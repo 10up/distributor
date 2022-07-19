@@ -94,5 +94,6 @@ footer {
 .prettyprint code {
 	padding: 2px 10px;
 	line-height: 16px;
-	height: 16px;
+	min-height: 16px;
+	height: auto;
 }

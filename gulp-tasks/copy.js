@@ -1,11 +1,7 @@
 import gulp from 'gulp';
 import del from 'del';
-import replace from 'gulp-replace';
-import filter from 'gulp-filter';
 
-gulp.task( 'copy', (done) => {
-	const f = filter( 'distributor.php', { restore: true } );
-
+gulp.task( 'copy', ( done ) => {
 	del.sync( ['./release/**/*'] );
 
 	gulp.src(
@@ -15,6 +11,8 @@ gulp.task( 'copy', (done) => {
 			'CHANGELOG.md',
 			'composer.json',
 			'distributor.php',
+			'.github/workflows/*',
+			'.gitattributes',
 			'assets/img/*',
 			'dist/**/*',
 			'includes/**/*',
@@ -24,9 +22,6 @@ gulp.task( 'copy', (done) => {
 			'vendor/yahnis-elsts/plugin-update-checker/**/*',
 		],
 		{ base: '.' } )
-		.pipe( f )
-		.pipe( replace( /-dev' \);/, '\' );' ) )
-		.pipe( f.restore )
 		.pipe( gulp.dest( 'release' ) );
 
 	done();

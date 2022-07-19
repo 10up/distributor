@@ -29,6 +29,8 @@ function is_vip_com() {
  *  - WordPress 5.0, Classic editor plugin active, using the block editor.
  *
  * @since  1.2
+ * @since  1.7 Update Gutenberg plugin sniff to avoid deprecated function.
+ *             Update Classic Editor sniff to account for mu-plugins.
  *
  * @param object $post The post object.
  * @return boolean
@@ -36,7 +38,7 @@ function is_vip_com() {
 function is_using_gutenberg( $post ) {
 	global $wp_version;
 
-	$gutenberg_available = function_exists( 'the_gutenberg_project' );
+	$gutenberg_available = function_exists( 'gutenberg_pre_init' );
 	$version_5_plus      = version_compare( $wp_version, '5', '>=' );
 
 	if ( ! $gutenberg_available && ! $version_5_plus ) {
@@ -49,34 +51,40 @@ function is_using_gutenberg( $post ) {
 		return false;
 	}
 
-	if ( ! empty( $post->post_content ) ) {
-		// This duplicates the check from `use_block_editor_for_post()` as of WP 5.0.
-		// We duplicate this here to remove the $_GET['meta-box-loader'] check
-		if ( function_exists( 'use_block_editor_for_post_type' ) ) {
-			// The posts page can't be edited in the block editor.
-			if ( absint( get_option( 'page_for_posts' ) ) === $post->ID && empty( $post->post_content ) ) {
-				return false;
-			}
-
-			// Make sure this post type supports Gutenberg
-			$use_block_editor = use_block_editor_for_post_type( $post->post_type );
-
-			/** This filter is documented in wp-admin/includes/post.php */
-			return apply_filters( 'use_block_editor_for_post', $use_block_editor, $post );
+	// This duplicates the check from `use_block_editor_for_post()` as of WP 5.0.
+	// We duplicate this here to remove the $_GET['meta-box-loader'] check
+	if ( function_exists( 'use_block_editor_for_post_type' ) ) {
+		// The posts page can't be edited in the block editor.
+		if ( absint( get_option( 'page_for_posts' ) ) === $post->ID && empty( $post->post_content ) ) {
+			return false;
 		}
 
-		// This duplicates the check from `has_blocks()` as of WP 5.2.
+		// Make sure this post type supports Gutenberg
+		$use_block_editor = use_block_editor_for_post_type( $post->post_type );
+
+		/** This filter is documented in wp-admin/includes/post.php */
+		return apply_filters( 'use_block_editor_for_post', $use_block_editor, $post );
+	}
+
+	// This duplicates the check from `has_blocks()` as of WP 5.2.
+	if ( ! empty( $post->post_content ) ) {
 		return false !== strpos( (string) $post->post_content, '<!-- wp:' );
 	}
 
-	$use_block_editor = true;
+	$use_block_editor = false;
 
-	if ( ! function_exists( 'is_plugin_active' ) ) {
-		require_once ABSPATH . '/wp-admin/includes/plugin.php';
-	}
-
-	if ( is_plugin_active( 'classic-editor/classic-editor.php' ) ) {
-		$use_block_editor = ( get_option( 'classic-editor-replace' ) === 'no-replace' );
+	if ( class_exists( 'Classic_Editor' ) && is_callable( array( 'Classic_Editor', 'init_actions' ) ) ) {
+		$allow_site_override = true;
+		if ( is_multisite() ) {
+			$use_block_editor    = in_array( get_site_option( 'classic-editor-replace', 'block' ), array( 'no-replace', 'block' ), true );
+			$allow_site_override = ( get_site_option( 'classic-editor-allow-sites', 'allow' ) === 'allow' );
+		}
+		if (
+			$allow_site_override &&
+			get_option( 'classic-editor-replace' )
+		) {
+			$use_block_editor = in_array( get_option( 'classic-editor-replace', 'block' ), array( 'no-replace', 'block' ), true );
+		}
 	}
 
 	if ( $use_block_editor && is_a( $post, '\WP_Post' ) && class_exists( '\Gutenberg_Ramp' ) ) {
@@ -140,6 +148,7 @@ function check_license_key( $email, $license_key ) {
 	$request = wp_remote_post(
 		'https://distributorplugin.com/wp-json/distributor-theme/v1/validate-license',
 		[
+			// phpcs:ignore WordPressVIPMinimum.Performance.RemoteRequestTimeout.timeout_timeout
 			'timeout' => 10,
 			'body'    => [
 				'license_key' => $license_key,
@@ -200,9 +209,9 @@ function set_meta( $post_id, $meta ) {
 			}
 
 			if ( $has_prev_value ) {
-				update_post_meta( $post_id, $meta_key, $meta_value, $prev_value );
+				update_post_meta( $post_id, wp_slash( $meta_key ), wp_slash( $meta_value ), $prev_value );
 			} else {
-				add_post_meta( $post_id, $meta_key, $meta_value );
+				add_post_meta( $post_id, wp_slash( $meta_key ), wp_slash( $meta_value ) );
 			}
 		}
 	}
@@ -297,6 +306,43 @@ function distributable_post_types() {
 	 * @return {array} Post types that are distributable.
 	 */
 	return apply_filters( 'distributable_post_types', array_diff( $post_types, [ 'dt_ext_connection', 'dt_subscription' ] ) );
+}
+
+/**
+ * Return post types that should be excluded from the permission list.
+ *
+ * @since  1.7.0
+ * @return array
+ */
+function get_excluded_post_types_from_permission_list() {
+	// Hide the built-in post types except 'post' and 'page'.
+	$hide_from_list = get_post_types(
+		array(
+			'_builtin'     => true,
+			'show_in_rest' => true,
+		)
+	);
+	unset( $hide_from_list['post'], $hide_from_list['page'] );
+
+	// Default is keyed by the post type 'post' => 'post', etc; hence using `array_values`.
+	$hide_from_list = array_values( $hide_from_list );
+
+	/**
+	 * Filter to update the list of post types that should be hidden from the "Post types permissions" list.
+	 *
+	 * @since 1.7.0
+	 * @hook dt_excluded_post_types_from_permission_list
+	 *
+	 * @param {array} The list of hidden post types.
+	 *
+	 * @return {bool} The updated array with the list of post types that should be hidden.
+	 */
+	$hide_from_list = apply_filters( 'dt_excluded_post_types_from_permission_list', $hide_from_list );
+
+	// Strict Hide 'dt_subscription' post type.
+	$hide_from_list[] = 'dt_subscription';
+
+	return $hide_from_list;
 }
 
 /**
@@ -608,11 +654,11 @@ function set_media( $post_id, $media, $args = [] ) {
 	 * @since 1.6.0
 	 * @hook dt_set_media_args
 	 *
-	 * @param array $args    List of args.
-	 * @param int   $post_id Post ID.
-	 * @param array $media   Array of media posts.
+	 * @param {array} $args    List of args.
+	 * @param {int}   $post_id Post ID.
+	 * @param {array} $media   Array of media posts.
 	 *
-	 * @return array set_media args
+	 * @return {array} set_media args.
 	 */
 	$args = apply_filters( 'dt_set_media_args', $args, $post_id, $media );
 
@@ -734,8 +780,8 @@ function format_media_post( $media_post ) {
 	 *
 	 * @hook dt_get_media_details
 	 *
-	 * @param {array|false} $metadata  Array of media metadata. `false` on failure.
-	 * @param {int}    $media_post->ID The media post ID.
+	 * @param {array|false} $metadata       Array of media metadata. `false` on failure.
+	 * @param {int}         $media_post->ID The media post ID.
 	 *
 	 * @return {array} Array of media metadata.
 	 */
@@ -798,11 +844,11 @@ function process_media( $url, $post_id, $args = [] ) {
 	 * @since 1.3.7
 	 * @hook dt_allowed_media_extensions
 	 *
-	 * @param array $allowed_extensions Allowed extensions array.
-	 * @param string $url Media url.
-	 * @param int $post_id Post ID.
+	 * @param {array}  $allowed_extensions Allowed extensions array.
+	 * @param {string} $url                Media url.
+	 * @param {int}    $post_id            Post ID.
 	 *
-	 * @return array Media extensions to be processed.
+	 * @return {array} Media extensions to be processed.
 	 */
 	$allowed_extensions = apply_filters( 'dt_allowed_media_extensions', array( 'jpg', 'jpeg', 'jpe', 'gif', 'png' ), $url, $post_id );
 	preg_match( '/[^\?]+\.(' . implode( '|', $allowed_extensions ) . ')\b/i', $url, $matches );
@@ -864,9 +910,9 @@ function process_media( $url, $post_id, $args = [] ) {
 				 * @since 1.6.0
 				 * @hook dt_process_media_save_source_file_path
 				 *
-				 * @param boolean $save_file Whether to save the source file path. Default `false`.
+				 * @param {boolean} $save_file Whether to save the source file path. Default `false`.
 				 *
-				 * @return boolean Whether to save the source file path or not.
+				 * @return {boolean} Whether to save the source file path or not.
 				 */
 				$save_source_file_path = apply_filters( 'dt_process_media_save_source_file_path', false );
 
@@ -915,6 +961,7 @@ function process_media( $url, $post_id, $args = [] ) {
 	}
 
 	// Make sure we clean up.
+	//phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged, WordPressVIPMinimum.Functions.RestrictedFunctions.file_ops_unlink
 	@unlink( $file_array['tmp_name'] );
 
 	if ( $save_source_file_path ) {
@@ -949,8 +996,24 @@ function dt_use_block_editor_for_post_type( $post_type ) {
 		return false;
 	}
 
-	// Filter documented in WordPress core.
-	return apply_filters( 'use_block_editor_for_post_type', true, $post_type );
+	// In some contexts this function doesn't exist so we can't reliably use the filter.
+	if ( function_exists( 'use_block_editor_for_post_type' ) ) {
+		// Filter documented in WordPress core.
+		return apply_filters( 'use_block_editor_for_post_type', true, $post_type );
+	}
+
+	/**
+	 * Filters whether an item is able to be edited in the block editor.
+	 *
+	 * @since 1.6.9
+	 * @hook dt_use_block_editor_for_post_type
+	 *
+	 * @param {bool}   $use_block_editor Whether the post type uses the block editor. Default true.
+	 * @param {string} $post_type        The post type being checked.
+	 *
+	 * @return {bool} Whether the post type uses the block editor.
+	 */
+	return apply_filters( 'dt_use_block_editor_for_post_type', true, $post_type );
 }
 
 /**
@@ -982,12 +1045,17 @@ function get_processed_content( $post_content ) {
  * @return string
  */
 function get_rest_url( $blog_id, $post_id ) {
+	if ( ! is_multisite() ) {
+		// Filter documented below.
+		return apply_filters( 'dt_get_rest_url', false, $blog_id, $post_id );
+	}
 
 	switch_to_blog( $blog_id );
 
 	$post = get_post( $post_id );
 	if ( ! is_a( $post, '\WP_Post' ) ) {
 		restore_current_blog();
+		// Filter documented below.
 		return apply_filters( 'dt_get_rest_url', false, $blog_id, $post_id );
 	}
 
@@ -1000,13 +1068,15 @@ function get_rest_url( $blog_id, $post_id ) {
 	restore_current_blog();
 
 	/**
-	 * Allow filtering of the REST API URL used for pulling post contewnt,
+	 * Allow filtering of the REST API URL used for pulling post content.
 	 *
-	 * @since ?
+	 * @hook dt_get_rest_url
 	 *
-	 * @param string $rest_url The defaukt REST URL to the post.
-	 * @param int $blog_id     The blog ID.
-	 * @param int $post_id     The post ID being retrieved.
+	 * @param {string} $rest_url The default REST URL to the post.
+	 * @param {int}    $blog_id  The blog ID.
+	 * @param {int}    $post_id  The post ID being retrieved.
+	 *
+	 * @return {string} REST API URL for pulling post content.
 	 */
 	return apply_filters( 'dt_get_rest_url', $rest_url, $blog_id, $post_id );
 }
@@ -1047,4 +1117,80 @@ function set_media_errors( $post_id, $data ) {
 	}
 
 	set_transient( "dt_media_errors_$post_id", $errors, HOUR_IN_SECONDS );
+}
+
+/**
+ * Reduce arguments passed to wp_insert_post to approved arguments only.
+ *
+ * @since x.x.x
+ *
+ * @link http://developer.wordpress.org/reference/functions/wp_insert_post/ wp_insert_post() documentation.
+ *
+ * @param array $post_args Arguments used for wp_insert_post() or wp_update_post().
+ *
+ * @return array Arguments cleaned of any not expected by the core function.
+ */
+function post_args_allow_list( $post_args ) {
+	$allowed_post_keys = array(
+		'ID',
+		'post_author',
+		'post_date',
+		'post_date_gmt',
+		'post_content',
+		'post_content_filtered',
+		'post_title',
+		'post_excerpt',
+		'post_status',
+		'post_password',
+		'post_name',
+		'to_ping',
+		'pinged',
+		'post_modified',
+		'post_modified_gmt',
+		'post_parent',
+		'menu_order',
+		'post_mime_type',
+		'guid',
+		'import_id',
+		'post_category',
+		'tags_input',
+		'tax_input',
+		'meta_input',
+	);
+
+	return array_intersect_key( $post_args, array_flip( $allowed_post_keys ) );
+}
+
+/**
+ * Make a remote HTTP request.
+ *
+ * Wrapper function for wp_remote_request() and vip_safe_wp_remote_request(). The order
+ * of parameters differs from vip_safe_wp_remote_request() to promote the arguments array
+ * to the second parameter.
+ *
+ * The default request type is a GET request although the function can be used for other
+ * HTTP methods by setting the method in the $args array.
+ *
+ * See {@see http://developer.wordpress.org/reference/classes/WP_Http/request/ WP_Http::request} for $args defaults.
+ *
+ * @param  string $url       The URL to request.
+ * @param  array  $args      Optional. An array of arguments to pass to wp_remote_get()/vip_safe_wp_remote_get().
+ * @param  mixed  $fallback  Optional. Fallback value to return if the request fails. Default ''. VIP only.
+ * @param  int    $threshold Optional. The number of fails required before subsequent requests automatically
+ *                           return the fallback value. Defaults to 3, with a maximum of 10. VIP only.
+ * @param  int    $timeout   Optional. The timeout for WP VIP requests. Use $args['timeout'] for others. VIP only.
+ *                                     All requests have a maximum of 5 seconds except:
+ *                                     - `POST` requests made via WP CLI have a maximum of 30 seconds.
+ *                                     - `POST` requests within the WP Admin have a maximum of 15 seconds.
+ * @param  int    $retries   Optional. The number of retries to attempt. Minimum and default is 10,
+ *                                     lower values will be increased to 10. VIP only.
+ *
+ * @return mixed The response from the remote request. On VIP if the request fails, the fallback value is returned.
+ */
+function remote_http_request( $url, $args = array(), $fallback = '', $threshold = 3, $timeout = 3, $retries = 10 ) {
+	if ( function_exists( 'vip_safe_wp_remote_request' ) && is_vip_com() ) {
+		return vip_safe_wp_remote_request( $url, $fallback, $threshold, $timeout, $retries, $args );
+	}
+
+	return wp_remote_request( $url, $args );
 }

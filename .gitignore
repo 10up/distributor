@@ -8,3 +8,5 @@ release/*
 dist/*
 screenshots/
 lang/
+docs-built
+.phpunit.result.cache
