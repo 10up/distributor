@@ -307,15 +307,10 @@ function available_pull_post_types( $connection, $type ) {
  * @return array
  */
 function distributable_post_types( $output = 'names' ) {
-	$post_types = get_post_types( [ 'show_in_rest' => true ], $output );
+	$post_types = array_filter( get_post_types(), 'is_post_type_viewable' );
 
 	$exclude_post_types = [
 		'attachment',
-		'nav_menu_item',
-		'wp_block',
-		'wp_navigation',
-		'wp_template',
-		'wp_template_part',
 		'dt_ext_connection',
 		'dt_subscription',
 	];
@@ -331,11 +326,20 @@ function distributable_post_types( $output = 'names' ) {
 	 * @hook distributable_post_types
 	 *
 	 * @param {array} Post types that are distributable.
-	 * @param {string} The type of output to return. Accepts post type 'names' or 'objects'. Default 'names'.
 	 *
 	 * @return {array} Post types that are distributable.
 	 */
-	return apply_filters( 'distributable_post_types', $post_types, $output );
+	$post_types = apply_filters( 'distributable_post_types', $post_types );
+
+	// Remove unregistered post types added via the filter.
+	$post_types = array_filter( $post_types, 'post_type_exists' );
+
+	if ( 'objects' === $output ) {
+		// Convert to objects.
+		$post_types = array_map( 'get_post_type_object', $post_types );
+	}
+
+	return $post_types;
 }
 
 /**
