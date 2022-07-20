@@ -454,7 +454,7 @@ function meta_box_external_connection_details( $post ) {
 
 	$external_connection_status = get_post_meta( $post->ID, 'dt_external_connections', true );
 
-	$post_types = \Distributor\Utils\distributable_post_types( 'is_post_type_viewable' );
+	$post_types = \Distributor\Utils\distributable_post_types( 'objects' );
 
 	$registered_external_connection_types = \Distributor\Connections::factory()->get_registered();
 
