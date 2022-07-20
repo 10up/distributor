@@ -245,21 +245,25 @@ function set_meta( $post_id, $meta ) {
  * @return array
  */
 function available_pull_post_types( $connection, $type ) {
-	$post_types        = array();
-	$local_post_types  = array();
-	$remote_post_types = $connection->get_post_types();
+	$post_types               = array();
+	$local_post_types         = array();
+	$remote_post_types        = $connection->get_post_types();
+	$distributable_post_types = distributable_post_types();
 
-	if ( ! empty( $remote_post_types ) && ! is_wp_error( $remote_post_types ) ) {
-		$local_post_types     = array_diff_key( get_post_types( [ 'public' => true ], 'objects' ), array_flip( [ 'attachment', 'dt_ext_connection', 'dt_subscription' ] ) );
-		$available_post_types = array_intersect_key( $remote_post_types, $local_post_types );
+	// Return empty array, if the source site is not distributing any post type.
+	if ( empty( $remote_post_types ) || is_wp_error( $remote_post_types ) ) {
+		return [];
+	}
 
-		if ( ! empty( $available_post_types ) ) {
-			foreach ( $available_post_types as $post_type ) {
-				$post_types[] = array(
-					'name' => 'external' === $type ? $post_type['name'] : $post_type->label,
-					'slug' => 'external' === $type ? $post_type['slug'] : $post_type->name,
-				);
-			}
+	$local_post_types     = array_diff_key( get_post_types( [ 'public' => true ], 'objects' ), array_flip( [ 'attachment', 'dt_ext_connection', 'dt_subscription' ] ) );
+	$available_post_types = array_intersect_key( $remote_post_types, $local_post_types );
+
+	if ( ! empty( $available_post_types ) ) {
+		foreach ( $available_post_types as $post_type ) {
+			$post_types[] = array(
+				'name' => 'external' === $type ? $post_type['name'] : $post_type->label,
+				'slug' => 'external' === $type ? $post_type['slug'] : $post_type->name,
+			);
 		}
 	}
 
@@ -271,15 +275,26 @@ function available_pull_post_types( $connection, $type ) {
 	 * @since 1.3.5
 	 * @hook dt_available_pull_post_types
 	 *
-	 * @param {array}                   $post_types        Post types available for pull with name and slug.
-	 * @param {array}                   $remote_post_types Post types available from the remote connection.
-	 * @param {array}                   $local_post_types  Post types registered as public on the local site.
-	 * @param {Connection}              $connection        Distributor connection object.
-	 * @param {string}                  $type              Distributor connection type.
+	 * @param {array}      $post_types        Post types available for pull with name and slug.
+	 * @param {array}      $remote_post_types Post types available from the remote connection.
+	 * @param {array}      $local_post_types  Post types registered as public on the local site.
+	 * @param {Connection} $connection        Distributor connection object.
+	 * @param {string}     $type              Distributor connection type.
 	 *
 	 * @return {array} Post types available for pull with name and slug.
 	 */
-	return apply_filters( 'dt_available_pull_post_types', $post_types, $remote_post_types, $local_post_types, $connection, $type );
+	$pull_post_types = apply_filters( 'dt_available_pull_post_types', $post_types, $remote_post_types, $local_post_types, $connection, $type );
+
+	if ( ! empty( $pull_post_types ) ) {
+		$post_types = array();
+		foreach ( $pull_post_types as $post_type ) {
+			if ( in_array( $post_type['slug'], $distributable_post_types, true ) ) {
+				$post_types[] = $post_type;
+			}
+		}
+	}
+
+	return $post_types;
 }
 
 /**
@@ -301,7 +316,7 @@ function distributable_post_types() {
 	 * @since 1.0.0
 	 * @hook distributable_post_types
 	 *
-	 * @param {array} Post types that are distributable. Default all post types except `dt_ext_connection` and `dt_subscription`.
+	 * @param {array} Post types that are distributable.
 	 *
 	 * @return {array} Post types that are distributable.
 	 */
