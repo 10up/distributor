@@ -464,7 +464,7 @@ class NetworkSiteConnection extends Connection {
 	 */
 	public function get_post_types() {
 		switch_to_blog( $this->site->blog_id );
-		$post_types = get_post_types( [ 'public' => true ], 'objects' );
+		$post_types = Utils\distributable_post_types( 'objects' );
 		restore_current_blog();
 
 		return $post_types;
