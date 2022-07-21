@@ -11,6 +11,7 @@ All notable changes to this project will be documented in this file, per [the Ke
 - Ability to set user roles to pull content (props [@faisal-alvi](https://github.com/faisal-alvi), [@dkotter](https://github.com/dkotter), [@peterwilsoncc](https://github.com/peterwilsoncc) via [#877](https://github.com/10up/distributor/pull/877))
 - More robust PHP testing (props [@dkotter](https://github.com/dkotter), [@peterwilsoncc](https://github.com/peterwilsoncc), [@jeffpaul](https://github.com/jeffpaul) via [#853](https://github.com/10up/distributor/pull/853))
 - Support for plugin auto-updates for registered sites (props [@dhanendran](https://github.com/dhanendran), [@jeffpaul](https://github.com/jeffpaul), [@dkotter](https://github.com/dkotter), [@sksaju](https://github.com/sksaju) via [#726](https://github.com/10up/distributor/pull/726))
+- Distributable post types made consistent (props [@faisal-alvi](https://github.com/faisal-alvi), [@dkotter](https://github.com/dkotter), [@peterwilsoncc](https://github.com/peterwilsoncc) via [#907](https://github.com/10up/distributor/pull/907))
 
 ### Changed
 
@@ -22,6 +23,7 @@ All notable changes to this project will be documented in this file, per [the Ke
 
 ### Fixed
 
+- Unicode characters not escaped correctly (props [@amalajith](https://github.com/amalajith), [@dkotter](https://github.com/dkotter), [@cadic](https://github.com/cadic), [@peterwilsoncc](https://github.com/peterwilsoncc) via [#890](https://github.com/10up/distributor/pull/890))
 - Manually entering a page number doesn't work on the Pull screen (props [@faisal-alvi](https://github.com/faisal-alvi), [@dkotter](https://github.com/dkotter) via [#878](https://github.com/10up/distributor/pull/878))
 - Account for plugin changes in test to determine editor type (classic or block). (props [@peterwilsoncc](https://github.com/peterwilsoncc), [@faisal-alvi](https://github.com/faisal-alvi), [@dinhtungdu](https://github.com/dinhtungdu), [@jeffpaul](https://github.com/jeffpaul) via [#894](https://github.com/10up/distributor/pull/894))
 - Prevent conflict with `pre_post_link` filter. (props [@jeremyfelt](https://github.com/jeremyfelt), [@peterwilsoncc](https://github.com/peterwilsoncc), [@jeffpaul](https://github.com/jeffpaul), [@dinhtungdu](https://github.com/dinhtungdu) via [#895](https://github.com/10up/distributor/pull/895))
@@ -34,6 +36,7 @@ All notable changes to this project will be documented in this file, per [the Ke
 ### Security
 
 - build(deps): bump guzzlehttp/guzzle from 6.5.3 to 7.4.4 (props [@dependabot[bot]](https://github.com/apps/dependabot), [@jeffpaul](https://github.com/jeffpaul), [@peterwilsoncc](https://github.com/peterwilsoncc) via [#885](https://github.com/10up/distributor/pull/885), [#891](https://github.com/10up/distributor/pull/891))
+- build(deps): bump terser from 4.7.0 to 4.8.1 (props [@dependabot[bot]](https://github.com/apps/dependabot), [@jeffpaul](https://github.com/jeffpaul), [@peterwilsoncc](https://github.com/peterwilsoncc) via [#911](https://github.com/10up/distributor/pull/911))
 
 ## [1.6.9] - 2022-04-18
 
