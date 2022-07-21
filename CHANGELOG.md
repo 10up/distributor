@@ -9,7 +9,6 @@ All notable changes to this project will be documented in this file, per [the Ke
 ### Added
 
 - Ability to set user roles to pull content (props [@faisal-alvi](https://github.com/faisal-alvi), [@dkotter](https://github.com/dkotter), [@peterwilsoncc](https://github.com/peterwilsoncc) via [#877](https://github.com/10up/distributor/pull/877))
-- Added a new filter `dt_excluded_post_types_from_permission_list` for removing post types listed under “Post types permissions”. (props [@dkotter](https://github.com/dkotter), [@faisal-alvi](https://github.com/faisal-alvi), [@peterwilsoncc](https://github.com/peterwilsoncc), [@dinhtungdu](https://github.com/dinhtungdu), [@jeffpaul](https://github.com/jeffpaul) via [#898](https://github.com/10up/distributor/pull/898))
 - More robust PHP testing (props [@dkotter](https://github.com/dkotter), [@peterwilsoncc](https://github.com/peterwilsoncc), [@jeffpaul](https://github.com/jeffpaul) via [#853](https://github.com/10up/distributor/pull/853))
 - Support for plugin auto-updates for registered sites (props [@dhanendran](https://github.com/dhanendran), [@jeffpaul](https://github.com/jeffpaul), [@dkotter](https://github.com/dkotter), [@sksaju](https://github.com/sksaju) via [#726](https://github.com/10up/distributor/pull/726))
 
