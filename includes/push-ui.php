@@ -49,6 +49,21 @@ function syndicatable() {
 		return false;
 	}
 
+	$distributable_post_types = \Distributor\Utils\distributable_post_types();
+
+	/**
+	 * Filter the post types that should be available for push.
+	 *
+	 * Helpful for sites that want to push custom post type content to another site.
+	 *
+	 * @hook dt_available_push_post_types
+	 *
+	 * @param {array} Post types that are distributable.
+	 *
+	 * @return {array} Post types available for push.
+	 */
+	$distributable_post_types = apply_filters( 'dt_available_push_post_types', $distributable_post_types );
+
 	if ( is_admin() ) {
 
 		global $pagenow;
@@ -57,7 +72,7 @@ function syndicatable() {
 			return false;
 		}
 	} else {
-		if ( ! is_singular( \Distributor\Utils\distributable_post_types() ) ) {
+		if ( ! is_singular( $distributable_post_types ) ) {
 			return false;
 		}
 	}
@@ -72,7 +87,7 @@ function syndicatable() {
 		return false;
 	}
 
-	if ( ! in_array( get_post_type(), \Distributor\Utils\distributable_post_types(), true ) || ( ! empty( $_GET['post_type'] ) && 'dt_ext_connection' === $_GET['post_type'] ) ) { // @codingStandardsIgnoreLine Nonce not required
+	if ( ! in_array( get_post_type(), $distributable_post_types, true ) || ( ! empty( $_GET['post_type'] ) && 'dt_ext_connection' === $_GET['post_type'] ) ) { // @codingStandardsIgnoreLine Nonce not required
 		return false;
 	}
 
