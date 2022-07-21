@@ -304,6 +304,7 @@ function available_pull_post_types( $connection, $type ) {
  *                       Accepts post type 'names' or 'objects'. Default 'names'.
  *
  * @since  1.0
+ * @since  x.x.x $output parameter introduced.
  * @return array
  */
 function distributable_post_types( $output = 'names' ) {
