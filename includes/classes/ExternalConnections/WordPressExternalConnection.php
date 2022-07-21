@@ -542,7 +542,7 @@ class WordPressExternalConnection extends ExternalConnection {
 			 * @return {array} The post data to be inserted.
 			 */
 			$new_post_args = Utils\post_args_allow_list( apply_filters( 'dt_pull_post_args', $post_array, $item_array['remote_post_id'], $post, $this ) );
-			$new_post      = wp_insert_post( $new_post_args );
+			$new_post      = wp_insert_post( wp_slash( $new_post_args ) );
 
 			update_post_meta( $new_post, 'dt_original_post_id', (int) $item_array['remote_post_id'] );
 			update_post_meta( $new_post, 'dt_original_source_id', (int) $this->id );

@@ -58,6 +58,7 @@ class NetworkSiteConnectionsTest extends TestCase {
 		\WP_Mock::userFunction( 'get_the_title' );
 		\WP_Mock::userFunction( 'remove_filter' );
 		\WP_Mock::userFunction( 'get_option' );
+		\WP_Mock::passthruFunction( 'wp_slash' );
 
 		$this->connection_obj->site->blog_id = 2;
 
@@ -153,6 +154,7 @@ class NetworkSiteConnectionsTest extends TestCase {
 		\WP_Mock::userFunction( 'restore_current_blog' );
 		\WP_Mock::userFunction( 'get_current_blog_id' );
 		\WP_Mock::userFunction( 'remove_filter' );
+		\WP_Mock::passthruFunction( 'wp_slash' );
 
 		\WP_Mock::userFunction(
 			'get_post', [

@@ -112,7 +112,7 @@ class NetworkSiteConnection extends Connection {
 		add_filter( 'wp_insert_post_data', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'maybe_set_modified_date' ), 10, 2 );
 		// Filter documented in includes/classes/ExternalConnections/WordPressExternalConnection.php
 		$new_post_args = Utils\post_args_allow_list( apply_filters( 'dt_push_post_args', $new_post_args, $post, $args, $this ) );
-		$new_post_id   = wp_insert_post( $new_post_args );
+		$new_post_id   = wp_insert_post( wp_slash( $new_post_args ) );
 
 		remove_filter( 'wp_insert_post_data', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'maybe_set_modified_date' ), 10, 2 );
 
@@ -269,7 +269,7 @@ class NetworkSiteConnection extends Connection {
 
 			// Filter documented in includes/classes/ExternalConnections/WordPressExternalConnection.php
 			$new_post_args = Utils\post_args_allow_list( apply_filters( 'dt_pull_post_args', $post_array, $item_array['remote_post_id'], $post, $this ) );
-			$new_post_id   = wp_insert_post( $new_post_args );
+			$new_post_id   = wp_insert_post( wp_slash( $new_post_args ) );
 
 			remove_filter( 'wp_insert_post_data', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'maybe_set_modified_date' ), 10, 2 );
 
