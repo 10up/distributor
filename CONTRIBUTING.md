@@ -34,6 +34,7 @@ The `develop` branch is the development branch which means it contains the next 
 1. Changelog: Add/update the changelog in `CHANGELOG.md`.
 1. Props: Update `CREDITS.md` file with any new contributors, confirm maintainers are accurate.
 1. Readme updates: Make any other readme changes as necessary.  `README.md` is geared toward GitHub and `readme.txt` contains WordPress.org-specific content.  The two are slightly different.
+1. Since tag updates: Ensure any `@since` tags to indicate the new version, replacing `x.x.x`, `n.e.x.t` and other placeholders.
 1. Merge: Make a non-fast-forward merge from your release branch to `develop` (or merge the Pull Request), then do the same for `develop` into `trunk` (`git checkout trunk && git merge --no-ff develop`).  `trunk` contains the stable development version.
 1. Build: Wait for the [Build Stable Release Action](https://github.com/10up/distributor/actions?query=workflow%3A%22Build+Stable+Release%22) to finish running.
 1. Review: Do a review of the commit to the `stable` branch to ensure the contents of the diffs are as expected.
