@@ -304,7 +304,7 @@ function available_pull_post_types( $connection, $type ) {
  *                       Accepts post type 'names' or 'objects'. Default 'names'.
  *
  * @since  1.0
- * @since  x.x.x $output parameter introduced.
+ * @since  1.7.0 $output parameter introduced.
  * @return array
  */
 function distributable_post_types( $output = 'names' ) {
@@ -1120,7 +1120,7 @@ function set_media_errors( $post_id, $data ) {
 /**
  * Reduce arguments passed to wp_insert_post to approved arguments only.
  *
- * @since x.x.x
+ * @since 1.7.0
  *
  * @link http://developer.wordpress.org/reference/functions/wp_insert_post/ wp_insert_post() documentation.
  *
