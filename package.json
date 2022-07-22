@@ -75,10 +75,5 @@
   },
   "dependencies": {
     "mustache": "^4.0.1"
-  },
-  "overrides": {
-    "@wordpress/env": {
-      "got": "12.1.0"
-    }
   }
 }
