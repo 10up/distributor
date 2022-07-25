@@ -105,7 +105,7 @@ function update_notice( $plugin_file, $plugin_data, $status ) {
 	?>
 
 	<tr class="plugin-update-tr <?php if ( $active ) : ?>active<?php endif; ?>" id="distributor-update" >
-		<td colspan="3" class="plugin-update colspanchange">
+		<td colspan="4" class="plugin-update colspanchange">
 			<div class="update-message notice inline notice-warning notice-alt">
 				<p>
 					<?php /* translators: %s: distributor notice url */ ?>
@@ -124,7 +124,7 @@ function update_notice( $plugin_file, $plugin_data, $status ) {
  */
 function maybe_notice() {
 	if ( 0 === strpos( get_current_screen()->parent_base, 'distributor' ) ) {
-		if ( preg_match( '/-dev$/', DT_VERSION ) ) {
+		if ( file_exists( DT_PLUGIN_PATH . 'composer.lock' ) ) {
 			?>
 			<div class="notice notice-warning">
 			<?php /* translators: %1$s: npm commands, %2$s: distributor url */ ?>
@@ -231,10 +231,10 @@ function license_key_callback() {
 
 	<div class="license-wrap <?php if ( true === $settings['valid_license'] ) : ?>valid<?php elseif ( false === $settings['valid_license'] ) : ?>invalid<?php endif; ?>">
 		<label class="screen-reader-text" for="dt_settings_email"><?php esc_html_e( 'Email', 'distributor' ); ?></label>
-		<input name="dt_settings[email]" type="email" placeholder="<?php esc_html_e( 'Email', 'distributor' ); ?>" value="<?php echo esc_attr( $email ); ?>" id="dt_settings_email">
+		<input name="dt_settings[email]" type="email" placeholder="<?php esc_attr_e( 'Email', 'distributor' ); ?>" value="<?php echo esc_attr( $email ); ?>" id="dt_settings_email">
 
 		<label class="screen-reader-text" for="dt_settings_license_key"><?php esc_html_e( 'Registration Key', 'distributor' ); ?></label>
-		<input name="dt_settings[license_key]" type="text" placeholder="<?php esc_html_e( 'Registration Key', 'distributor' ); ?>" value="<?php echo esc_attr( $license_key ); ?>" id="dt_settings_license_key">
+		<input name="dt_settings[license_key]" type="text" placeholder="<?php esc_attr_e( 'Registration Key', 'distributor' ); ?>" value="<?php echo esc_attr( $license_key ); ?>" id="dt_settings_license_key">
 	</div>
 
 	<?php if ( true !== $settings['valid_license'] ) : ?>
@@ -370,7 +370,7 @@ function network_settings_screen() {
 						<?php endif; ?>
 
 						<div class="license-wrap <?php if ( true === $settings['valid_license'] ) : ?>valid<?php elseif ( false === $settings['valid_license'] ) : ?>invalid<?php endif; ?>">
-							<input name="dt_settings[email]" type="email" placeholder="<?php esc_html_e( 'Email', 'distributor' ); ?>" value="<?php echo esc_attr( $email ); ?>"> <input name="dt_settings[license_key]" type="text" placeholder="<?php esc_html_e( 'Registration Key', 'distributor' ); ?>" value="<?php echo esc_attr( $license_key ); ?>">
+							<input name="dt_settings[email]" type="email" placeholder="<?php esc_attr_e( 'Email', 'distributor' ); ?>" value="<?php echo esc_attr( $email ); ?>"> <input name="dt_settings[license_key]" type="text" placeholder="<?php esc_attr_e( 'Registration Key', 'distributor' ); ?>" value="<?php echo esc_attr( $license_key ); ?>">
 						</div>
 
 						<?php if ( true !== $settings['valid_license'] ) : ?>
@@ -416,7 +416,9 @@ function handle_network_settings() {
 	}
 
 	if ( ! empty( $_POST['dt_settings']['email'] ) && ! empty( $_POST['dt_settings']['license_key'] ) ) {
-		$new_settings['valid_license'] = (bool) Utils\check_license_key( $_POST['dt_settings']['email'], $_POST['dt_settings']['license_key'] );
+		$email_address                 = sanitize_email( wp_unslash( $_POST['dt_settings']['email'] ) );
+		$license_key                   = sanitize_text_field( wp_unslash( $_POST['dt_settings']['license_key'] ) );
+		$new_settings['valid_license'] = (bool) Utils\check_license_key( $email_address, $license_key );
 	} else {
 		$new_settings['valid_license'] = null;
 	}

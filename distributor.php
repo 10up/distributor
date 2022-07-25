@@ -4,7 +4,7 @@
  * Plugin URI:        https://github.com/10up/distributor
  * Update URI:        https://distributorplugin.com
  * Description:       Makes it easy to distribute and reuse content across your websites, whether inside of a multisite or across the web.
- * Version:           1.6.9
+ * Version:           1.7.0
  * Author:            10up Inc.
  * Author URI:        https://distributorplugin.com
  * License:           GPLv2 or later
@@ -18,7 +18,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly.
 }
 
-define( 'DT_VERSION', '1.6.9' );
+define( 'DT_VERSION', '1.7.0' );
 define( 'DT_PLUGIN_FILE', preg_replace( '#^.*plugins/(.*)$#i', '$1', __FILE__ ) );
 define( 'DT_PLUGIN_PATH', plugin_dir_path( __FILE__ ) );
 
@@ -99,6 +99,7 @@ add_filter(
 require_once __DIR__ . '/vendor/yahnis-elsts/plugin-update-checker/plugin-update-checker.php';
 
 require_once __DIR__ . '/includes/utils.php';
+require_once __DIR__ . '/includes/global-functions.php';
 require_once __DIR__ . '/includes/external-connection-cpt.php';
 require_once __DIR__ . '/includes/push-ui.php';
 require_once __DIR__ . '/includes/pull-ui.php';
@@ -182,6 +183,26 @@ if ( class_exists( 'Puc_v4_Factory' ) ) {
 					'svg' => plugins_url( '/assets/img/icon.svg', __FILE__ ),
 				);
 				return $plugin_info;
+			}
+		);
+
+		add_filter(
+			'pre_set_site_transient_update_plugins',
+			function( $transient ) use ( $updateChecker ) {
+				$update = $updateChecker->getUpdate();
+
+				if ( $update ) {
+					// Update is available.
+					$transient->response[ $update->filename ] = $update->toWpFormat();
+				} else {
+					// No update is available.
+					$update = $updateChecker->getUpdateState()->getUpdate();
+					// Adding the plugin info to the `no_update` property is required
+					// for the enable/disable auto-updates links to correctly appear in UI.
+					$transient->no_update[ $update->filename ] = $update;
+				}
+
+				return $transient;
 			}
 		);
 		// @codingStandardsIgnoreEnd

@@ -7,6 +7,8 @@
 
 namespace Distributor\ExternalConnectionCPT;
 
+use Distributor\Utils;
+
 /**
  * Setup actions and filters
  *
@@ -165,7 +167,10 @@ function setup_list_table() {
 			$sendback = remove_query_arg( array( 'trashed', 'untrashed', 'deleted', 'locked', 'ids' ), wp_get_referer() );
 
 			$deleted  = 0;
-			$post_ids = array_map( 'intval', $_REQUEST['post'] );
+			$post_ids = array();
+			if ( ! empty( $_REQUEST['post'] ) ) {
+				$post_ids = array_map( 'intval', $_REQUEST['post'] );
+			}
 
 			foreach ( (array) $post_ids as $post_id ) {
 				wp_delete_post( $post_id );
@@ -228,17 +233,17 @@ function ajax_verify_external_connection() {
 		exit;
 	}
 
-	if ( empty( $_POST['url'] ) || empty( $_POST['type'] ) ) {
+	if ( empty( $_POST['url'] ) || empty( $_POST['type'] ) || empty( $_POST['endpointId'] ) ) {
 		wp_send_json_error();
 		exit;
 	}
 
 	$auth = array();
 	if ( ! empty( $_POST['auth'] ) ) {
-		$auth = $_POST['auth'];
+		$auth = array_map( 'sanitize_text_field', (array) wp_unslash( $_POST['auth'] ) );
 	}
 
-	$current_auth = get_post_meta( intval( sanitize_key( $_POST['endpointId'] ) ), 'dt_external_connection_auth', true );
+	$current_auth = get_post_meta( intval( $_POST['endpointId'] ), 'dt_external_connection_auth', true );
 
 	if ( ! empty( $current_auth ) ) {
 		$auth = array_merge( $auth, (array) $current_auth );
@@ -250,7 +255,7 @@ function ajax_verify_external_connection() {
 	$auth_handler = new $external_connection_class::$auth_handler_class( $auth );
 
 	// Init with placeholders since we haven't created yet
-	$external_connection = new $external_connection_class( 'connection-test', $_POST['url'], 0, $auth_handler );
+	$external_connection = new $external_connection_class( 'connection-test', esc_url_raw( wp_unslash( $_POST['url'] ) ), 0, $auth_handler );
 
 	$external_connections = $external_connection->check_connections();
 
@@ -331,8 +336,8 @@ function get_wizard_return_data() {
 /**
  * Change title text box label
  *
- * @param  string $label Title text.
- * @param  int    $post Post object.
+ * @param  string      $label Title text.
+ * @param  int|WP_Post $post  Post object.
  * @since  0.8
  * @return string
  */
@@ -383,7 +388,7 @@ function save_post( $post_id ) {
 
 		$auth = array();
 		if ( ! empty( $_POST['dt_external_connection_auth'] ) ) {
-			$auth = $_POST['dt_external_connection_auth'];
+			$auth = array_map( 'sanitize_text_field', (array) wp_unslash( $_POST['dt_external_connection_auth'] ) );
 		}
 
 		$current_auth = get_post_meta( $post_id, 'dt_external_connection_auth', true );
@@ -394,7 +399,7 @@ function save_post( $post_id ) {
 
 		$auth_handler = new $external_connection_class::$auth_handler_class( $auth );
 
-		$external_connection = new $external_connection_class( get_the_title( $post_id ), $_POST['dt_external_connection_url'], $post_id, $auth_handler );
+		$external_connection = new $external_connection_class( get_the_title( $post_id ), esc_url_raw( wp_unslash( $_POST['dt_external_connection_url'] ) ), $post_id, $auth_handler );
 
 		$external_connections = $external_connection->check_connections();
 
@@ -411,7 +416,7 @@ function save_post( $post_id ) {
 		$connection_class         = \Distributor\Connections::factory()->get_registered()[ sanitize_key( $_POST['dt_external_connection_type'] ) ];
 		$auth_handler_class_again = $connection_class::$auth_handler_class;
 
-		$auth_creds = $auth_handler_class_again::prepare_credentials( array_merge( (array) $current_auth, $_POST['dt_external_connection_auth'] ) );
+		$auth_creds = $auth_handler_class_again::prepare_credentials( array_merge( (array) $current_auth, array_map( 'sanitize_text_field', (array) wp_unslash( $_POST['dt_external_connection_auth'] ) ) ) );
 
 		$auth_handler_class_again::store_credentials( $post_id, $auth_creds );
 	}
@@ -449,12 +454,7 @@ function meta_box_external_connection_details( $post ) {
 
 	$external_connection_status = get_post_meta( $post->ID, 'dt_external_connections', true );
 
-	$post_types = get_post_types(
-		array(
-			'show_in_rest' => true,
-		),
-		'objects'
-	);
+	$post_types = \Distributor\Utils\distributable_post_types( 'objects' );
 
 	$registered_external_connection_types = \Distributor\Connections::factory()->get_registered();
 
@@ -497,7 +497,7 @@ function meta_box_external_connection_details( $post ) {
 			<label for="dt_external_connection_type"><?php esc_html_e( 'Authentication Method', 'distributor' ); ?></label><br>
 			<select name="dt_external_connection_type" class="external-connection-type-field" id="dt_external_connection_type">
 				<?php foreach ( $registered_external_connection_types as $slug => $external_connection_class ) : ?>
-					<option <?php selected( $slug, $external_connection_type ); ?> value="<?php echo esc_attr( $slug ); ?>"><?php echo esc_attr( $external_connection_class::$label ); ?></option>
+					<option <?php selected( $slug, $external_connection_type ); ?> value="<?php echo esc_attr( $slug ); ?>"><?php echo esc_html( $external_connection_class::$label ); ?></option>
 				<?php endforeach; ?>
 			</select>
 		</div>
@@ -539,18 +539,13 @@ function meta_box_external_connection_details( $post ) {
 					<th><?php esc_html_e( 'Can push?', 'distributor' ); ?></th>
 				</thead>
 				<tbody>
-					<?php foreach ( $post_types as $post_type ) : ?>
-						<?php
-						if ( 'dt_subscription' === $post_type->name ) {
-							continue;
-						}
-						?>
-						<tr>
-							<td><?php echo esc_html( $post_type->label ); ?></td>
-							<td><?php echo in_array( $post_type->name, $external_connection_status['can_get'] ) ? esc_html__( 'Yes', 'distributor' ) : esc_html__( 'No', 'distributor' ); ?></td>
-							<td><?php echo in_array( $post_type->name, $external_connection_status['can_post'] ) ? esc_html__( 'Yes', 'distributor' ) : esc_html__( 'No', 'distributor' ); ?></td>
-						</tr>
-					<?php endforeach; ?>
+				<?php foreach ( $post_types as $post_type ) : ?>
+					<tr>
+						<td><?php echo esc_html( $post_type->label ); ?></td>
+						<td><?php echo in_array( $post_type->name, $external_connection_status['can_get'] ) ? esc_html__( 'Yes', 'distributor' ) : esc_html__( 'No', 'distributor' ); ?></td>
+						<td><?php echo in_array( $post_type->name, $external_connection_status['can_post'] ) ? esc_html__( 'Yes', 'distributor' ) : esc_html__( 'No', 'distributor' ); ?></td>
+					</tr>
+				<?php endforeach; ?>
 				</tbody>
 			</table>
 		</div>
@@ -780,7 +775,7 @@ function filter_post_updated_messages( $messages ) {
  */
 function get_rest_url( $site_url ) {
 
-	$source = wp_remote_get( $site_url );
+	$source = Utils\remote_http_request( $site_url );
 
 	if ( is_wp_error( $source ) ) {
 		return $source;
@@ -814,7 +809,7 @@ function get_remote_distributor_info() {
 		exit;
 	}
 
-	$rest_url = get_rest_url( $_POST['url'] );
+	$rest_url = get_rest_url( esc_url_raw( wp_unslash( $_POST['url'] ) ) );
 
 	if ( is_wp_error( $rest_url ) ) {
 		wp_send_json_error( $rest_url );
@@ -823,11 +818,8 @@ function get_remote_distributor_info() {
 
 	$route = $rest_url . 'wp/v2/dt_meta';
 
-	if ( function_exists( 'vip_safe_wp_remote_get' ) && \Distributor\Utils\is_vip_com() ) {
-		$response = vip_safe_wp_remote_get( $route, false, 3, 3, 10 );
-	} else {
-		$response = wp_remote_get( $route, [ 'timeout' => 5 ] );
-	}
+	// phpcs:ignore WordPressVIPMinimum.Performance.RemoteRequestTimeout.timeout_timeout -- not used on VIP.
+	$response = Utils\remote_http_request( $route, [ 'timeout' => 5 ] );
 
 	$body = json_decode( wp_remote_retrieve_body( $response ), true );
 
