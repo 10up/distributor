@@ -4,7 +4,7 @@
  *
  * @package  distributor
  */
-
+//phpcs:ignoreFile WordPressVIPMinimum.Security.Mustache.OutputNotation
 ?>
 
 <script id="dt-add-connection" type="text/plain" template="amp-mustache" data-ampdevmode>

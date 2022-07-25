@@ -111,7 +111,8 @@ class NetworkSiteConnection extends Connection {
 
 		add_filter( 'wp_insert_post_data', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'maybe_set_modified_date' ), 10, 2 );
 		// Filter documented in includes/classes/ExternalConnections/WordPressExternalConnection.php
-		$new_post_id = wp_insert_post( apply_filters( 'dt_push_post_args', $new_post_args, $post, $args, $this ) );
+		$new_post_args = Utils\post_args_allow_list( apply_filters( 'dt_push_post_args', $new_post_args, $post, $args, $this ) );
+		$new_post_id   = wp_insert_post( wp_slash( $new_post_args ) );
 
 		remove_filter( 'wp_insert_post_data', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'maybe_set_modified_date' ), 10, 2 );
 
@@ -267,7 +268,8 @@ class NetworkSiteConnection extends Connection {
 			add_filter( 'wp_insert_post_data', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'maybe_set_modified_date' ), 10, 2 );
 
 			// Filter documented in includes/classes/ExternalConnections/WordPressExternalConnection.php
-			$new_post_id = wp_insert_post( apply_filters( 'dt_pull_post_args', $post_array, $item_array['remote_post_id'], $post, $this ) );
+			$new_post_args = Utils\post_args_allow_list( apply_filters( 'dt_pull_post_args', $post_array, $item_array['remote_post_id'], $post, $this ) );
+			$new_post_id   = wp_insert_post( wp_slash( $new_post_args ) );
 
 			remove_filter( 'wp_insert_post_data', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'maybe_set_modified_date' ), 10, 2 );
 
@@ -462,7 +464,7 @@ class NetworkSiteConnection extends Connection {
 	 */
 	public function get_post_types() {
 		switch_to_blog( $this->site->blog_id );
-		$post_types = get_post_types( [ 'public' => true ], 'objects' );
+		$post_types = Utils\distributable_post_types( 'objects' );
 		restore_current_blog();
 
 		return $post_types;
@@ -514,6 +516,7 @@ class NetworkSiteConnection extends Connection {
 			$query_args['paged']          = ( empty( $args['paged'] ) ) ? 1 : $args['paged'];
 
 			if ( isset( $args['meta_query'] ) ) {
+				// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
 				$query_args['meta_query'] = $args['meta_query'];
 			}
 
@@ -1112,21 +1115,7 @@ class NetworkSiteConnection extends Connection {
 		 */
 		$request = apply_filters( 'dt_update_content_via_request_args', [], $new_post_id, $this );
 
-		if ( function_exists( 'vip_safe_wp_remote_get' ) && \Distributor\Utils\is_vip_com() ) {
-			$response = vip_safe_wp_remote_get(
-				$rest_url,
-				false,
-				3,
-				3,
-				10,
-				$request
-			);
-		} else {
-			$response = wp_remote_get(
-				$rest_url,
-				$request
-			);
-		}
+		$response = Utils\remote_http_request( $rest_url, $request );
 
 		$body = false;
 		$code = wp_remote_retrieve_response_code( $response );

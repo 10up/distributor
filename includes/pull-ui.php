@@ -7,6 +7,8 @@
 
 namespace Distributor\PullUI;
 
+//phpcs:ignoreFile WordPressVIPMinimum.Functions.RestrictedFunctions.cookies_setcookie -- Admin file, no full page caching.
+
 /**
  * Setup actions and filters
  *
@@ -201,7 +203,7 @@ function process_actions() {
 	switch ( $connection_list_table->current_action() ) {
 		case 'syndicate':
 		case 'bulk-syndicate':
-			if ( ! wp_verify_nonce( $_GET['_wpnonce'], 'bulk-distributor_page_pull' ) ) {
+			if ( empty( $_GET['_wpnonce'] ) || ! wp_verify_nonce( $_GET['_wpnonce'], 'bulk-distributor_page_pull' ) ) {
 				exit;
 			}
 
@@ -214,11 +216,11 @@ function process_actions() {
 				);
 			}
 
-			if ( empty( $_GET['connection_type'] ) || empty( $_GET['connection_id'] ) || empty( $_GET['post'] ) ) {
+			if ( empty( $_GET['pull_post_type'] ) || empty( $_GET['connection_type'] ) || empty( $_GET['connection_id'] ) || empty( $_GET['post'] ) ) {
 				break;
 			}
 
-			$posts       = (array) $_GET['post'];
+			$posts       = array_map( 'intval', (array) wp_unslash( $_GET['post'] ) );
 			$post_type   = sanitize_text_field( $_GET['pull_post_type'] );
 			$post_status = ! empty( $_GET['dt_as_draft'] ) && 'draft' === $_GET['dt_as_draft'] ? 'draft' : '';
 
@@ -312,10 +314,7 @@ function process_actions() {
 				$connection = new \Distributor\InternalConnections\NetworkSiteConnection( $site );
 			}
 
-			$posts = $_GET['post'];
-			if ( ! is_array( $posts ) ) {
-				$posts = [ $posts ];
-			}
+			$posts = array_map( 'intval', (array) wp_unslash( $_GET['post'] ) );
 
 			$post_mapping = array();
 
@@ -356,10 +355,7 @@ function process_actions() {
 				$connection = new \Distributor\InternalConnections\NetworkSiteConnection( $site );
 			}
 
-			$posts = $_GET['post'];
-			if ( ! is_array( $posts ) ) {
-				$posts = [ $posts ];
-			}
+			$posts = array_map( 'intval', (array) wp_unslash( $_GET['post'] ) );
 
 			$sync_log = $connection->get_sync_log( intval( $_GET['connection_id'] ) );
 
@@ -426,7 +422,7 @@ function dashboard() {
 				<select id="pull_connections" name="connection" method="get">
 					<?php if ( ! empty( $internal_connection_group ) ) : ?>
 						<?php if ( ! empty( $external_connection_group ) ) : ?>
-							<optgroup label="<?php esc_html_e( 'Network Connections', 'distributor' ); ?>">
+							<optgroup label="<?php esc_attr_e( 'Network Connections', 'distributor' ); ?>">
 						<?php endif; ?>
 							<?php
 							foreach ( $internal_connection_group as $connection ) :
@@ -448,7 +444,7 @@ function dashboard() {
 
 					<?php if ( ! empty( $external_connection_group ) ) : ?>
 						<?php if ( ! empty( $internal_connection_group ) ) : ?>
-							<optgroup label="<?php esc_html_e( 'External Connections', 'distributor' ); ?>">
+							<optgroup label="<?php esc_attr_e( 'External Connections', 'distributor' ); ?>">
 						<?php endif; ?>
 							<?php
 							foreach ( $external_connection_group as $connection ) :
@@ -540,6 +536,8 @@ function dashboard() {
 		<?php else : ?>
 			<?php $connection_list_table->views(); ?>
 
+			<?php $connection_list_table->search_box( esc_html__( 'Search', 'distributor' ), 'post' ); ?>
+
 			<form id="posts-filter" class="status-<?php echo ( ! empty( $_GET['status'] ) ) ? esc_attr( $_GET['status'] ) : 'new'; // @codingStandardsIgnoreLine Nonce not needed. ?>" method="get">
 				<?php if ( ! empty( $connection_list_table->connection_objects ) ) : ?>
 					<input type="hidden" name="connection_type" value="<?php echo esc_attr( $connection_type ); ?>">
@@ -547,8 +545,6 @@ function dashboard() {
 				<?php endif; ?>
 
 				<input type="hidden" name="page" value="pull">
-
-				<?php $connection_list_table->search_box( esc_html__( 'Search', 'distributor' ), 'post' ); ?>
 
 				<?php $connection_list_table->display(); ?>
 			</form>
@@ -565,6 +561,7 @@ function dashboard() {
 function output_pull_errors() {
 	global $connection_now;
 
+	// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- No nonce needed here.
 	if ( empty( $_GET['connection_id'] ) ) {
 		return;
 	}
