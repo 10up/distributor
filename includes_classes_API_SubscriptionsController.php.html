@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Source: includes/classes/API/SubscriptionsController.php - 10up Distributor Hook Docs</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+
+	<link href="https://fonts.googleapis.com/css?family=IBM+Plex+Mono|IBM+Plex+Sans:300,400|Playfair+Display:900&display=swap" rel="stylesheet"> 
+    <link type="text/css" rel="stylesheet" href="styles-10up.css">
+</head>
+
+<body>
+
+<div id="main">
+
+	
+    <h1 class="page-title">Source: includes/classes/API/SubscriptionsController.php</h1>
+	
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>&lt;?php
+/**
+ * Subscription REST API endpoint
+ *
+ * @package  distributor
+ */
+
+namespace Distributor\API;
+
+/**
+ * Subscription controller REST API class
+ */
+class SubscriptionsController extends \WP_REST_Controller {
+
+	/**
+	 * Post type.
+	 *
+	 * @var string
+	 */
+	protected $post_type;
+
+	/**
+	 * Register controller
+	 *
+	 * @since 1.0
+	 * @param string $post_type Post type.
+	 */
+	public function __construct( $post_type ) {
+		$this->post_type = $post_type;
+		$this->namespace = 'wp/v2';
+		$obj             = get_post_type_object( $post_type );
+		$this->rest_base = ! empty( $obj->rest_base ) ? $obj->rest_base : $obj->name;
+
+		$this->meta = new \WP_REST_Post_Meta_Fields( $this->post_type );
+		add_filter( 'rest_authentication_errors', array( $this, 'dt_verify_signature_authentication' ) );
+
+	}
+
+	/**
+	 * Register subscription routes
+	 *
+	 * @since 1.0
+	 */
+	public function register_routes() {
+
+		register_rest_route(
+			$this->namespace,
+			'/' . $this->rest_base,
+			array(
+				array(
+					'methods'             => \WP_REST_Server::CREATABLE,
+					'callback'            => array( $this, 'create_item' ),
+					'permission_callback' => array( $this, 'create_item_permissions_check' ),
+					'args'                => array(
+						'post_id'        => array(
+							'required'    => true,
+							'description' => esc_html__( 'Post that is being subscribed to.', 'distributor' ),
+							'type'        => 'integer',
+						),
+						'remote_post_id' => array(
+							'required'    => true,
+							'description' => esc_html__( 'Post on remote site that maps to subscription post.', 'distributor' ),
+							'type'        => 'integer',
+						),
+						'target_url'     => array(
+							'required'    => true,
+							'description' => esc_html__( 'WordPress URL to notify.', 'distributor' ),
+							'type'        => 'string',
+						),
+						'signature'      => array(
+							'required'    => true,
+							'description' => esc_html__( 'Subscription signature for post.', 'distributor' ),
+							'type'        => 'string',
+						),
+					),
+				),
+			)
+		);
+
+		register_rest_route(
+			$this->namespace,
+			'/' . $this->rest_base . '/receive',
+			array(
+				array(
+					'methods'             => \WP_REST_Server::CREATABLE,
+					'callback'            => array( $this, 'receive_item' ),
+					'permission_callback' => array( $this, 'receive_item_permissions_check' ),
+					'args'                => [
+						'post_id'   => array(
+							'required'    => true,
+							'description' => esc_html__( 'Post to be updated.', 'distributor' ),
+							'type'        => 'integer',
+						),
+						'signature' => array(
+							'required'    => true,
+							'description' => esc_html__( 'Signature for given signature', 'distributor' ),
+							'type'        => 'string',
+						),
+					],
+				),
+			)
+		);
+
+		register_rest_route(
+			$this->namespace,
+			'/' . $this->rest_base . '/delete',
+			array(
+				array(
+					'methods'             => \WP_REST_Server::DELETABLE,
+					'callback'            => array( $this, 'delete_item' ),
+					'permission_callback' => array( $this, 'delete_item_permissions_check' ),
+					'args'                => [
+						'post_id'   => array(
+							'required'    => true,
+							'description' => esc_html__( 'Post with subscription.', 'distributor' ),
+							'type'        => 'integer',
+						),
+						'signature' => array(
+							'required'    => true,
+							'description' => esc_html__( 'Signature for given subscription', 'distributor' ),
+							'type'        => 'string',
+						),
+					],
+				),
+			)
+		);
+	}
+
+	/**
+	 * Authenticate the request via the signature if available.
+	 *
+	 * @param  WP_Error|null|bool $status The authentication status.
+	 *
+	 * @return WP_Error|null|bool The filtered authentication status.
+	 */
+	public function dt_verify_signature_authentication( $status ) {
+
+		// Is the request authentication already handled?
+		if ( null !== $status ) {
+			return $status;
+		}
+
+		if ( ! empty( $GLOBALS['wp']->query_vars['rest_route'] ) ) {
+			$path = $GLOBALS['wp']->query_vars['rest_route'];
+		} else {
+			// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotValidated -- see wp_fix_server_vars().
+			$path = esc_url_raw( wp_unslash( $_SERVER['REQUEST_URI'] ) );
+		}
+
+		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotValidated
+		$request = new \WP_REST_Request( strtoupper( sanitize_key( wp_unslash( $_SERVER['REQUEST_METHOD'] ) ) ), $path );
+		$request->set_body_params( wp_unslash( $_POST ) ); // phpcs:ignore
+
+		// If this is not a subscription request, return the original value.
+		if ( '/dt_subscription/receive' !== $request->get_route() &amp;&amp; '/dt_subscription/delete' !== $request->get_route() ) {
+			return $status;
+		}
+
+		// If the signature is unset or empty, throw an error.
+		if ( ( ! isset( $request['signature'] ) ) || empty( $request['signature'] ) ) {
+			return new \WP_Error( 'rest_post_invalid_signature', esc_html__( 'Signature invalid or missing.', 'distributor' ), array( 'status' => 403 ) );
+		}
+
+		// If the post id is missing, throw an error.
+		if ( empty( $request['post_id'] ) ) {
+			return new \WP_Error( 'rest_post_invalid_post_id', esc_html__( 'Invalid post id.', 'distributor' ), array( 'status' => 403 ) );
+		} else {
+
+			$signature = get_post_meta( $request['post_id'], 'dt_subscription_signature', true );
+
+			if ( $request['signature'] === $signature ) {
+				return true;
+			}
+		}
+
+		// No check was performed, return the original value.
+		return $status;
+	}
+
+	/**
+	 * Determine if receive endpoint permissions are correct.
+	 *
+	 * @param  WP_REST_Request $request Full details about the request.
+	 * @since  1.0
+	 * @return true|\WP_Error True if the request has receive access, \WP_Error object otherwise.
+	 */
+	public function receive_item_permissions_check( $request ) {
+		return true;
+	}
+
+	/**
+	 * Receive a subscription update. We could just push using the existing REST API. However, in the scenario where
+	 * we are receiving an update from a pulled post, we wouldn't have access to push since source connections are one-way
+	 * intentionally.
+	 *
+	 * @param  WP_REST_Request $request Full details about the request.
+	 * @since  1.0
+	 * @return WP_REST_Response|\WP_Error Response object on success, or \WP_Error object on failure.
+	 */
+	public function receive_item( $request ) {
+		$post = get_post( (int) $request['post_id'] );
+		if ( empty( $post ) ) {
+			return new \WP_REST_Response( null, 404, [ 'X-Distributor-Post-Deleted' => 'yes' ] );
+		}
+
+		$original_post_id = get_post_meta( $request['post_id'], 'dt_original_post_id', true );
+
+		if ( empty( $original_post_id ) ) {
+			return new \WP_Error( 'rest_post_not_distributed', esc_html__( 'Post not distributed.', 'distributor' ), array( 'status' => 400 ) );
+		}
+
+		// This endpoint updates post data and unlinks posts
+		if ( isset( $request['original_deleted'] ) ) {
+			update_post_meta( $request['post_id'], 'dt_original_post_deleted', true );
+
+			$response = new \WP_REST_Response();
+			$response->set_data( array( 'updated' => true ) );
+
+			return $response;
+		} else {
+			if ( empty( $request['post_data'] ) ) {
+				return new \WP_Error( 'rest_post_no_data', esc_html__( 'No post data for update.', 'distributor' ), array( 'status' => 400 ) );
+			}
+
+			// When both sides of a subscription connection support Gutenberg, update with the raw content.
+			$content = $request['post_data']['content'];
+			if ( \Distributor\Utils\is_using_gutenberg( $post ) &amp;&amp; isset( $request['post_data']['distributor_raw_content'] ) ) {
+				if ( \Distributor\Utils\dt_use_block_editor_for_post_type( $post->post_type ) ) {
+					$content = $request['post_data']['distributor_raw_content'];
+
+					// Remove filters that may alter content updates.
+					remove_all_filters( 'content_save_pre' );
+				}
+			}
+
+			/**
+			 * We save the update in meta in case the post is unlinked. If the post is re-linked, we'll
+			 * apply the update
+			 */
+			$update = [
+				'post_title'   => sanitize_text_field( $request['post_data']['title'] ),
+				'post_name'    => sanitize_text_field( $request['post_data']['slug'] ),
+				'post_content' => wp_kses_post( $content ),
+				'post_excerpt' => wp_kses_post( $request['post_data']['excerpt'] ),
+				// Todo: how do we properly sanitize this?
+				'meta'         => ( isset( $request['post_data']['distributor_meta'] ) ) ? $request['post_data']['distributor_meta'] : [],
+				'terms'        => ( isset( $request['post_data']['distributor_terms'] ) ) ? $request['post_data']['distributor_terms'] : [],
+				'media'        => ( isset( $request['post_data']['distributor_media'] ) ) ? $request['post_data']['distributor_media'] : [],
+			];
+
+			update_post_meta( (int) $request['post_id'], 'dt_subscription_update', $update );
+
+			$unlinked = (bool) get_post_meta( $request['post_id'], 'dt_unlinked', true );
+
+			if ( ! empty( $unlinked ) ) {
+				$response = new \WP_REST_Response();
+				$response->set_data( array( 'updated' => false ) );
+
+				return $response;
+			}
+
+			wp_update_post(
+				[
+					'ID'           => $request['post_id'],
+					'post_title'   => $request['post_data']['title'],
+					'post_content' => $content,
+					'post_excerpt' => $request['post_data']['excerpt'],
+					'post_name'    => $request['post_data']['slug'],
+				]
+			);
+
+			/**
+			 * We check if each of these exist since the API removes empty arrays from requests
+			 */
+			if ( ! empty( $request['post_data']['distributor_meta'] ) ) {
+				\Distributor\Utils\set_meta( $request['post_id'], $request['post_data']['distributor_meta'] );
+			}
+
+			if ( ! empty( $request['post_data']['distributor_terms'] ) ) {
+				\Distributor\Utils\set_taxonomy_terms( $request['post_id'], $request['post_data']['distributor_terms'] );
+			}
+
+			if ( ! empty( $request['post_data']['distributor_media'] ) ) {
+				\Distributor\Utils\set_media( $request['post_id'], $request['post_data']['distributor_media'] );
+			}
+
+			/**
+			 * Action fired after receiving a subscription update from Distributor
+			 *
+			 * @since 1.3.8
+			 * @hook dt_process_subscription_attributes
+			 *
+			 * @param {WP_Post}         $post    Updated post object.
+			 * @param {WP_REST_Request} $request Request object.
+			 */
+			do_action( 'dt_process_subscription_attributes', $post, $request );
+
+			$response = new \WP_REST_Response();
+			$response->set_data( array( 'updated' => true ) );
+
+			return $response;
+		}
+	}
+
+	/**
+	 * Helper function to build response array for a subscription
+	 *
+	 * @param  int $post_id Post ID.
+	 * @since  1.0
+	 */
+	protected function get_response_array( $post_id ) {
+		return array(
+			'id'             => (int) $post_id,
+			'post_id'        => (int) get_post_meta( $post_id, 'dt_subscription_post_id', true ),
+			'remote_post_id' => (int) get_post_meta( $post_id, 'dt_subscription_remote_post_id', true ),
+			'target_url'     => esc_url_raw( get_post_meta( $post_id, 'dt_subscription_target_url', true ) ),
+		);
+	}
+
+	/**
+	 * Ensure user has permissions to create a subscription.
+	 *
+	 * @param  WP_REST_Request $request Full details about the request.
+	 * @since  1.0
+	 * @return true|\WP_Error True if the request has access to create items, \WP_Error object otherwise.
+	 */
+	public function create_item_permissions_check( $request ) {
+		$post_type = get_post_type_object( $this->post_type );
+
+		if ( ! current_user_can( $post_type->cap->create_posts ) ) {
+			return new \WP_Error( 'rest_cannot_create', esc_html__( 'Sorry, you are not allowed to create subscriptions.', 'distributor' ), array( 'status' => rest_authorization_required_code() ) );
+		}
+
+		return true;
+	}
+
+	/**
+	 * Create a subscription
+	 *
+	 * @param  WP_REST_Request $request Full details about the request.
+	 * @since  1.0
+	 * @return WP_REST_Response|\WP_Error Response object on success, or \WP_Error object on failure.
+	 */
+	public function create_item( $request ) {
+		if ( ! empty( $request['id'] ) ) {
+			return new \WP_Error( 'rest_subscription_exists', esc_html__( 'Cannot create existing subscription.', 'distributor' ), array( 'status' => 400 ) );
+		}
+
+		if ( empty( $request['post_id'] ) ) {
+			return new \WP_Error( 'rest_subscription_post_missing', esc_html__( 'Subscription post does not exist.', 'distributor' ), array( 'status' => 400 ) );
+		}
+
+		$post_id = \Distributor\Subscriptions\create_subscription( $request['post_id'], $request['remote_post_id'], $request['target_url'], $request['signature'] );
+
+		/**
+		 * We need to make sure this post shows up as "distributed"
+		 */
+		$connection_map = get_post_meta( $request['post_id'], 'dt_connection_map', true );
+
+		if ( empty( $connection_map ) ) {
+			$connection_map = [
+				'internal' => [],
+				'external' => [],
+			];
+		}
+
+		if ( empty( $connection_map['external'] ) ) {
+			$connection_map['external'] = [];
+		}
+
+		/**
+		 * We don't know the external connection ID
+		 *
+		 * @Todo: Find a way around this
+		 */
+		$connection_map['external'][-1] = [
+			'post_id' => (int) $request['remote_post_id'],
+			'time'    => time(),
+		];
+
+		update_post_meta( $request['post_id'], 'dt_connection_map', $connection_map );
+
+		$response = rest_ensure_response( $this->get_response_array( $post_id ) );
+
+		$response->set_status( 201 );
+
+		return $response;
+	}
+
+
+	/**
+	 * Ensure user has permissions to delete a subscription
+	 *
+	 * @param  WP_REST_Request $request Full details about the request.
+	 * @since  1.0
+	 * @return true|\WP_Error True if the request has access to delete the item, \WP_Error object otherwise.
+	 */
+	public function delete_item_permissions_check( $request ) {
+		$post = get_post( $request['post_id'] );
+
+		if ( empty( $post ) ) {
+			return new \WP_Error( 'rest_post_invalid_id', esc_html__( 'Invalid post ID.', 'distributor' ), array( 'status' => 404 ) );
+		}
+
+		$subscriptions = get_post_meta( $request['post_id'], 'dt_subscriptions', true );
+
+		if ( empty( $subscriptions[ md5( $request['signature'] ) ] ) ) {
+			return false;
+		}
+
+		return true;
+	}
+
+	/**
+	 * Delete a subscription
+	 *
+	 * @param  WP_REST_Request $request Full details about the request.
+	 * @since  1.0
+	 * @return WP_REST_Response|\WP_Error Response object on success, or \WP_Error object on failure.
+	 */
+	public function delete_item( $request ) {
+		$post = get_post( $request['post_id'] );
+
+		if ( empty( $post ) ) {
+			return new \WP_Error( 'rest_post_invalid_id', esc_html__( 'Invalid post ID.', 'distributor' ), array( 'status' => 404 ) );
+		}
+
+		\Distributor\Subscriptions\delete_subscription( $request['post_id'], $request['signature'] );
+
+		$response = new \WP_REST_Response();
+		$response->set_data( array( 'deleted' => true ) );
+
+		return $response;
+	}
+}
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+
+    <footer>
+		<a href="https://distributorplugin.com/">Distributor Plugin</a> &bull;
+		<a href="https://github.com/10up/distributor/">Distributor on GitHub</a> &bull;
+		<a href="https://10up.com/careers">Careers at 10up</a>
+	</footer>
+
+	
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Actions</h3><ul><li><a href="dt_after_set_meta.html">dt_after_set_meta</a></li><li><a href="dt_link_post.html">dt_link_post</a></li><li><a href="dt_log_sync.html">dt_log_sync</a></li><li><a href="dt_oauth_admin_notices.html">dt_oauth_admin_notices</a></li><li><a href="dt_process_distributor_attributes.html">dt_process_distributor_attributes</a></li><li><a href="dt_process_subscription_attributes.html">dt_process_subscription_attributes</a></li><li><a href="dt_pull_filters.html">dt_pull_filters</a></li><li><a href="dt_pull_list_table_custom_column.html">dt_pull_list_table_custom_column</a></li><li><a href="dt_pull_post.html">dt_pull_post</a></li><li><a href="dt_push_post.html">dt_push_post</a></li><li><a href="dt_unlink_post.html">dt_unlink_post</a></li></ul><h3>Filters</h3><ul><li><a href="distributable_post_types.html">distributable_post_types</a></li><li><a href="distributor_get_original_site_link.html">distributor_get_original_site_link</a></li><li><a href="dt_ajax_requires_with_credentials.html">dt_ajax_requires_with_credentials</a></li><li><a href="dt_allow_post_unlink.html">dt_allow_post_unlink</a></li><li><a href="dt_allowed_media_extensions.html">dt_allowed_media_extensions</a></li><li><a href="dt_auth_format_get_args.html">dt_auth_format_get_args</a></li><li><a href="dt_auth_format_post_args.html">dt_auth_format_post_args</a></li><li><a href="dt_auth_prepare_credentials.html">dt_auth_prepare_credentials</a></li><li><a href="dt_authorized_sites.html">dt_authorized_sites</a></li><li><a href="dt_available_pull_post_types.html">dt_available_pull_post_types</a></li><li><a href="dt_available_push_post_types.html">dt_available_push_post_types</a></li><li><a href="dt_blacklisted_meta.html">dt_blacklisted_meta</a></li><li><a href="dt_capabilities.html">dt_capabilities</a></li><li><a href="dt_create_missing_terms.html">dt_create_missing_terms</a></li><li><a href="dt_debug_info_enabled.html">dt_debug_info_enabled</a></li><li><a href="dt_distributable_post_statuses.html">dt_distributable_post_statuses</a></li><li><a href="dt_external_capabilities.html">dt_external_capabilities</a></li><li><a href="dt_get_media_details.html">dt_get_media_details</a></li><li><a href="dt_get_pull_content_rest_query_args.html">dt_get_pull_content_rest_query_args</a></li><li><a href="dt_get_rest_url.html">dt_get_rest_url</a></li><li><a href="dt_item_mapping.html">dt_item_mapping</a></li><li><a href="dt_media_item_formatted.html">dt_media_item_formatted</a></li><li><a href="dt_media_processing_filename.html">dt_media_processing_filename</a></li><li><a href="dt_network_site_connection_enabled.html">dt_network_site_connection_enabled</a></li><li><a href="dt_pre_get_authorized_sites.html">dt_pre_get_authorized_sites</a></li><li><a href="dt_process_media_args.html">dt_process_media_args</a></li><li><a href="dt_process_media_save_source_file_path.html">dt_process_media_save_source_file_path</a></li><li><a href="dt_pull_as_draft.html">dt_pull_as_draft</a></li><li><a href="dt_pull_capabilities.html">dt_pull_capabilities</a></li><li><a href="dt_pull_list_table_columns.html">dt_pull_list_table_columns</a></li><li><a href="dt_pull_list_table_tr_class.html">dt_pull_list_table_tr_class</a></li><li><a href="dt_pull_post_apply_rendered_content.html">dt_pull_post_apply_rendered_content</a></li><li><a href="dt_pull_post_args.html">dt_pull_post_args</a></li><li><a href="dt_pull_post_media.html">dt_pull_post_media</a></li><li><a href="dt_pull_post_meta.html">dt_pull_post_meta</a></li><li><a href="dt_pull_post_terms.html">dt_pull_post_terms</a></li><li><a href="dt_push_capabilities.html">dt_push_capabilities</a></li><li><a href="dt_push_post_args.html">dt_push_post_args</a></li><li><a href="dt_push_post_media.html">dt_push_post_media</a></li><li><a href="dt_push_post_meta.html">dt_push_post_meta</a></li><li><a href="dt_push_post_terms.html">dt_push_post_terms</a></li><li><a href="dt_push_post_timeout.html">dt_push_post_timeout</a></li><li><a href="dt_remote_get.html">dt_remote_get</a></li><li><a href="dt_remote_get_query_args.html">dt_remote_get_query_args</a></li><li><a href="dt_remote_get_url.html">dt_remote_get_url</a></li><li><a href="dt_remote_post.html">dt_remote_post</a></li><li><a href="dt_remote_post_query_args.html">dt_remote_post_query_args</a></li><li><a href="dt_remote_post_timeout.html">dt_remote_post_timeout</a></li><li><a href="dt_set_media_args.html">dt_set_media_args</a></li><li><a href="dt_subscription_post_args.html">dt_subscription_post_args</a></li><li><a href="dt_subscription_post_timeout.html">dt_subscription_post_timeout</a></li><li><a href="dt_sync_media_delete_and_replace.html">dt_sync_media_delete_and_replace</a></li><li><a href="dt_sync_meta.html">dt_sync_meta</a></li><li><a href="dt_syncable_taxonomies.html">dt_syncable_taxonomies</a></li><li><a href="dt_syndicatable_capabilities.html">dt_syndicatable_capabilities</a></li><li><a href="dt_update_content_via_request_args.html">dt_update_content_via_request_args</a></li><li><a href="dt_update_term_hierarchy.html">dt_update_term_hierarchy</a></li><li><a href="dt_use_block_editor_for_post_type.html">dt_use_block_editor_for_post_type</a></li></ul><h3>Tutorials</h3><ul><li><a href="tutorial-snippets.html">snippets</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>
