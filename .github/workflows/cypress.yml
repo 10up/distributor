@@ -21,18 +21,6 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v3
-    - name: Use desired version of NodeJS
-      uses: actions/setup-node@v1
-      with:
-        node-version-file: '.nvmrc'
-        cache: npm
-
-    - name: Install node 16 via nvm
-      run: nvm install 16
-
-    - name: Use node 16 via nvm
-      run: nvm use 16
-
     - name: Check versions
       run: npm -v; node -v
 
