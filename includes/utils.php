@@ -245,21 +245,25 @@ function set_meta( $post_id, $meta ) {
  * @return array
  */
 function available_pull_post_types( $connection, $type ) {
-	$post_types        = array();
-	$local_post_types  = array();
-	$remote_post_types = $connection->get_post_types();
+	$post_types               = array();
+	$local_post_types         = array();
+	$remote_post_types        = $connection->get_post_types();
+	$distributable_post_types = distributable_post_types();
 
-	if ( ! empty( $remote_post_types ) && ! is_wp_error( $remote_post_types ) ) {
-		$local_post_types     = array_diff_key( get_post_types( [ 'public' => true ], 'objects' ), array_flip( [ 'attachment', 'dt_ext_connection', 'dt_subscription' ] ) );
-		$available_post_types = array_intersect_key( $remote_post_types, $local_post_types );
+	// Return empty array, if the source site is not distributing any post type.
+	if ( empty( $remote_post_types ) || is_wp_error( $remote_post_types ) ) {
+		return [];
+	}
 
-		if ( ! empty( $available_post_types ) ) {
-			foreach ( $available_post_types as $post_type ) {
-				$post_types[] = array(
-					'name' => 'external' === $type ? $post_type['name'] : $post_type->label,
-					'slug' => 'external' === $type ? $post_type['slug'] : $post_type->name,
-				);
-			}
+	$local_post_types     = array_diff_key( get_post_types( [ 'public' => true ], 'objects' ), array_flip( [ 'attachment', 'dt_ext_connection', 'dt_subscription' ] ) );
+	$available_post_types = array_intersect_key( $remote_post_types, $local_post_types );
+
+	if ( ! empty( $available_post_types ) ) {
+		foreach ( $available_post_types as $post_type ) {
+			$post_types[] = array(
+				'name' => 'external' === $type ? $post_type['name'] : $post_type->label,
+				'slug' => 'external' === $type ? $post_type['slug'] : $post_type->name,
+			);
 		}
 	}
 
@@ -271,28 +275,49 @@ function available_pull_post_types( $connection, $type ) {
 	 * @since 1.3.5
 	 * @hook dt_available_pull_post_types
 	 *
-	 * @param {array}                   $post_types        Post types available for pull with name and slug.
-	 * @param {array}                   $remote_post_types Post types available from the remote connection.
-	 * @param {array}                   $local_post_types  Post types registered as public on the local site.
-	 * @param {Connection}              $connection        Distributor connection object.
-	 * @param {string}                  $type              Distributor connection type.
+	 * @param {array}      $post_types        Post types available for pull with name and slug.
+	 * @param {array}      $remote_post_types Post types available from the remote connection.
+	 * @param {array}      $local_post_types  Post types registered as public on the local site.
+	 * @param {Connection} $connection        Distributor connection object.
+	 * @param {string}     $type              Distributor connection type.
 	 *
 	 * @return {array} Post types available for pull with name and slug.
 	 */
-	return apply_filters( 'dt_available_pull_post_types', $post_types, $remote_post_types, $local_post_types, $connection, $type );
+	$pull_post_types = apply_filters( 'dt_available_pull_post_types', $post_types, $remote_post_types, $local_post_types, $connection, $type );
+
+	if ( ! empty( $pull_post_types ) ) {
+		$post_types = array();
+		foreach ( $pull_post_types as $post_type ) {
+			if ( in_array( $post_type['slug'], $distributable_post_types, true ) ) {
+				$post_types[] = $post_type;
+			}
+		}
+	}
+
+	return $post_types;
 }
 
 /**
  * Return post types that are allowed to be distributed
  *
+ * @param string $output Optional. The type of output to return.
+ *                       Accepts post type 'names' or 'objects'. Default 'names'.
+ *
  * @since  1.0
+ * @since  1.7.0 $output parameter introduced.
  * @return array
  */
-function distributable_post_types() {
-	$post_types = get_post_types( [ 'public' => true ] );
+function distributable_post_types( $output = 'names' ) {
+	$post_types = array_filter( get_post_types(), 'is_post_type_viewable' );
 
-	if ( ! empty( $post_types['attachment'] ) ) {
-		unset( $post_types['attachment'] );
+	$exclude_post_types = [
+		'attachment',
+		'dt_ext_connection',
+		'dt_subscription',
+	];
+
+	foreach ( $exclude_post_types as $exclude_post_type ) {
+		unset( $post_types[ $exclude_post_type ] );
 	}
 
 	/**
@@ -301,48 +326,21 @@ function distributable_post_types() {
 	 * @since 1.0.0
 	 * @hook distributable_post_types
 	 *
-	 * @param {array} Post types that are distributable. Default all post types except `dt_ext_connection` and `dt_subscription`.
+	 * @param {array} Post types that are distributable.
 	 *
 	 * @return {array} Post types that are distributable.
 	 */
-	return apply_filters( 'distributable_post_types', array_diff( $post_types, [ 'dt_ext_connection', 'dt_subscription' ] ) );
-}
+	$post_types = apply_filters( 'distributable_post_types', $post_types );
 
-/**
- * Return post types that should be excluded from the permission list.
- *
- * @since  1.7.0
- * @return array
- */
-function get_excluded_post_types_from_permission_list() {
-	// Hide the built-in post types except 'post' and 'page'.
-	$hide_from_list = get_post_types(
-		array(
-			'_builtin'     => true,
-			'show_in_rest' => true,
-		)
-	);
-	unset( $hide_from_list['post'], $hide_from_list['page'] );
+	// Remove unregistered post types added via the filter.
+	$post_types = array_filter( $post_types, 'post_type_exists' );
 
-	// Default is keyed by the post type 'post' => 'post', etc; hence using `array_values`.
-	$hide_from_list = array_values( $hide_from_list );
+	if ( 'objects' === $output ) {
+		// Convert to objects.
+		$post_types = array_map( 'get_post_type_object', $post_types );
+	}
 
-	/**
-	 * Filter to update the list of post types that should be hidden from the "Post types permissions" list.
-	 *
-	 * @since 1.7.0
-	 * @hook dt_excluded_post_types_from_permission_list
-	 *
-	 * @param {array} The list of hidden post types.
-	 *
-	 * @return {bool} The updated array with the list of post types that should be hidden.
-	 */
-	$hide_from_list = apply_filters( 'dt_excluded_post_types_from_permission_list', $hide_from_list );
-
-	// Strict Hide 'dt_subscription' post type.
-	$hide_from_list[] = 'dt_subscription';
-
-	return $hide_from_list;
+	return $post_types;
 }
 
 /**
@@ -1122,7 +1120,7 @@ function set_media_errors( $post_id, $data ) {
 /**
  * Reduce arguments passed to wp_insert_post to approved arguments only.
  *
- * @since x.x.x
+ * @since 1.7.0
  *
  * @link http://developer.wordpress.org/reference/functions/wp_insert_post/ wp_insert_post() documentation.
  *

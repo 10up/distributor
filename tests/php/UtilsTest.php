@@ -869,7 +869,7 @@ class UtilsTest extends TestCase {
 	 /**
 	  * Test post_args_allow_list
 	  *
-	  * @since x.x.x
+	  * @since 1.7.0
 	  */
 	function test_post_args_allow_list() {
 		$post_args = [

@@ -1,6 +1,6 @@
 {
   "name": "distributor",
-  "version": "1.6.9",
+  "version": "1.7.0",
   "description": "Distributor is a WordPress plugin that makes it easy to distribute and reuse content across your websites — whether in a single multisite or across the web.",
   "homepage": "https://github.com/10up/distributor#readme",
   "license": "GPL-2.0-or-later",

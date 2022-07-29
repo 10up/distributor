@@ -454,12 +454,7 @@ function meta_box_external_connection_details( $post ) {
 
 	$external_connection_status = get_post_meta( $post->ID, 'dt_external_connections', true );
 
-	$post_types = get_post_types(
-		array(
-			'show_in_rest' => true,
-		),
-		'objects'
-	);
+	$post_types = \Distributor\Utils\distributable_post_types( 'objects' );
 
 	$registered_external_connection_types = \Distributor\Connections::factory()->get_registered();
 
@@ -544,20 +539,13 @@ function meta_box_external_connection_details( $post ) {
 					<th><?php esc_html_e( 'Can push?', 'distributor' ); ?></th>
 				</thead>
 				<tbody>
-					<?php
-					$hide_from_list = \Distributor\Utils\get_excluded_post_types_from_permission_list();
-
-					foreach ( $post_types as $post_type ) :
-						if ( in_array( $post_type->name, $hide_from_list, true ) ) {
-							continue;
-						}
-						?>
-						<tr>
-							<td><?php echo esc_html( $post_type->label ); ?></td>
-							<td><?php echo in_array( $post_type->name, $external_connection_status['can_get'] ) ? esc_html__( 'Yes', 'distributor' ) : esc_html__( 'No', 'distributor' ); ?></td>
-							<td><?php echo in_array( $post_type->name, $external_connection_status['can_post'] ) ? esc_html__( 'Yes', 'distributor' ) : esc_html__( 'No', 'distributor' ); ?></td>
-						</tr>
-					<?php endforeach; ?>
+				<?php foreach ( $post_types as $post_type ) : ?>
+					<tr>
+						<td><?php echo esc_html( $post_type->label ); ?></td>
+						<td><?php echo in_array( $post_type->name, $external_connection_status['can_get'] ) ? esc_html__( 'Yes', 'distributor' ) : esc_html__( 'No', 'distributor' ); ?></td>
+						<td><?php echo in_array( $post_type->name, $external_connection_status['can_post'] ) ? esc_html__( 'Yes', 'distributor' ) : esc_html__( 'No', 'distributor' ); ?></td>
+					</tr>
+				<?php endforeach; ?>
 				</tbody>
 			</table>
 		</div>
