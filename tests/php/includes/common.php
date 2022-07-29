@@ -167,7 +167,7 @@ function remote_get_setup() {
 	];
 
 	\WP_Mock::userFunction(
-		'wp_remote_get', [
+		'wp_remote_request', [
 			'return' => json_encode(
 				[
 					$post_type => $links,

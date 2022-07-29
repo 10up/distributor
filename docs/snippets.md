@@ -73,3 +73,18 @@ add_action( 'template_redirect', function () {
     remove_filter( 'wpseo_canonical', array( '\Distributor\ExternalConnections\WordPressExternalConnection', 'wpseo_canonical_url' ) );
 }, 20 );
 ```
+
+### Push original publication date
+
+```php
+/**
+ * Keep the publication date on the new pushed post.
+ *
+ * This filter is used to filter the arguments sent to the remote server during a push. The below code snippet passes the original published date to the new pushed post and sets the same published date instead of setting it as per the current time.
+ */
+add_filter( 'dt_push_post_args', function( $post_body, $post ) {
+    $post_body['post_date'] = $post->post_date;
+
+    return $post_body;
+}, 10, 2 );
+```
