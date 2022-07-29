@@ -22,11 +22,11 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v3
 
-    - name: nvm
-      shell: >
-        curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash
-      args:
-        creates: "{{ ansible_env.HOME }}/.nvm/nvm.sh"
+    - name: Use desired version of NodeJS
+        uses: actions/setup-node@1
+        with:
+          node-version-file: '.nvmrc'
+          cache: npm
 
     - name: Install node 16 via nvm
       run: nvm install 16
