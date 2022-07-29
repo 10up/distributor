@@ -44,7 +44,7 @@
     "babel-loader": "^8.1.0",
     "compare-versions": "^3.6.0",
     "cssnano": "^4.1.10",
-    "cypress": "^10.2.0",
+    "cypress": "^8.5.0",
     "del": "^5.1.0",
     "eslint": "^6.8.0",
     "eslint-loader": "^3.0.4",
