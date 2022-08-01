@@ -7,6 +7,13 @@
 	--backgroundColorDark: #23282d;
 }
 
+$fontColor: #eee;
+$backgroundColor: #32373c;
+
+$mediaSmallScreen : "min-width: 480px";
+$mediaMediumScreen : "min-width: 768px";
+$mediaGutenbergSmallScreen : "min-width: 782px";
+
 @custom-media --small-screen (min-width: 480px);
 @custom-media --medium-screen (min-width: 768px);
 @custom-media --gutenberg-small-screen (max-width: 782px);
@@ -35,7 +42,7 @@
 	box-shadow: 0px 2px 1px 0px rgba(0,0,0,1);
 	line-height: 1.5;
 
-	@media (--small-screen) {
+	@media ($mediaSmallScreen) {
 		padding: 2em 0;
 	}
 }
@@ -132,7 +139,7 @@
 }
 
 #wpadminbar #distributor-push-wrapper {
-	@media (--small-screen) {
+	@media ($mediaSmallScreen) {
 		position: fixed;
 
 		& .connections-selector {
@@ -185,13 +192,13 @@
 	margin-bottom: .5em;
 
 	&::placeholder {
-		color: color(var(--fontColor) blackness(50%));
+		color: adjust-color($fontColor, $blackness: 50%);
 	}
 
 	&:focus {
 		color: var(--fontColor);
 		background-color: var(--backgroundColor);
-		border-color: color(var(--fontColor) blackness(50%));
+		border-color: adjust-color($fontColor, $blackness: 50%);
 	}
 }
 
@@ -264,7 +271,7 @@
 }
 
 #wpadminbar #distributor-push-wrapper .new-connections-list .add-connection.added {
-	background-color: color(var(--backgroundColor) lightness(40%));
+	background-color: adjust-color($backgroundColor, $lightness: 40% );
 }
 
 #wpadminbar #distributor-push-wrapper .add-connection.syndicated {
@@ -368,7 +375,7 @@
 	border-top: 3px solid #cfcfcf;
 	border-right: 3px solid #cfcfcf;
 	border-bottom: 3px solid #cfcfcf;
-	border-left: 3px solid color(#0085ba blackness(5%));
+	border-left: 3px solid adjust-color(#0085ba, $blackness: 5%);
 	transform: translateZ(0);
 	animation: load8 1.1s infinite linear;
 	position: relative;
@@ -380,7 +387,7 @@
 	margin-top: 1em;
 	box-sizing: border-box;
 
-	@media (--small-screen) {
+	@media ($mediaSmallScreen) {
 		width: 40%;
 		float: right;
 		clear: right;
@@ -423,7 +430,7 @@
 }
 
 #wpadminbar #distributor-push-wrapper .loader-messages {
-	@media (--small-screen) {
+	@media ($mediaSmallScreen) {
 		width: 100%;
 		float: none;
 		padding-left: 0;
@@ -431,7 +438,7 @@
 }
 
 .distributor-panel {
-	@media (--gutenberg-small-screen) {
+	@media ($mediaGutenbergSmallScreen) {
 		display: none;
 	}
 }

@@ -1,3 +1,5 @@
+import '../css/admin-distributed-post.css';
+
 import jQuery from 'jquery';
 
 const openLinks      = document.querySelectorAll( '.open-distributor-help' );

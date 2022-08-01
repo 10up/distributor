@@ -1,7 +1,10 @@
+import '../css/push.scss';
+
 import jQuery from 'jquery';
-import _ from 'underscores';
-import { dt } from 'window';
+import _ from 'underscore';
 import Mustache from 'mustache';
+
+const { dt } = window;
 
 let selectedConnections = {},
 	searchString        = '';

@@ -1,13 +1,17 @@
+import '../css/admin-external-connection.css';
+
 import jQuery from 'jquery';
-import _ from 'underscores';
-import { dt, ajaxurl } from 'window';
+import _ from 'underscore';
 import {
 	addQueryArgs,
 	isURL,
 	prependHTTP,
 } from '@wordpress/url';
+import { speak } from '@wordpress/a11y';
 import compareVersions from 'compare-versions';
-import wp from 'wp';
+
+
+const { dt, ajaxurl } = window;
 
 const [ body ]                    = document.getElementsByTagName( 'body' );
 const externalConnectionUrlField  = document.getElementById( 'dt_external_connection_url' );
@@ -249,11 +253,11 @@ function checkConnections() {
 
 					endpointResult.appendChild( suggestion );
 
-					wp.a11y.speak( `${ dt.endpoint_suggestion } ${ response.data.endpoint_suggestion }`, 'polite' );
+					speak( `${ dt.endpoint_suggestion } ${ response.data.endpoint_suggestion }`, 'polite' );
 				} else {
 					endpointResult.innerText = dt.bad_connection;
 
-					wp.a11y.speak( dt.bad_connection, 'polite' );
+					speak( dt.bad_connection, 'polite' );
 				}
 			} else {
 				if ( response.data.errors.no_distributor || ! response.data.can_post.length ) {
@@ -264,9 +268,9 @@ function checkConnections() {
 
 					if ( response.data.errors.no_distributor ) {
 						endpointResult.innerText += ` ${ dt.no_distributor }`;
-						wp.a11y.speak( `${ dt.limited_connection } ${ dt.no_distributor }`, 'polite' );
+						speak( `${ dt.limited_connection } ${ dt.no_distributor }`, 'polite' );
 					} else {
-						wp.a11y.speak( `${ dt.limited_connection }`, 'polite' );
+						speak( `${ dt.limited_connection }`, 'polite' );
 					}
 
 					if ( 'no' === response.data.is_authenticated ) {
@@ -290,7 +294,7 @@ function checkConnections() {
 					endpointResult.setAttribute( 'data-endpoint-state', 'valid' );
 					endpointResult.innerText = dt.good_connection;
 
-					wp.a11y.speak( dt.good_connection, 'polite' );
+					speak( dt.good_connection, 'polite' );
 				}
 			}
 		}

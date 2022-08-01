@@ -1,6 +1,9 @@
+import '../css/admin-pull-table.scss';
+
 import jQuery from 'jquery';
 import { addQueryArgs } from '@wordpress/url';
-import { dt } from 'window';
+
+const { dt } = window;
 
 const chooseConnection = document.getElementById( 'pull_connections' );
 const choosePostType = document.getElementById( 'pull_post_type' );

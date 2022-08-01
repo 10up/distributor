@@ -1,11 +1,13 @@
-import { wp, dtGutenberg } from 'window';
 import PluginIcon from '../img/icon.svg'; // eslint-disable-line no-unused-vars
 
-const { Icon } = wp.components; // eslint-disable-line no-unused-vars
-const { select, useSelect } = wp.data;
-const { PluginDocumentSettingPanel } = wp.editPost; // eslint-disable-line no-unused-vars
-const { __, sprintf } = wp.i18n;
-const { registerPlugin } = wp.plugins;
+import { Icon } from '@wordpress/components'; // eslint-disable-line no-unused-vars
+import { select, useSelect } from '@wordpress/data';
+import { PluginDocumentSettingPanel } from '@wordpress/edit-post'; // eslint-disable-line no-unused-vars
+import { __, sprintf } from '@wordpress/i18n';
+import { registerPlugin } from '@wordpress/plugins';
+
+const { dtGutenberg } = window;
+
 
 /**
  * Add ability to show the admin bar, if needed
