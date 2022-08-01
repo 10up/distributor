@@ -3,7 +3,21 @@ const DependencyExtractionWebpackPlugin = require( '@wordpress/dependency-extrac
 const MiniCSSExtractPlugin = require( 'mini-css-extract-plugin' );
 const { basename, dirname, resolve } = require( 'path' );
 
-// const DIST_PATH = resolve( './dist/js' );
+/**
+ * Generate CSS file name.
+ *
+ * CSS only entry points are indicated with the suffix `-css` in the entry. This
+ * suffix is removed from the file name to avoid the tortologist `-css.css`.
+ *
+ * @param {object} pathData Entry point path data.
+ * @return {string} Resolved file name.
+ */
+const cssFileName = ( pathData ) => {
+	let name = pathData.chunk.name;
+	name = name.replace( /\-css$/, '' );
+
+	return `css/${name}.css`;
+};
 
 module.exports = {
 	...defaultConfig,
@@ -36,7 +50,7 @@ module.exports = {
 			( plugin ) =>
 				plugin.constructor.name !== 'DependencyExtractionWebpackPlugin' && plugin.constructor.name !== 'MiniCssExtractPlugin'
 		),
-		new MiniCSSExtractPlugin( { filename: 'css/[name].css' } ),
+		new MiniCSSExtractPlugin( { filename: cssFileName } ),
 		new DependencyExtractionWebpackPlugin( {
 			injectPolyfill: true,
 			combineAssets: true,
