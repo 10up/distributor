@@ -10,60 +10,28 @@
     "url": "https://10up.com"
   },
   "scripts": {
-    "build": "gulp",
-    "lint": "eslint assets/js",
-    "lint-fix": "eslint assets/js --fix",
-    "js": "gulp js",
-    "watch": "gulp watch",
-    "css": "gulp css",
-    "postinstall": "gulp",
-    "makepot": "wpi18n makepot && echo '.pot file updated'",
-    "release": "rm -rf release/ && git worktree prune && npm run build && git fetch && git worktree add -B stable release origin/stable && gulp copy",
-    "build:docs": "rm -rf hook_docs && jsdoc -c hookdoc-conf.json distributor.php includes"
+    "build": "wp-scripts build",
+    "check-engines": "wp-scripts check-engines",
+    "check-licenses": "wp-scripts check-licenses",
+    "format": "wp-scripts format",
+    "lint:css": "wp-scripts lint-style",
+    "lint:js": "wp-scripts lint-js",
+    "lint:md:docs": "wp-scripts lint-md-docs",
+    "lint:pkg-json": "wp-scripts lint-pkg-json",
+    "packages-update": "wp-scripts packages-update",
+    "plugin-zip": "wp-scripts plugin-zip",
+    "start": "wp-scripts start",
+    "test:e2e": "wp-scripts test-e2e",
+    "test:unit": "wp-scripts test-unit-js"
   },
   "devDependencies": {
-    "@10up/eslint-config": "^1.0.9",
-    "@babel/cli": "^7.8.4",
-    "@babel/core": "^7.9.6",
-    "@babel/preset-env": "^7.9.6",
-    "@babel/preset-react": "^7.9.4",
-    "@babel/register": "^7.9.0",
-    "@types/mustache": "^4.0.1",
     "@wordpress/scripts": "^23.5.0",
-    "@wordpress/url": "^2.5.0",
-    "babel-eslint": "^10.1.0",
-    "babel-loader": "^8.1.0",
-    "compare-versions": "^3.6.0",
-    "cssnano": "^4.1.10",
-    "del": "^5.1.0",
-    "eslint": "^6.8.0",
-    "eslint-loader": "^3.0.4",
-    "gulp": "^4.0.2",
-    "gulp-cli": "^2.2.1",
-    "gulp-filter": "^6.0.0",
-    "gulp-livereload": "^4.0.2",
-    "gulp-postcss": "^8.0.0",
-    "gulp-rename": "^1.4.0",
-    "gulp-sourcemaps": "^2.6.5",
-    "gulp4-run-sequence": "^1.0.1",
-    "imports-loader": "^0.8.0",
-    "jsdoc": "^3.6.4",
-    "natives": "^1.1.6",
-    "node-wp-i18n": "^1.2.3",
-    "postcss-cssnext": "^3.1.0",
-    "postcss-import": "^12.0.1",
-    "pump": "^3.0.0",
-    "require-dir": "^1.2.0",
-    "run-sequence": "^2.2.1",
-    "svg-react-loader": "^0.4.6",
-    "webpack": "^4.43.0",
-    "webpack-stream": "^5.2.1",
-    "wp-hookdoc": "^0.2.0"
+    "compare-versions": "^4.1.3"
   },
   "engines": {
-    "node": ">=8.9.10"
+    "node": ">=12.13.0"
   },
   "dependencies": {
-    "mustache": "^4.0.1"
+    "mustache": "^4.2.0"
   }
 }
