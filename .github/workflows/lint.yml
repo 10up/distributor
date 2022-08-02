@@ -19,10 +19,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2.4.0
-    - name: install node v12
+    - name: install node v16
       uses: actions/setup-node@v1
       with:
-        node-version: 12
+        node-version: 16
     - name: npm install
       run: npm install
     - name: eslint
