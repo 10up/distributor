@@ -16,14 +16,14 @@ const cssFileName = ( pathData ) => {
 	let name = pathData.chunk.name;
 	name = name.replace( /\-css$/, '' );
 
-	return `css/${name}.css`;
+	return `css/${ name }.min.css`;
 };
 
 module.exports = {
 	...defaultConfig,
 	output: {
 		...defaultConfig.output,
-		filename: 'js/[name].js',
+		filename: 'js/[name].min.js',
 		path: resolve( process.cwd(), 'dist' ),
 	},
 	entry: {
