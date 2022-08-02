@@ -16,17 +16,17 @@ const pullLinks = document.querySelectorAll( '.distributor_page_pull .pull a' );
 const { pull: pullText, as_draft: pullAsDraftText } = dt;
 
 jQuery( chooseConnection ).on( 'change', ( event ) => {
-
-	document.location = event.currentTarget.options[event.currentTarget.selectedIndex].getAttribute( 'data-pull-url' );
+	document.location =
+		event.currentTarget.options[
+			event.currentTarget.selectedIndex
+		].getAttribute( 'data-pull-url' );
 
 	document.body.className += ' ' + 'dt-loading';
 } );
 
 if ( chooseConnection && choosePostType && form ) {
-
 	if ( choosePostTypeBtn ) {
 		jQuery( choosePostTypeBtn ).on( 'click', ( event ) => {
-
 			event.preventDefault();
 
 			document.location = getURL();
@@ -51,29 +51,25 @@ if ( chooseConnection && choosePostType && form ) {
 		jQuery( asDraftCheckboxes ).on( 'change', ( event ) => {
 			if ( event.currentTarget.checked ) {
 				for ( let i = 0; i < asDraftCheckboxes.length; ++i ) {
-					asDraftCheckboxes[i].checked = true;
+					asDraftCheckboxes[ i ].checked = true;
 				}
 
 				for ( let i = 0; i < pullLinks.length; ++i ) {
-					pullLinks[i].href = addQueryArgs( pullLinks[i].href,
-						{
-							dt_as_draft: 'draft', /*eslint camelcase: 0*/
-						}
-					);
-					pullLinks[i].text = pullAsDraftText;
+					pullLinks[ i ].href = addQueryArgs( pullLinks[ i ].href, {
+						dt_as_draft: 'draft' /*eslint camelcase: 0*/,
+					} );
+					pullLinks[ i ].text = pullAsDraftText;
 				}
 			} else {
 				for ( let i = 0; i < asDraftCheckboxes.length; ++i ) {
-					asDraftCheckboxes[i].checked = false;
+					asDraftCheckboxes[ i ].checked = false;
 				}
 
 				for ( let i = 0; i < pullLinks.length; ++i ) {
-					pullLinks[i].href = addQueryArgs( pullLinks[i].href,
-						{
-							dt_as_draft: '', /*eslint camelcase: 0*/
-						}
-					);
-					pullLinks[i].text = pullText;
+					pullLinks[ i ].href = addQueryArgs( pullLinks[ i ].href, {
+						dt_as_draft: '' /*eslint camelcase: 0*/,
+					} );
+					pullLinks[ i ].text = pullText;
 				}
 			}
 		} );
@@ -83,16 +79,20 @@ if ( chooseConnection && choosePostType && form ) {
 /**
  * Build our Distribution URL.
  *
- * @return {string}
+ * @return {string} Distribution URL.
  */
 const getURL = () => {
-	const postType = choosePostType.options[ choosePostType.selectedIndex ].value;
-	const baseURL = chooseConnection.options[ chooseConnection.selectedIndex ].getAttribute( 'data-pull-url' );
+	const postType =
+		choosePostType.options[ choosePostType.selectedIndex ].value;
+	const baseURL =
+		chooseConnection.options[ chooseConnection.selectedIndex ].getAttribute(
+			'data-pull-url'
+		);
 	let status = 'new';
 
-	if ( -1 < ( ` ${ form.className } ` ).indexOf( ' status-skipped ' ) ) {
+	if ( -1 < ` ${ form.className } `.indexOf( ' status-skipped ' ) ) {
 		status = 'skipped';
-	} else if ( -1 < ( ` ${ form.className } ` ).indexOf( ' status-pulled ' ) ) {
+	} else if ( -1 < ` ${ form.className } `.indexOf( ' status-pulled ' ) ) {
 		status = 'pulled';
 	}
 

@@ -1,35 +1,47 @@
-import PluginIcon from '../img/icon.svg'; // eslint-disable-line no-unused-vars
+import PluginIcon from '../img/icon.svg';
 
-import { Icon } from '@wordpress/components'; // eslint-disable-line no-unused-vars
+import { Icon } from '@wordpress/components';
 import { select, useSelect } from '@wordpress/data';
-import { PluginDocumentSettingPanel } from '@wordpress/edit-post'; // eslint-disable-line no-unused-vars
+import { PluginDocumentSettingPanel } from '@wordpress/edit-post';
 import { __, sprintf } from '@wordpress/i18n';
 import { registerPlugin } from '@wordpress/plugins';
 
-const { dtGutenberg } = window;
-
+const { dtGutenberg, MouseEvent } = window;
 
 /**
  * Add ability to show the admin bar, if needed
  */
-const RenderShowAdminBar = () => { // eslint-disable-line no-unused-vars
+const RenderShowAdminBar = () => {
 	const bodyClasses = document.body.classList;
-	const isFullScreenMode = select( 'core/edit-post' ).isFeatureActive( 'fullscreenMode' );
-	const distributorTopMenu = document.querySelector( '#wp-admin-bar-distributor' );
-	const distributorAdminItem = document.querySelector( '#wp-admin-bar-distributor > a' );
 
 	// Don't show anything if this is a distributed item
 	if ( 0 !== parseInt( dtGutenberg.syndicationTime ) ) {
 		return null;
 	}
 
+	const distributorTopMenu = document.querySelector(
+		'#wp-admin-bar-distributor'
+	);
+
+	const distributorAdminItem = document.querySelector(
+		'#wp-admin-bar-distributor > a'
+	);
+
 	if ( ! distributorTopMenu || ! distributorAdminItem ) {
 		return (
 			<div className="distributor-toggle">
-				<span>{ __( 'Refresh page to see distribution options', 'distributor' ) }</span>
+				<span>
+					{ __(
+						'Refresh page to see distribution options',
+						'distributor'
+					) }
+				</span>
 			</div>
 		);
 	}
+
+	const isFullScreenMode =
+		select( 'core/edit-post' ).isFeatureActive( 'fullscreenMode' );
 
 	return (
 		<div className="distributor-toggle">
@@ -49,7 +61,11 @@ const RenderShowAdminBar = () => { // eslint-disable-line no-unused-vars
 					distributorAdminItem.dispatchEvent( mouseEvent );
 				} }
 			>
-				{ sprintf( __( 'Distribute %1$s', 'distributor' ), dtGutenberg.postTypeSingular || 'Content' ) }
+				{ sprintf(
+					/** translators: 1: Post type or generic term content. */
+					__( 'Distribute %1$s', 'distributor' ),
+					dtGutenberg.postTypeSingular || 'Content'
+				) }
 			</button>
 		</div>
 	);
@@ -58,14 +74,17 @@ const RenderShowAdminBar = () => { // eslint-disable-line no-unused-vars
 /**
  * Render the draft message
  */
-const RenderDraftMessage = () => { // eslint-disable-line no-unused-vars
+const RenderDraftMessage = () => {
 	if ( 0 !== parseInt( dtGutenberg.syndicationTime ) ) {
 		return null;
 	}
 
 	return (
 		<p>
-			{ __( 'Distribution options available once published', 'distributor' ) }
+			{ __(
+				'Distribution options available once published',
+				'distributor'
+			) }
 		</p>
 	);
 };
@@ -73,7 +92,7 @@ const RenderDraftMessage = () => { // eslint-disable-line no-unused-vars
 /**
  * Render the distribution information, if needed
  */
-const RenderDistributionInfo = () => { // eslint-disable-line no-unused-vars
+const RenderDistributionInfo = () => {
 	if ( 0 < parseInt( dtGutenberg.syndicationCount ) ) {
 		return <RenderDistributedTo />;
 	} else if ( 0 !== parseInt( dtGutenberg.syndicationTime ) ) {
@@ -86,12 +105,15 @@ const RenderDistributionInfo = () => { // eslint-disable-line no-unused-vars
 /**
  * Render the distributed to component
  */
-const RenderDistributedTo = () => { // eslint-disable-line no-unused-vars
-	return(
-		<span id='distributed-to'>
-			{ sprintf( __( 'Distributed to %1$s connection%2$s.', 'distributor' ),
+const RenderDistributedTo = () => {
+	return (
+		<span id="distributed-to">
+			{ sprintf(
+				/** translators: 1: Number of connections content distributed to. */
+				__( 'Distributed to %1$s connection%2$s.', 'distributor' ),
 				dtGutenberg.syndicationCount,
-				'1' === dtGutenberg.syndicationCount ? '' : 's' ) }
+				'1' === dtGutenberg.syndicationCount ? '' : 's'
+			) }
 		</span>
 	);
 };
@@ -99,9 +121,9 @@ const RenderDistributedTo = () => { // eslint-disable-line no-unused-vars
 /**
  * Render the distributed from component
  */
-const RenderDistributedFrom = () => { // eslint-disable-line no-unused-vars
-	return(
-		<span id='distributed-from'>
+const RenderDistributedFrom = () => {
+	return (
+		<span id="distributed-from">
 			{ __( 'Distributed on: ', 'distributor' ) }
 			<strong> { dtGutenberg.syndicationTime } </strong>
 		</span>
@@ -124,20 +146,36 @@ const DistributorIcon = () => (
  */
 const DistributorPlugin = () => {
 	// Ensure the user has proper permissions
-	if ( dtGutenberg.noPermissions && 1 === parseInt( dtGutenberg.noPermissions ) ) {
+	if (
+		dtGutenberg.noPermissions &&
+		1 === parseInt( dtGutenberg.noPermissions )
+	) {
 		return null;
 	}
 
-	const postType = useSelect( select => select( 'core/editor' ).getCurrentPostType() );
-	const postStatus = useSelect( select => select( 'core/editor' ).getCurrentPostAttribute( 'status' ) );
+	// eslint-disable-next-line no-shadow, react-hooks/rules-of-hooks -- permission checks are needed.
+	const postType = useSelect( ( select ) =>
+		select( 'core/editor' ).getCurrentPostType()
+	);
+
+	// eslint-disable-next-line no-shadow, react-hooks/rules-of-hooks -- permission checks are needed.
+	const postStatus = useSelect( ( select ) =>
+		select( 'core/editor' ).getCurrentPostAttribute( 'status' )
+	);
 
 	// Ensure we are on a supported post type
-	if ( dtGutenberg.supportedPostTypes && dtGutenberg.supportedPostTypes[ postType ] === undefined ) {
+	if (
+		dtGutenberg.supportedPostTypes &&
+		dtGutenberg.supportedPostTypes[ postType ] === undefined
+	) {
 		return null;
 	}
 
 	// If we are on a non-supported post status, change what we show
-	if ( dtGutenberg.supportedPostStati && ! dtGutenberg.supportedPostStati.includes( postStatus ) ) {
+	if (
+		dtGutenberg.supportedPostStati &&
+		! dtGutenberg.supportedPostStati.includes( postStatus )
+	) {
 		return (
 			<PluginDocumentSettingPanel
 				title={ __( 'Distributor', 'distributor' ) }
