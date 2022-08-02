@@ -44,6 +44,23 @@
 		"plugin-zip": "wp-scripts plugin-zip",
 		"start": "wp-scripts start",
 		"test:e2e": "wp-scripts test-e2e",
-		"test:unit": "wp-scripts test-unit-js"
-	}
+		"test:unit": "wp-scripts test-unit-js",
+		"release" : "wp-scripts build; npm run build:docs; wp-scripts plugin-zip"
+	},
+	"files": [
+		"readme.txt",
+		"README.md",
+		"CHANGELOG.md",
+		"composer.json",
+		"distributor.php",
+		".github/workflows/*",
+		".gitattributes",
+		"assets/img/*",
+		"dist/**/*",
+		"includes/**/*",
+		"lang/**/*",
+		"templates/**/*",
+		"vendor/georgestephanis/application-passwords/**/*",
+		"vendor/yahnis-elsts/plugin-update-checker/**/*"
+	]
 }
