@@ -47,7 +47,7 @@
 		"start": "wp-scripts start",
 		"test:e2e": "wp-scripts test-e2e",
 		"test:unit": "wp-scripts test-unit-js",
-		"release": "wp-scripts build; npm run makepot; npm run build:docs; wp-scripts plugin-zip"
+		"release": "wp-scripts build; npm run makepot; wp-scripts build --config ./webpack.config.release.js"
 	},
 	"files": [
 		"readme.txt",
