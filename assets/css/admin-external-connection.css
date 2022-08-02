@@ -15,12 +15,12 @@
 
 .dt-roles-allowed legend {
 	font-size: 14px;
-	font-weight: 700;
+	font-weight: bold;
 	margin-bottom: 4px;
 }
 
 #dt_external_connection_details .dt-roles-allowed label {
-	font-weight: 400;
+	font-weight: normal;
 	vertical-align: top;
 }
 
@@ -29,7 +29,6 @@
 	display: inline-block;
 	font-weight: bold;
 }
-
 
 #dt_external_connection_details label {
 	font-size: 14px;
@@ -78,8 +77,8 @@
 	font-style: italic;
 }
 
-.endpoint-errors li:before {
-	content: '-';
+.endpoint-errors li::before {
+	content: "-";
 	margin-right: 5px;
 }
 
@@ -87,22 +86,22 @@
 	display: none;
 }
 
-.endpoint-result[data-endpoint-state="loading"]:before {
-	content: ' ';
+.endpoint-result[data-endpoint-state="loading"]::before {
+	content: " ";
 	vertical-align: middle;
-	top: -.25em;
+	top: -0.25em;
 	border-radius: 50%;
-	width: .8em;
+	width: 0.8em;
 	margin-right: 8px;
-	height: .8em;
+	height: 0.8em;
 	display: inline-block;
 	font-size: 9px;
 	position: relative;
 	text-indent: -9999em;
-	border-top: .5em solid #cfcfcf;
-	border-right: .5em solid #cfcfcf;
-	border-bottom: .5em solid #cfcfcf;
-	border-left: .5em solid #666;
+	border-top: 0.5em solid #cfcfcf;
+	border-right: 0.5em solid #cfcfcf;
+	border-bottom: 0.5em solid #cfcfcf;
+	border-left: 0.5em solid #666;
 	-webkit-transform: translateZ(0);
 	-ms-transform: translateZ(0);
 	transform: translateZ(0);
@@ -110,13 +109,13 @@
 	animation: load8 1.1s infinite linear;
 }
 
-.endpoint-result[data-endpoint-state="error"]:before,
-.endpoint-result[data-endpoint-state="warning"]:before,
-.endpoint-result[data-endpoint-state="valid"]:before {
-	content: ' ';
+.endpoint-result[data-endpoint-state="error"]::before,
+.endpoint-result[data-endpoint-state="warning"]::before,
+.endpoint-result[data-endpoint-state="valid"]::before {
+	content: " ";
 	display: inline-block;
 	border-radius: 50%;
-	background-color: #ff0000;
+	background-color: #f00;
 	width: 10px;
 	height: 10px;
 	border: 1px solid #999;
@@ -126,11 +125,11 @@
 	margin-right: 5px;
 }
 
-.endpoint-result[data-endpoint-state="valid"]:before {
+.endpoint-result[data-endpoint-state="valid"]::before {
 	background-color: #62ff00;
 }
 
-.endpoint-result[data-endpoint-state="warning"]:before {
+.endpoint-result[data-endpoint-state="warning"]::before {
 	background-color: #ffe000;
 }
 
@@ -143,10 +142,12 @@
 }
 
 @-webkit-keyframes load8 {
+
 	0% {
 		-webkit-transform: rotate(0deg);
 		transform: rotate(0deg);
 	}
+
 	100% {
 		-webkit-transform: rotate(360deg);
 		transform: rotate(360deg);
@@ -154,10 +155,12 @@
 }
 
 @keyframes load8 {
+
 	0% {
 		-webkit-transform: rotate(0deg);
 		transform: rotate(0deg);
 	}
+
 	100% {
 		-webkit-transform: rotate(360deg);
 		transform: rotate(360deg);
@@ -172,11 +175,11 @@
 	color: #a00;
 	margin-left: 1em;
 	text-decoration: none;
+}
 
-	&:hover {
-		color: #f00;
-		text-decoration: none;
-	}
+.delete-link:hover {
+	color: #f00;
+	text-decoration: none;
 }
 
 #poststuff #post-body.columns-2 {
@@ -184,20 +187,19 @@
 }
 
 #side-sortables {
-	display: none
+	display: none;
 }
 
 .oauth-connection-established .message-header {
 	font-size: 16px;
-	color: green;
+	color: #008000;
 	font-weight: bold;
 }
 
 input[type="text"].error-required,
 input[type="password"].error-required {
-	border: 2px solid red;
+	border: 2px solid #f00;
 }
-
 
 .post-new-php .external-connection-setup,
 .post-new-php .connection-field-wrap,
