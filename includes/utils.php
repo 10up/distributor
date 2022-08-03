@@ -1139,6 +1139,7 @@ function post_args_allow_list( $post_args ) {
 		'post_title',
 		'post_excerpt',
 		'post_status',
+		'post_type',
 		'post_password',
 		'post_name',
 		'to_ping',
