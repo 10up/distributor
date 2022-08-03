@@ -20,79 +20,35 @@ function is_vip_com() {
 /**
  * Determine if Gutenberg is being used.
  *
- * There are several possible variations that need to be accounted for:
- *
- *  - WordPress 4.9, Gutenberg plugin is not active.
- *  - WordPress 4.9, Gutenberg plugin is active.
- *  - WordPress 5.0, block editor by default.
- *  - WordPress 5.0, Classic editor plugin active, using classic editor.
- *  - WordPress 5.0, Classic editor plugin active, using the block editor.
+ * This duplicates the check from `use_block_editor_for_post()` in WordPress
+ * but removes the check for the `meta-box-loader` querystring parameter as
+ * it is not required for Distributor.
  *
  * @since  1.2
  * @since  1.7 Update Gutenberg plugin sniff to avoid deprecated function.
  *             Update Classic Editor sniff to account for mu-plugins.
+ * @since  2.0 Duplicate the check from WordPress Core's `use_block_editor_for_post()`.
  *
- * @param object $post The post object.
- * @return boolean
+ * @param int|WP_Post $post The post ID or object.
+ * @return boolean Whether post is using the block editor/Gutenberg.
  */
 function is_using_gutenberg( $post ) {
-	global $wp_version;
-
-	$gutenberg_available = function_exists( 'gutenberg_pre_init' );
-	$version_5_plus      = version_compare( $wp_version, '5', '>=' );
-
-	if ( ! $gutenberg_available && ! $version_5_plus ) {
-		return false;
-	}
-
 	$post = get_post( $post );
 
 	if ( ! $post ) {
 		return false;
 	}
 
-	// This duplicates the check from `use_block_editor_for_post()` as of WP 5.0.
-	// We duplicate this here to remove the $_GET['meta-box-loader'] check
-	if ( function_exists( 'use_block_editor_for_post_type' ) ) {
-		// The posts page can't be edited in the block editor.
-		if ( absint( get_option( 'page_for_posts' ) ) === $post->ID && empty( $post->post_content ) ) {
-			return false;
-		}
-
-		// Make sure this post type supports Gutenberg
-		$use_block_editor = use_block_editor_for_post_type( $post->post_type );
-
-		/** This filter is documented in wp-admin/includes/post.php */
-		return apply_filters( 'use_block_editor_for_post', $use_block_editor, $post );
+	// The posts page can't be edited in the block editor.
+	if ( absint( get_option( 'page_for_posts' ) ) === $post->ID && empty( $post->post_content ) ) {
+		return false;
 	}
 
-	// This duplicates the check from `has_blocks()` as of WP 5.2.
-	if ( ! empty( $post->post_content ) ) {
-		return false !== strpos( (string) $post->post_content, '<!-- wp:' );
-	}
+	// Make sure this post type supports Gutenberg
+	$use_block_editor = use_block_editor_for_post_type( $post->post_type );
 
-	$use_block_editor = false;
-
-	if ( class_exists( 'Classic_Editor' ) && is_callable( array( 'Classic_Editor', 'init_actions' ) ) ) {
-		$allow_site_override = true;
-		if ( is_multisite() ) {
-			$use_block_editor    = in_array( get_site_option( 'classic-editor-replace', 'block' ), array( 'no-replace', 'block' ), true );
-			$allow_site_override = ( get_site_option( 'classic-editor-allow-sites', 'allow' ) === 'allow' );
-		}
-		if (
-			$allow_site_override &&
-			get_option( 'classic-editor-replace' )
-		) {
-			$use_block_editor = in_array( get_option( 'classic-editor-replace', 'block' ), array( 'no-replace', 'block' ), true );
-		}
-	}
-
-	if ( $use_block_editor && is_a( $post, '\WP_Post' ) && class_exists( '\Gutenberg_Ramp' ) ) {
-		$gutenberg_ramp   = \Gutenberg_Ramp::get_instance();
-		$use_block_editor = $gutenberg_ramp->gutenberg_should_load( $post );
-	}
-
-	return $use_block_editor;
+	/** This filter is documented in wp-admin/includes/post.php */
+	return apply_filters( 'use_block_editor_for_post', $use_block_editor, $post );
 }
 
 /**
