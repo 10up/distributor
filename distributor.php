@@ -62,20 +62,20 @@ register_activation_hook(
 	function() {
 		global $wp_version;
 		if (
-			version_compare( $wp_version, '5.7.0', '<' ) &&
-			version_compare( PHP_VERSION, '7.4.0', '<' )
+			version_compare( $wp_version, '5.7', '<' ) &&
+			version_compare( PHP_VERSION, '7.4', '<' )
 		) {
 			wp_die(
 				esc_html__( 'Distributor requires PHP version 7.4 or later and WordPress version 5.7 or later.', 'distributor' ),
 				esc_html__( 'Error Activating', 'distributor' )
 			);
 
-		} elseif ( version_compare( $wp_version, '5.7.0', '<' ) ) {
+		} elseif ( version_compare( $wp_version, '5.7', '<' ) ) {
 			wp_die(
 				esc_html__( 'Distributor requires WordPress version 5.7 or later.', 'distributor' ),
 				esc_html__( 'Error Activating', 'distributor' )
 			);
-		} elseif ( version_compare( PHP_VERSION, '7.4.0', '<' ) ) {
+		} elseif ( version_compare( PHP_VERSION, '7.4', '<' ) ) {
 			wp_die(
 				esc_html__( 'Distributor requires PHP version 7.4 or later.', 'distributor' ),
 				esc_html__( 'Error Activating', 'distributor' )
