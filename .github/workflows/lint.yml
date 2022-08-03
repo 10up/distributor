@@ -74,4 +74,4 @@ jobs:
     - name: PHPCS check
       uses: chekalsky/phpcs-action@v1
       with:
-        phpcs_bin_path: './vendor/bin/phpcs . --runtime-set testVersion 5.6-'
+        phpcs_bin_path: './vendor/bin/phpcs . --runtime-set testVersion 7.4-'
