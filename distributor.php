@@ -55,14 +55,29 @@ spl_autoload_register(
 );
 
 /**
- * Require PHP version 5.6 - throw an error if the plugin is activated on an older version.
+ * Require PHP 7.4+, WP 5.7+ - throw an error if the plugin is activated on an older version.
  */
 register_activation_hook(
 	__FILE__,
 	function() {
-		if ( version_compare( PHP_VERSION, '5.6.0', '<' ) ) {
+		global $wp_version;
+		if (
+			version_compare( $wp_version, '5.7.0', '<' ) &&
+			version_compare( PHP_VERSION, '7.4.0', '<' )
+		) {
 			wp_die(
-				esc_html__( 'Distributor requires PHP version 5.6.', 'distributor' ),
+				esc_html__( 'Distributor requires PHP version 7.4 or later and WordPress version 5.7 or later.', 'distributor' ),
+				esc_html__( 'Error Activating', 'distributor' )
+			);
+
+		} elseif ( version_compare( $wp_version, '5.7.0', '<' ) ) {
+			wp_die(
+				esc_html__( 'Distributor requires WordPress version 5.7 or later.', 'distributor' ),
+				esc_html__( 'Error Activating', 'distributor' )
+			);
+		} elseif ( version_compare( PHP_VERSION, '7.4.0', '<' ) ) {
+			wp_die(
+				esc_html__( 'Distributor requires PHP version 7.4 or later.', 'distributor' ),
 				esc_html__( 'Error Activating', 'distributor' )
 			);
 		}
