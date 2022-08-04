@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+/* eslint-disable eqeqeq, no-console */
 
 const fs = require( 'fs' );
 const { exit } = require( 'process' );
