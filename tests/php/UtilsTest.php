@@ -874,6 +874,7 @@ class UtilsTest extends TestCase {
 	function test_post_args_allow_list() {
 		$post_args = [
 			'post_title'   => 'Test Title',
+			'post_type'    => 'post',
 			'post_content' => 'Test Content',
 			'post_excerpt' => 'Test Excerpt',
 			'link'         => 'https://github.com/10up/distributor/issues/879',
@@ -882,6 +883,7 @@ class UtilsTest extends TestCase {
 
 		$expected = [
 			'post_title'   => 'Test Title',
+			'post_type'    => 'post',
 			'post_content' => 'Test Content',
 			'post_excerpt' => 'Test Excerpt',
 		];
