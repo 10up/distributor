@@ -4,6 +4,16 @@ All notable changes to this project will be documented in this file, per [the Ke
 
 ## [Unreleased] - TBD
 
+## [1.7.1] - 2022-08-04
+
+### Added
+
+- Cypress E2E tests (props [@dkotter](https://github.com/dkotter), [@faisal-alvi](https://github.com/faisal-alvi), [@dinhtungdu](https://github.com/dinhtungdu), [@iamdharmesh](https://github.com/iamdharmesh), [@Sidsector9](https://github.com/Sidsector9) via [#900](https://github.com/10up/distributor/pull/900)).
+
+### Fixed
+
+- Ensure we don't lose the post_type value when pushing or pulling content (props [@dkotter](https://github.com/dkotter), [@pdewouters](https://github.com/pdewouters), [@andygagnon](https://github.com/andygagnon), [@jmstew3](https://github.com/jmstew3) via [#922](https://github.com/10up/distributor/pull/922)).
+
 ## [1.7.0] - 2022-07-26
 
 ### Added
@@ -386,6 +396,7 @@ This adds a post type selector when viewing the Pull Content list for both exter
 - Initial closed release.
 
 [Unreleased]: https://github.com/10up/distributor/compare/trunk...develop
+[1.7.1]: https://github.com/10up/distributor/compare/1.7.0...1.7.1
 [1.7.0]: https://github.com/10up/distributor/compare/1.6.9...1.7.0
 [1.6.9]: https://github.com/10up/distributor/compare/1.6.8...1.6.9
 [1.6.8]: https://github.com/10up/distributor/compare/1.6.7...1.6.8
