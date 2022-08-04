@@ -21,7 +21,7 @@ module.exports = defineConfig( {
  *
  * @param {Function} on     function that used to register listeners on various events.
  * @param {Object}   config Cypress Config object.
- * @return config Updated Cypress Config object.
+ * @return {Object} Updated Cypress Config object.
  */
 const setBaseUrl = async ( on, config ) => {
 	const wpEnvConfig = await readConfig( 'wp-env' );
