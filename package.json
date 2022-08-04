@@ -25,8 +25,11 @@
 		"mustache": "^4.2.0"
 	},
 	"devDependencies": {
+		"@10up/cypress-wp-utils": "github:10up/cypress-wp-utils#build",
+		"@wordpress/env": "^5.0.0",
 		"@wordpress/scripts": "^23.5.0",
 		"compare-versions": "^4.1.3",
+		"cypress": "^10.4.0",
 		"jsdoc": "^3.6.11",
 		"node-wp-i18n": "^1.2.6",
 		"wp-hookdoc": "^0.2.0"
@@ -47,7 +50,15 @@
 		"start": "wp-scripts start",
 		"test:e2e": "wp-scripts test-e2e",
 		"test:unit": "wp-scripts test-unit-js",
-		"release": "wp-scripts build; npm run makepot; wp-scripts build --config ./webpack.config.release.js"
+		"release": "wp-scripts build; npm run makepot; wp-scripts build --config ./webpack.config.release.js",
+		"cypress:open": "cypress open --config-file tests/cypress/config.js --e2e --browser chrome",
+		"cypress:run": "cypress run --config-file tests/cypress/config.js",
+		"env": "wp-env",
+		"env:start": "wp-env start",
+		"env:stop": "wp-env stop",
+		"to-multisite": "wp-env run tests-cli \"wp core multisite-convert --title='Distributor Multisite'\"",
+		"copy-htaccess": "wp-env run tests-cli \"cp wp-content/plugins/distributor/tests/cypress/.htaccess .htaccess\"",
+		"postenv:start": "./tests/bin/initialize.sh"
 	},
 	"files": [
 		"readme.txt",
