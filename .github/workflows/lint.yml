@@ -18,11 +18,11 @@ jobs:
     name: eslint
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2.4.0
-    - name: install node v12
-      uses: actions/setup-node@v1
+    - uses: actions/checkout@v3
+    - name: install node v16
+      uses: actions/setup-node@v3
       with:
-        node-version: 12
+        node-version: 16
     - name: npm install
       run: npm install
     - name: eslint
@@ -37,7 +37,7 @@ jobs:
 
     steps:
     - name: Checkout
-      uses: actions/checkout@v2.4.0
+      uses: actions/checkout@v3
 
     - name: Set standard 10up cache directories
       run: |
