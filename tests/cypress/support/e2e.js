@@ -13,14 +13,14 @@
 // https://on.cypress.io/configuration
 // ***********************************************************
 
-import "@10up/cypress-wp-utils";
+import '@10up/cypress-wp-utils';
 
 // Import commands.js using ES2015 syntax:
-import "./commands";
+import './commands';
 
 // Preserve WP cookies.
-beforeEach(() => {
-  Cypress.Cookies.defaults({
-    preserve: /^wordpress.*?/,
-  });
-});
+beforeEach( () => {
+	Cypress.Cookies.defaults( {
+		preserve: /^wordpress.*?/,
+	} );
+} );
