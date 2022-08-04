@@ -48,8 +48,6 @@
 		"packages-update": "wp-scripts packages-update",
 		"plugin-zip": "wp-scripts plugin-zip",
 		"start": "wp-scripts start",
-		"test:e2e": "wp-scripts test-e2e",
-		"test:unit": "wp-scripts test-unit-js",
 		"release": "wp-scripts build; npm run makepot; wp-scripts build --config ./webpack.config.release.js",
 		"cypress:open": "cypress open --config-file tests/cypress/config.js --e2e --browser chrome",
 		"cypress:run": "cypress run --config-file tests/cypress/config.js",
