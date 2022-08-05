@@ -8,42 +8,41 @@ import compareVersions from 'compare-versions';
 
 const { ajaxurl, alert, document, dt, history } = window;
 
-const {
-	createElement,
-	getElementById,
-	getElementsByClassName,
-	getElementsByTagName,
-	querySelector,
-} = document;
+const { body } = document;
 
-const [ body ] = getElementsByTagName( 'body' );
-const externalConnectionUrlField = getElementById(
+const externalConnectionUrlField = document.getElementById(
 	'dt_external_connection_url'
 );
-const externalConnectionMetaBox = getElementById(
+const externalConnectionMetaBox = document.getElementById(
 	'dt_external_connection_details'
 );
-const externalConnectionTypeField = getElementById(
+const externalConnectionTypeField = document.getElementById(
 	'dt_external_connection_type'
 );
-const authFields = getElementsByClassName( 'auth-field' );
-const rolesAllowed = getElementsByClassName( 'dt-roles-allowed' );
-const titleField = getElementById( 'title' );
-const endpointResult = querySelector( '.endpoint-result' );
-const endpointErrors = querySelector( '.endpoint-errors' );
-const postIdField = getElementById( 'post_ID' );
-const createConnection = getElementById( 'create-connection' );
-const wpbody = getElementById( 'wpbody' );
-const externalSiteUrlField = getElementById( 'dt_external_site_url' );
-const wizardError = getElementsByClassName( 'dt-wizard-error' );
-const [ wizardStatus ] = getElementsByClassName( 'dt-wizard-status' );
-const authorizeConnectionButton = getElementsByClassName(
+const authFields = document.getElementsByClassName( 'auth-field' );
+const rolesAllowed = document.getElementsByClassName( 'dt-roles-allowed' );
+const titleField = document.getElementById( 'title' );
+const endpointResult = document.querySelector( '.endpoint-result' );
+const endpointErrors = document.querySelector( '.endpoint-errors' );
+const postIdField = document.getElementById( 'post_ID' );
+const createConnection = document.getElementById( 'create-connection' );
+const wpbody = document.getElementById( 'wpbody' );
+const externalSiteUrlField = document.getElementById( 'dt_external_site_url' );
+const wizardError = document.getElementsByClassName( 'dt-wizard-error' );
+const [ wizardStatus ] = document.getElementsByClassName( 'dt-wizard-status' );
+const authorizeConnectionButton = document.getElementsByClassName(
 	'establish-connection-button'
 );
-const beginOauthConnectionButton = getElementById( 'begin-authorization' );
-const createOauthConnectionButton = getElementById( 'create-oauth-connection' );
-const manualSetupButton = getElementsByClassName( 'manual-setup-button' );
-const titlePrompt = getElementById( '#title-prompt-text' );
+const beginOauthConnectionButton = document.getElementById(
+	'begin-authorization'
+);
+const createOauthConnectionButton = document.getElementById(
+	'create-oauth-connection'
+);
+const manualSetupButton = document.getElementsByClassName(
+	'manual-setup-button'
+);
+const titlePrompt = document.getElementById( '#title-prompt-text' );
 const slug = externalConnectionTypeField.value;
 let $apiVerify = false;
 wpbody.className = slug;
@@ -285,7 +284,7 @@ function checkConnections() {
 				if ( response.data.endpoint_suggestion ) {
 					endpointResult.innerText = `${ dt.endpoint_suggestion } `;
 
-					const suggestion = createElement( 'button' );
+					const suggestion = document.createElement( 'button' );
 					suggestion.classList.add( 'suggest' );
 					suggestion.classList.add( 'button-link' );
 					suggestion.setAttribute( 'type', 'button' );
@@ -333,7 +332,7 @@ function checkConnections() {
 				warnings.push( dt.pull_limited );
 
 				warnings.forEach( ( warning ) => {
-					const warningNode = createElement( 'li' );
+					const warningNode = document.createElement( 'li' );
 					warningNode.innerText = warning;
 
 					endpointErrors.append( warningNode );
@@ -413,9 +412,9 @@ jQuery( externalConnectionUrlField ).on( 'blur', ( event ) => {
  *
  * @todo  separate
  */
-const passwordField = getElementById( 'dt_password' );
-const usernameField = getElementById( 'dt_username' );
-const changePassword = querySelector( '.change-password' );
+const passwordField = document.getElementById( 'dt_password' );
+const usernameField = document.getElementById( 'dt_username' );
+const changePassword = document.querySelector( '.change-password' );
 
 jQuery( usernameField ).on( 'focus click', ( event ) => {
 	event.target.setAttribute( 'initial-username', event.target.value );
@@ -493,10 +492,10 @@ jQuery( rolesAllowed ).on( 'click', '.dt-role-checkbox', ( event ) => {
  * Creates a cleaner flow for authorization by separating the authorization steps.
  */
 const $hideUntilAuthed = jQuery( '.hide-until-authed' ),
-	$clientSecret = jQuery( getElementById( 'dt_client_secret' ) ),
-	$clientId = jQuery( getElementById( 'dt_client_id' ) ),
+	$clientSecret = jQuery( document.getElementById( 'dt_client_secret' ) ),
+	$clientId = jQuery( document.getElementById( 'dt_client_id' ) ),
 	hideItemsRequiringAuth = () => {
-		const oauthconnectionestablished = getElementsByClassName(
+		const oauthconnectionestablished = document.getElementsByClassName(
 			'oauth-connection-established'
 		);
 		if ( 0 === oauthconnectionestablished.length ) {
@@ -554,7 +553,7 @@ if ( createOauthConnectionButton ) {
 }
 
 // Handle the changeCredentials link.
-const changeCredentials = getElementById(
+const changeCredentials = document.getElementById(
 		'oauth-authentication-change-credentials'
 	),
 	$authenticationDetailsWrapper = jQuery(
@@ -578,7 +577,7 @@ if ( changeCredentials ) {
 }
 
 // Handle the Authorize Connection button.
-const beginAuthorize = getElementById( 'begin-authorization' );
+const beginAuthorize = document.getElementById( 'begin-authorization' );
 if ( beginAuthorize ) {
 	// Handle click to the wpdotcom begin-authorization button.
 	jQuery( beginAuthorize ).on( 'click', ( event ) => {
@@ -602,7 +601,9 @@ if ( beginAuthorize ) {
 						nonce: dt.nonce,
 						action: 'dt_begin_authorization',
 						title,
-						id: jQuery( getElementById( 'post_ID' ) ).val(),
+						id: jQuery(
+							document.getElementById( 'post_ID' )
+						).val(),
 					},
 				} )
 				.done( ( response ) => {
@@ -612,15 +613,15 @@ if ( beginAuthorize ) {
 						history.pushState( {}, 'Oauth Authorize Details', url );
 
 						// Update the form field for dt_redirect_uri and post id.
-						jQuery( getElementById( 'dt_redirect_uri' ) ).val(
-							url
-						);
-						jQuery( getElementById( 'dt_created_post_id' ) ).val(
-							response.data.id
-						);
-						jQuery( getElementById( 'original_post_status' ) ).val(
-							'publish'
-						);
+						jQuery(
+							document.getElementById( 'dt_redirect_uri' )
+						).val( url );
+						jQuery(
+							document.getElementById( 'dt_created_post_id' )
+						).val( response.data.id );
+						jQuery(
+							document.getElementById( 'original_post_status' )
+						).val( 'publish' );
 
 						// Hide the first step and show the authentication details.
 						jQuery( '.oauth-begin-authentication-wrapper' ).hide();
