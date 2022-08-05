@@ -166,7 +166,17 @@ function maybe_notice() {
  */
 function admin_enqueue_scripts( $hook ) {
 	if ( ! empty( $_GET['page'] ) && 'distributor-settings' === $_GET['page'] ) { // @codingStandardsIgnoreLine Nonce not required.
-		wp_enqueue_style( 'dt-admin-settings', plugins_url( '/dist/css/admin-settings.min.css', __DIR__ ), array(), DT_VERSION );
+		$asset_file = DT_PLUGIN_PATH . '/dist/js/admin-settings-css.min.asset.php';
+		// Fallback asset data.
+		$asset_data = array(
+			'version'      => DT_VERSION,
+			'dependencies' => array(),
+		);
+		if ( file_exists( $asset_file ) ) {
+			$asset_data = require $asset_file;
+		}
+
+		wp_enqueue_style( 'dt-admin-settings', plugins_url( '/dist/css/admin-settings.min.css', __DIR__ ), array(), $asset_data['version'] );
 	}
 }
 

@@ -151,7 +151,18 @@ add_action(
 add_action(
 	'admin_enqueue_scripts',
 	function() {
-		wp_enqueue_style( 'dt-admin-settings', plugins_url( '/dist/css/admin.min.css', __FILE__ ), array(), DT_VERSION );
+		$asset_file = DT_PLUGIN_PATH . '/dist/js/admin-css.min.asset.php';
+		// Fallback asset data.
+		$asset_data = array(
+			'version'      => DT_VERSION,
+			'dependencies' => array(),
+		);
+		if ( file_exists( $asset_file ) ) {
+			$asset_data = require $asset_file;
+		}
+
+		// Dependencies only apply to JavaScript, not CSS files.
+		wp_enqueue_style( 'dt-admin-settings', plugins_url( '/dist/css/admin.min.css', __FILE__ ), array(), $asset_data['version'] );
 	}
 );
 

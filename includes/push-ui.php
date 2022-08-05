@@ -402,8 +402,18 @@ function enqueue_scripts( $hook ) {
 		return;
 	}
 
-	wp_enqueue_style( 'dt-push', plugins_url( '/dist/css/push.min.css', __DIR__ ), array(), DT_VERSION );
-	wp_enqueue_script( 'dt-push', plugins_url( '/dist/js/push.min.js', __DIR__ ), array( 'jquery', 'underscore' ), DT_VERSION, true );
+	$asset_file = DT_PLUGIN_PATH . '/dist/js/push.min.asset.php';
+	// Fallback asset data.
+	$asset_data = array(
+		'version'      => DT_VERSION,
+		'dependencies' => array(),
+	);
+	if ( file_exists( $asset_file ) ) {
+		$asset_data = require $asset_file;
+	}
+
+	wp_enqueue_style( 'dt-push', plugins_url( '/dist/css/push.min.css', __DIR__ ), array(), $asset_data['version'] );
+	wp_enqueue_script( 'dt-push', plugins_url( '/dist/js/push.min.js', __DIR__ ), $asset_data['dependencies'], $asset_data['version'], true );
 	wp_localize_script(
 		'dt-push',
 		'dt',

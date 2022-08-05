@@ -495,9 +495,27 @@ function enqueue_post_scripts( $hook ) {
 	}
 
 	if ( \Distributor\Utils\is_using_gutenberg( $post ) ) {
-		wp_enqueue_style( 'dt-gutenberg-syndicated-post', plugins_url( '/dist/css/gutenberg-syndicated-post.min.css', __DIR__ ), array(), DT_VERSION );
+		$asset_file = DT_PLUGIN_PATH . '/dist/js/gutenberg-syndicated-post-css.min.asset.php';
+		// Fallback asset data.
+		$asset_data = array(
+			'version'      => DT_VERSION,
+			'dependencies' => array(),
+		);
+		if ( file_exists( $asset_file ) ) {
+			$asset_data = require $asset_file;
+		}
+		wp_enqueue_style( 'dt-gutenberg-syndicated-post', plugins_url( '/dist/css/gutenberg-syndicated-post.min.css', __DIR__ ), array(), $asset_data['version'] );
 	} else {
-		wp_enqueue_style( 'dt-admin-syndicated-post', plugins_url( '/dist/css/admin-syndicated-post.min.css', __DIR__ ), array(), DT_VERSION );
+		$asset_file = DT_PLUGIN_PATH . '/dist/js/admin-syndicated-post-css.min.asset.php';
+		// Fallback asset data.
+		$asset_data = array(
+			'version'      => DT_VERSION,
+			'dependencies' => array(),
+		);
+		if ( file_exists( $asset_file ) ) {
+			$asset_data = require $asset_file;
+		}
+		wp_enqueue_style( 'dt-admin-syndicated-post', plugins_url( '/dist/css/admin-syndicated-post.min.css', __DIR__ ), array(), $asset_data['version'] );
 	}
 
 	$unlinked = (bool) get_post_meta( $post->ID, 'dt_unlinked', true );
@@ -563,8 +581,28 @@ function enqueue_gutenberg_edit_scripts() {
 		]; // this is a temp hacky substitute for gutenberg_get_jed_locale_data()
 	}
 
-	wp_enqueue_script( 'dt-gutenberg-syndicated-post', plugins_url( '/dist/js/gutenberg-syndicated-post.min.js', __DIR__ ), [ 'wp-blocks' ], DT_VERSION, true );
-	wp_enqueue_script( 'dt-gutenberg-plugin', plugins_url( '/dist/js/gutenberg-plugin.min.js', __DIR__ ), [ 'wp-blocks', 'wp-components', 'wp-data', 'wp-element', 'wp-edit-post', 'wp-i18n', 'wp-plugins' ], DT_VERSION, true );
+	$asset_file = DT_PLUGIN_PATH . '/dist/js/gutenberg-syndicated-post.min.asset.php';
+	// Fallback asset data.
+	$asset_data = array(
+		'version'      => DT_VERSION,
+		'dependencies' => array(),
+	);
+	if ( file_exists( $asset_file ) ) {
+		$asset_data = require $asset_file;
+	}
+
+	wp_enqueue_script( 'dt-gutenberg-syndicated-post', plugins_url( '/dist/js/gutenberg-syndicated-post.min.js', __DIR__ ), $asset_data['dependencies'], $asset_data['version'], true );
+
+	$asset_file = DT_PLUGIN_PATH . '/dist/js/gutenberg-plugin.min.asset.php';
+	// Fallback asset data.
+	$asset_data = array(
+		'version'      => DT_VERSION,
+		'dependencies' => array(),
+	);
+	if ( file_exists( $asset_file ) ) {
+		$asset_data = require $asset_file;
+	}
+	wp_enqueue_script( 'dt-gutenberg-plugin', plugins_url( '/dist/js/gutenberg-plugin.min.js', __DIR__ ), $asset_data['dependencies'], $asset_data['version'], true );
 
 	wp_localize_script(
 		'dt-gutenberg-syndicated-post',
@@ -603,5 +641,15 @@ function enqueue_edit_scripts( $hook ) {
 		return;
 	}
 
-	wp_enqueue_style( 'dt-admin-syndicated-post', plugins_url( '/dist/css/admin-edit-table.min.css', __DIR__ ), array(), DT_VERSION );
+	$asset_file = DT_PLUGIN_PATH . '/dist/js/gadmin-edit-table-css.min.asset.php';
+	// Fallback asset data.
+	$asset_data = array(
+		'version'      => DT_VERSION,
+		'dependencies' => array(),
+	);
+	if ( file_exists( $asset_file ) ) {
+		$asset_data = require $asset_file;
+	}
+
+	wp_enqueue_style( 'dt-admin-syndicated-post', plugins_url( '/dist/css/admin-edit-table.min.css', __DIR__ ), array(), $asset_data['version'] );
 }
