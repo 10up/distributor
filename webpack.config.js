@@ -94,7 +94,7 @@ module.exports = {
 		new MiniCSSExtractPlugin( { filename: cssFileName } ),
 		new DependencyExtractionWebpackPlugin( {
 			injectPolyfill: true,
-			combineAssets: true,
+			combineAssets: false,
 			requestToExternal( request ) {
 				if ( request === 'underscore' ) {
 					return '_';
