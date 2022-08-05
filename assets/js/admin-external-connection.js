@@ -6,7 +6,7 @@ import { addQueryArgs, isURL, prependHTTP } from '@wordpress/url';
 import { speak } from '@wordpress/a11y';
 import compareVersions from 'compare-versions';
 
-const { ajaxurl, alert, dt, history } = window;
+const { ajaxurl, alert, document, dt, history } = window;
 
 const {
 	createElement,

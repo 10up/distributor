@@ -4,7 +4,7 @@ import jQuery from 'jquery';
 import _ from 'underscore';
 import Mustache from 'mustache';
 
-const { dt } = window;
+const { document, dt } = window;
 
 let selectedConnections = {},
 	searchString = '';

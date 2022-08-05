@@ -6,7 +6,7 @@ import { PluginDocumentSettingPanel } from '@wordpress/edit-post';
 import { __, sprintf } from '@wordpress/i18n';
 import { registerPlugin } from '@wordpress/plugins';
 
-const { dtGutenberg, MouseEvent } = window;
+const { document, dtGutenberg, MouseEvent } = window;
 
 /**
  * Add ability to show the admin bar, if needed
