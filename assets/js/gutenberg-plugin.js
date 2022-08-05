@@ -1,4 +1,4 @@
-import PluginIcon from '../img/icon.svg';
+import { pluginIcon } from './components/plugin-icon';
 
 import { Icon } from '@wordpress/components';
 import { select, useSelect } from '@wordpress/data';
@@ -134,11 +134,7 @@ const RenderDistributedFrom = () => {
  * Create the Distributor icon
  */
 const DistributorIcon = () => (
-	<Icon
-		className="components-panel__icon"
-		icon={ <PluginIcon /> }
-		size={ 20 }
-	/>
+	<Icon className="components-panel__icon" icon={ pluginIcon } size={ 20 } />
 );
 
 /**
