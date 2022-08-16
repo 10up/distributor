@@ -37,7 +37,7 @@
 	},
 	"scripts": {
 		"build": "wp-scripts build",
-		"build:docs": "rm -rf hook_docs && jsdoc -c hookdoc-conf.json distributor.php includes",
+		"build:docs": "rm -rf docs-built && jsdoc -c hookdoc-conf.json distributor.php includes",
 		"check-engines": "wp-scripts check-engines",
 		"check-licenses": "wp-scripts check-licenses",
 		"format": "npm run format:css; npm run format:js",
