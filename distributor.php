@@ -14,6 +14,10 @@
  * @package distributor
  */
 
+namespace Distributor;
+
+use Puc_v4_Factory;
+
 if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly.
 }
@@ -55,34 +59,117 @@ spl_autoload_register(
 );
 
 /**
+ * Whether WP installation meets the minimum requirements
+ *
+ * @since x.x.x
+ *
+ * @return bool True if meets minimum requirements, false otherwise.
+ */
+function site_meets_wp_requirements() {
+	global $wp_version;
+	return version_compare( $wp_version, '5.7', '>=' );
+}
+
+/**
+ * Whether PHP installation meets the minimum requirements
+ *
+ * @since x.x.x
+ *
+ * @return bool True if meets minimum requirements, false otherwise.
+ */
+function site_meets_php_requirements() {
+	return version_compare( phpversion(), '7.4', '>=' );
+}
+
+/**
  * Require PHP 7.4+, WP 5.7+ - throw an error if the plugin is activated on an older version.
  */
 register_activation_hook(
 	__FILE__,
 	function() {
-		global $wp_version;
 		if (
-			version_compare( $wp_version, '5.7', '<' ) &&
-			version_compare( PHP_VERSION, '7.4', '<' )
+			! site_meets_wp_requirements() &&
+			! site_meets_php_requirements()
 		) {
 			wp_die(
-				esc_html__( 'Distributor requires PHP version 7.4 or later and WordPress version 5.7 or later.', 'distributor' ),
+				esc_html__( 'Distributor requires PHP version 7.4 or later and WordPress version 5.7 or later. Please update your software or disable the plugin.', 'distributor' ),
 				esc_html__( 'Error Activating', 'distributor' )
 			);
 
-		} elseif ( version_compare( $wp_version, '5.7', '<' ) ) {
+		} elseif ( ! site_meets_wp_requirements() ) {
 			wp_die(
-				esc_html__( 'Distributor requires WordPress version 5.7 or later.', 'distributor' ),
+				esc_html__( 'Distributor requires WordPress version 5.7 or later. Please update WordPress or disable the plugin.', 'distributor' ),
 				esc_html__( 'Error Activating', 'distributor' )
 			);
-		} elseif ( version_compare( PHP_VERSION, '7.4', '<' ) ) {
+		} elseif ( ! site_meets_php_requirements() ) {
 			wp_die(
-				esc_html__( 'Distributor requires PHP version 7.4 or later.', 'distributor' ),
+				esc_html__( 'Distributor requires PHP version 7.4 or later. Please update PHP or disable the plugin.', 'distributor' ),
 				esc_html__( 'Error Activating', 'distributor' )
 			);
 		}
 	}
 );
+
+add_action(
+	'plugins_loaded',
+	function() {
+		if ( site_meets_wp_requirements() && site_meets_php_requirements() ) {
+			// Do nothing, everything is fine.
+			return;
+		}
+
+		add_action(
+			'admin_notices',
+			function() {
+				if (
+					! site_meets_wp_requirements() &&
+					! site_meets_php_requirements()
+				) {
+					?>
+					<div class="notice notice-error">
+						<p>
+							<?php
+							esc_html_e( 'Distributor requires PHP version 7.4 or later and WordPress version 5.7 or later. Please update your software or disable the plugin.', 'distributor' );
+							?>
+						</p>
+					</div>
+					<?php
+					return;
+				}
+
+				if ( ! site_meets_wp_requirements() ) {
+					?>
+					<div class="notice notice-error">
+						<p>
+							<?php
+							esc_html_e( 'Distributor requires WordPress version 5.7 or later. Please update WordPress or disable the plugin.', 'distributor' );
+							?>
+						</p>
+					</div>
+					<?php
+					return;
+				}
+
+				if ( ! site_meets_php_requirements() ) {
+					?>
+					<div class="notice notice-error">
+						<p>
+							<?php
+							esc_html_e( 'Distributor requires PHP version 7.4 or later. Please update PHP or disable the plugin.', 'distributor' );
+							?>
+						</p>
+					</div>
+					<?php
+					return;
+				}
+			}
+		);
+	}
+);
+
+if ( ! site_meets_wp_requirements() || ! site_meets_php_requirements() ) {
+	return;
+}
 
 /**
  * Tell the world this site supports Distributor. We need this for external connections.
@@ -166,7 +253,7 @@ add_action(
 	}
 );
 
-if ( class_exists( 'Puc_v4_Factory' ) ) {
+if ( class_exists( '\\Puc_v4_Factory' ) ) {
 	/**
 	 * Enable updates if we have a valid license
 	 */
