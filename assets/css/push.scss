@@ -14,7 +14,7 @@ $backgroundColor: #32373c;
 
 $mediaSmallScreen : "min-width: 480px";
 $mediaMediumScreen : "min-width: 768px";
-$mediaGutenbergSmallScreen : "min-width: 782px";
+$mediaGutenbergSmallScreen : "max-width: 782px";
 
 #distributor-push-wrapper,
 #wpadminbar #wp-admin-bar-distributor-placeholder > .ab-item {
