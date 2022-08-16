@@ -169,9 +169,15 @@ Enabling this will also provide more debugging information in your error log for
 
 ### Application Passwords and WordPress 5.6
 
-In WordPress 5.6, Application Passwords was merged into WordPress core with some limitations. From 5.6, Application Passwords is enabled by default only for live sites with HTTPS. To enable Application Passwords for development sites, you will need the following snippet:
+Application passwords are only available for live sites running over an HTTPS connection.
+
+For your local development environment will need these snippets to enable application passwords without the need for an HTTPS connection.  A local development environment is one that "can reach the internet but **is not reachable from the internet**".
 
 ```php
+// In your local environment's wp-config.php file.
+define( 'WP_ENVIRONMENT_TYPE', 'local' );
+
+// In a custom plugin on your local environment.
 add_filter( 'wp_is_application_passwords_available', '__return_true' );
 
 add_action( 'wp_authorize_application_password_request_errors', function( $error ) {
