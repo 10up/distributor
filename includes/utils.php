@@ -45,7 +45,7 @@ function is_using_gutenberg( $post ) {
 	}
 
 	// Make sure this post type supports Gutenberg
-	$use_block_editor = use_block_editor_for_post_type( $post->post_type );
+	$use_block_editor = dt_use_block_editor_for_post_type( $post->post_type );
 
 	/** This filter is documented in wp-admin/includes/post.php */
 	return apply_filters( 'use_block_editor_for_post', $use_block_editor, $post );
@@ -931,6 +931,10 @@ function process_media( $url, $post_id, $args = [] ) {
  * The block editor depends on the REST API, and if the post type is not shown in the
  * REST API, then it won't work with the block editor.
  *
+ * This duplicates the function use_block_editor_for_post_type() in WordPress Core
+ * to ensure the function is always available in Distributor. The function is not
+ * available in some WordPress contexts.
+ *
  * @source WordPress 5.0.0
  *
  * @param string $post_type The post type.
@@ -952,7 +956,7 @@ function dt_use_block_editor_for_post_type( $post_type ) {
 
 	// In some contexts this function doesn't exist so we can't reliably use the filter.
 	if ( function_exists( 'use_block_editor_for_post_type' ) ) {
-		// Filter documented in WordPress core.
+		/** This filter is documented in wp-admin/includes/post.php */
 		return apply_filters( 'use_block_editor_for_post_type', true, $post_type );
 	}
 
