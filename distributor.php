@@ -59,6 +59,28 @@ spl_autoload_register(
 );
 
 /**
+ * Get the minimum version of WordPress required by this plugin.
+ *
+ * @since x.x.x
+ *
+ * @return string Minimum version required.
+ */
+function minimum_wp_requirement() {
+	return '5.7';
+}
+
+/**
+ * Get the minimum version of PHP required by this plugin.
+ *
+ * @since x.x.x
+ *
+ * @return string Minimum version required.
+ */
+function minimum_php_requirement() {
+	return '7.4';
+}
+
+/**
  * Whether WP installation meets the minimum requirements
  *
  * @since x.x.x
@@ -67,7 +89,7 @@ spl_autoload_register(
  */
 function site_meets_wp_requirements() {
 	global $wp_version;
-	return version_compare( $wp_version, '5.7', '>=' );
+	return version_compare( $wp_version, minimum_wp_requirement(), '>=' );
 }
 
 /**
@@ -78,7 +100,7 @@ function site_meets_wp_requirements() {
  * @return bool True if meets minimum requirements, false otherwise.
  */
 function site_meets_php_requirements() {
-	return version_compare( phpversion(), '7.4', '>=' );
+	return version_compare( phpversion(), minimum_php_requirement(), '>=' );
 }
 
 /**
@@ -92,18 +114,31 @@ register_activation_hook(
 			! site_meets_php_requirements()
 		) {
 			wp_die(
-				esc_html__( 'Distributor requires PHP version 7.4 or later and WordPress version 5.7 or later. Please update your software or disable the plugin.', 'distributor' ),
+				sprintf(
+					/* translators: %1$s: Minimum required PHP version, %2$s: Minimum required WordPress version */
+					esc_html__( 'Distributor requires PHP version %1$s or later and WordPress version %2$s or later. Please upgrade your software or disable the plugin.', 'distributor' ),
+					esc_html( minimum_php_requirement() ),
+					esc_html( minimum_wp_requirement() )
+				),
 				esc_html__( 'Error Activating', 'distributor' )
 			);
 
 		} elseif ( ! site_meets_wp_requirements() ) {
 			wp_die(
-				esc_html__( 'Distributor requires WordPress version 5.7 or later. Please update WordPress or disable the plugin.', 'distributor' ),
+				sprintf(
+					/* translators: %s: Minimum required WordPress version */
+					esc_html__( 'Distributor requires WordPress version %s or later. Please upgrade WordPress or disable the plugin.', 'distributor' ),
+					esc_html( minimum_wp_requirement() )
+				),
 				esc_html__( 'Error Activating', 'distributor' )
 			);
 		} elseif ( ! site_meets_php_requirements() ) {
 			wp_die(
-				esc_html__( 'Distributor requires PHP version 7.4 or later. Please update PHP or disable the plugin.', 'distributor' ),
+				sprintf(
+					/* translators: %s: Minimum required PHP version */
+					esc_html__( 'Distributor requires PHP version %s or later. Please upgrade PHP or disable the plugin.', 'distributor' ),
+					esc_html( minimum_php_requirement() )
+				),
 				esc_html__( 'Error Activating', 'distributor' )
 			);
 		}
@@ -129,7 +164,12 @@ add_action(
 					<div class="notice notice-error">
 						<p>
 							<?php
-							esc_html_e( 'Distributor requires PHP version 7.4 or later and WordPress version 5.7 or later. Please update your software or disable the plugin.', 'distributor' );
+							printf(
+								/* translators: %1$s: Minimum required PHP version, %2$s: Minimum required WordPress version */
+								esc_html__( 'Distributor requires PHP version %1$s or later and WordPress version %2$s or later. Please upgrade your software or disable the plugin.', 'distributor' ),
+								esc_html( minimum_php_requirement() ),
+								esc_html( minimum_wp_requirement() )
+							);
 							?>
 						</p>
 					</div>
@@ -142,7 +182,11 @@ add_action(
 					<div class="notice notice-error">
 						<p>
 							<?php
-							esc_html_e( 'Distributor requires WordPress version 5.7 or later. Please update WordPress or disable the plugin.', 'distributor' );
+							printf(
+								/* translators: %s: Minimum required WordPress version */
+								esc_html__( 'Distributor requires WordPress version %s or later. Please upgrade WordPress or disable the plugin.', 'distributor' ),
+								esc_html( minimum_wp_requirement() )
+							);
 							?>
 						</p>
 					</div>
@@ -155,7 +199,11 @@ add_action(
 					<div class="notice notice-error">
 						<p>
 							<?php
-							esc_html_e( 'Distributor requires PHP version 7.4 or later. Please update PHP or disable the plugin.', 'distributor' );
+							printf(
+								/* translators: %s: Minimum required PHP version */
+								esc_html__( 'Distributor requires PHP version %s or later. Please upgrade PHP or disable the plugin.', 'distributor' ),
+								esc_html( minimum_php_requirement() )
+							);
 							?>
 						</p>
 					</div>
