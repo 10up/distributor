@@ -12,6 +12,12 @@
  * Domain Path:       /lang/
  *
  * @package distributor
+ *
+ * Developer note: This file is used to test whether the user's server supports
+ * the minimum software requirements for this plugin prior to bootstrapping.
+ *
+ * Unlike the rest of the plugin, this file needs to be compatible with PHP 5.6
+ * and WordPress 4.7.0.
  */
 
 namespace Distributor;
