@@ -344,7 +344,7 @@ function checkConnections() {
 				speak( dt.good_connection, 'polite' );
 			}
 		} )
-		.complete( () => {
+		.always( () => {
 			endpointResult.classList.remove( 'loading' );
 		} );
 }
@@ -630,7 +630,7 @@ if ( beginAuthorize ) {
 						// @todo handle errors.
 					}
 				} )
-				.complete( () => {
+				.always( () => {
 					// Ensure the
 					jQuery( beginAuthorize ).removeClass( 'disabled' );
 				} );
