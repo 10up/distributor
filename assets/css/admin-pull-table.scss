@@ -2,19 +2,19 @@
 
 	&.dt-loading {
 
-		& #posts-filter,
-		& .subsubsub {
-			opacity: .5;
+		#posts-filter,
+		.subsubsub {
+			opacity: 0.5;
 			pointer-events: none;
 			cursor: default;
 		}
 	}
 
-	& .dt-pull-post-type {
+	.dt-pull-post-type {
 		display: flex;
 		align-items: center;
 
-		& .dt-as-draft {
+		.dt-as-draft {
 			padding-left: 10px;
 		}
 	}

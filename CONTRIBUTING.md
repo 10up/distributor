@@ -30,7 +30,7 @@ The `develop` branch is the development branch which means it contains the next 
 
 1. Branch: Starting from `develop`, create a release branch named `release/X.Y.Z` for your changes.
 1. Version bump: Bump the version number in `distributor.php`, `package.json`, and `readme.txt` if it does not already reflect the version being released.  In `distributor.php` update both the plugin "Version:" property and the plugin `DT_VERSION` constant.
-1. New files: Ensure any new files, especially in the vendor folder, are correctly included in `gulp-tasks/copy.js`.
+1. New files: Ensure any new files, especially in the vendor folder, are correctly included in `webpack.config.release.js`.
 1. Changelog: Add/update the changelog in `CHANGELOG.md`.
 1. Props: Update `CREDITS.md` file with any new contributors, confirm maintainers are accurate.
 1. Readme updates: Make any other readme changes as necessary.  `README.md` is geared toward GitHub and `readme.txt` contains WordPress.org-specific content.  The two are slightly different.
