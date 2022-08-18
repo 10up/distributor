@@ -941,6 +941,11 @@ function process_media( $url, $post_id, $args = [] ) {
  * @return bool Whether the post type can be edited with the block editor.
  */
 function dt_use_block_editor_for_post_type( $post_type ) {
+	// In some contexts this function doesn't exist so we can't reliably use it.
+	if ( function_exists( 'use_block_editor_for_post_type' ) ) {
+		return use_block_editor_for_post_type( $post_type );
+	}
+
 	if ( ! post_type_exists( $post_type ) ) {
 		return false;
 	}
@@ -952,12 +957,6 @@ function dt_use_block_editor_for_post_type( $post_type ) {
 	$post_type_object = get_post_type_object( $post_type );
 	if ( $post_type_object && ! $post_type_object->show_in_rest ) {
 		return false;
-	}
-
-	// In some contexts this function doesn't exist so we can't reliably use the filter.
-	if ( function_exists( 'use_block_editor_for_post_type' ) ) {
-		/** This filter is documented in wp-admin/includes/post.php */
-		return apply_filters( 'use_block_editor_for_post_type', true, $post_type );
 	}
 
 	/**
