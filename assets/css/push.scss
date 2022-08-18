@@ -1,3 +1,5 @@
+@use "sass:color";
+
 :root {
 	--mediumScreen: 768px;
 	--smallScreen: 480px;
@@ -7,9 +9,12 @@
 	--backgroundColorDark: #23282d;
 }
 
-@custom-media --small-screen (min-width: 480px);
-@custom-media --medium-screen (min-width: 768px);
-@custom-media --gutenberg-small-screen (max-width: 782px);
+$fontColor: #eee;
+$backgroundColor: #32373c;
+
+$mediaSmallScreen : "min-width: 480px";
+$mediaMediumScreen : "min-width: 768px";
+$mediaGutenbergSmallScreen : "max-width: 782px";
 
 #distributor-push-wrapper,
 #wpadminbar #wp-admin-bar-distributor-placeholder > .ab-item {
@@ -19,8 +24,8 @@
 #wpadminbar #distributor-push-wrapper {
 	display: flex;
 	font-size: 13px;
-    font-weight: 400;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+	font-weight: normal;
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
 	position: absolute;
 	top: 32px;
 	left: 0;
@@ -32,10 +37,10 @@
 	color: var(--fontColor);
 	justify-content: center;
 	z-index: 9999;
-	box-shadow: 0px 2px 1px 0px rgba(0,0,0,1);
+	box-shadow: 0 2px 1px 0 rgba(0, 0, 0, 1);
 	line-height: 1.5;
 
-	@media (--small-screen) {
+	@media ($mediaSmallScreen) {
 		padding: 2em 0;
 	}
 }
@@ -49,7 +54,7 @@
 }
 
 #wp-admin-bar-distributor.hover + #distributor-overlay,
-#wp-admin-bar-distributor.syncing + #distributor-overlay  {
+#wp-admin-bar-distributor.syncing + #distributor-overlay {
 	position: fixed;
 	top: 0;
 	left: 0;
@@ -69,7 +74,7 @@
 	max-height: 155px;
 	overflow: auto;
 
-	& .no-results {
+	.no-results {
 		margin: 0 !important;
 		padding: 0.5em;
 	}
@@ -91,13 +96,13 @@
 }
 
 #wpadminbar #distributor-push-wrapper .connections-selected.empty {
-	opacity: .5;
+	opacity: 0.5;
 
-	& .no-selected {
+	.no-selected {
 		display: block;
 	}
 
-	& .with-selected {
+	.with-selected {
 		display: none;
 	}
 }
@@ -115,8 +120,8 @@
 	margin-right: 2px;
 }
 
-#wpadminbar #distributor-push-wrapper .connections-selected.empty:after {
-	content: ' ';
+#wpadminbar #distributor-push-wrapper .connections-selected.empty::after {
+	content: " ";
 	position: absolute;
 	top: 0;
 	left: 0;
@@ -131,11 +136,13 @@
 	margin: 0;
 }
 
+/* stylelint-disable-next-line no-duplicate-selectors */
 #wpadminbar #distributor-push-wrapper {
-	@media (--small-screen) {
+
+	@media ($mediaSmallScreen) {
 		position: fixed;
 
-		& .connections-selector {
+		.connections-selector {
 			width: 60%;
 			position: relative;
 			float: left;
@@ -143,14 +150,14 @@
 			box-sizing: border-box;
 			display: flex;
 			align-items: center;
-  			justify-content: center;
+			justify-content: center;
 		}
 
-		& .connections-selector div {
+		.connections-selector div {
 			width: 100%;
 		}
 
-		& .connections-selected {
+		.connections-selected {
 			width: 40%;
 			float: right;
 			margin-top: 0;
@@ -165,38 +172,38 @@
 	text-align: center;
 	margin: 0;
 
-	& a {
+	a {
 		color: inherit;
 		text-decoration: underline;
 	}
 }
 
-#wpadminbar #distributor-push-wrapper input[type=checkbox] {
+#wpadminbar #distributor-push-wrapper input[type="checkbox"] {
 	height: 16px !important;
 }
 
-#wpadminbar #distributor-push-wrapper input[type=text] {
+#wpadminbar #distributor-push-wrapper input[type="text"] {
 	font-size: inherit;
 	padding: 0.5278em;
-    width: calc( 100% - 1.0556em - 2px );
+	width: calc(100% - 1.0556em - 2px);
 	background-color: var(--backgroundColor);
 	border: 2px solid var(--borderColor);
 	color: var(--fontColor);
-	margin-bottom: .5em;
+	margin-bottom: 0.5em;
 
 	&::placeholder {
-		color: color(var(--fontColor) blackness(50%));
+		color: color.adjust($fontColor, $blackness: 50%);
 	}
 
 	&:focus {
 		color: var(--fontColor);
 		background-color: var(--backgroundColor);
-		border-color: color(var(--fontColor) blackness(50%));
+		border-color: color.adjust($fontColor, $blackness: 50%);
 	}
 }
 
 #wpadminbar #distributor-push-wrapper button {
-	padding: .5em 1em;
+	padding: 0.5em 1em;
 	border-radius: 3px;
 	min-height: 0;
 
@@ -209,11 +216,12 @@
 		background: none;
 		cursor: pointer;
 		text-align: left;
+
 		/* Mimics the default link style in common.css but brighter due to dark bg */
 		color: #00a0d2;
 		text-decoration: underline;
 		transition-property: border, background, color;
-		transition-duration: .05s;
+		transition-duration: 0.05s;
 		transition-timing-function: ease-in-out;
 
 		&:hover {
@@ -229,7 +237,7 @@
 	}
 
 	&.selectall-connections {
-		margin-top: .5em;
+		margin-top: 0.5em;
 		margin-bottom: -10px; /* compensation for margin above messages div to reduce jumping */
 	}
 }
@@ -246,7 +254,7 @@
 	box-shadow: none;
 	display: block;
 	width: 100%;
-	padding: .5em;
+	padding: 0.5em;
 	box-sizing: border-box;
 	color: inherit;
 	cursor: pointer;
@@ -264,18 +272,15 @@
 }
 
 #wpadminbar #distributor-push-wrapper .new-connections-list .add-connection.added {
-	background-color: color(var(--backgroundColor) lightness(40%));
+	background-color: color.adjust($backgroundColor, $lightness: 40%);
 }
 
 #wpadminbar #distributor-push-wrapper .add-connection.syndicated {
 	position: relative;
-}
-
-#wpadminbar #distributor-push-wrapper .add-connection.syndicated {
 	pointer-events: none;
 	cursor: not-allowed;
 
-	&:after {
+	&::after {
 		content: "\f147";
 		font-family: dashicons;
 		color: var(--borderColor);
@@ -285,11 +290,11 @@
 		text-decoration: none;
 	}
 
-	& span {
+	span {
 		color: var(--borderColor);
 	}
 
-	& a {
+	a {
 		color: inherit;
 		text-decoration: underline;
 		float: right;
@@ -308,19 +313,19 @@
 
 #wpadminbar #distributor-push-wrapper .added-connection {
 	background-color: var(--borderColor);
-	margin-bottom: .5em;
+	margin-bottom: 0.5em;
 	cursor: normal;
 	position: relative;
 
 	&:hover {
 		text-decoration: none;
 
-		& .remove-connection:after {
+		.remove-connection::after {
 			color: #f00;
 		}
 	}
 
-	& .remove-connection {
+	.remove-connection {
 		cursor: pointer;
 		top: 1px;
 		display: inline-block;
@@ -332,7 +337,7 @@
 		position: relative;
 	}
 
-	& .remove-connection:after {
+	.remove-connection::after {
 		content: "\f335";
 		font-family: dashicons;
 	}
@@ -345,18 +350,18 @@
 }
 
 #wpadminbar #distributor-push-wrapper .as-draft {
-	margin-left: .5em;
-    height: 30px;
-    line-height: 28px;
-    padding: 2px 12px 2px;
-    display: inline-block;
-    box-sizing: border-box;
+	margin-left: 0.5em;
+	height: 30px;
+	line-height: 28px;
+	padding: 2px 12px 2px;
+	display: inline-block;
+	box-sizing: border-box;
 }
 
-#wpadminbar .syncing #distributor-push-wrapper .action-wrapper .syndicate-button:after,
-#wpadminbar .syncing #distributor-push-wrapper .action-wrapper .selectall-connections:after,
-#wpadminbar .syncing #distributor-push-wrapper .action-wrapper .selectno-connections:after {
-	content: ' ';
+#wpadminbar .syncing #distributor-push-wrapper .action-wrapper .syndicate-button::after,
+#wpadminbar .syncing #distributor-push-wrapper .action-wrapper .selectall-connections::after,
+#wpadminbar .syncing #distributor-push-wrapper .action-wrapper .selectno-connections::after {
+	content: " ";
 	vertical-align: middle;
 	border-radius: 50%;
 	width: 6px;
@@ -368,7 +373,7 @@
 	border-top: 3px solid #cfcfcf;
 	border-right: 3px solid #cfcfcf;
 	border-bottom: 3px solid #cfcfcf;
-	border-left: 3px solid color(#0085ba blackness(5%));
+	border-left: 3px solid color.adjust(#0085ba, $blackness: 5%);
 	transform: translateZ(0);
 	animation: load8 1.1s infinite linear;
 	position: relative;
@@ -380,7 +385,7 @@
 	margin-top: 1em;
 	box-sizing: border-box;
 
-	@media (--small-screen) {
+	@media ($mediaSmallScreen) {
 		width: 40%;
 		float: right;
 		clear: right;
@@ -423,7 +428,8 @@
 }
 
 #wpadminbar #distributor-push-wrapper .loader-messages {
-	@media (--small-screen) {
+
+	@media ($mediaSmallScreen) {
 		width: 100%;
 		float: none;
 		padding-left: 0;
@@ -431,7 +437,8 @@
 }
 
 .distributor-panel {
-	@media (--gutenberg-small-screen) {
+
+	@media ($mediaGutenbergSmallScreen) {
 		display: none;
 	}
 }
@@ -454,7 +461,7 @@
 	z-index: 1;
 	width: 349%;
 	margin-left: -250%;
-	-webkit-animation: loaderAnimation 0.8s linear infinite;
+	-webkit-animation: loaderanimation 0.8s linear infinite;
 	animation: loaderAnimation 0.8s linear infinite;
 	background: -webkit-gradient(linear, left top, right top, color-stop(46%, rgba(255, 255, 255, 0)), color-stop(50%, rgba(255, 255, 255, 0.35)), color-stop(54%, rgba(255, 255, 255, 0))) 50% 50%;
 	background: linear-gradient(to right, rgba(255, 255, 255, 0) 46%, rgba(255, 255, 255, 0.35) 50%, rgba(255, 255, 255, 0) 54%) 50% 50%;
@@ -522,10 +529,12 @@
 }
 
 @-webkit-keyframes load8 {
+
 	0% {
 		-webkit-transform: rotate(0deg);
 		transform: rotate(0deg);
 	}
+
 	100% {
 		-webkit-transform: rotate(360deg);
 		transform: rotate(360deg);
@@ -533,10 +542,12 @@
 }
 
 @keyframes load8 {
+
 	0% {
 		-webkit-transform: rotate(0deg);
 		transform: rotate(0deg);
 	}
+
 	100% {
 		-webkit-transform: rotate(360deg);
 		transform: rotate(360deg);
@@ -544,10 +555,12 @@
 }
 
 @-webkit-keyframes loaderAnimation {
+
 	0% {
 		-webkit-transform: translate3d(-30%, 0, 0);
 		transform: translate3d(-30%, 0, 0);
 	}
+
 	100% {
 		-webkit-transform: translate3d(30%, 0, 0);
 		transform: translate3d(30%, 0, 0);
@@ -555,10 +568,12 @@
 }
 
 @keyframes loaderAnimation {
+
 	0% {
 		-webkit-transform: translate3d(-30%, 0, 0);
 		transform: translate3d(-30%, 0, 0);
 	}
+
 	100% {
 		-webkit-transform: translate3d(30%, 0, 0);
 		transform: translate3d(30%, 0, 0);

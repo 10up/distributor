@@ -115,6 +115,16 @@ function enqueue_post_scripts_styles( $hook ) {
 		return;
 	}
 
-	wp_enqueue_style( 'dt-admin-distributed-post', plugins_url( '/dist/css/admin-distributed-post.min.css', __DIR__ ), array(), DT_VERSION );
-	wp_enqueue_script( 'dt-admin-distributed-post', plugins_url( '/dist/js/admin-distributed-post.min.js', __DIR__ ), [ 'jquery' ], DT_VERSION, true );
+	$asset_file = DT_PLUGIN_PATH . '/dist/js/admin-distributed-post.min.asset.php';
+	// Fallback asset data.
+	$asset_data = array(
+		'version'      => DT_VERSION,
+		'dependencies' => array(),
+	);
+	if ( file_exists( $asset_file ) ) {
+		$asset_data = require $asset_file;
+	}
+
+	wp_enqueue_style( 'dt-admin-distributed-post', plugins_url( '/dist/css/admin-distributed-post.min.css', __DIR__ ), array(), $asset_data['version'] );
+	wp_enqueue_script( 'dt-admin-distributed-post', plugins_url( '/dist/js/admin-distributed-post.min.js', __DIR__ ), $asset_data['dependencies'], $asset_data['version'], true );
 }

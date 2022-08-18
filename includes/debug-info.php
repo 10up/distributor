@@ -51,7 +51,18 @@ function enqueue_scripts( $hook ) {
 	if ( 'site-health.php' !== $hook ) {
 		return;
 	}
-	wp_enqueue_style( 'dt-site-health', plugins_url( '/dist/css/admin-site-health.min.css', __DIR__ ), [], DT_VERSION );
+	$asset_file = DT_PLUGIN_PATH . '/dist/js/admin-site-health-css.min.asset.php';
+	// Fallback asset data.
+	$asset_data = array(
+		'version'      => DT_VERSION,
+		'dependencies' => array(),
+	);
+	if ( file_exists( $asset_file ) ) {
+		$asset_data = require $asset_file;
+	}
+
+	// Dependencies only apply to JavaScript, not CSS files.
+	wp_enqueue_style( 'dt-site-health', plugins_url( '/dist/css/admin-site-health.min.css', __DIR__ ), array(), $asset_data['version'] );
 }
 
 /**
