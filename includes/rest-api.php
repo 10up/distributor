@@ -373,6 +373,7 @@ function distributor_meta() {
 		'version'                              => DT_VERSION,
 		'core_has_application_passwords'       => true,
 		'core_application_passwords_available' => ! wp_is_application_passwords_available() ? false : true,
+		'core_application_passwords_endpoint'  => admin_url( 'authorize-application.php' ),
 	);
 }
 
