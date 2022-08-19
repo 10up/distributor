@@ -572,17 +572,6 @@ function enqueue_gutenberg_edit_scripts() {
 
 	$post_type_singular = $post_type_object->labels->singular_name;
 
-	if ( function_exists( 'gutenberg_get_jed_locale_data' ) ) {
-		$i18n_locale = gutenberg_get_jed_locale_data( 'distributor' );
-	} else {
-		$i18n_locale = [
-			'' => [
-				'domain' => 'distributor',
-				'lang'   => get_user_locale(),
-			],
-		]; // this is a temp hacky substitute for gutenberg_get_jed_locale_data()
-	}
-
 	$asset_file = DT_PLUGIN_PATH . '/dist/js/gutenberg-syndicated-post.min.asset.php';
 	// Fallback asset data.
 	$asset_data = array(
@@ -594,6 +583,7 @@ function enqueue_gutenberg_edit_scripts() {
 	}
 
 	wp_enqueue_script( 'dt-gutenberg-syndicated-post', plugins_url( '/dist/js/gutenberg-syndicated-post.min.js', __DIR__ ), $asset_data['dependencies'], $asset_data['version'], true );
+	wp_set_script_translations( 'dt-gutenberg-syndicated-post', 'distributor', DT_PLUGIN_PATH . 'lang' );
 
 	$asset_file = DT_PLUGIN_PATH . '/dist/js/gutenberg-plugin.min.asset.php';
 	// Fallback asset data.
@@ -605,6 +595,7 @@ function enqueue_gutenberg_edit_scripts() {
 		$asset_data = require $asset_file;
 	}
 	wp_enqueue_script( 'dt-gutenberg-plugin', plugins_url( '/dist/js/gutenberg-plugin.min.js', __DIR__ ), $asset_data['dependencies'], $asset_data['version'], true );
+	wp_set_script_translations( 'dt-gutenberg-plugin', 'distributor', DT_PLUGIN_PATH . 'lang' );
 
 	wp_localize_script(
 		'dt-gutenberg-syndicated-post',

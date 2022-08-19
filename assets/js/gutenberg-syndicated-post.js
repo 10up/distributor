@@ -1,9 +1,7 @@
 import { dispatch } from '@wordpress/data';
-import { __, setLocaleData, sprintf } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 
 const { dtGutenberg } = window;
-
-setLocaleData( dtGutenberg.i18n, 'distributor' );
 
 if (
 	'0' !== dtGutenberg.originalSourceId ||
