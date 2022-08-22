@@ -179,7 +179,7 @@ add_action(
 		}
 
 		// Dependencies only apply to JavaScript, not CSS files.
-		wp_enqueue_style( 'dt-admin-settings', plugins_url( '/dist/css/admin.min.css', __FILE__ ), array(), $asset_data['version'] );
+		wp_enqueue_style( 'dt-admin-settings', plugins_url( '/dist/css/admin.min.css', __DIR__ ), array(), $asset_data['version'] );
 	}
 );
 
