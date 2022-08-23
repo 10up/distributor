@@ -71,6 +71,9 @@ jobs:
     - name: Check PHPCS standard
       run: ./vendor/bin/phpcs -i
 
+    - name: Check Compatibility of main plugin file.
+      run: ./vendor/bin/phpcs ./distributor.php --runtime-set testVersion 5.6- --standard=PHPCompatibilityWP
+
     - name: PHPCS check
       uses: chekalsky/phpcs-action@v1
       with:

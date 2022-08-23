@@ -7,6 +7,8 @@
 
 namespace Distributor\SyndicatedPostUI;
 
+use Distributor\Utils;
+
 /**
  * Setup actions and filters
  *
@@ -26,12 +28,8 @@ function setup() {
 			add_filter( 'admin_body_class', __NAMESPACE__ . '\add_linked_class' );
 			add_filter( 'post_row_actions', __NAMESPACE__ . '\remove_quick_edit', 10, 2 );
 
-			$post = isset( $_GET['post'] ) ? get_post( (int) $_GET['post'] ) : false; // @codingStandardsIgnoreLine Nonce not required
-
-			if ( $post && ! \Distributor\Utils\is_using_gutenberg( $post ) ) {
-				add_action( 'do_meta_boxes', __NAMESPACE__ . '\replace_revisions_meta_box', 10, 3 );
-				add_action( 'add_meta_boxes', __NAMESPACE__ . '\add_revisions_meta_box' );
-			}
+			add_action( 'do_meta_boxes', __NAMESPACE__ . '\replace_revisions_meta_box', 10, 3 );
+			add_action( 'add_meta_boxes', __NAMESPACE__ . '\add_revisions_meta_box' );
 
 			add_action( 'admin_init', __NAMESPACE__ . '\setup_columns' );
 		}
@@ -253,6 +251,10 @@ function new_revisions_meta_box( $post_id ) {
  */
 function replace_revisions_meta_box( $post_type, $context, $post ) {
 	if ( empty( $post ) ) {
+		return;
+	}
+
+	if ( Utils\is_using_gutenberg( $post ) ) {
 		return;
 	}
 
@@ -570,17 +572,6 @@ function enqueue_gutenberg_edit_scripts() {
 
 	$post_type_singular = $post_type_object->labels->singular_name;
 
-	if ( function_exists( 'gutenberg_get_jed_locale_data' ) ) {
-		$i18n_locale = gutenberg_get_jed_locale_data( 'distributor' );
-	} else {
-		$i18n_locale = [
-			'' => [
-				'domain' => 'distributor',
-				'lang'   => get_user_locale(),
-			],
-		]; // this is a temp hacky substitute for gutenberg_get_jed_locale_data()
-	}
-
 	$asset_file = DT_PLUGIN_PATH . '/dist/js/gutenberg-syndicated-post.min.asset.php';
 	// Fallback asset data.
 	$asset_data = array(
@@ -592,6 +583,7 @@ function enqueue_gutenberg_edit_scripts() {
 	}
 
 	wp_enqueue_script( 'dt-gutenberg-syndicated-post', plugins_url( '/dist/js/gutenberg-syndicated-post.min.js', __DIR__ ), $asset_data['dependencies'], $asset_data['version'], true );
+	wp_set_script_translations( 'dt-gutenberg-syndicated-post', 'distributor', DT_PLUGIN_PATH . 'lang' );
 
 	$asset_file = DT_PLUGIN_PATH . '/dist/js/gutenberg-plugin.min.asset.php';
 	// Fallback asset data.
@@ -603,6 +595,7 @@ function enqueue_gutenberg_edit_scripts() {
 		$asset_data = require $asset_file;
 	}
 	wp_enqueue_script( 'dt-gutenberg-plugin', plugins_url( '/dist/js/gutenberg-plugin.min.js', __DIR__ ), $asset_data['dependencies'], $asset_data['version'], true );
+	wp_set_script_translations( 'dt-gutenberg-plugin', 'distributor', DT_PLUGIN_PATH . 'lang' );
 
 	wp_localize_script(
 		'dt-gutenberg-syndicated-post',

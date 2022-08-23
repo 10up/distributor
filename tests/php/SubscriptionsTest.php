@@ -3,6 +3,7 @@
 namespace Distributor;
 
 use WP_Mock\Tools\TestCase;
+use WP_Mock\Functions;
 
 class SubscriptionsTest extends TestCase {
 
@@ -178,13 +179,29 @@ class SubscriptionsTest extends TestCase {
 	 */
 	public function test_send_notifications_none() {
 
-		$post = new \stdClass();
-		$post->ID = 1;
+		$post = (object) [
+			'ID' => 1,
+			'post_type' => 'post',
+		];
 
+		\WP_Mock::passthruFunction( 'absint' );
 		\WP_Mock::userFunction(
 			'get_post', [
-				'args'   => [ $post->ID ],
+				'args'   => [ Functions::anyOf( $post->ID, $post ) ],
 				'return' => $post,
+			]
+		);
+
+		\WP_Mock::userFunction(
+			'get_option', [
+				'args'   => [ 'page_for_posts' ],
+				'return' => 0,
+			]
+		);
+
+		\WP_Mock::userFunction(
+			'use_block_editor_for_post_type', [
+				'return' => false,
 			]
 		);
 
@@ -315,8 +332,23 @@ class SubscriptionsTest extends TestCase {
 
 		\WP_Mock::userFunction(
 			'get_post', [
-				'args'   => [ $post_id ],
+				'args'   => [ Functions::anyOf( $post->ID, $post ) ],
 				'return' => $post,
+			]
+		);
+
+		\WP_Mock::passthruFunction( 'absint' );
+
+		\WP_Mock::userFunction(
+			'get_option', [
+				'args'   => [ 'page_for_posts' ],
+				'return' => 0,
+			]
+		);
+
+		\WP_Mock::userFunction(
+			'use_block_editor_for_post_type', [
+				'return' => false,
 			]
 		);
 
@@ -488,8 +520,23 @@ class SubscriptionsTest extends TestCase {
 
 		\WP_Mock::userFunction(
 			'get_post', [
-				'args'   => [ $post_id ],
+				'args'   => [ Functions::anyOf( $post->ID, $post ) ],
 				'return' => $post,
+			]
+		);
+
+		\WP_Mock::passthruFunction( 'absint' );
+
+		\WP_Mock::userFunction(
+			'get_option', [
+				'args'   => [ 'page_for_posts' ],
+				'return' => 0,
+			]
+		);
+
+		\WP_Mock::userFunction(
+			'use_block_editor_for_post_type', [
+				'return' => false,
 			]
 		);
 

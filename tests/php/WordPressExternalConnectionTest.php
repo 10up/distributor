@@ -2,6 +2,7 @@
 namespace Distributor\ExternalConnections;
 
 use \Distributor\Authentications\WordPressBasicAuth as WordPressBasicAuth;
+use WP_Mock\Functions;
 use WP_Mock\Tools\TestCase;
 
 class WordPressExternalConnectionTest extends TestCase {
@@ -57,6 +58,20 @@ class WordPressExternalConnectionTest extends TestCase {
 		\WP_Mock::userFunction( 'wp_remote_post' );
 		\WP_Mock::userFunction( 'esc_html__' );
 		\WP_Mock::userFunction( 'get_bloginfo' );
+		\WP_Mock::passthruFunction( 'absint' );
+
+		\WP_Mock::userFunction(
+			'get_option', [
+				'args'   => [ 'page_for_posts' ],
+				'return' => 0,
+			]
+		);
+
+		\WP_Mock::userFunction(
+			'use_block_editor_for_post_type', [
+				'return' => false,
+			]
+		);
 
 		$post_type = 'foo';
 
@@ -75,14 +90,19 @@ class WordPressExternalConnectionTest extends TestCase {
 			]
 		);
 
+		$post = (object) [
+			'post_content' => 'my post content',
+			'post_type'    => $post_type,
+			'post_excerpt' => 'post excerpt',
+			'post_name'    => 'slug',
+			'post_type'    => $post_type,
+			'ID'           => 1,
+		];
+
 		\WP_Mock::userFunction(
 			'get_post', [
-				'return' => (object) [
-					'post_content' => 'my post content',
-					'post_type'    => $post_type,
-					'post_excerpt' => 'post excerpt',
-					'post_name'    => 'slug',
-				],
+				'args'   => [ Functions::anyOf( $post->ID, $post ) ],
+				'return' => $post,
 			]
 		);
 

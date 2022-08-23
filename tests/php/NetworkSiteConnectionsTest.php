@@ -59,11 +59,18 @@ class NetworkSiteConnectionsTest extends TestCase {
 		\WP_Mock::userFunction( 'remove_filter' );
 		\WP_Mock::userFunction( 'get_option' );
 		\WP_Mock::passthruFunction( 'wp_slash' );
+		\WP_Mock::passthruFunction( 'absint' );
 
 		$this->connection_obj->site->blog_id = 2;
 
 		$original_url = 'original url';
 		$new_post_id  = 123;
+
+		\WP_Mock::userFunction(
+			'use_block_editor_for_post_type', [
+				'return' => true,
+			]
+		);
 
 		\WP_Mock::userFunction(
 			'wp_insert_post', [
