@@ -171,7 +171,7 @@ Enabling this will also provide more debugging information in your error log for
 
 Application passwords are only available for live sites running over an HTTPS connection.
 
-For your local development environment will need these snippets to enable application passwords without the need for an HTTPS connection.  A local development environment is one that "can reach the internet but **is not reachable from the internet**".
+For your local development environment, you will need these snippets to enable application passwords without the need for an HTTPS connection.  A local development environment is one that "can reach the internet but **is not reachable from the internet**".
 
 ```php
 // In your local environment's wp-config.php file.
