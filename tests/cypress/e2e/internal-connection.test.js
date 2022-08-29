@@ -42,29 +42,4 @@ describe( 'Admin can add a new external connection', () => {
 			cy.get( '.connection-status' ).should( 'have.class', 'valid' );
 		} );
 	} );
-
-	it( 'Consider a site using plain permalinks valid', () => {
-		// Check if an external connection is added, if not, add it.
-		cy.visit( '/wp-admin/admin.php?page=distributor' );
-
-		cy.visit( '/wp-admin/post-new.php?post_type=dt_ext_connection' );
-
-		cy.get( '.manual-setup-button' ).click();
-
-		cy.get( '#title' ).type( 'Plain Permalink' );
-
-		cy.get( '#dt_username' ).type( 'admin' );
-
-		cy.get( '#dt_password' ).type( 'password' );
-
-		cy.get( '#dt_external_connection_url' ).type(
-			'http://localhost/second?rest_route='
-		);
-
-		cy.get( '#create-connection' ).click();
-
-		// Visit the list and check the validation.
-		cy.visit( '/wp-admin/admin.php?page=distributor' );
-		cy.get( '.connection-status' ).should( 'have.class', 'valid' );
-	} );
 } );
