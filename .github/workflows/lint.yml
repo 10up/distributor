@@ -23,6 +23,8 @@ jobs:
       uses: actions/setup-node@v3
       with:
           node-version-file: '.nvmrc'
+    - name: Check versions
+      run: npm -v; node -v
     - name: npm install
       run: npm install
     - name: Generate linting report

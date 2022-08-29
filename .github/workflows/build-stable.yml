@@ -14,6 +14,8 @@ jobs:
       uses: actions/setup-node@v3
       with:
           node-version-file: '.nvmrc'
+    - name: Check versions
+      run: npm -v; node -v
     - name: Install and build
       run: |
         composer install --no-dev
