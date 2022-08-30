@@ -3,7 +3,7 @@ import { pluginIcon } from './components/plugin-icon';
 import { Icon } from '@wordpress/components';
 import { select, useSelect } from '@wordpress/data';
 import { PluginDocumentSettingPanel } from '@wordpress/edit-post';
-import { __, sprintf } from '@wordpress/i18n';
+import { __, _n, _x, sprintf } from '@wordpress/i18n';
 import { registerPlugin } from '@wordpress/plugins';
 
 const { document, dtGutenberg, MouseEvent } = window;
@@ -64,7 +64,12 @@ const RenderShowAdminBar = () => {
 				{ sprintf(
 					/** translators: 1: Post type or generic term content. */
 					__( 'Distribute %1$s', 'distributor' ),
-					dtGutenberg.postTypeSingular || 'Content'
+					dtGutenberg.postTypeSingular ||
+						_x(
+							'content',
+							'generic term for post content',
+							'distributor'
+						)
 				) }
 			</button>
 		</div>
@@ -110,9 +115,13 @@ const RenderDistributedTo = () => {
 		<span id="distributed-to">
 			{ sprintf(
 				/** translators: 1: Number of connections content distributed to. */
-				__( 'Distributed to %1$s connection%2$s.', 'distributor' ),
-				dtGutenberg.syndicationCount,
-				'1' === dtGutenberg.syndicationCount ? '' : 's'
+				_n(
+					'Distributed to %1$s connection.',
+					'Distributed to %1$s connections.',
+					dtGutenberg.syndicationCount * 1, // Syndication count is a string, so we need to convert it to a number.
+					'distributor'
+				),
+				dtGutenberg.syndicationCount
 			) }
 		</span>
 	);
@@ -124,8 +133,11 @@ const RenderDistributedTo = () => {
 const RenderDistributedFrom = () => {
 	return (
 		<span id="distributed-from">
-			{ __( 'Distributed on: ', 'distributor' ) }
-			<strong> { dtGutenberg.syndicationTime } </strong>
+			{ sprintf(
+				/** translators: 1: Syndication date and time. */
+				__( 'Distributed on: %1$s', 'distributor' ),
+				dtGutenberg.syndicationTime
+			) }
 		</span>
 	);
 };
