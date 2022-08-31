@@ -62,7 +62,7 @@ const RenderShowAdminBar = () => {
 				} }
 			>
 				{ sprintf(
-					/** translators: 1: Post type or generic term content. */
+					/* translators: 1: Post type or generic term content. */
 					__( 'Distribute %1$s', 'distributor' ),
 					dtGutenberg.postTypeSingular ||
 						_x(
@@ -114,7 +114,7 @@ const RenderDistributedTo = () => {
 	return (
 		<span id="distributed-to">
 			{ sprintf(
-				/** translators: 1: Number of connections content distributed to. */
+				/* translators: 1: Number of connections content distributed to. */
 				_n(
 					'Distributed to %1$s connection.',
 					'Distributed to %1$s connections.',
@@ -134,7 +134,7 @@ const RenderDistributedFrom = () => {
 	return (
 		<span id="distributed-from">
 			{ sprintf(
-				/** translators: 1: Syndication date and time. */
+				/* translators: 1: Syndication date and time. */
 				__( 'Distributed on: %1$s', 'distributor' ),
 				dtGutenberg.syndicationTime
 			) }
