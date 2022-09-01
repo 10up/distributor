@@ -10,14 +10,19 @@ on:
       - develop
 jobs:
   cypress:
-    name: ${{ matrix.core.name }}
+    name: ${{ matrix.core.name }} ${{ matrix.php.name }}
     runs-on: ubuntu-latest
     strategy:
       matrix:
+        php:
+          - {name: 'PHP Default', version: null}
         core:
           - {name: 'WP latest', version: 'latest'}
           - {name: 'WP minimum', version: 'WordPress/WordPress#5.7'}
           - {name: 'WP trunk', version: 'WordPress/WordPress#master'}
+        include:
+          - php: {name: 'PHP Minimum', version: '7.4'}
+            core: {name: 'WP minimum', version: 'WordPress/WordPress#5.7'}
     steps:
     - name: Checkout
       uses: actions/checkout@v3
@@ -31,7 +36,7 @@ jobs:
       run: composer install
 
     - name: Set the core version
-      run: ./tests/bin/set-core-version.js ${{ matrix.core.version }}
+      run: ./tests/bin/set-core-version.js ${{ matrix.core.version }} ${{ matrix.php.version }}
 
     - name: Set up WP environment
       run: npm run env:start
