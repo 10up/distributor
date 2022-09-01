@@ -41,6 +41,9 @@ jobs:
     - name: Set up WP environment
       run: npm run env:start
 
+    - name: Log WP Environment Versions
+      run: npm run env:version-log
+
     - name: Convert to multisite
       run: npm run to-multisite
 
