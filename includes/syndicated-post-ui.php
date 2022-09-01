@@ -191,7 +191,15 @@ function syndication_date( $post ) {
 	?>
 
 	<div class="misc-pub-section curtime misc-pub-curtime">
-		<span id="syndicate-time"><?php esc_html_e( 'Distributed on: ', 'distributor' ); ?><strong><?php echo esc_html( gmdate( 'M j, Y @ h:i', ( $syndicate_time + ( get_option( 'gmt_offset' ) * HOUR_IN_SECONDS ) ) ) ); ?></strong></span>
+		<span id="syndicate-time">
+			<?php
+			printf(
+				/* translators: 1: Syndication date and time. */
+				esc_html__( 'Distributed on: %1$s', 'distributor' ),
+				'<strong>' . esc_html( gmdate( 'M j, Y @ h:i', ( $syndicate_time + ( get_option( 'gmt_offset' ) * HOUR_IN_SECONDS ) ) ) ) . '</strong>'
+			);
+			?>
+		</span>
 	</div>
 
 	<?php
