@@ -21,6 +21,10 @@ if ( args[ 0 ] == 'latest' ) {
 
 config.core = args[ 0 ];
 
+if ( !! args[ 1 ] ) {
+	config.phpVersion = args[ 1 ];
+}
+
 if ( ! config.core.match( /^WordPress\/WordPress\#/ ) ) {
 	config.core = 'WordPress/WordPress#' + config.core;
 }
