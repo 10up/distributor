@@ -44,7 +44,7 @@ jobs:
     - name: Set up WP environment
       run: npm run env:start
 
-    - name: Log WP Environment Versions
+    - name: Log WP environment versions
       run: |
         npx wp-env run cli "wp core version"
         npx wp-env run cli "php --version"
