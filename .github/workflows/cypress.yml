@@ -10,19 +10,19 @@ on:
       - develop
 jobs:
   cypress:
-    name: ${{ matrix.core.name }} ${{ matrix.php.name }}
+    name: ${{ matrix.core.name }} / ${{ matrix.php.name }}
     runs-on: ubuntu-latest
     strategy:
       matrix:
         php:
           - {name: 'PHP Default', version: null}
         core:
-          - {name: 'WP latest', version: 'latest'}
-          - {name: 'WP minimum', version: 'WordPress/WordPress#5.7'}
+          - {name: 'WP stable', version: 'latest'}
+          - {name: 'WP 5.7', version: 'WordPress/WordPress#5.7'}
           - {name: 'WP trunk', version: 'WordPress/WordPress#master'}
         include:
-          - php: {name: 'PHP Minimum', version: '7.4'}
-            core: {name: 'WP minimum', version: 'WordPress/WordPress#5.7'}
+          - php: {name: 'PHP 7.4', version: '7.4'}
+            core: {name: 'WP 5.7', version: 'WordPress/WordPress#5.7'}
     steps:
     - name: Checkout
       uses: actions/checkout@v3
