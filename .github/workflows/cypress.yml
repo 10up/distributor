@@ -38,7 +38,9 @@ jobs:
       run: composer install
 
     - name: Set the core version
-      run: ./tests/bin/set-core-version.js ${{ matrix.core.version }} ${{ matrix.php.version }}
+      run: |
+        ./tests/bin/set-core-version.js ${{ matrix.core.version }} ${{ matrix.php.version }}
+        cat .wp-env.override.json
 
     - name: Set up WP environment
       run: npm run env:start
