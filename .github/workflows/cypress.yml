@@ -23,6 +23,8 @@ jobs:
         include:
           - php: {name: 'PHP 7.4', version: '7.4'}
             core: {name: 'WP 5.7', version: 'WordPress/WordPress#5.7'}
+          - php: {name: 'PHP 8.1', version: '8.1'}
+            core: {name: 'WP stable', version: 'latest'}
     steps:
     - name: Checkout
       uses: actions/checkout@v3
