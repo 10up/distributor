@@ -42,7 +42,9 @@ jobs:
       run: npm run env:start
 
     - name: Log WP Environment Versions
-      run: npm run env:version-log
+      run: |
+        npx wp-env run cli "wp core version"
+        npx wp-env run cli "php --version"
 
     - name: Convert to multisite
       run: npm run to-multisite

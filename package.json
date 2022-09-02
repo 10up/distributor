@@ -57,7 +57,6 @@
 		"env": "wp-env",
 		"env:start": "wp-env start",
 		"env:stop": "wp-env stop",
-		"env:version-log": "wp-env cli \"wp core version\"; wp-env cli \"php -v\"",
 		"to-multisite": "wp-env run tests-cli \"wp core multisite-convert --title='Distributor Multisite'\"",
 		"copy-htaccess": "wp-env run tests-cli \"cp wp-content/plugins/distributor/tests/cypress/.htaccess .htaccess\"",
 		"postenv:start": "./tests/bin/initialize.sh"
