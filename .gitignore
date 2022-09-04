@@ -10,3 +10,4 @@ screenshots/
 lang/
 docs-built
 .phpunit.result.cache
+/.wp-env.override.json
