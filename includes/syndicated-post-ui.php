@@ -191,7 +191,15 @@ function syndication_date( $post ) {
 	?>
 
 	<div class="misc-pub-section curtime misc-pub-curtime">
-		<span id="syndicate-time"><?php esc_html_e( 'Distributed on: ', 'distributor' ); ?><strong><?php echo esc_html( gmdate( 'M j, Y @ h:i', ( $syndicate_time + ( get_option( 'gmt_offset' ) * HOUR_IN_SECONDS ) ) ) ); ?></strong></span>
+		<span id="syndicate-time">
+			<?php
+			printf(
+				/* translators: 1: Syndication date and time. */
+				esc_html__( 'Distributed on: %1$s', 'distributor' ),
+				'<strong>' . esc_html( gmdate( 'M j, Y @ h:i', ( $syndicate_time + ( get_option( 'gmt_offset' ) * HOUR_IN_SECONDS ) ) ) ) . '</strong>'
+			);
+			?>
+		</span>
 	</div>
 
 	<?php
@@ -422,7 +430,7 @@ function syndicated_message( $post ) {
 
 	$post_type_object = get_post_type_object( $post->post_type );
 
-	$post_url           = get_post_meta( $post->ID, 'dt_original_post_url', true );
+	$original_post_url  = get_post_meta( $post->ID, 'dt_original_post_url', true );
 	$original_site_name = get_post_meta( $post->ID, 'dt_original_site_name', true );
 
 	if ( ! empty( $original_blog_id ) && is_multisite() ) {
@@ -445,30 +453,53 @@ function syndicated_message( $post ) {
 		<?php if ( $original_deleted ) : ?>
 			<p>
 				<?php
-					/* translators: %1$s: post type name, %2$s: site url, %3$s: site name */
-					echo wp_kses_post( sprintf( __( 'This %1$s was distributed from <a href="%2$s">%3$s</a>. However, the original has been deleted.', 'distributor' ), esc_html( strtolower( $post_type_singular ) ), esc_url( $post_url ), esc_html( $original_location_name ) ) );
+					printf(
+						/* translators: 1) Distributor post type singular name, 2) Source of content. */
+						esc_html__( 'This %1$s was distributed from %2$s. However, the original has been deleted.', 'distributor' ),
+						esc_html( strtolower( $post_type_singular ) ),
+						esc_html( $original_location_name )
+					);
 				?>
 			</p>
 		<?php elseif ( ! $unlinked ) : ?>
 			<p>
 				<?php
-					/* translators: %1$s: site url, %2$s: site name */
-					echo wp_kses_post( sprintf( __( 'Distributed from <a href="%1$s">%2$s</a>.', 'distributor' ), esc_url( $post_url ), esc_html( $original_location_name ) ) );
+					printf(
+						/* translators: 1) Source of content, 2) Distributor post type singular name. */
+						esc_html__( 'Distributed from %1$s. This %2$s is linked to the original. Edits to the original will update this version.', 'distributor' ),
+						esc_html( $original_location_name ),
+						esc_html( strtolower( $post_type_singular ) )
+					);
 				?>
 				<?php
 					// Filter documented above.
 				if ( apply_filters( 'dt_allow_post_unlink', true, $post->ID ) ) :
+					$unlink_url = wp_nonce_url( add_query_arg( 'action', 'unlink', admin_url( sprintf( $post_type_object->_edit_link, $post->ID ) ) ), "unlink-post_{$post->ID}" );
 					?>
-					<?php /* translators: %1$s: post type name, %2$s: unlink url */ ?>
-					<span><?php echo wp_kses_post( sprintf( __( 'The original %1$s will update this version unless you <a href="%2$s">unlink from the original.</a>', 'distributor' ), esc_html( strtolower( $post_type_singular ) ), wp_nonce_url( add_query_arg( 'action', 'unlink', admin_url( sprintf( $post_type_object->_edit_link, $post->ID ) ) ), "unlink-post_{$post->ID}" ) ) ); ?></span>
+					</p>
+					<p>
+					<span><a href="<?php echo esc_url( $unlink_url ); ?>"><?php echo esc_html__( 'Unlink from original.', 'distributor' ); ?></a></span>
+					<span><a href="<?php echo esc_url( $original_post_url ); ?>"><?php echo esc_html__( 'View Original.', 'distributor' ); ?></a></span>
 				<?php endif; ?>
 			</p>
 		<?php else : ?>
 			<p>
-				<?php /* translators: %1$s: site url, %2$s: site name */ ?>
-				<?php echo wp_kses_post( sprintf( __( 'Originally distributed from <a href="%1$s">%1$s</a>.', 'distributor' ), esc_url( $post_url ), esc_html( $original_location_name ) ) ); ?>
-				<?php /* translators: %1$s: post type name, %2$s: link url */ ?>
-				<span><?php echo wp_kses_post( sprintf( __( "This %1\$s has been unlinked from the original. However, you can always <a href='%2\$s'>restore it.</a>", 'distributor' ), esc_html( strtolower( $post_type_singular ) ), wp_nonce_url( add_query_arg( 'action', 'link', admin_url( sprintf( $post_type_object->_edit_link, $post->ID ) ) ), "link-post_{$post->ID}" ) ) ); ?></span>
+				<?php
+				printf(
+					/* translators: 1) Source of content, 2) Distributor post type singular name. */
+					esc_html__(
+						'Originally distributed from %1$s. This %2$s has been unlinked from the original. Edits to the original will not update this version.',
+						'distributor'
+					),
+					esc_html( $original_location_name ),
+					esc_html( strtolower( $post_type_singular ) )
+				);
+				$relink_url = wp_nonce_url( add_query_arg( 'action', 'link', admin_url( sprintf( $post_type_object->_edit_link, $post->ID ) ) ), "link-post_{$post->ID}" );
+				?>
+			</p>
+			<p>
+				<span><a href="<?php echo esc_url( $relink_url ); ?>"><?php echo esc_html__( 'Relink to original.', 'distributor' ); ?></a></span>
+				<span><a href="<?php echo esc_url( $original_post_url ); ?>"><?php echo esc_html__( 'View Original.', 'distributor' ); ?></a></span>
 			</p>
 		<?php endif; ?>
 	</div>

@@ -423,10 +423,15 @@ function dashboard() {
 			if ( empty( $connection_list_table->connection_objects ) ) :
 				$connection_now = 0;
 				?>
-				<?php esc_html_e( 'No Connections to Pull from,', 'distributor' ); ?>
-
-				<a href="<?php echo esc_url( admin_url( 'post-new.php?post_type=dt_ext_connection' ) ); ?>"><?php esc_html_e( 'Create One?', 'distributor' ); ?></a>
-
+				<?php
+				echo wp_kses_post(
+					sprintf(
+						/* translators: %s: link to add new connection */
+						__( 'No connections to pull from, <a href="%s">create one?</a>', 'distributor' ),
+						esc_url( admin_url( 'post-new.php?post_type=dt_ext_connection' ) )
+					)
+				);
+				?>
 			<?php else : ?>
 				<?php esc_html_e( 'Pull Content from', 'distributor' ); ?>
 				<select id="pull_connections" name="connection" method="get">

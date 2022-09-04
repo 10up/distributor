@@ -86,8 +86,20 @@ function distributed_to( $post ) {
 
 	<div class="misc-pub-section curtime misc-pub-curtime">
 		<span id="distributed-to">
-			<?php /* translators: %d: number of connections */ ?>
-			<?php printf( wp_kses_post( _n( 'Distributed to <strong>%d</strong> connection', 'Distributed to <strong>%d</strong> connections', (int) $total_connections, 'distributor' ) ), (int) $total_connections ); ?>
+			<?php
+			echo wp_kses_post(
+				sprintf(
+					/* translators: %d: number of connections */
+					_n(
+						'Distributed to %1$s connection.',
+						'Distributed to %1$s connections.',
+						(int) $total_connections, // Syndication count is a string, so we need to convert it to a number.
+						'distributor'
+					),
+					'<strong>' . esc_html( $total_connections ) . '</strong>'
+				)
+			);
+			?>
 			<a class="open-distributor-help">(?)</a>
 		</span>
 	</div>
