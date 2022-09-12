@@ -12,7 +12,7 @@ if (
 
 	if ( parseInt( dtGutenberg.originalDelete ) ) {
 		message = sprintf(
-			/** translators: 1) Distributor post type singular name, 2) Source of content. */
+			/* translators: 1) Distributor post type singular name, 2) Source of content. */
 			__(
 				'This %1$s was distributed from %2$s. However, the original has been deleted.'
 			),
@@ -21,16 +21,17 @@ if (
 		);
 	} else if ( ! parseInt( dtGutenberg.unlinked ) ) {
 		message = sprintf(
-			/** translators: 1) Source of content. */
+			/* translators: 1) Source of content, 2) Distributor post type singular name. */
 			__(
-				'Distributed from %s. The original will update this version unless you',
+				'Distributed from %1$s. This %2$s is linked to the original. Edits to the original will update this version.',
 				'distributor'
 			),
-			dtGutenberg.originalLocationName
+			dtGutenberg.originalLocationName,
+			dtGutenberg.postTypeSingular
 		);
 
 		actions.push( {
-			label: __( 'unlink from original.', 'distributor' ),
+			label: __( 'Unlink from original.', 'distributor' ),
 			url: dtGutenberg.unlinkNonceUrl,
 		} );
 
@@ -40,9 +41,9 @@ if (
 		} );
 	} else {
 		message = sprintf(
-			/** translators: 1) Source of content, 2) Distributor post type singular name. */
+			/* translators: 1) Source of content, 2) Distributor post type singular name. */
 			__(
-				'Originally distributed from %1$s. This %2$s has been unlinked from the original. However, you can always',
+				'Originally distributed from %1$s. This %2$s has been unlinked from the original. Edits to the original will not update this version.',
 				'distributor'
 			),
 			dtGutenberg.originalLocationName,
@@ -50,7 +51,7 @@ if (
 		);
 
 		actions.push( {
-			label: __( 'restore it.', 'distributor' ),
+			label: __( 'Relink to original.', 'distributor' ),
 			url: dtGutenberg.linkNonceUrl,
 		} );
 

@@ -211,19 +211,19 @@ class WordPressExternalConnection extends ExternalConnection {
 			$types_body = wp_remote_retrieve_body( $types_response );
 
 			if ( empty( $types_body ) ) {
-				return new \WP_Error( 'no-response-body', esc_html__( 'Response body is empty', 'distributor' ) );
+				return new \WP_Error( 'no-response-body', esc_html__( 'Response body is empty.', 'distributor' ) );
 			}
 
 			$types_body_array = json_decode( $types_body, true );
 
 			if ( empty( $types_body_array ) || empty( $types_body_array[ $post_type ] ) ) {
-				return new \WP_Error( 'no-pull-post-type', esc_html__( 'Could not determine remote post type endpoint', 'distributor' ) );
+				return new \WP_Error( 'no-pull-post-type', esc_html__( 'Could not determine remote post type endpoint.', 'distributor' ) );
 			}
 
 			$types_urls[ $post_type ] = $this->parse_type_items_link( $types_body_array[ $post_type ] );
 
 			if ( empty( $types_urls[ $post_type ] ) ) {
-				return new \WP_Error( 'no-pull-post-type', esc_html__( 'Could not determine remote post type endpoint', 'distributor' ) );
+				return new \WP_Error( 'no-pull-post-type', esc_html__( 'Could not determine remote post type endpoint.', 'distributor' ) );
 			}
 		}
 
@@ -332,7 +332,7 @@ class WordPressExternalConnection extends ExternalConnection {
 		$posts_body = wp_remote_retrieve_body( $posts_response );
 
 		if ( empty( $posts_body ) ) {
-			return new \WP_Error( 'no-response-body', esc_html__( 'Response body is empty', 'distributor' ) );
+			return new \WP_Error( 'no-response-body', esc_html__( 'Response body is empty.', 'distributor' ) );
 		}
 
 		$posts           = json_decode( $posts_body, true );
@@ -377,7 +377,7 @@ class WordPressExternalConnection extends ExternalConnection {
 	 */
 	public function remote_post( $url = '', $args = array() ) {
 		if ( ! $url ) {
-			return new \WP_Error( 'endpoint-error', esc_html__( 'Endpoint URL must be set', 'distributor' ) );
+			return new \WP_Error( 'endpoint-error', esc_html__( 'Endpoint URL must be set.', 'distributor' ) );
 		}
 
 		/**
@@ -440,7 +440,7 @@ class WordPressExternalConnection extends ExternalConnection {
 		$response_headers = wp_remote_retrieve_headers( $request );
 
 		if ( empty( $posts_body ) ) {
-			return new \WP_Error( 'no-response-body', esc_html__( 'Response body is empty', 'distributor' ) );
+			return new \WP_Error( 'no-response-body', esc_html__( 'Response body is empty.', 'distributor' ) );
 		}
 
 		$posts           = json_decode( $posts_body, true );
@@ -602,7 +602,7 @@ class WordPressExternalConnection extends ExternalConnection {
 	 */
 	public function push( $post_id, $args = array() ) {
 		if ( empty( $post_id ) ) {
-			return new \WP_Error( 'no-push-post-id', esc_html__( 'Post id required to push', 'distributor' ) );
+			return new \WP_Error( 'no-push-post-id', esc_html__( 'Post ID required to push.', 'distributor' ) );
 		}
 
 		$post = get_post( $post_id );
@@ -629,7 +629,7 @@ class WordPressExternalConnection extends ExternalConnection {
 		$body = wp_remote_retrieve_body( $response );
 
 		if ( empty( $body ) ) {
-			return new \WP_Error( 'no-response-body', esc_html__( 'Response body is empty', 'distributor' ) );
+			return new \WP_Error( 'no-response-body', esc_html__( 'Response body is empty.', 'distributor' ) );
 		}
 
 		$body_array = json_decode( $body, true );
@@ -637,7 +637,7 @@ class WordPressExternalConnection extends ExternalConnection {
 		$type_url = $this->parse_type_items_link( $body_array[ $post_type ] );
 
 		if ( empty( $type_url ) ) {
-			return new \WP_Error( 'no-push-post-type', esc_html__( 'Could not determine remote post type endpoint', 'distributor' ) );
+			return new \WP_Error( 'no-push-post-type', esc_html__( 'Could not determine remote post type endpoint.', 'distributor' ) );
 		}
 
 		$signature = \Distributor\Subscriptions\generate_signature();
@@ -733,13 +733,13 @@ class WordPressExternalConnection extends ExternalConnection {
 		$body = wp_remote_retrieve_body( $response );
 
 		if ( empty( $body ) ) {
-			return new \WP_Error( 'no-response-body', esc_html__( 'Response body is empty', 'distributor' ) );
+			return new \WP_Error( 'no-response-body', esc_html__( 'Response body is empty.', 'distributor' ) );
 		}
 
 		$body_array = json_decode( $body, true );
 
 		if ( empty( $body_array['id'] ) ) {
-			return new \WP_Error( 'no-push-post-remote-id', esc_html__( 'Could not determine remote post id.', 'distributor' ) );
+			return new \WP_Error( 'no-push-post-remote-id', esc_html__( 'Could not determine remote post ID.', 'distributor' ) );
 		}
 
 		$response_headers = wp_remote_retrieve_headers( $response );
@@ -787,7 +787,7 @@ class WordPressExternalConnection extends ExternalConnection {
 		$types_body = wp_remote_retrieve_body( $types_response );
 
 		if ( empty( $types_body ) ) {
-			return new \WP_Error( 'no-response-body', esc_html__( 'Response body is empty', 'distributor' ) );
+			return new \WP_Error( 'no-response-body', esc_html__( 'Response body is empty.', 'distributor' ) );
 		}
 
 		$types_body_array = json_decode( $types_body, true );
