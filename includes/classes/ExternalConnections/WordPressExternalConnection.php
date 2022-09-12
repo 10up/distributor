@@ -812,7 +812,7 @@ class WordPressExternalConnection extends ExternalConnection {
 		$remote_request_url = untrailingslashit( $this->base_url );
 		if ( str_ends_with( $remote_request_url, '?rest_route=' ) ) {
 			// It's a request to get the REST API index using plain permalinks and needs a trailing slash.
-			$remote_request_url = user_trailingslashit( $remote_request_url );
+			$remote_request_url = trailingslashit( $remote_request_url );
 		}
 
 		$response = Utils\remote_http_request( $remote_request_url, $this->auth_handler->format_get_args( array( 'timeout' => self::$timeout ) ) );
