@@ -244,12 +244,6 @@ function send_notifications( $post ) {
 		return;
 	}
 
-	// If using Gutenberg, short circuit early and run this method later to make sure terms and meta are saved before syndicating.
-	if ( \Distributor\Utils\is_using_gutenberg( $post ) && doing_action( 'save_post' ) && ! isset( $_GET['meta-box-loader'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification
-		add_action( "rest_after_insert_{$post->post_type}", __NAMESPACE__ . '\send_notifications' );
-		return;
-	}
-
 	$subscriptions = get_post_meta( $post_id, 'dt_subscriptions', true );
 
 	if ( empty( $subscriptions ) ) {
