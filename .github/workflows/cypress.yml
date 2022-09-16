@@ -10,14 +10,21 @@ on:
       - develop
 jobs:
   cypress:
-    name: ${{ matrix.core.name }}
+    name: ${{ matrix.core.name }} / ${{ matrix.php.name }}
     runs-on: ubuntu-latest
     strategy:
       matrix:
+        php:
+          - {name: 'PHP Default', version: null}
         core:
-          - {name: 'WP latest', version: 'latest'}
-          - {name: 'WP minimum', version: 'WordPress/WordPress#5.7'}
+          - {name: 'WP stable', version: 'latest'}
+          - {name: 'WP 5.7', version: 'WordPress/WordPress#5.7'}
           - {name: 'WP trunk', version: 'WordPress/WordPress#master'}
+        include:
+          - php: {name: 'PHP 7.4', version: '7.4'}
+            core: {name: 'WP 5.7', version: 'WordPress/WordPress#5.7'}
+          - php: {name: 'PHP 8.1', version: '8.1'}
+            core: {name: 'WP stable', version: 'latest'}
     steps:
     - name: Checkout
       uses: actions/checkout@v3
@@ -35,10 +42,16 @@ jobs:
       run: composer install
 
     - name: Set the core version
-      run: ./tests/bin/set-core-version.js ${{ matrix.core.version }}
+      run: |
+        ./tests/bin/set-core-version.js ${{ matrix.core.version }} ${{ matrix.php.version }}
 
     - name: Set up WP environment
       run: npm run env:start
+
+    - name: Log WP environment versions
+      run: |
+        npx wp-env run cli "wp core version"
+        npx wp-env run cli "php --version"
 
     - name: Convert to multisite
       run: npm run to-multisite

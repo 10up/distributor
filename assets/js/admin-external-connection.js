@@ -195,15 +195,22 @@ jQuery( authorizeConnectionButton ).on( 'click', ( event ) => {
 					? 'authorize-application.php'
 					: 'admin.php?page=auth_app';
 
-			const authURL = addQueryArgs(
-				`${ siteURL }wp-admin/${ auth_page }`,
-				{
-					app_name: dt.distributor_from /*eslint camelcase: 0*/,
-					success_url:
-						encodeURI( successURL ) /*eslint camelcase: 0*/,
-					reject_url: encodeURI( failureURL ) /*eslint camelcase: 0*/,
-				}
-			);
+			let auth_url;
+
+			if (
+				'core_application_passwords_endpoint' in response.data &&
+				response.data.core_application_passwords_available
+			) {
+				auth_url = response.data.core_application_passwords_endpoint;
+			} else {
+				auth_url = `${ siteURL }wp-admin/${ auth_page }`;
+			}
+
+			const authURL = addQueryArgs( auth_url, {
+				app_name: dt.distributor_from /*eslint camelcase: 0*/,
+				success_url: encodeURI( successURL ) /*eslint camelcase: 0*/,
+				reject_url: encodeURI( failureURL ) /*eslint camelcase: 0*/,
+			} );
 			document.location = authURL;
 		} );
 

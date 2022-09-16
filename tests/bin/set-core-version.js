@@ -13,16 +13,17 @@ const args = process.argv.slice( 2 );
 if ( args.length == 0 ) exit( 0 );
 
 if ( args[ 0 ] == 'latest' ) {
-	if ( fs.existsSync( path ) ) {
-		fs.unlinkSync( path );
+	config.core = null;
+} else {
+	let coreVersion = args[ 0 ];
+	if ( ! coreVersion.match( /^WordPress\/WordPress\#/i ) ) {
+		coreVersion = 'WordPress/WordPress#' + coreVersion;
 	}
-	exit( 0 );
+	config.core = coreVersion;
 }
 
-config.core = args[ 0 ];
-
-if ( ! config.core.match( /^WordPress\/WordPress\#/ ) ) {
-	config.core = 'WordPress/WordPress#' + config.core;
+if ( !! args[ 1 ] ) {
+	config.phpVersion = args[ 1 ];
 }
 
 try {
