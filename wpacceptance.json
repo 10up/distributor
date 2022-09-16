@@ -8,5 +8,9 @@
     ],
     "enforce_clean_db": true,
     "bootstrap": "tests\/wpacceptance\/bootstrap.php",
-    "repository": "10up"
+    "repository": "10up",
+    "before_scripts" : [
+      "mv tests/test-plugins/* ../"
+    ],
+    "project_path": "%WP_ROOT%/wp-content"
 }

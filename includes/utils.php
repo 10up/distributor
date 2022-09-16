@@ -995,6 +995,23 @@ function get_processed_content( $post_content ) {
 }
 
 /**
+ * Check if post status can be distributed.
+ *
+ * @return bool
+ */
+function can_distribute_post_status() {
+	/**
+	 * Filter whether Distributor should update post statuses when the origin post status changes.
+	 *
+	 * False by default, return true to have post statuses distributed.
+	 *
+	 * @since 2.0.0
+	 * @hook dt_distribute_post_status
+	 */
+	return apply_filters( 'dt_distribute_post_status', false );
+}
+
+/**
  * Gets the REST URL for a post.
  *
  * @param  int $blog_id The blog ID.

@@ -62,7 +62,7 @@ class InternalPushTest extends \TestCase {
 
 		$I->waitUntilElementVisible( '#wpadminbar' );
 
-		$editor_has_blocks =  $this->editorHasBlocks( $I );
+		$editor_has_blocks =  $this->editorHasBlocks( $I, true );
 
 		// Skip this test in Gutenberg for now.
 		// @todo This needs to be re-written for the Gutenberg UI or easier a prebuilt post added to the docker images we can test push data sync with.

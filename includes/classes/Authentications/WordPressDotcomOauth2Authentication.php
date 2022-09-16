@@ -81,10 +81,10 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 		// Calculate the redirect_uri to use for authorization (the current admin url & query vars).
 		$redirect_uri                   = esc_url(
 			( is_ssl() ? 'https://' : 'http://' ) .
-			sanitize_text_field( isset( $_SERVER['HTTP_HOST'] ) ? $_SERVER['HTTP_HOST'] : '' ) . // Input var okay. WPCS: CSRF ok.
-			sanitize_text_field( isset( $_SERVER['SCRIPT_NAME'] ) ? $_SERVER['SCRIPT_NAME'] : '' ) . // WPCS: input var ok.
+			sanitize_text_field( isset( $_SERVER['HTTP_HOST'] ) ? $_SERVER['HTTP_HOST'] : '' ) .
+			sanitize_text_field( isset( $_SERVER['SCRIPT_NAME'] ) ? $_SERVER['SCRIPT_NAME'] : '' ) .
 			'?' .
-			sanitize_text_field( isset( $_SERVER['QUERY_STRING'] ) ? $_SERVER['QUERY_STRING'] : '' ) // WPCS: input var ok.
+			sanitize_text_field( isset( $_SERVER['QUERY_STRING'] ) ? $_SERVER['QUERY_STRING'] : '' )
 		);
 		$args[ self::API_REDIRECT_URI ] = $redirect_uri;
 

@@ -54,7 +54,7 @@ class EditorBlocksTests extends \TestCase {
 		$I->moveTo( '/wp-admin/post.php?post=40&action=edit' );
 
 		// Only test for the block editor.
-		if ( ! $this->editorHasBlocks( $I ) ) {
+		if ( ! $this->editorHasBlocks( $I, true ) ) {
 			return;
 		}
 		$this->addContentToTestPost( $I );
@@ -83,7 +83,7 @@ class EditorBlocksTests extends \TestCase {
 		$I->moveTo( '/wp-admin/post.php?post=40&action=edit' );
 
 		// Only test for the block editor.
-		if ( ! $this->editorHasBlocks( $I ) ) {
+		if ( ! $this->editorHasBlocks( $I, true ) ) {
 			return;
 		}
 		$this->addContentToTestPost( $I );
@@ -112,7 +112,7 @@ class EditorBlocksTests extends \TestCase {
 		$I->moveTo( '/wp-admin/post.php?post=40&action=edit' );
 
 		// Only test for the block editor.
-		if ( ! $this->editorHasBlocks( $I ) ) {
+		if ( ! $this->editorHasBlocks( $I, true ) ) {
 			return;
 		}
 		$this->addContentToTestPost( $I );
@@ -170,7 +170,7 @@ class EditorBlocksTests extends \TestCase {
 		$I->moveTo( '/wp-admin/post.php?post=40&action=edit' );
 
 		// Only test for the block editor.
-		if ( ! $this->editorHasBlocks( $I ) ) {
+		if ( ! $this->editorHasBlocks( $I, true ) ) {
 			return;
 		}
 		$this->addContentToTestPost( $I );

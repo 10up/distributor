@@ -284,6 +284,10 @@ function send_notifications( $post ) {
 			}
 		}
 
+		if ( Utils\can_distribute_post_status() ) {
+			$post_body['post_data']['status'] = $post->post_status;
+		}
+
 		$request = wp_remote_post(
 			untrailingslashit( $target_url ) . '/wp/v2/dt_subscription/receive',
 			[

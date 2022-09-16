@@ -108,10 +108,26 @@ class TestCase extends \WPAcceptance\PHPUnit\TestCase {
 			'original_edit_url' => $from_blog_slug . '/wp-admin/post.php?post=' . $original_post_id . '&action=edit',
 		];
 
+		$I->moveTo( '/wp-admin/network/plugins.php' );
+		try {
+			$element = $I->getElement( '[data-slug="auto-publish-pulled-posts"] .deactivate a' );
+			if ( $element ) {
+				$I->click( $element );
+				$I->waitUntilElementVisible( '#message' );
+			}
+		} catch ( \Exception $e ) {}
+		$I->click( '[data-slug="auto-publish-pulled-posts"] .activate a' );
+		$I->waitUntilElementVisible( '#message' );
+
 		$I->moveTo( $to_blog_slug . 'wp-admin/admin.php?page=pull' );
 
 		if ( $use_connection ) {
 			$I->checkOptions( '#pull_connections', $use_connection );
+			$I->executeJavaScript('
+				jQuery("#pull_connections").find("option").filter(function(){
+				  return jQuery(this).text() == "' . $use_connection . '";
+				}).prop("selected", true).trigger("change");
+			');
 			$I->waitUntilElementVisible( '.wp-list-table #cb-select-' . $original_post_id );
 		}
 
@@ -145,9 +161,19 @@ class TestCase extends \WPAcceptance\PHPUnit\TestCase {
 	 *
 	 * Must be called from the edit page.
 	 *
-	 * @param \WPAcceptance\PHPUnit\Actor $actor The actor.
+	 * @param \WPAcceptance\PHPUnit\Actor $actor        The actor.
+	 * @param bool                        $on_edit_page We detect the block editor using a body class
+	 *                                                  of post edit page so we need to navigate to
+	 *                                                  that page before checking.
 	 */
-	protected function editorHasBlocks ( $actor ) {
+
+	protected function editorHasBlocks ( $actor, $on_edit_page = false ) {
+
+		if ( ! $on_edit_page ) {
+			$actor->moveTo( '/wp-admin/post.php?post=40&action=edit' );
+			$actor->waitUntilElementVisible( 'body.post-php' );;
+		}
+
 		$body = $actor->getElement( 'body' );
 		$msg = $actor->elementToString( $body );
 		return ( strpos( $msg, 'block-editor-page' ) );
@@ -164,6 +190,89 @@ class TestCase extends \WPAcceptance\PHPUnit\TestCase {
 				$actor->click( '.nux-dot-tip__disable' );
 			}
 		} catch ( \Exception $e ) {}
+	}
+
+	/**
+	 * Test status distribution.
+	 *
+	 * @param Object $post_info                  Information about the distributed post.
+	 * @param \WPAcceptance\PHPUnit\Actor $actor The Actor instance.
+	 */
+	protected function statusDistributionTest( $post_info, $actor ) {
+
+		// TEST SCENARIO: with 'dt_distribute_post_status' false (DEFAULT).
+		// Deactivate the plugin?
+		$actor->moveTo( '/wp-admin/plugins.php' );
+		usleep( 300 );
+
+		// Check the distributed post state.
+		$actor->moveTo( $post_info['distributed_edit_url'] );
+		$actor->waitUntilElementVisible( 'body.post-php' );
+
+		// The remote post should start in a Published post status.
+		$actor->seeText( 'Published', '#post-status-display' );
+
+		// Go back to the origin post.
+		$actor->moveTo( $post_info['original_edit_url'] );
+		$actor->waitUntilElementVisible( 'body.post-php' );
+
+		// The origin post should be in a published post status.
+		$actor->seeText( 'Published', '#post-status-display' );
+
+		// Change the origin post status to draft.
+		$actor->click( '.edit-post-status' );
+		$actor->waitUntilElementVisible( '#post_status' );
+		$actor->selectOptionByValue( '#post_status', 'draft' );
+		$actor->click( '.save-post-status' );
+		usleep( 200 );
+		$actor->click( '#publish' ); // Click the 'Update' button.
+		$actor->waitUntilElementVisible( '#wpadminbar' );
+
+		// The remote post will still be in a published status, the post status is not distributed.
+		$actor->moveTo( $post_info['distributed_edit_url'] );
+		$actor->waitUntilElementVisible( 'body.post-php' );
+		$actor->seeText( 'Published', '#post-status-display' );
+
+		// TEST SCENARIO: with 'dt_distribute_post_status' true - activate the helper plugin.
+		$actor->moveTo( '/wp-admin/plugins.php' );
+		$actor->click( '[data-slug="enable-post-status-distribution"] .activate a' );
+		$actor->waitUntilElementVisible( '#message' );
+
+		// Update the origin post
+		$actor->moveTo( $post_info['original_edit_url'] );
+		$actor->waitUntilElementVisible( 'body.post-php' );
+
+		// The origin post should be in a draft state.
+		$actor->seeText( 'Draft', '#post-status-display' );
+
+		// Change the remote post title and update.
+		$actor->typeInField( '#title', 'Updated test title' );
+		$actor->click( '#save-post' );
+		$actor->waitUntilElementVisible( '#wpadminbar' );
+
+		// The remote post should now in a draft status, the post status is distributed.
+		$actor->moveTo( $post_info['distributed_edit_url'] );
+		$actor->waitUntilElementVisible( 'body.post-php' );
+		$actor->seeText( 'Draft', '#post-status-display' );
+	}
+
+	/**
+	 * Create an external connection.
+	 *
+	 * @param \WPAcceptance\PHPUnit\Actor $actor The Actor instance.
+	 */
+	protected function createExternalConnection( $actor, $from = '', $to = 'two' ) {
+		$connection_url = $this->getWPHomeUrl() . '/wp-json';
+		if ( $to ) {
+			$connection_url = $this->getWPHomeUrl() . "/{$to}/wp-json";
+		}
+		$actor->moveTo( "{$from}/wp-admin/post-new.php?post_type=dt_ext_connection" );
+		$actor->typeInField( '#title', 'Test External Connection' );
+		$actor->typeInField( '#dt_username', 'wpsnapshots' );
+		$actor->typeInField( '#dt_password', 'password' );
+		$actor->typeInField( '#dt_external_connection_url', $connection_url );
+		$actor->pressEnterKey( '#create-connection' );
+		$actor->waitUntilElementVisible( '.notice-success' );
 	}
 
 	/**

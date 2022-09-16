@@ -76,7 +76,7 @@ class NetworkSiteConnection extends Connection {
 			'post_excerpt' => $post->post_excerpt,
 			'post_type'    => $post->post_type,
 			'post_author'  => isset( $post->post_author ) ? $post->post_author : get_current_user_id(),
-			'post_status'  => 'publish',
+			'post_status'  => Utils\can_distribute_post_status() ? $post->post_status : 'publish',
 		);
 
 		$post = Utils\prepare_post( $post );
@@ -97,8 +97,7 @@ class NetworkSiteConnection extends Connection {
 		}
 
 		if ( empty( $args['post_status'] ) ) {
-			if ( isset( $new_post_args['ID'] ) ) {
-
+			if ( isset( $new_post_args['ID'] ) && ! Utils\can_distribute_post_status() ) {
 				// Avoid updating the status of previously distributed posts.
 				$existing_status = get_post_status( (int) $new_post_args['ID'] );
 				if ( $existing_status ) {
