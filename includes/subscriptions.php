@@ -20,7 +20,7 @@ function setup() {
 		'plugins_loaded',
 		function() {
 			add_action( 'init', __NAMESPACE__ . '\register_cpt' );
-			add_action( 'save_post', __NAMESPACE__ . '\send_notifications', 99 );
+			add_action( 'wp_after_insert_post', __NAMESPACE__ . '\send_notifications', 99 );
 			add_action( 'before_delete_post', __NAMESPACE__ . '\delete_subscriptions' );
 		}
 	);
@@ -241,12 +241,6 @@ function send_notifications( $post ) {
 	$post_id = $post->ID;
 
 	if ( ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) || wp_is_post_revision( $post_id ) || ! current_user_can( 'edit_post', $post_id ) ) {
-		return;
-	}
-
-	// If using Gutenberg, short circuit early and run this method later to make sure terms and meta are saved before syndicating.
-	if ( \Distributor\Utils\is_using_gutenberg( $post ) && doing_action( 'save_post' ) && ! isset( $_GET['meta-box-loader'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification
-		add_action( "rest_after_insert_{$post->post_type}", __NAMESPACE__ . '\send_notifications' );
 		return;
 	}
 
