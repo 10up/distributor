@@ -23,3 +23,13 @@
 //
 // -- This will overwrite an existing command --
 // Cypress.Commands.overwrite('visit', (originalFn, url, options) => { ... })
+Cypress.Commands.add( 'networkActivatePlugin', ( slug ) => {
+	cy.visit( '/wp-admin/network/plugins.php' );
+	cy.get( `#the-list tr[data-slug="${ slug }"]` ).then( ( $pluginRow ) => {
+		if ( $pluginRow.find( '.activate > a' ).length > 0 ) {
+			cy.get( `#the-list tr[data-slug="${ slug }"] .activate > a` )
+				.should( 'have.text', 'Network Activate' )
+				.click();
+		}
+	} );
+} );
