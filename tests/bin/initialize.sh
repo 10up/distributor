@@ -13,5 +13,6 @@ then
 else
 	echo "Converting to multisite"
 	npm run env run tests-cli "wp core multisite-convert --title='Distributor Multisite'"
+	npm run env run tests-cli "wp user create second 'second@admin.local' --user_pass=password --role=administrator"
 	npm run env run tests-cli "wp site create --slug=second --title='Second Site' --email='second@admin.local'"
 fi
