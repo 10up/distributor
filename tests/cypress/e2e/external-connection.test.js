@@ -21,7 +21,9 @@ describe( 'Admin can add a new external connection', () => {
 		cy.get( '.page-title-action' ).contains( 'Add New' ).click();
 
 		cy.get( '.manual-setup-button' ).click();
-		cy.get( '#dt_external_connection_url' ).type( 'http://localhost/second' );
+		cy.get( '#dt_external_connection_url' ).type(
+			'http://localhost/second'
+		);
 		cy.get( '.endpoint-result' ).should( 'contain.text', 'Did you mean' );
 		cy.get( '.suggest.button-link' ).should(
 			'contain.text',
@@ -34,7 +36,9 @@ describe( 'Admin can add a new external connection', () => {
 		cy.get( '.page-title-action' ).contains( 'Add New' ).click();
 
 		cy.get( '.manual-setup-button' ).click();
-		cy.get( '#dt_external_connection_url' ).type( 'http://' + randomName() );
+		cy.get( '#dt_external_connection_url' ).type(
+			'http://' + randomName()
+		);
 		cy.get( '.endpoint-result' ).should(
 			'contain.text',
 			'No connection found'
@@ -61,7 +65,9 @@ describe( 'Admin can add a new external connection', () => {
 		cy.get( '#title' ).click().type( name );
 
 		cy.get( '.manual-setup-button' ).click();
-		cy.get( '#dt_external_connection_url' ).type( 'http://' + randomName() );
+		cy.get( '#dt_external_connection_url' ).type(
+			'http://' + randomName()
+		);
 		cy.get( '#create-connection' ).click();
 
 		cy.visit( '/wp-admin/admin.php?page=distributor' );

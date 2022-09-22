@@ -70,7 +70,12 @@ Cypress.Commands.add( 'dismissNUXTip', () => {
 
 Cypress.Commands.add(
 	'createExternalConnection',
-	( name = 'Test Connection', url = 'http://localhost/wp-json', user = 'admin', password = 'password' ) => {
+	(
+		name = 'Test Connection',
+		url = 'http://localhost/wp-json',
+		user = 'admin',
+		password = 'password'
+	) => {
 		cy.visit( '/wp-admin/admin.php?page=distributor' );
 
 		cy.get( '.row-title, .no-items' ).then( ( elements ) => {
@@ -82,7 +87,9 @@ Cypress.Commands.add(
 				return prev;
 			}, false );
 			if ( noItems || ! found ) {
-				cy.visit( '/wp-admin/post-new.php?post_type=dt_ext_connection' );
+				cy.visit(
+					'/wp-admin/post-new.php?post_type=dt_ext_connection'
+				);
 
 				cy.get( '.manual-setup-button' ).click();
 
@@ -170,7 +177,9 @@ Cypress.Commands.add(
 
 		cy.get( '#distributor-push-wrapper .syndicate-button' ).click();
 
-		cy.get( '#distributor-push-wrapper .dt-success' ).should( 'be.visible' );
+		cy.get( '#distributor-push-wrapper .dt-success' ).should(
+			'be.visible'
+		);
 
 		// Now let's navigate to the new post - only works for network connections.
 		if ( ! external ) {

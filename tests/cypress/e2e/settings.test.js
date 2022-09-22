@@ -63,28 +63,36 @@ describe( 'Test Settings', () => {
 			'http://localhost/second/wp-json'
 		);
 
-		cy.createPost( { title: 'Byline test ' + randomName() } ).then( ( post ) => {
-			cy.distributorPushPost( post.id, connectionName ).then( ( postInfo ) => {
-				// Enable byline setting.
-				cy.visit( 'second/wp-admin/admin.php?page=distributor-settings' );
-				cy.get(
-					'input[type="checkbox"][name="dt_settings[override_author_byline]"]'
-				).check();
-				cy.get( '#submit' ).click();
+		cy.createPost( { title: 'Byline test ' + randomName() } ).then(
+			( post ) => {
+				cy.distributorPushPost( post.id, connectionName ).then(
+					( postInfo ) => {
+						// Enable byline setting.
+						cy.visit(
+							'second/wp-admin/admin.php?page=distributor-settings'
+						);
+						cy.get(
+							'input[type="checkbox"][name="dt_settings[override_author_byline]"]'
+						).check();
+						cy.get( '#submit' ).click();
 
-				cy.visit( postInfo.distributedFrontUrl );
-				cy.get( '.byline a' ).contains( 'distributor' );
+						cy.visit( postInfo.distributedFrontUrl );
+						cy.get( '.byline a' ).contains( 'distributor' );
 
-				// Disable byline setting.
-				cy.visit( 'second/wp-admin/admin.php?page=distributor-settings' );
-				cy.get(
-					'input[type="checkbox"][name="dt_settings[override_author_byline]"]'
-				).uncheck();
-				cy.get( '#submit' ).click();
+						// Disable byline setting.
+						cy.visit(
+							'second/wp-admin/admin.php?page=distributor-settings'
+						);
+						cy.get(
+							'input[type="checkbox"][name="dt_settings[override_author_byline]"]'
+						).uncheck();
+						cy.get( '#submit' ).click();
 
-				cy.visit( postInfo.distributedFrontUrl );
-				cy.get( '.byline a' ).contains( 'admin' );
-			} );
-		} );
+						cy.visit( postInfo.distributedFrontUrl );
+						cy.get( '.byline a' ).contains( 'admin' );
+					}
+				);
+			}
+		);
 	} );
 } );
