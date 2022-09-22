@@ -19,10 +19,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
-    - name: install node v16
+    - name: Use desired version of NodeJS
       uses: actions/setup-node@v3
       with:
-        node-version: 16
+          node-version-file: '.nvmrc'
+    - name: Check versions
+      run: npm -v; node -v
     - name: npm install
       run: npm install
     - name: Generate linting report
