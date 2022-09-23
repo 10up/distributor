@@ -244,12 +244,9 @@ Cypress.Commands.add(
 		cy.get( '#doaction' ).click();
 
 		cy.get( '.pulled > a' ).click();
-		cy.get( '.wp-list-table tbody tr:nth-child(1) .page-title' ).trigger(
-			'mouseover'
-		);
 		cy.get(
 			'.wp-list-table tbody tr:nth-child(1) .page-title .view a'
-		).click();
+		).click( { force: true } ); // Using force true to click "View" link
 
 		cy.url().then( ( url ) => {
 			info.distributedViewUrl = url;
