@@ -5,23 +5,6 @@ describe( 'Test Settings', () => {
 		cy.login();
 		cy.networkActivatePlugin( 'distributor' );
 		cy.networkActivatePlugin( 'json-basic-authentication' );
-
-		// Author byline seting doesn't work in some themes
-		// Switching to Twenty-Twenty-One which works correctly
-		// https://github.com/10up/distributor/issues/868#issuecomment-1254655118
-		cy.networkEnableTheme( 'twentytwentyone' );
-		cy.visit( '/second/wp-admin/themes.php' );
-		cy.get( 'body' ).then( ( $body ) => {
-			if (
-				$body.find(
-					'.theme[data-slug="twentytwentyone"] .button.activate'
-				).length > 0
-			) {
-				cy.get(
-					'.theme[data-slug="twentytwentyone"] .button.activate'
-				).click();
-			}
-		} );
 	} );
 
 	it( 'Should Save Settings', () => {
