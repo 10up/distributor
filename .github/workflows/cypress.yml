@@ -9,8 +9,33 @@ on:
     branches:
       - develop
 jobs:
+  build:
+    name: NPM Install
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+
+    - name: Use desired version of NodeJS
+      uses: actions/setup-node@v3
+      with:
+          node-version-file: '.nvmrc'
+
+    - name: Cache Node
+      uses: actions/cache@v3
+      with:
+        path: |
+          node_modules
+          ~/.cache
+          ~/.npm
+        key: ${{ hashFiles('package-lock.json') }}
+
+    - name: Install dependencies
+      run: npm install
+
   cypress:
     name: ${{ matrix.core.name }} / ${{ matrix.php.name }}
+    needs: [build]
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -28,18 +53,32 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v3
+
     - name: Use desired version of NodeJS
       uses: actions/setup-node@v3
       with:
           node-version-file: '.nvmrc'
+
     - name: Check versions
       run: npm -v; node -v
+
+    - name: Cache Node
+      uses: actions/cache@v3
+      with:
+        path: |
+          node_modules
+          ~/.cache
+          ~/.npm
+        key: ${{ hashFiles('package-lock.json') }}
 
     - name: Install dependencies
       run: npm install
 
     - name: Composer install
       run: composer install
+
+    - name: Build
+      run: npm run build
 
     - name: Set the core version
       run: |
