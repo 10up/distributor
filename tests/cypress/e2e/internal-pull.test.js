@@ -72,4 +72,13 @@ describe( 'Internal Pull', () => {
 				.should( 'exist' );
 		} );
 	} );
+
+	it( 'Should search multiple words during pull', () => {
+		cy.visit( 'second/wp-admin/admin.php?page=pull' );
+		cy.get( '#post-search-input' ).click().type( 'post' );
+		cy.get( '#search-submit' ).click();
+		cy.get( 'table.distributor_page_pull' )
+			.contains( 'No items found.' )
+			.should( 'not.exist' );
+	} );
 } );
