@@ -23,6 +23,14 @@ jobs:
       uses: actions/setup-node@v3
       with:
           node-version-file: '.nvmrc'
+    - name: Cache Node
+      uses: actions/cache@v3
+      with:
+        path: |
+          node_modules
+          ~/.cache
+          ~/.npm
+        key: ${{ hashFiles('package-lock.json') }}
     - name: Check versions
       run: npm -v; node -v
     - name: npm install
