@@ -210,3 +210,39 @@ Cypress.Commands.add(
 		cy.wrap( info );
 	}
 );
+
+Cypress.Commands.add( 'distributorPullPost', ( originalPostId, toBlogSlug, fromBlogSlug = '', useConnection = false ) => {
+	toBlogSlug = toBlogSlug.replace( /\/?$/, '/' );
+	fromBlogSlug = fromBlogSlug.replace( /\/?$/, '/' );
+
+	const info = {
+		originalEditUrl: fromBlogSlug + '/wp-admin/post.php?post=' + originalPostId + '&action=edit',
+	};
+
+	cy.visit( toBlogSlug + 'wp-admin/admin.php?page=pull' );
+
+	if ( useConnection ) {
+		cy.get( '#pull_connections' ).select( useConnection );
+		cy.get( '.wp-list-table #cb-select-' + originalPostId ).should( 'be.visible' );
+	}
+
+	cy.get( '.wp-list-table #cb-select-' + originalPostId ).check();
+	cy.get( '#bulk-action-selector-top' ).select( 'bulk-syndicate' );
+	cy.get( '#doaction' ).click();
+
+	cy.get( '.pulled > a' ).click();
+	cy.get( '.wp-list-table tbody tr:nth-child(1) .page-title' ).trigger( 'mouseover' );
+	cy.get( '.wp-list-table tbody tr:nth-child(1) .page-title .view a' ).click();
+
+	cy.url().then( ( url ) => {
+		info.distributedViewUrl = url;
+	} );
+
+	cy.get( '#wp-admin-bar-edit a' ).click();
+
+	cy.url().then( ( url ) => {
+		info.distributedEditUrl = url;
+	} );
+
+	cy.wrap( info );
+} );
