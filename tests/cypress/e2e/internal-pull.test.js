@@ -38,14 +38,7 @@ describe( 'Internal Pull', () => {
 	} );
 
 	it( 'Should pull post', () => {
-		// Create external connection if not yet
-		const connectionName = 'Connection ' + randomName();
-		cy.createExternalConnection(
-			connectionName,
-			'http://localhost/second/wp-json'
-		);
-
-		const postTitle = 'Post ' + randomName();
+		const postTitle = 'Post to pull ' + randomName();
 
 		cy.createPost( { title: postTitle } ).then( ( post ) => {
 			cy.distributorPullPost( post.id, 'second', '' );
@@ -58,6 +51,22 @@ describe( 'Internal Pull', () => {
 
 			// Pulled post should exist on Pulled tab
 			cy.visit( 'second/wp-admin/admin.php?page=pull&status=pulled' );
+			cy.get( '.wp-list-table .page-title' )
+				.contains( postTitle )
+				.should( 'exist' );
+		} );
+	} );
+
+	it( 'Should skip post', () => {
+		const postTitle = 'Post to skip ' + randomName();
+
+		cy.createPost( { title: postTitle } ).then( ( post ) => {
+			cy.visit( 'second/wp-admin/admin.php?page=pull' );
+			cy.get( '#bulk-action-selector-top' ).select( 'bulk-skip' );
+			cy.get( '#cb-select-' + post.id ).check();
+			cy.get( '#doaction' ).click();
+
+			cy.visit( 'second/wp-admin/admin.php?page=pull&status=skipped' );
 			cy.get( '.wp-list-table .page-title' )
 				.contains( postTitle )
 				.should( 'exist' );
