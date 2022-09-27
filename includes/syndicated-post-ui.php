@@ -632,7 +632,6 @@ function enqueue_gutenberg_edit_scripts() {
 		'dt-gutenberg-syndicated-post',
 		'dtGutenberg',
 		[
-			'i18n'                 => $i18n_locale,
 			'originalBlogId'       => (int) $original_blog_id,
 			'originalPostId'       => (int) $original_post_id,
 			'originalSourceId'     => (int) $original_source_id,
