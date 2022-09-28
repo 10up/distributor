@@ -89,7 +89,7 @@ function distributed_to( $post ) {
 			<?php
 			echo wp_kses_post(
 				sprintf(
-					/* translators: %d: number of connections */
+					/* translators: 1: Number of connections content distributed to. */
 					_n(
 						'Distributed to %1$s connection.',
 						'Distributed to %1$s connections.',
