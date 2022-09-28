@@ -1,11 +1,13 @@
-- [x] Branch: Starting from `develop`, create a release branch named `release/X.Y.Z` for your changes.
+**Release checklist for the version 1.x branch.**
+
+- [x] Branch: Starting from `develop-v1`, create a release branch named `release/X.Y.Z` for your changes.
 - [ ] Version bump: Bump the version number in `distributor.php`, `package.json`, and `readme.txt` if it does not already reflect the version being released.  In `distributor.php` update both the plugin "Version:" property and the plugin `DT_VERSION` constant.
-- [ ] New files: Ensure any new files, especially in the vendor folder, are correctly included in `webpack.config.release.js`.
+- [ ] New files: Ensure any new files, especially in the vendor folder, are correctly included in `gulp-tasks/copy.js`.
 - [ ] Changelog: Add/update the changelog in `CHANGELOG.md`.
 - [ ] Props: Update `CREDITS.md` file with any new contributors, confirm maintainers are accurate.
 - [ ] Readme updates: Make any other readme changes as necessary.  `README.md` is geared toward GitHub and `readme.txt` contains WordPress.org-specific content.  The two are slightly different.
 - [ ] Since tag updates: ensure `@since` tags indicate the new version, replacing `x.x.x`, `n.e.x.t` and other placeholders.
-- [ ] Merge: Make a non-fast-forward merge from your release branch to `develop` (or merge the Pull Request), then do the same for `develop` into `trunk` (`git checkout trunk && git merge --no-ff develop`).  `trunk` contains the stable development version.
+- [ ] Merge: Make a non-fast-forward merge from your release branch to `develop-v1` (or merge the Pull Request), then do the same for `develop-v1` into `trunk` (`git checkout trunk && git merge --no-ff develop-v1`).  `trunk` contains the stable development version.
 - [ ] Build: Wait for the [Build Stable Release Action](https://github.com/10up/distributor/actions?query=workflow%3A%22Build+Stable+Release%22) to finish running.
 - [ ] Update this pull request's status from `draft` to `ready to merge`.
 - [ ] Review: Do a review of the commit to the `stable` branch to ensure the contents of the diffs are as expected.
