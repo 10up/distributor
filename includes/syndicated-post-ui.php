@@ -439,7 +439,7 @@ function syndicated_message( $post ) {
 		restore_current_blog();
 
 		if ( empty( $original_location_name ) ) {
-			/* translators: %d: the blog ID */
+			/* translators: %d: The site ID */
 			$original_location_name = sprintf( esc_html__( 'Blog #%d', 'distributor' ), $original_blog_id );
 		}
 	} else {
@@ -594,7 +594,7 @@ function enqueue_gutenberg_edit_scripts() {
 		restore_current_blog();
 
 		if ( empty( $original_location_name ) ) {
-			/* translators: %d: the original blog id */
+			/* translators: %d: The site ID */
 			$original_location_name = sprintf( esc_html__( 'Blog #%d', 'distributor' ), $original_blog_id );
 		}
 	} else {
