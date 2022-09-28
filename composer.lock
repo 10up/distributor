@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "a9a94024c09ec4b273a1af6556928861",
+    "content-hash": "bfe9a4b042a9ba17b15c71634f461c4f",
     "packages": [
         {
             "name": "georgestephanis/application-passwords",
@@ -18,16 +18,16 @@
         },
         {
             "name": "yahnis-elsts/plugin-update-checker",
-            "version": "v4.9",
+            "version": "v4.13",
             "source": {
                 "type": "git",
                 "url": "https://github.com/YahnisElsts/plugin-update-checker.git",
-                "reference": "28f29c940cc22754aff85a99645e3c0a51c097e8"
+                "reference": "6eb27a6911e0e0880d09e5b11f577d3f688f7da7"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/YahnisElsts/plugin-update-checker/zipball/28f29c940cc22754aff85a99645e3c0a51c097e8",
-                "reference": "28f29c940cc22754aff85a99645e3c0a51c097e8",
+                "url": "https://api.github.com/repos/YahnisElsts/plugin-update-checker/zipball/6eb27a6911e0e0880d09e5b11f577d3f688f7da7",
+                "reference": "6eb27a6911e0e0880d09e5b11f577d3f688f7da7",
                 "shasum": ""
             },
             "require": {
@@ -37,7 +37,7 @@
             "type": "library",
             "autoload": {
                 "files": [
-                    "load-v4p9.php"
+                    "load-v4p13.php"
                 ]
             },
             "notification-url": "https://packagist.org/downloads/",
@@ -60,7 +60,11 @@
                 "theme updates",
                 "wordpress"
             ],
-            "time": "2020-02-07T11:07:19+00:00"
+            "support": {
+                "issues": "https://github.com/YahnisElsts/plugin-update-checker/issues",
+                "source": "https://github.com/YahnisElsts/plugin-update-checker/tree/v4.13"
+            },
+            "time": "2022-07-29T12:36:25+00:00"
         }
     ],
     "packages-dev": [
