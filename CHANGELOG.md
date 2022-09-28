@@ -4,6 +4,17 @@ All notable changes to this project will be documented in this file, per [the Ke
 
 ## [Unreleased] - TBD
 
+## [1.8.0] - 2022-09-29
+
+### Changed
+
+- Upgrade the Plugin Update Checker library to 4.13 (props [@dkotter](https://github.com/dkotter), [@jeffpaul](https://github.com/jeffpaul), [@peterwilsoncc](https://github.com/peterwilsoncc) via [#937](https://github.com/10up/distributor/pull/937)).
+
+### Other
+
+- Automated creation of release pull requests (props [@dinhtungdu](https://github.com/dinhtungdu), [@peterwilsoncc](https://github.com/peterwilsoncc), [@faisal-alvi](https://github.com/faisal-alvi), [@jeffpaul](https://github.com/jeffpaul) via [#940](https://github.com/10up/distributor/pull/940)).
+- Use config files to determine version of node used in GitHub actions (props [@peterwilsoncc](https://github.com/peterwilsoncc), [@Sidsector9](https://github.com/Sidsector9), [@jeffpaul](https://github.com/jeffpaul) via [#933](https://github.com/10up/distributor/pull/933)).
+
 ## [1.7.1] - 2022-08-04
 
 ### Added
@@ -396,6 +407,7 @@ This adds a post type selector when viewing the Pull Content list for both exter
 - Initial closed release.
 
 [Unreleased]: https://github.com/10up/distributor/compare/trunk...develop
+[1.8.0]: https://github.com/10up/distributor/compare/1.7.1...1.8.0
 [1.7.1]: https://github.com/10up/distributor/compare/1.7.0...1.7.1
 [1.7.0]: https://github.com/10up/distributor/compare/1.6.9...1.7.0
 [1.6.9]: https://github.com/10up/distributor/compare/1.6.8...1.6.9
