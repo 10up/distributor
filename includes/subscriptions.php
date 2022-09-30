@@ -273,7 +273,7 @@ function send_notifications( $post ) {
 				'content'           => Utils\get_processed_content( $post->post_content ),
 				'excerpt'           => $post->post_excerpt,
 				'distributor_media' => \Distributor\Utils\prepare_media( $post_id ),
-				'distributor_terms' => \Distributor\Utils\prepare_taxonomy_terms( $post_id ),
+				'distributor_terms' => \Distributor\Utils\prepare_taxonomy_terms( $post_id, array( 'show_in_rest' => true ) ),
 				'distributor_meta'  => \Distributor\Utils\prepare_meta( $post_id ),
 			],
 		];
