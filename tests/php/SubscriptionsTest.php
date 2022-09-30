@@ -547,7 +547,7 @@ class SubscriptionsTest extends TestCase {
 					$target_url . '/wp/v2/dt_subscription/receive',
 					[
 						'timeout' => 5,
-						'body'    => [
+						'body'    => wp_json_encode( [
 							'post_id'   => $remote_post_id,
 							'signature' => $signature,
 							'post_data' => [
@@ -560,7 +560,10 @@ class SubscriptionsTest extends TestCase {
 								'distributor_terms' => [],
 								'distributor_meta'  => [],
 							],
-						],
+						] ),
+						'headers' => [
+							'Content-Type' => 'application/json',
+						]
 					],
 				],
 			]
