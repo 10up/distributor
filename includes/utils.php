@@ -438,15 +438,21 @@ function prepare_media( $post_id ) {
 /**
  * Format taxonomy terms for consumption
  *
- * @param  int $post_id Post ID.
  * @since  1.0
- * @return array
+ *
+ * @param  int   $post_id Post ID.
+ * @param  array $args    Taxonomy query arguments. See get_taxonomies().
+ * @return array[] Array of taxonomy terms.
  */
-function prepare_taxonomy_terms( $post_id ) {
+function prepare_taxonomy_terms( $post_id, $args = array() ) {
 	$post = get_post( $post_id );
 
+	if ( empty( $args ) ) {
+		$args = array( 'publicly_queryable' => true );
+	}
+
 	$taxonomy_terms = [];
-	$taxonomies     = get_object_taxonomies( $post );
+	$taxonomies     = get_taxonomies( $args );
 
 	/**
 	 * Filters the taxonomies that should be synced.
