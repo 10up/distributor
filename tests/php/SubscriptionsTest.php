@@ -359,19 +359,22 @@ class SubscriptionsTest extends TestCase {
 					$target_url . '/wp/v2/dt_subscription/receive',
 					[
 						'timeout' => 5,
-						'body'    => [
+						'body'    => wp_json_encode( [
 							'post_id'   => $remote_post_id,
 							'signature' => $signature,
 							'post_data' => [
 								'title'             => 'title',
+								'slug'              => 'slug',
+								'post_type'         => 'post',
 								'content'           => 'content',
 								'excerpt'           => 'excerpt',
-								'post_type'         => 'post',
-								'slug'              => 'slug',
 								'distributor_media' => [],
 								'distributor_terms' => [],
 								'distributor_meta'  => [],
-							],
+							]
+						] ),
+						'headers' => [
+							'Content-Type' => 'application/json',
 						],
 					],
 				],
@@ -553,9 +556,9 @@ class SubscriptionsTest extends TestCase {
 							'post_data' => [
 								'title'             => 'title',
 								'slug'              => 'slug',
+								'post_type'         => 'post',
 								'content'           => 'content',
 								'excerpt'           => 'excerpt',
-								'post_type'         => 'post',
 								'distributor_media' => [],
 								'distributor_terms' => [],
 								'distributor_meta'  => [],
