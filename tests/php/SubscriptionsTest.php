@@ -368,9 +368,9 @@ class SubscriptionsTest extends TestCase {
 								'post_type'         => 'post',
 								'content'           => 'content',
 								'excerpt'           => 'excerpt',
-								'distributor_media' => [],
-								'distributor_terms' => [],
-								'distributor_meta'  => [],
+								'distributor_media' => null, // Accounts for https://github.com/10up/wp_mock/issues/173
+								'distributor_terms' => null, // Accounts for https://github.com/10up/wp_mock/issues/173
+								'distributor_meta'  => null, // Accounts for https://github.com/10up/wp_mock/issues/173
 							]
 						] ),
 						'headers' => [
@@ -559,9 +559,9 @@ class SubscriptionsTest extends TestCase {
 								'post_type'         => 'post',
 								'content'           => 'content',
 								'excerpt'           => 'excerpt',
-								'distributor_media' => [],
-								'distributor_terms' => [],
-								'distributor_meta'  => [],
+								'distributor_media' => null, // Accounts for https://github.com/10up/wp_mock/issues/173
+								'distributor_terms' => null, // Accounts for https://github.com/10up/wp_mock/issues/173
+								'distributor_meta'  => null, // Accounts for https://github.com/10up/wp_mock/issues/173
 							],
 						] ),
 						'headers' => [
