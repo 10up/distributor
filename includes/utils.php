@@ -330,7 +330,7 @@ function distributable_post_statuses() {
  */
 function blacklisted_meta() {
 	_deprecated_function( __FUNCTION__, 'X.X.X', '\Distributor\Utils\excluded_meta()' );
-	excluded_meta();
+	return excluded_meta();
 }
 
 /**
