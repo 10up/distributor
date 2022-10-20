@@ -345,6 +345,7 @@ function excluded_meta() {
 	 * Filter meta keys that are excluded from distribution.
 	 *
 	 * @since 1.0.0
+	 * @deprecated x.x.x
 	 *
 	 * @param array $meta_keys Excluded meta keys.
 	 *
