@@ -288,7 +288,7 @@ All notable changes to this project will be documented in this file, per [the Ke
 - Add `dt_allowed_media_extensions` and `dt_media_processing_filename` filters so that different media types or specific files can be detected and targeted.
 
 ### Fixed
-- Ensure media meta is passed through `prepare_meta()` to apply the blacklist. This completes the generated image size info fix from 1.3.3.
+- Ensure media meta is passed through `prepare_meta()` to apply the exclusion. This completes the generated image size info fix from 1.3.3.
 - Avoid a PHP notice when only using the block editor on the receiving site.
 - Avoid a jQuery Migrate notice.
 
@@ -370,7 +370,7 @@ This adds a post type selector when viewing the Pull Content list for both exter
 
 ### Changed
 - Don’t set Distributor meta data on REST API post creation unless post was created by Distributor
-- Blacklist the `_wp_old_slug` and `_wp_old_date` meta
+- Exclude the `_wp_old_slug` and `_wp_old_date` meta
 - Disable pull UI while switching between pull connections
 
 ### Fixed
