@@ -56,7 +56,9 @@ class UtilsTest extends TestCase {
 		\WP_Mock::userFunction(
 			'apply_filters_deprecated',
 			[
-				'return_arg' => 1,
+				'return' => function( $name, $args ) {
+					return $args[0];
+				},
 			]
 		);
 
@@ -153,7 +155,9 @@ class UtilsTest extends TestCase {
 		\WP_Mock::userFunction(
 			'apply_filters_deprecated',
 			[
-				'return_arg' => 1,
+				'return' => function( $name, $args ) {
+					return $args[0];
+				},
 			]
 		);
 
@@ -219,7 +223,9 @@ class UtilsTest extends TestCase {
 		\WP_Mock::userFunction(
 			'apply_filters_deprecated',
 			[
-				'return_arg' => 1,
+				'return' => function( $name, $args ) {
+					return $args[0];
+				},
 			]
 		);
 
@@ -541,7 +547,9 @@ class UtilsTest extends TestCase {
 		\WP_Mock::userFunction(
 			'apply_filters_deprecated',
 			[
-				'return_arg' => 1,
+				'return' => function( $name, $args ) {
+					return $args[0];
+				},
 			]
 		);
 
@@ -636,7 +644,9 @@ class UtilsTest extends TestCase {
 		\WP_Mock::userFunction(
 			'apply_filters_deprecated',
 			[
-				'return_arg' => 1,
+				'return' => function( $name, $args ) {
+					return $args[0];
+				},
 			]
 		);
 
@@ -731,7 +741,9 @@ class UtilsTest extends TestCase {
 		\WP_Mock::userFunction(
 			'apply_filters_deprecated',
 			[
-				'return_arg' => 1,
+				'return' => function( $name, $args ) {
+					return $args[0];
+				},
 			]
 		);
 
@@ -900,7 +912,9 @@ class UtilsTest extends TestCase {
 		\WP_Mock::userFunction(
 			'apply_filters_deprecated',
 			[
-				'return_arg' => 1,
+				'return' => function( $name, $args ) {
+					return $args[0];
+				},
 			]
 		);
 
