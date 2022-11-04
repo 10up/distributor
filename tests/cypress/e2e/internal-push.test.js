@@ -57,15 +57,15 @@ describe( 'Internal Push', () => {
 			);
 
 			// Set Featured Image
-			cy.uploadMedia( 'assets/img/banner-772x250.png' ).then(
-				( media ) => {
-					if ( media && media.mediaId ) {
-						cy.wpCli(
-							`wp post meta set ${ post.id } _thumbnail_id ${ media.mediaId }`
-						);
-					}
-				}
-			);
+			// cy.uploadMedia( 'assets/img/banner-772x250.png' ).then(
+			// 	( media ) => {
+			// 		if ( media && media.mediaId ) {
+			// 			cy.wpCli(
+			// 				`wp post meta set ${ post.id } _thumbnail_id ${ media.mediaId }`
+			// 			);
+			// 		}
+			// 	}
+			// );
 
 			cy.distributorPushPost( post.id, 'second', '', 'publish' ).then(
 				( distributeInfo ) => {
@@ -105,11 +105,11 @@ describe( 'Internal Push', () => {
 						.should( 'contain', content );
 
 					// validate featured image.
-					cy.wpCli(
-						`wp post meta get ${ distributeInfo.distributedPostId } _thumbnail_id --url=${ siteUrl }`
-					)
-						.its( 'stdout' )
-						.should( 'not.empty' );
+					// cy.wpCli(
+					// 	`wp post meta get ${ distributeInfo.distributedPostId } _thumbnail_id --url=${ siteUrl }`
+					// )
+					// 	.its( 'stdout' )
+					// 	.should( 'not.empty' );
 				}
 			);
 		} );
