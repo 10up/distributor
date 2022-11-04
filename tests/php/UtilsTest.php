@@ -53,6 +53,15 @@ class UtilsTest extends TestCase {
 			]
 		);
 
+		\WP_Mock::userFunction(
+			'apply_filters_deprecated',
+			[
+				'return' => function( $name, $args ) {
+					return $args[0];
+				},
+			]
+		);
+
 		\WP_Mock::expectAction( 'dt_after_set_meta', [ 'key' => [ 'value' ] ], [], 1 );
 
 		\WP_Mock::expectAction( 'dt_after_set_meta', [ 'key' => [ [ 'value' ] ] ], [ 'key' => [ 'value' ] ], 1 );
@@ -143,6 +152,15 @@ class UtilsTest extends TestCase {
 			]
 		);
 
+		\WP_Mock::userFunction(
+			'apply_filters_deprecated',
+			[
+				'return' => function( $name, $args ) {
+					return $args[0];
+				},
+			]
+		);
+
 		Utils\set_meta(
 			1, [
 				'key'  => [ 'value' ],
@@ -199,6 +217,15 @@ class UtilsTest extends TestCase {
 			'wp_slash', [
 				'times'      => 4,
 				'return_arg' => 0,
+			]
+		);
+
+		\WP_Mock::userFunction(
+			'apply_filters_deprecated',
+			[
+				'return' => function( $name, $args ) {
+					return $args[0];
+				},
 			]
 		);
 
@@ -517,6 +544,15 @@ class UtilsTest extends TestCase {
 			]
 		);
 
+		\WP_Mock::userFunction(
+			'apply_filters_deprecated',
+			[
+				'return' => function( $name, $args ) {
+					return $args[0];
+				},
+			]
+		);
+
 		$formatted_media = Utils\format_media_post( $media_post );
 
 		$this->assertFalse( $formatted_media['featured'] );
@@ -605,6 +641,15 @@ class UtilsTest extends TestCase {
 			]
 		);
 
+		\WP_Mock::userFunction(
+			'apply_filters_deprecated',
+			[
+				'return' => function( $name, $args ) {
+					return $args[0];
+				},
+			]
+		);
+
 		$formatted_media = Utils\format_media_post( $media_post );
 
 		$this->assertTrue( $formatted_media['featured'] );
@@ -690,6 +735,15 @@ class UtilsTest extends TestCase {
 		\WP_Mock::userFunction(
 			'remove_filter', [
 				'times' => 1,
+			]
+		);
+
+		\WP_Mock::userFunction(
+			'apply_filters_deprecated',
+			[
+				'return' => function( $name, $args ) {
+					return $args[0];
+				},
 			]
 		);
 
@@ -852,6 +906,15 @@ class UtilsTest extends TestCase {
 			'wp_slash', [
 				'times'      => 4,
 				'return_arg' => 0,
+			]
+		);
+
+		\WP_Mock::userFunction(
+			'apply_filters_deprecated',
+			[
+				'return' => function( $name, $args ) {
+					return $args[0];
+				},
 			]
 		);
 

@@ -38,6 +38,8 @@ jobs:
   cypress:
     name: ${{ matrix.core.name }} / ${{ matrix.php.name }}
     needs: [build]
+    ## Pending upgrade of `@wordpress/env` package.
+    continue-on-error: ${{ matrix.core.version == 'WordPress/WordPress#master' }}
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false

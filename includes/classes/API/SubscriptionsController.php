@@ -248,6 +248,11 @@ class SubscriptionsController extends \WP_REST_Controller {
 				'media'        => ( isset( $request['post_data']['distributor_media'] ) ) ? $request['post_data']['distributor_media'] : [],
 			];
 
+			// Limit taxonomy updates to those shown in the REST API.
+			$rest_taxonomies = get_taxonomies( [ 'show_in_rest' => true ] );
+			$rest_taxonomies = array_fill_keys( $rest_taxonomies, true );
+			$update['terms'] = array_intersect_key( $update['terms'], $rest_taxonomies );
+
 			update_post_meta( (int) $request['post_id'], 'dt_subscription_update', $update );
 
 			$unlinked = (bool) get_post_meta( $request['post_id'], 'dt_unlinked', true );
