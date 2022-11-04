@@ -69,7 +69,7 @@ describe( 'Internal Push', () => {
 
 			cy.distributorPushPost( post.id, 'second', '', 'publish' ).then(
 				( distributeInfo ) => {
-					const siteUrl = `${ Cypress.config( 'baseUrl' ) }/second`;
+					const siteUrl = `http://localhost/second`;
 					cy.visit( 'second/wp-admin/edit.php' );
 					// Validate title
 					cy.get( '.wp-list-table tbody tr:nth-child(1) .row-title' )
