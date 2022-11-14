@@ -141,14 +141,21 @@ class DistributorPost {
 			 */
 			$this->connection_type = 'internal';
 			$this->connection_id   = get_post_meta( $post->ID, 'dt_original_blog_id', true );
+		} elseif ( get_post_meta( $post->ID, 'dt_original_connection_id', true ) ) {
+			// This connection was pushed from an external connection.
+			$this->connection_type = 'pushed';
+
+			/*
+			 * The connection ID stored in post meta is incorrect.
+			 *
+			 * The stored connection is the ID of this connection on the source server.
+			 * The subscription ID is used to identify the connection to the source server.
+			 */
+			$this->connection_id = get_post_meta( $post->ID, 'dt_subscription_signature', true );
 		} elseif ( get_post_meta( $post->ID, 'dt_original_source_id', true ) ) {
 			// Post was pulled from an external connection.
 			$this->connection_type = 'external';
 			$this->connection_id   = get_post_meta( $post->ID, 'dt_original_source_id', true );
-		} elseif ( get_post_meta( $post->ID, 'dt_subscription_signature', true ) ) {
-			// Post was pushed from an external connection.
-			$this->connection_type = 'pushed';
-			$this->connection_id   = get_post_meta( $post->ID, 'dt_subscription_signature', true );
 		}
 	}
 }
