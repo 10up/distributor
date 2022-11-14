@@ -149,9 +149,9 @@ class DistributorPost {
 			 * The connection ID stored in post meta is incorrect.
 			 *
 			 * The stored connection is the ID of this connection on the source server.
-			 * The subscription ID is used to identify the connection to the source server.
+			 * Instead this lists the remote site's URL as the connection ID.
 			 */
-			$this->connection_id = get_post_meta( $post->ID, 'dt_subscription_signature', true );
+			$this->connection_id = get_post_meta( $post->ID, 'dt_original_site_url', true );
 		} elseif ( get_post_meta( $post->ID, 'dt_original_source_id', true ) ) {
 			// Post was pulled from an external connection.
 			$this->connection_type = 'external';
