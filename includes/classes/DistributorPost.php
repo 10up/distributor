@@ -248,4 +248,35 @@ class DistributorPost {
 
 		return isset( $this->$name );
 	}
+
+	/**
+	 * Determines whether the post has blocks.
+	 *
+	 * This test optimizes for performance rather than strict accuracy, detecting
+	 * the pattern of a block but not validating its structure. For strict accuracy,
+	 * you should use the block parser on post content.
+	 *
+	 * Wraps the WordPress function of the same name.
+	 *
+	 * @return bool Whether the post has blocks.
+	 */
+	public function has_blocks() {
+		return has_blocks( $this->post->post_content );
+	}
+
+	/**
+	 * Determines whether a $post or a string contains a specific block type.
+	 *
+	 * This test optimizes for performance rather than strict accuracy, detecting
+	 * whether the block type exists but not validating its structure and not checking
+	 * reusable blocks. For strict accuracy, you should use the block parser on post content.
+	 *
+	 * Wraps the WordPress function of the same name.
+	 *
+	 * @param string $block_name Full block type to look for.
+	 * @return bool Whether the post content contains the specified block.
+	 */
+	public function has_block( $block_name ) {
+		return has_block( $block_name, $this->post->post_content );
+	}
 }
