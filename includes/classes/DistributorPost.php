@@ -81,7 +81,7 @@ class DistributorPost {
 	/**
 	 * The type of connection this post is distributed from.
 	 *
-	 * @var string internal|external|empty (for source)
+	 * @var string internal|external|pushed|empty (for source)
 	 */
 	public $connection_type = '';
 
@@ -134,19 +134,21 @@ class DistributorPost {
 
 		// Determine the connection type.
 		if ( get_post_meta( $post->ID, 'dt_original_blog_id', true ) ) {
-			// Internal connections store the original blog's ID.
+			/*
+			 * Internal connections store the original blog's ID.
+			 *
+			 * Pushed and pulled posts are indistinguishable from each other.
+			 */
 			$this->connection_type = 'internal';
 			$this->connection_id   = get_post_meta( $post->ID, 'dt_original_blog_id', true );
-		} else {
+		} elseif ( get_post_meta( $post->ID, 'dt_original_source_id', true ) ) {
+			// Post was pulled from an external connection.
 			$this->connection_type = 'external';
 			$this->connection_id   = get_post_meta( $post->ID, 'dt_original_source_id', true );
-
-			// Pushed posts have a `dt_subscription_signature` meta key.
-			if ( ! $this->connection_id && get_post_meta( $post->ID, 'dt_subscription_signature', true ) ) {
-				// The post was pushed.
-				$this->connection_type = 'push';
-				$this->connection_id   = get_post_meta( $post->ID, 'dt_subscription_signature', true );
-			}
+		} elseif ( get_post_meta( $post->ID, 'dt_subscription_signature', true ) ) {
+			// Post was pushed from an external connection.
+			$this->connection_type = 'pushed';
+			$this->connection_id   = get_post_meta( $post->ID, 'dt_subscription_signature', true );
 		}
 	}
 }
