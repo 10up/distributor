@@ -230,4 +230,22 @@ class DistributorPost {
 
 		return $this->$name;
 	}
+
+	/**
+	 * Magic isset method.
+	 *
+	 * This method is used to check if the `source_site` property is set and
+	 * populate it if needs be.
+	 *
+	 * @param string $name Property name.
+	 * @return bool
+	 */
+	public function __isset( $name ) {
+		if ( 'source_site' === $name && empty( $this->source_site ) ) {
+			$this->populate_source_site();
+			return ! empty( $this->source_site );
+		}
+
+		return isset( $this->$name );
+	}
 }
