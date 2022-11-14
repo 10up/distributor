@@ -122,15 +122,17 @@ class DistributorPost {
 		$original_post_id = get_post_meta( $post->ID, 'dt_original_post_id', true );
 		if ( empty( $original_post_id ) ) {
 			// This is the source post.
-			$this->is_source = true;
-			$this->is_linked = true;
+			$this->is_source        = true;
+			$this->is_linked        = true;
+			$this->original_post_id = $this->post->ID;
 			return;
 		}
 
 		// Set up information for a distributed post.
 		$this->is_source = false;
 		// Reverse value of the `dt_unlinked` meta data.
-		$this->is_linked = ! get_post_meta( $post->ID, 'dt_unlinked', true );
+		$this->is_linked        = ! get_post_meta( $post->ID, 'dt_unlinked', true );
+		$this->original_post_id = $original_post_id;
 
 		// Determine the connection type.
 		if ( get_post_meta( $post->ID, 'dt_original_blog_id', true ) ) {
