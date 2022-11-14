@@ -184,6 +184,8 @@ class DistributorPost {
 	 * The data is populated in one function call to avoid unnecessary calls to
 	 * switch_to_blog() and restore_current_blog().
 	 *
+	 * @todo Consider populating if the `switch_blog` action fires before site data is accessed.
+	 *
 	 * @return void
 	 */
 	protected function populate_source_site() {
