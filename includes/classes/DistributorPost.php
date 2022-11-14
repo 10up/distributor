@@ -96,6 +96,22 @@ class DistributorPost {
 	public $connection_id = 0;
 
 	/**
+	 * The source site data for internal connections.
+	 *
+	 * This is an array of site data for the source site. This is set by
+	 * the populate_source_site() method upon access to avoid switching
+	 * sites unnecessarily.
+	 *
+	 * @var array {
+	 *    @type string $home_url The site's home page.
+	 *    @type string $site_url The site's WordPress address.
+	 *    @type string $rest_url The site's REST API address.
+	 *    @type string $name     The site name.
+	 * }
+	 */
+	private $source_site = [];
+
+	/**
 	 * Initialize the DistributorPost object.
 	 *
 	 * @param WP_Post|int $post WordPress post object or post ID.
@@ -159,5 +175,57 @@ class DistributorPost {
 			$this->connection_type = 'external';
 			$this->connection_id   = get_post_meta( $post->ID, 'dt_original_source_id', true );
 		}
+	}
+
+	/**
+	 * Populate the source site data for internal connections.
+	 *
+	 * This populates data from the source site used by internal connections.
+	 * The data is populated in one function call to avoid unnecessary calls to
+	 * switch_to_blog() and restore_current_blog().
+	 *
+	 * @return void
+	 */
+	protected function populate_source_site() {
+		if ( 'internal' !== $this->connection_type || empty( $this->connection_id ) ) {
+			return;
+		}
+
+		$switch_to_site = false;
+		if ( get_current_blog_id() !== $this->connection_id ) {
+			switch_to_blog( $this->connection_id );
+			$switch_to_site = true;
+		}
+
+		// Get the site data.
+		$this->source_site = [
+			'home_url'  => home_url(),
+			'site_url'  => site_url(),
+			'rest_url'  => get_rest_url(),
+			'name'      => get_bloginfo( 'name' ),
+		];
+
+		// Restore the current site.
+		if ( $switch_to_site ) {
+			restore_current_blog();
+		}
+	}
+
+	/**
+	 * Magic getter method.
+	 *
+	 * This method is used to get the value of the `source_site` property and
+	 * populate it if needs be.
+	 *
+	 * @param string $name Property name.
+	 * @return mixed
+	 */
+	public function __get( $name ) {
+		if ( 'source_site' === $name && empty( $this->source_site ) ) {
+			$this->populate_source_site();
+			return $this->source_site;
+		}
+
+		return $this->$name;
 	}
 }
