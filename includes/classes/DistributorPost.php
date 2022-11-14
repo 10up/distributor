@@ -141,7 +141,7 @@ class DistributorPost {
 			 */
 			$this->connection_type = 'internal';
 			$this->connection_id   = get_post_meta( $post->ID, 'dt_original_blog_id', true );
-		} elseif ( get_post_meta( $post->ID, 'dt_original_connection_id', true ) ) {
+		} elseif ( get_post_meta( $post->ID, 'dt_full_connection', true ) ) {
 			// This connection was pushed from an external connection.
 			$this->connection_type = 'pushed';
 
