@@ -4,7 +4,7 @@
 
 > Distributor is a WordPress plugin that makes it easy to distribute and reuse content across your websites — whether in a single multisite or across the web.
 
-[![Support Level](https://img.shields.io/badge/support-active-green.svg)](#support-level) [![Tests](https://github.com/10up/distributor/actions/workflows/test.yml/badge.svg)](https://github.com/10up/distributor/actions/workflows/test.yml) [![Linting](https://github.com/10up/distributor/actions/workflows/lint.yml/badge.svg)](https://github.com/10up/distributor/actions/workflows/lint.yml) [![Code scanning](https://github.com/10up/distributor/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/10up/distributor/actions/workflows/codeql-analysis.yml) [![Release Version](https://img.shields.io/github/release/10up/distributor.svg)](https://github.com/10up/distributor/releases/latest) ![WordPress tested up to version](https://img.shields.io/badge/WordPress-v6.0%20tested-success.svg) [![License](https://img.shields.io/github/license/10up/distributor.svg)](https://github.com/10up/distributor/blob/develop/LICENSE.md)
+[![Support Level](https://img.shields.io/badge/support-active-green.svg)](#support-level) [![Tests](https://github.com/10up/distributor/actions/workflows/test.yml/badge.svg)](https://github.com/10up/distributor/actions/workflows/test.yml) [![Linting](https://github.com/10up/distributor/actions/workflows/lint.yml/badge.svg)](https://github.com/10up/distributor/actions/workflows/lint.yml) [![Code scanning](https://github.com/10up/distributor/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/10up/distributor/actions/workflows/codeql-analysis.yml) [![Release Version](https://img.shields.io/github/release/10up/distributor.svg)](https://github.com/10up/distributor/releases/latest) ![WordPress tested up to version](https://img.shields.io/badge/WordPress-v6.1%20tested-success.svg) [![License](https://img.shields.io/github/license/10up/distributor.svg)](https://github.com/10up/distributor/blob/develop/LICENSE.md)
 
 *You can learn more about Distributor's features at [DistributorPlugin.com](https://distributorplugin.com) and documentation at the [Distributor documentation site](https://10up.github.io/distributor/).*
 
@@ -74,7 +74,7 @@ To help inform our roadmap, keep adopters apprised of major updates and changes 
 1. Ensure that the current version of Distributor is active on BOTH sites being connected.  We'll refer to these as mainsite.com and remotesite.com.
 1. On mainsite.com, navigate to `Distributor` > `External Connections` and click `Add New`.
 1. Enter a label for the connection (e.g., `remotesite`).
-1. Enter the URL (e.g. `https://remotesite.com`) for your remote site below the External Site URL and press the `Authorize Connection` button. 
+1. Enter the URL (e.g. `https://remotesite.com`) for your remote site below the External Site URL and press the `Authorize Connection` button.
 1. You will be prompted to enter the user name and password of an administrative role of the `remotesite.com` if you are not already logged into `remotesite.com` and then redirected to the Authorize Application screen.
 1. At the Authorize Application screen, enter the name of the main site and press the 'Yes, I approve of this connection' button
 1. Review the roles selected in `Roles Allowed to Push` are the ones you want to support, update if necessary, then press the `Update Connection` button.
