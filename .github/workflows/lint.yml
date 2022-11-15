@@ -79,6 +79,4 @@ jobs:
       run: ./vendor/bin/phpcs ./distributor.php --runtime-set testVersion 5.6- --standard=PHPCompatibilityWP
 
     - name: PHPCS check
-      uses: chekalsky/phpcs-action@v1
-      with:
-        phpcs_bin_path: './vendor/bin/phpcs . --runtime-set testVersion 7.4-'
+      run: ./vendor/bin/phpcs .
