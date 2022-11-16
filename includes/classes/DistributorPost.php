@@ -79,6 +79,16 @@ class DistributorPost {
 	public $original_post_id = 0;
 
 	/**
+	 * The original post's URL.
+	 *
+	 * This is marked private but can be accessed via the `__get` method to allow
+	 * for live updates of the original post URL for internal connections.
+	 *
+	 * @var string
+	 */
+	private $original_post_url = '';
+
+	/**
 	 * The type of connection this post is distributed from.
 	 *
 	 * @var string internal|external|pushed|empty (for source)
@@ -138,17 +148,19 @@ class DistributorPost {
 		$original_post_id = get_post_meta( $post->ID, 'dt_original_post_id', true );
 		if ( empty( $original_post_id ) ) {
 			// This is the source post.
-			$this->is_source        = true;
-			$this->is_linked        = true;
-			$this->original_post_id = $this->post->ID;
+			$this->is_source         = true;
+			$this->is_linked         = true;
+			$this->original_post_id  = $this->post->ID;
+			$this->original_post_url = get_permalink( $this->post->ID );
 			return;
 		}
 
 		// Set up information for a distributed post.
 		$this->is_source = false;
 		// Reverse value of the `dt_unlinked` meta data.
-		$this->is_linked        = ! get_post_meta( $post->ID, 'dt_unlinked', true );
-		$this->original_post_id = $original_post_id;
+		$this->is_linked         = ! get_post_meta( $post->ID, 'dt_unlinked', true );
+		$this->original_post_id  = $original_post_id;
+		$this->original_post_url = get_post_meta( $post->ID, 'dt_original_post_url', true );
 
 		// Determine the connection type.
 		if ( get_post_meta( $post->ID, 'dt_original_blog_id', true ) ) {
@@ -189,7 +201,17 @@ class DistributorPost {
 	 * @return void
 	 */
 	protected function populate_source_site() {
+		if ( ! empty( $this->source_site ) ) {
+			// Already populated.
+			return;
+		}
+
 		if ( 'internal' !== $this->connection_type || empty( $this->connection_id ) ) {
+			// Populate from the meta data.
+			$this->source_site = [
+				'home_url' => get_post_meta( $this->post->ID, 'dt_original_site_url', true ),
+				'name'     => get_post_meta( $this->post->ID, 'dt_original_site_name', true ),
+			];
 			return;
 		}
 
@@ -201,11 +223,12 @@ class DistributorPost {
 
 		// Get the site data.
 		$this->source_site = [
-			'home_url'  => home_url(),
-			'site_url'  => site_url(),
-			'rest_url'  => get_rest_url(),
-			'name'      => get_bloginfo( 'name' ),
+			'home_url' => home_url(),
+			'name'     => get_bloginfo( 'name' ),
 		];
+
+		// Update the original post permalink with live data.
+		$this->original_post_url = get_permalink( $this->original_post_id );
 
 		// Restore the current site.
 		if ( $switch_to_site ) {
@@ -217,15 +240,15 @@ class DistributorPost {
 	 * Magic getter method.
 	 *
 	 * This method is used to get the value of the `source_site` property and
-	 * populate it if needs be.
+	 * populate it if needs be. For internal connections the post permalink is
+	 * updated with live data.
 	 *
 	 * @param string $name Property name.
 	 * @return mixed
 	 */
 	public function __get( $name ) {
-		if ( 'source_site' === $name && empty( $this->source_site ) ) {
+		if ( in_array( $name, array( 'source_site', 'original_post_url' ), true ) ) {
 			$this->populate_source_site();
-			return $this->source_site;
 		}
 
 		return $this->$name;
