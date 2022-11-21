@@ -302,4 +302,91 @@ class DistributorPost {
 	public function has_block( $block_name ) {
 		return has_block( $block_name, $this->post->post_content );
 	}
+
+	/**
+	 * Get the post data for distribution.
+	 *
+	 * @return array {
+	 *    Post data.
+	 *
+	 *    @type string $title             Post title.
+	 *    @type string $slug              Post slug.
+	 *    @type string $post_type         Post type.
+	 *    @type string $content           Processed post content.
+	 *    @type string $excerpt           Post excerpt.
+	 *    @type array  $distributor_media Media data.
+	 *    @type array  $distributor_terms Post terms.
+	 *    @type array  $distributor_meta  Post meta.
+	 * }
+	 */
+	public function post_data() {
+		return [
+			'title'             => html_entity_decode( get_the_title( $this->post->ID ), ENT_QUOTES, get_bloginfo( 'charset' ) ),
+			'slug'              => $this->post->post_name,
+			'post_type'         => $this->post->post_type,
+			'content'           => Utils\get_processed_content( $this->post->post_content ),
+			'excerpt'           => $this->post->post_excerpt,
+			'distributor_media' => $this->media,
+			'distributor_terms' => $this->terms,
+			'distributor_meta'  => $this->meta,
+		];
+	}
+
+	/**
+	 * Get the post data in a format suitable for wp_insert_post().
+	 *
+	 * @todo `distributor_media` needs work for unattached media items.
+	 * @todo check if `distributor_raw_content` should be included here too.
+	 *
+	 * @return array {
+	 *    Post data.
+	 *
+	 *    @type string $post_title   Post title.
+	 *    @type string $post_name    Post slug.
+	 *    @type string $post_type    Post type.
+	 *    @type string $post_content Processed post content.
+	 *    @type string $post_excerpt Post excerpt.
+	 *    @type array  $tax_input    Post terms.
+	 *    @type array  $meta_input   Post meta.
+	 *
+	 *    @type array  $distributor_media Media data.
+	 * }
+	 */
+	public function to_insert() {
+		$insert       = [];
+		$post_data    = $this->post_data();
+		$key_mappings = [
+			'post_title'   => 'title',
+			'post_name'    => 'slug',
+			'post_type'    => 'post_type',
+			'post_content' => 'content',
+			'post_excerpt' => 'excerpt',
+			'tax_input'    => 'distributor_terms',
+			'meta_input'   => 'distributor_meta',
+
+			// This needs to be figured out.
+			'distributor_media' => 'distributor_media',
+		];
+
+		foreach ( $key_mappings as $key => $value ) {
+			$insert[ $key ] = $post_data[ $value ];
+		}
+
+		return $insert;
+	}
+
+	/**
+	 * Get the post data in a format suitable for the distributor REST API endpoint.
+	 *
+	 * @return string JSON encoded post data.
+	 */
+	public function to_json() {
+		$post_data = $this->post_data();
+
+		if ( $this->has_blocks() ) {
+			$post_data['distributor_raw_content'] = $this->post->post_content;
+		}
+
+		return wp_json_encode( $post_data );
+	}
 }
