@@ -356,13 +356,13 @@ class DistributorPost {
 		$insert       = [];
 		$post_data    = $this->post_data();
 		$key_mappings = [
-			'post_title'   => 'title',
-			'post_name'    => 'slug',
-			'post_type'    => 'post_type',
-			'post_content' => 'content',
-			'post_excerpt' => 'excerpt',
-			'tax_input'    => 'distributor_terms',
-			'meta_input'   => 'distributor_meta',
+			'post_title'        => 'title',
+			'post_name'         => 'slug',
+			'post_type'         => 'post_type',
+			'post_content'      => 'content',
+			'post_excerpt'      => 'excerpt',
+			'tax_input'         => 'distributor_terms',
+			'meta_input'        => 'distributor_meta',
 
 			// This needs to be figured out.
 			'distributor_media' => 'distributor_media',
