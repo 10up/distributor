@@ -355,6 +355,7 @@ function excluded_meta() {
 		'dt_blacklisted_meta',
 		[
 			[
+				'classic-editor-remember',
 				'dt_unlinked',
 				'dt_syndicate_time',
 				'dt_subscriptions',
