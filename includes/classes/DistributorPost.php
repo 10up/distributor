@@ -138,7 +138,7 @@ class DistributorPost {
 		// Set up the distributable data.
 		$this->meta  = Utils\prepare_meta( $post->ID );
 		$this->terms = Utils\prepare_taxonomy_terms( $post->ID );
-		$this->media = Utils\prepare_media( $post->ID );
+		$this->media = $this->prepare_media();
 
 		/*
 		 * The original post ID is listed as excluded post meta and therefore
@@ -358,6 +358,39 @@ class DistributorPost {
 	 */
 	public function get_the_post_thumbnail( $size = 'post-thumbnail', $attr = '' ) {
 		return get_the_post_thumbnail( $this->post, $size, $attr );
+	}
+
+	/**
+	 * Format media items for consumption
+	 *
+	 * @return array
+	 */
+	public function prepare_media() {
+		$post_id     = $this->post->ID;
+		$raw_media   = get_attached_media( get_allowed_mime_types(), $post_id );
+		$media_array = array();
+
+		$featured_image_id = $this->get_post_thumbnail_id();
+		$found_featured    = false;
+
+		foreach ( $raw_media as $media_post ) {
+			$media_item = Utils\format_media_post( $media_post );
+
+			if ( $media_item['featured'] ) {
+				$found_featured = true;
+			}
+
+			$media_array[] = $media_item;
+		}
+
+		if ( ! empty( $featured_image_id ) && ! $found_featured ) {
+			$featured_image             = Utils\format_media_post( get_post( $featured_image_id ) );
+			$featured_image['featured'] = true;
+
+			$media_array[] = $featured_image;
+		}
+
+		return $media_array;
 	}
 
 	/**
