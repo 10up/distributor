@@ -304,6 +304,63 @@ class DistributorPost {
 	}
 
 	/**
+	 * Get the post ID.
+	 *
+	 * @return int Post ID.
+	 */
+	public function get_the_id() {
+		return $this->post->ID;
+	}
+
+	/**
+	 * get the post permalink.
+	 *
+	 * @return string Post permalink.
+	 */
+	public function get_permalink() {
+		return get_permalink( $this->post );
+	}
+
+	/**
+	 * Get the post type.
+	 *
+	 * @return string Post type.
+	 */
+	public function get_post_type() {
+		return get_post_type( $this->post );
+	}
+
+	/**
+	 * Get the post's thumbnail ID.
+	 *
+	 * @return int|false Post thumbnail ID or false if no thumbnail is set.
+	 */
+	public function get_post_thumbnail_id() {
+		return get_post_thumbnail_id( $this->post );
+	}
+
+	/**
+	 * Get the post's thumbnail URL.
+	 *
+	 * @param string $size Thumbnail size. Defaults to 'post-thumbnail'.
+	 * @return string|false The post's thumbnail URL or false if no thumbnail is set.
+	 */
+	public function get_post_thumbnail_url( $size = 'post-thumbnail' ) {
+		return get_the_post_thumbnail_url( $this->post, $size );
+	}
+
+	/**
+	 * Get the post's thumbnail HTML.
+	 *
+	 * @param string $size Thumbnail size. Defaults to 'post-thumbnail'.
+	 * @param array  $attr Optional. Attributes for the image markup. Default empty.
+	 * @return string|false The post's thumbnail HTML or false if no thumbnail is set.
+	 */
+	public function get_the_post_thumbnail( $size = 'post-thumbnail', $attr = '' ) {
+		return get_the_post_thumbnail( $this->post, $size, $attr );
+	}
+
+	/**
 	 * Get the post data for distribution.
 	 *
 	 * @return array {
