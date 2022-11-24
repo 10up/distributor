@@ -442,6 +442,13 @@ class DistributorPost {
 	public function to_json( $options = 0, $depth = 512 ) {
 		$post_data = $this->post_data();
 
+		/*
+		 * Check if the post has block to determine whether to use the raw content or not.
+		 *
+		 * This is used instead of `use_block_editor_for_post()` as the latter may be
+		 * filtered by the classic editor plugin to return false for posts do in fact
+		 * contain blocks.
+		 */
 		if ( $this->has_blocks() ) {
 			$post_data['distributor_raw_content'] = $this->post->post_content;
 		}
