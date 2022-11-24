@@ -378,15 +378,17 @@ class DistributorPost {
 	/**
 	 * Get the post data in a format suitable for the distributor REST API endpoint.
 	 *
+	 * @param int $options Optional. Options to be passed to json_encode(). Default 0.
+	 * @param int $depth   Optional. Maximum depth to walk through $data. Default 512.
 	 * @return string JSON encoded post data.
 	 */
-	public function to_json() {
+	public function to_json( $options = 0, $depth = 512 ) {
 		$post_data = $this->post_data();
 
 		if ( $this->has_blocks() ) {
 			$post_data['distributor_raw_content'] = $this->post->post_content;
 		}
 
-		return wp_json_encode( $post_data );
+		return wp_json_encode( $post_data, $options, $depth );
 	}
 }
