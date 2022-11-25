@@ -23,6 +23,8 @@
 //
 // -- This will overwrite an existing command --
 // Cypress.Commands.overwrite('visit', (originalFn, url, options) => { ... })
+const { randomName } = require( '../support/functions' );
+
 Cypress.Commands.add( 'networkActivatePlugin', ( slug ) => {
 	cy.visit( '/wp-admin/network/plugins.php' );
 	cy.get( `#the-list tr[data-slug="${ slug }"]` ).then( ( $pluginRow ) => {
@@ -74,9 +76,15 @@ Cypress.Commands.add(
 		name = 'Test Connection',
 		url = 'http://localhost/wp-json',
 		user = 'admin',
-		password = 'password'
+		password = 'password',
+		blog = ''
 	) => {
-		cy.visit( '/wp-admin/admin.php?page=distributor' );
+		let adminUrl = '/wp-admin';
+		if ( blog ) {
+			adminUrl = '/' + blog + adminUrl;
+		}
+
+		cy.visit( adminUrl + '/admin.php?page=distributor' );
 
 		cy.get( '.row-title, .no-items' ).then( ( elements ) => {
 			const noItems = elements.hasClass( 'no-items' );
@@ -88,7 +96,7 @@ Cypress.Commands.add(
 			}, false );
 			if ( noItems || ! found ) {
 				cy.visit(
-					'/wp-admin/post-new.php?post_type=dt_ext_connection'
+					adminUrl + '/post-new.php?post_type=dt_ext_connection'
 				);
 
 				cy.get( '.manual-setup-button' ).click();
@@ -105,7 +113,7 @@ Cypress.Commands.add(
 			}
 
 			// Visit the list and check the validation.
-			cy.visit( '/wp-admin/admin.php?page=distributor' );
+			cy.visit( adminUrl + '/admin.php?page=distributor' );
 			cy.get( '.row-title' )
 				.contains( name )
 				.closest( 'tr' )
@@ -261,3 +269,28 @@ Cypress.Commands.add(
 		cy.wrap( info );
 	}
 );
+
+Cypress.Commands.add( 'createTweetOEmbedPost', ( tweetUrl ) => {
+	const postTitle = 'oEmbed ' + randomName();
+	cy.createPost( {
+		title: postTitle,
+		beforeSave: () => {
+			cy.insertBlock( 'core/embed/twitter', 'Twitter' ).then( ( id ) => {
+				cy.get( `#${ id } input[aria-label="Twitter URL"]` )
+					.click()
+					.type( tweetUrl );
+				cy.get( `#${ id } button[type="submit"]` ).click();
+			} );
+		},
+	} ).then( ( post ) => {
+		cy.wrap( post );
+	} );
+} );
+
+Cypress.Commands.add( 'postContains', ( postId, content, siteUrl ) => {
+	let cliCommand = `wp post get ${ postId } --field=content`;
+	if ( siteUrl ) {
+		cliCommand += ` --url=${ siteUrl }`;
+	}
+	cy.wpCli( cliCommand ).its( 'stdout' ).should( 'contain', content );
+} );
