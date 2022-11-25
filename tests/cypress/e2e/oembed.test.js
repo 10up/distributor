@@ -4,7 +4,7 @@ describe( 'oEmbed Test', () => {
 		cy.networkActivatePlugin( 'distributor' );
 		// Ignore exception.
 		// TODO: Figure out why this is happening and remove this.
-		Cypress.on( 'uncaught:exception', ( err, runnable ) => {
+		Cypress.on( 'uncaught:exception', ( err ) => {
 			if (
 				err.message.includes( 'ResizeObserver loop limit exceeded' )
 			) {
