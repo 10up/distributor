@@ -409,7 +409,11 @@ class DistributorPost {
 		 *    'core/video' => 'id',
 		 * }
 		 *
-		 * @param array $media_blocks Array of media blocks.
+		 * @hook dt_parse_media_blocks
+		 *
+		 * @param {array} $media_blocks Array of media blocks.
+		 *
+		 * @return {array} Modified array of media blocks.
 		 */
 		$media_blocks = apply_filters( 'dt_parse_media_blocks', $media_blocks );
 
