@@ -313,7 +313,7 @@ class DistributorPost {
 	}
 
 	/**
-	 * get the post permalink.
+	 * Get the post permalink.
 	 *
 	 * @return string Post permalink.
 	 */
