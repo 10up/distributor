@@ -361,14 +361,86 @@ class DistributorPost {
 	}
 
 	/**
+	 * Parse the post's content to obtain media items.
+	 *
+	 * This uses the block parser to find media items within the post content
+	 * regardless of whether the media is attached to the post or not.
+	 *
+	 * @return WP_Post[] Array of media posts.
+	 */
+	public function parse_media_blocks() {
+		$media = array();
+
+		$blocks = parse_blocks( $this->post->post_content );
+
+		foreach ( $blocks as $block ) {
+			$media = array_merge( $media, $this->parse_blocks_for_attachment_id( $block ) );
+		}
+
+		$media = array_map( 'get_post', $media );
+		$media = array_filter( $media );
+
+		return $media;
+	}
+
+	/**
+	 * Parse blocks to obtain each media item's attachment ID.
+	 *
+	 * @param array $block Block to parse.
+	 * @return int[] Array of media attachment IDs.
+	 */
+	private function parse_blocks_for_attachment_id( $block ) {
+		$media_blocks = array(
+			'core/image' => 'id',
+			'core/audio' => 'id',
+			'core/video' => 'id',
+		);
+		$media        = array();
+
+		/**
+		 * Filters blocks to consider as media.
+		 *
+		 * The array keys are the block names and the values indicate the
+		 * attribute containing the media's attachment ID.
+		 *
+		 * The Distributor defaults are {
+		 *    'core/image' => 'id',
+		 *    'core/audio' => 'id',
+		 *    'core/video' => 'id',
+		 * }
+		 *
+		 * @param array $media_blocks Array of media blocks.
+		 */
+		$media_blocks = apply_filters( 'dt_parse_media_blocks', $media_blocks );
+
+		$block_names = array_keys( $media_blocks );
+
+		if ( ! empty( $block['innerBlocks'] ) ) {
+			foreach ( $block['innerBlocks'] as $inner_block ) {
+				$media = array_merge( $media, $this->parse_blocks_for_attachment_id( $inner_block ) );
+			}
+		}
+
+		if ( in_array( $block['blockName'], $block_names, true ) ) {
+			$media[] = $block['attrs'][ $media_blocks[ $block['blockName'] ] ];
+		}
+
+		return $media;
+	}
+
+
+	/**
 	 * Format media items for consumption
 	 *
 	 * @return array
 	 */
 	public function prepare_media() {
-		$post_id     = $this->post->ID;
-		$raw_media   = get_attached_media( get_allowed_mime_types(), $post_id );
-		$media_array = array();
+		$post_id = $this->post->ID;
+		if ( $this->has_blocks() ) {
+			$raw_media = $this->parse_media_blocks();
+		} else {
+			$raw_media = get_attached_media( get_allowed_mime_types(), $post_id );
+		}
 
 		$featured_image_id = $this->get_post_thumbnail_id();
 		$found_featured    = false;
