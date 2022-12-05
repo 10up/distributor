@@ -456,6 +456,11 @@ class DistributorPost {
 	 * @return array
 	 */
 	public function prepare_media() {
+		static $prepared = false;
+		if ( $prepared ) {
+			return $this->media;
+		}
+
 		$post_id = $this->post->ID;
 		if ( $this->has_blocks() ) {
 			$raw_media = $this->parse_media_blocks();
@@ -483,6 +488,8 @@ class DistributorPost {
 			$media_array[] = $featured_image;
 		}
 
+		$this->media = $media_array;
+		$prepared    = true;
 		return $media_array;
 	}
 
