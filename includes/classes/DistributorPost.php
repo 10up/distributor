@@ -393,6 +393,7 @@ class DistributorPost {
 			$media = array_merge( $media, $this->parse_blocks_for_attachment_id( $block ) );
 		}
 
+		_prime_post_caches( $media, false, true );
 		$media = array_map( 'get_post', $media );
 		$media = array_filter( $media );
 
