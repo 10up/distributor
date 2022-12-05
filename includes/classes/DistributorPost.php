@@ -144,6 +144,9 @@ class DistributorPost {
 		}
 
 		$this->post = $post;
+		// Prime the post term and meta data caches.
+		update_object_term_cache( array( $post->ID ), array( $post->post_type ) );
+		update_postmeta_cache( array( $post->ID ) );
 
 		// Set up the distributable data.
 		$this->meta  = Utils\prepare_meta( $post->ID );
