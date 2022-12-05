@@ -89,9 +89,19 @@ class DistributorPost {
 	private $original_post_url = '';
 
 	/**
+	 * The direction of the connection.
+	 *
+	 * Internal connections are identical regardless of whether they are pushed or pulled
+	 * so are considered bidirectional.
+	 *
+	 * @var string pushed|pulled|bidirectional|empty
+	 */
+	public $connection_direction = '';
+
+	/**
 	 * The type of connection this post is distributed from.
 	 *
-	 * @var string internal|external|pushed|empty (for source)
+	 * @var string internal|external|empty (for source)
 	 */
 	public $connection_type = '';
 
@@ -169,11 +179,13 @@ class DistributorPost {
 			 *
 			 * Pushed and pulled posts are indistinguishable from each other.
 			 */
-			$this->connection_type = 'internal';
-			$this->connection_id   = get_post_meta( $post->ID, 'dt_original_blog_id', true );
+			$this->connection_type      = 'internal';
+			$this->connection_direction = 'bidirectional';
+			$this->connection_id        = get_post_meta( $post->ID, 'dt_original_blog_id', true );
 		} elseif ( get_post_meta( $post->ID, 'dt_full_connection', true ) ) {
 			// This connection was pushed from an external connection.
-			$this->connection_type = 'pushed';
+			$this->connection_type      = 'external';
+			$this->connection_direction = 'pushed';
 
 			/*
 			 * The connection ID stored in post meta is incorrect.
@@ -184,8 +196,9 @@ class DistributorPost {
 			$this->connection_id = get_post_meta( $post->ID, 'dt_original_site_url', true );
 		} elseif ( get_post_meta( $post->ID, 'dt_original_source_id', true ) ) {
 			// Post was pulled from an external connection.
-			$this->connection_type = 'external';
-			$this->connection_id   = get_post_meta( $post->ID, 'dt_original_source_id', true );
+			$this->connection_type      = 'external';
+			$this->connection_direction = 'pulled';
+			$this->connection_id        = get_post_meta( $post->ID, 'dt_original_source_id', true );
 		}
 	}
 
