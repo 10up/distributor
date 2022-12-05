@@ -446,7 +446,7 @@ function prepare_media( $post_id ) {
 		return array();
 	}
 
-	return $dt_post->prepare_media();
+	return $dt_post->get_media();
 }
 
 /**

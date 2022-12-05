@@ -31,29 +31,33 @@ class DistributorPost {
 	/**
 	 * Distributable post meta.
 	 *
-	 * An array of
+	 * This is a cache for the `get_meta` method.
 	 *
 	 * @var array[] {
 	 *    @type mixed[] Post meta keyed by post meta key.
 	 * }
 	 */
-	public $meta = [];
+	private $meta = [];
 
 	/**
 	 * Distributable post terms.
+	 *
+	 * This is a cache for the `get_terms` method.
 	 *
 	 * @var array[] {
 	 *    @type WP_Term[] Post terms keyed by taxonomy.
 	 * }
 	 */
-	public $terms = [];
+	private $terms = [];
 
 	/**
 	 * Distributable post media.
 	 *
+	 * This is a cache for the `get_media` method.
+	 *
 	 * @var array[] Array of media objects.
 	 */
-	public $media = [];
+	private $media = [];
 
 	/**
 	 * Whether this is the source (true) or a distributed post (false).
@@ -144,14 +148,6 @@ class DistributorPost {
 		}
 
 		$this->post = $post;
-		// Prime the post term and meta data caches.
-		update_object_term_cache( array( $post->ID ), array( $post->post_type ) );
-		update_postmeta_cache( array( $post->ID ) );
-
-		// Set up the distributable data.
-		$this->meta  = Utils\prepare_meta( $post->ID );
-		$this->terms = Utils\prepare_taxonomy_terms( $post->ID );
-		$this->media = $this->prepare_media();
 
 		/*
 		 * The original post ID is listed as excluded post meta and therefore
@@ -449,13 +445,49 @@ class DistributorPost {
 		return $media;
 	}
 
+	/**
+	 * Get the post's distributable meta data.
+	 *
+	 * @return array Array of meta data.
+	 */
+	public function get_meta() {
+		static $prepared = false;
+		if ( $prepared ) {
+			return $this->meta;
+		}
+
+		update_postmeta_cache( array( $this->post->ID ) );
+		$this->meta = Utils\prepare_meta( $this->post->ID );
+		$prepared   = true;
+		return $this->meta;
+	}
+
+	/**
+	 * Get the post's distributable terms.
+	 *
+	 * @var array[] {
+	 *    @type WP_Term[] Post terms keyed by taxonomy.
+	 * }
+	 */
+	public function get_terms() {
+		static $prepared = false;
+		if ( $prepared ) {
+			return $this->terms;
+		}
+
+		// Prime the post term caches.
+		update_object_term_cache( array( $this->post->ID ), $this->post->post_type );
+		$this->terms = Utils\prepare_taxonomy_terms( $this->post->ID );
+		$prepared    = true;
+		return $this->terms;
+	}
 
 	/**
 	 * Format media items for consumption
 	 *
 	 * @return array
 	 */
-	public function prepare_media() {
+	public function get_media() {
 		static $prepared = false;
 		if ( $prepared ) {
 			return $this->media;
@@ -516,9 +548,9 @@ class DistributorPost {
 			'post_type'         => $this->post->post_type,
 			'content'           => Utils\get_processed_content( $this->post->post_content ),
 			'excerpt'           => $this->post->post_excerpt,
-			'distributor_media' => $this->media,
-			'distributor_terms' => $this->terms,
-			'distributor_meta'  => $this->meta,
+			'distributor_media' => $this->get_media(),
+			'distributor_terms' => $this->get_terms(),
+			'distributor_meta'  => $this->get_meta(),
 		];
 	}
 
