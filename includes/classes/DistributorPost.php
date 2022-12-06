@@ -381,14 +381,26 @@ class DistributorPost {
 	 * @return WP_Post[] Array of media posts.
 	 */
 	public function parse_media_blocks() {
-		$media = array();
+		$found = false;
 
-		$blocks = parse_blocks( $this->post->post_content );
+		// Note: changes to the cache key or group should be reflected in `includes/settings.php`
+		$media = wp_cache_get( 'dt_media::{$post_id}', 'dt::post', false, $found );
 
-		foreach ( $blocks as $block ) {
-			$media = array_merge( $media, $this->parse_blocks_for_attachment_id( $block ) );
+		if ( ! $found ) {
+			// Parse blocks to determine attached media.
+			$media = array();
+
+			$blocks = parse_blocks( $this->post->post_content );
+
+			foreach ( $blocks as $block ) {
+				$media = array_merge( $media, $this->parse_blocks_for_attachment_id( $block ) );
+			}
+
+			// Only the IDs are cached to keep the cache size down.
+			wp_cache_set( 'dt_media::{$post_id}', $media, 'dt::post' );
 		}
 
+		// Prime the cache for the individual media items in full.
 		_prime_post_caches( $media, false, true );
 		$media = array_map( 'get_post', $media );
 		$media = array_filter( $media );
