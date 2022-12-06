@@ -9,7 +9,6 @@ namespace Distributor;
 
 use Distributor\Utils;
 use WP_Post;
-use WP_Term;
 
 /**
  * This is the post abstraction for distributor posts.
@@ -27,37 +26,6 @@ class DistributorPost {
 	 * @var WP_Post
 	 */
 	public $post = false;
-
-	/**
-	 * Distributable post meta.
-	 *
-	 * This is a cache for the `get_meta` method.
-	 *
-	 * @var array[] {
-	 *    @type mixed[] Post meta keyed by post meta key.
-	 * }
-	 */
-	private $meta = [];
-
-	/**
-	 * Distributable post terms.
-	 *
-	 * This is a cache for the `get_terms` method.
-	 *
-	 * @var array[] {
-	 *    @type WP_Term[] Post terms keyed by taxonomy.
-	 * }
-	 */
-	private $terms = [];
-
-	/**
-	 * Distributable post media.
-	 *
-	 * This is a cache for the `get_media` method.
-	 *
-	 * @var array[] Array of media objects.
-	 */
-	private $media = [];
 
 	/**
 	 * Whether this is the source (true) or a distributed post (false).
@@ -378,15 +346,7 @@ class DistributorPost {
 	 * @return array Array of meta data.
 	 */
 	public function get_meta() {
-		static $prepared = false;
-		if ( $prepared ) {
-			return $this->meta;
-		}
-
-		update_postmeta_cache( array( $this->post->ID ) );
-		$this->meta = Utils\prepare_meta( $this->post->ID );
-		$prepared   = true;
-		return $this->meta;
+		return Utils\prepare_meta( $this->post->ID );
 	}
 
 	/**
@@ -397,16 +357,7 @@ class DistributorPost {
 	 * }
 	 */
 	public function get_terms() {
-		static $prepared = false;
-		if ( $prepared ) {
-			return $this->terms;
-		}
-
-		// Prime the post term caches.
-		update_object_term_cache( array( $this->post->ID ), $this->post->post_type );
-		$this->terms = Utils\prepare_taxonomy_terms( $this->post->ID );
-		$prepared    = true;
-		return $this->terms;
+		return Utils\prepare_taxonomy_terms( $this->post->ID );
 	}
 
 	/**
@@ -415,11 +366,6 @@ class DistributorPost {
 	 * @return array
 	 */
 	public function get_media() {
-		static $prepared = false;
-		if ( $prepared ) {
-			return $this->media;
-		}
-
 		$post_id = $this->post->ID;
 		if ( $this->has_blocks() ) {
 			$raw_media = $this->parse_media_blocks();
@@ -447,8 +393,6 @@ class DistributorPost {
 			$media_array[] = $featured_image;
 		}
 
-		$this->media = $media_array;
-		$prepared    = true;
 		return $media_array;
 	}
 
@@ -480,8 +424,18 @@ class DistributorPost {
 			wp_cache_set( 'dt_media::{$post_id}', $media, 'dt::post' );
 		}
 
-		// Prime the cache for the individual media items in full.
-		_prime_post_caches( $media, false, true );
+		/*
+		 * Prime the cache for the individual media items in full.
+		 *
+		 * The post, term and meta caches are primed individually to work
+		 * around a WordPress bug in which `_prime_post_caches()` will not
+		 * warm the secondary caches if the post object is already cached.
+		 *
+		 * See https://core.trac.wordpress.org/ticket/57163
+		 */
+		_prime_post_caches( $media, false, false );
+		update_object_term_cache( $media, 'attachment' );
+		update_postmeta_cache( $media );
 		$media = array_map( 'get_post', $media );
 		$media = array_filter( $media );
 

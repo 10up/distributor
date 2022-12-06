@@ -401,6 +401,7 @@ function excluded_meta() {
  * @return array
  */
 function prepare_meta( $post_id ) {
+	update_postmeta_cache( array( $post_id ) );
 	$meta          = get_post_meta( $post_id );
 	$prepared_meta = array();
 	$excluded_meta = excluded_meta();
@@ -460,6 +461,13 @@ function prepare_media( $post_id ) {
  */
 function prepare_taxonomy_terms( $post_id, $args = array() ) {
 	$post = get_post( $post_id );
+
+	if ( ! $post ) {
+		return array();
+	}
+
+	// Warm the term cache for the post.
+	update_object_term_cache( array( $post->ID ), $post->post_type );
 
 	if ( empty( $args ) ) {
 		$args = array( 'publicly_queryable' => true );
