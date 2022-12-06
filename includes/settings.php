@@ -450,7 +450,7 @@ function handle_network_settings() {
  *
  * @param int $post_id Post ID.
  */
-public function clean_dt_post_cache( int $post_id ) {
+function clean_dt_post_cache( int $post_id ) {
 	$cache_keys = array(
 		"dt_media::{$post_id}",
 	);
