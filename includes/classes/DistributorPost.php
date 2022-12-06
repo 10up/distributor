@@ -373,6 +373,86 @@ class DistributorPost {
 	}
 
 	/**
+	 * Get the post's distributable meta data.
+	 *
+	 * @return array Array of meta data.
+	 */
+	public function get_meta() {
+		static $prepared = false;
+		if ( $prepared ) {
+			return $this->meta;
+		}
+
+		update_postmeta_cache( array( $this->post->ID ) );
+		$this->meta = Utils\prepare_meta( $this->post->ID );
+		$prepared   = true;
+		return $this->meta;
+	}
+
+	/**
+	 * Get the post's distributable terms.
+	 *
+	 * @var array[] {
+	 *    @type WP_Term[] Post terms keyed by taxonomy.
+	 * }
+	 */
+	public function get_terms() {
+		static $prepared = false;
+		if ( $prepared ) {
+			return $this->terms;
+		}
+
+		// Prime the post term caches.
+		update_object_term_cache( array( $this->post->ID ), $this->post->post_type );
+		$this->terms = Utils\prepare_taxonomy_terms( $this->post->ID );
+		$prepared    = true;
+		return $this->terms;
+	}
+
+	/**
+	 * Format media items for consumption
+	 *
+	 * @return array
+	 */
+	public function get_media() {
+		static $prepared = false;
+		if ( $prepared ) {
+			return $this->media;
+		}
+
+		$post_id = $this->post->ID;
+		if ( $this->has_blocks() ) {
+			$raw_media = $this->parse_media_blocks();
+		} else {
+			$raw_media = get_attached_media( get_allowed_mime_types(), $post_id );
+		}
+
+		$featured_image_id = $this->get_post_thumbnail_id();
+		$found_featured    = false;
+
+		foreach ( $raw_media as $media_post ) {
+			$media_item = Utils\format_media_post( $media_post );
+
+			if ( $media_item['featured'] ) {
+				$found_featured = true;
+			}
+
+			$media_array[] = $media_item;
+		}
+
+		if ( ! empty( $featured_image_id ) && ! $found_featured ) {
+			$featured_image             = Utils\format_media_post( get_post( $featured_image_id ) );
+			$featured_image['featured'] = true;
+
+			$media_array[] = $featured_image;
+		}
+
+		$this->media = $media_array;
+		$prepared    = true;
+		return $media_array;
+	}
+
+	/**
 	 * Parse the post's content to obtain media items.
 	 *
 	 * This uses the block parser to find media items within the post content
@@ -455,86 +535,6 @@ class DistributorPost {
 		}
 
 		return $media;
-	}
-
-	/**
-	 * Get the post's distributable meta data.
-	 *
-	 * @return array Array of meta data.
-	 */
-	public function get_meta() {
-		static $prepared = false;
-		if ( $prepared ) {
-			return $this->meta;
-		}
-
-		update_postmeta_cache( array( $this->post->ID ) );
-		$this->meta = Utils\prepare_meta( $this->post->ID );
-		$prepared   = true;
-		return $this->meta;
-	}
-
-	/**
-	 * Get the post's distributable terms.
-	 *
-	 * @var array[] {
-	 *    @type WP_Term[] Post terms keyed by taxonomy.
-	 * }
-	 */
-	public function get_terms() {
-		static $prepared = false;
-		if ( $prepared ) {
-			return $this->terms;
-		}
-
-		// Prime the post term caches.
-		update_object_term_cache( array( $this->post->ID ), $this->post->post_type );
-		$this->terms = Utils\prepare_taxonomy_terms( $this->post->ID );
-		$prepared    = true;
-		return $this->terms;
-	}
-
-	/**
-	 * Format media items for consumption
-	 *
-	 * @return array
-	 */
-	public function get_media() {
-		static $prepared = false;
-		if ( $prepared ) {
-			return $this->media;
-		}
-
-		$post_id = $this->post->ID;
-		if ( $this->has_blocks() ) {
-			$raw_media = $this->parse_media_blocks();
-		} else {
-			$raw_media = get_attached_media( get_allowed_mime_types(), $post_id );
-		}
-
-		$featured_image_id = $this->get_post_thumbnail_id();
-		$found_featured    = false;
-
-		foreach ( $raw_media as $media_post ) {
-			$media_item = Utils\format_media_post( $media_post );
-
-			if ( $media_item['featured'] ) {
-				$found_featured = true;
-			}
-
-			$media_array[] = $media_item;
-		}
-
-		if ( ! empty( $featured_image_id ) && ! $found_featured ) {
-			$featured_image             = Utils\format_media_post( get_post( $featured_image_id ) );
-			$featured_image['featured'] = true;
-
-			$media_array[] = $featured_image;
-		}
-
-		$this->media = $media_array;
-		$prepared    = true;
-		return $media_array;
 	}
 
 	/**
