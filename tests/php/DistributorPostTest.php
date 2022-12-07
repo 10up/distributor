@@ -50,4 +50,83 @@ class DistributorPostTest extends TestCase {
 			)
 		);
 	}
+
+	/**
+	 * Test the DistributorPost object for internal connections.
+	 *
+	 * @group Post
+	 * @runInSeparateProcess
+	 */
+	public function test_internal_connection() {
+		\WP_Mock::userFunction(
+			'get_post_meta',
+			array(
+				'return' => function( $post_id, $key, $single ) {
+					switch ( $key ) {
+						case 'dt_original_post_id':
+							return '10';
+						case 'dt_unlinked':
+							return '0';
+						case 'dt_original_post_url':
+							return 'http://origin.example.org/?p=1';
+						case 'dt_original_blog_id':
+							return '2';
+						default:
+							return '';
+					}
+				},
+			)
+		);
+
+		\WP_Mock::userFunction(
+			'get_current_blog_id',
+			array(
+				'return' => 1,
+			)
+		);
+
+		\WP_Mock::userFunction( 'switch_to_blog' );
+		\WP_Mock::userFunction( 'restore_current_blog' );
+
+		\WP_Mock::userFunction(
+			'get_bloginfo',
+			array(
+				'return' => function( $info ) {
+					switch ( $info ) {
+						case 'name':
+							return 'Test Internal Origin';
+						default:
+							return '';
+					}
+				},
+			)
+		);
+
+		// Generic values for the origin site.
+		\WP_Mock::userFunction(
+			'get_permalink',
+			array(
+				'return' => 'http://origin.example.org/?p=1',
+			)
+		);
+
+		\WP_Mock::userFunction(
+			'home_url',
+			array(
+				'return' => 'http://origin.example.org/',
+			)
+		);
+
+		$dt_post = new DistributorPost( 1 );
+
+		$this->assertSame( '10', $dt_post->original_post_id );
+		$this->assertSame( true, $dt_post->is_linked );
+		$this->assertSame( 'http://origin.example.org/?p=1', $dt_post->original_post_url );
+		$this->assertSame( '2', $dt_post->connection_id );
+		$this->assertSame( 'bidirectional', $dt_post->connection_direction );
+		$this->assertSame( 'internal', $dt_post->connection_type );
+		$this->assertSame( 'http://origin.example.org/', $dt_post->source_site['home_url'] );
+		$this->assertSame( 'Test Internal Origin', $dt_post->source_site['name'] );
+		$this->assertSame( false, $dt_post->is_source );
+	}
 }
