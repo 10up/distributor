@@ -83,7 +83,7 @@ class DistributorPost {
 	 * For internal connections this is the site ID. For external connections
 	 * this refers to the connection ID.
 	 *
-	 * @var int
+	 * @var int|string
 	 */
 	public $connection_id = 0;
 
@@ -136,7 +136,7 @@ class DistributorPost {
 		$this->is_source = false;
 		// Reverse value of the `dt_unlinked` meta data.
 		$this->is_linked         = ! get_post_meta( $post->ID, 'dt_unlinked', true );
-		$this->original_post_id  = $original_post_id;
+		$this->original_post_id  = (int) $original_post_id;
 		$this->original_post_url = get_post_meta( $post->ID, 'dt_original_post_url', true );
 
 		// Determine the connection type.
@@ -148,7 +148,7 @@ class DistributorPost {
 			 */
 			$this->connection_type      = 'internal';
 			$this->connection_direction = 'bidirectional';
-			$this->connection_id        = get_post_meta( $post->ID, 'dt_original_blog_id', true );
+			$this->connection_id        = (int) get_post_meta( $post->ID, 'dt_original_blog_id', true );
 		} elseif ( get_post_meta( $post->ID, 'dt_full_connection', true ) ) {
 			// This connection was pushed from an external connection.
 			$this->connection_type      = 'external';
@@ -165,7 +165,7 @@ class DistributorPost {
 			// Post was pulled from an external connection.
 			$this->connection_type      = 'external';
 			$this->connection_direction = 'pulled';
-			$this->connection_id        = get_post_meta( $post->ID, 'dt_original_source_id', true );
+			$this->connection_id        = (int) get_post_meta( $post->ID, 'dt_original_source_id', true );
 		}
 	}
 
