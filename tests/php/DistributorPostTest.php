@@ -211,4 +211,54 @@ class DistributorPostTest extends TestCase {
 		$this->assertSame( 'Test External, Pulled Origin', $dt_post->source_site['name'], 'Original site name does not match expected value.' );
 		$this->assertSame( false, $dt_post->is_source, 'Post is incorrectly marked as the source.' );
 	}
+
+	/**
+	 * Test the DistributorPost object a source post.
+	 *
+	 * @group Post
+	 * @runInSeparateProcess
+	 */
+	public function test_source_post() {
+		// There is no post meta to mock for a source post.
+		$this->setup_post_meta_mock( array() );
+
+		\WP_Mock::userFunction(
+			'get_permalink',
+			array(
+				'return' => 'http://example.org/?p=1',
+			)
+		);
+
+		\WP_Mock::userFunction(
+			'home_url',
+			array(
+				'return' => 'http://example.org/',
+			)
+		);
+
+		\WP_Mock::userFunction(
+			'get_bloginfo',
+			array(
+				'return' => function( $info ) {
+					switch ( $info ) {
+						case 'name':
+							return 'Example Dot Org';
+						default:
+							return '';
+					}
+				},
+			)
+		);
+
+		$dt_post = new DistributorPost( 1 );
+
+		$this->assertSame( 1, $dt_post->original_post_id, 'Origin post ID does not match expected value.' );
+		$this->assertSame( true, $dt_post->is_linked, 'Origin post is not linked.' );
+		$this->assertSame( 0, $dt_post->connection_id, 'Origin connection ID does not match expected value.' );
+		$this->assertSame( '', $dt_post->connection_direction, 'Connection direction does not match expected value.' );
+		$this->assertSame( '', $dt_post->connection_type, 'Connection type is incorrect.' );
+		$this->assertSame( 'http://example.org/', $dt_post->source_site['home_url'], 'Original home_url does not match expected value.' );
+		$this->assertSame( 'Example Dot Org', $dt_post->source_site['name'], 'Original site name does not match expected value.' );
+		$this->assertSame( true, $dt_post->is_source, 'Post is incorrectly marked as distributed.' );
+	}
 }
