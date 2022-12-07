@@ -375,6 +375,7 @@ class DistributorPost {
 
 		$featured_image_id = $this->get_post_thumbnail_id();
 		$found_featured    = false;
+		$media_array       = array();
 
 		foreach ( $raw_media as $media_post ) {
 			$media_item = Utils\format_media_post( $media_post );
