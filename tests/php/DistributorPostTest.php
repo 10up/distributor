@@ -261,4 +261,152 @@ class DistributorPostTest extends TestCase {
 		$this->assertSame( 'Example Dot Org', $dt_post->source_site['name'], 'Original site name does not match expected value.' );
 		$this->assertSame( true, $dt_post->is_source, 'Post is incorrectly marked as distributed.' );
 	}
+
+	/**
+	 * Test the get_the_id() method.
+	 *
+	 * @group Post
+	 * @runInSeparateProcess
+	 */
+	public function test_get_the_id() {
+		$this->setup_post_meta_mock( array() );
+
+		\WP_Mock::userFunction(
+			'get_permalink',
+			array(
+				'return' => 'http://example.org/?p=1',
+			)
+		);
+		$dt_post = new DistributorPost( 1 );
+
+		$this->assertSame( 1, $dt_post->get_the_id() );
+	}
+
+	/**
+	 * Test the get_permalink() method.
+	 *
+	 * @group Post
+	 * @runInSeparateProcess
+	 */
+	public function test_get_permalink() {
+		$this->setup_post_meta_mock( array() );
+
+		\WP_Mock::userFunction(
+			'get_permalink',
+			array(
+				'return' => 'http://example.org/?p=1',
+			)
+		);
+		$dt_post = new DistributorPost( 1 );
+
+		$this->assertSame( 'http://example.org/?p=1', $dt_post->get_permalink() );
+	}
+
+	/**
+	 * Test the get_post_type() method.
+	 *
+	 * @group Post
+	 * @runInSeparateProcess
+	 */
+	public function test_get_post_type() {
+		$this->setup_post_meta_mock( array() );
+
+		\WP_Mock::userFunction(
+			'get_permalink',
+			array(
+				'return' => 'http://example.org/?p=1',
+			)
+		);
+
+		\WP_Mock::userFunction(
+			'get_post_type',
+			array(
+				'return' => 'post',
+			)
+		);
+		$dt_post = new DistributorPost( 1 );
+
+		$this->assertSame( 'post', $dt_post->get_post_type() );
+	}
+
+	/**
+	 * Test the get_post_thumbnail_id() method.
+	 *
+	 * @group Post
+	 * @runInSeparateProcess
+	 */
+	public function test_get_post_thumbnail_id() {
+		$this->setup_post_meta_mock( array() );
+
+		\WP_Mock::userFunction(
+			'get_permalink',
+			array(
+				'return' => 'http://example.org/?p=1',
+			)
+		);
+
+		\WP_Mock::userFunction(
+			'get_post_thumbnail_id',
+			array(
+				'return' => 4,
+			)
+		);
+		$dt_post = new DistributorPost( 1 );
+
+		$this->assertSame( 4, $dt_post->get_post_thumbnail_id() );
+	}
+
+	/**
+	 * Test the get_post_thumbnail_url() method.
+	 *
+	 * @group Post
+	 * @runInSeparateProcess
+	 */
+	public function test_get_post_thumbnail_url() {
+		$this->setup_post_meta_mock( array() );
+
+		\WP_Mock::userFunction(
+			'get_permalink',
+			array(
+				'return' => 'http://example.org/?p=1',
+			)
+		);
+
+		\WP_Mock::userFunction(
+			'get_post_thumbnail_url',
+			array(
+				'return' => 'http://example.org/wp-content/uploads/2018/01/featured-image.jpg',
+			)
+		);
+		$dt_post = new DistributorPost( 1 );
+
+		$this->assertSame( 'http://example.org/wp-content/uploads/2018/01/featured-image.jpg', $dt_post->get_post_thumbnail_url() );
+	}
+
+	/**
+	 * Test the get_the_post_thumbnail() method.
+	 *
+	 * @group Post
+	 * @runInSeparateProcess
+	 */
+	public function test_get_the_post_thumbnail() {
+		$this->setup_post_meta_mock( array() );
+
+		\WP_Mock::userFunction(
+			'get_permalink',
+			array(
+				'return' => 'http://example.org/?p=1',
+			)
+		);
+
+		\WP_Mock::userFunction(
+			'get_the_post_thumbnail',
+			array(
+				'return' => '<img width="1200" height="900" src="//ms-distributor.local/content/uploads/sites/3/2022/12/daveed-diggs.jpg" class="attachment-post-thumbnail size-post-thumbnail wp-post-image" alt="" />',
+			)
+		);
+		$dt_post = new DistributorPost( 1 );
+
+		$this->assertSame( '<img width="1200" height="900" src="//ms-distributor.local/content/uploads/sites/3/2022/12/daveed-diggs.jpg" class="attachment-post-thumbnail size-post-thumbnail wp-post-image" alt="" />', $dt_post->get_post_thumbnail_url() );
+	}
 }
