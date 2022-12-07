@@ -173,4 +173,50 @@ class DistributorPostTest extends TestCase {
 		$this->assertSame( 'Test External, Pushed Origin', $dt_post->source_site['name'] );
 		$this->assertSame( false, $dt_post->is_source );
 	}
+
+	/**
+	 * Test the DistributorPost object for external, pushed posts.
+	 *
+	 * @group Post
+	 * @runInSeparateProcess
+	 */
+	public function test_external_connection_with_pulled_post() {
+		\WP_Mock::userFunction(
+			'get_post_meta',
+			array(
+				'return' => function( $post_id, $key, $single ) {
+					switch ( $key ) {
+						case 'dt_original_post_id':
+							return '10';
+						case 'dt_unlinked':
+							return '0';
+						case 'dt_original_post_url':
+							return 'http://origin.example.org/?p=1';
+						case 'dt_original_site_url':
+							return 'http://origin.example.org/';
+						case 'dt_full_connection':
+							return '';
+						case 'dt_original_site_name':
+							return 'Test External, Pulled Origin';
+						case 'dt_original_source_id':
+							return 3;
+						default:
+							return '';
+					}
+				},
+			)
+		);
+
+		$dt_post = new DistributorPost( 1 );
+
+		$this->assertSame( '10', $dt_post->original_post_id );
+		$this->assertSame( true, $dt_post->is_linked );
+		$this->assertSame( 'http://origin.example.org/?p=1', $dt_post->original_post_url );
+		$this->assertSame( 3, $dt_post->connection_id );
+		$this->assertSame( 'pulled', $dt_post->connection_direction );
+		$this->assertSame( 'external', $dt_post->connection_type );
+		$this->assertSame( 'http://origin.example.org/', $dt_post->source_site['home_url'] );
+		$this->assertSame( 'Test External, Pulled Origin', $dt_post->source_site['name'] );
+		$this->assertSame( false, $dt_post->is_source );
+	}
 }
