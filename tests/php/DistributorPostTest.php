@@ -49,6 +49,20 @@ class DistributorPostTest extends TestCase {
 				),
 			)
 		);
+
+		\WP_Mock::userFunction(
+			'apply_filters_deprecated',
+			[
+				'return' => function( $name, $args ) {
+					return $args[0];
+				},
+			]
+		);
+
+		// Return voids.
+		\WP_Mock::userFunction( '_prime_post_caches' );
+		\WP_Mock::userFunction( 'update_object_term_cache' );
+		\WP_Mock::userFunction( 'update_postmeta_cache' );
 	}
 
 	/**
@@ -408,5 +422,37 @@ class DistributorPostTest extends TestCase {
 		$dt_post = new DistributorPost( 1 );
 
 		$this->assertSame( '<img width="1200" height="900" src="//ms-distributor.local/content/uploads/sites/3/2022/12/daveed-diggs.jpg" class="attachment-post-thumbnail size-post-thumbnail wp-post-image" alt="" />', $dt_post->get_post_thumbnail_url() );
+	}
+
+	/**
+	 * Test the get_meta() method.
+	 *
+	 * @group Post
+	 * @runInSeparateProcess
+	 */
+	public function test_get_meta() {
+		$this->setup_post_meta_mock(
+			array (
+				'dt_original_post_id'       => array( '10' ),
+				'dt_original_site_name'     => array( 'Test External, Pulled Origin' ),
+				'dt_original_site_url'      => array( 'http://origin.example.org/' ),
+				'dt_original_post_url'      => array( 'http://origin.example.org/?p=10' ),
+				'dt_subscription_signature' => array( 'abcdefghijklmnopqrstuvwxyz' ),
+				'dt_syndicate_time'         => array( '1670384223' ),
+				'dt_full_connection'        => array( '' ),
+				'dt_original_source_id'     => array( '3' ),
+				'distributable_meta_data'   => array( 'This will be distributed.' ),
+			)
+		);
+
+		$dt_post = new DistributorPost( 1 );
+		$excluded_meta      = Utils\excluded_meta();
+		$distributable_meta = $dt_post->get_meta();
+
+		$this->assertArrayHasKey( 'distributable_meta_data', $distributable_meta, 'Distributable meta should be included.' );
+
+		foreach( $excluded_meta as $meta_key ) {
+			$this->assertArrayNotHasKey( $meta_key, $distributable_meta, "Excluded meta '{$meta_key}' should not be included." );
+		}
 	}
 }
