@@ -387,7 +387,7 @@ class DistributorPostTest extends TestCase {
 		);
 
 		\WP_Mock::userFunction(
-			'get_post_thumbnail_url',
+			'get_the_post_thumbnail_url',
 			array(
 				'return' => 'http://example.org/wp-content/uploads/2018/01/featured-image.jpg',
 			)
