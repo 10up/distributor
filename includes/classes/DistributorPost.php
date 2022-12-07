@@ -186,7 +186,14 @@ class DistributorPost {
 			return;
 		}
 
-		if ( 'internal' !== $this->connection_type || empty( $this->connection_id ) ) {
+		if ( $this->is_source ) {
+			// This is the source post.
+			$this->source_site = [
+				'home_url' => home_url(),
+				'name'     => get_bloginfo( 'name' ),
+			];
+			return;
+		} elseif ( 'internal' !== $this->connection_type || empty( $this->connection_id ) ) {
 			// Populate from the meta data.
 			$this->source_site = [
 				'home_url' => get_post_meta( $this->post->ID, 'dt_original_site_url', true ),
