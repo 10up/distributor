@@ -20,37 +20,6 @@ class DistributorPostTest extends TestCase {
 
 	public function setup_common() {
 		\WP_Mock::userFunction(
-			'get_post',
-			array(
-				'return' => (object) array(
-					'ID' => 1,
-					'post_title' => 'Test Post',
-					'post_content' => 'Test Content',
-					'post_excerpt' => 'Test Excerpt',
-					'post_status' => 'publish',
-					'post_type' => 'post',
-					'post_author' => 1,
-					'post_date' => '2020-01-01 00:00:00',
-					'post_date_gmt' => '2020-01-01 00:00:00',
-					'post_modified' => '2020-01-01 00:00:00',
-					'post_modified_gmt' => '2020-01-01 00:00:00',
-					'post_parent' => 0,
-					'post_mime_type' => '',
-					'comment_count' => 0,
-					'comment_status' => 'open',
-					'ping_status' => 'open',
-					'guid' => 'http://example.org/?p=1',
-					'menu_order' => 0,
-					'pinged' => '',
-					'to_ping' => '',
-					'post_password' => '',
-					'post_name' => 'test-post',
-					'post_content_filtered' => '',
-				),
-			)
-		);
-
-		\WP_Mock::userFunction(
 			'apply_filters_deprecated',
 			[
 				'return' => function( $name, $args ) {
@@ -63,6 +32,47 @@ class DistributorPostTest extends TestCase {
 		\WP_Mock::userFunction( '_prime_post_caches' );
 		\WP_Mock::userFunction( 'update_object_term_cache' );
 		\WP_Mock::userFunction( 'update_postmeta_cache' );
+	}
+
+	/**
+	 * Helper function to mock get_post.
+	 */
+	public function setup_post_mock( $post_overrides = array() ) {
+		$defaults = array(
+			'ID' => 1,
+			'post_title' => 'Test Post',
+			'post_content' => 'Test Content',
+			'post_excerpt' => 'Test Excerpt',
+			'post_status' => 'publish',
+			'post_type' => 'post',
+			'post_author' => 1,
+			'post_date' => '2020-01-01 00:00:00',
+			'post_date_gmt' => '2020-01-01 00:00:00',
+			'post_modified' => '2020-01-01 00:00:00',
+			'post_modified_gmt' => '2020-01-01 00:00:00',
+			'post_parent' => 0,
+			'post_mime_type' => '',
+			'comment_count' => 0,
+			'comment_status' => 'open',
+			'ping_status' => 'open',
+			'guid' => 'http://example.org/?p=1',
+			'menu_order' => 0,
+			'pinged' => '',
+			'to_ping' => '',
+			'post_password' => '',
+			'post_name' => 'test-post',
+			'post_content_filtered' => '',
+		);
+
+		$post = array_merge( $defaults, $post_overrides );
+
+
+		\WP_Mock::userFunction(
+			'get_post',
+			array(
+				'return' => (object) $post,
+			)
+		);
 	}
 
 	/**
@@ -99,6 +109,7 @@ class DistributorPostTest extends TestCase {
 	 * @runInSeparateProcess
 	 */
 	public function test_internal_connection() {
+		$this->setup_post_mock();
 		$this->setup_post_meta_mock(
 			array (
 				'dt_original_post_id'  => array( '10' ),
@@ -167,6 +178,7 @@ class DistributorPostTest extends TestCase {
 	 * @runInSeparateProcess
 	 */
 	public function test_external_connection_with_pushed_post() {
+		$this->setup_post_mock();
 		$this->setup_post_meta_mock(
 			array (
 				'dt_original_post_id'       => array( '10' ),
@@ -200,6 +212,7 @@ class DistributorPostTest extends TestCase {
 	 * @runInSeparateProcess
 	 */
 	public function test_external_connection_with_pulled_post() {
+		$this->setup_post_mock();
 		$this->setup_post_meta_mock(
 			array (
 				'dt_original_post_id'       => array( '10' ),
@@ -233,6 +246,7 @@ class DistributorPostTest extends TestCase {
 	 * @runInSeparateProcess
 	 */
 	public function test_source_post() {
+		$this->setup_post_mock();
 		// There is no post meta to mock for a source post.
 		$this->setup_post_meta_mock( array() );
 
@@ -283,6 +297,7 @@ class DistributorPostTest extends TestCase {
 	 * @runInSeparateProcess
 	 */
 	public function test_get_the_id() {
+		$this->setup_post_mock();
 		$this->setup_post_meta_mock( array() );
 
 		\WP_Mock::userFunction(
@@ -303,6 +318,7 @@ class DistributorPostTest extends TestCase {
 	 * @runInSeparateProcess
 	 */
 	public function test_get_permalink() {
+		$this->setup_post_mock();
 		$this->setup_post_meta_mock( array() );
 
 		\WP_Mock::userFunction(
@@ -323,6 +339,7 @@ class DistributorPostTest extends TestCase {
 	 * @runInSeparateProcess
 	 */
 	public function test_get_post_type() {
+		$this->setup_post_mock();
 		$this->setup_post_meta_mock( array() );
 
 		\WP_Mock::userFunction(
@@ -350,6 +367,7 @@ class DistributorPostTest extends TestCase {
 	 * @runInSeparateProcess
 	 */
 	public function test_get_post_thumbnail_id() {
+		$this->setup_post_mock();
 		$this->setup_post_meta_mock( array() );
 
 		\WP_Mock::userFunction(
@@ -377,6 +395,7 @@ class DistributorPostTest extends TestCase {
 	 * @runInSeparateProcess
 	 */
 	public function test_get_post_thumbnail_url() {
+		$this->setup_post_mock();
 		$this->setup_post_meta_mock( array() );
 
 		\WP_Mock::userFunction(
@@ -404,6 +423,7 @@ class DistributorPostTest extends TestCase {
 	 * @runInSeparateProcess
 	 */
 	public function test_get_the_post_thumbnail() {
+		$this->setup_post_mock();
 		$this->setup_post_meta_mock( array() );
 		$thumbnail = '<img width="1200" height="900" src="//ms-distributor.local/content/uploads/sites/3/2022/12/daveed-diggs.jpg" class="attachment-post-thumbnail size-post-thumbnail wp-post-image" alt="" />';
 
@@ -432,6 +452,7 @@ class DistributorPostTest extends TestCase {
 	 * @runInSeparateProcess
 	 */
 	public function test_get_meta() {
+		$this->setup_post_mock();
 		$this->setup_post_meta_mock(
 			array (
 				'dt_original_post_id'       => array( '10' ),
@@ -464,6 +485,7 @@ class DistributorPostTest extends TestCase {
 	 * @runInSeparateProcess
 	 */
 	public function test_get_terms() {
+		$this->setup_post_mock();
 		$this->setup_post_meta_mock(
 			array (
 				'dt_original_post_id'       => array( '10' ),
