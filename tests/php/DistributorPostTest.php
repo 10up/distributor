@@ -456,4 +456,105 @@ class DistributorPostTest extends TestCase {
 			$this->assertArrayNotHasKey( $meta_key, $distributable_meta, "Excluded meta '{$meta_key}' should not be included." );
 		}
 	}
+
+	/**
+	 * Test the get_terms() method.
+	 *
+	 * @group Post
+	 * @runInSeparateProcess
+	 */
+	public function test_get_terms() {
+		$this->setup_post_meta_mock(
+			array (
+				'dt_original_post_id'       => array( '10' ),
+				'dt_original_site_name'     => array( 'Test External, Pulled Origin' ),
+				'dt_original_site_url'      => array( 'http://origin.example.org/' ),
+				'dt_original_post_url'      => array( 'http://origin.example.org/?p=10' ),
+				'dt_subscription_signature' => array( 'abcdefghijklmnopqrstuvwxyz' ),
+				'dt_syndicate_time'         => array( '1670384223' ),
+				'dt_full_connection'        => array( '' ),
+				'dt_original_source_id'     => array( '3' ),
+				'distributable_meta_data'   => array( 'This will be distributed.' ),
+			)
+		);
+
+		\WP_Mock::userFunction(
+			'get_taxonomies',
+			array(
+				'return' => array( 'category', 'post_tag' ),
+			)
+		);
+
+		\WP_Mock::userFunction(
+			'wp_get_object_terms',
+			array(
+				'return_in_order' => array(
+					array(
+						(object) array(
+							'term_id'          => 1,
+							'name'             => 'Test Category',
+							'slug'             => 'test-category',
+							'term_group'       => 0,
+							'term_taxonomy_id' => 1,
+							'taxonomy'         => 'category',
+							'description'      => '',
+							'parent'           => 0,
+							'count'            => 1,
+							'filter'           => 'raw',
+						)
+					),
+					array(
+						(object) array(
+							'term_id'          => 2,
+							'name'             => 'Test Tag',
+							'slug'             => 'test-tag',
+							'term_group'       => 0,
+							'term_taxonomy_id' => 2,
+							'taxonomy'         => 'post_tag',
+							'description'      => '',
+							'parent'           => 0,
+							'count'            => 1,
+							'filter'           => 'raw'
+						)
+					),
+				),
+			)
+		);
+
+		$dt_post = new DistributorPost( 1 );
+		$distributable_terms = $dt_post->get_terms();
+
+		$expected_terms = array(
+			'category' => array(
+				(object) array(
+					'term_id'          => 1,
+					'name'             => 'Test Category',
+					'slug'             => 'test-category',
+					'term_group'       => 0,
+					'term_taxonomy_id' => 1,
+					'taxonomy'         => 'category',
+					'description'      => '',
+					'parent'           => 0,
+					'count'            => 1,
+					'filter'           => 'raw',
+				)
+			),
+			'post_tag' => array(
+				(object) array(
+					'term_id'          => 2,
+					'name'             => 'Test Tag',
+					'slug'             => 'test-tag',
+					'term_group'       => 0,
+					'term_taxonomy_id' => 2,
+					'taxonomy'         => 'post_tag',
+					'description'      => '',
+					'parent'           => 0,
+					'count'            => 1,
+					'filter'           => 'raw'
+				)
+			),
+		);
+
+		$this->assertEquals( $expected_terms, $distributable_terms );
+	}
 }
