@@ -405,6 +405,7 @@ class DistributorPostTest extends TestCase {
 	 */
 	public function test_get_the_post_thumbnail() {
 		$this->setup_post_meta_mock( array() );
+		$thumbnail = '<img width="1200" height="900" src="//ms-distributor.local/content/uploads/sites/3/2022/12/daveed-diggs.jpg" class="attachment-post-thumbnail size-post-thumbnail wp-post-image" alt="" />';
 
 		\WP_Mock::userFunction(
 			'get_permalink',
@@ -416,12 +417,12 @@ class DistributorPostTest extends TestCase {
 		\WP_Mock::userFunction(
 			'get_the_post_thumbnail',
 			array(
-				'return' => '<img width="1200" height="900" src="//ms-distributor.local/content/uploads/sites/3/2022/12/daveed-diggs.jpg" class="attachment-post-thumbnail size-post-thumbnail wp-post-image" alt="" />',
+				'return' => $thumbnail,
 			)
 		);
 		$dt_post = new DistributorPost( 1 );
 
-		$this->assertSame( '<img width="1200" height="900" src="//ms-distributor.local/content/uploads/sites/3/2022/12/daveed-diggs.jpg" class="attachment-post-thumbnail size-post-thumbnail wp-post-image" alt="" />', $dt_post->get_post_thumbnail_url() );
+		$this->assertSame( $thumbnail, $dt_post->get_the_post_thumbnail() );
 	}
 
 	/**
