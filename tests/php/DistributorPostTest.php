@@ -987,4 +987,352 @@ class DistributorPostTest extends TestCase {
 
 		$this->assertEquals( $post_media_expected, $post_media_actual );
 	}
+
+	/**
+	 * Test the get_media() method with attachments.
+	 *
+	 * This tests the legacy fork of the method which is still used by posts
+	 * authored in the classic editor.
+	 *
+	 * @group Post
+	 * @runInSeparateProcess
+	 */
+	public function test_get_media_with_attachments() {
+		$this->setup_post_meta_mock( array() );
+
+		\WP_Mock::userFunction(
+			'get_post',
+			array(
+				'return_in_order' => array(
+					(object) array(
+						'ID'           => 1,
+						'post_title'   => 'Classic editor post with media',
+						'post_content' => 'No content, just child posts.',
+						'post_excerpt' => '',
+						'guid'         => 'http://example.org/?p=1',
+						'post_name'    => 'test-post',
+					),
+				),
+			)
+		);
+
+		\WP_Mock::userFunction(
+			'get_permalink',
+			array(
+				'return_in_order' => array(
+					'http://xu-distributor.local/?p=2',
+					'http://xu-distributor.local/?p=11',
+					'http://xu-distributor.local/?p=12',
+					'http://xu-distributor.local/?p=13',
+				),
+			),
+		);
+
+		\WP_Mock::userFunction(
+			'has_blocks',
+			array(
+				'return' => false,
+			)
+		);
+
+		\WP_Mock::userFunction(
+			'get_attached_media',
+			array(
+				'return' => array(
+					(object) array(
+						'ID'             => 11,
+						'post_title'     => 'deh-platt',
+						'post_content'   => '',
+						'post_excerpt'   => '',
+						'guid'           => 'http://example.org/?p=11',
+						'post_name'      => 'deh-platt',
+						'post_parent'    => 1,
+						'post_mime_type' => 'image/jpeg',
+					),
+					(object) array(
+						'ID'             => 12,
+						'post_title'     => 'mp3-5mg',
+						'post_content'   => '',
+						'post_excerpt'   => '',
+						'guid'           => 'http://example.org/?p=12',
+						'post_name'      => 'mp3-5mg',
+						'post_parent'    => 1,
+						'post_mime_type' => 'audio/mpeg',
+					),
+					(object) array(
+						'ID'             => 13,
+						'post_title'     => 'sample-mp4',
+						'post_content'   => '',
+						'post_excerpt'   => '',
+						'guid'           => 'http://example.org/?p=13',
+						'post_name'      => 'sample-mp4',
+						'post_parent'    => 1,
+						'post_mime_type' => 'video/mp4',
+					),
+				),
+			)
+		);
+
+		\WP_Mock::userFunction(
+			'get_post_thumbnail_id',
+			array(
+				'return' => false,
+			)
+		);
+
+		\WP_Mock::userFunction(
+			'wp_attachment_is_image',
+			array(
+				'return_in_order' => array(
+					true,
+					false,
+					false,
+				),
+			)
+		);
+
+		\WP_Mock::userFunction(
+			'wp_get_attachment_metadata',
+			array(
+				'return_in_order' => array(
+					array(
+						'file'     => '2022/12/deh-platt.jpg',
+						'width'    => 1024,
+						'height'   => 683,
+						'filesize' => 404298,
+						'sizes'    => array(
+							'thumbnail'    => array(
+								'file'      => 'deh-platt-150x150.jpg',
+								'width'     => 150,
+								'height'    => 150,
+								'mime-type' => 'image/jpeg',
+							),
+							'medium'       => array(
+								'file'      => 'deh-platt-300x200.jpg',
+								'width'     => 300,
+								'height'    => 200,
+								'mime-type' => 'image/jpeg',
+							),
+							'medium_large' => array(
+								'file'      => 'deh-platt-768x512.jpg',
+								'width'     => 768,
+								'height'    => 512,
+								'mime-type' => 'image/jpeg',
+							),
+							'large'        => array(
+								'file'      => 'deh-platt-1024x683.jpg',
+								'width'     => 1024,
+								'height'    => 683,
+								'mime-type' => 'image/jpeg',
+							),
+						),
+					),
+					array (
+						'dataformat'        => 'mp3',
+						'channels'          => 2,
+						'sample_rate'       => 44100,
+						'bitrate'           => 320000,
+						'channelmode'       => 'stereo',
+						'bitrate_mode'      => 'cbr',
+						'codec'             => 'LAME',
+						'encoder'           => 'LAME3.99r',
+						'lossless'          => false,
+						'encoder_options'   => '--preset insane',
+						'compression_ratio' => 0.22675736961451248,
+						'fileformat'        => 'mp3',
+						'filesize'          => 5289384,
+						'mime_type'         => 'audio/mpeg',
+						'length'            => 132,
+						'length_formatted'  => '2:12',
+						'genre'             => 'Cinematic',
+						'album'             => 'YouTube Audio Library',
+						'title'             => 'Impact Moderato',
+						'artist'            => 'Kevin MacLeod',
+					),
+					array (
+						'filesize'          => 1570024,
+						'mime_type'         => 'video/mp4',
+						'length'            => 31,
+						'length_formatted'  => '0:31',
+						'width'             => 480,
+						'height'            => 270,
+						'fileformat'        => 'mp4',
+						'dataformat'        => 'quicktime',
+						'audio' => array (
+							'dataformat'      => 'mp4',
+							'codec'           => 'ISO/IEC 14496-3 AAC',
+							'sample_rate'     => 48000.0,
+							'channels'        => 2,
+							'bits_per_sample' => 16,
+							'lossless'        => false,
+							'channelmode'     => 'stereo',
+						),
+						'created_timestamp' => 1438938782,
+					),
+				),
+			)
+		);
+
+		\WP_Mock::userFunction(
+			'wp_get_attachment_url',
+			array(
+				'return_in_order' => array(
+					'http://xu-distributor.local/wp-content/uploads/2022/12/deh-platt.jpg',
+					'http://xu-distributor.local/wp-content/uploads/2022/12/mp3-5mg.mp3',
+					'http://xu-distributor.local/wp-content/uploads/2022/12/sample-mp4.mp4',
+				),
+			)
+		);
+
+		\WP_Mock::userFunction(
+			'get_attached_file',
+			array(
+				'return_in_order' => array(
+					'/var/www/html/wp-content/uploads/2022/12/deh-platt.jpg',
+					'/var/www/html/wp-content/uploads/2022/12/mp3-5mg.mp3',
+					'/var/www/html/wp-content/uploads/2022/12/sample-mp4.mp4',
+				),
+			)
+		);
+
+		$dt_post = new DistributorPost( 1 );
+		$post_media_actual = $dt_post->get_media();
+
+		$post_media_expected = array(
+			array(
+				'id'            => 11,
+				'title'         => 'deh-platt',
+				'featured'      => false,
+				'description'   => array(
+					'raw'      => '',
+					'rendered' => '',
+				),
+				'caption' => array(
+					'raw' => '',
+				),
+				'alt_text'      => '',
+				'media_type'    => 'image',
+				'mime_type'     => 'image/jpeg',
+				'post'          => 1,
+				'source_url'    => 'http://xu-distributor.local/wp-content/uploads/2022/12/deh-platt.jpg',
+				'source_file'   => '/var/www/html/wp-content/uploads/2022/12/deh-platt.jpg',
+				'meta'          => array(),
+				'media_details' => array(
+					'width'    => 1024,
+					'height'   => 683,
+					'file'     => '2022/12/deh-platt.jpg',
+					'filesize' => 404298,
+					'sizes'    => array(
+						'thumbnail' => array(
+							'file'      => 'deh-platt-150x150.jpg',
+							'width'     => 150,
+							'height'    => 150,
+							'mime-type' => 'image/jpeg',
+						),
+						'medium' => array(
+							'file'      => 'deh-platt-300x200.jpg',
+							'width'     => 300,
+							'height'    => 200,
+							'mime-type' => 'image/jpeg',
+						),
+						'medium_large' => array(
+							'file'      => 'deh-platt-768x512.jpg',
+							'width'     => 768,
+							'height'    => 512,
+							'mime-type' => 'image/jpeg',
+						),
+						'large' => array(
+							'file'      => 'deh-platt-1024x683.jpg',
+							'width'     => 1024,
+							'height'    => 683,
+							'mime-type' => 'image/jpeg',
+						),
+					),
+				),
+			),
+			array(
+				'id'            => 12,
+				'title'         => 'mp3-5mg',
+				'featured'      => false,
+				'description'   => array(
+					'raw'      => '',
+					'rendered' => '',
+				),
+				'caption'       => array(
+					'raw' => '',
+				),
+				'alt_text'      => '',
+				'media_type'    => 'file',
+				'mime_type'     => 'audio/mpeg',
+				'post'          => 1,
+				'source_url'    => 'http://xu-distributor.local/wp-content/uploads/2022/12/mp3-5mg.mp3',
+				'source_file'   => '/var/www/html/wp-content/uploads/2022/12/mp3-5mg.mp3',
+				'meta'          => array(),
+				'media_details' => array (
+					'dataformat'        => 'mp3',
+					'channels'          => 2,
+					'sample_rate'       => 44100,
+					'bitrate'           => 320000,
+					'channelmode'       => 'stereo',
+					'bitrate_mode'      => 'cbr',
+					'codec'             => 'LAME',
+					'encoder'           => 'LAME3.99r',
+					'lossless'          => false,
+					'encoder_options'   => '--preset insane',
+					'compression_ratio' => 0.22675736961451248,
+					'fileformat'        => 'mp3',
+					'filesize'          => 5289384,
+					'mime_type'         => 'audio/mpeg',
+					'length'            => 132,
+					'length_formatted'  => '2:12',
+					'genre'             => 'Cinematic',
+					'album'             => 'YouTube Audio Library',
+					'title'             => 'Impact Moderato',
+					'artist'            => 'Kevin MacLeod',
+				),
+			),
+			array(
+				'id'            => 13,
+				'title'         => 'sample-mp4',
+				'featured'      => false,
+				'description'   => array(
+					'raw' => '',
+					'rendered' => '',
+				),
+				'caption'       => array(
+					'raw' => '',
+				),
+				'alt_text'      => '',
+				'media_type'    => 'file',
+				'mime_type'     => 'video/mp4',
+				'media_details' => array (
+					'filesize' => 1570024,
+					'mime_type' => 'video/mp4',
+					'length' => 31,
+					'length_formatted' => '0:31',
+					'width' => 480,
+					'height' => 270,
+					'fileformat' => 'mp4',
+					'dataformat' => 'quicktime',
+					'audio' => array (
+						'dataformat'      => 'mp4',
+						'codec'           => 'ISO/IEC 14496-3 AAC',
+						'sample_rate'     => 48000.0,
+						'channels'        => 2,
+						'bits_per_sample' => 16,
+						'lossless'        => false,
+						'channelmode'     => 'stereo',
+					),
+					'created_timestamp' => 1438938782,
+				),
+				'post'        => 1,
+				'source_url'  => 'http://xu-distributor.local/wp-content/uploads/2022/12/sample-mp4.mp4',
+				'source_file' => '/var/www/html/wp-content/uploads/2022/12/sample-mp4.mp4',
+				'meta'        => array(),
+
+			),
+		);
+
+		$this->assertEquals( $post_media_expected, $post_media_actual );
+	}
 }
