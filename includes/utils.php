@@ -7,6 +7,8 @@
 
 namespace Distributor\Utils;
 
+use Distributor\DistributorPost;
+
 /**
  * Determine if we are on VIP
  *
@@ -399,6 +401,7 @@ function excluded_meta() {
  * @return array
  */
 function prepare_meta( $post_id ) {
+	update_postmeta_cache( array( $post_id ) );
 	$meta          = get_post_meta( $post_id );
 	$prepared_meta = array();
 	$excluded_meta = excluded_meta();
@@ -439,30 +442,12 @@ function prepare_meta( $post_id ) {
  * @return array
  */
 function prepare_media( $post_id ) {
-	$raw_media   = get_attached_media( get_allowed_mime_types(), $post_id );
-	$media_array = array();
-
-	$featured_image_id = get_post_thumbnail_id( $post_id );
-	$found_featured    = false;
-
-	foreach ( $raw_media as $media_post ) {
-		$media_item = format_media_post( $media_post );
-
-		if ( $media_item['featured'] ) {
-			$found_featured = true;
-		}
-
-		$media_array[] = $media_item;
+	$dt_post = new DistributorPost( $post_id );
+	if ( ! $dt_post ) {
+		return array();
 	}
 
-	if ( ! empty( $featured_image_id ) && ! $found_featured ) {
-		$featured_image             = format_media_post( get_post( $featured_image_id ) );
-		$featured_image['featured'] = true;
-
-		$media_array[] = $featured_image;
-	}
-
-	return $media_array;
+	return $dt_post->get_media();
 }
 
 /**
@@ -476,6 +461,13 @@ function prepare_media( $post_id ) {
  */
 function prepare_taxonomy_terms( $post_id, $args = array() ) {
 	$post = get_post( $post_id );
+
+	if ( ! $post ) {
+		return array();
+	}
+
+	// Warm the term cache for the post.
+	update_object_term_cache( array( $post->ID ), $post->post_type );
 
 	if ( empty( $args ) ) {
 		$args = array( 'publicly_queryable' => true );
