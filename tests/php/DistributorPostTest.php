@@ -4,6 +4,12 @@ namespace Distributor;
 
 use WP_Mock\Tools\TestCase;
 
+/**
+ * Tests for the DistributorPost class.
+ *
+ * @covers \Distributor\DistributorPost
+ * @group Post
+ */
 class DistributorPostTest extends TestCase {
 
 	/**
@@ -105,7 +111,7 @@ class DistributorPostTest extends TestCase {
 	/**
 	 * Test the DistributorPost object for internal connections.
 	 *
-	 * @group Post
+	 * @covers ::__construct
 	 * @runInSeparateProcess
 	 */
 	public function test_internal_connection() {
@@ -116,8 +122,8 @@ class DistributorPostTest extends TestCase {
 				'dt_original_blog_id'  => array( '2' ),
 				'dt_syndicate_time'    => array ( '1670383190' ),
 				'dt_original_post_url' => array ( 'http://origin.example.org/?p=10' ),
-			  )
-			);
+			)
+		);
 
 		\WP_Mock::userFunction(
 			'get_current_blog_id',
@@ -174,7 +180,7 @@ class DistributorPostTest extends TestCase {
 	/**
 	 * Test the DistributorPost object for external, pushed posts.
 	 *
-	 * @group Post
+	 * @covers ::__construct
 	 * @runInSeparateProcess
 	 */
 	public function test_external_connection_with_pushed_post() {
@@ -208,7 +214,7 @@ class DistributorPostTest extends TestCase {
 	/**
 	 * Test the DistributorPost object for external, pushed posts.
 	 *
-	 * @group Post
+	 * @covers ::__construct
 	 * @runInSeparateProcess
 	 */
 	public function test_external_connection_with_pulled_post() {
@@ -242,7 +248,7 @@ class DistributorPostTest extends TestCase {
 	/**
 	 * Test the DistributorPost object a source post.
 	 *
-	 * @group Post
+	 * @covers ::__construct
 	 * @runInSeparateProcess
 	 */
 	public function test_source_post() {
@@ -293,7 +299,7 @@ class DistributorPostTest extends TestCase {
 	/**
 	 * Test the get_the_id() method.
 	 *
-	 * @group Post
+	 * @covers ::get_the_id
 	 * @runInSeparateProcess
 	 */
 	public function test_get_the_id() {
@@ -314,7 +320,7 @@ class DistributorPostTest extends TestCase {
 	/**
 	 * Test the get_permalink() method.
 	 *
-	 * @group Post
+	 * @covers ::get_permalink
 	 * @runInSeparateProcess
 	 */
 	public function test_get_permalink() {
@@ -335,7 +341,7 @@ class DistributorPostTest extends TestCase {
 	/**
 	 * Test the get_post_type() method.
 	 *
-	 * @group Post
+	 * @covers ::get_post_type
 	 * @runInSeparateProcess
 	 */
 	public function test_get_post_type() {
@@ -363,7 +369,7 @@ class DistributorPostTest extends TestCase {
 	/**
 	 * Test the get_post_thumbnail_id() method.
 	 *
-	 * @group Post
+	 * @covers ::get_post_thumbnail_id
 	 * @runInSeparateProcess
 	 */
 	public function test_get_post_thumbnail_id() {
@@ -391,7 +397,7 @@ class DistributorPostTest extends TestCase {
 	/**
 	 * Test the get_post_thumbnail_url() method.
 	 *
-	 * @group Post
+	 * @covers ::get_post_thumbnail_url
 	 * @runInSeparateProcess
 	 */
 	public function test_get_post_thumbnail_url() {
@@ -419,7 +425,7 @@ class DistributorPostTest extends TestCase {
 	/**
 	 * Test the get_the_post_thumbnail() method.
 	 *
-	 * @group Post
+	 * @covers ::get_the_post_thumbnail
 	 * @runInSeparateProcess
 	 */
 	public function test_get_the_post_thumbnail() {
@@ -448,7 +454,7 @@ class DistributorPostTest extends TestCase {
 	/**
 	 * Test the get_meta() method.
 	 *
-	 * @group Post
+	 * @covers ::get_meta
 	 * @runInSeparateProcess
 	 */
 	public function test_get_meta() {
@@ -481,7 +487,7 @@ class DistributorPostTest extends TestCase {
 	/**
 	 * Test the get_terms() method.
 	 *
-	 * @group Post
+	 * @covers ::get_terms
 	 * @runInSeparateProcess
 	 */
 	public function test_get_terms() {
@@ -583,7 +589,9 @@ class DistributorPostTest extends TestCase {
 	/**
 	 * Test the get_media() method with blocks.
 	 *
-	 * @group Post
+	 * @covers ::get_media
+	 * @covers ::parse_media_blocks
+	 * @covers ::parse_blocks_for_attachment_id
 	 * @runInSeparateProcess
 	 */
 	public function test_get_media_with_blocks() {
@@ -994,7 +1002,7 @@ class DistributorPostTest extends TestCase {
 	 * This tests the legacy fork of the method which is still used by posts
 	 * authored in the classic editor.
 	 *
-	 * @group Post
+	 * @covers ::get_media()
 	 * @runInSeparateProcess
 	 */
 	public function test_get_media_with_attachments() {
