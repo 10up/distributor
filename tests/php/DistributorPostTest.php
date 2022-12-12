@@ -1343,4 +1343,128 @@ class DistributorPostTest extends TestCase {
 
 		$this->assertEquals( $post_media_expected, $post_media_actual );
 	}
+
+	/**
+	 * Test methods for formatting the post data without blocks.
+	 *
+	 * @covers ::post_data()
+	 * @covers ::to_insert()
+	 * @covers ::to_json()
+	 * @runInSeparateProcess
+	 */
+	public function test_post_data_without_blocks() {
+		$this->setup_post_mock();
+		$this->setup_post_meta_mock(
+			array (
+				'dt_original_post_id'  => array( '10' ),
+				'dt_original_blog_id'  => array( '2' ),
+				'dt_syndicate_time'    => array ( '1670383190' ),
+				'dt_original_post_url' => array ( 'http://origin.example.org/?p=10' ),
+			)
+		);
+
+		\WP_Mock::userFunction(
+			'get_the_title',
+			array(
+				'return' => 'Test Post',
+			)
+		);
+		\WP_Mock::userFunction(
+			'get_bloginfo',
+			array(
+				'return' => 'UTF-8',
+			)
+		);
+
+		// Get Media: mock empty set as method is tested above.
+		\WP_Mock::userFunction(
+			'has_blocks',
+			array(
+				'return' => false,
+			)
+		);
+		\WP_Mock::userFunction(
+			'get_attached_media',
+			array(
+				'return' => array(),
+			)
+		);
+		\WP_Mock::userFunction(
+			'get_post_thumbnail_id',
+			array(
+				'return' => false,
+			)
+		);
+
+		// Get Terms: mock empty set as method is tested above.
+		\WP_Mock::userFunction(
+			'get_taxonomies',
+			array(
+				'return' => array( 'category', 'post_tag' ),
+			)
+		);
+		\WP_Mock::userFunction(
+			'wp_get_object_terms',
+			array(
+				'return' => array(),
+			)
+		);
+
+		$dt_post = new DistributorPost( 1 );
+		$post_data_actual = $dt_post->post_data();
+
+		$post_data_expected = array(
+			'title'             => 'Test Post',
+			'slug'              => 'test-post',
+			'post_type'         => 'post',
+			'content'           => 'Test Content',
+			'excerpt'           => 'Test Excerpt',
+			'distributor_media' => array(),
+			'distributor_terms' => array(
+				'category' => array(),
+				'post_tag' => array(),
+			),
+			'distributor_meta'  => array(),
+		);
+
+		$this->assertSame( $post_data_expected, $post_data_actual );
+
+		// Make sure it looks good to insert.
+		$to_insert_actual = $dt_post->to_insert();
+		$to_insert_expected = array(
+			'post_title'        => 'Test Post',
+			'post_name'         => 'test-post',
+			'post_type'         => 'post',
+			'post_content'      => 'Test Content',
+			'post_excerpt'      => 'Test Excerpt',
+			'tax_input'         => array(
+				'category'      => array(),
+				'post_tag'      => array(),
+			),
+			'meta_input'        => array(),
+			'distributor_media' => array(),
+		);
+
+		$this->assertSame( $to_insert_expected, $to_insert_actual );
+
+		// Make sure it looks correct for a REST request.
+		$to_json_actual = $dt_post->to_json();
+		$to_json_expected = wp_json_encode(
+			array(
+				'title'             => 'Test Post',
+				'slug'              => 'test-post',
+				'post_type'         => 'post',
+				'content'           => 'Test Content',
+				'excerpt'           => 'Test Excerpt',
+				'distributor_media' => array(),
+				'distributor_terms' => array(
+					'category' => array(),
+					'post_tag' => array(),
+				),
+				'distributor_meta'  => array(),
+			)
+		);
+
+		$this->assertSame( $to_json_expected, $to_json_actual );
+	}
 }
