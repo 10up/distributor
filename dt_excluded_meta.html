@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>Filter: dt_media_item_formatted - 10up Distributor Hook Docs</title>
+    <title>Filter: dt_excluded_meta - 10up Distributor Hook Docs</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -21,7 +21,7 @@
 <div id="main">
 
 	
-    <h1 class="page-title">Filter: dt_media_item_formatted</h1>
+    <h1 class="page-title">Filter: dt_excluded_meta</h1>
 	
 
     
@@ -43,14 +43,14 @@
 
     
 
-    <h4 class="name" id="dt_media_item_formatted">apply_filters( 'dt_media_item_formatted', <span class="signature">$media_item, $media_post->ID )</span><span class="type-signature"> &rarr; {array}</span></h4>
+    <h4 class="name" id="dt_excluded_meta">apply_filters( 'dt_excluded_meta', <span class="signature">$meta_keys )</span><span class="type-signature"> &rarr; {array}</span></h4>
 
     
 
 
 
 <div class="description">
-    <p>Filter formatted media item.</p>
+    <p>Filter meta keys that are excluded from distribution.</p>
 </div>
 
 
@@ -84,7 +84,7 @@
 
         <tr>
             
-                <td class="name"><code>$media_item</code></td>
+                <td class="name"><code>$meta_keys</code></td>
             
 
             <td class="type">
@@ -100,30 +100,7 @@
 
             
 
-            <td class="description last"><p>Array of media item details.</p></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>$media_post->ID</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">int</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>The media post ID.</p></td>
+            <td class="description last"><p>Excluded meta keys. Default <code>dt_unlinked, dt_connection_map, dt_subscription_update, dt_subscriptions, dt_subscription_signature, dt_original_post_id, dt_original_post_url, dt_original_blog_id, dt_syndicate_time, _wp_attached_file, _wp_attachment_metadata, _edit_lock, _edit_last, _wp_old_slug, _wp_old_date</code>.</p></td>
         </tr>
 
     
@@ -139,6 +116,9 @@
 
     
 
+    
+    <dt class="tag-since">Since:</dt>
+    <dd class="tag-since"><ul class="dummy"><li>1.9.0</li></ul></dd>
     
 
     
@@ -164,7 +144,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="includes_utils.php.html">includes/utils.php</a>, <a href="includes_utils.php.html#line822">line 822</a>
+        <a href="includes_utils.php.html">includes/utils.php</a>, <a href="includes_utils.php.html#line425">line 425</a>
     </li></ul></dd>
     
 
@@ -191,7 +171,7 @@
 
         
 <div class="param-desc">
-    <p>Array of media item details.</p>
+    <p>Excluded meta keys.</p>
 </div>
 
 
