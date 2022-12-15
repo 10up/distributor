@@ -369,18 +369,18 @@ function distributable_post_statuses() {
  * Returns list of excluded meta keys
  *
  * @since  1.2
- * @deprecated X.X.X Use excluded_meta()
+ * @deprecated 1.9.0 Use excluded_meta()
  * @return array
  */
 function blacklisted_meta() {
-	_deprecated_function( __FUNCTION__, 'X.X.X', '\Distributor\Utils\excluded_meta()' );
+	_deprecated_function( __FUNCTION__, '1.9.0', '\Distributor\Utils\excluded_meta()' );
 	return excluded_meta();
 }
 
 /**
  * Returns list of excluded meta keys
  *
- * @since  X.X.X
+ * @since  1.9.0
  * @return array
  */
 function excluded_meta() {
@@ -389,7 +389,7 @@ function excluded_meta() {
 	 * Filter meta keys that are excluded from distribution.
 	 *
 	 * @since 1.0.0
-	 * @deprecated x.x.x
+	 * @deprecated 1.9.0 Use dt_excluded_meta
 	 *
 	 * @param array $meta_keys Excluded meta keys.
 	 *
@@ -417,7 +417,7 @@ function excluded_meta() {
 				'_edit_last',
 			],
 		],
-		'X.X.X',
+		'1.9.0',
 		'dt_excluded_meta',
 		__( 'Please consider writing more inclusive code.', 'distributor' )
 	);
@@ -425,7 +425,7 @@ function excluded_meta() {
 	/**
 	 * Filter meta keys that are excluded from distribution.
 	 *
-	 * @since X.X.X
+	 * @since 1.9.0
 	 * @hook dt_excluded_meta
 	 *
 	 * @param {array} $meta_keys Excluded meta keys. Default `dt_unlinked, dt_connection_map, dt_subscription_update, dt_subscriptions, dt_subscription_signature, dt_original_post_id, dt_original_post_url, dt_original_blog_id, dt_syndicate_time, _wp_attached_file, _wp_attachment_metadata, _edit_lock, _edit_last, _wp_old_slug, _wp_old_date`.
