@@ -181,17 +181,17 @@ function is_dt_debug() {
 /**
  * Given an array of meta, set meta to another post.
  *
- * Don't copy in blacklisted (Distributor) meta.
+ * Don't copy in excluded (Distributor) meta.
  *
  * @param int   $post_id Post ID.
  * @param array $meta Array of meta as key => value
  */
 function set_meta( $post_id, $meta ) {
-	$existing_meta    = get_post_meta( $post_id );
-	$blacklisted_meta = blacklisted_meta();
+	$existing_meta = get_post_meta( $post_id );
+	$excluded_meta = excluded_meta();
 
 	foreach ( $meta as $meta_key => $meta_values ) {
-		if ( in_array( $meta_key, $blacklisted_meta, true ) ) {
+		if ( in_array( $meta_key, $excluded_meta, true ) ) {
 			continue;
 		}
 
@@ -219,8 +219,8 @@ function set_meta( $post_id, $meta ) {
 	/**
 	 * Fires after Distributor sets post meta.
 	 *
-	 * Note: All sent meta is included in the `$meta` array, including blacklisted keys.
-	 * Take care to continue to filter out blacklisted keys in any further meta setting.
+	 * Note: All sent meta is included in the `$meta` array, including excluded keys.
+	 * Take care to continue to filter out excluded keys in any further meta setting.
 	 *
 	 * @since 1.3.8
 	 * @hook dt_after_set_meta
@@ -366,42 +366,73 @@ function distributable_post_statuses() {
 }
 
 /**
- * Returns list of blacklisted meta keys
+ * Returns list of excluded meta keys
  *
  * @since  1.2
+ * @deprecated 1.9.0 Use excluded_meta()
  * @return array
  */
 function blacklisted_meta() {
+	_deprecated_function( __FUNCTION__, '1.9.0', '\Distributor\Utils\excluded_meta()' );
+	return excluded_meta();
+}
+
+/**
+ * Returns list of excluded meta keys
+ *
+ * @since  1.9.0
+ * @return array
+ */
+function excluded_meta() {
+
 	/**
-	 * Filter meta keys that are blacklisted from distribution.
+	 * Filter meta keys that are excluded from distribution.
 	 *
 	 * @since 1.0.0
-	 * @hook dt_blacklisted_meta
+	 * @deprecated 1.9.0 Use dt_excluded_meta
 	 *
-	 * @param {array} $meta_keys Blacklisted meta keys. Default `dt_unlinked, dt_connection_map, dt_subscription_update, dt_subscriptions, dt_subscription_signature, dt_original_post_id, dt_original_post_url, dt_original_blog_id, dt_syndicate_time, _wp_attached_file, _wp_attachment_metadata, _edit_lock, _edit_last, _wp_old_slug, _wp_old_date`.
+	 * @param array $meta_keys Excluded meta keys.
 	 *
-	 * @return {array} Blacklisted meta keys.
+	 * @return array Excluded meta keys.
 	 */
-	return apply_filters(
+	$excluded_meta = apply_filters_deprecated(
 		'dt_blacklisted_meta',
 		[
-			'dt_unlinked',
-			'dt_connection_map',
-			'dt_subscription_update',
-			'dt_subscriptions',
-			'dt_subscription_signature',
-			'dt_original_post_id',
-			'dt_original_post_url',
-			'dt_original_blog_id',
-			'dt_syndicate_time',
-			'_wp_attached_file',
-			'_wp_attachment_metadata',
-			'_edit_lock',
-			'_edit_last',
-			'_wp_old_slug',
-			'_wp_old_date',
-		]
+			[
+				'classic-editor-remember',
+				'dt_unlinked',
+				'dt_syndicate_time',
+				'dt_subscriptions',
+				'dt_subscription_update',
+				'dt_subscription_signature',
+				'dt_original_post_url',
+				'dt_original_post_id',
+				'dt_original_blog_id',
+				'dt_connection_map',
+				'_wp_old_slug',
+				'_wp_old_date',
+				'_wp_attachment_metadata',
+				'_wp_attached_file',
+				'_edit_lock',
+				'_edit_last',
+			],
+		],
+		'1.9.0',
+		'dt_excluded_meta',
+		__( 'Please consider writing more inclusive code.', 'distributor' )
 	);
+
+	/**
+	 * Filter meta keys that are excluded from distribution.
+	 *
+	 * @since 1.9.0
+	 * @hook dt_excluded_meta
+	 *
+	 * @param {array} $meta_keys Excluded meta keys. Default `dt_unlinked, dt_connection_map, dt_subscription_update, dt_subscriptions, dt_subscription_signature, dt_original_post_id, dt_original_post_url, dt_original_blog_id, dt_syndicate_time, _wp_attached_file, _wp_attachment_metadata, _edit_lock, _edit_last, _wp_old_slug, _wp_old_date`.
+	 *
+	 * @return {array} Excluded meta keys.
+	 */
+	return apply_filters( 'dt_excluded_meta', $excluded_meta );
 }
 
 /**
@@ -414,13 +445,12 @@ function blacklisted_meta() {
 function prepare_meta( $post_id ) {
 	$meta          = get_post_meta( $post_id );
 	$prepared_meta = array();
-
-	$blacklisted_meta = blacklisted_meta();
+	$excluded_meta = excluded_meta();
 
 	// Transfer all meta
 	foreach ( $meta as $meta_key => $meta_array ) {
 		foreach ( $meta_array as $meta_value ) {
-			if ( ! in_array( $meta_key, $blacklisted_meta, true ) ) {
+			if ( ! in_array( $meta_key, $excluded_meta, true ) ) {
 				$meta_value = maybe_unserialize( $meta_value );
 				/**
 				 * Filter whether to sync meta.
