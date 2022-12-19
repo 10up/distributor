@@ -8,6 +8,7 @@
 namespace Distributor\Hooks;
 
 use Distributor\DistributorPost;
+use Distributor\Utils;
 use WP_Post;
 
 /**
@@ -21,6 +22,8 @@ function setup() {
 	add_action( 'get_canonical_url', $n( 'get_canonical_url' ), 10, 2 );
 	add_action( 'wpseo_canonical', $n( 'wpseo_canonical' ), 10, 2 );
 	add_filter( 'wpseo_opengraph_url', $n( 'wpseo_opengraph_url' ), 10, 2 );
+	add_filter( 'the_author', $n( 'filter_the_author' ) );
+	add_filter( 'get_the_author_display_name', $n( 'get_the_author_display_name' ), 10, 3 );
 }
 
 /**
@@ -90,4 +93,48 @@ function wpseo_opengraph_url( $og_url, $presentation = false ) {
 
 	$dt_post = new DistributorPost( get_post() );
 	return $dt_post->get_permalink();
+}
+
+/**
+ * Filter the author name via the_author() for a distributed post.
+ *
+ * @since x.x.x
+ *
+ * @param string $display_name Author display name.
+ * @return string Modified author display name.
+ */
+function filter_the_author( $display_name ) {
+	$settings = Utils\get_settings();
+
+	if ( empty( $settings['override_author_byline'] ) ) {
+		return $display_name;
+	}
+
+	// Ensure there is a global post object.
+	if ( ! get_post() ) {
+		return $display_name;
+	}
+
+	$dt_post = new DistributorPost( get_post() );
+	return $dt_post->get_author_name( $display_name );
+}
+
+/**
+ * Filter the author display name via get_the_author() for a distributed post.
+ *
+ * @since x.x.x
+ *
+ * @param string $display_name     Author display name.
+ * @param int    $user_id          User ID.
+ * @param int    $original_user_id Original user ID for calling get_the_author(). False: get_the_author()
+ *                                 was retrieve the author of the current post object.
+ * @return string Modified author display name.
+ */
+function get_the_author_display_name( $display_name, $user_id, $original_user_id ) {
+	if ( false !== $original_user_id ) {
+		// get_the_author() was called for a specific user.
+		return $display_name;
+	}
+
+	return filter_the_author( $display_name );
 }

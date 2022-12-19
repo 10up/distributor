@@ -385,6 +385,34 @@ class DistributorPost {
 	}
 
 	/**
+	 * Get the post's author name.
+	 *
+	 * For distributed posts this is the name of the original site. For the
+	 * original post, this is the result of get_the_author().
+	 *
+	 * @param  string $author_name The post's author name. If specified, this will be returned if the
+	 *                             author name does not need to be replaced by the original source name.
+	 * @return string The post's author name.
+	 */
+	public function get_author_name( $author_name = '' ) {
+		if (
+			$this->is_source
+			|| $this->original_deleted
+			|| ! $this->is_linked
+			|| ! $this->connection_id
+			|| ! $this->original_post_url
+		) {
+			if ( empty( $author_name ) ) {
+				return get_the_author_meta( 'display_name', $this->post->post_author );
+			}
+			return $author_name;
+		}
+
+		$this->populate_source_site();
+		return $this->source_site['name'];
+	}
+
+	/**
 	 * Get the post's distributable meta data.
 	 *
 	 * @return array Array of meta data.
