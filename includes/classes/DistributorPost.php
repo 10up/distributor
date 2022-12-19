@@ -61,6 +61,13 @@ class DistributorPost {
 	private $original_post_url = '';
 
 	/**
+	 * Whether the original post has been deleted.
+	 *
+	 * @var bool
+	 */
+	public $original_deleted = false;
+
+	/**
 	 * The direction of the connection.
 	 *
 	 * Internal connections are identical regardless of whether they are pushed or pulled
@@ -129,6 +136,7 @@ class DistributorPost {
 			$this->is_linked         = true;
 			$this->original_post_id  = $this->post->ID;
 			$this->original_post_url = get_permalink( $this->post->ID );
+			$this->original_deleted  = false;
 			return;
 		}
 
@@ -138,6 +146,7 @@ class DistributorPost {
 		$this->is_linked         = ! get_post_meta( $post->ID, 'dt_unlinked', true );
 		$this->original_post_id  = (int) $original_post_id;
 		$this->original_post_url = get_post_meta( $post->ID, 'dt_original_post_url', true );
+		$this->original_deleted  = (bool) get_post_meta( $post->ID, 'dt_original_deleted', true );
 
 		// Determine the connection type.
 		if ( get_post_meta( $post->ID, 'dt_original_blog_id', true ) ) {
