@@ -43,16 +43,25 @@ function get_canonical_url( $canonical_url, $post ) {
  *
  * @since x.x.x
  *
- * @param string                                            $canonical_url Canonical URL.
- * @param Yoast\WP\SEO\Presentations\Indexable_Presentation $presentation  Yoast SEO meta tag presenter.
+ * @param string                                                  $canonical_url Canonical URL.
+ * @param Yoast\WP\SEO\Presentations\Indexable_Presentation|false $presentation  Yoast SEO meta tag presenter. False: filter applied in legacy format.
  * @return string Modified canonical URL.
  */
-function wpseo_canonical( $canonical_url, $presentation ) {
-	if ( ! $presentation->source instanceof WP_Post ) {
+function wpseo_canonical( $canonical_url, $presentation = false ) {
+	if ( false !== $presentation ) {
+		if ( ! $presentation->source instanceof WP_Post ) {
+			return $canonical_url;
+		}
+
+		return get_canonical_url( $canonical_url, $presentation->source );
+	}
+
+	// Filter was called in legacy format.
+	if ( ! is_singular() ) {
 		return $canonical_url;
 	}
 
-	return get_canonical_url( $canonical_url, $presentation->source );
+	return get_canonical_url( $canonical_url, get_post() );
 }
 
 /**
@@ -60,15 +69,25 @@ function wpseo_canonical( $canonical_url, $presentation ) {
  *
  * @since x.x.x
  *
- * @param string                                            $og_url        OpenGraph URL.
- * @param Yoast\WP\SEO\Presentations\Indexable_Presentation $presentation  Yoast SEO meta tag presenter.
+ * @param string                                                  $og_url        OpenGraph URL.
+ * @param Yoast\WP\SEO\Presentations\Indexable_Presentation|false $presentation  Yoast SEO meta tag presenter. False: filter applied in legacy format.
  * @return string Modified OpenGraph URL.
  */
-function wpseo_opengraph_url( $og_url, $presentation ) {
-	if ( ! $presentation->source instanceof WP_Post ) {
+function wpseo_opengraph_url( $og_url, $presentation = false ) {
+	if ( false !== $presentation ) {
+		if ( ! $presentation->source instanceof WP_Post ) {
+			return $og_url;
+		}
+
+		$dt_post = new DistributorPost( $presentation->source );
+		return $dt_post->get_permalink();
+	}
+
+	// Filter was called in legacy format.
+	if ( ! is_singular() ) {
 		return $og_url;
 	}
 
-	$dt_post = new DistributorPost( $presentation->source );
+	$dt_post = new DistributorPost( get_post() );
 	return $dt_post->get_permalink();
 }
