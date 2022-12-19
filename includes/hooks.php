@@ -19,7 +19,8 @@ function setup() {
 	};
 
 	add_action( 'get_canonical_url', $n( 'get_canonical_url' ), 10, 2 );
-	add_action( 'wpseo_canonical', $n( 'wpseo_canonical' ), 10, 3 );
+	add_action( 'wpseo_canonical', $n( 'wpseo_canonical' ), 10, 2 );
+	add_filter( 'wpseo_opengraph_url', $n( 'wpseo_opengraph_url' ), 10, 2 );
 }
 
 /**
@@ -52,4 +53,22 @@ function wpseo_canonical( $canonical_url, $presentation ) {
 	}
 
 	return get_canonical_url( $canonical_url, $presentation->source );
+}
+
+/**
+ * Filter the Yoast SEO OpenGraph URL for a distributed post.
+ *
+ * @since x.x.x
+ *
+ * @param string                                            $og_url        OpenGraph URL.
+ * @param Yoast\WP\SEO\Presentations\Indexable_Presentation $presentation  Yoast SEO meta tag presenter.
+ * @return string Modified OpenGraph URL.
+ */
+function wpseo_opengraph_url( $og_url, $presentation ) {
+	if ( ! $presentation->source instanceof WP_Post ) {
+		return $og_url;
+	}
+
+	$dt_post = new DistributorPost( $presentation->source );
+	return $dt_post->get_permalink();
 }
