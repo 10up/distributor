@@ -121,6 +121,7 @@ require_once DT_PLUGIN_PATH . 'vendor/yahnis-elsts/plugin-update-checker/plugin-
 
 require_once __DIR__ . '/utils.php';
 require_once __DIR__ . '/global-functions.php';
+require_once __DIR__ . '/hooks.php';
 require_once __DIR__ . '/external-connection-cpt.php';
 require_once __DIR__ . '/push-ui.php';
 require_once __DIR__ . '/pull-ui.php';
@@ -268,6 +269,7 @@ add_action(
  * We use setup functions to avoid unit testing WP_Mock strict mode errors.
  */
 \Distributor\ExternalConnectionCPT\setup();
+\Distributor\Hooks\setup();
 \Distributor\PushUI\setup();
 \Distributor\PullUI\setup();
 \Distributor\RestApi\setup();
