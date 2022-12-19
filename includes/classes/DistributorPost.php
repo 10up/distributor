@@ -357,6 +357,34 @@ class DistributorPost {
 	}
 
 	/**
+	 * Get the post's canonical URL.
+	 *
+	 * For distributed posts, this is the permalink of the original post. For
+	 * the original post, this is the result of get_permalink().
+	 *
+	 * @param  string $canonical_url The post's canonical URL. If specified, this will be returned
+	 *                               if the canonical URL does not need to be replaced by the
+	 *                               original source URL.
+	 * @return string The post's canonical URL.
+	 */
+	public function get_canonical_url( $canonical_url = '' ) {
+		if (
+			$this->is_source
+			|| $this->original_deleted
+			|| ! $this->is_linked
+			|| ! $this->connection_id
+			|| ! $this->original_post_url
+		) {
+			if ( empty( $canonical_url ) ) {
+				return $this->get_permalink();
+			}
+			return $canonical_url;
+		}
+
+		return $this->original_post_url;
+	}
+
+	/**
 	 * Get the post's distributable meta data.
 	 *
 	 * @return array Array of meta data.
