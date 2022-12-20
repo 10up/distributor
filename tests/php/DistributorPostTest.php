@@ -72,7 +72,6 @@ class DistributorPostTest extends TestCase {
 
 		$post = array_merge( $defaults, $post_overrides );
 
-
 		\WP_Mock::userFunction(
 			'get_post',
 			array(
