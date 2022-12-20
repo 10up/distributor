@@ -1692,4 +1692,92 @@ class DistributorPostTest extends TestCase {
 
 		$this->assertSame( $canonical_url_expected, $canonical_url_actual );
 	}
+
+	/**
+	 * Test get_author_name() method.
+	 *
+	 * @covers ::get_author_name()
+	 */
+	public function test_get_author_name() {
+		$this->setup_post_mock();
+		$this->setup_post_meta_mock(
+			array (
+				'dt_original_post_id'       => array( '10' ),
+				'dt_original_site_name'     => array( 'Test External, Pushed Origin' ),
+				'dt_original_site_url'      => array( 'http://origin.example.org/' ),
+				'dt_original_post_url'      => array( 'http://origin.example.org/?p=10' ),
+				'dt_subscription_signature' => array( 'abcdefghijklmnopqrstuvwxyz' ),
+				'dt_syndicate_time'         => array( '1670384223' ),
+				'dt_full_connection'        => array( '1' ),
+				'dt_original_source_id'     => array( '2' ),
+			)
+		);
+
+		$dt_post                = new DistributorPost( 1 );
+		$author_name_actual   = $dt_post->get_author_name();
+		$author_name_expected = 'Test External, Pushed Origin';
+
+		$this->assertSame( $author_name_expected, $author_name_actual );
+	}
+
+	/**
+	 * Test get_author_name() method.
+	 *
+	 * @covers ::get_author_name()
+	 */
+	public function test_get_author_name_unlinked() {
+		$this->setup_post_mock();
+		$this->setup_post_meta_mock(
+			array (
+				'dt_original_post_id'  => array( '10' ),
+				'dt_original_blog_id'  => array( '2' ),
+				'dt_syndicate_time'    => array ( '1670383190' ),
+				'dt_original_post_url' => array ( 'http://origin.example.org/?p=10' ),
+				'dt_unlinked'          => array ( '1' ),
+			)
+		);
+
+		\WP_Mock::userFunction(
+			'get_the_author_meta',
+			array(
+				'return' => 'Unlinked author name',
+			)
+		);
+
+		$dt_post                = new DistributorPost( 1 );
+		$author_name_actual   = $dt_post->get_author_name();
+		$author_name_expected = 'Unlinked author name';
+
+		$this->assertSame( $author_name_expected, $author_name_actual );
+	}
+
+	/**
+	 * Test get_author_name() method.
+	 *
+	 * @covers ::get_author_name()
+	 */
+	public function test_get_author_name_source() {
+		$this->setup_post_mock();
+		$this->setup_post_meta_mock( array() );
+
+		\WP_Mock::userFunction(
+			'get_permalink',
+			array(
+				'return' => 'http://source.example.org/?p=1',
+			)
+		);
+
+		\WP_Mock::userFunction(
+			'get_the_author_meta',
+			array(
+				'return' => 'Original site author name',
+			)
+		);
+
+		$dt_post                = new DistributorPost( 1 );
+		$author_name_actual   = $dt_post->get_author_name();
+		$author_name_expected = 'Original site author name';
+
+		$this->assertSame( $author_name_expected, $author_name_actual );
+	}
 }
