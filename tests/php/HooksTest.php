@@ -97,7 +97,7 @@ class HooksTest extends TestCase {
 	 *
 	 * @since x.x.x
 	 */
-	public function test_get_canonical_url() {
+	public function test_get_canonical_url_source() {
 		$this->setup_post_mock();
 		$this->setup_post_meta_mock(array());
 
@@ -234,7 +234,7 @@ class HooksTest extends TestCase {
 	 *
 	 * @since x.x.x
 	 */
-	public function test_wpseo_canonical() {
+	public function test_wpseo_canonical_source() {
 		$this->setup_post_mock();
 		$this->setup_post_meta_mock(array());
 
