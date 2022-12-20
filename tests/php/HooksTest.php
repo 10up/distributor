@@ -502,4 +502,200 @@ class HooksTest extends TestCase {
 		$actual = Hooks\wpseo_opengraph_url( 'https://example.com/?p=1' );
 		$this->assertSame( 'https://example.com/?p=1', $actual );
 	}
+
+	/**
+	 * Test filter_the_author
+	 *
+	 * @since x.x.x
+	 */
+	public function test_filter_the_author_source() {
+		$this->setup_post_mock();
+		$this->setup_post_meta_mock(array());
+
+		\WP_Mock::userFunction(
+			'get_permalink',
+			array(
+				'return' => 'https://example.com/?p=1',
+			)
+		);
+
+		\WP_Mock::userFunction(
+			'is_singular',
+			array(
+				'return' => true,
+			)
+		);
+
+		\WP_Mock::userFunction(
+			'get_option',
+			array(
+				'return' => array(),
+			)
+		);
+
+		$actual = Hooks\filter_the_author( 'Alexander Hamilton' );
+		$this->assertSame( 'Alexander Hamilton', $actual );
+	}
+
+	/**
+	 * Test filter_the_author
+	 *
+	 * @since x.x.x
+	 */
+	public function test_filter_the_author_external_pushed() {
+		$this->setup_post_mock();
+		$this->setup_post_meta_mock(
+			array (
+				'dt_original_post_id'       => array( '10' ),
+				'dt_original_site_name'     => array( 'Test External, Pushed Origin' ),
+				'dt_original_site_url'      => array( 'http://origin.example.org/' ),
+				'dt_original_post_url'      => array( 'http://origin.example.org/?p=10' ),
+				'dt_subscription_signature' => array( 'abcdefghijklmnopqrstuvwxyz' ),
+				'dt_syndicate_time'         => array( '1670384223' ),
+				'dt_full_connection'        => array( '1' ),
+				'dt_original_source_id'     => array( '2' ),
+			)
+		);
+
+		\WP_Mock::userFunction(
+			'get_permalink',
+			array(
+				'return' => 'https://example.com/?p=1',
+			)
+		);
+
+		\WP_Mock::userFunction(
+			'is_singular',
+			array(
+				'return' => true,
+			)
+		);
+
+		\WP_Mock::userFunction(
+			'get_option',
+			array(
+				'return' => array(),
+			)
+		);
+
+		$actual = Hooks\filter_the_author( 'George Washington' );
+		$this->assertSame( 'Test External, Pushed Origin', $actual );
+	}
+
+	/**
+	 * Test filter_the_author
+	 *
+	 * @since x.x.x
+	 */
+	public function test_filter_the_author_external_pulled() {
+		$this->setup_post_mock();
+		$this->setup_post_meta_mock(
+			array (
+				'dt_original_post_id'       => array( '10' ),
+				'dt_original_site_name'     => array( 'Test External, Pulled Origin' ),
+				'dt_original_site_url'      => array( 'http://origin.example.org/' ),
+				'dt_original_post_url'      => array( 'http://origin.example.org/?p=11' ),
+				'dt_subscription_signature' => array( 'abcdefghijklmnopqrstuvwxyz' ),
+				'dt_syndicate_time'         => array( '1670384223' ),
+				'dt_full_connection'        => array( '' ),
+				'dt_original_source_id'     => array( '3' ),
+			)
+		);
+
+		\WP_Mock::userFunction(
+			'get_permalink',
+			array(
+				'return' => 'https://example.com/?p=1',
+			)
+		);
+
+		\WP_Mock::userFunction(
+			'is_singular',
+			array(
+				'return' => true,
+			)
+		);
+
+		\WP_Mock::userFunction(
+			'get_option',
+			array(
+				'return' => array(),
+			)
+		);
+
+		$actual = Hooks\filter_the_author( 'James Madison' );
+		$this->assertSame( 'Test External, Pulled Origin', $actual );
+	}
+
+	/**
+	 * Test filter_the_author
+	 *
+	 * @since x.x.x
+	 */
+	public function test_filter_the_author_internal() {
+		$this->setup_post_mock();
+		$this->setup_post_meta_mock(
+			array (
+				'dt_original_post_id'  => array( '10' ),
+				'dt_original_blog_id'  => array( '2' ),
+				'dt_syndicate_time'    => array ( '1670383190' ),
+				'dt_original_post_url' => array ( 'http://origin.example.org/?p=12' ),
+			)
+		);
+
+		\WP_Mock::userFunction(
+			'is_singular',
+			array(
+				'return' => true,
+			)
+		);
+
+		\WP_Mock::userFunction(
+			'get_option',
+			array(
+				'return' => array(),
+			)
+		);
+
+		\WP_Mock::userFunction(
+			'get_current_blog_id',
+			array(
+				'return' => 1,
+			)
+		);
+		\WP_Mock::userFunction( 'switch_to_blog' );
+		\WP_Mock::userFunction( 'restore_current_blog' );
+
+		\WP_Mock::userFunction(
+			'get_bloginfo',
+			array(
+				'return' => function( $info ) {
+					switch ( $info ) {
+						case 'name':
+							return 'Test Internal Origin';
+						default:
+							return '';
+					}
+				},
+			)
+		);
+
+		// Generic values for the origin site.
+		\WP_Mock::userFunction(
+			'get_permalink',
+			array(
+				'return' => 'http://origin.example.org/?p=10',
+			)
+		);
+
+		\WP_Mock::userFunction(
+			'home_url',
+			array(
+				'return' => 'http://origin.example.org/',
+			)
+		);
+
+		$actual = Hooks\filter_the_author( 'Aaron Burr' );
+		$this->assertSame( 'Test Internal Origin', $actual );
+	}
 }
