@@ -1615,4 +1615,81 @@ class DistributorPostTest extends TestCase {
 
 		$this->assertSame( $to_json_expected, $to_json_actual );
 	}
+
+	/**
+	 * Test get_canonical_url() method.
+	 *
+	 * @covers ::get_canonical_url()
+	 */
+	public function test_get_canonical_url() {
+		$this->setup_post_mock();
+		$this->setup_post_meta_mock(
+			array (
+				'dt_original_post_id'  => array( '10' ),
+				'dt_original_blog_id'  => array( '2' ),
+				'dt_syndicate_time'    => array ( '1670383190' ),
+				'dt_original_post_url' => array ( 'http://origin.example.org/?p=10' ),
+			)
+		);
+
+		$dt_post                = new DistributorPost( 1 );
+		$canonical_url_actual   = $dt_post->get_canonical_url();
+		$canonical_url_expected = 'http://origin.example.org/?p=10';
+
+		$this->assertSame( $canonical_url_expected, $canonical_url_actual );
+	}
+
+	/**
+	 * Test get_canonical_url() method.
+	 *
+	 * @covers ::get_canonical_url()
+	 */
+	public function test_get_canonical_url_unlinked() {
+		$this->setup_post_mock();
+		$this->setup_post_meta_mock(
+			array (
+				'dt_original_post_id'  => array( '10' ),
+				'dt_original_blog_id'  => array( '2' ),
+				'dt_syndicate_time'    => array ( '1670383190' ),
+				'dt_original_post_url' => array ( 'http://origin.example.org/?p=10' ),
+				'dt_unlinked'          => array ( '1' ),
+			)
+		);
+
+		\WP_Mock::userFunction(
+			'get_permalink',
+			array(
+				'return' => 'http://distributed.example.org/?p=1',
+			)
+		);
+
+		$dt_post                = new DistributorPost( 1 );
+		$canonical_url_actual   = $dt_post->get_canonical_url();
+		$canonical_url_expected = 'http://distributed.example.org/?p=1';
+
+		$this->assertSame( $canonical_url_expected, $canonical_url_actual );
+	}
+
+	/**
+	 * Test get_canonical_url() method.
+	 *
+	 * @covers ::get_canonical_url()
+	 */
+	public function test_get_canonical_url_source() {
+		$this->setup_post_mock();
+		$this->setup_post_meta_mock( array() );
+
+		\WP_Mock::userFunction(
+			'get_permalink',
+			array(
+				'return' => 'http://source.example.org/?p=1',
+			)
+		);
+
+		$dt_post                = new DistributorPost( 1 );
+		$canonical_url_actual   = $dt_post->get_canonical_url();
+		$canonical_url_expected = 'http://source.example.org/?p=1';
+
+		$this->assertSame( $canonical_url_expected, $canonical_url_actual );
+	}
 }
