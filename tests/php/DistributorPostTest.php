@@ -1712,6 +1712,13 @@ class DistributorPostTest extends TestCase {
 			)
 		);
 
+		\WP_Mock::userFunction(
+			'get_option',
+			array(
+				'return' => array(),
+			)
+		);
+
 		$dt_post                = new DistributorPost( 1 );
 		$author_name_actual   = $dt_post->get_author_name();
 		$author_name_expected = 'Test External, Pushed Origin';
@@ -1737,6 +1744,13 @@ class DistributorPostTest extends TestCase {
 		);
 
 		\WP_Mock::userFunction(
+			'get_option',
+			array(
+				'return' => array(),
+			)
+		);
+
+		\WP_Mock::userFunction(
 			'get_the_author_meta',
 			array(
 				'return' => 'Unlinked author name',
@@ -1758,6 +1772,13 @@ class DistributorPostTest extends TestCase {
 	public function test_get_author_name_source() {
 		$this->setup_post_mock();
 		$this->setup_post_meta_mock( array() );
+
+		\WP_Mock::userFunction(
+			'get_option',
+			array(
+				'return' => array(),
+			)
+		);
 
 		\WP_Mock::userFunction(
 			'get_permalink',
@@ -1800,6 +1821,13 @@ class DistributorPostTest extends TestCase {
 			)
 		);
 
+		\WP_Mock::userFunction(
+			'get_option',
+			array(
+				'return' => array(),
+			)
+		);
+
 		$dt_post                = new DistributorPost( 1 );
 		$author_link_actual   = $dt_post->get_author_link();
 		$author_link_expected = 'http://origin.example.org/';
@@ -1821,6 +1849,13 @@ class DistributorPostTest extends TestCase {
 				'dt_syndicate_time'    => array ( '1670383190' ),
 				'dt_original_post_url' => array ( 'http://origin.example.org/?p=10' ),
 				'dt_unlinked'          => array ( '1' ),
+			)
+		);
+
+		\WP_Mock::userFunction(
+			'get_option',
+			array(
+				'return' => array(),
 			)
 		);
 
@@ -1851,6 +1886,13 @@ class DistributorPostTest extends TestCase {
 			'get_permalink',
 			array(
 				'return' => 'http://source.example.org/?p=1',
+			)
+		);
+
+		\WP_Mock::userFunction(
+			'get_option',
+			array(
+				'return' => array(),
 			)
 		);
 
