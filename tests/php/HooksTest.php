@@ -228,4 +228,141 @@ class HooksTest extends TestCase {
 		$actual = Hooks\get_canonical_url( 'https://example.com/?p=1', (object) array( 'ID' => 1 ) );
 		$this->assertSame( 'http://origin.example.org/?p=12', $actual );
 	}
+
+	/**
+	 * Test wpseo_canonical
+	 *
+	 * @since x.x.x
+	 */
+	public function test_wpseo_canonical() {
+		$this->setup_post_mock();
+		$this->setup_post_meta_mock(array());
+
+		\WP_Mock::userFunction(
+			'get_permalink',
+			array(
+				'return' => 'https://example.com/?p=1',
+			)
+		);
+
+		\WP_Mock::userFunction(
+			'is_singular',
+			array(
+				'return' => true,
+			)
+		);
+
+		$actual = Hooks\wpseo_canonical( 'https://example.com/?p=1' );
+		$this->assertSame( 'https://example.com/?p=1', $actual );
+	}
+
+	/**
+	 * Test wpseo_canonical
+	 *
+	 * @since x.x.x
+	 */
+	public function test_wpseo_canonical_external_pushed() {
+		$this->setup_post_mock();
+		$this->setup_post_meta_mock(
+			array (
+				'dt_original_post_id'       => array( '10' ),
+				'dt_original_site_name'     => array( 'Test External, Pushed Origin' ),
+				'dt_original_site_url'      => array( 'http://origin.example.org/' ),
+				'dt_original_post_url'      => array( 'http://origin.example.org/?p=10' ),
+				'dt_subscription_signature' => array( 'abcdefghijklmnopqrstuvwxyz' ),
+				'dt_syndicate_time'         => array( '1670384223' ),
+				'dt_full_connection'        => array( '1' ),
+				'dt_original_source_id'     => array( '2' ),
+			)
+		);
+
+		\WP_Mock::userFunction(
+			'get_permalink',
+			array(
+				'return' => 'https://example.com/?p=1',
+			)
+		);
+
+		\WP_Mock::userFunction(
+			'is_singular',
+			array(
+				'return' => true,
+			)
+		);
+
+		$actual = Hooks\wpseo_canonical( 'https://example.com/?p=1' );
+		$this->assertSame( 'http://origin.example.org/?p=10', $actual );
+	}
+
+	/**
+	 * Test wpseo_canonical
+	 *
+	 * @since x.x.x
+	 */
+	public function test_wpseo_canonical_external_pulled() {
+		$this->setup_post_mock();
+		$this->setup_post_meta_mock(
+			array (
+				'dt_original_post_id'       => array( '10' ),
+				'dt_original_site_name'     => array( 'Test External, Pulled Origin' ),
+				'dt_original_site_url'      => array( 'http://origin.example.org/' ),
+				'dt_original_post_url'      => array( 'http://origin.example.org/?p=11' ),
+				'dt_subscription_signature' => array( 'abcdefghijklmnopqrstuvwxyz' ),
+				'dt_syndicate_time'         => array( '1670384223' ),
+				'dt_full_connection'        => array( '' ),
+				'dt_original_source_id'     => array( '3' ),
+			)
+		);
+
+		\WP_Mock::userFunction(
+			'get_permalink',
+			array(
+				'return' => 'https://example.com/?p=1',
+			)
+		);
+
+		\WP_Mock::userFunction(
+			'is_singular',
+			array(
+				'return' => true,
+			)
+		);
+
+		$actual = Hooks\wpseo_canonical( 'https://example.com/?p=1' );
+		$this->assertSame( 'http://origin.example.org/?p=11', $actual );
+	}
+
+	/**
+	 * Test wpseo_canonical
+	 *
+	 * @since x.x.x
+	 */
+	public function test_wpseo_canonical_internal() {
+		$this->setup_post_mock();
+		$this->setup_post_meta_mock(
+			array (
+				'dt_original_post_id'  => array( '10' ),
+				'dt_original_blog_id'  => array( '2' ),
+				'dt_syndicate_time'    => array ( '1670383190' ),
+				'dt_original_post_url' => array ( 'http://origin.example.org/?p=12' ),
+			)
+		);
+
+		\WP_Mock::userFunction(
+			'get_permalink',
+			array(
+				'return' => 'https://example.com/?p=1',
+			)
+		);
+
+		\WP_Mock::userFunction(
+			'is_singular',
+			array(
+				'return' => true,
+			)
+		);
+
+		$actual = Hooks\wpseo_canonical( 'https://example.com/?p=1' );
+		$this->assertSame( 'http://origin.example.org/?p=12', $actual );
+	}
 }
