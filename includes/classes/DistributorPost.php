@@ -413,6 +413,34 @@ class DistributorPost {
 	}
 
 	/**
+	 * Get the post's author URL.
+	 *
+	 * For distributed posts this is a link to the original site. For the
+	 * original post, this is the result of get_author_posts_url().
+	 *
+	 * @param  string $author_link The author's posts URL. If specified, this will be returned if the
+	 *                             author link does not need to be replaced by the original source name.
+	 * @return string The post's author link.
+	 */
+	public function get_author_link( $author_link = '' ) {
+		if (
+			$this->is_source
+			|| $this->original_deleted
+			|| ! $this->is_linked
+			|| ! $this->connection_id
+			|| ! $this->original_post_url
+		) {
+			if ( empty( $author_link ) ) {
+				return get_author_posts_url( $this->post->post_author );
+			}
+			return $author_link;
+		}
+
+		$this->populate_source_site();
+		return $this->source_site['home_url'];
+	}
+
+	/**
 	 * Get the post's distributable meta data.
 	 *
 	 * @return array Array of meta data.

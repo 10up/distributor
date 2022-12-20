@@ -24,6 +24,9 @@ function setup() {
 	add_filter( 'wpseo_opengraph_url', $n( 'wpseo_opengraph_url' ), 10, 2 );
 	add_filter( 'the_author', $n( 'filter_the_author' ) );
 	add_filter( 'get_the_author_display_name', $n( 'get_the_author_display_name' ), 10, 3 );
+	add_filter( 'author_link', $n( 'filter_author_link' ) );
+	add_filter( 'get_the_author_user_url', $n( 'get_the_author_user_url' ), 10, 3 );
+
 }
 
 /**
@@ -137,4 +140,48 @@ function get_the_author_display_name( $display_name, $user_id, $original_user_id
 	}
 
 	return filter_the_author( $display_name );
+}
+
+/**
+ * Filter the author link for a distributed post.
+ *
+ * @since x.x.x
+ *
+ * @param string $link Author link.
+ * @return string Modified author link.
+ */
+function filter_author_link( $link ) {
+	$settings = Utils\get_settings();
+
+	if ( empty( $settings['override_author_byline'] ) ) {
+		return $link;
+	}
+
+	// Ensure there is a global post object.
+	if ( ! get_post() ) {
+		return $link;
+	}
+
+	$dt_post = new DistributorPost( get_post() );
+	return $dt_post->get_author_link( $link );
+}
+
+/**
+ * Filter the author page URL via get_the_author() for a distributed post.
+ *
+ * @since x.x.x
+ *
+ * @param string $author_url       Author page URL.
+ * @param int    $user_id          User ID.
+ * @param int    $original_user_id Original user ID for calling get_the_author(). False: get_the_author()
+ *                                 was retrieve the author of the current post object.
+ * @return string Modified author page URL.
+ */
+function get_the_author_user_url( $author_url, $user_id, $original_user_id ) {
+	if ( false !== $original_user_id ) {
+		// get_the_author() was called for a specific user.
+		return $author_url;
+	}
+
+	return filter_author_link( $author_url );
 }

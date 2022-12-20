@@ -1015,7 +1015,7 @@ class WordPressExternalConnection extends ExternalConnection {
 		// add_filter( 'wpseo_opengraph_url', array( '\Distributor\ExternalConnections\WordPressExternalConnection', 'wpseo_og_url' ) );
 		// add_filter( 'the_author', array( '\Distributor\ExternalConnections\WordPressExternalConnection', 'the_author_distributed' ) );
 		// add_filter( 'get_the_author_display_name', array( '\Distributor\ExternalConnections\WordPressExternalConnection', 'the_author_distributed' ) );
-		add_filter( 'author_link', array( '\Distributor\ExternalConnections\WordPressExternalConnection', 'author_posts_url_distributed' ), 10, 3 );
+		// add_filter( 'author_link', array( '\Distributor\ExternalConnections\WordPressExternalConnection', 'author_posts_url_distributed' ), 10, 3 );
 	}
 
 	/**

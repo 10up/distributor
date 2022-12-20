@@ -927,7 +927,7 @@ class NetworkSiteConnection extends Connection {
 		// add_filter( 'wpseo_opengraph_url', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'wpseo_og_url' ) );
 		// add_filter( 'the_author', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'the_author_distributed' ) );
 		// add_filter( 'get_the_author_display_name', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'the_author_distributed' ) );
-		add_filter( 'author_link', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'author_posts_url_distributed' ), 10, 3 );
+		// add_filter( 'author_link', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'author_posts_url_distributed' ), 10, 3 );
 	}
 
 	/**
