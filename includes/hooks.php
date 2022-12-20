@@ -107,12 +107,6 @@ function wpseo_opengraph_url( $og_url, $presentation = false ) {
  * @return string Modified author display name.
  */
 function filter_the_author( $display_name ) {
-	$settings = Utils\get_settings();
-
-	if ( empty( $settings['override_author_byline'] ) ) {
-		return $display_name;
-	}
-
 	// Ensure there is a global post object.
 	if ( ! get_post() ) {
 		return $display_name;
@@ -151,12 +145,6 @@ function get_the_author_display_name( $display_name, $user_id, $original_user_id
  * @return string Modified author link.
  */
 function filter_author_link( $link ) {
-	$settings = Utils\get_settings();
-
-	if ( empty( $settings['override_author_byline'] ) ) {
-		return $link;
-	}
-
 	// Ensure there is a global post object.
 	if ( ! get_post() ) {
 		return $link;

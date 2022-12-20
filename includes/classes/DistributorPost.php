@@ -395,8 +395,11 @@ class DistributorPost {
 	 * @return string The post's author name.
 	 */
 	public function get_author_name( $author_name = '' ) {
+		$settings = Utils\get_settings();
+
 		if (
-			$this->is_source
+			empty( $settings['override_author_byline'] )
+			|| $this->is_source
 			|| $this->original_deleted
 			|| ! $this->is_linked
 			|| ! $this->connection_id
@@ -423,8 +426,11 @@ class DistributorPost {
 	 * @return string The post's author link.
 	 */
 	public function get_author_link( $author_link = '' ) {
+		$settings = Utils\get_settings();
+
 		if (
-			$this->is_source
+			empty( $settings['override_author_byline'] )
+			|| $this->is_source
 			|| $this->original_deleted
 			|| ! $this->is_linked
 			|| ! $this->connection_id
