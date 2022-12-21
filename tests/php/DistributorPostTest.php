@@ -1731,6 +1731,52 @@ class DistributorPostTest extends TestCase {
 	 *
 	 * @covers ::get_author_name()
 	 */
+	public function test_get_author_name_without_override() {
+		$this->setup_post_mock();
+		$this->setup_post_meta_mock(
+			array (
+				'dt_original_post_id'       => array( '10' ),
+				'dt_original_site_name'     => array( 'Test External, Pushed Origin' ),
+				'dt_original_site_url'      => array( 'http://origin.example.org/' ),
+				'dt_original_post_url'      => array( 'http://origin.example.org/?p=10' ),
+				'dt_subscription_signature' => array( 'abcdefghijklmnopqrstuvwxyz' ),
+				'dt_syndicate_time'         => array( '1670384223' ),
+				'dt_full_connection'        => array( '1' ),
+				'dt_original_source_id'     => array( '2' ),
+			)
+		);
+
+		\WP_Mock::userFunction(
+			'get_option',
+			array(
+				'return' => array( 'override_author_byline' => false ),
+			)
+		);
+
+		\WP_Mock::userFunction(
+			'get_the_author_meta',
+			array(
+				'return' => 'Distributed site author name',
+			)
+		);
+
+		$dt_post                = new DistributorPost( 1 );
+		$author_name_actual   = $dt_post->get_author_name();
+		$author_name_expected = 'Distributed site author name';
+
+		$this->assertSame( $author_name_expected, $author_name_actual, 'Author name expected to point to distributed site.' );
+
+		$author_name_actual   = $dt_post->get_author_name( 'Filtered author name' );
+		$author_name_expected = 'Filtered author name';
+
+		$this->assertSame( $author_name_expected, $author_name_actual, 'Author name expected to use filtered value.' );
+	}
+
+	/**
+	 * Test get_author_name() method.
+	 *
+	 * @covers ::get_author_name()
+	 */
 	public function test_get_author_name_unlinked() {
 		$this->setup_post_mock();
 		$this->setup_post_meta_mock(
@@ -1833,6 +1879,52 @@ class DistributorPostTest extends TestCase {
 		$author_link_expected = 'http://origin.example.org/';
 
 		$this->assertSame( $author_link_expected, $author_link_actual );
+	}
+
+	/**
+	 * Test get_author_link() method.
+	 *
+	 * @covers ::get_author_link()
+	 */
+	public function test_get_author_link_without_override() {
+		$this->setup_post_mock();
+		$this->setup_post_meta_mock(
+			array (
+				'dt_original_post_id'       => array( '10' ),
+				'dt_original_site_name'     => array( 'Test External, Pushed Origin' ),
+				'dt_original_site_url'      => array( 'http://origin.example.org/' ),
+				'dt_original_post_url'      => array( 'http://origin.example.org/?p=10' ),
+				'dt_subscription_signature' => array( 'abcdefghijklmnopqrstuvwxyz' ),
+				'dt_syndicate_time'         => array( '1670384223' ),
+				'dt_full_connection'        => array( '1' ),
+				'dt_original_source_id'     => array( '2' ),
+			)
+		);
+
+		\WP_Mock::userFunction(
+			'get_option',
+			array(
+				'return' => array( 'override_author_byline' => false ),
+			)
+		);
+
+		\WP_Mock::userFunction(
+			'get_author_posts_url',
+			array(
+				'return' => 'http://destination.example.org/author/author-name/',
+			)
+		);
+
+		$dt_post                = new DistributorPost( 1 );
+		$author_link_actual   = $dt_post->get_author_link();
+		$author_link_expected = 'http://destination.example.org/author/author-name/';
+
+		$this->assertSame( $author_link_expected, $author_link_actual, 'Author link should be the local author link' );
+
+		$author_link_actual   = $dt_post->get_author_link( 'http://pre-filtered.example.org/' );
+		$author_link_expected = 'http://pre-filtered.example.org/';
+
+		$this->assertSame( $author_link_expected, $author_link_actual, 'Author link should be use prefiltered value.' );
 	}
 
 	/**
