@@ -61,6 +61,13 @@ class DistributorPost {
 	private $original_post_url = '';
 
 	/**
+	 * Whether the original post has been deleted.
+	 *
+	 * @var bool
+	 */
+	public $original_deleted = false;
+
+	/**
 	 * The direction of the connection.
 	 *
 	 * Internal connections are identical regardless of whether they are pushed or pulled
@@ -129,6 +136,7 @@ class DistributorPost {
 			$this->is_linked         = true;
 			$this->original_post_id  = $this->post->ID;
 			$this->original_post_url = get_permalink( $this->post->ID );
+			$this->original_deleted  = false;
 			return;
 		}
 
@@ -138,6 +146,7 @@ class DistributorPost {
 		$this->is_linked         = ! get_post_meta( $post->ID, 'dt_unlinked', true );
 		$this->original_post_id  = (int) $original_post_id;
 		$this->original_post_url = get_post_meta( $post->ID, 'dt_original_post_url', true );
+		$this->original_deleted  = (bool) get_post_meta( $post->ID, 'dt_original_deleted', true );
 
 		// Determine the connection type.
 		if ( get_post_meta( $post->ID, 'dt_original_blog_id', true ) ) {
@@ -345,6 +354,96 @@ class DistributorPost {
 	 */
 	public function get_the_post_thumbnail( $size = 'post-thumbnail', $attr = '' ) {
 		return get_the_post_thumbnail( $this->post, $size, $attr );
+	}
+
+	/**
+	 * Get the post's canonical URL.
+	 *
+	 * For distributed posts, this is the permalink of the original post. For
+	 * the original post, this is the result of get_permalink().
+	 *
+	 * @param  string $canonical_url The post's canonical URL. If specified, this will be returned
+	 *                               if the canonical URL does not need to be replaced by the
+	 *                               original source URL.
+	 * @return string The post's canonical URL.
+	 */
+	public function get_canonical_url( $canonical_url = '' ) {
+		if (
+			$this->is_source
+			|| $this->original_deleted
+			|| ! $this->is_linked
+			|| ! $this->connection_id
+			|| ! $this->original_post_url
+		) {
+			if ( empty( $canonical_url ) ) {
+				return $this->get_permalink();
+			}
+			return $canonical_url;
+		}
+
+		return $this->original_post_url;
+	}
+
+	/**
+	 * Get the post's author name.
+	 *
+	 * For distributed posts this is the name of the original site. For the
+	 * original post, this is the result of get_the_author().
+	 *
+	 * @param  string $author_name The post's author name. If specified, this will be returned if the
+	 *                             author name does not need to be replaced by the original source name.
+	 * @return string The post's author name.
+	 */
+	public function get_author_name( $author_name = '' ) {
+		$settings = Utils\get_settings();
+
+		if (
+			empty( $settings['override_author_byline'] )
+			|| $this->is_source
+			|| $this->original_deleted
+			|| ! $this->is_linked
+			|| ! $this->connection_id
+			|| ! $this->original_post_url
+		) {
+			if ( empty( $author_name ) ) {
+				return get_the_author_meta( 'display_name', $this->post->post_author );
+			}
+			return $author_name;
+		}
+
+		$this->populate_source_site();
+		return $this->source_site['name'];
+	}
+
+	/**
+	 * Get the post's author URL.
+	 *
+	 * For distributed posts this is a link to the original site. For the
+	 * original post, this is the result of get_author_posts_url().
+	 *
+	 * @param  string $author_link The author's posts URL. If specified, this will be returned if the
+	 *                             author link does not need to be replaced by the original source name.
+	 * @return string The post's author link.
+	 */
+	public function get_author_link( $author_link = '' ) {
+		$settings = Utils\get_settings();
+
+		if (
+			empty( $settings['override_author_byline'] )
+			|| $this->is_source
+			|| $this->original_deleted
+			|| ! $this->is_linked
+			|| ! $this->connection_id
+			|| ! $this->original_post_url
+		) {
+			if ( empty( $author_link ) ) {
+				return get_author_posts_url( $this->post->post_author );
+			}
+			return $author_link;
+		}
+
+		$this->populate_source_site();
+		return $this->source_site['home_url'];
 	}
 
 	/**

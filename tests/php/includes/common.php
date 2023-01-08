@@ -264,6 +264,19 @@ function wp_json_encode( $data, $options = 0, $depth = 512 ) {
 }
 
 /**
+ * Mock wp_parse_args() function.
+ *
+ * @since x.x.x
+ *
+ * @param array $settings Array of arguments.
+ * @param array $defaults Array of default arguments.
+ * @return array Array of parsed arguments.
+ */
+function wp_parse_args( $settings, $defaults ) {
+	return array_merge( $defaults, $settings );
+}
+
+/**
  * Stub for remove_filter to avoid failure in test_remote_get()
  *
  * @return void
