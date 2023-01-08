@@ -94,6 +94,10 @@ class NetworkSiteConnection extends Connection {
 
 			// Setting the ID makes `wp_insert_post` perform an update.
 			$new_post_args['ID'] = $args['remote_post_id'];
+
+			// Do not modify the publishing date of the post.
+			$new_post_args['post_date']     = get_post( $args['remote_post_id'] )->post_date;
+			$new_post_args['post_date_gmt'] = get_post( $args['remote_post_id'] )->post_date_gmt;
 		}
 
 		if ( empty( $args['post_status'] ) ) {
