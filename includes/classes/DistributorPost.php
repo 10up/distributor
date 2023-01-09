@@ -707,6 +707,8 @@ class DistributorPost {
 	 *    @type string $post_type         Post type.
 	 *    @type string $content           Processed post content.
 	 *    @type string $excerpt           Post excerpt.
+	 *    @type int    $parent            Post parent ID.
+	 *    @type string $status            Post status.
 	 *    @type array  $distributor_media Media data.
 	 *    @type array  $distributor_terms Post terms.
 	 *    @type array  $distributor_meta  Post meta.
@@ -719,6 +721,8 @@ class DistributorPost {
 			'post_type'         => $this->post->post_type,
 			'content'           => Utils\get_processed_content( $this->post->post_content ),
 			'excerpt'           => $this->post->post_excerpt,
+			'parent'            => ! empty( $this->post->post_parent ) ? (int) $this->post->post_parent : 0,
+			'status'            => $this->post->post_status,
 			'distributor_media' => $this->get_media(),
 			'distributor_terms' => $this->get_terms(),
 			'distributor_meta'  => $this->get_meta(),
@@ -754,6 +758,8 @@ class DistributorPost {
 			'post_type'         => 'post_type',
 			'post_content'      => 'content',
 			'post_excerpt'      => 'excerpt',
+			'post_parent'       => 'parent',
+			'post_status'       => 'status',
 			'tax_input'         => 'distributor_terms',
 			'meta_input'        => 'distributor_meta',
 

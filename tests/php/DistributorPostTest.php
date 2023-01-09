@@ -1448,6 +1448,8 @@ class DistributorPostTest extends TestCase {
 			'post_type'         => 'post',
 			'content'           => 'Test Content',
 			'excerpt'           => 'Test Excerpt',
+			'parent'            => 0,
+			'status'            => 'publish',
 			'distributor_media' => array(),
 			'distributor_terms' => array(
 				'category' => array(),
@@ -1466,6 +1468,8 @@ class DistributorPostTest extends TestCase {
 			'post_type'         => 'post',
 			'post_content'      => 'Test Content',
 			'post_excerpt'      => 'Test Excerpt',
+			'post_parent'       => 0,
+			'post_status'       => 'publish',
 			'tax_input'         => array(
 				'category'      => array(),
 				'post_tag'      => array(),
@@ -1485,6 +1489,8 @@ class DistributorPostTest extends TestCase {
 				'post_type'         => 'post',
 				'content'           => 'Test Content',
 				'excerpt'           => 'Test Excerpt',
+				'parent'            => 0,
+				'status'            => 'publish',
 				'distributor_media' => array(),
 				'distributor_terms' => array(
 					'category' => array(),
@@ -1595,6 +1601,8 @@ class DistributorPostTest extends TestCase {
 			'post_type'         => 'post',
 			'content'           => '<!-- wp:paragraph --><p>Test Content</p><!-- /wp:paragraph -->',
 			'excerpt'           => 'Test Excerpt',
+			'parent'			=> 0,
+			'status'            => 'publish',
 			'distributor_media' => array(),
 			'distributor_terms' => array(
 				'category' => array(),
@@ -1613,6 +1621,8 @@ class DistributorPostTest extends TestCase {
 			'post_type'         => 'post',
 			'post_content'      => '<!-- wp:paragraph --><p>Test Content</p><!-- /wp:paragraph -->',
 			'post_excerpt'      => 'Test Excerpt',
+			'post_parent'       => 0,
+			'post_status'       => 'publish',
 			'tax_input'         => array(
 				'category'      => array(),
 				'post_tag'      => array(),
@@ -1632,6 +1642,8 @@ class DistributorPostTest extends TestCase {
 				'post_type'               => 'post',
 				'content'                 => '<!-- wp:paragraph --><p>Test Content</p><!-- /wp:paragraph -->',
 				'excerpt'                 => 'Test Excerpt',
+				'parent'                  => 0,
+				'status'                  => 'publish',
 				'distributor_media'       => array(),
 				'distributor_terms'       => array(
 					'category' => array(),
