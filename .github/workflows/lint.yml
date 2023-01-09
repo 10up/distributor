@@ -29,12 +29,19 @@ jobs:
       run: npm -v; node -v
     - name: npm install
       run: npm install
-    - name: eslint
-      uses: icrawl/action-eslint@v1
+    - name: Generate linting report
+      run: npm run lint:js -- --output-file eslint-report.json --format json
+      continue-on-error: true
+    - name: Annotate code linting results
+      uses: ataylorme/eslint-annotate-action@1.2.0
       with:
-        custom-glob: assets/js
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        repo-token: '${{ secrets.GITHUB_TOKEN }}'
+        report-json: 'eslint-report.json'
+    - name: Update summary
+      run: |
+        npm_config_yes=true npx github:10up/eslint-json-to-md --path ./eslint-report.json --output ./eslint-report.md
+        cat eslint-report.md >> $GITHUB_STEP_SUMMARY
+      if: ${{ failure() }}
   phpcs:
     name: phpcs
     runs-on: ubuntu-latest
@@ -68,9 +75,12 @@ jobs:
     - name: Check PHPCS standard
       run: ./vendor/bin/phpcs -i
 
+    - name: Check Compatibility of main plugin file.
+      run: ./vendor/bin/phpcs ./distributor.php --runtime-set testVersion 5.6- --standard=PHPCompatibilityWP
+
     - name: PHPCS check
       id: phpcs-sniffs
-      run: ./vendor/bin/phpcs . --runtime-set testVersion 5.6- --report-full --report-checkstyle=./.github/phpcs-report.xml
+      run: ./vendor/bin/phpcs . --report-full --report-checkstyle=./.github/phpcs-report.xml
 
     - name: Show PHPCS results in PR
       if: ${{ always() }}

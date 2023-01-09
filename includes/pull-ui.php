@@ -120,8 +120,18 @@ function admin_enqueue_scripts( $hook ) {
 		return;
 	}
 
-	wp_enqueue_script( 'dt-admin-pull', plugins_url( '/dist/js/admin-pull.min.js', __DIR__ ), array( 'jquery' ), DT_VERSION, true );
-	wp_enqueue_style( 'dt-admin-pull', plugins_url( '/dist/css/admin-pull-table.min.css', __DIR__ ), array(), DT_VERSION );
+	$asset_file = DT_PLUGIN_PATH . '/dist/js/admin-pull.min.asset.php';
+	// Fallback asset data.
+	$asset_data = array(
+		'version'      => DT_VERSION,
+		'dependencies' => array(),
+	);
+	if ( file_exists( $asset_file ) ) {
+		$asset_data = require $asset_file;
+	}
+
+	wp_enqueue_script( 'dt-admin-pull', plugins_url( '/dist/js/admin-pull.min.js', __DIR__ ), $asset_data['dependencies'], $asset_data['version'], true );
+	wp_enqueue_style( 'dt-admin-pull', plugins_url( '/dist/css/admin-pull-table.min.css', __DIR__ ), array(), $asset_data['version'] );
 
 	wp_localize_script(
 		'dt-admin-pull',
@@ -413,10 +423,15 @@ function dashboard() {
 			if ( empty( $connection_list_table->connection_objects ) ) :
 				$connection_now = 0;
 				?>
-				<?php esc_html_e( 'No Connections to Pull from,', 'distributor' ); ?>
-
-				<a href="<?php echo esc_url( admin_url( 'post-new.php?post_type=dt_ext_connection' ) ); ?>"><?php esc_html_e( 'Create One?', 'distributor' ); ?></a>
-
+				<?php
+				echo wp_kses_post(
+					sprintf(
+						/* translators: %s: link to add new connection */
+						__( 'No connections to pull from, <a href="%s">create one?</a>', 'distributor' ),
+						esc_url( admin_url( 'post-new.php?post_type=dt_ext_connection' ) )
+					)
+				);
+				?>
 			<?php else : ?>
 				<?php esc_html_e( 'Pull Content from', 'distributor' ); ?>
 				<select id="pull_connections" name="connection" method="get">

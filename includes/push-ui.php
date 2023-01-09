@@ -402,8 +402,18 @@ function enqueue_scripts( $hook ) {
 		return;
 	}
 
-	wp_enqueue_style( 'dt-push', plugins_url( '/dist/css/push.min.css', __DIR__ ), array(), DT_VERSION );
-	wp_enqueue_script( 'dt-push', plugins_url( '/dist/js/push.min.js', __DIR__ ), array( 'jquery', 'underscore' ), DT_VERSION, true );
+	$asset_file = DT_PLUGIN_PATH . '/dist/js/push.min.asset.php';
+	// Fallback asset data.
+	$asset_data = array(
+		'version'      => DT_VERSION,
+		'dependencies' => array(),
+	);
+	if ( file_exists( $asset_file ) ) {
+		$asset_data = require $asset_file;
+	}
+
+	wp_enqueue_style( 'dt-push', plugins_url( '/dist/css/push.min.css', __DIR__ ), array(), $asset_data['version'] );
+	wp_enqueue_script( 'dt-push', plugins_url( '/dist/js/push.min.js', __DIR__ ), $asset_data['dependencies'], $asset_data['version'], true );
 	wp_localize_script(
 		'dt-push',
 		'dt',
@@ -574,11 +584,25 @@ function menu_content() {
 			<div class="inner">
 				<p class="syndicated-notice">
 					<?php /* translators: %s: post type name */ ?>
-					<?php printf( esc_html__( 'This %s has been distributed from', 'distributor' ), esc_html( strtolower( $post_type_object->labels->singular_name ) ) ); ?>
-					<a href="<?php echo esc_url( $site_url ); ?>"><?php echo esc_html( $blog_name ); ?></a>.
 
-					<?php esc_html_e( 'You can ', 'distributor' ); ?>
-					<a href="<?php echo esc_url( $post_url ); ?>"><?php esc_html_e( 'view the original', 'distributor' ); ?></a>
+					<?php
+					echo wp_kses_post(
+						sprintf(
+							/* translators: 1) Distributor post type singular name, 2) Source of content. */
+							__( 'This %1$s was distributed from %2$s.', 'distributor' ),
+							esc_html( strtolower( $post_type_object->labels->singular_name ) ),
+							'<a href="' . esc_url( $site_url ) . '">' . esc_html( $blog_name ) . '</a>'
+						)
+					);
+
+					if ( ! empty( $post_url ) ) {
+						?>
+						<a href="<?php echo esc_url( $post_url ); ?>" target="_blank">
+							<?php esc_html_e( 'View original', 'distributor' ); ?>
+						</a>
+						<?php
+					}
+					?>
 				</p>
 			</div>
 		</div>

@@ -250,6 +250,33 @@ function get_allowed_mime_types() {
 }
 
 /**
+ * Mock wp_json_encode() function.
+ *
+ * @since x.x.x
+ *
+ * @param mixed $data Data to encode.
+ * @param int   $options Optional. Options to be passed to json_encode(). Default 0.
+ * @param int   $depth Optional. Maximum depth to walk through $data.
+ * @return string|false The JSON encoded string, or false if it cannot be encoded.
+ */
+function wp_json_encode( $data, $options = 0, $depth = 512 ) {
+	return json_encode( $data, $options, $depth );
+}
+
+/**
+ * Mock wp_parse_args() function.
+ *
+ * @since x.x.x
+ *
+ * @param array $settings Array of arguments.
+ * @param array $defaults Array of default arguments.
+ * @return array Array of parsed arguments.
+ */
+function wp_parse_args( $settings, $defaults ) {
+	return array_merge( $defaults, $settings );
+}
+
+/**
  * Stub for remove_filter to avoid failure in test_remote_get()
  *
  * @return void
