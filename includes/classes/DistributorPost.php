@@ -737,7 +737,7 @@ class DistributorPost {
 	 *    @type string $post_title   Post title.
 	 *    @type string $post_name    Post slug.
 	 *    @type string $post_type    Post type.
-	 *    @type string $post_content Processed post content.
+	 *    @type string $post_content Post content. The raw content is used for posts containing blocks.
 	 *    @type string $post_excerpt Post excerpt.
 	 *    @type array  $tax_input    Post terms.
 	 *    @type array  $meta_input   Post meta.
@@ -763,6 +763,11 @@ class DistributorPost {
 
 		foreach ( $key_mappings as $key => $value ) {
 			$insert[ $key ] = $post_data[ $value ];
+		}
+
+		// If the post has blocks, use the raw content.
+		if ( $this->has_blocks() ) {
+			$insert['post_content'] = $this->post->post_content;
 		}
 
 		return $insert;
