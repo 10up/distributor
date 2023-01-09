@@ -4,6 +4,21 @@ All notable changes to this project will be documented in this file, per [the Ke
 
 ## [Unreleased] - TBD
 
+## [1.9.0] - 2022-12-15
+### Changed
+- Change uses of `blacklist` and use `exclude` instead (props [@dkotter](https://github.com/dkotter), [@jeffpaul](https://github.com/jeffpaul), [@peterwilsoncc](https://github.com/peterwilsoncc) via [#961](https://github.com/10up/distributor/pull/961))
+- Indicate WordPress 6.1 support (props [@peterwilsoncc](https://github.com/peterwilsoncc), [@faisal-alvi](https://github.com/faisal-alvi) via [#967](https://github.com/10up/distributor/pull/967)).
+
+### Deprecated
+- Deprecate the `Distributor\Utils\blacklisted_meta` function and the `dt_blacklisted_meta` filter (props [@dkotter](https://github.com/dkotter), [@jeffpaul](https://github.com/jeffpaul), [@peterwilsoncc](https://github.com/peterwilsoncc) via [#961](https://github.com/10up/distributor/pull/961)).
+
+### Fixed
+- Prevent distribution of classic editor plugin related meta data. (props [@peterwilsoncc](https://github.com/peterwilsoncc), [@faisal-alvi](https://github.com/faisal-alvi), [@jeffpaul](https://github.com/jeffpaul) via [#977](https://github.com/10up/distributor/pull/977)).
+- Return distributed author name when using the get_the_author_meta('display_name') function. (props [@cadic](https://github.com/cadic), [@ravinderk](https://github.com/ravinderk), [@iamdharmesh](https://github.com/iamdharmesh), [@mapamond](https://github.com/mapamond), [@peterwilsoncc](https://github.com/peterwilsoncc), [@jeffpaul](https://github.com/jeffpaul), via [#984](https://github.com/10up/distributor/pull/984),  [#952](https://github.com/10up/distributor/pull/952)).
+
+### Other
+- PHPCS workflow failures. (props [@peterwilsoncc](https://github.com/peterwilsoncc), [@jeffpaul](https://github.com/jeffpaul), [@gsarig](https://github.com/gsarig), [@faisal-alvi](https://github.com/faisal-alvi) via [#969](https://github.com/10up/distributor/pull/969)).
+
 ## [1.8.0] - 2022-09-29
 ### Changed
 - Upgrade the Plugin Update Checker library, `yahnis-elsts/plugin-update-checker`, from 4.9 to 4.13 (props [@dkotter](https://github.com/dkotter), [@jeffpaul](https://github.com/jeffpaul), [@peterwilsoncc](https://github.com/peterwilsoncc) via [#937](https://github.com/10up/distributor/pull/937)).
@@ -392,6 +407,7 @@ This adds a post type selector when viewing the Pull Content list for both exter
 - Initial closed release.
 
 [Unreleased]: https://github.com/10up/distributor/compare/trunk...develop
+[1.9.0]: https://github.com/10up/distributor/compare/1.8.0...1.9.0
 [1.8.0]: https://github.com/10up/distributor/compare/1.7.1...1.8.0
 [1.7.1]: https://github.com/10up/distributor/compare/1.7.0...1.7.1
 [1.7.0]: https://github.com/10up/distributor/compare/1.6.9...1.7.0
