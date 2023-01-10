@@ -58,7 +58,14 @@ class NetworkSiteConnection extends Connection {
 	 * Push post to another internal site
 	 *
 	 * @param  int   $post_id Post ID.
-	 * @param  array $args Push args.
+	 * @param  array $args {
+	 *     Optional. Array of push arguments
+	 *
+	 *     @type int    $remote_post_id Post ID on remote site. If not provided,
+	 *                                  a new post will be created.
+	 *     @type string $post_status    The post status to use on the remote site.
+	 *                                  Ignored when updating posts.
+	 * }
 	 * @since  0.8
 	 * @return array|\WP_Error
 	 */
