@@ -5,6 +5,19 @@ namespace Distributor\InternalConnections;
 use WP_Mock\Tools\TestCase;
 
 class NetworkSiteConnectionsTest extends TestCase {
+	/**
+	 * Site object.
+	 *
+	 * @var \WP_Site
+	 */
+	public $site_obj;
+
+	/**
+	 * Connection object.
+	 *
+	 * @var NetworkSiteConnection
+	 */
+	public $connection_obj;
 
 	public function setUp(): void {
 		$this->site_obj = \Mockery::mock(
