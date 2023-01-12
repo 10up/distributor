@@ -413,10 +413,14 @@ function check_post_types_permissions() {
  * @return \WP_REST_Response|\WP_Error
  */
 function get_pull_content( $request ) {
+	$distributable_post_types = Utils\distributable_post_types();
+	$post_type                = $request->get_param( 'post_type' ) ?? $distributable_post_types;
+	$post_type                = ( ( 'all' === $post_type ) || ! post_type_exists( $post_type ) ) ? $distributable_post_types : $post_type;
+
 	$args = [
 		'posts_per_page' => isset( $request['posts_per_page'] ) ? $request['posts_per_page'] : 20,
 		'paged'          => isset( $request['page'] ) ? $request['page'] : 1,
-		'post_type'      => isset( $request['post_type'] ) ? $request['post_type'] : 'post',
+		'post_type'      => $post_type,
 		'post_status'    => isset( $request['post_status'] ) ? $request['post_status'] : array( 'any' ),
 	];
 

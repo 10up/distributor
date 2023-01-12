@@ -111,7 +111,7 @@ class WordPressExternalConnection extends ExternalConnection {
 
 		$query_args = array();
 
-		$post_type = ( empty( $args['post_type'] ) ) ? 'post' : $args['post_type'];
+		$post_type = ( empty( $args['post_type'] ) ) ? 'all' : $args['post_type'];
 
 		if ( empty( $id ) ) {
 			$query_args['post_status'] = ( empty( $args['post_status'] ) ) ? 'any' : $args['post_status'];

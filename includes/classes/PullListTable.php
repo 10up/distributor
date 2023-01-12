@@ -618,11 +618,9 @@ class PullListTable extends \WP_List_Table {
 			<div class="alignleft actions dt-pull-post-type">
 				<label for="pull_post_type" class="screen-reader-text">Content to Pull</label>
 				<select id="pull_post_type" name="pull_post_type">
-					<?php if ( 'internal' === $connection_type ) : ?>
 						<option <?php selected( $connection_now->pull_post_type, 'all' ); ?> value="all">
 							<?php esc_html_e( 'View all', 'distributor' ); ?>
 						</option>
-					<?php endif; ?>
 					<?php foreach ( $connection_now->pull_post_types as $post_type ) : ?>
 						<option <?php selected( $connection_now->pull_post_type, $post_type['slug'] ); ?> value="<?php echo esc_attr( $post_type['slug'] ); ?>">
 							<?php echo esc_html( $post_type['name'] ); ?>
