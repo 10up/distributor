@@ -32,6 +32,8 @@ function setup() {
 			add_action( 'after_plugin_row', __NAMESPACE__ . '\update_notice', 10, 3 );
 			add_action( 'admin_print_styles', __NAMESPACE__ . '\plugin_update_styles' );
 			add_action( 'admin_enqueue_scripts', __NAMESPACE__ . '\admin_enqueue_scripts' );
+
+			add_action( 'clean_post_cache', __NAMESPACE__ . '\clean_dt_post_cache' );
 		}
 	);
 }
@@ -105,7 +107,7 @@ function update_notice( $plugin_file, $plugin_data, $status ) {
 	?>
 
 	<tr class="plugin-update-tr <?php if ( $active ) : ?>active<?php endif; ?>" id="distributor-update" >
-		<td colspan="3" class="plugin-update colspanchange">
+		<td colspan="4" class="plugin-update colspanchange">
 			<div class="update-message notice inline notice-warning notice-alt">
 				<p>
 					<?php /* translators: %s: distributor notice url */ ?>
@@ -124,7 +126,7 @@ function update_notice( $plugin_file, $plugin_data, $status ) {
  */
 function maybe_notice() {
 	if ( 0 === strpos( get_current_screen()->parent_base, 'distributor' ) ) {
-		if ( preg_match( '/-dev$/', DT_VERSION ) ) {
+		if ( file_exists( DT_PLUGIN_PATH . 'composer.lock' ) ) {
 			?>
 			<div class="notice notice-warning">
 			<?php /* translators: %1$s: npm commands, %2$s: distributor url */ ?>
@@ -166,7 +168,17 @@ function maybe_notice() {
  */
 function admin_enqueue_scripts( $hook ) {
 	if ( ! empty( $_GET['page'] ) && 'distributor-settings' === $_GET['page'] ) { // @codingStandardsIgnoreLine Nonce not required.
-		wp_enqueue_style( 'dt-admin-settings', plugins_url( '/dist/css/admin-settings.min.css', __DIR__ ), array(), DT_VERSION );
+		$asset_file = DT_PLUGIN_PATH . '/dist/js/admin-settings-css.min.asset.php';
+		// Fallback asset data.
+		$asset_data = array(
+			'version'      => DT_VERSION,
+			'dependencies' => array(),
+		);
+		if ( file_exists( $asset_file ) ) {
+			$asset_data = require $asset_file;
+		}
+
+		wp_enqueue_style( 'dt-admin-settings', plugins_url( '/dist/css/admin-settings.min.css', __DIR__ ), array(), $asset_data['version'] );
 	}
 }
 
@@ -231,10 +243,10 @@ function license_key_callback() {
 
 	<div class="license-wrap <?php if ( true === $settings['valid_license'] ) : ?>valid<?php elseif ( false === $settings['valid_license'] ) : ?>invalid<?php endif; ?>">
 		<label class="screen-reader-text" for="dt_settings_email"><?php esc_html_e( 'Email', 'distributor' ); ?></label>
-		<input name="dt_settings[email]" type="email" placeholder="<?php esc_html_e( 'Email', 'distributor' ); ?>" value="<?php echo esc_attr( $email ); ?>" id="dt_settings_email">
+		<input name="dt_settings[email]" type="email" placeholder="<?php esc_attr_e( 'Email', 'distributor' ); ?>" value="<?php echo esc_attr( $email ); ?>" id="dt_settings_email">
 
 		<label class="screen-reader-text" for="dt_settings_license_key"><?php esc_html_e( 'Registration Key', 'distributor' ); ?></label>
-		<input name="dt_settings[license_key]" type="text" placeholder="<?php esc_html_e( 'Registration Key', 'distributor' ); ?>" value="<?php echo esc_attr( $license_key ); ?>" id="dt_settings_license_key">
+		<input name="dt_settings[license_key]" type="text" placeholder="<?php esc_attr_e( 'Registration Key', 'distributor' ); ?>" value="<?php echo esc_attr( $license_key ); ?>" id="dt_settings_license_key">
 	</div>
 
 	<?php if ( true !== $settings['valid_license'] ) : ?>
@@ -370,7 +382,7 @@ function network_settings_screen() {
 						<?php endif; ?>
 
 						<div class="license-wrap <?php if ( true === $settings['valid_license'] ) : ?>valid<?php elseif ( false === $settings['valid_license'] ) : ?>invalid<?php endif; ?>">
-							<input name="dt_settings[email]" type="email" placeholder="<?php esc_html_e( 'Email', 'distributor' ); ?>" value="<?php echo esc_attr( $email ); ?>"> <input name="dt_settings[license_key]" type="text" placeholder="<?php esc_html_e( 'Registration Key', 'distributor' ); ?>" value="<?php echo esc_attr( $license_key ); ?>">
+							<input name="dt_settings[email]" type="email" placeholder="<?php esc_attr_e( 'Email', 'distributor' ); ?>" value="<?php echo esc_attr( $email ); ?>"> <input name="dt_settings[license_key]" type="text" placeholder="<?php esc_attr_e( 'Registration Key', 'distributor' ); ?>" value="<?php echo esc_attr( $license_key ); ?>">
 						</div>
 
 						<?php if ( true !== $settings['valid_license'] ) : ?>
@@ -416,12 +428,40 @@ function handle_network_settings() {
 	}
 
 	if ( ! empty( $_POST['dt_settings']['email'] ) && ! empty( $_POST['dt_settings']['license_key'] ) ) {
-		$new_settings['valid_license'] = (bool) Utils\check_license_key( $_POST['dt_settings']['email'], $_POST['dt_settings']['license_key'] );
+		$email_address                 = sanitize_email( wp_unslash( $_POST['dt_settings']['email'] ) );
+		$license_key                   = sanitize_text_field( wp_unslash( $_POST['dt_settings']['license_key'] ) );
+		$new_settings['valid_license'] = (bool) Utils\check_license_key( $email_address, $license_key );
 	} else {
 		$new_settings['valid_license'] = null;
 	}
 
 	update_site_option( 'dt_settings', $new_settings );
+}
+
+/**
+ * Clean distributor post caches.
+ *
+ * Distributor caches a number of post related items to improve performance. This
+ * ensures they are cleared when a post is updated.
+ *
+ * Runs on the hook `clean_post_cache`.
+ *
+ * @since x.x.x
+ *
+ * @param int $post_id Post ID.
+ */
+function clean_dt_post_cache( int $post_id ) {
+	$cache_keys = array(
+		"dt_media::{$post_id}",
+	);
+
+	if ( function_exists( 'wp_cache_delete_multiple' ) ) {
+		wp_cache_delete_multiple( $cache_keys, 'dt::post' );
+	} else {
+		foreach ( $cache_keys as $cache_key ) {
+			wp_cache_delete( $cache_key, 'dt::post' );
+		}
+	}
 }
 
 

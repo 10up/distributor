@@ -7,6 +7,8 @@
 
 namespace Distributor\Utils;
 
+use Distributor\DistributorPost;
+
 /**
  * Determine if we are on VIP
  *
@@ -20,71 +22,35 @@ function is_vip_com() {
 /**
  * Determine if Gutenberg is being used.
  *
- * There are several possible variations that need to be accounted for:
- *
- *  - WordPress 4.9, Gutenberg plugin is not active.
- *  - WordPress 4.9, Gutenberg plugin is active.
- *  - WordPress 5.0, block editor by default.
- *  - WordPress 5.0, Classic editor plugin active, using classic editor.
- *  - WordPress 5.0, Classic editor plugin active, using the block editor.
+ * This duplicates the check from `use_block_editor_for_post()` in WordPress
+ * but removes the check for the `meta-box-loader` querystring parameter as
+ * it is not required for Distributor.
  *
  * @since  1.2
+ * @since  1.7 Update Gutenberg plugin sniff to avoid deprecated function.
+ *             Update Classic Editor sniff to account for mu-plugins.
+ * @since  2.0 Duplicate the check from WordPress Core's `use_block_editor_for_post()`.
  *
- * @param object $post The post object.
- * @return boolean
+ * @param int|WP_Post $post The post ID or object.
+ * @return boolean Whether post is using the block editor/Gutenberg.
  */
 function is_using_gutenberg( $post ) {
-	global $wp_version;
-
-	$gutenberg_available = function_exists( 'the_gutenberg_project' );
-	$version_5_plus      = version_compare( $wp_version, '5', '>=' );
-
-	if ( ! $gutenberg_available && ! $version_5_plus ) {
-		return false;
-	}
-
 	$post = get_post( $post );
 
 	if ( ! $post ) {
 		return false;
 	}
 
-	// This duplicates the check from `use_block_editor_for_post()` as of WP 5.0.
-	// We duplicate this here to remove the $_GET['meta-box-loader'] check
-	if ( function_exists( 'use_block_editor_for_post_type' ) ) {
-		// The posts page can't be edited in the block editor.
-		if ( absint( get_option( 'page_for_posts' ) ) === $post->ID && empty( $post->post_content ) ) {
-			return false;
-		}
-
-		// Make sure this post type supports Gutenberg
-		$use_block_editor = use_block_editor_for_post_type( $post->post_type );
-
-		/** This filter is documented in wp-admin/includes/post.php */
-		return apply_filters( 'use_block_editor_for_post', $use_block_editor, $post );
+	// The posts page can't be edited in the block editor.
+	if ( absint( get_option( 'page_for_posts' ) ) === $post->ID && empty( $post->post_content ) ) {
+		return false;
 	}
 
-	// This duplicates the check from `has_blocks()` as of WP 5.2.
-	if ( ! empty( $post->post_content ) ) {
-		return false !== strpos( (string) $post->post_content, '<!-- wp:' );
-	}
+	// Make sure this post type supports Gutenberg
+	$use_block_editor = dt_use_block_editor_for_post_type( $post->post_type );
 
-	$use_block_editor = false;
-
-	if ( ! function_exists( 'is_plugin_active' ) ) {
-		require_once ABSPATH . '/wp-admin/includes/plugin.php';
-	}
-
-	if ( is_plugin_active( 'classic-editor/classic-editor.php' ) ) {
-		$use_block_editor = ( get_option( 'classic-editor-replace' ) === 'no-replace' );
-	}
-
-	if ( $use_block_editor && is_a( $post, '\WP_Post' ) && class_exists( '\Gutenberg_Ramp' ) ) {
-		$gutenberg_ramp   = \Gutenberg_Ramp::get_instance();
-		$use_block_editor = $gutenberg_ramp->gutenberg_should_load( $post );
-	}
-
-	return $use_block_editor;
+	/** This filter is documented in wp-admin/includes/post.php */
+	return apply_filters( 'use_block_editor_for_post', $use_block_editor, $post );
 }
 
 /**
@@ -140,6 +106,7 @@ function check_license_key( $email, $license_key ) {
 	$request = wp_remote_post(
 		'https://distributorplugin.com/wp-json/distributor-theme/v1/validate-license',
 		[
+			// phpcs:ignore WordPressVIPMinimum.Performance.RemoteRequestTimeout.timeout_timeout
 			'timeout' => 10,
 			'body'    => [
 				'license_key' => $license_key,
@@ -172,17 +139,17 @@ function is_dt_debug() {
 /**
  * Given an array of meta, set meta to another post.
  *
- * Don't copy in blacklisted (Distributor) meta.
+ * Don't copy in excluded (Distributor) meta.
  *
  * @param int   $post_id Post ID.
  * @param array $meta Array of meta as key => value
  */
 function set_meta( $post_id, $meta ) {
-	$existing_meta    = get_post_meta( $post_id );
-	$blacklisted_meta = blacklisted_meta();
+	$existing_meta = get_post_meta( $post_id );
+	$excluded_meta = excluded_meta();
 
 	foreach ( $meta as $meta_key => $meta_values ) {
-		if ( in_array( $meta_key, $blacklisted_meta, true ) ) {
+		if ( in_array( $meta_key, $excluded_meta, true ) ) {
 			continue;
 		}
 
@@ -200,9 +167,9 @@ function set_meta( $post_id, $meta ) {
 			}
 
 			if ( $has_prev_value ) {
-				update_post_meta( $post_id, $meta_key, $meta_value, $prev_value );
+				update_post_meta( $post_id, wp_slash( $meta_key ), wp_slash( $meta_value ), $prev_value );
 			} else {
-				add_post_meta( $post_id, $meta_key, $meta_value );
+				add_post_meta( $post_id, wp_slash( $meta_key ), wp_slash( $meta_value ) );
 			}
 		}
 	}
@@ -210,8 +177,8 @@ function set_meta( $post_id, $meta ) {
 	/**
 	 * Fires after Distributor sets post meta.
 	 *
-	 * Note: All sent meta is included in the `$meta` array, including blacklisted keys.
-	 * Take care to continue to filter out blacklisted keys in any further meta setting.
+	 * Note: All sent meta is included in the `$meta` array, including excluded keys.
+	 * Take care to continue to filter out excluded keys in any further meta setting.
 	 *
 	 * @since 1.3.8
 	 * @hook dt_after_set_meta
@@ -236,21 +203,25 @@ function set_meta( $post_id, $meta ) {
  * @return array
  */
 function available_pull_post_types( $connection, $type ) {
-	$post_types        = array();
-	$local_post_types  = array();
-	$remote_post_types = $connection->get_post_types();
+	$post_types               = array();
+	$local_post_types         = array();
+	$remote_post_types        = $connection->get_post_types();
+	$distributable_post_types = distributable_post_types();
 
-	if ( ! empty( $remote_post_types ) && ! is_wp_error( $remote_post_types ) ) {
-		$local_post_types     = array_diff_key( get_post_types( [ 'public' => true ], 'objects' ), array_flip( [ 'attachment', 'dt_ext_connection', 'dt_subscription' ] ) );
-		$available_post_types = array_intersect_key( $remote_post_types, $local_post_types );
+	// Return empty array, if the source site is not distributing any post type.
+	if ( empty( $remote_post_types ) || is_wp_error( $remote_post_types ) ) {
+		return [];
+	}
 
-		if ( ! empty( $available_post_types ) ) {
-			foreach ( $available_post_types as $post_type ) {
-				$post_types[] = array(
-					'name' => 'external' === $type ? $post_type['name'] : $post_type->label,
-					'slug' => 'external' === $type ? $post_type['slug'] : $post_type->name,
-				);
-			}
+	$local_post_types     = array_diff_key( get_post_types( [ 'public' => true ], 'objects' ), array_flip( [ 'attachment', 'dt_ext_connection', 'dt_subscription' ] ) );
+	$available_post_types = array_intersect_key( $remote_post_types, $local_post_types );
+
+	if ( ! empty( $available_post_types ) ) {
+		foreach ( $available_post_types as $post_type ) {
+			$post_types[] = array(
+				'name' => 'external' === $type ? $post_type['name'] : $post_type->label,
+				'slug' => 'external' === $type ? $post_type['slug'] : $post_type->name,
+			);
 		}
 	}
 
@@ -262,28 +233,49 @@ function available_pull_post_types( $connection, $type ) {
 	 * @since 1.3.5
 	 * @hook dt_available_pull_post_types
 	 *
-	 * @param {array}                   $post_types        Post types available for pull with name and slug.
-	 * @param {array}                   $remote_post_types Post types available from the remote connection.
-	 * @param {array}                   $local_post_types  Post types registered as public on the local site.
-	 * @param {Connection}              $connection        Distributor connection object.
-	 * @param {string}                  $type              Distributor connection type.
+	 * @param {array}      $post_types        Post types available for pull with name and slug.
+	 * @param {array}      $remote_post_types Post types available from the remote connection.
+	 * @param {array}      $local_post_types  Post types registered as public on the local site.
+	 * @param {Connection} $connection        Distributor connection object.
+	 * @param {string}     $type              Distributor connection type.
 	 *
 	 * @return {array} Post types available for pull with name and slug.
 	 */
-	return apply_filters( 'dt_available_pull_post_types', $post_types, $remote_post_types, $local_post_types, $connection, $type );
+	$pull_post_types = apply_filters( 'dt_available_pull_post_types', $post_types, $remote_post_types, $local_post_types, $connection, $type );
+
+	if ( ! empty( $pull_post_types ) ) {
+		$post_types = array();
+		foreach ( $pull_post_types as $post_type ) {
+			if ( in_array( $post_type['slug'], $distributable_post_types, true ) ) {
+				$post_types[] = $post_type;
+			}
+		}
+	}
+
+	return $post_types;
 }
 
 /**
  * Return post types that are allowed to be distributed
  *
+ * @param string $output Optional. The type of output to return.
+ *                       Accepts post type 'names' or 'objects'. Default 'names'.
+ *
  * @since  1.0
+ * @since  1.7.0 $output parameter introduced.
  * @return array
  */
-function distributable_post_types() {
-	$post_types = get_post_types( [ 'public' => true ] );
+function distributable_post_types( $output = 'names' ) {
+	$post_types = array_filter( get_post_types(), 'is_post_type_viewable' );
 
-	if ( ! empty( $post_types['attachment'] ) ) {
-		unset( $post_types['attachment'] );
+	$exclude_post_types = [
+		'attachment',
+		'dt_ext_connection',
+		'dt_subscription',
+	];
+
+	foreach ( $exclude_post_types as $exclude_post_type ) {
+		unset( $post_types[ $exclude_post_type ] );
 	}
 
 	/**
@@ -292,11 +284,21 @@ function distributable_post_types() {
 	 * @since 1.0.0
 	 * @hook distributable_post_types
 	 *
-	 * @param {array} Post types that are distributable. Default all post types except `dt_ext_connection` and `dt_subscription`.
+	 * @param {array} Post types that are distributable.
 	 *
 	 * @return {array} Post types that are distributable.
 	 */
-	return apply_filters( 'distributable_post_types', array_diff( $post_types, [ 'dt_ext_connection', 'dt_subscription' ] ) );
+	$post_types = apply_filters( 'distributable_post_types', $post_types );
+
+	// Remove unregistered post types added via the filter.
+	$post_types = array_filter( $post_types, 'post_type_exists' );
+
+	if ( 'objects' === $output ) {
+		// Convert to objects.
+		$post_types = array_map( 'get_post_type_object', $post_types );
+	}
+
+	return $post_types;
 }
 
 /**
@@ -322,42 +324,73 @@ function distributable_post_statuses() {
 }
 
 /**
- * Returns list of blacklisted meta keys
+ * Returns list of excluded meta keys
  *
  * @since  1.2
+ * @deprecated 1.9.0 Use excluded_meta()
  * @return array
  */
 function blacklisted_meta() {
+	_deprecated_function( __FUNCTION__, '1.9.0', '\Distributor\Utils\excluded_meta()' );
+	return excluded_meta();
+}
+
+/**
+ * Returns list of excluded meta keys
+ *
+ * @since  1.9.0
+ * @return array
+ */
+function excluded_meta() {
+
 	/**
-	 * Filter meta keys that are blacklisted from distribution.
+	 * Filter meta keys that are excluded from distribution.
 	 *
 	 * @since 1.0.0
-	 * @hook dt_blacklisted_meta
+	 * @deprecated 1.9.0 Use dt_excluded_meta
 	 *
-	 * @param {array} $meta_keys Blacklisted meta keys. Default `dt_unlinked, dt_connection_map, dt_subscription_update, dt_subscriptions, dt_subscription_signature, dt_original_post_id, dt_original_post_url, dt_original_blog_id, dt_syndicate_time, _wp_attached_file, _wp_attachment_metadata, _edit_lock, _edit_last, _wp_old_slug, _wp_old_date`.
+	 * @param array $meta_keys Excluded meta keys.
 	 *
-	 * @return {array} Blacklisted meta keys.
+	 * @return array Excluded meta keys.
 	 */
-	return apply_filters(
+	$excluded_meta = apply_filters_deprecated(
 		'dt_blacklisted_meta',
 		[
-			'dt_unlinked',
-			'dt_connection_map',
-			'dt_subscription_update',
-			'dt_subscriptions',
-			'dt_subscription_signature',
-			'dt_original_post_id',
-			'dt_original_post_url',
-			'dt_original_blog_id',
-			'dt_syndicate_time',
-			'_wp_attached_file',
-			'_wp_attachment_metadata',
-			'_edit_lock',
-			'_edit_last',
-			'_wp_old_slug',
-			'_wp_old_date',
-		]
+			[
+				'classic-editor-remember',
+				'dt_unlinked',
+				'dt_syndicate_time',
+				'dt_subscriptions',
+				'dt_subscription_update',
+				'dt_subscription_signature',
+				'dt_original_post_url',
+				'dt_original_post_id',
+				'dt_original_blog_id',
+				'dt_connection_map',
+				'_wp_old_slug',
+				'_wp_old_date',
+				'_wp_attachment_metadata',
+				'_wp_attached_file',
+				'_edit_lock',
+				'_edit_last',
+			],
+		],
+		'1.9.0',
+		'dt_excluded_meta',
+		__( 'Please consider writing more inclusive code.', 'distributor' )
 	);
+
+	/**
+	 * Filter meta keys that are excluded from distribution.
+	 *
+	 * @since 1.9.0
+	 * @hook dt_excluded_meta
+	 *
+	 * @param {array} $meta_keys Excluded meta keys. Default `dt_unlinked, dt_connection_map, dt_subscription_update, dt_subscriptions, dt_subscription_signature, dt_original_post_id, dt_original_post_url, dt_original_blog_id, dt_syndicate_time, _wp_attached_file, _wp_attachment_metadata, _edit_lock, _edit_last, _wp_old_slug, _wp_old_date`.
+	 *
+	 * @return {array} Excluded meta keys.
+	 */
+	return apply_filters( 'dt_excluded_meta', $excluded_meta );
 }
 
 /**
@@ -368,15 +401,15 @@ function blacklisted_meta() {
  * @return array
  */
 function prepare_meta( $post_id ) {
+	update_postmeta_cache( array( $post_id ) );
 	$meta          = get_post_meta( $post_id );
 	$prepared_meta = array();
-
-	$blacklisted_meta = blacklisted_meta();
+	$excluded_meta = excluded_meta();
 
 	// Transfer all meta
 	foreach ( $meta as $meta_key => $meta_array ) {
 		foreach ( $meta_array as $meta_value ) {
-			if ( ! in_array( $meta_key, $blacklisted_meta, true ) ) {
+			if ( ! in_array( $meta_key, $excluded_meta, true ) ) {
 				$meta_value = maybe_unserialize( $meta_value );
 				/**
 				 * Filter whether to sync meta.
@@ -409,44 +442,39 @@ function prepare_meta( $post_id ) {
  * @return array
  */
 function prepare_media( $post_id ) {
-	$raw_media   = get_attached_media( get_allowed_mime_types(), $post_id );
-	$media_array = array();
-
-	$featured_image_id = get_post_thumbnail_id( $post_id );
-	$found_featured    = false;
-
-	foreach ( $raw_media as $media_post ) {
-		$media_item = format_media_post( $media_post );
-
-		if ( $media_item['featured'] ) {
-			$found_featured = true;
-		}
-
-		$media_array[] = $media_item;
+	$dt_post = new DistributorPost( $post_id );
+	if ( ! $dt_post ) {
+		return array();
 	}
 
-	if ( ! empty( $featured_image_id ) && ! $found_featured ) {
-		$featured_image             = format_media_post( get_post( $featured_image_id ) );
-		$featured_image['featured'] = true;
-
-		$media_array[] = $featured_image;
-	}
-
-	return $media_array;
+	return $dt_post->get_media();
 }
 
 /**
  * Format taxonomy terms for consumption
  *
- * @param  int $post_id Post ID.
  * @since  1.0
- * @return array
+ *
+ * @param  int   $post_id Post ID.
+ * @param  array $args    Taxonomy query arguments. See get_taxonomies().
+ * @return array[] Array of taxonomy terms.
  */
-function prepare_taxonomy_terms( $post_id ) {
+function prepare_taxonomy_terms( $post_id, $args = array() ) {
 	$post = get_post( $post_id );
 
+	if ( ! $post ) {
+		return array();
+	}
+
+	// Warm the term cache for the post.
+	update_object_term_cache( array( $post->ID ), $post->post_type );
+
+	if ( empty( $args ) ) {
+		$args = array( 'publicly_queryable' => true );
+	}
+
 	$taxonomy_terms = [];
-	$taxonomies     = get_object_taxonomies( $post );
+	$taxonomies     = get_taxonomies( $args );
 
 	/**
 	 * Filters the taxonomies that should be synced.
@@ -915,6 +943,7 @@ function process_media( $url, $post_id, $args = [] ) {
 	}
 
 	// Make sure we clean up.
+	//phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged, WordPressVIPMinimum.Functions.RestrictedFunctions.file_ops_unlink
 	@unlink( $file_array['tmp_name'] );
 
 	if ( $save_source_file_path ) {
@@ -930,12 +959,21 @@ function process_media( $url, $post_id, $args = [] ) {
  * The block editor depends on the REST API, and if the post type is not shown in the
  * REST API, then it won't work with the block editor.
  *
+ * This duplicates the function use_block_editor_for_post_type() in WordPress Core
+ * to ensure the function is always available in Distributor. The function is not
+ * available in some WordPress contexts.
+ *
  * @source WordPress 5.0.0
  *
  * @param string $post_type The post type.
  * @return bool Whether the post type can be edited with the block editor.
  */
 function dt_use_block_editor_for_post_type( $post_type ) {
+	// In some contexts this function doesn't exist so we can't reliably use it.
+	if ( function_exists( 'use_block_editor_for_post_type' ) ) {
+		return use_block_editor_for_post_type( $post_type );
+	}
+
 	if ( ! post_type_exists( $post_type ) ) {
 		return false;
 	}
@@ -947,12 +985,6 @@ function dt_use_block_editor_for_post_type( $post_type ) {
 	$post_type_object = get_post_type_object( $post_type );
 	if ( $post_type_object && ! $post_type_object->show_in_rest ) {
 		return false;
-	}
-
-	// In some contexts this function doesn't exist so we can't reliably use the filter.
-	if ( function_exists( 'use_block_editor_for_post_type' ) ) {
-		// Filter documented in WordPress core.
-		return apply_filters( 'use_block_editor_for_post_type', true, $post_type );
 	}
 
 	/**
@@ -1070,4 +1102,83 @@ function set_media_errors( $post_id, $data ) {
 	}
 
 	set_transient( "dt_media_errors_$post_id", $errors, HOUR_IN_SECONDS );
+}
+
+/**
+ * Reduce arguments passed to wp_insert_post to approved arguments only.
+ *
+ * @since 1.7.0
+ *
+ * @link http://developer.wordpress.org/reference/functions/wp_insert_post/ wp_insert_post() documentation.
+ *
+ * @param array $post_args Arguments used for wp_insert_post() or wp_update_post().
+ *
+ * @return array Arguments cleaned of any not expected by the core function.
+ */
+function post_args_allow_list( $post_args ) {
+	$allowed_post_keys = array(
+		'ID',
+		'post_author',
+		'post_date',
+		'post_date_gmt',
+		'post_content',
+		'post_content_filtered',
+		'post_title',
+		'post_excerpt',
+		'post_status',
+		'post_type',
+		'comment_status',
+		'ping_status',
+		'post_password',
+		'post_name',
+		'to_ping',
+		'pinged',
+		'post_modified',
+		'post_modified_gmt',
+		'post_parent',
+		'menu_order',
+		'post_mime_type',
+		'guid',
+		'import_id',
+		'post_category',
+		'tags_input',
+		'tax_input',
+		'meta_input',
+	);
+
+	return array_intersect_key( $post_args, array_flip( $allowed_post_keys ) );
+}
+
+/**
+ * Make a remote HTTP request.
+ *
+ * Wrapper function for wp_remote_request() and vip_safe_wp_remote_request(). The order
+ * of parameters differs from vip_safe_wp_remote_request() to promote the arguments array
+ * to the second parameter.
+ *
+ * The default request type is a GET request although the function can be used for other
+ * HTTP methods by setting the method in the $args array.
+ *
+ * See {@see http://developer.wordpress.org/reference/classes/WP_Http/request/ WP_Http::request} for $args defaults.
+ *
+ * @param  string $url       The URL to request.
+ * @param  array  $args      Optional. An array of arguments to pass to wp_remote_get()/vip_safe_wp_remote_get().
+ * @param  mixed  $fallback  Optional. Fallback value to return if the request fails. Default ''. VIP only.
+ * @param  int    $threshold Optional. The number of fails required before subsequent requests automatically
+ *                           return the fallback value. Defaults to 3, with a maximum of 10. VIP only.
+ * @param  int    $timeout   Optional. The timeout for WP VIP requests. Use $args['timeout'] for others. VIP only.
+ *                                     All requests have a maximum of 5 seconds except:
+ *                                     - `POST` requests made via WP CLI have a maximum of 30 seconds.
+ *                                     - `POST` requests within the WP Admin have a maximum of 15 seconds.
+ * @param  int    $retries   Optional. The number of retries to attempt. Minimum and default is 10,
+ *                                     lower values will be increased to 10. VIP only.
+ *
+ * @return mixed The response from the remote request. On VIP if the request fails, the fallback value is returned.
+ */
+function remote_http_request( $url, $args = array(), $fallback = '', $threshold = 3, $timeout = 3, $retries = 10 ) {
+	if ( function_exists( 'vip_safe_wp_remote_request' ) && is_vip_com() ) {
+		return vip_safe_wp_remote_request( $url, $fallback, $threshold, $timeout, $retries, $args );
+	}
+
+	return wp_remote_request( $url, $args );
 }

@@ -1,62 +1,58 @@
 name: Test
 
+env:
+  COMPOSER_VERSION: "2"
+  COMPOSER_CACHE: "${{ github.workspace }}/.composer-cache"
+
 on:
   schedule:
     - cron:  '0 0 * * *'
   push:
     branches:
       - develop
+      - develop-v1
       - trunk
   pull_request:
     branches:
       - develop
+      - develop-v1
 
 jobs:
-  # wpa:
-  #   runs-on: ubuntu-latest
-
-  #   strategy:
-  #     matrix:
-  #       snapshot: [
-  #         "3593222a181f0f91824947dbd06985d5", # WP 4.9
-  #         "9ea863cebfcbb416c6334a6bef6552f0", # WP 4.9 & Gutenberg 4.9
-  #         "803989004f4b101a644ebfe9bb67e712", # WP 5.4
-  #       ]
-
-  #   steps:
-  #   - name: Checkout
-  #     uses: actions/checkout@v2.4.0
-
-  #   - name: Set PHP version
-  #     uses: shivammathur/setup-php@v2
-  #     with:
-  #       php-version: '7.2'
-  #       coverage: none
-
-  #   - name: Install dependencies
-  #     run: composer install --ignore-platform-reqs
-
-  #   - name: Setup WP Snapshots
-  #     run: ./vendor/bin/wpsnapshots configure 10up --aws_key=${{ secrets.AWS_ACCESS_KEY_ID }} --aws_secret=${{ secrets.AWS_SECRET_ACCESS_KEY }} --user_name=wpacceptance --user_email=wpacceptance@10up.com
-
-  #   - name: Test
-  #     run: ./vendor/bin/wpacceptance run --snapshot_id=${{ matrix.snapshot }}
 
   phpunit:
-    runs-on: ubuntu-latest
+    name: ${{ matrix.php }} on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        php: [ '7.4', '8.0', '8.1' ]
+        os: [ ubuntu-latest ]
 
     steps:
     - name: Checkout
       uses: actions/checkout@v2.4.0
 
-    - name: Set PHP version
-      uses: shivammathur/setup-php@v2
+    - name: Set standard 10up cache directories
+      run: |
+        composer config -g cache-dir "${{ env.COMPOSER_CACHE }}"
+
+    - name: Prepare composer cache
+      uses: actions/cache@v2
       with:
-        php-version: '7.2'
+        path: ${{ env.COMPOSER_CACHE }}
+        key: composer-${{ env.COMPOSER_VERSION }}-${{ hashFiles('**/composer.lock') }}
+        restore-keys: |
+          composer-${{ env.COMPOSER_VERSION }}-
+
+    - name: Set PHP version
+      uses: shivammathur/setup-php@2.17.0
+      with:
+        php-version: ${{ matrix.php }}
         coverage: none
+        tools: phpunit-polyfills, composer:v2
 
     - name: Install dependencies
-      run: composer install --ignore-platform-reqs
+      run: composer update -W
 
     - name: PHPUnit
       run: './vendor/bin/phpunit'

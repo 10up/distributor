@@ -62,14 +62,29 @@ function client_prefix_filter_authorized_sites( array $authorized_sites, string 
 /**
  * Stop Distributor from changing the canonical links.
  *
- * This removes Distributor's canonical functionality from
- * both Internal and External Connections and for those sites
- * that use Yoast SEO.
+ * This removes Distributor's canonical functionality from both Internal and
+ * External Connections.
+ *
+ * This accounts for sites using either WordPress or Yoast SEO to generate the
+ * canonical URL.
  */
-add_action( 'template_redirect', function () {
-    remove_filter( 'get_canonical_url', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'canonical_url' ), 10, 2 );
-    remove_filter( 'wpseo_canonical', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'wpseo_canonical_url' ) );
-    remove_filter( 'get_canonical_url', array( '\Distributor\ExternalConnections\WordPressExternalConnection', 'canonical_url' ), 10, 2 );
-    remove_filter( 'wpseo_canonical', array( '\Distributor\ExternalConnections\WordPressExternalConnection', 'wpseo_canonical_url' ) );
-}, 20 );
+add_action( 'plugins_loaded', function() {
+	add_action( 'get_canonical_url', '\\Distributor\\Hooks\\get_canonical_url', 10, 2 );
+	add_action( 'wpseo_canonical', '\\Distributor\\Hooks\\wpseo_canonical', 10, 2 );
+} );
+```
+
+### Push original publication date
+
+```php
+/**
+ * Keep the publication date on the new pushed post.
+ *
+ * This filter is used to filter the arguments sent to the remote server during a push. The below code snippet passes the original published date to the new pushed post and sets the same published date instead of setting it as per the current time.
+ */
+add_filter( 'dt_push_post_args', function( $post_body, $post ) {
+    $post_body['post_date'] = $post->post_date;
+
+    return $post_body;
+}, 10, 2 );
 ```

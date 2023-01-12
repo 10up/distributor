@@ -7,6 +7,8 @@
 
 namespace Distributor\PullUI;
 
+//phpcs:ignoreFile WordPressVIPMinimum.Functions.RestrictedFunctions.cookies_setcookie -- Admin file, no full page caching.
+
 /**
  * Setup actions and filters
  *
@@ -118,8 +120,18 @@ function admin_enqueue_scripts( $hook ) {
 		return;
 	}
 
-	wp_enqueue_script( 'dt-admin-pull', plugins_url( '/dist/js/admin-pull.min.js', __DIR__ ), array( 'jquery' ), DT_VERSION, true );
-	wp_enqueue_style( 'dt-admin-pull', plugins_url( '/dist/css/admin-pull-table.min.css', __DIR__ ), array(), DT_VERSION );
+	$asset_file = DT_PLUGIN_PATH . '/dist/js/admin-pull.min.asset.php';
+	// Fallback asset data.
+	$asset_data = array(
+		'version'      => DT_VERSION,
+		'dependencies' => array(),
+	);
+	if ( file_exists( $asset_file ) ) {
+		$asset_data = require $asset_file;
+	}
+
+	wp_enqueue_script( 'dt-admin-pull', plugins_url( '/dist/js/admin-pull.min.js', __DIR__ ), $asset_data['dependencies'], $asset_data['version'], true );
+	wp_enqueue_style( 'dt-admin-pull', plugins_url( '/dist/css/admin-pull-table.min.css', __DIR__ ), array(), $asset_data['version'] );
 
 	wp_localize_script(
 		'dt-admin-pull',
@@ -201,7 +213,7 @@ function process_actions() {
 	switch ( $connection_list_table->current_action() ) {
 		case 'syndicate':
 		case 'bulk-syndicate':
-			if ( ! wp_verify_nonce( $_GET['_wpnonce'], 'bulk-distributor_page_pull' ) ) {
+			if ( empty( $_GET['_wpnonce'] ) || ! wp_verify_nonce( $_GET['_wpnonce'], 'bulk-distributor_page_pull' ) ) {
 				exit;
 			}
 
@@ -214,11 +226,11 @@ function process_actions() {
 				);
 			}
 
-			if ( empty( $_GET['connection_type'] ) || empty( $_GET['connection_id'] ) || empty( $_GET['post'] ) ) {
+			if ( empty( $_GET['pull_post_type'] ) || empty( $_GET['connection_type'] ) || empty( $_GET['connection_id'] ) || empty( $_GET['post'] ) ) {
 				break;
 			}
 
-			$posts       = (array) $_GET['post'];
+			$posts       = array_map( 'intval', (array) wp_unslash( $_GET['post'] ) );
 			$post_type   = sanitize_text_field( $_GET['pull_post_type'] );
 			$post_status = ! empty( $_GET['dt_as_draft'] ) && 'draft' === $_GET['dt_as_draft'] ? 'draft' : '';
 
@@ -312,10 +324,7 @@ function process_actions() {
 				$connection = new \Distributor\InternalConnections\NetworkSiteConnection( $site );
 			}
 
-			$posts = $_GET['post'];
-			if ( ! is_array( $posts ) ) {
-				$posts = [ $posts ];
-			}
+			$posts = array_map( 'intval', (array) wp_unslash( $_GET['post'] ) );
 
 			$post_mapping = array();
 
@@ -356,10 +365,7 @@ function process_actions() {
 				$connection = new \Distributor\InternalConnections\NetworkSiteConnection( $site );
 			}
 
-			$posts = $_GET['post'];
-			if ( ! is_array( $posts ) ) {
-				$posts = [ $posts ];
-			}
+			$posts = array_map( 'intval', (array) wp_unslash( $_GET['post'] ) );
 
 			$sync_log = $connection->get_sync_log( intval( $_GET['connection_id'] ) );
 
@@ -417,16 +423,21 @@ function dashboard() {
 			if ( empty( $connection_list_table->connection_objects ) ) :
 				$connection_now = 0;
 				?>
-				<?php esc_html_e( 'No Connections to Pull from,', 'distributor' ); ?>
-
-				<a href="<?php echo esc_url( admin_url( 'post-new.php?post_type=dt_ext_connection' ) ); ?>"><?php esc_html_e( 'Create One?', 'distributor' ); ?></a>
-
+				<?php
+				echo wp_kses_post(
+					sprintf(
+						/* translators: %s: link to add new connection */
+						__( 'No connections to pull from, <a href="%s">create one?</a>', 'distributor' ),
+						esc_url( admin_url( 'post-new.php?post_type=dt_ext_connection' ) )
+					)
+				);
+				?>
 			<?php else : ?>
 				<?php esc_html_e( 'Pull Content from', 'distributor' ); ?>
 				<select id="pull_connections" name="connection" method="get">
 					<?php if ( ! empty( $internal_connection_group ) ) : ?>
 						<?php if ( ! empty( $external_connection_group ) ) : ?>
-							<optgroup label="<?php esc_html_e( 'Network Connections', 'distributor' ); ?>">
+							<optgroup label="<?php esc_attr_e( 'Network Connections', 'distributor' ); ?>">
 						<?php endif; ?>
 							<?php
 							foreach ( $internal_connection_group as $connection ) :
@@ -448,7 +459,7 @@ function dashboard() {
 
 					<?php if ( ! empty( $external_connection_group ) ) : ?>
 						<?php if ( ! empty( $internal_connection_group ) ) : ?>
-							<optgroup label="<?php esc_html_e( 'External Connections', 'distributor' ); ?>">
+							<optgroup label="<?php esc_attr_e( 'External Connections', 'distributor' ); ?>">
 						<?php endif; ?>
 							<?php
 							foreach ( $external_connection_group as $connection ) :
@@ -565,6 +576,7 @@ function dashboard() {
 function output_pull_errors() {
 	global $connection_now;
 
+	// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- No nonce needed here.
 	if ( empty( $_GET['connection_id'] ) ) {
 		return;
 	}

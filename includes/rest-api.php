@@ -163,6 +163,7 @@ function register_rest_routes() {
  */
 function get_pull_content_list_args() {
 	return array(
+		// phpcs:ignore WordPressVIPMinimum.Performance.WPQueryParams.PostNotIn_exclude
 		'exclude'        => array(
 			'description' => esc_html__( 'Ensure result set excludes specific IDs.', 'distributor' ),
 			'type'        => 'array',
@@ -370,8 +371,9 @@ function register_endpoints() {
 function distributor_meta() {
 	return array(
 		'version'                              => DT_VERSION,
-		'core_has_application_passwords'       => function_exists( 'wp_is_application_passwords_available' ),
-		'core_application_passwords_available' => function_exists( 'wp_is_application_passwords_available' ) && ! wp_is_application_passwords_available() ? false : true,
+		'core_has_application_passwords'       => true,
+		'core_application_passwords_available' => ! wp_is_application_passwords_available() ? false : true,
+		'core_application_passwords_endpoint'  => admin_url( 'authorize-application.php' ),
 	);
 }
 
@@ -529,9 +531,9 @@ function check_read_permission( $post ) {
 	}
 
 	/*
-	* If there isn't a parent, but the status is set to inherit, assume
-	* it's published (as per get_post_status()).
-	*/
+	 * When there isn't a parent, but the status is set to inherit, assume
+	 * it's published (as per get_post_status()).
+	 */
 	if ( 'inherit' === $post->post_status ) {
 		return true;
 	}

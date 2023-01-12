@@ -10,24 +10,9 @@
       "email": "opensource@10up.com"
     }
   ],
-  "repositories": [
-    {
-        "type":"package",
-        "package": {
-          "name": "georgestephanis/application-passwords",
-          "version":"0.1.3",
-          "source": {
-              "url": "https://github.com/WordPress/application-passwords.git",
-              "type": "git",
-              "reference":"0eef095b4dc984c26ee8149c01a323be83da715a"
-            }
-        }
-    }
-  ],
   "require": {
-    "php": ">=5.6",
-    "yahnis-elsts/plugin-update-checker": "^4.4",
-    "georgestephanis/application-passwords": "0.1.3",
+    "php": ">=7.4",
+    "yahnis-elsts/plugin-update-checker": "4.13",
     "ext-json": "*"
   },
   "autoload": {
@@ -35,17 +20,24 @@
       "Distributor\\": "includes/classes/"
     }
   },
-
   "require-dev": {
-    "10up/wpacceptance": "dev-master",
+    "10up/phpcs-composer": "dev-master",
     "10up/wp_mock": "~0.4",
-    "phpunit/phpunit": "~7.5",
-    "10up/phpcs-composer": "dev-master"
+    "phpunit/phpunit": ">=7.0 <9.0",
+    "yoast/phpunit-polyfills": "^1.0",
+    "automattic/vipwpcs": "^2.3"
   },
   "scripts": {
-    "lint": "phpcs .",
-    "lint-fix": "phpcbf ."
+    "lint": "phpcs . --runtime-set testVersion 7.4-",
+    "lint-fix": "phpcbf .",
+    "test": "@php phpunit"
   },
   "minimum-stability": "dev",
-  "prefer-stable": true
+  "prefer-stable": true,
+  "config": {
+    "allow-plugins": {
+      "composer/installers": true,
+      "dealerdirect/phpcodesniffer-composer-installer": true
+    }
+  }
 }

@@ -4,7 +4,7 @@
 
 > Distributor is a WordPress plugin that makes it easy to distribute and reuse content across your websites — whether in a single multisite or across the web.
 
-[![Support Level](https://img.shields.io/badge/support-active-green.svg)](#support-level) [![Tests](https://github.com/10up/distributor/actions/workflows/test.yml/badge.svg)](https://github.com/10up/distributor/actions/workflows/test.yml) [![Linting](https://github.com/10up/distributor/actions/workflows/lint.yml/badge.svg)](https://github.com/10up/distributor/actions/workflows/lint.yml) [![Code scanning](https://github.com/10up/distributor/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/10up/distributor/actions/workflows/codeql-analysis.yml) [![Release Version](https://img.shields.io/github/release/10up/distributor.svg)](https://github.com/10up/distributor/releases/latest) ![WordPress tested up to version](https://img.shields.io/badge/WordPress-v5.9%20tested-success.svg) [![License](https://img.shields.io/github/license/10up/distributor.svg)](https://github.com/10up/distributor/blob/develop/LICENSE.md)
+[![Support Level](https://img.shields.io/badge/support-active-green.svg)](#support-level) [![Tests](https://github.com/10up/distributor/actions/workflows/test.yml/badge.svg)](https://github.com/10up/distributor/actions/workflows/test.yml) [![Linting](https://github.com/10up/distributor/actions/workflows/lint.yml/badge.svg)](https://github.com/10up/distributor/actions/workflows/lint.yml) [![Code scanning](https://github.com/10up/distributor/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/10up/distributor/actions/workflows/codeql-analysis.yml) [![Release Version](https://img.shields.io/github/release/10up/distributor.svg)](https://github.com/10up/distributor/releases/latest) ![WordPress tested up to version](https://img.shields.io/badge/WordPress-v6.1%20tested-success.svg) [![License](https://img.shields.io/github/license/10up/distributor.svg)](https://github.com/10up/distributor/blob/develop/LICENSE.md)
 
 *You can learn more about Distributor's features at [DistributorPlugin.com](https://distributorplugin.com) and documentation at the [Distributor documentation site](https://10up.github.io/distributor/).*
 
@@ -54,9 +54,9 @@ Distributor is built with the same extensible approach as WordPress itself, with
 
 ## Requirements
 
-* PHP 5.6+
-* [WordPress](http://wordpress.org) 4.7+
-* External connections require HTTP Basic Authentication or [WordPress.com OAuth2](https://developer.wordpress.com/docs/oauth2/) (must be on [WordPress VIP](https://wpvip.com/)) be set up on the remote website. For Basic Auth, we recommend the [Application Passwords](https://wordpress.org/plugins/application-passwords/) plugin (note that other plugins like JWT Auth will likely cause issues for external connections) though if you're running WordPress 5.6 or above then Application Passwords is already installed.
+* PHP 7.4+
+* [WordPress](http://wordpress.org) 5.7+
+* External connections require HTTP Basic Authentication or [WordPress.com OAuth2](https://developer.wordpress.com/docs/oauth2/) (must be on [WordPress VIP](https://wpvip.com/)) be set up on the remote website. For Basic Auth, we recommend using [Application Passwords](https://make.wordpress.org/core/2020/11/05/application-passwords-integration-guide/#Getting-Credentials) built in to WordPress.
 * For external connections, Distributor needs to be installed on BOTH sides of the connection.
 
 ## Installation
@@ -74,7 +74,7 @@ To help inform our roadmap, keep adopters apprised of major updates and changes 
 1. Ensure that the current version of Distributor is active on BOTH sites being connected.  We'll refer to these as mainsite.com and remotesite.com.
 1. On mainsite.com, navigate to `Distributor` > `External Connections` and click `Add New`.
 1. Enter a label for the connection (e.g., `remotesite`).
-1. Enter the URL (e.g. `https://remotesite.com`) for your remote site below the External Site URL and press the `Authorize Connection` button. 
+1. Enter the URL (e.g. `https://remotesite.com`) for your remote site below the External Site URL and press the `Authorize Connection` button.
 1. You will be prompted to enter the user name and password of an administrative role of the `remotesite.com` if you are not already logged into `remotesite.com` and then redirected to the Authorize Application screen.
 1. At the Authorize Application screen, enter the name of the main site and press the 'Yes, I approve of this connection' button
 1. Review the roles selected in `Roles Allowed to Push` are the ones you want to support, update if necessary, then press the `Update Connection` button.
@@ -125,8 +125,6 @@ You can navigate to the `Posts` > `All Posts` table list view to see all content
 
 ## Known Caveats/Issues
 
-__Gutenberg Fullscreen Mode__ - [Gutenberg 3.8](https://wptavern.com/gutenberg-3-8-released-adds-full-screen-mode) originally introduced `Fullscreen mode` for the editor and [WordPress 5.4](https://make.wordpress.org/core/2020/03/03/fullscreen-mode-enabled-by-default-in-the-editor/) and [Gutenberg 7.7](https://github.com/WordPress/gutenberg/pull/20611) made that the default setting.  Fullscreen mode creates a problem as the admin bar is no longer visible which means the Distributor push menu is no longer visible.  We are [working on researching a resolution to this issue](https://github.com/10up/distributor/issues/597), but in the meantime we recommend clicking on the three vertical dots in the upper right corner of Gutenberg and disabling fullscreen mode to ensure the admin bar and Distributor push menu is in view.
-
 __Remote Request Timeouts__ - With external connections, HTTP requests are sent back and forth - creating posts, transfering images, syncing post updates, etc. In certain situations, mostly commonly when distributing posts with a large number of images (or very large file sizes), using poorly configured or saturated servers / hosts, or using plugins that add significant weight to post creation, Distributor requests can fail. Although we do some error handling, there are certain cases in which post distribution can fail silently. If distribution requests are taking a long time to load and/or failing, consider adjusting the timeout; you can filter the timeout for pushing external posts using the [`dt_push_post_timeout` filter](https://10up.github.io/distributor/dt_push_post_timeout.html). More advanced handling of large content requests, and improved error handling is on the road map for a future update.
 
 __Post Meta Associations__ - A distributed post includes all of the post meta from the original version. Sometimes arbitrary post meta references an ID for another piece of content on the original site. Distributor _does not_ "bring along" the referenced content or update references for arbitrary post meta (it will take care of updating references in the case of core WordPress features, such as the featured image ID). This issue is very common when using field management plugins like Advanced Custom Fields (ACF). This can be addressed on a case by case basis by extending the plugin; for external connections, you can manually handle post meta associations using [the `dt_push_post` hook](https://github.com/10up/distributor/blob/f7b60740e679bce4671ccd69a670abadce4f2f93/includes/classes/ExternalConnections/WordPressExternalConnection.php#L646). For internal connections, use the [`dt_push_post` hook](https://10up.github.io/distributor/dt_push_post.html). Note that while named the same, these hooks accept different parameters.
@@ -171,9 +169,15 @@ Enabling this will also provide more debugging information in your error log for
 
 ### Application Passwords and WordPress 5.6
 
-In WordPress 5.6, Application Passwords was merged into WordPress core with some limitations. From 5.6, Application Passwords is enabled by default only for live sites with HTTPS. To enable Application Passwords for development sites, you will need the following snippet:
+Application passwords are only available for live sites running over an HTTPS connection.
+
+For your local development environment, you will need these snippets to enable application passwords without the need for an HTTPS connection.  A local development environment is one that "can reach the internet but **is not reachable from the internet**".
 
 ```php
+// In your local environment's wp-config.php file.
+define( 'WP_ENVIRONMENT_TYPE', 'local' );
+
+// In a custom plugin on your local environment.
 add_filter( 'wp_is_application_passwords_available', '__return_true' );
 
 add_action( 'wp_authorize_application_password_request_errors', function( $error ) {

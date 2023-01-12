@@ -54,7 +54,7 @@ function add_help_tab() {
 		array(
 			'id'      => 'distributer',
 			'title'   => esc_html__( 'Distributor', 'distributor' ),
-			/* translators: %1$s: Post type singular name, %2$s: Post type singular name, %3$s: Pos type name */
+			/* translators: %1$s: Post type singular name, %2$s: Post type singular name, %3$s: Post type name */
 			'content' => '<p>' . sprintf( esc_html__( 'The number of connections this %1$s has been distributed to is shown in the publish meta box. If this %2$s is deleted, it could have ramifications across all those %3$s.', 'distributor' ), esc_html( strtolower( $post_type_object->labels->singular_name ) ), esc_html( strtolower( $post_type_object->labels->singular_name ) ), esc_html( strtolower( $post_type_object->labels->name ) ) ) . '</p>',
 		)
 	);
@@ -86,8 +86,20 @@ function distributed_to( $post ) {
 
 	<div class="misc-pub-section curtime misc-pub-curtime">
 		<span id="distributed-to">
-			<?php /* translators: %d: number of connections */ ?>
-			<?php printf( wp_kses_post( _n( 'Distributed to <strong>%d</strong> connection', 'Distributed to <strong>%d</strong> connections', (int) $total_connections, 'distributor' ) ), (int) $total_connections ); ?>
+			<?php
+			echo wp_kses_post(
+				sprintf(
+					/* translators: 1: Number of connections content distributed to. */
+					_n(
+						'Distributed to %1$s connection.',
+						'Distributed to %1$s connections.',
+						(int) $total_connections, // Syndication count is a string, so we need to convert it to a number.
+						'distributor'
+					),
+					'<strong>' . esc_html( $total_connections ) . '</strong>'
+				)
+			);
+			?>
 			<a class="open-distributor-help">(?)</a>
 		</span>
 	</div>
@@ -115,6 +127,16 @@ function enqueue_post_scripts_styles( $hook ) {
 		return;
 	}
 
-	wp_enqueue_style( 'dt-admin-distributed-post', plugins_url( '/dist/css/admin-distributed-post.min.css', __DIR__ ), array(), DT_VERSION );
-	wp_enqueue_script( 'dt-admin-distributed-post', plugins_url( '/dist/js/admin-distributed-post.min.js', __DIR__ ), [ 'jquery' ], DT_VERSION, true );
+	$asset_file = DT_PLUGIN_PATH . '/dist/js/admin-distributed-post.min.asset.php';
+	// Fallback asset data.
+	$asset_data = array(
+		'version'      => DT_VERSION,
+		'dependencies' => array(),
+	);
+	if ( file_exists( $asset_file ) ) {
+		$asset_data = require $asset_file;
+	}
+
+	wp_enqueue_style( 'dt-admin-distributed-post', plugins_url( '/dist/css/admin-distributed-post.min.css', __DIR__ ), array(), $asset_data['version'] );
+	wp_enqueue_script( 'dt-admin-distributed-post', plugins_url( '/dist/js/admin-distributed-post.min.js', __DIR__ ), $asset_data['dependencies'], $asset_data['version'], true );
 }

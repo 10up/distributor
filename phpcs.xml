@@ -2,4 +2,21 @@
 <ruleset name="Project Rules">
 	<rule ref="10up-Default">
 	</rule>
+	<rule ref="WordPress-VIP-Go">
+	</rule>
+
+	<rule ref="WordPress.Security.ValidatedSanitizedInput">
+		<properties>
+			<property name="customUnslashingSanitizingFunctions" type="array">
+				<element value="wp_verify_nonce" />
+			</property>
+
+			<property name="customSanitizingFunctions" type="array">
+				<element value="wp_trim_words" />
+
+				<!-- Plugin custom sanitizing function -->
+				<element value="distributor_sanitize_connection" />
+			</property>
+		</properties>
+	</rule>
 </ruleset>

@@ -7,6 +7,23 @@ use WP_Mock\Tools\TestCase;
 class UtilsTest extends TestCase {
 
 	/**
+	 * Set up with WP_Mock
+	 *
+	 * Set up common mocks required for multiple tests.
+	 *
+	 * @since x.x.x
+	 */
+	public function setUp(): void {
+		parent::setUp();
+
+
+		// Return voids.
+		\WP_Mock::userFunction( '_prime_post_caches' );
+		\WP_Mock::userFunction( 'update_object_term_cache' );
+		\WP_Mock::userFunction( 'update_postmeta_cache' );
+	}
+
+	/**
 	 * Test set meta with string value and array value
 	 *
 	 * @since  1.0
@@ -43,6 +60,22 @@ class UtilsTest extends TestCase {
 				'times'  => 1,
 				'args'   => [ 1, 'key', [ 'value' ], 'value' ],
 				'return' => [],
+			]
+		);
+
+		\WP_Mock::userFunction(
+			'wp_slash', [
+				'times'      => 4,
+				'return_arg' => 0,
+			]
+		);
+
+		\WP_Mock::userFunction(
+			'apply_filters_deprecated',
+			[
+				'return' => function( $name, $args ) {
+					return $args[0];
+				},
 			]
 		);
 
@@ -129,6 +162,22 @@ class UtilsTest extends TestCase {
 			]
 		);
 
+		\WP_Mock::userFunction(
+			'wp_slash', [
+				'times'      => 10,
+				'return_arg' => 0,
+			]
+		);
+
+		\WP_Mock::userFunction(
+			'apply_filters_deprecated',
+			[
+				'return' => function( $name, $args ) {
+					return $args[0];
+				},
+			]
+		);
+
 		Utils\set_meta(
 			1, [
 				'key'  => [ 'value' ],
@@ -178,6 +227,22 @@ class UtilsTest extends TestCase {
 				'times'  => 1,
 				'args'   => [ 1, 'key2', [ 0 => 'test' ], [ 0 => 'test' ] ],
 				'return' => [],
+			]
+		);
+
+		\WP_Mock::userFunction(
+			'wp_slash', [
+				'times'      => 4,
+				'return_arg' => 0,
+			]
+		);
+
+		\WP_Mock::userFunction(
+			'apply_filters_deprecated',
+			[
+				'return' => function( $name, $args ) {
+					return $args[0];
+				},
 			]
 		);
 
@@ -242,7 +307,7 @@ class UtilsTest extends TestCase {
 					$term_id,
 					$taxonomy,
 					[
-						'parent' => 0,
+						'parent' => '',
 					]
 				],
 				'return' => [ 'term_id' => $term_id ],
@@ -332,7 +397,7 @@ class UtilsTest extends TestCase {
 					$term_id,
 					$taxonomy,
 					[
-						'parent' => 0,
+						'parent' => '',
 					]
 				],
 				'return' => [ 'term_id' => $term_id ],
@@ -496,6 +561,15 @@ class UtilsTest extends TestCase {
 			]
 		);
 
+		\WP_Mock::userFunction(
+			'apply_filters_deprecated',
+			[
+				'return' => function( $name, $args ) {
+					return $args[0];
+				},
+			]
+		);
+
 		$formatted_media = Utils\format_media_post( $media_post );
 
 		$this->assertFalse( $formatted_media['featured'] );
@@ -584,6 +658,15 @@ class UtilsTest extends TestCase {
 			]
 		);
 
+		\WP_Mock::userFunction(
+			'apply_filters_deprecated',
+			[
+				'return' => function( $name, $args ) {
+					return $args[0];
+				},
+			]
+		);
+
 		$formatted_media = Utils\format_media_post( $media_post );
 
 		$this->assertTrue( $formatted_media['featured'] );
@@ -669,6 +752,15 @@ class UtilsTest extends TestCase {
 		\WP_Mock::userFunction(
 			'remove_filter', [
 				'times' => 1,
+			]
+		);
+
+		\WP_Mock::userFunction(
+			'apply_filters_deprecated',
+			[
+				'return' => function( $name, $args ) {
+					return $args[0];
+				},
 			]
 		);
 
@@ -827,6 +919,22 @@ class UtilsTest extends TestCase {
 			]
 		);
 
+		\WP_Mock::userFunction(
+			'wp_slash', [
+				'times'      => 4,
+				'return_arg' => 0,
+			]
+		);
+
+		\WP_Mock::userFunction(
+			'apply_filters_deprecated',
+			[
+				'return' => function( $name, $args ) {
+					return $args[0];
+				},
+			]
+		);
+
 		Utils\set_media( $post_id, [ $media_item ], [ 'use_filesystem' => false ] );
 	}
 
@@ -838,4 +946,29 @@ class UtilsTest extends TestCase {
 	 * Todo finish process_media
 	 */
 
+	 /**
+	  * Test post_args_allow_list
+	  *
+	  * @since 1.7.0
+	  */
+	function test_post_args_allow_list() {
+		$post_args = [
+			'post_title'   => 'Test Title',
+			'post_type'    => 'post',
+			'post_content' => 'Test Content',
+			'post_excerpt' => 'Test Excerpt',
+			'link'         => 'https://github.com/10up/distributor/issues/879',
+			'dt_source'    => 'https://github.com/10up/distributor/pull/895',
+		];
+
+		$expected = [
+			'post_title'   => 'Test Title',
+			'post_type'    => 'post',
+			'post_content' => 'Test Content',
+			'post_excerpt' => 'Test Excerpt',
+		];
+
+		$actual = Utils\post_args_allow_list( $post_args );
+		$this->assertSame( $expected, $actual );
+	}
 }

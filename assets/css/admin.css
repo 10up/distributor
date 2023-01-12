@@ -2,17 +2,20 @@
 .js-auth-app-card em {
 	display: none;
 }
+
 .js-auth-app-card #app_name {
 	width: 380px;
 	border: none;
 	box-shadow: none;
 }
+
 .js-auth-app-card label {
 	font-weight: bold;
 	font-size: 14px;
 }
 
 @media (min-width: 783px) {
+
 	body.is-showing-distributor.is-fullscreen-mode #wpadminbar {
 		display: block;
 	}
@@ -54,7 +57,7 @@
 }
 
 .distributor-title--settings a.distributor-help-link:not(:hover) span {
-	color: #9EA3A8;
+	color: #9ea3a8;
 }
 
 .distributor-title--settings a.distributor-help-link .distributor-help-link__text {

@@ -1,48 +1,87 @@
 name: Linting
 
+env:
+  COMPOSER_VERSION: "2"
+  COMPOSER_CACHE: "${{ github.workspace }}/.composer-cache"
+
 on:
   push:
     branches:
       - develop
+      - develop-v1
       - trunk
   pull_request:
     branches:
       - develop
+      - develop-v1
 
 jobs:
   eslint:
     name: eslint
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2.4.0
-    - name: install node v12
-      uses: actions/setup-node@v1
+    - uses: actions/checkout@v3
+    - name: Use desired version of NodeJS
+      uses: actions/setup-node@v3
       with:
-        node-version: 12
+          node-version-file: '.nvmrc'
+    - name: Check versions
+      run: npm -v; node -v
     - name: npm install
       run: npm install
-    - name: eslint
-      uses: icrawl/action-eslint@v1
+    - name: Generate linting report
+      run: npm run lint:js -- --output-file eslint-report.json --format json
+      continue-on-error: true
+    - name: Annotate code linting results
+      uses: ataylorme/eslint-annotate-action@1.2.0
       with:
-        custom-glob: assets/js
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        repo-token: '${{ secrets.GITHUB_TOKEN }}'
+        report-json: 'eslint-report.json'
+    - name: Update summary
+      run: |
+        npm_config_yes=true npx github:10up/eslint-json-to-md --path ./eslint-report.json --output ./eslint-report.md
+        cat eslint-report.md >> $GITHUB_STEP_SUMMARY
+      if: ${{ failure() }}
   phpcs:
     name: phpcs
     runs-on: ubuntu-latest
+
     steps:
     - name: Checkout
-      uses: actions/checkout@v2.4.0
+      uses: actions/checkout@v3
+
+    - name: Set standard 10up cache directories
+      run: |
+        composer config -g cache-dir "${{ env.COMPOSER_CACHE }}"
+
+    - name: Prepare composer cache
+      uses: actions/cache@v2
+      with:
+        path: ${{ env.COMPOSER_CACHE }}
+        key: composer-${{ env.COMPOSER_VERSION }}-${{ hashFiles('**/composer.lock') }}
+        restore-keys: |
+          composer-${{ env.COMPOSER_VERSION }}-
+
     - name: Set PHP version
       uses: shivammathur/setup-php@v2
       with:
-        php-version: '7.2'
+        php-version: '7.4'
         coverage: none
-    - name: composer install
+        tools: composer:v2, cs2pr
+
+    - name: Install dependencies
       run: composer install --ignore-platform-reqs
+
     - name: Check PHPCS standard
       run: ./vendor/bin/phpcs -i
+
+    - name: Check Compatibility of main plugin file.
+      run: ./vendor/bin/phpcs ./distributor.php --runtime-set testVersion 5.6- --standard=PHPCompatibilityWP
+
     - name: PHPCS check
-      uses: chekalsky/phpcs-action@v1
-      with:
-        phpcs_bin_path: './vendor/bin/phpcs .'
+      id: phpcs-sniffs
+      run: ./vendor/bin/phpcs . --report-full --report-checkstyle=./.github/phpcs-report.xml
+
+    - name: Show PHPCS results in PR
+      if: ${{ always() }}
+      run: cs2pr ./.github/phpcs-report.xml
