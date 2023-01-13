@@ -735,6 +735,15 @@ class DistributorPost {
 	 * @todo `distributor_media` needs work for unattached media items.
 	 * @todo check if `distributor_raw_content` should be included here too.
 	 *
+	 * @param  array $args {
+	 *     Optional. Array of push arguments
+	 *
+	 *     @type int    $remote_post_id Post ID on remote site. If not provided,
+	 *                                  a new post will be created.
+	 *     @type string $post_status    The post status to use on the remote site.
+	 *                                  Ignored when updating posts.
+	 * }
+	 *
 	 * @return array {
 	 *    Post data.
 	 *
@@ -749,22 +758,22 @@ class DistributorPost {
 	 *    @type array  $distributor_media Media data.
 	 * }
 	 */
-	protected function to_insert() {
+	protected function to_insert( $args = array() ) {
 		$insert       = [];
 		$post_data    = $this->post_data();
 		$key_mappings = [
-			'post_title'        => 'title',
-			'post_name'         => 'slug',
-			'post_type'         => 'post_type',
-			'post_content'      => 'content',
-			'post_excerpt'      => 'excerpt',
-			'post_parent'       => 'parent',
-			'post_status'       => 'status',
-			'tax_input'         => 'distributor_terms',
-			'meta_input'        => 'distributor_meta',
+			'post_title'   => 'title',
+			'post_name'    => 'slug',
+			'post_type'    => 'post_type',
+			'post_content' => 'content',
+			'post_excerpt' => 'excerpt',
+			'post_parent'  => 'parent',
+			'post_status'  => 'status',
+			'terms'        => 'distributor_terms',
+			'meta'         => 'distributor_meta',
 
 			// This needs to be figured out.
-			'distributor_media' => 'distributor_media',
+			'media'        => 'distributor_media',
 		];
 
 		foreach ( $key_mappings as $key => $value ) {
@@ -776,6 +785,16 @@ class DistributorPost {
 			$insert['post_content'] = $this->post->post_content;
 		}
 
+		if ( ! empty( $args['remote_post_id'] ) ) {
+			// Updating an existing post.
+			$insert['ID'] = (int) $args['remote_post_id'];
+			unset( $insert['post_status'] );
+		} else {
+			// It's a new post.
+			if ( ! empty( $args['post_status'] ) ) {
+				$insert['post_status'] = $args['post_status'];
+			}
+		}
 		return $insert;
 	}
 
