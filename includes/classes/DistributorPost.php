@@ -111,6 +111,13 @@ class DistributorPost {
 	private $source_site = [];
 
 	/**
+	 * The site ID for the current site.
+	 *
+	 * @var int
+	 */
+	public $site_id;
+
+	/**
 	 * Initialize the DistributorPost object.
 	 *
 	 * @param WP_Post|int $post WordPress post object or post ID.
@@ -176,6 +183,20 @@ class DistributorPost {
 			$this->connection_direction = 'pulled';
 			$this->connection_id        = (int) get_post_meta( $post->ID, 'dt_original_source_id', true );
 		}
+
+		$this->site_id = get_current_blog_id();
+
+		// Pre-populate the post data to account for switching sites.
+		if ( ! is_multisite() ) {
+			return;
+		}
+
+		$this->get_permalink();
+		$this->get_post_thumbnail_id();
+		$this->get_post_thumbnail_url();
+		$this->get_the_post_thumbnail();
+		$this->get_meta();
+		$this->get_terms();
 	}
 
 	/**
@@ -314,7 +335,12 @@ class DistributorPost {
 	 * @return string Post permalink.
 	 */
 	public function get_permalink() {
-		return get_permalink( $this->post );
+		static $permalink = null;
+		if ( null === $permalink ) {
+			$permalink = get_permalink( $this->post );
+		}
+
+		return $permalink;
 	}
 
 	/**
@@ -323,7 +349,7 @@ class DistributorPost {
 	 * @return string Post type.
 	 */
 	public function get_post_type() {
-		return get_post_type( $this->post );
+		return $this->post->post_type;
 	}
 
 	/**
@@ -332,7 +358,12 @@ class DistributorPost {
 	 * @return int|false Post thumbnail ID or false if no thumbnail is set.
 	 */
 	public function get_post_thumbnail_id() {
-		return get_post_thumbnail_id( $this->post );
+		static $thumbnail_id = null;
+		if ( null === $thumbnail_id ) {
+			$thumbnail_id = get_post_thumbnail_id( $this->post );
+		}
+
+		return $thumbnail_id;
 	}
 
 	/**
@@ -342,7 +373,12 @@ class DistributorPost {
 	 * @return string|false The post's thumbnail URL or false if no thumbnail is set.
 	 */
 	public function get_post_thumbnail_url( $size = 'post-thumbnail' ) {
-		return get_the_post_thumbnail_url( $this->post, $size );
+		static $thumbnail_url = null;
+		if ( null === $thumbnail_url ) {
+			$thumbnail_url = get_the_post_thumbnail_url( $this->post, $size );
+		}
+
+		return $thumbnail_url;
 	}
 
 	/**
@@ -353,6 +389,23 @@ class DistributorPost {
 	 * @return string|false The post's thumbnail HTML or false if no thumbnail is set.
 	 */
 	public function get_the_post_thumbnail( $size = 'post-thumbnail', $attr = '' ) {
+		static $thumbnail = [];
+		$hash             = md5( wp_json_encode( [ $size, $attr ] ) );
+
+		if ( empty( $thumbnail[ $hash ] ) ) {
+			$switched = false;
+			if ( is_multisite() && get_current_blog_id() !== $this->site_id ) {
+				switch_to_blog( $this->site_id );
+				$switched = true;
+			}
+			$thumbnail[ $hash ] = get_the_post_thumbnail( $this->post, $size, $attr );
+
+			if ( $switched ) {
+				restore_current_blog();
+			}
+		}
+
+		return $thumbnail[ $hash ];
 		return get_the_post_thumbnail( $this->post, $size, $attr );
 	}
 
@@ -437,7 +490,21 @@ class DistributorPost {
 			|| ! $this->original_post_url
 		) {
 			if ( empty( $author_link ) ) {
-				return get_author_posts_url( $this->post->post_author );
+				static $author_posts_url = null;
+				if ( empty( $author_posts_url ) ) {
+					$switched = false;
+					if ( is_multisite() && get_current_blog_id() !== $this->site_id ) {
+						switch_to_blog( $this->site_id );
+						$switched = true;
+					}
+					$author_posts_url = get_author_posts_url( $this->post->post_author );
+
+					if ( $switched ) {
+						restore_current_blog();
+					}
+				}
+
+				return $author_posts_url;
 			}
 			return $author_link;
 		}
@@ -452,7 +519,12 @@ class DistributorPost {
 	 * @return array Array of meta data.
 	 */
 	public function get_meta() {
-		return Utils\prepare_meta( $this->post->ID );
+		static $meta = null;
+		if ( null === $meta ) {
+			$meta = Utils\prepare_meta( $this->post->ID );
+		}
+
+		return $meta;
 	}
 
 	/**
@@ -463,7 +535,12 @@ class DistributorPost {
 	 * }
 	 */
 	public function get_terms() {
-		return Utils\prepare_taxonomy_terms( $this->post->ID );
+		static $terms = null;
+		if ( null === $terms ) {
+			$terms = Utils\prepare_taxonomy_terms( $this->post->ID );
+		}
+
+		return $terms;
 	}
 
 	/**
@@ -472,6 +549,16 @@ class DistributorPost {
 	 * @return array
 	 */
 	public function get_media() {
+		static $media_array = null;
+		if ( null !== $media_array ) {
+			return $media_array;
+		}
+
+		if ( is_multisite() && get_current_blog_id() !== $this->site_id ) {
+			switch_to_blog( $this->site_id );
+			$switched = true;
+		}
+
 		$post_id = $this->post->ID;
 		if ( $this->has_blocks() ) {
 			$raw_media = $this->parse_media_blocks();
@@ -500,6 +587,9 @@ class DistributorPost {
 			$media_array[] = $featured_image;
 		}
 
+		if ( $switched ) {
+			restore_current_blog();
+		}
 		return $media_array;
 	}
 
@@ -615,7 +705,12 @@ class DistributorPost {
 	 * }
 	 */
 	public function post_data() {
-		return [
+		if ( is_multisite() && get_current_blog_id() !== $this->site_id ) {
+			switch_to_blog( $this->site_id );
+			$switched = true;
+		}
+
+		$post_data = [
 			'title'             => html_entity_decode( get_the_title( $this->post->ID ), ENT_QUOTES, get_bloginfo( 'charset' ) ),
 			'slug'              => $this->post->post_name,
 			'post_type'         => $this->post->post_type,
@@ -625,6 +720,12 @@ class DistributorPost {
 			'distributor_terms' => $this->get_terms(),
 			'distributor_meta'  => $this->get_meta(),
 		];
+
+		if ( $switched ) {
+			restore_current_blog();
+		}
+
+		return $post_data;
 	}
 
 	/**
