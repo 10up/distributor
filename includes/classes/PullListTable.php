@@ -539,7 +539,7 @@ class PullListTable extends \WP_List_Table {
 				continue;
 			}
 
-			$total_items   += $remote_get['total_items'];
+			$total_items  += $remote_get['total_items'];
 			$response_data = array_merge( $response_data, array_values( $remote_get['items'] ) );
 		}
 
