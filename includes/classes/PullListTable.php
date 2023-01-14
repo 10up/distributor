@@ -530,22 +530,17 @@ class PullListTable extends \WP_List_Table {
 		$total_items   = '';
 		$response_data = [];
 
-		foreach( $remote_get_args['post_type'] as $type ) {
+		foreach ( $remote_get_args['post_type'] as $type ) {
 			$remote_get_args['post_type'] = $type;
-			$remote_get = $connection_now->remote_get( $remote_get_args );
+			$remote_get                   = $connection_now->remote_get( $remote_get_args );
 
 			if ( is_wp_error( $remote_get ) ) {
 				$this->pull_error = $remote_get->get_error_messages();
-
 				continue;
 			}
 
-			// Get total items retrieved from the remote request if not already set.
-			// if ( false === $response_data['total_items'] ) {
-				$total_items += $remote_get['total_items'];
-				$response_data = array_merge( $response_data, array_values( $remote_get['items'] ) );
-
-			// }
+			$total_items   += $remote_get['total_items'];
+			$response_data = array_merge( $response_data, array_values( $remote_get['items'] ) );
 		}
 
 		$this->set_pagination_args(
@@ -619,8 +614,7 @@ class PullListTable extends \WP_List_Table {
 		} else {
 			$connection_type = 'external';
 		}
-		// echo "<pre>"; print_r($connection_now);echo "</pre>";
-// var_dump($connection_now && $connection_now->pull_post_types && $connection_now->pull_post_type);
+
 		if ( $connection_now && $connection_now->pull_post_types ) :
 			?>
 
