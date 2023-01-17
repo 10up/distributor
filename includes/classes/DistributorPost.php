@@ -186,11 +186,21 @@ class DistributorPost {
 
 		$this->site_id = get_current_blog_id();
 
-		// Pre-populate the post data to account for switching sites.
 		if ( ! is_multisite() ) {
 			return;
 		}
 
+		/*
+		 * Populate the source site data for internal connections.
+		 *
+		 * On multisite installations, call each of the methods using a static
+		 * for internal caching to account for site switching.
+		 *
+		 * This ensures the data returned is for the post used to create this
+		 * object. If the method is subsequently called after `switch_to_blog()`
+		 * then the returned data will relate to the initial site rather than
+		 * the switched site.
+		 */
 		$this->get_permalink();
 		$this->get_post_thumbnail_id();
 		$this->get_post_thumbnail_url();
