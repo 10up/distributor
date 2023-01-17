@@ -406,7 +406,6 @@ class DistributorPost {
 		}
 
 		return $thumbnail[ $hash ];
-		return get_the_post_thumbnail( $this->post, $size, $attr );
 	}
 
 	/**
