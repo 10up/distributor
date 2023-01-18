@@ -442,8 +442,8 @@ class PullListTable extends \WP_List_Table {
 		$current_page = $this->get_pagenum();
 
 		// Support 'View all' filtering connections.
-		if ( empty( $connection_now->pull_post_type ) || 'all' === $connection_now->pull_post_type ) {
-			$post_type = wp_list_pluck( $connection_now->pull_post_types, 'slug' );
+		if ( empty( $connection_now->pull_post_type ) || ( ! post_type_exists( $connection_now->pull_post_type ) && ( 'all' !== $connection_now->pull_post_type ) ) ) {
+			$post_type = 'all';
 		} else {
 			$post_type = $connection_now->pull_post_type;
 		}
