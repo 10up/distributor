@@ -598,7 +598,7 @@ function menu_content() {
 					if ( ! empty( $post_url ) ) {
 						?>
 						<a href="<?php echo esc_url( $post_url ); ?>" target="_blank">
-							<?php esc_html_e( 'View original', 'distributor' ); ?>
+							<?php esc_html_e( 'View the origin post', 'distributor' ); ?>
 						</a>
 						<?php
 					}

@@ -14,7 +14,7 @@ if (
 		message = sprintf(
 			/* translators: 1) Distributor post type singular name, 2) Source of content. */
 			__(
-				'This %1$s was distributed from %2$s. However, the original has been deleted.'
+				'This %1$s was distributed from %2$s. However, the origin post has been deleted.'
 			),
 			dtGutenberg.postTypeSingular,
 			dtGutenberg.originalLocationName
@@ -23,7 +23,7 @@ if (
 		message = sprintf(
 			/* translators: 1) Source of content, 2) Distributor post type singular name. */
 			__(
-				'Distributed from %1$s. This %2$s is linked to the original. Edits to the original will update this version.',
+				'Distributed from %1$s. This %2$s is linked to the origin post. Edits to the origin post will update this remote version.',
 				'distributor'
 			),
 			dtGutenberg.originalLocationName,
@@ -31,19 +31,19 @@ if (
 		);
 
 		actions.push( {
-			label: __( 'Unlink from original.', 'distributor' ),
+			label: __( 'Unlink from the origin post.', 'distributor' ),
 			url: dtGutenberg.unlinkNonceUrl,
 		} );
 
 		actions.push( {
-			label: __( 'View Original', 'distributor' ),
+			label: __( 'View the origin post', 'distributor' ),
 			url: dtGutenberg.postUrl,
 		} );
 	} else {
 		message = sprintf(
 			/* translators: 1) Source of content, 2) Distributor post type singular name. */
 			__(
-				'Originally distributed from %1$s. This %2$s has been unlinked from the original. Edits to the original will not update this version.',
+				'Originally distributed from %1$s. This %2$s has been unlinked from the origin post. Edits to the origin post will not update this remote version.',
 				'distributor'
 			),
 			dtGutenberg.originalLocationName,
@@ -51,12 +51,12 @@ if (
 		);
 
 		actions.push( {
-			label: __( 'Relink to original.', 'distributor' ),
+			label: __( 'Relink to the origin post.', 'distributor' ),
 			url: dtGutenberg.linkNonceUrl,
 		} );
 
 		actions.push( {
-			label: __( 'View Original', 'distributor' ),
+			label: __( 'View the origin post', 'distributor' ),
 			url: dtGutenberg.postUrl,
 		} );
 	}
