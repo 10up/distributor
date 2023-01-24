@@ -116,6 +116,7 @@ class DistributorPost {
 	 * @var int
 	 */
 	public $site_id;
+	protected $switched = array();
 
 	/**
 	 * Initialize the DistributorPost object.
@@ -201,12 +202,34 @@ class DistributorPost {
 		 * then the returned data will relate to the initial site rather than
 		 * the switched site.
 		 */
-		$this->get_permalink();
-		$this->get_post_thumbnail_id();
-		$this->get_post_thumbnail_url();
-		$this->get_the_post_thumbnail();
-		$this->get_meta();
-		$this->get_terms();
+		// $this->get_permalink();
+		// $this->get_post_thumbnail_id();
+		// $this->get_post_thumbnail_url();
+		// $this->get_the_post_thumbnail();
+		// $this->get_meta();
+		// $this->get_terms();
+	}
+
+	protected function maybe_switch_blog() {
+		if ( ! is_multisite() ) {
+			return;
+		}
+
+		if ( get_current_blog_id() === $this->site_id ) {
+			$this->switched[] = false;
+			return;
+		}
+
+		$this->switched[] = true;
+		switch_to_blog( $this->site_id );
+	}
+
+	protected function maybe_restore_blog() {
+		if ( empty( $this->switched ) || ! array_pop( $this->switched ) ) {
+			return;
+		}
+
+		restore_current_blog();
 	}
 
 	/**
@@ -345,11 +368,9 @@ class DistributorPost {
 	 * @return string Post permalink.
 	 */
 	public function get_permalink() {
-		static $permalink = null;
-		if ( null === $permalink ) {
-			$permalink = get_permalink( $this->post );
-		}
-
+		$this->maybe_switch_blog();
+		$permalink = get_permalink( $this->post );
+		$this->maybe_restore_blog();
 		return $permalink;
 	}
 
@@ -368,11 +389,9 @@ class DistributorPost {
 	 * @return int|false Post thumbnail ID or false if no thumbnail is set.
 	 */
 	public function get_post_thumbnail_id() {
-		static $thumbnail_id = null;
-		if ( null === $thumbnail_id ) {
-			$thumbnail_id = get_post_thumbnail_id( $this->post );
-		}
-
+		$this->maybe_switch_blog();
+		$thumbnail_id = get_post_thumbnail_id( $this->post );
+		$this->maybe_restore_blog();
 		return $thumbnail_id;
 	}
 
@@ -383,11 +402,9 @@ class DistributorPost {
 	 * @return string|false The post's thumbnail URL or false if no thumbnail is set.
 	 */
 	public function get_post_thumbnail_url( $size = 'post-thumbnail' ) {
-		static $thumbnail_url = null;
-		if ( null === $thumbnail_url ) {
-			$thumbnail_url = get_the_post_thumbnail_url( $this->post, $size );
-		}
-
+		$this->maybe_switch_blog();
+		$thumbnail_url = get_the_post_thumbnail_url( $this->post, $size );
+		$this->maybe_restore_blog();
 		return $thumbnail_url;
 	}
 
@@ -399,23 +416,10 @@ class DistributorPost {
 	 * @return string|false The post's thumbnail HTML or false if no thumbnail is set.
 	 */
 	public function get_the_post_thumbnail( $size = 'post-thumbnail', $attr = '' ) {
-		static $thumbnail = [];
-		$hash             = md5( wp_json_encode( [ $size, $attr ] ) );
-
-		if ( empty( $thumbnail[ $hash ] ) ) {
-			$switched = false;
-			if ( is_multisite() && get_current_blog_id() !== $this->site_id ) {
-				switch_to_blog( $this->site_id );
-				$switched = true;
-			}
-			$thumbnail[ $hash ] = get_the_post_thumbnail( $this->post, $size, $attr );
-
-			if ( $switched ) {
-				restore_current_blog();
-			}
-		}
-
-		return $thumbnail[ $hash ];
+		$this->maybe_switch_blog();
+		$thumbnail = get_the_post_thumbnail( $this->post, $size, $attr );
+		$this->maybe_restore_blog();
+		return $thumbnail;
 	}
 
 	/**
@@ -499,19 +503,9 @@ class DistributorPost {
 			|| ! $this->original_post_url
 		) {
 			if ( empty( $author_link ) ) {
-				static $author_posts_url = null;
-				if ( empty( $author_posts_url ) ) {
-					$switched = false;
-					if ( is_multisite() && get_current_blog_id() !== $this->site_id ) {
-						switch_to_blog( $this->site_id );
-						$switched = true;
-					}
-					$author_posts_url = get_author_posts_url( $this->post->post_author );
-
-					if ( $switched ) {
-						restore_current_blog();
-					}
-				}
+				$this->maybe_switch_blog();
+				$author_posts_url = get_author_posts_url( $this->post->post_author );
+				$this->maybe_restore_blog();
 
 				return $author_posts_url;
 			}
@@ -528,10 +522,9 @@ class DistributorPost {
 	 * @return array Array of meta data.
 	 */
 	public function get_meta() {
-		static $meta = null;
-		if ( null === $meta ) {
-			$meta = Utils\prepare_meta( $this->post->ID );
-		}
+		$this->maybe_switch_blog();
+		$meta = Utils\prepare_meta( $this->post->ID );
+		$this->maybe_restore_blog();
 
 		return $meta;
 	}
@@ -544,10 +537,9 @@ class DistributorPost {
 	 * }
 	 */
 	public function get_terms() {
-		static $terms = null;
-		if ( null === $terms ) {
-			$terms = Utils\prepare_taxonomy_terms( $this->post->ID );
-		}
+		$this->maybe_switch_blog();
+		$terms = Utils\prepare_taxonomy_terms( $this->post->ID );
+		$this->maybe_restore_blog();
 
 		return $terms;
 	}
@@ -558,15 +550,7 @@ class DistributorPost {
 	 * @return array
 	 */
 	public function get_media() {
-		static $media_array = null;
-		if ( null !== $media_array ) {
-			return $media_array;
-		}
-
-		if ( is_multisite() && get_current_blog_id() !== $this->site_id ) {
-			switch_to_blog( $this->site_id );
-			$switched = true;
-		}
+		$this->maybe_switch_blog();
 
 		$post_id = $this->post->ID;
 		if ( $this->has_blocks() ) {
@@ -596,9 +580,7 @@ class DistributorPost {
 			$media_array[] = $featured_image;
 		}
 
-		if ( $switched ) {
-			restore_current_blog();
-		}
+		$this->maybe_restore_blog();
 		return $media_array;
 	}
 
@@ -639,11 +621,13 @@ class DistributorPost {
 		 *
 		 * See https://core.trac.wordpress.org/ticket/57163
 		 */
+		$this->maybe_switch_blog();
 		_prime_post_caches( $media, false, false );
 		update_object_term_cache( $media, 'attachment' );
 		update_postmeta_cache( $media );
 		$media = array_map( 'get_post', $media );
 		$media = array_filter( $media );
+		$this->maybe_restore_blog();
 
 		return $media;
 	}
@@ -714,10 +698,7 @@ class DistributorPost {
 	 * }
 	 */
 	public function post_data() {
-		if ( is_multisite() && get_current_blog_id() !== $this->site_id ) {
-			switch_to_blog( $this->site_id );
-			$switched = true;
-		}
+		$this->maybe_switch_blog();
 
 		$post_data = [
 			'title'             => html_entity_decode( get_the_title( $this->post->ID ), ENT_QUOTES, get_bloginfo( 'charset' ) ),
@@ -730,9 +711,7 @@ class DistributorPost {
 			'distributor_meta'  => $this->get_meta(),
 		];
 
-		if ( $switched ) {
-			restore_current_blog();
-		}
+		$this->maybe_restore_blog();
 
 		return $post_data;
 	}
@@ -758,6 +737,7 @@ class DistributorPost {
 	 * }
 	 */
 	public function to_insert() {
+		$this->maybe_switch_blog();
 		$insert       = [];
 		$post_data    = $this->post_data();
 		$key_mappings = [
@@ -777,6 +757,7 @@ class DistributorPost {
 			$insert[ $key ] = $post_data[ $value ];
 		}
 
+		$this->maybe_restore_blog();
 		return $insert;
 	}
 
@@ -788,6 +769,7 @@ class DistributorPost {
 	 * @return string JSON encoded post data.
 	 */
 	public function to_json( $options = 0, $depth = 512 ) {
+		$this->maybe_switch_blog();
 		$post_data = $this->post_data();
 
 		/*
@@ -801,6 +783,8 @@ class DistributorPost {
 			$post_data['distributor_raw_content'] = $this->post->post_content;
 		}
 
-		return wp_json_encode( $post_data, $options, $depth );
+		$result = wp_json_encode( $post_data, $options, $depth );
+		$this->maybe_restore_blog();
+		return $result;
 	}
 }
