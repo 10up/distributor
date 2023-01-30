@@ -34,6 +34,13 @@ class DistributorPostTest extends TestCase {
 			]
 		);
 
+		\WP_Mock::userFunction(
+			'get_current_blog_id',
+			[
+				'return' => 1,
+			]
+		);
+
 		// Return voids.
 		\WP_Mock::userFunction( '_prime_post_caches' );
 		\WP_Mock::userFunction( 'update_object_term_cache' );
