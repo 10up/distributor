@@ -204,8 +204,10 @@ class DistributorPost {
 		}
 
 		if ( get_current_blog_id() !== $this->site_id ) {
-			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_trigger_error -- throwing a warning is the correct behavior.
-			trigger_error( 'DistributorPost object is not on the correct site.', E_USER_WARNING );
+			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_trigger_error -- throwing a warning is the correct behavior.
+				trigger_error( 'DistributorPost object is not on the correct site.', E_USER_WARNING );
+			}
 			switch_to_blog( $this->site_id );
 			$switched = true;
 		}
