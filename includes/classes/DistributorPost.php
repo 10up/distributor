@@ -95,6 +95,13 @@ class DistributorPost {
 	public $connection_id = 0;
 
 	/**
+	 * The site ID of this post.
+	 *
+	 * @var int
+	 */
+	public $site_id = 0;
+
+	/**
 	 * The source site data for internal connections.
 	 *
 	 * This is an array of site data for the source site. This is set by
@@ -122,7 +129,8 @@ class DistributorPost {
 			return;
 		}
 
-		$this->post = $post;
+		$this->post    = $post;
+		$this->site_id = get_current_blog_id();
 
 		/*
 		 * The original post ID is listed as excluded post meta and therefore
