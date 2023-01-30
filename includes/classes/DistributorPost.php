@@ -187,6 +187,36 @@ class DistributorPost {
 	}
 
 	/**
+	 * Magic method for calling methods on the post object.
+	 *
+	 * This is used to ensure the post object is switched to the correct site before
+	 * running any of the internal methods.
+	 *
+	 * @param string $name      Method name.
+	 * @param array  $arguments Method arguments.
+	 */
+	public function __call( $name, $arguments ) {
+		$switched = false;
+		if ( ! method_exists( $this, $name ) ) {
+			// Emulate default behavior of calling non existent method (a fatal error).
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_trigger_error, WordPress.Security.EscapeOutput -- class and name are safe.
+			trigger_error( 'Call to undefined method ' . __CLASS__ . '::' . $name . '()', E_USER_ERROR );
+		}
+
+		if ( get_current_blog_id() !== $this->site_id ) {
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_trigger_error -- throwing a warning is the correct behavior.
+			trigger_error( 'DistributorPost object is not on the correct site.', E_USER_WARNING );
+			switch_to_blog( $this->site_id );
+			$switched = true;
+		}
+		$result = call_user_func_array( array( $this, $name ), $arguments );
+		if ( $switched ) {
+			restore_current_blog();
+		}
+		return $result;
+	}
+
+	/**
 	 * Populate the source site data for internal connections.
 	 *
 	 * This populates data from the source site used by internal connections.
