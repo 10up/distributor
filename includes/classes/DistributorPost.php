@@ -217,6 +217,42 @@ class DistributorPost {
 	}
 
 	/**
+	 * Magic getter method.
+	 *
+	 * This method is used to get the value of the `source_site` property and
+	 * populate it if needs be. For internal connections the post permalink is
+	 * updated with live data.
+	 *
+	 * @param string $name Property name.
+	 * @return mixed
+	 */
+	public function __get( $name ) {
+		if ( in_array( $name, array( 'source_site', 'original_post_url' ), true ) ) {
+			$this->populate_source_site();
+		}
+
+		return $this->$name;
+	}
+
+	/**
+	 * Magic isset method.
+	 *
+	 * This method is used to check if the `source_site` property is set and
+	 * populate it if needs be.
+	 *
+	 * @param string $name Property name.
+	 * @return bool
+	 */
+	public function __isset( $name ) {
+		if ( 'source_site' === $name && empty( $this->source_site ) ) {
+			$this->populate_source_site();
+			return ! empty( $this->source_site );
+		}
+
+		return isset( $this->$name );
+	}
+
+	/**
 	 * Populate the source site data for internal connections.
 	 *
 	 * This populates data from the source site used by internal connections.
@@ -268,42 +304,6 @@ class DistributorPost {
 		if ( $switch_to_site ) {
 			restore_current_blog();
 		}
-	}
-
-	/**
-	 * Magic getter method.
-	 *
-	 * This method is used to get the value of the `source_site` property and
-	 * populate it if needs be. For internal connections the post permalink is
-	 * updated with live data.
-	 *
-	 * @param string $name Property name.
-	 * @return mixed
-	 */
-	public function __get( $name ) {
-		if ( in_array( $name, array( 'source_site', 'original_post_url' ), true ) ) {
-			$this->populate_source_site();
-		}
-
-		return $this->$name;
-	}
-
-	/**
-	 * Magic isset method.
-	 *
-	 * This method is used to check if the `source_site` property is set and
-	 * populate it if needs be.
-	 *
-	 * @param string $name Property name.
-	 * @return bool
-	 */
-	public function __isset( $name ) {
-		if ( 'source_site' === $name && empty( $this->source_site ) ) {
-			$this->populate_source_site();
-			return ! empty( $this->source_site );
-		}
-
-		return isset( $this->$name );
 	}
 
 	/**
