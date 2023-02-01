@@ -319,7 +319,7 @@ class DistributorPost {
 	 *
 	 * @return bool Whether the post has blocks.
 	 */
-	public function has_blocks() {
+	protected function has_blocks() {
 		return has_blocks( $this->post->post_content );
 	}
 
@@ -335,7 +335,7 @@ class DistributorPost {
 	 * @param string $block_name Full block type to look for.
 	 * @return bool Whether the post content contains the specified block.
 	 */
-	public function has_block( $block_name ) {
+	protected function has_block( $block_name ) {
 		return has_block( $block_name, $this->post->post_content );
 	}
 
@@ -344,7 +344,7 @@ class DistributorPost {
 	 *
 	 * @return int Post ID.
 	 */
-	public function get_the_id() {
+	protected function get_the_id() {
 		return $this->post->ID;
 	}
 
@@ -353,7 +353,7 @@ class DistributorPost {
 	 *
 	 * @return string Post permalink.
 	 */
-	public function get_permalink() {
+	protected function get_permalink() {
 		return get_permalink( $this->post );
 	}
 
@@ -362,7 +362,7 @@ class DistributorPost {
 	 *
 	 * @return string Post type.
 	 */
-	public function get_post_type() {
+	protected function get_post_type() {
 		return get_post_type( $this->post );
 	}
 
@@ -371,7 +371,7 @@ class DistributorPost {
 	 *
 	 * @return int|false Post thumbnail ID or false if no thumbnail is set.
 	 */
-	public function get_post_thumbnail_id() {
+	protected function get_post_thumbnail_id() {
 		return get_post_thumbnail_id( $this->post );
 	}
 
@@ -381,7 +381,7 @@ class DistributorPost {
 	 * @param string $size Thumbnail size. Defaults to 'post-thumbnail'.
 	 * @return string|false The post's thumbnail URL or false if no thumbnail is set.
 	 */
-	public function get_post_thumbnail_url( $size = 'post-thumbnail' ) {
+	protected function get_post_thumbnail_url( $size = 'post-thumbnail' ) {
 		return get_the_post_thumbnail_url( $this->post, $size );
 	}
 
@@ -392,7 +392,7 @@ class DistributorPost {
 	 * @param array  $attr Optional. Attributes for the image markup. Default empty.
 	 * @return string|false The post's thumbnail HTML or false if no thumbnail is set.
 	 */
-	public function get_the_post_thumbnail( $size = 'post-thumbnail', $attr = '' ) {
+	protected function get_the_post_thumbnail( $size = 'post-thumbnail', $attr = '' ) {
 		return get_the_post_thumbnail( $this->post, $size, $attr );
 	}
 
@@ -407,7 +407,7 @@ class DistributorPost {
 	 *                               original source URL.
 	 * @return string The post's canonical URL.
 	 */
-	public function get_canonical_url( $canonical_url = '' ) {
+	protected function get_canonical_url( $canonical_url = '' ) {
 		if (
 			$this->is_source
 			|| $this->original_deleted
@@ -434,7 +434,7 @@ class DistributorPost {
 	 *                             author name does not need to be replaced by the original source name.
 	 * @return string The post's author name.
 	 */
-	public function get_author_name( $author_name = '' ) {
+	protected function get_author_name( $author_name = '' ) {
 		$settings = Utils\get_settings();
 
 		if (
@@ -465,7 +465,7 @@ class DistributorPost {
 	 *                             author link does not need to be replaced by the original source name.
 	 * @return string The post's author link.
 	 */
-	public function get_author_link( $author_link = '' ) {
+	protected function get_author_link( $author_link = '' ) {
 		$settings = Utils\get_settings();
 
 		if (
@@ -491,7 +491,7 @@ class DistributorPost {
 	 *
 	 * @return array Array of meta data.
 	 */
-	public function get_meta() {
+	protected function get_meta() {
 		return Utils\prepare_meta( $this->post->ID );
 	}
 
@@ -502,7 +502,7 @@ class DistributorPost {
 	 *    @type WP_Term[] Post terms keyed by taxonomy.
 	 * }
 	 */
-	public function get_terms() {
+	protected function get_terms() {
 		return Utils\prepare_taxonomy_terms( $this->post->ID );
 	}
 
@@ -511,7 +511,7 @@ class DistributorPost {
 	 *
 	 * @return array
 	 */
-	public function get_media() {
+	protected function get_media() {
 		$post_id = $this->post->ID;
 		if ( $this->has_blocks() ) {
 			$raw_media = $this->parse_media_blocks();
@@ -551,7 +551,7 @@ class DistributorPost {
 	 *
 	 * @return WP_Post[] Array of media posts.
 	 */
-	public function parse_media_blocks() {
+	protected function parse_media_blocks() {
 		$found = false;
 
 		// Note: changes to the cache key or group should be reflected in `includes/settings.php`
@@ -595,7 +595,7 @@ class DistributorPost {
 	 * @param array $block Block to parse.
 	 * @return int[] Array of media attachment IDs.
 	 */
-	private function parse_blocks_for_attachment_id( $block ) {
+	protected function parse_blocks_for_attachment_id( $block ) {
 		$media_blocks = array(
 			'core/image' => 'id',
 			'core/audio' => 'id',
@@ -654,7 +654,7 @@ class DistributorPost {
 	 *    @type array  $distributor_meta  Post meta.
 	 * }
 	 */
-	public function post_data() {
+	protected function post_data() {
 		return [
 			'title'             => html_entity_decode( get_the_title( $this->post->ID ), ENT_QUOTES, get_bloginfo( 'charset' ) ),
 			'slug'              => $this->post->post_name,
@@ -687,7 +687,7 @@ class DistributorPost {
 	 *    @type array  $distributor_media Media data.
 	 * }
 	 */
-	public function to_insert() {
+	protected function to_insert() {
 		$insert       = [];
 		$post_data    = $this->post_data();
 		$key_mappings = [
@@ -717,7 +717,7 @@ class DistributorPost {
 	 * @param int $depth   Optional. Maximum depth to walk through $data. Default 512.
 	 * @return string JSON encoded post data.
 	 */
-	public function to_json( $options = 0, $depth = 512 ) {
+	protected function to_json( $options = 0, $depth = 512 ) {
 		$post_data = $this->post_data();
 
 		/*
