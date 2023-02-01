@@ -17,6 +17,13 @@ use WP_Post;
  * includes the phrase Distributor to make it clear to developers `use`ing
  * the class that they are not using the `WP_Post` object.
  *
+ * Developer note: This class uses the `__call()` magic method to ensure the
+ * post data is from the correct site on multisite installs. This is to avoid
+ * repeating code to determine if `switch_to_blog()` is required.
+ *
+ * When adding new methods to this class, please ensure that the method is
+ * protected to ensure the magic method is used.
+ *
  * @since x.x.x
  */
 class DistributorPost {
