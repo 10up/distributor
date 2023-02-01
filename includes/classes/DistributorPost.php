@@ -125,6 +125,16 @@ class DistributorPost {
 	private $source_site = [];
 
 	/**
+	 * The cache for accessing methods when the site has been switched.
+	 *
+	 * This prevents the need to switch sites multiple times when accessing
+	 * the same method multiple times.
+	 *
+	 * @var array
+	 */
+	private $switched_site_cache = [];
+
+	/**
 	 * Initialize the DistributorPost object.
 	 *
 	 * @param WP_Post|int $post WordPress post object or post ID.
@@ -203,7 +213,8 @@ class DistributorPost {
 	 * @param array  $arguments Method arguments.
 	 */
 	public function __call( $name, $arguments ) {
-		$switched = false;
+		$switched  = false;
+		$cache_key = md5( "{$name}::" . wp_json_encode( $arguments ) );
 		if ( ! method_exists( $this, $name ) ) {
 			// Emulate default behavior of calling non existent method (a fatal error).
 			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_trigger_error, WordPress.Security.EscapeOutput -- class and name are safe.
@@ -215,10 +226,23 @@ class DistributorPost {
 				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_trigger_error -- throwing a warning is the correct behavior.
 				trigger_error( 'DistributorPost object is not on the correct site.', E_USER_WARNING );
 			}
+			// array_key_exists as opposed to isset to avoid false negatives.
+			if ( array_key_exists( $cache_key, $this->switched_site_cache ) ) {
+				/*
+				 * Avoid switching sites if the result is already cached.
+				 *
+				 * Due to the use of filters within various functions called by
+				 * the helper methods, this data may not be correct at runtime if
+				 * hooks have been added or removed. However, caching is a performance
+				 * compromise to avoid switching sites on every call.
+				 */
+				return $this->switched_site_cache[ $cache_key ];
+			}
 			switch_to_blog( $this->site_id );
 			$switched = true;
 		}
-		$result = call_user_func_array( array( $this, $name ), $arguments );
+		$result                                  = call_user_func_array( array( $this, $name ), $arguments );
+		$this->switched_site_cache[ $cache_key ] = $result;
 		if ( $switched ) {
 			restore_current_blog();
 		}
