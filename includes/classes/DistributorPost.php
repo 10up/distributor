@@ -129,8 +129,8 @@ class DistributorPost {
 			return;
 		}
 
-		$this->post    = $post;
 		$this->site_id = get_current_blog_id();
+		$this->post    = $post;
 
 		/*
 		 * The original post ID is listed as excluded post meta and therefore
