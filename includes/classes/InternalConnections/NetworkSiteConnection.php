@@ -86,7 +86,13 @@ class NetworkSiteConnection extends Connection {
 		// Distribute raw HTML when going from Gutenberg enabled to Gutenberg enabled.
 		$remote_using_gutenberg = \Distributor\Utils\is_using_gutenberg( $post );
 		if ( $using_gutenberg && $remote_using_gutenberg ) {
-			$new_post_args['post_content'] = $post->post_content;
+
+			// If DOMDocument is not installed, skip parsing the content.
+			if ( class_exists( 'DOMDocument' ) ) {
+				$new_post_args['post_content'] = $this->filter_gutenberg_blocks( $post->post_content, $post_id, $original_blog_id, $this->site->blog_id );
+			} else {
+				$new_post_args['post_content'] = $post->post_content;
+			}
 		}
 
 		// Handle existing posts.
@@ -213,6 +219,128 @@ class NetworkSiteConnection extends Connection {
 		}
 
 		return $output;
+	}
+
+	/**
+	 * Parses and allows filtering on the gutenberg blocks and their attributes
+	 *
+	 * @param string $content             post content of the source post
+	 * @param int    $source_post_id      Post ID on the source site
+	 * @param int    $source_blog_id      ID of the source blog for the post
+	 * @param int    $destination_blog_id ID of the destination site for the post
+	 *
+	 * @return mixed|string
+	 */
+	public function filter_gutenberg_blocks( $content, $source_post_id, $source_blog_id, $destination_blog_id ) {
+		$content = $this->gutenbergCommentsToElements( $content );
+
+		$dom = new \DOMDocument();
+
+		$converted_content = function_exists( 'mb_convert_encoding' ) ? mb_convert_encoding( $content, 'HTML-ENTITIES', 'UTF-8' ) : htmlspecialchars_decode( utf8_decode( htmlentities( $content, ENT_COMPAT, 'utf-8', false ) ) );
+
+		$dom->loadHTML( $converted_content );
+
+		$body = $dom->getElementsByTagName( 'body' )->item( 0 );
+		foreach ( $body->childNodes as $node ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName
+			if ( 'gutenberg' !== $node->tagName ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName
+				continue;
+			}
+
+			$block_name       = $node->getAttribute( 'blockname' );
+			$block_attributes = json_decode( $node->getAttribute( 'blockattributes' ), true );
+
+			/**
+			 * Action fired when a sync is being logged.
+			 *
+			 * @since 1.6.0
+			 *
+			 * @param array  $block_attributes Array of block attributes from the comment json
+			 * @param string $block_name       The name of the block
+			 * @param int    $source_post_id   The post ID on the originating site
+			 * @param int    $source_blog_id   The blog_id of the source site
+			 */
+			$block_attributes = apply_filters( 'dt_filter_block_attributes', $block_attributes, $block_name, $source_post_id, $source_blog_id, $destination_blog_id );
+
+			if ( ! empty( $block_attributes ) ) {
+				$node->setAttribute( 'blockattributes', wp_json_encode( $block_attributes ) );
+			} else {
+				$node->removeAttribute( 'blockattributes' );
+			}
+		}
+
+		$string = $dom->saveHTML( $dom->getElementsByTagName( 'body' )->item( 0 ) );
+
+		$string = str_replace( '<body>', '', $string );
+		$string = str_replace( '</body>', '', $string );
+
+		$string = $this->gutenbergElementsToComments( $string );
+
+		return $string;
+	}
+
+	/**
+	 * Converts post content with gutenberg html comments to <gutenberg> elements
+	 *
+	 * @param string $content Post content with gutenberg comments
+	 *
+	 * @return string Modified content
+	 */
+	public function gutenbergCommentsToElements( $content ) {
+		// Replace opening gutenberg comments with custom html elements
+		$content = preg_replace( '/<!-- wp:([^>]*)-->/i', '<gutenberg wp:$1>', $content );
+
+		// Add a closing </gutenberg> html element after the closing gutenberg comment
+		// Retaining the actual gutenberg closing comment so we can reliably close blocks when converting back to comments later
+		$content = preg_replace( '/(<!-- \/wp:[^>]*>)/i', '$1</gutenberg>', $content );
+
+		// Put block name into an html attribute
+		$content = preg_replace( '/<gutenberg wp:([^\s]*)/i', '<gutenberg blockname="$1"', $content );
+
+		// put block attributes into an html attribute
+		$content = preg_replace_callback(
+			'/<gutenberg[^{^>]+(\{.*})[\s\/]{0,2}>/i',
+			function( $matches ) {
+				if ( ! isset( $matches[1] ) || empty( $matches[1] ) ) {
+					return $matches[0];
+				}
+
+				$original_json = $matches[1];
+
+				return str_replace( $original_json, 'blockattributes=\'' . $original_json . '\'', $matches[0] );
+			},
+			$content
+		);
+
+		return $content;
+	}
+
+	/**
+	 * Converts post content with <gutenberg> elements back to standard gutenberg html comments
+	 *
+	 * @param string $content Content with gutenberg elements to replace
+	 *
+	 * @return string Final content with gutenberg elements back to gutenberg comments
+	 */
+	public function gutenbergElementsToComments( $content ) {
+		// blockAttributes back to just plain inline json
+		$content = preg_replace( '/blockattributes=\'([^\']*)\'/i', '$1 ', $content ); // Extra space following } is intentional
+
+		// Put block name back to the inline wp:<name> format
+		$content = preg_replace( '/blockname="([^"]*)"/i', 'wp:$1', $content );
+
+		// Find any that should be self closing, and convert them to self closing gutenberg comments
+		$content = preg_replace( '/<gutenberg (wp:[^>]*)><\/gutenberg>/i', '<!-- $1 /-->', $content );
+
+		// Convert any opening tags to opening gutenberg comments
+		$content = preg_replace( '/<gutenberg (wp:[^>]*)>/i', '<!-- $1 -->', $content );
+
+		// Since we left the closing comments inline, we can just get rid of the </gutenberg> elements that are left
+		$content = str_replace( '</gutenberg>', '', $content );
+
+		// In some cases, we introduce double spaces before closing comment, so get rid of any of those
+		$content = str_replace( '  -->', ' -->', $content );
+
+		return $content;
 	}
 
 	/**
