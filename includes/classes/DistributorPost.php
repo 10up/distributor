@@ -22,7 +22,9 @@ use WP_Post;
  * repeating code to determine if `switch_to_blog()` is required.
  *
  * When adding new methods to this class, please ensure that the method is
- * protected to ensure the magic method is used.
+ * protected to ensure the magic method is used. If the method is intended to
+ * be public, please add it to the `@method` docblock below to ensure it is
+ * shown in IDEs.
  *
  * @since x.x.x
  *
