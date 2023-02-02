@@ -1,0 +1,17 @@
+{
+	"connect-to-an-existing-post": {
+		"title": "Connect to an Existing Post"
+	},
+	"exclude-meta-from-yoast-duplicate-post": {
+		"title": "Exclude Meta from Yoast Duplicate Post"
+	},
+	"migration-guide-version-1-to-version-2": {
+		"title": "Migration Guide Version 1 to Version 2"
+	},
+	"post-meta": {
+		"title": "Post Meta"
+	},
+	"snippets": {
+		"title": "Snippets"
+	}
+}
