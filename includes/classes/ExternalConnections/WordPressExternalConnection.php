@@ -710,6 +710,7 @@ class WordPressExternalConnection extends ExternalConnection {
 					 *
 					 * @since 1.0
 					 * @hook dt_push_post_args
+					 * @tutorial snippets
 					 *
 					 * @param  {array}              $post_body  The request body to send.
 					 * @param  {object}             $post       The WP_Post that is being pushed.
