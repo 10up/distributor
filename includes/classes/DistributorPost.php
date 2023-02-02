@@ -237,14 +237,21 @@ class DistributorPost {
 		$cache_key = md5( "{$name}::" . wp_json_encode( $arguments ) );
 		if ( ! method_exists( $this, $name ) ) {
 			// Emulate default behavior of calling non existent method (a fatal error).
-			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_trigger_error, WordPress.Security.EscapeOutput -- class and name are safe.
-			trigger_error( 'Call to undefined method ' . __CLASS__ . '::' . $name . '()', E_USER_ERROR );
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_trigger_error
+			trigger_error(
+				sprintf(
+					/* translators: %s: method name */
+					esc_html__( 'Call to undefined method %s', 'distributor' ),
+					esc_html( __CLASS__ . '::' . $name . '()' )
+				),
+				E_USER_ERROR
+			);
 		}
 
 		if ( get_current_blog_id() !== $this->site_id ) {
 			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_trigger_error -- throwing a warning is the correct behavior.
-				trigger_error( 'DistributorPost object is not on the correct site.', E_USER_WARNING );
+				trigger_error( esc_html__( 'DistributorPost object was called from a switched site.', 'distributor' ), E_USER_WARNING );
 			}
 			// array_key_exists as opposed to isset to avoid false negatives.
 			if ( array_key_exists( $cache_key, $this->switched_site_cache ) ) {
