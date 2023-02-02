@@ -25,6 +25,24 @@ use WP_Post;
  * protected to ensure the magic method is used.
  *
  * @since x.x.x
+ *
+ * @method bool has_blocks()
+ * @method bool has_block( string $block_name )
+ * @method int  get_the_ID()
+ * @method string get_permalink()
+ * @method string get_post_type()
+ * @method int|false get_post_thumbnail_id()
+ * @method string|false get_post_thumbnail_url( string $size = 'post-thumbnail' )
+ * @method string|false get_the_post_thumbnail( string $size = 'post-thumbnail', array $attr = '' )
+ * @method string get_canonical_url( string $canonical_url = '' )
+ * @method string get_author_name( string $author_name = '' )
+ * @method string get_author_link( string $author_link = '' )
+ * @method array get_meta()
+ * @method array get_terms()
+ * @method array get_media()
+ * @method array post_data()
+ * @method array to_insert()
+ * @method string to_json( int $options = 0, int $depth = 512 )
  */
 class DistributorPost {
 	/**
