@@ -15,6 +15,7 @@ require_once __DIR__ . '/includes/common.php';
 require_once __DIR__ . '/includes/TestCase.php';
 
 // Load plugin files.
+require_once( __DIR__ . '/../../includes/hooks.php' );
 require_once( __DIR__ . '/../../includes/utils.php' );
 require_once( __DIR__ . '/../../includes/debug-info.php' );
 require_once( __DIR__ . '/../../includes/subscriptions.php' );
