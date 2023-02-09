@@ -12,27 +12,27 @@ class EnqueueScriptTest extends TestCase {
 		$this->markTestIncomplete();
 	}
 
-	public function testScriptEnqueue() {
+	public function testScriptEnqueue(): void {
 		$this->markTestIncomplete();
 	}
 
-	public function testCustomVersion() {
+	public function testCustomVersion(): void {
 		$this->markTestIncomplete();
 	}
 
-	public function testCustomDependencies() {
+	public function testCustomDependencies(): void {
 		$this->markTestIncomplete();
 	}
 
-	public function testTranslations() {
+	public function testTranslations(): void {
 		$this->markTestIncomplete();
 	}
 
-	public function testLocalizeData() {
+	public function testLocalizeData(): void {
 		$this->markTestIncomplete();
 	}
 
-	public function testLoadScriptInFooter() {
+	public function testLoadScriptInFooter(): void {
 		$this->markTestIncomplete();
 	}
 }
