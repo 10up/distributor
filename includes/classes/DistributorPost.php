@@ -789,12 +789,12 @@ class DistributorPost {
 			// Updating an existing post.
 			$insert['ID'] = (int) $args['remote_post_id'];
 			unset( $insert['post_status'] );
-		} else {
-			// It's a new post.
-			if ( ! empty( $args['post_status'] ) ) {
-				$insert['post_status'] = $args['post_status'];
-			}
 		}
+
+		if ( ! empty( $args['post_status'] ) ) {
+			$insert['post_status'] = $args['post_status'];
+		}
+
 		return $insert;
 	}
 
