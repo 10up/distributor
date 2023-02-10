@@ -767,7 +767,6 @@ class DistributorPost {
 			'post_type'    => 'post_type',
 			'post_content' => 'content',
 			'post_excerpt' => 'excerpt',
-			'post_parent'  => 'parent',
 			'post_status'  => 'status',
 			'terms'        => 'distributor_terms',
 			'meta'         => 'distributor_meta',
@@ -779,6 +778,9 @@ class DistributorPost {
 		foreach ( $key_mappings as $key => $value ) {
 			$insert[ $key ] = $post_data[ $value ];
 		}
+
+		// Additional data required for wp_insert_post().
+		$insert['post_author'] = isset( $this->post->post_author ) ? $this->post->post_author : get_current_user_id();
 
 		// If the post has blocks, use the raw content.
 		if ( $this->has_blocks() ) {
