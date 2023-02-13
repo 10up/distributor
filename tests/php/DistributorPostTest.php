@@ -1463,18 +1463,19 @@ class DistributorPostTest extends TestCase {
 		// Make sure it looks good to insert.
 		$to_insert_actual = $dt_post->to_insert();
 		$to_insert_expected = array(
-			'post_title'        => 'Test Post',
-			'post_name'         => 'test-post',
-			'post_type'         => 'post',
-			'post_content'      => 'Test Content',
-			'post_excerpt'      => 'Test Excerpt',
-			'post_status'       => 'publish',
-			'tax_input'         => array(
+			'post_title'   => 'Test Post',
+			'post_name'    => 'test-post',
+			'post_type'    => 'post',
+			'post_content' => 'Test Content',
+			'post_excerpt' => 'Test Excerpt',
+			'post_status'  => 'publish',
+			'terms'             => array(
 				'category'      => array(),
 				'post_tag'      => array(),
 			),
-			'meta_input'        => array(),
-			'distributor_media' => array(),
+			'meta'         => array(),
+			'media'        => array(),
+			'post_author'  => 1,
 		);
 
 		$this->assertSame( $to_insert_expected, $to_insert_actual );
@@ -1615,18 +1616,19 @@ class DistributorPostTest extends TestCase {
 		// Make sure it looks good to insert.
 		$to_insert_actual = $dt_post->to_insert();
 		$to_insert_expected = array(
-			'post_title'        => 'Test Post',
-			'post_name'         => 'test-post',
-			'post_type'         => 'post',
-			'post_content'      => '<!-- wp:paragraph --><p>Test Content</p><!-- /wp:paragraph -->',
-			'post_excerpt'      => 'Test Excerpt',
-			'post_status'       => 'publish',
-			'tax_input'         => array(
-				'category'      => array(),
-				'post_tag'      => array(),
+			'post_title'   => 'Test Post',
+			'post_name'    => 'test-post',
+			'post_type'    => 'post',
+			'post_content' => '<!-- wp:paragraph --><p>Test Content</p><!-- /wp:paragraph -->',
+			'post_excerpt' => 'Test Excerpt',
+			'post_status'  => 'publish',
+			'terms'        => array(
+				'category' => array(),
+				'post_tag' => array(),
 			),
-			'meta_input'        => array(),
-			'distributor_media' => array(),
+			'meta'         => array(),
+			'media'        => array(),
+			'post_author'  => 1,
 		);
 
 		$this->assertSame( $to_insert_expected, $to_insert_actual );
