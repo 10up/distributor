@@ -1466,7 +1466,7 @@ class DistributorPostTest extends TestCase {
 		$post_data_expected = array(
 			'title'                          => 'Test Post',
 			'slug'                           => 'test-post',
-			'post_type'                      => 'post',
+			'type'                           => 'post',
 			'content'                        => 'Test Content',
 			'excerpt'                        => 'Test Excerpt',
 			'parent'                         => 0,
@@ -1515,7 +1515,7 @@ class DistributorPostTest extends TestCase {
 			array(
 				'title'                          => 'Test Post',
 				'slug'                           => 'test-post',
-				'post_type'                      => 'post',
+				'type'                           => 'post',
 				'content'                        => 'Test Content',
 				'excerpt'                        => 'Test Excerpt',
 				'parent'                         => 0,
@@ -1647,7 +1647,7 @@ class DistributorPostTest extends TestCase {
 		$post_data_expected = array(
 			'title'                          => 'Test Post',
 			'slug'                           => 'test-post',
-			'post_type'                      => 'post',
+			'type'                           => 'post',
 			'content'                        => '<!-- wp:paragraph --><p>Test Content</p><!-- /wp:paragraph -->',
 			'excerpt'                        => 'Test Excerpt',
 			'parent'			             => 0,
@@ -1696,7 +1696,7 @@ class DistributorPostTest extends TestCase {
 			array(
 				'title'                          => 'Test Post',
 				'slug'                           => 'test-post',
-				'post_type'                      => 'post',
+				'type'                           => 'post',
 				'content'                        => '<!-- wp:paragraph --><p>Test Content</p><!-- /wp:paragraph -->',
 				'excerpt'                        => 'Test Excerpt',
 				'parent'                         => 0,

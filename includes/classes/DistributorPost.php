@@ -719,7 +719,7 @@ class DistributorPost {
 		return array(
 			'title'                          => html_entity_decode( get_the_title( $this->post->ID ), ENT_QUOTES, get_bloginfo( 'charset' ) ),
 			'slug'                           => $this->post->post_name,
-			'post_type'                      => $this->post->post_type,
+			'type'                           => $this->post->post_type,
 			'content'                        => Utils\get_processed_content( $this->post->post_content ),
 			'excerpt'                        => $this->post->post_excerpt,
 			'parent'                         => ! empty( $this->post->post_parent ) ? (int) $this->post->post_parent : 0,
@@ -771,7 +771,7 @@ class DistributorPost {
 		$key_mappings = [
 			'post_title'   => 'title',
 			'post_name'    => 'slug',
-			'post_type'    => 'post_type',
+			'post_type'    => 'type',
 			'post_content' => 'content',
 			'post_excerpt' => 'excerpt',
 			'post_status'  => 'status',
