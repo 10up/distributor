@@ -84,6 +84,7 @@ class NetworkSiteConnection extends Connection {
 		$original_post_url = $dt_post->get_permalink();
 		$output            = array();
 		$post              = Utils\prepare_post( get_post( $post_id ) );
+		$update            = false;
 
 		switch_to_blog( $this->site->blog_id );
 
@@ -93,27 +94,19 @@ class NetworkSiteConnection extends Connection {
 			return new \WP_Error( 'dt_invalid_remote_post_id', __( 'Invalid remote post ID', 'distributor' ) );
 		}
 
-		// When updating an existing post, retain the original published date.
+		// If we have a remote post ID, we're updating.
 		if ( ! empty( $args['remote_post_id'] ) ) {
-			$dt_post_args['post_date']     = get_post( $args['remote_post_id'] )->post_date;
-			$dt_post_args['post_date_gmt'] = get_post( $args['remote_post_id'] )->post_date_gmt;
-		}
-
-		if ( empty( $args['post_status'] ) ) {
-			if ( isset( $dt_post_args['ID'] ) ) {
-
-				// Avoid updating the status of previously distributed posts.
-				$existing_status = get_post_status( (int) $dt_post_args['ID'] );
-				if ( $existing_status ) {
-					$dt_post_args['post_status'] = $existing_status;
-				}
-			}
+			$update = true;
 		}
 
 		add_filter( 'wp_insert_post_data', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'maybe_set_modified_date' ), 10, 2 );
 		// Filter documented in includes/classes/ExternalConnections/WordPressExternalConnection.php
 		$new_post_args = Utils\post_args_allow_list( apply_filters( 'dt_push_post_args', $dt_post_args, $post, $args, $this ) );
-		$new_post_id   = wp_insert_post( wp_slash( $new_post_args ) );
+		if ( $update ) {
+			$new_post_id = wp_update_post( wp_slash( $new_post_args ), true );
+		} else {
+			$new_post_id = wp_insert_post( wp_slash( $new_post_args ) );
+		}
 		remove_filter( 'wp_insert_post_data', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'maybe_set_modified_date' ), 10, 2 );
 
 		if ( is_wp_error( $new_post_id ) ) {
