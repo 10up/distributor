@@ -819,12 +819,28 @@ class DistributorPost {
 	/**
 	 * Get the post data in a format suitable for the distributor REST API endpoint.
 	 *
-	 * @param int $options Optional. Options to be passed to json_encode(). Default 0.
-	 * @param int $depth   Optional. Maximum depth to walk through $data. Default 512.
-	 * @return string JSON encoded post data.
+	 * @param array $rest_args Optional. Arguments to be passed to the REST API endpoint.
+	 * @return array Post data formatted for the REST API endpoint.
 	 */
-	protected function to_json( $options = 0, $depth = 512 ) {
+	protected function to_rest( $rest_args = array() ) {
 		$post_data = $this->post_data();
+
+		if ( ! empty( $post_data['parent'] ) ) {
+			$post_data['distributor_original_post_parent'] = (int) $post_data['parent'];
+		}
+		unset( $post_data['parent'] );
+
+		// Replace any default values with those that have been passed.
+		$post_data = array_merge( $post_data, $rest_args );
+
+		/*
+		 * Rename the original post ID to the remote post ID.
+		 *
+		 * JSON requests are sent to external sites via the REST API so from the perspective
+		 * of the external site, the original post ID is the remote post ID.
+		 */
+		$post_data['distributor_remote_post_id'] = $post_data['distributor_original_post_id'];
+		unset( $post_data['distributor_original_post_id'] );
 
 		/*
 		 * Check if the post has block to determine whether to use the raw content or not.
@@ -837,6 +853,6 @@ class DistributorPost {
 			$post_data['distributor_raw_content'] = $this->post->post_content;
 		}
 
-		return wp_json_encode( $post_data, $options, $depth );
+		return $post_data;
 	}
 }
