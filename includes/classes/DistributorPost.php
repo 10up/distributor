@@ -715,18 +715,25 @@ class DistributorPost {
 	 * }
 	 */
 	protected function post_data() {
-		return [
-			'title'             => html_entity_decode( get_the_title( $this->post->ID ), ENT_QUOTES, get_bloginfo( 'charset' ) ),
-			'slug'              => $this->post->post_name,
-			'post_type'         => $this->post->post_type,
-			'content'           => Utils\get_processed_content( $this->post->post_content ),
-			'excerpt'           => $this->post->post_excerpt,
-			'parent'            => ! empty( $this->post->post_parent ) ? (int) $this->post->post_parent : 0,
-			'status'            => $this->post->post_status,
-			'distributor_media' => $this->get_media(),
-			'distributor_terms' => $this->get_terms(),
-			'distributor_meta'  => $this->get_meta(),
-		];
+		$this->populate_source_site();
+		return array(
+			'title'                          => html_entity_decode( get_the_title( $this->post->ID ), ENT_QUOTES, get_bloginfo( 'charset' ) ),
+			'slug'                           => $this->post->post_name,
+			'post_type'                      => $this->post->post_type,
+			'content'                        => Utils\get_processed_content( $this->post->post_content ),
+			'excerpt'                        => $this->post->post_excerpt,
+			'parent'                         => ! empty( $this->post->post_parent ) ? (int) $this->post->post_parent : 0,
+			'status'                         => $this->post->post_status,
+			'distributor_media'              => $this->get_media(),
+			'distributor_terms'              => $this->get_terms(),
+			'distributor_meta'               => $this->get_meta(),
+
+			// Original site and post data.
+			'distributor_original_site_name' => $this->source_site['name'],
+			'distributor_original_site_url'  => $this->source_site['home_url'],
+			'distributor_original_post_url'  => $this->get_permalink(),
+			'distributor_original_post_id'   => $this->post->ID,
+		);
 	}
 
 	/**
@@ -795,6 +802,15 @@ class DistributorPost {
 
 		if ( ! empty( $args['post_status'] ) ) {
 			$insert['post_status'] = $args['post_status'];
+		}
+
+		// Post meta used by wp_insert_post, wp_update_post.
+		$insert['meta_input'] = array(
+			'dt_original_post_id'  => $post_data['distributor_original_post_id'],
+			'dt_original_post_url' => $post_data['distributor_original_post_url'],
+		);
+		if ( ! empty( $post_data['parent'] ) ) {
+			$insert['meta_input']['dt_original_post_parent'] = $post_data['parent'];
 		}
 
 		return $insert;
