@@ -85,6 +85,9 @@ class NetworkSiteConnection extends Connection {
 		$output            = array();
 		$post              = Utils\prepare_post( get_post( $post_id ) );
 		$update            = false;
+		$post_meta         = $dt_post->get_meta();
+		$post_terms        = $dt_post->get_terms();
+		$post_media        = $dt_post->get_media();
 
 		switch_to_blog( $this->site->blog_id );
 
@@ -140,15 +143,15 @@ class NetworkSiteConnection extends Connection {
 		 *
 		 * @param {bool}       true           If Distributor should push the post meta.
 		 * @param {int}        $new_post_id   The newly created post ID.
-		 * @param {array}      $terms         Meta attached to the post, formatted by {@link \Distributor\Utils\prepare_meta()}.
+		 * @param {array}      $post_meta     Meta attached to the post, formatted by {@link \Distributor\Utils\prepare_meta()}.
 		 * @param {int}        $post_id       The original post ID.
 		 * @param {array}      $args          The arguments passed into wp_insert_post.
 		 * @param {Connection} $this          The distributor connection being pushed to.
 		 *
 		 * @return {bool} If Distributor should push the post meta.
 		 */
-		if ( apply_filters( 'dt_push_post_meta', true, $new_post_id, $dt_post->get_meta(), $post_id, $args, $this ) ) {
-			Utils\set_meta( $new_post_id, $dt_post->get_meta() );
+		if ( apply_filters( 'dt_push_post_meta', true, $new_post_id, $post_meta, $post_id, $args, $this ) ) {
+			Utils\set_meta( $new_post_id, $post_meta );
 		}
 
 		/**
@@ -158,15 +161,15 @@ class NetworkSiteConnection extends Connection {
 		 *
 		 * @param {bool}       true           If Distributor should push the post terms.
 		 * @param {int}        $new_post_id   The newly created post ID.
-		 * @param {array}      $terms         Terms attached to the post, formatted by {@link \Distributor\Utils\prepare_taxonomy_terms()}.
+		 * @param {array}      $post_terms    Terms attached to the post, formatted by {@link \Distributor\Utils\prepare_taxonomy_terms()}.
 		 * @param {int}        $post_id       The original post ID.
 		 * @param {array}      $args          The arguments passed into wp_insert_post.
 		 * @param {Connection} $this          The distributor connection being pushed to.
 		 *
 		 * @return {bool} If Distributor should push the post terms.
 		 */
-		if ( apply_filters( 'dt_push_post_terms', true, $new_post_id, $dt_post->get_terms(), $post_id, $args, $this ) ) {
-			Utils\set_taxonomy_terms( $new_post_id, $dt_post->get_terms() );
+		if ( apply_filters( 'dt_push_post_terms', true, $new_post_id, $post_terms, $post_id, $args, $this ) ) {
+			Utils\set_taxonomy_terms( $new_post_id, $post_terms );
 		}
 
 		/**
@@ -176,15 +179,15 @@ class NetworkSiteConnection extends Connection {
 		 *
 		 * @param {bool}       true           If Distributor should push the post media.
 		 * @param {int}        $new_post_id   The newly created post ID.
-		 * @param {array}      $media         List of media items attached to the post, formatted by {@link \Distributor\Utils\prepare_media()}.
+		 * @param {array}      $post_media    List of media items attached to the post, formatted by {@link \Distributor\Utils\prepare_media()}.
 		 * @param {int}        $post_id       The original post ID.
 		 * @param {array}      $args          The arguments passed into wp_insert_post.
 		 * @param {Connection} $this          The distributor connection being pushed to.
 		 *
 		 * @return {bool} If Distributor should push the post media.
 		 */
-		if ( apply_filters( 'dt_push_post_media', true, $new_post_id, $dt_post->get_media(), $post_id, $args, $this ) ) {
-			Utils\set_media( $new_post_id, $dt_post->get_media(), [ 'use_filesystem' => true ] );
+		if ( apply_filters( 'dt_push_post_media', true, $new_post_id, $post_media, $post_id, $args, $this ) ) {
+			Utils\set_media( $new_post_id, $post_media, [ 'use_filesystem' => true ] );
 		};
 
 		$media_errors = get_transient( 'dt_media_errors_' . $new_post_id );
