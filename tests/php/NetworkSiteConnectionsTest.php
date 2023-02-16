@@ -94,10 +94,19 @@ class NetworkSiteConnectionsTest extends TestCase {
 		);
 
 		\WP_Mock::userFunction(
-			'get_bloginfo', [
-				'args'   => 'charset',
-				'return' => 'UTF-8',
-			]
+			'get_bloginfo',
+			array(
+				'return' => function( $info ) {
+					switch ( $info ) {
+						case 'charset':
+							return 'UTF-8';
+						case 'name':
+							return 'Example Dot Org';
+						default:
+							return '';
+					}
+				},
+			)
 		);
 
 		\WP_Mock::userFunction( 'get_current_user_id' );
@@ -123,15 +132,23 @@ class NetworkSiteConnectionsTest extends TestCase {
 
 		\WP_Mock::userFunction(
 			'wp_insert_post', [
-				'return' => $new_post_id,
-			]
-		);
-
-		\WP_Mock::userFunction(
-			'update_post_meta', [
 				'times'  => 1,
-				'args'   => [ $new_post_id, 'dt_original_post_id', true ],
-				'return' => [],
+				'args'   => [
+					[
+						'post_title'     => '',
+						'post_name'      => '',
+						'post_type'      => '',
+						'post_content'   => '',
+						'post_excerpt'   => '',
+						'post_status'    => 'publish',
+						'post_author'    => null,
+						'meta_input'     => [
+							'dt_original_post_id'   => 111,
+							'dt_original_post_url'  => $original_url,
+						],
+					],
+				],
+				'return' => $new_post_id,
 			]
 		);
 
@@ -147,14 +164,6 @@ class NetworkSiteConnectionsTest extends TestCase {
 			'update_post_meta', [
 				'times'  => 1,
 				'args'   => [ $new_post_id, 'dt_syndicate_time', \WP_Mock\Functions::type( 'int' ) ],
-				'return' => [],
-			]
-		);
-
-		\WP_Mock::userFunction(
-			'update_post_meta', [
-				'times'  => 1,
-				'args'   => [ $new_post_id, 'dt_original_post_url', $original_url ],
 				'return' => [],
 			]
 		);
