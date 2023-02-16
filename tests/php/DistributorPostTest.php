@@ -1517,7 +1517,6 @@ class DistributorPostTest extends TestCase {
 			'type'                           => 'post',
 			'content'                        => 'Test Content',
 			'excerpt'                        => 'Test Excerpt',
-			'parent'                         => 0,
 			'status'                         => 'publish',
 			'distributor_media'              => array(),
 			'distributor_terms'              => array(
@@ -1528,7 +1527,7 @@ class DistributorPostTest extends TestCase {
 			'distributor_original_site_name' => 'Test Internal Origin',
 			'distributor_original_site_url'  => 'http://test.com',
 			'distributor_original_post_url'  => 'http://example.org/?p=1',
-			'distributor_original_post_id'   => 1,
+			'distributor_remote_post_id'     => 1,
 
 		);
 
@@ -1696,7 +1695,6 @@ class DistributorPostTest extends TestCase {
 			'type'                           => 'post',
 			'content'                        => '<!-- wp:paragraph --><p>Test Content</p><!-- /wp:paragraph -->',
 			'excerpt'                        => 'Test Excerpt',
-			'parent'                         => 0,
 			'status'                         => 'publish',
 			'distributor_media'              => array(),
 			'distributor_terms'              => array(
@@ -1707,7 +1705,7 @@ class DistributorPostTest extends TestCase {
 			'distributor_original_site_name' => 'Test Internal Origin',
 			'distributor_original_site_url'  => 'http://test.com',
 			'distributor_original_post_url'  => 'http://example.org/?p=1',
-			'distributor_original_post_id'   => 1,
+			'distributor_remote_post_id'     => 1,
 			'distributor_raw_content'        => '<!-- wp:paragraph --><p>Test Content</p><!-- /wp:paragraph -->',
 		);
 
