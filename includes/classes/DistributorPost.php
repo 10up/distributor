@@ -43,8 +43,8 @@ use WP_Post;
  * @method array get_terms()
  * @method array get_media()
  * @method array post_data()
- * @method array to_insert()
- * @method string to_json( int $options = 0, int $depth = 512 )
+ * @method array to_insert( array $args = [] )
+ * @method array to_rest( array $args = [] )
  */
 class DistributorPost {
 	/**
