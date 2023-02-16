@@ -130,14 +130,8 @@ class NetworkSiteConnection extends Connection {
 
 		$output['id'] = $new_post_id;
 
-		update_post_meta( $new_post_id, 'dt_original_post_id', (int) $post_id );
 		update_post_meta( $new_post_id, 'dt_original_blog_id', (int) $original_blog_id );
 		update_post_meta( $new_post_id, 'dt_syndicate_time', time() );
-		update_post_meta( $new_post_id, 'dt_original_post_url', esc_url_raw( $original_post_url ) );
-
-		if ( ! empty( $dt_post->post->post_parent ) ) {
-			update_post_meta( $new_post_id, 'dt_original_post_parent', (int) $dt_post->post->post_parent );
-		}
 
 		/**
 		 * Allow bypassing of all meta processing.
