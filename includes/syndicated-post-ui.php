@@ -478,8 +478,23 @@ function syndicated_message( $post ) {
 					?>
 					</p>
 					<p>
-					<span><a href="<?php echo esc_url( $unlink_url ); ?>"><?php echo esc_html__( 'Unlink from the origin post.', 'distributor' ); ?></a></span>
-					<span><a href="<?php echo esc_url( $original_post_url ); ?>"><?php echo esc_html__( 'View the origin post.', 'distributor' ); ?></a></span>
+					<span><a href="<?php echo esc_url( $unlink_url ); ?>">
+						<?php
+							printf(
+								/* translators: 1) Distributor post type singular name. */
+								esc_html__( 'Unlink from the origin %1$s.', 'distributor' ),
+								esc_html( strtolower( $post_type_singular ) )
+							);
+						?></a></span>
+					<span><a href="<?php echo esc_url( $original_post_url ); ?>">
+						<?php
+							printf(
+								/* translators: 1) Distributor post type singular name. */
+								esc_html__( 'View the origin %1$s.', 'distributor' ),
+								esc_html( strtolower( $post_type_singular ) )
+							);
+						?>
+					</a></span>
 				<?php endif; ?>
 			</p>
 		<?php else : ?>
