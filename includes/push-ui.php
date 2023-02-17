@@ -598,7 +598,15 @@ function menu_content() {
 					if ( ! empty( $post_url ) ) {
 						?>
 						<a href="<?php echo esc_url( $post_url ); ?>" target="_blank">
-							<?php esc_html_e( 'View the origin post', 'distributor' ); ?>
+							<?php
+							echo wp_kses_post(
+								sprintf(
+									/* translators: 1) Distributor post type singular name. */
+									__( 'View the origin %1$s', 'distributor' ),
+									esc_html( strtolower( $post_type_object->labels->singular_name ) ),
+								)
+							);
+							?>
 						</a>
 						<?php
 					}

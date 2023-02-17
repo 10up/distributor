@@ -14,7 +14,7 @@ if (
 		message = sprintf(
 			/* translators: 1) Distributor post type singular name, 2) Source of content. */
 			__(
-				'This %1$s was distributed from %2$s. However, the origin post has been deleted.'
+				'This %1$s was distributed from %2$s. However, the origin %1$s has been deleted.'
 			),
 			dtGutenberg.postTypeSingular,
 			dtGutenberg.originalLocationName
@@ -23,7 +23,7 @@ if (
 		message = sprintf(
 			/* translators: 1) Source of content, 2) Distributor post type singular name. */
 			__(
-				'Distributed from %1$s. This %2$s is linked to the origin post. Edits to the origin post will update this remote version.',
+				'Distributed from %1$s. This %2$s is linked to the origin %2$s. Edits to the origin %2$s will update this remote version.',
 				'distributor'
 			),
 			dtGutenberg.originalLocationName,
@@ -31,19 +31,27 @@ if (
 		);
 
 		actions.push( {
-			label: __( 'Unlink from the origin post.', 'distributor' ),
+			label: sprintf(
+				/* translators: 1) Distributor post type singular name. */
+				__( 'Unlink from the origin %1$s.', 'distributor' ),
+				dtGutenberg.postTypeSingular
+			),
 			url: dtGutenberg.unlinkNonceUrl,
 		} );
 
 		actions.push( {
-			label: __( 'View the origin post', 'distributor' ),
+			label: sprintf(
+				/* translators: 1) Distributor post type singular name. */
+				__( 'View the origin %1$s', 'distributor' ),
+				dtGutenberg.postTypeSingular
+			),
 			url: dtGutenberg.postUrl,
 		} );
 	} else {
 		message = sprintf(
 			/* translators: 1) Source of content, 2) Distributor post type singular name. */
 			__(
-				'Originally distributed from %1$s. This %2$s has been unlinked from the origin post. Edits to the origin post will not update this remote version.',
+				'Originally distributed from %1$s. This %2$s has been unlinked from the origin %2$s. Edits to the origin %2$s will not update this remote version.',
 				'distributor'
 			),
 			dtGutenberg.originalLocationName,
@@ -51,12 +59,20 @@ if (
 		);
 
 		actions.push( {
-			label: __( 'Relink to the origin post.', 'distributor' ),
+			label: sprintf(
+				/* translators: 1) Distributor post type singular name. */
+				__( 'Relink to the origin %1$s.', 'distributor' ),
+				dtGutenberg.postTypeSingular
+			),
 			url: dtGutenberg.linkNonceUrl,
 		} );
 
 		actions.push( {
-			label: __( 'View the origin post', 'distributor' ),
+			label: sprintf(
+				/* translators: 1) Distributor post type singular name. */
+				__( 'View the origin %1$s', 'distributor' ),
+				dtGutenberg.postTypeSingular
+			),
 			url: dtGutenberg.postUrl,
 		} );
 	}
