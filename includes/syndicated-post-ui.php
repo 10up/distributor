@@ -485,6 +485,7 @@ function syndicated_message( $post ) {
 								esc_html__( 'Unlink from the origin %1$s.', 'distributor' ),
 								esc_html( strtolower( $post_type_singular ) )
 							);
+						// phpcs:ignore Squiz.PHP.EmbeddedPhp.ContentAfterEnd, avoids layout issues.
 						?></a></span>
 					<span><a href="<?php echo esc_url( $original_post_url ); ?>">
 						<?php
@@ -520,8 +521,8 @@ function syndicated_message( $post ) {
 						esc_html__( 'Relink to the origin %1$s.', 'distributor' ),
 						esc_html( strtolower( $post_type_singular ) )
 					);
-				?>
-				</a></span>
+				// phpcs:ignore Squiz.PHP.EmbeddedPhp.ContentAfterEnd, avoids layout issues.
+				?></a></span>
 				<span><a href="<?php echo esc_url( $original_post_url ); ?>">
 				<?php
 					printf(
