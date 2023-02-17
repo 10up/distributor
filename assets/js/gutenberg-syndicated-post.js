@@ -16,7 +16,7 @@ if (
 			__(
 				'This %1$s was distributed from %2$s. However, the origin %1$s has been deleted.'
 			),
-			dtGutenberg.postTypeSingular,
+			dtGutenberg.postTypeSingular.toLowerCase(),
 			dtGutenberg.originalLocationName
 		);
 	} else if ( ! parseInt( dtGutenberg.unlinked ) ) {
@@ -27,14 +27,14 @@ if (
 				'distributor'
 			),
 			dtGutenberg.originalLocationName,
-			dtGutenberg.postTypeSingular
+			dtGutenberg.postTypeSingular.toLowerCase()
 		);
 
 		actions.push( {
 			label: sprintf(
 				/* translators: 1) Distributor post type singular name. */
 				__( 'Unlink from the origin %1$s.', 'distributor' ),
-				dtGutenberg.postTypeSingular
+				dtGutenberg.postTypeSingular.toLowerCase()
 			),
 			url: dtGutenberg.unlinkNonceUrl,
 		} );
@@ -43,7 +43,7 @@ if (
 			label: sprintf(
 				/* translators: 1) Distributor post type singular name. */
 				__( 'View the origin %1$s', 'distributor' ),
-				dtGutenberg.postTypeSingular
+				dtGutenberg.postTypeSingular.toLowerCase()
 			),
 			url: dtGutenberg.postUrl,
 		} );
@@ -55,14 +55,14 @@ if (
 				'distributor'
 			),
 			dtGutenberg.originalLocationName,
-			dtGutenberg.postTypeSingular
+			dtGutenberg.postTypeSingular.toLowerCase()
 		);
 
 		actions.push( {
 			label: sprintf(
 				/* translators: 1) Distributor post type singular name. */
 				__( 'Relink to the origin %1$s.', 'distributor' ),
-				dtGutenberg.postTypeSingular
+				dtGutenberg.postTypeSingular.toLowerCase()
 			),
 			url: dtGutenberg.linkNonceUrl,
 		} );
@@ -71,7 +71,7 @@ if (
 			label: sprintf(
 				/* translators: 1) Distributor post type singular name. */
 				__( 'View the origin %1$s', 'distributor' ),
-				dtGutenberg.postTypeSingular
+				dtGutenberg.postTypeSingular.toLowerCase()
 			),
 			url: dtGutenberg.postUrl,
 		} );

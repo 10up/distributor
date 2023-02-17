@@ -64,7 +64,7 @@ const RenderShowAdminBar = () => {
 				{ sprintf(
 					/* translators: 1: Post type or generic term content. */
 					__( 'Distribute %1$s', 'distributor' ),
-					dtGutenberg.postTypeSingular ||
+					dtGutenberg.postTypeSingular.toLowerCase() ||
 						_x(
 							'content',
 							'generic term for post content',
