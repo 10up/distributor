@@ -586,13 +586,11 @@ function menu_content() {
 					<?php /* translators: %s: post type name */ ?>
 
 					<?php
-					echo wp_kses_post(
-						sprintf(
-							/* translators: 1) Distributor post type singular name, 2) Source of content. */
-							__( 'This %1$s was distributed from %2$s.', 'distributor' ),
-							esc_html( strtolower( $post_type_object->labels->singular_name ) ),
-							'<a href="' . esc_url( $site_url ) . '">' . esc_html( $blog_name ) . '</a>'
-						)
+					printf(
+						/* translators: 1) Distributor post type singular name, 2) Source of content. */
+						esc_html__( 'This %1$s was distributed from %2$s.', 'distributor' ),
+						esc_html( strtolower( $post_type_object->labels->singular_name ) ),
+						'<a href="' . esc_url( $site_url ) . '">' . esc_html( $blog_name ) . '</a>'
 					);
 
 					if ( ! empty( $post_url ) ) {
