@@ -600,7 +600,7 @@ function menu_content() {
 							echo wp_kses_post(
 								sprintf(
 									/* translators: 1) Distributor post type singular name. */
-									__( 'View the origin %1$s', 'distributor' ),
+									__( 'View the origin %1$s.', 'distributor' ),
 									esc_html( strtolower( $post_type_object->labels->singular_name ) ),
 								)
 							);

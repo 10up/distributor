@@ -526,7 +526,7 @@ function syndicated_message( $post ) {
 				<?php
 					printf(
 						/* translators: 1) Distributor post type singular name. */
-						esc_html__( 'View the origin %1$s', 'distributor' ),
+						esc_html__( 'View the origin %1$s.', 'distributor' ),
 						esc_html( strtolower( $post_type_singular ) )
 					);
 				?>

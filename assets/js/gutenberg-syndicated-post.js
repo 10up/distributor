@@ -42,7 +42,7 @@ if (
 		actions.push( {
 			label: sprintf(
 				/* translators: 1) Distributor post type singular name. */
-				__( 'View the origin %1$s', 'distributor' ),
+				__( 'View the origin %1$s.', 'distributor' ),
 				dtGutenberg.postTypeSingular.toLowerCase()
 			),
 			url: dtGutenberg.postUrl,
@@ -70,7 +70,7 @@ if (
 		actions.push( {
 			label: sprintf(
 				/* translators: 1) Distributor post type singular name. */
-				__( 'View the origin %1$s', 'distributor' ),
+				__( 'View the origin %1$s.', 'distributor' ),
 				dtGutenberg.postTypeSingular.toLowerCase()
 			),
 			url: dtGutenberg.postUrl,
