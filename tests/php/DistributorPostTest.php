@@ -34,6 +34,13 @@ class DistributorPostTest extends TestCase {
 			]
 		);
 
+		\WP_Mock::userFunction(
+			'get_current_blog_id',
+			[
+				'return' => 1,
+			]
+		);
+
 		// Return voids.
 		\WP_Mock::userFunction( '_prime_post_caches' );
 		\WP_Mock::userFunction( 'update_object_term_cache' );
@@ -105,6 +112,29 @@ class DistributorPostTest extends TestCase {
 				'return' => $get_post_meta,
 			)
 		);
+	}
+
+	/**
+	 * Test the DistributorPost object for public methods.
+	 *
+	 * Only magic methods are expected to be public as the class uses the
+	 * __call() method to handle all other methods.
+	 *
+	 * @covers ::__construct
+	 * @runInSeparateProcess
+	 */
+	public function test_public_methods() {
+		$actual_methods = get_class_methods( 'Distributor\DistributorPost' );
+		$expected_methods = array(
+			'__construct',
+			'__call',
+			'__get',
+			'__isset',
+		);
+
+		sort( $actual_methods );
+		sort( $expected_methods );
+		$this->assertSame( $expected_methods, $actual_methods, 'Only magic methods are expected to be public.' );
 	}
 
 	/**
