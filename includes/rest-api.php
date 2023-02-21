@@ -86,6 +86,10 @@ function process_distributor_attributes( $post, $request, $update ) {
 	if ( ! empty( $request['distributor_original_site_name'] ) ) {
 		update_post_meta( $post->ID, 'dt_original_site_name', sanitize_text_field( $request['distributor_original_site_name'] ) );
 	}
+	
+	if ( ! empty( $request['distributor_original_site_lang'] ) ) {
+		update_post_meta( $post->ID, 'dt_original_site_lang', sanitize_text_field( $request['distributor_original_site_lang'] ) );
+	}
 
 	if ( ! empty( $request['distributor_original_site_url'] ) ) {
 		update_post_meta( $post->ID, 'dt_original_site_url', sanitize_text_field( $request['distributor_original_site_url'] ) );

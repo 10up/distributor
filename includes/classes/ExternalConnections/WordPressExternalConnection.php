@@ -654,6 +654,7 @@ class WordPressExternalConnection extends ExternalConnection {
 			'excerpt'                        => $post->post_excerpt,
 			'distributor_original_source_id' => $this->id,
 			'distributor_original_site_name' => get_bloginfo( 'name' ),
+			'distributor_original_site_lang' => get_bloginfo( 'language' ),
 			'distributor_original_site_url'  => home_url(),
 			'distributor_original_post_url'  => get_permalink( $post_id ),
 			'distributor_remote_post_id'     => $post_id,
