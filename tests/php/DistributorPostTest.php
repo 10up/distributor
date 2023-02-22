@@ -163,9 +163,6 @@ class DistributorPostTest extends TestCase {
 			)
 		);
 
-		\WP_Mock::userFunction( 'switch_to_blog' );
-		\WP_Mock::userFunction( 'restore_current_blog' );
-
 		\WP_Mock::userFunction(
 			'get_bloginfo',
 			array(
