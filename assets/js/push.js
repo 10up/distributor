@@ -737,8 +737,8 @@ jQuery( window ).on( 'load', () => {
 			delete selectedConnections[ type + id ];
 
 			document.querySelector(
-					'.selected-connections-count'
-				).textContent = '(' + Object.keys( selectedConnections ).length + ')';
+				'.selected-connections-count'
+			).textContent = '(' + Object.keys( selectedConnections ).length + ')';
 
 			if ( selectAllConnections.classList.contains( 'unavailable' ) ) {
 				classList( 'all' );
