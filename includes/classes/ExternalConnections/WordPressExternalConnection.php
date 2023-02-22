@@ -549,6 +549,7 @@ class WordPressExternalConnection extends ExternalConnection {
 			update_post_meta( $new_post, 'dt_syndicate_time', time() );
 			update_post_meta( $new_post, 'dt_original_post_url', esc_url_raw( $post_array['link'] ) );
 			update_post_meta( $new_post, 'dt_original_site_name', sanitize_text_field( $post_array['original_site_name'] ) );
+			update_post_meta( $new_post, 'dt_original_site_lang', sanitize_text_field( $post_array['original_site_lang'] ) );
 			update_post_meta( $new_post, 'dt_original_site_url', sanitize_text_field( $post_array['original_site_url'] ) );
 
 			if ( ! empty( $post->post_parent ) ) {
@@ -978,6 +979,7 @@ class WordPressExternalConnection extends ExternalConnection {
 		$obj->terms              = ( ! empty( $post['distributor_terms'] ) ) ? $post['distributor_terms'] : [];
 		$obj->media              = ( ! empty( $post['distributor_media'] ) ) ? $post['distributor_media'] : [];
 		$obj->original_site_name = ( ! empty( $post['distributor_original_site_name'] ) ) ? $post['distributor_original_site_name'] : null;
+		$obj->original_site_lang = ( ! empty( $post['distributor_original_site_lang'] ) ) ? $post['distributor_original_site_lang'] : null;
 		$obj->original_site_url  = ( ! empty( $post['distributor_original_site_url'] ) ) ? $post['distributor_original_site_url'] : null;
 
 		$obj->full_connection = ( ! empty( $post['full_connection'] ) );
