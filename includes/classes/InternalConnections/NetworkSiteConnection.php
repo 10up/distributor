@@ -58,8 +58,8 @@ class NetworkSiteConnection extends Connection {
 	/**
 	 * Push post to another internal site
 	 *
-	 * @param  int   $post_id Post ID.
-	 * @param  array $args {
+	 * @param  int|WP_Post $post Post or Post ID to push. Required.
+	 * @param  array       $args {
 	 *     Optional. Array of push arguments
 	 *
 	 *     @type int    $remote_post_id Post ID on remote site. If not provided,
@@ -70,7 +70,16 @@ class NetworkSiteConnection extends Connection {
 	 * @since  0.8
 	 * @return array|\WP_Error
 	 */
-	public function push( $post_id, $args = array() ) {
+	public function push( $post, $args = array() ) {
+		if ( empty( $post ) ) {
+			return new \WP_Error( 'no-push-post-id', esc_html__( 'Post ID required to push.', 'distributor' ) );
+		}
+		$post = get_post( $post );
+		if ( empty( $post ) ) {
+			return new \WP_Error( 'invalid-push-post-id', esc_html__( 'Post does not exist.', 'distributor' ) );
+		}
+		$post_id = $post->ID;
+
 		$args = wp_parse_args(
 			$args,
 			array(
