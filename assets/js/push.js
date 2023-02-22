@@ -583,7 +583,8 @@ jQuery( window ).on( 'load', () => {
 
 				document.querySelector(
 					'.selected-connections-count'
-				).textContent = '(' + Object.keys( selectedConnections ).length + ')';
+				)
+				.textContent = '(' + Object.keys( selectedConnections ).length + ')';
 
 				if (
 					selectAllConnections.classList.contains( 'unavailable' )
@@ -608,7 +609,8 @@ jQuery( window ).on( 'load', () => {
 				const element = event.currentTarget.cloneNode( true );
 				document.querySelector(
 					'.selected-connections-count'
-				).textContent = '(' + Object.keys( selectedConnections ).length + ')';
+				)
+				.textContent = '(' + Object.keys( selectedConnections ).length + ')';
 
 				const removeLink = document.createElement( 'span' );
 				removeLink.classList.add( 'remove-connection' );
@@ -670,7 +672,8 @@ jQuery( window ).on( 'load', () => {
 
 					document.querySelector(
 						'.selected-connections-count'
-					).textContent = '(' + Object.keys( selectedConnections ).length + ')';
+					)
+					.textContent = '(' + Object.keys( selectedConnections ).length + ')';
 					connectionsSelectedList.appendChild( element );
 
 					if ( '' !== connectionsAvailableTotal ) {
@@ -704,7 +707,8 @@ jQuery( window ).on( 'load', () => {
 
 				document.querySelector(
 					'.selected-connections-count'
-				).textContent = '(' + Object.keys( selectedConnections ).length + ')';
+				)
+				.textContent = '(' + Object.keys( selectedConnections ).length + ')';
 
 				connectionsSelectedList.removeChild(
 					connectionsSelectedList.firstChild
@@ -738,7 +742,8 @@ jQuery( window ).on( 'load', () => {
 
 			document.querySelector(
 				'.selected-connections-count'
-			).textContent = '(' + Object.keys( selectedConnections ).length + ')';
+			)
+			.textContent = '(' + Object.keys( selectedConnections ).length + ')';
 
 			if ( selectAllConnections.classList.contains( 'unavailable' ) ) {
 				classList( 'all' );
