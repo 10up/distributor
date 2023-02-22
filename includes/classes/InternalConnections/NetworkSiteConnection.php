@@ -87,16 +87,15 @@ class NetworkSiteConnection extends Connection {
 			)
 		);
 
-		$dt_post           = new DistributorPost( $post_id );
-		$dt_post_args      = $dt_post->to_insert( $args );
-		$original_blog_id  = get_current_blog_id();
-		$original_post_url = $dt_post->get_permalink();
-		$output            = array();
-		$post              = Utils\prepare_post( get_post( $post_id ) );
-		$update            = false;
-		$post_meta         = $dt_post->get_meta();
-		$post_terms        = $dt_post->get_terms();
-		$post_media        = $dt_post->get_media();
+		$dt_post          = new DistributorPost( $post_id );
+		$dt_post_args     = $dt_post->to_insert( $args );
+		$original_blog_id = get_current_blog_id();
+		$output           = array();
+		$post             = Utils\prepare_post( get_post( $post_id ) );
+		$update           = false;
+		$post_meta        = $dt_post->get_meta();
+		$post_terms       = $dt_post->get_terms();
+		$post_media       = $dt_post->get_media();
 
 		switch_to_blog( $this->site->blog_id );
 
