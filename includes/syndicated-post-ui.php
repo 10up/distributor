@@ -455,7 +455,7 @@ function syndicated_message( $post ) {
 				<?php
 					printf(
 						/* translators: 1) Distributor post type singular name, 2) Source of content. */
-						esc_html__( 'This %1$s was distributed from %2$s. However, the original has been deleted.', 'distributor' ),
+						esc_html__( 'This %1$s was distributed from %2$s. However, the origin %1$s has been deleted.', 'distributor' ),
 						esc_html( strtolower( $post_type_singular ) ),
 						esc_html( $original_location_name )
 					);
@@ -466,7 +466,7 @@ function syndicated_message( $post ) {
 				<?php
 					printf(
 						/* translators: 1) Source of content, 2) Distributor post type singular name. */
-						esc_html__( 'Distributed from %1$s. This %2$s is linked to the original. Edits to the original will update this version.', 'distributor' ),
+						esc_html__( 'Distributed from %1$s. This %2$s is linked to the origin %2$s. Edits to the origin %2$s will update this remote version.', 'distributor' ),
 						esc_html( $original_location_name ),
 						esc_html( strtolower( $post_type_singular ) )
 					);
@@ -478,8 +478,24 @@ function syndicated_message( $post ) {
 					?>
 					</p>
 					<p>
-					<span><a href="<?php echo esc_url( $unlink_url ); ?>"><?php echo esc_html__( 'Unlink from original.', 'distributor' ); ?></a></span>
-					<span><a href="<?php echo esc_url( $original_post_url ); ?>"><?php echo esc_html__( 'View Original.', 'distributor' ); ?></a></span>
+					<span><a href="<?php echo esc_url( $unlink_url ); ?>">
+						<?php
+							printf(
+								/* translators: 1) Distributor post type singular name. */
+								esc_html__( 'Unlink from the origin %1$s.', 'distributor' ),
+								esc_html( strtolower( $post_type_singular ) )
+							);
+						// phpcs:ignore Squiz.PHP.EmbeddedPhp.ContentAfterEnd, avoids layout issues.
+						?></a></span>
+					<span><a href="<?php echo esc_url( $original_post_url ); ?>">
+						<?php
+							printf(
+								/* translators: 1) Distributor post type singular name. */
+								esc_html__( 'View the origin %1$s.', 'distributor' ),
+								esc_html( strtolower( $post_type_singular ) )
+							);
+						?>
+					</a></span>
 				<?php endif; ?>
 			</p>
 		<?php else : ?>
@@ -488,7 +504,7 @@ function syndicated_message( $post ) {
 				printf(
 					/* translators: 1) Source of content, 2) Distributor post type singular name. */
 					esc_html__(
-						'Originally distributed from %1$s. This %2$s has been unlinked from the original. Edits to the original will not update this version.',
+						'Originally distributed from %1$s. This %2$s has been unlinked from the origin %2$s. Edits to the origin %2$s will not update this remote version.',
 						'distributor'
 					),
 					esc_html( $original_location_name ),
@@ -498,8 +514,24 @@ function syndicated_message( $post ) {
 				?>
 			</p>
 			<p>
-				<span><a href="<?php echo esc_url( $relink_url ); ?>"><?php echo esc_html__( 'Relink to original.', 'distributor' ); ?></a></span>
-				<span><a href="<?php echo esc_url( $original_post_url ); ?>"><?php echo esc_html__( 'View Original.', 'distributor' ); ?></a></span>
+				<span><a href="<?php echo esc_url( $relink_url ); ?>">
+				<?php
+					printf(
+						/* translators: 1) Distributor post type singular name. */
+						esc_html__( 'Relink to the origin %1$s.', 'distributor' ),
+						esc_html( strtolower( $post_type_singular ) )
+					);
+				// phpcs:ignore Squiz.PHP.EmbeddedPhp.ContentAfterEnd, avoids layout issues.
+				?></a></span>
+				<span><a href="<?php echo esc_url( $original_post_url ); ?>">
+				<?php
+					printf(
+						/* translators: 1) Distributor post type singular name. */
+						esc_html__( 'View the origin %1$s.', 'distributor' ),
+						esc_html( strtolower( $post_type_singular ) )
+					);
+				?>
+			</a></span>
 			</p>
 		<?php endif; ?>
 	</div>
