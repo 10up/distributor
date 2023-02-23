@@ -101,6 +101,38 @@ function distributor_get_original_site_name( $post_id = null ) {
 }
 
 /**
+ * Get original site language
+ *
+ * @param  int $post_id Leave null to use current post
+ * @since  1.0
+ * @return string|bool
+ */
+function distributor_get_original_site_lang( $post_id = null ) {
+	if ( null === $post_id ) {
+		global $post;
+
+		$post_id = $post->ID;
+	}
+
+	$original_blog_id   = get_post_meta( $post_id, 'dt_original_blog_id', true );
+	$original_site_lang = get_post_meta( $post_id, 'dt_original_site_lang', true );
+
+	if ( ! empty( $original_blog_id ) && is_multisite() ) {
+		switch_to_blog( $original_blog_id );
+
+		$lang_code = get_bloginfo( 'language' );
+
+		restore_current_blog();
+
+		return $lang_code;
+	} elseif ( ! empty( $original_site_lang ) ) {
+		return $original_site_lang;
+	} else {
+		return false;
+	}
+}
+
+/**
  * See docblock for distributor_get_original_site_name
  *
  * @param  int $post_id Post ID.

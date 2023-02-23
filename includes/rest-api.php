@@ -86,6 +86,10 @@ function process_distributor_attributes( $post, $request, $update ) {
 	if ( ! empty( $request['distributor_original_site_name'] ) ) {
 		update_post_meta( $post->ID, 'dt_original_site_name', sanitize_text_field( $request['distributor_original_site_name'] ) );
 	}
+	
+	if ( ! empty( $request['distributor_original_site_lang'] ) ) {
+		update_post_meta( $post->ID, 'dt_original_site_lang', sanitize_text_field( $request['distributor_original_site_lang'] ) );
+	}
 
 	if ( ! empty( $request['distributor_original_site_url'] ) ) {
 		update_post_meta( $post->ID, 'dt_original_site_url', sanitize_text_field( $request['distributor_original_site_url'] ) );
@@ -330,6 +334,28 @@ function register_endpoints() {
 			),
 		)
 	);
+	
+	register_rest_field(
+		$post_types,
+		'distributor_original_site_lang',
+		array(
+			'get_callback'    => function( $post_array ) {
+				$site_lang = get_post_meta( $post_array['id'], 'dt_original_site_lang', true );
+
+				if ( ! $site_lang ) {
+					$site_lang = get_bloginfo( 'language' );
+				}
+
+				return esc_html( $site_lang );
+			},
+			'update_callback' => function( $value, $post ) { },
+			'schema'          => array(
+				'description' => esc_html__( 'Original site name for Distributor.', 'distributor' ),
+				'type'        => 'string',
+			),
+		)
+	);
+	
 
 	register_rest_field(
 		$post_types,
