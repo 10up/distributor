@@ -1,7 +1,4 @@
 <?php
-
-namespace Distributor;
-
 /**
  * This class use to register script.
  *
@@ -15,34 +12,42 @@ namespace Distributor;
  * @unreleased x.x.x
  * @package    distributor
  */
+
+namespace Distributor;
+
+/**
+ * Class EnqueueScript
+ *
+ * @unreleased x.x.x
+ */
 class EnqueueScript {
 	/**
 	 * Script ID.
 	 *
 	 * @unreleased x.x.x
 	 */
-	private string $scriptId;
+	private string $script_id;
 
 	/**
 	 * Script path relative to plugin root directory.
 	 *
 	 * @unreleased x.x.x
 	 */
-	private string $relativeScriptPath;
+	private string $relative_script_path;
 
 	/**
 	 * Script path absolute to plugin root directory.
 	 *
 	 * @unreleased x.x.x
 	 */
-	private string $absoluteScriptPath;
+	private string $absolute_script_path;
 
 	/**
 	 * Script dependencies.
 	 *
 	 * @unreleased x.x.x
 	 */
-	private array $scriptDependencies = [];
+	private array $script_dependencies = [];
 
 	/**
 	 * Script version.
@@ -56,73 +61,68 @@ class EnqueueScript {
 	 *
 	 * @unreleased x.x.x
 	 */
-	private bool $loadScriptInFooter = false;
+	private bool $load_script_in_footer = false;
 
 	/**
 	 * Flag to decide whether register script translation.
 	 *
 	 * @unreleased x.x.x
 	 */
-	private bool $registerTranslations = false;
+	private bool $register_translations = false;
 
 	/**
 	 * Script localization parameter name.
 	 *
 	 * @unreleased x.x.x
 	 */
-	private string $localizeScriptParamName;
+	private string $localize_script_param_name;
 
 	/**
 	 * Script localization parameter data.
 	 *
 	 * @unreleased x.x.x
 	 */
-	private array $localizeScriptParamData;
+	private array $localize_script_param_data;
 
 	/**
 	 * Plugin root directory path.
 	 *
 	 * @unreleased x.x.x
 	 */
-	private string $pluginDirPath;
+	private string $plugin_dir_path;
 
 	/**
 	 * Plugin root directory URL.
 	 *
 	 * @unreleased x.x.x
 	 */
-	private string $pluginDirUrl;
+	private string $plugin_dir_url;
 
 	/**
 	 * Plugin text domain.
 	 *
 	 * @unreleased x.x.x
 	 */
-	private string $textDomain;
+	private string $text_domain;
 
 	/**
 	 * EnqueueScript constructor.
 	 *
 	 * @unreleased x.x.x
-	 *
-	 * @param string $scriptId Script ID.
-	 * @param string $scriptName
 	 */
-	public function __construct( string $scriptId, string $scriptName ) {
-		$this->pluginDirPath      = DT_PLUGIN_PATH;
-		$this->pluginDirUrl       = trailingslashit( plugin_dir_url( $this->pluginDirPath ) );
-		$this->textDomain         = 'distributor';
-		$this->scriptId           = $scriptId;
-		$this->relativeScriptPath = 'dist/js/' . $scriptName . '.js';
-		$this->absoluteScriptPath = $this->pluginDirPath . $this->relativeScriptPath;
+	public function __construct( string $script_id, string $script_name ) {
+		$this->plugin_dir_path      = DT_PLUGIN_PATH;
+		$this->plugin_dir_url       = trailingslashit( plugin_dir_url( $this->plugin_dir_path ) );
+		$this->text_domain          = 'distributor';
+		$this->script_id            = $script_id;
+		$this->relative_script_path = 'dist/js/' . $script_name . '.js';
+		$this->absolute_script_path = $this->plugin_dir_path . $this->relative_script_path;
 	}
 
 	/**
+	 * Set script version.
+	 *
 	 * @unreleased x.x.x
-	 *
-	 * @param string $version
-	 *
-	 * @return $this
 	 */
 	public function version( $version ): EnqueueScript {
 		$this->version = $version;
@@ -131,57 +131,57 @@ class EnqueueScript {
 	}
 
 	/**
+	 * Flag to decide whether load script in footer.
+	 *
 	 * @unreleased x.x.x
-	 * @return $this
 	 */
-	public function loadInFooter(): EnqueueScript {
-		$this->loadScriptInFooter = true;
+	public function load_in_footer(): EnqueueScript {
+		$this->load_script_in_footer = true;
 
 		return $this;
 	}
 
 	/**
+	 * Set script dependencies.
+	 *
 	 * @unreleased x.x.x
-	 *
-	 * @param array $scriptDependencies
-	 *
-	 * @return $this
 	 */
-	public function dependencies( array $scriptDependencies ): EnqueueScript {
-		$this->scriptDependencies = $scriptDependencies;
+	public function dependencies( array $script_dependencies ): EnqueueScript {
+		$this->script_dependencies = $script_dependencies;
 
 		return $this;
 	}
 
 	/**
+	 * Register script.
+	 *
 	 * @unreleased x.x.x
-	 * @return $this
 	 */
 	public function register(): EnqueueScript {
-		$scriptUrl   = $this->pluginDirUrl . $this->relativeScriptPath;
-		$scriptAsset = $this->getAssetFileData();
+		$script_url   = $this->plugin_dir_url . $this->relative_script_path;
+		$script_asset = $this->get_asset_file_data();
 
 		wp_register_script(
-			$this->scriptId,
-			$scriptUrl,
-			$scriptAsset['dependencies'],
-			$scriptAsset['version'],
-			$this->loadScriptInFooter
+			$this->script_id,
+			$script_url,
+			$script_asset['dependencies'],
+			$script_asset['version'],
+			$this->load_script_in_footer
 		);
 
-		if ( $this->registerTranslations ) {
+		if ( $this->register_translations ) {
 			wp_set_script_translations(
-				$this->scriptId,
-				$this->textDomain,
-				$this->pluginDirPath . 'languages'
+				$this->script_id,
+				$this->text_domain,
+				$this->plugin_dir_path . 'languages'
 			);
 		}
 
-		if ( $this->localizeScriptParamData ) {
+		if ( $this->localize_script_param_data ) {
 			wp_localize_script(
-				$this->scriptId,
-				$this->localizeScriptParamName,
-				$this->localizeScriptParamData
+				$this->script_id,
+				$this->localize_script_param_name,
+				$this->localize_script_param_data
 			);
 		}
 
@@ -192,10 +192,9 @@ class EnqueueScript {
 	 * This function should be called after enqueue or register function.
 	 *
 	 * @unreleased x.x.x
-	 * @return $this
 	 */
-	public function registerTranslations(): EnqueueScript {
-		$this->registerTranslations = true;
+	public function register_translations(): EnqueueScript {
+		$this->register_translations = true;
 
 		return $this;
 	}
@@ -203,28 +202,25 @@ class EnqueueScript {
 	/**
 	 * This function should be called after enqueue or register function.
 	 *
-	 * @param string $jsVariableName Name of the variable to be used in JS.
-	 * @param array  $data           Data to be localized.
-	 *
-	 * @return $this
+	 * @unreleased x.x.x
 	 */
-	public function registerLocalizeData( string $jsVariableName, array $data ): EnqueueScript {
-		$this->localizeScriptParamName = $jsVariableName;
-		$this->localizeScriptParamData = $data;
+	public function register_localize_data( string $js_variable_name, array $data ): EnqueueScript {
+		$this->localize_script_param_name = $js_variable_name;
+		$this->localize_script_param_data = $data;
 
 		return $this;
 	}
 
 	/**
-	 * @unreleased x.x.x
+	 * Enqueue script.
 	 *
-	 * @return $this Class object.
+	 * @unreleased x.x.x
 	 */
 	public function enqueue(): EnqueueScript {
-		if ( ! wp_script_is( $this->scriptId, 'registered' ) ) {
+		if ( ! wp_script_is( $this->script_id, 'registered' ) ) {
 			$this->register();
 		}
-		wp_enqueue_script( $this->scriptId );
+		wp_enqueue_script( $this->script_id );
 
 		return $this;
 	}
@@ -234,28 +230,33 @@ class EnqueueScript {
 	 *
 	 * @return string
 	 */
-	public function getScriptId(): string {
-		return $this->scriptId;
+	public function get_script_id(): string {
+		return $this->script_id;
 	}
 
 	/**
+	 * Get asset file data.
+	 *
 	 * @unreleased x.x.x
 	 *
 	 * @return array
 	 */
-	public function getAssetFileData(): array {
-		$scriptAssetPath = trailingslashit( dirname( $this->absoluteScriptPath ) )
-			. basename( $this->absoluteScriptPath, '.js' )
+	public function get_asset_file_data(): array {
+		$script_asset_path = trailingslashit( dirname( $this->absolute_script_path ) )
+			. basename( $this->absolute_script_path, '.js' )
 			. '.asset.php';
 
-		$scriptAsset = file_exists( $scriptAssetPath )
-			? require( $scriptAssetPath )
-			: [ 'dependencies' => [], 'version' => $this->version ?: filemtime( $this->absoluteScriptPath ) ];
+		$script_asset = file_exists( $script_asset_path )
+			? require $script_asset_path
+			: [
+				'dependencies' => [],
+				'version'      => $this->version ?: filemtime( $this->absolute_script_path ),
+			];
 
-		if ( $this->scriptDependencies ) {
-			$scriptAsset['dependencies'] = array_merge( $this->scriptDependencies, $scriptAsset['dependencies'] );
+		if ( $this->script_dependencies ) {
+			$script_asset['dependencies'] = array_merge( $this->script_dependencies, $script_asset['dependencies'] );
 		}
 
-		return $scriptAsset;
+		return $script_asset;
 	}
 }
