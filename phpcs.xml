@@ -1,9 +1,7 @@
 <?xml version="1.0"?>
 <ruleset name="Project Rules">
-	<rule ref="10up-Default">
-	</rule>
-	<rule ref="WordPress-VIP-Go">
-	</rule>
+	<rule ref="10up-Default"></rule>
+	<rule ref="WordPress-VIP-Go"></rule>
 
 	<rule ref="WordPress.Security.ValidatedSanitizedInput">
 		<properties>
@@ -19,4 +17,6 @@
 			</property>
 		</properties>
 	</rule>
+
+	<config name="testVersion" value="7.4-"/>
 </ruleset>
