@@ -43,8 +43,8 @@ use WP_Post;
  * @method array get_terms()
  * @method array get_media()
  * @method array post_data()
- * @method array to_insert()
- * @method string to_json( int $options = 0, int $depth = 512 )
+ * @method array to_insert( array $args = [] )
+ * @method array to_rest( array $args = [] )
  */
 class DistributorPost {
 	/**
@@ -707,22 +707,33 @@ class DistributorPost {
 	 *    @type string $post_type         Post type.
 	 *    @type string $content           Processed post content.
 	 *    @type string $excerpt           Post excerpt.
+	 *    @type int    $parent            Post parent ID.
+	 *    @type string $status            Post status.
 	 *    @type array  $distributor_media Media data.
 	 *    @type array  $distributor_terms Post terms.
 	 *    @type array  $distributor_meta  Post meta.
 	 * }
 	 */
 	protected function post_data() {
-		return [
-			'title'             => html_entity_decode( get_the_title( $this->post->ID ), ENT_QUOTES, get_bloginfo( 'charset' ) ),
-			'slug'              => $this->post->post_name,
-			'post_type'         => $this->post->post_type,
-			'content'           => Utils\get_processed_content( $this->post->post_content ),
-			'excerpt'           => $this->post->post_excerpt,
-			'distributor_media' => $this->get_media(),
-			'distributor_terms' => $this->get_terms(),
-			'distributor_meta'  => $this->get_meta(),
-		];
+		$this->populate_source_site();
+		return array(
+			'title'                          => html_entity_decode( get_the_title( $this->post->ID ), ENT_QUOTES, get_bloginfo( 'charset' ) ),
+			'slug'                           => $this->post->post_name,
+			'type'                           => $this->post->post_type,
+			'content'                        => Utils\get_processed_content( $this->post->post_content ),
+			'excerpt'                        => $this->post->post_excerpt,
+			'parent'                         => ! empty( $this->post->post_parent ) ? (int) $this->post->post_parent : 0,
+			'status'                         => $this->post->post_status,
+			'distributor_media'              => $this->get_media(),
+			'distributor_terms'              => $this->get_terms(),
+			'distributor_meta'               => $this->get_meta(),
+
+			// Original site and post data.
+			'distributor_original_site_name' => $this->source_site['name'],
+			'distributor_original_site_url'  => $this->source_site['home_url'],
+			'distributor_original_post_url'  => $this->get_permalink(),
+			'distributor_original_post_id'   => $this->post->ID,
+		);
 	}
 
 	/**
@@ -731,13 +742,22 @@ class DistributorPost {
 	 * @todo `distributor_media` needs work for unattached media items.
 	 * @todo check if `distributor_raw_content` should be included here too.
 	 *
+	 * @param  array $args {
+	 *     Optional. Array of push arguments
+	 *
+	 *     @type int    $remote_post_id Post ID on remote site. If not provided,
+	 *                                  a new post will be created.
+	 *     @type string $post_status    The post status to use on the remote site.
+	 *                                  Ignored when updating posts.
+	 * }
+	 *
 	 * @return array {
 	 *    Post data.
 	 *
 	 *    @type string $post_title   Post title.
 	 *    @type string $post_name    Post slug.
 	 *    @type string $post_type    Post type.
-	 *    @type string $post_content Processed post content.
+	 *    @type string $post_content Post content. The raw content is used for posts containing blocks.
 	 *    @type string $post_excerpt Post excerpt.
 	 *    @type array  $tax_input    Post terms.
 	 *    @type array  $meta_input   Post meta.
@@ -745,24 +765,52 @@ class DistributorPost {
 	 *    @type array  $distributor_media Media data.
 	 * }
 	 */
-	protected function to_insert() {
+	protected function to_insert( $args = array() ) {
 		$insert       = [];
 		$post_data    = $this->post_data();
 		$key_mappings = [
-			'post_title'        => 'title',
-			'post_name'         => 'slug',
-			'post_type'         => 'post_type',
-			'post_content'      => 'content',
-			'post_excerpt'      => 'excerpt',
-			'tax_input'         => 'distributor_terms',
-			'meta_input'        => 'distributor_meta',
+			'post_title'   => 'title',
+			'post_name'    => 'slug',
+			'post_type'    => 'type',
+			'post_content' => 'content',
+			'post_excerpt' => 'excerpt',
+			'post_status'  => 'status',
+			'terms'        => 'distributor_terms',
+			'meta'         => 'distributor_meta',
 
 			// This needs to be figured out.
-			'distributor_media' => 'distributor_media',
+			'media'        => 'distributor_media',
 		];
 
 		foreach ( $key_mappings as $key => $value ) {
 			$insert[ $key ] = $post_data[ $value ];
+		}
+
+		// Additional data required for wp_insert_post().
+		$insert['post_author'] = isset( $this->post->post_author ) ? $this->post->post_author : get_current_user_id();
+
+		// If the post has blocks, use the raw content.
+		if ( $this->has_blocks() ) {
+			$insert['post_content'] = $this->post->post_content;
+		}
+
+		if ( ! empty( $args['remote_post_id'] ) ) {
+			// Updating an existing post.
+			$insert['ID'] = (int) $args['remote_post_id'];
+			unset( $insert['post_status'] );
+		}
+
+		if ( ! empty( $args['post_status'] ) ) {
+			$insert['post_status'] = $args['post_status'];
+		}
+
+		// Post meta used by wp_insert_post, wp_update_post.
+		$insert['meta_input'] = array(
+			'dt_original_post_id'  => $post_data['distributor_original_post_id'],
+			'dt_original_post_url' => $post_data['distributor_original_post_url'],
+		);
+		if ( ! empty( $post_data['parent'] ) ) {
+			$insert['meta_input']['dt_original_post_parent'] = $post_data['parent'];
 		}
 
 		return $insert;
@@ -771,12 +819,28 @@ class DistributorPost {
 	/**
 	 * Get the post data in a format suitable for the distributor REST API endpoint.
 	 *
-	 * @param int $options Optional. Options to be passed to json_encode(). Default 0.
-	 * @param int $depth   Optional. Maximum depth to walk through $data. Default 512.
-	 * @return string JSON encoded post data.
+	 * @param array $rest_args Optional. Arguments to be passed to the REST API endpoint.
+	 * @return array Post data formatted for the REST API endpoint.
 	 */
-	protected function to_json( $options = 0, $depth = 512 ) {
+	protected function to_rest( $rest_args = array() ) {
 		$post_data = $this->post_data();
+
+		if ( ! empty( $post_data['parent'] ) ) {
+			$post_data['distributor_original_post_parent'] = (int) $post_data['parent'];
+		}
+		unset( $post_data['parent'] );
+
+		// Replace any default values with those that have been passed.
+		$post_data = array_merge( $post_data, $rest_args );
+
+		/*
+		 * Rename the original post ID to the remote post ID.
+		 *
+		 * JSON requests are sent to external sites via the REST API so from the perspective
+		 * of the external site, the original post ID is the remote post ID.
+		 */
+		$post_data['distributor_remote_post_id'] = $post_data['distributor_original_post_id'];
+		unset( $post_data['distributor_original_post_id'] );
 
 		/*
 		 * Check if the post has block to determine whether to use the raw content or not.
@@ -789,6 +853,6 @@ class DistributorPost {
 			$post_data['distributor_raw_content'] = $this->post->post_content;
 		}
 
-		return wp_json_encode( $post_data, $options, $depth );
+		return $post_data;
 	}
 }
