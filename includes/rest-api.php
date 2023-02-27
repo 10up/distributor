@@ -149,7 +149,7 @@ function register_rest_routes() {
 		'distributor/list-pull-content',
 		array(
 			'methods'             => 'POST',
-			'callback'            => __NAMESPACE__ . '\get_pull_content',
+			'callback'            => __NAMESPACE__ . '\get_pull_content_list',
 			'permission_callback' => __NAMESPACE__ . '\\get_pull_content_permissions',
 			'args'                => get_pull_content_list_args(),
 		)
@@ -433,10 +433,12 @@ function check_post_types_permissions() {
 /**
  * Get a list of content to show on the Pull screen
  *
+ * @since x.x.x Renamed from get_pull_content() to get_pull_content_list().
+ *
  * @param \WP_Rest_Request $request API request arguments
  * @return \WP_REST_Response|\WP_Error
  */
-function get_pull_content( $request ) {
+function get_pull_content_list( $request ) {
 	$args = [
 		'posts_per_page' => isset( $request['posts_per_page'] ) ? $request['posts_per_page'] : 20,
 		'paged'          => isset( $request['page'] ) ? $request['page'] : 1,
@@ -517,6 +519,19 @@ function get_pull_content( $request ) {
 	$response->header( 'X-WP-TotalPages', (int) $max_pages );
 
 	return $response;
+}
+
+/**
+ * Get a list of content to show on the Pull screen
+ *
+ * @since x.x.x Deprecated in favour of get_pull_content_list().
+ *
+ * @param array ...$args Arguments.
+ * @return \WP_REST_Response|\WP_Error
+ */
+function get_pull_content( ...$args ) {
+	_deprecated_function( __FUNCTION__, 'x.x.x', __NAMESPACE__ . '\\get_pull_content_list' );
+	return get_pull_content_list( ...$args );
 }
 
 /**
