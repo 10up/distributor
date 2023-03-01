@@ -785,7 +785,7 @@ jQuery( window ).on( 'load', () => {
 			);
 			document.querySelector(
 				'.selected-connections-count'
-			).textContent =
+			).textContent = 
 				selectedText;
 			if ( selectAllConnections.classList.contains( 'unavailable' ) ) {
 				classList( 'all' );
