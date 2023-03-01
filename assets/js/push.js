@@ -582,6 +582,7 @@ jQuery( window ).on( 'load', () => {
 
 				delete selectedConnections[ type + id ];
 				selectedText = sprintf(
+					/* translators: 1) Selected connection content singular name. 2) Selected connection content plural name. */
 					_n(
 						'Selected connection (%d)',
 						'Selected connections (%d)',
@@ -592,7 +593,7 @@ jQuery( window ).on( 'load', () => {
 				);
 				document.querySelector(
 					'.selected-connections-text'
-				).textContent = selectedText;	
+				).textContent = selectedText;
 				if (
 					selectAllConnections.classList.contains( 'unavailable' )
 				) {
@@ -615,6 +616,7 @@ jQuery( window ).on( 'load', () => {
 
 				const element = event.currentTarget.cloneNode( true );
 				selectedText = sprintf(
+					/* translators: 1) Selected connection content singular name. 2) Selected connection content plural name. */
 					_n(
 						'Selected connection (%d)',
 						'Selected connections (%d)',
@@ -685,6 +687,7 @@ jQuery( window ).on( 'load', () => {
 					element.appendChild( removeLink );
 					element.classList = 'added-connection';
 					selectedText = sprintf(
+						/* translators: 1) Selected connection content singular name. 2) Selected connection content plural name. */
 						_n(
 							'Selected connection (%d)',
 							'Selected connections (%d)',
@@ -728,6 +731,7 @@ jQuery( window ).on( 'load', () => {
 
 				delete selectedConnections[ type + id ];
 				selectedText = sprintf(
+					/* translators: 1) Selected connection content singular name. 2) Selected connection content plural name. */
 					_n(
 						'Selected connection (%d)',
 						'Selected connections (%d)',
@@ -770,6 +774,7 @@ jQuery( window ).on( 'load', () => {
 
 			delete selectedConnections[ type + id ];
 			selectedText = sprintf(
+				/* translators: 1) Selected connection content singular name. 2) Selected connection content plural name. */
 				_n(
 					'Selected connection (%d)',
 					'Selected connections (%d)',
