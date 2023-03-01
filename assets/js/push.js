@@ -583,18 +583,16 @@ jQuery( window ).on( 'load', () => {
 				delete selectedConnections[ type + id ];
 				selectedText = sprintf(
 					_n(
-						"Selected connection (%d)",
-						"Selected connections (%d)",
+						'Selected connection (%d)',
+						'Selected connections (%d)',
 						Object.keys( selectedConnections ).length,
-						"distributor"
+						'distributor'
 					),
 					Object.keys( selectedConnections ).length
 				);
 				document.querySelector(
 					'.selected-connections-text'
-				).textContent =
-					selectedText;
-						
+				).textContent = selectedText;	
 				if (
 					selectAllConnections.classList.contains( 'unavailable' )
 				) {
@@ -618,18 +616,16 @@ jQuery( window ).on( 'load', () => {
 				const element = event.currentTarget.cloneNode( true );
 				selectedText = sprintf(
 					_n(
-						"Selected connection (%d)",
-						"Selected connections (%d)",
+						'Selected connection (%d)',
+						'Selected connections (%d)',
 						Object.keys( selectedConnections ).length,
-						"distributor"
+						'distributor'
 					),
 					Object.keys( selectedConnections ).length
 				);
 				document.querySelector(
 					'.selected-connections-text'
-				).textContent =
-					selectedText;
-
+				).textContent = selectedText;
 
 				const removeLink = document.createElement( 'span' );
 				removeLink.classList.add( 'remove-connection' );
@@ -690,17 +686,16 @@ jQuery( window ).on( 'load', () => {
 					element.classList = 'added-connection';
 					selectedText = sprintf(
 						_n(
-							"Selected connection (%d)",
-							"Selected connections (%d)",
+							'Selected connection (%d)',
+							'Selected connections (%d)',
 							Object.keys( selectedConnections ).length,
-							"distributor"
+							'distributor'
 						),
 						Object.keys( selectedConnections ).length
 					);
 					document.querySelector(
 						'.selected-connections-text'
-					).textContent =
-						selectedText;
+					).textContent = selectedText;
 
 					connectionsSelectedList.appendChild( element );
 
@@ -734,17 +729,16 @@ jQuery( window ).on( 'load', () => {
 				delete selectedConnections[ type + id ];
 				selectedText = sprintf(
 					_n(
-						"Selected connection (%d)",
-						"Selected connections (%d)",
+						'Selected connection (%d)',
+						'Selected connections (%d)',
 						Object.keys( selectedConnections ).length,
-						"distributor"
+						'distributor'
 					),
 					Object.keys( selectedConnections ).length
 				);
 				document.querySelector(
 					'.selected-connections-text'
-				).textContent =
-					selectedText;
+				).textContent = selectedText;
 
 				connectionsSelectedList.removeChild(
 					connectionsSelectedList.firstChild
@@ -777,17 +771,16 @@ jQuery( window ).on( 'load', () => {
 			delete selectedConnections[ type + id ];
 			selectedText = sprintf(
 				_n(
-					"Selected connection (%d)",
-					"Selected connections (%d)",
+					'Selected connection (%d)',
+					'Selected connections (%d)',
 					Object.keys( selectedConnections ).length,
-					"distributor"
+					'distributor'
 				),
 				Object.keys( selectedConnections ).length
 			);
 			document.querySelector(
 				'.selected-connections-text'
-			).textContent =
-				selectedText;
+			).textContent = selectedText;
 
 			if ( selectAllConnections.classList.contains( 'unavailable' ) ) {
 				classList( 'all' );
