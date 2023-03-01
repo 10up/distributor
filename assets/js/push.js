@@ -581,8 +581,12 @@ jQuery( window ).on( 'load', () => {
 				deleteNode.parentNode.removeChild( deleteNode );
 
 				delete selectedConnections[ type + id ];
+		
+				selectedText = sprintf(
+					_n( 'Selected connection (%d)', 'Selected connections (%d)', Object.keys( selectedConnections ).length, 'distributor' ),
+					Object.keys( selectedConnections ).length 
+				);
 
-				selectedText = sprintf( _n( 'Selected connection (%d)', 'Selected connections (%d)', Object.keys( selectedConnections ).length, 'text-domain' ), Object.keys( selectedConnections ).length );
 				document.querySelector(
 					'.selected-connections-text'
 				).textContent =
@@ -610,7 +614,11 @@ jQuery( window ).on( 'load', () => {
 
 				const element = event.currentTarget.cloneNode( true );
 
-				selectedText = sprintf( _n( 'Selected connection (%d)', 'Selected connections (%d)', Object.keys( selectedConnections ).length, 'text-domain' ), Object.keys( selectedConnections ).length );
+				selectedText = sprintf(
+					_n( 'Selected connection (%d)', 'Selected connections (%d)', Object.keys( selectedConnections ).length, 'distributor' ),
+					Object.keys( selectedConnections ).length 
+				);
+
 				document.querySelector(
 					'.selected-connections-text'
 				).textContent =
@@ -674,7 +682,11 @@ jQuery( window ).on( 'load', () => {
 					element.appendChild( removeLink );
 					element.classList = 'added-connection';
 
-					selectedText = sprintf( _n( 'Selected connection (%d)', 'Selected connections (%d)', Object.keys( selectedConnections ).length, 'text-domain' ), Object.keys( selectedConnections ).length );
+					selectedText = sprintf(
+						_n( 'Selected connection (%d)', 'Selected connections (%d)', Object.keys( selectedConnections ).length, 'distributor' ),
+						Object.keys( selectedConnections ).length 
+					);
+	
 					document.querySelector(
 						'.selected-connections-text'
 					).textContent =
@@ -711,7 +723,11 @@ jQuery( window ).on( 'load', () => {
 
 				delete selectedConnections[ type + id ];
 
-				selectedText = sprintf( _n( 'Selected connection (%d)', 'Selected connections (%d)', Object.keys( selectedConnections ).length, 'text-domain' ), Object.keys( selectedConnections ).length );
+				selectedText = sprintf(
+					_n( 'Selected connection (%d)', 'Selected connections (%d)', Object.keys( selectedConnections ).length, 'distributor' ),
+					Object.keys( selectedConnections ).length 
+				);
+
 				document.querySelector(
 					'.selected-connections-text'
 				).textContent =
@@ -747,7 +763,11 @@ jQuery( window ).on( 'load', () => {
 
 			delete selectedConnections[ type + id ];
 
-			selectedText = sprintf( _n( 'Selected connection (%d)', 'Selected connections (%d)', Object.keys( selectedConnections ).length, 'text-domain' ), Object.keys( selectedConnections ).length );
+			selectedText = sprintf(
+				_n( 'Selected connection (%d)', 'Selected connections (%d)', Object.keys( selectedConnections ).length, 'distributor' ),
+				Object.keys( selectedConnections ).length 
+			);
+
 			document.querySelector(
 				'.selected-connections-text'
 			).textContent =
