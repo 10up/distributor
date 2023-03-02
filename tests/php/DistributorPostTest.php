@@ -45,6 +45,8 @@ class DistributorPostTest extends TestCase {
 		\WP_Mock::userFunction( '_prime_post_caches' );
 		\WP_Mock::userFunction( 'update_object_term_cache' );
 		\WP_Mock::userFunction( 'update_postmeta_cache' );
+		\WP_Mock::userFunction( 'switch_to_blog' );
+		\WP_Mock::userFunction( 'restore_current_blog' );
 	}
 
 	/**
@@ -161,14 +163,13 @@ class DistributorPostTest extends TestCase {
 			)
 		);
 
-		\WP_Mock::userFunction( 'switch_to_blog' );
-		\WP_Mock::userFunction( 'restore_current_blog' );
-
 		\WP_Mock::userFunction(
 			'get_bloginfo',
 			array(
 				'return' => function( $info ) {
 					switch ( $info ) {
+						case 'charset':
+							return 'UTF-8';
 						case 'name':
 							return 'Test Internal Origin';
 						default:
@@ -304,6 +305,8 @@ class DistributorPostTest extends TestCase {
 			array(
 				'return' => function( $info ) {
 					switch ( $info ) {
+						case 'charset':
+							return 'UTF-8';
 						case 'name':
 							return 'Example Dot Org';
 						default:
@@ -1401,7 +1404,22 @@ class DistributorPostTest extends TestCase {
 		\WP_Mock::userFunction(
 			'get_bloginfo',
 			array(
-				'return' => 'UTF-8',
+				'return' => function( $info ) {
+					switch ( $info ) {
+						case 'charset':
+							return 'UTF-8';
+						case 'name':
+							return 'Test Internal Origin';
+						default:
+							return '';
+					}
+				},
+			)
+		);
+		\WP_Mock::userFunction(
+			'get_permalink',
+			array(
+				'return' => 'http://example.org/?p=1',
 			)
 		);
 
@@ -1443,17 +1461,23 @@ class DistributorPostTest extends TestCase {
 		$post_data_actual = $dt_post->post_data();
 
 		$post_data_expected = array(
-			'title'             => 'Test Post',
-			'slug'              => 'test-post',
-			'post_type'         => 'post',
-			'content'           => 'Test Content',
-			'excerpt'           => 'Test Excerpt',
-			'distributor_media' => array(),
-			'distributor_terms' => array(
+			'title'                          => 'Test Post',
+			'slug'                           => 'test-post',
+			'type'                           => 'post',
+			'content'                        => 'Test Content',
+			'excerpt'                        => 'Test Excerpt',
+			'parent'                         => 0,
+			'status'                         => 'publish',
+			'distributor_media'              => array(),
+			'distributor_terms'              => array(
 				'category' => array(),
 				'post_tag' => array(),
 			),
 			'distributor_meta'  => array(),
+			'distributor_original_site_name' => 'Test Internal Origin',
+			'distributor_original_site_url'  => 'http://test.com',
+			'distributor_original_post_url'  => 'http://example.org/?p=1',
+			'distributor_original_post_id'   => 1,
 		);
 
 		$this->assertSame( $post_data_expected, $post_data_actual );
@@ -1461,40 +1485,50 @@ class DistributorPostTest extends TestCase {
 		// Make sure it looks good to insert.
 		$to_insert_actual = $dt_post->to_insert();
 		$to_insert_expected = array(
-			'post_title'        => 'Test Post',
-			'post_name'         => 'test-post',
-			'post_type'         => 'post',
-			'post_content'      => 'Test Content',
-			'post_excerpt'      => 'Test Excerpt',
-			'tax_input'         => array(
+			'post_title'   => 'Test Post',
+			'post_name'    => 'test-post',
+			'post_type'    => 'post',
+			'post_content' => 'Test Content',
+			'post_excerpt' => 'Test Excerpt',
+			'post_status'  => 'publish',
+			'terms'             => array(
 				'category'      => array(),
 				'post_tag'      => array(),
 			),
-			'meta_input'        => array(),
-			'distributor_media' => array(),
+			'meta'         => array(),
+			'media'        => array(),
+			'post_author'  => 1,
+			'meta_input'   => array(
+				'dt_original_post_id'  => 1,
+				'dt_original_post_url' => 'http://example.org/?p=1',
+			),
 		);
 
 		$this->assertSame( $to_insert_expected, $to_insert_actual );
 
 		// Make sure it looks correct for a REST request.
-		$to_json_actual = $dt_post->to_json();
-		$to_json_expected = wp_json_encode(
-			array(
-				'title'             => 'Test Post',
-				'slug'              => 'test-post',
-				'post_type'         => 'post',
-				'content'           => 'Test Content',
-				'excerpt'           => 'Test Excerpt',
-				'distributor_media' => array(),
-				'distributor_terms' => array(
-					'category' => array(),
-					'post_tag' => array(),
-				),
-				'distributor_meta'  => array(),
-			)
+		$to_rest_actual = $dt_post->to_rest();
+		$to_rest_expected = array(
+			'title'                          => 'Test Post',
+			'slug'                           => 'test-post',
+			'type'                           => 'post',
+			'content'                        => 'Test Content',
+			'excerpt'                        => 'Test Excerpt',
+			'status'                         => 'publish',
+			'distributor_media'              => array(),
+			'distributor_terms'              => array(
+				'category' => array(),
+				'post_tag' => array(),
+			),
+			'distributor_meta'  => array(),
+			'distributor_original_site_name' => 'Test Internal Origin',
+			'distributor_original_site_url'  => 'http://test.com',
+			'distributor_original_post_url'  => 'http://example.org/?p=1',
+			'distributor_remote_post_id'     => 1,
+
 		);
 
-		$this->assertSame( $to_json_expected, $to_json_actual );
+		$this->assertSame( $to_rest_expected, $to_rest_actual );
 	}
 
 	/**
@@ -1526,7 +1560,22 @@ class DistributorPostTest extends TestCase {
 		\WP_Mock::userFunction(
 			'get_bloginfo',
 			array(
-				'return' => 'UTF-8',
+				'return' => function( $info ) {
+					switch ( $info ) {
+						case 'charset':
+							return 'UTF-8';
+						case 'name':
+							return 'Test Internal Origin';
+						default:
+							return '';
+					}
+				},
+			)
+		);
+		\WP_Mock::userFunction(
+			'get_permalink',
+			array(
+				'return' => 'http://example.org/?p=1',
 			)
 		);
 
@@ -1590,17 +1639,23 @@ class DistributorPostTest extends TestCase {
 		$post_data_actual = $dt_post->post_data();
 
 		$post_data_expected = array(
-			'title'             => 'Test Post',
-			'slug'              => 'test-post',
-			'post_type'         => 'post',
-			'content'           => '<!-- wp:paragraph --><p>Test Content</p><!-- /wp:paragraph -->',
-			'excerpt'           => 'Test Excerpt',
-			'distributor_media' => array(),
-			'distributor_terms' => array(
+			'title'                          => 'Test Post',
+			'slug'                           => 'test-post',
+			'type'                           => 'post',
+			'content'                        => '<!-- wp:paragraph --><p>Test Content</p><!-- /wp:paragraph -->',
+			'excerpt'                        => 'Test Excerpt',
+			'parent'			             => 0,
+			'status'                         => 'publish',
+			'distributor_media'              => array(),
+			'distributor_terms'              => array(
 				'category' => array(),
 				'post_tag' => array(),
 			),
-			'distributor_meta'  => array(),
+			'distributor_meta'               => array(),
+			'distributor_original_site_name' => 'Test Internal Origin',
+			'distributor_original_site_url'  => 'http://test.com',
+			'distributor_original_post_url'  => 'http://example.org/?p=1',
+			'distributor_original_post_id'   => 1,
 		);
 
 		$this->assertSame( $post_data_expected, $post_data_actual );
@@ -1608,41 +1663,50 @@ class DistributorPostTest extends TestCase {
 		// Make sure it looks good to insert.
 		$to_insert_actual = $dt_post->to_insert();
 		$to_insert_expected = array(
-			'post_title'        => 'Test Post',
-			'post_name'         => 'test-post',
-			'post_type'         => 'post',
-			'post_content'      => '<!-- wp:paragraph --><p>Test Content</p><!-- /wp:paragraph -->',
-			'post_excerpt'      => 'Test Excerpt',
-			'tax_input'         => array(
-				'category'      => array(),
-				'post_tag'      => array(),
+			'post_title'   => 'Test Post',
+			'post_name'    => 'test-post',
+			'post_type'    => 'post',
+			'post_content' => '<!-- wp:paragraph --><p>Test Content</p><!-- /wp:paragraph -->',
+			'post_excerpt' => 'Test Excerpt',
+			'post_status'  => 'publish',
+			'terms'        => array(
+				'category' => array(),
+				'post_tag' => array(),
 			),
-			'meta_input'        => array(),
-			'distributor_media' => array(),
+			'meta'         => array(),
+			'media'        => array(),
+			'post_author'  => 1,
+			'meta_input'   => array(
+				'dt_original_post_id'  => 1,
+				'dt_original_post_url' => 'http://example.org/?p=1',
+			),
 		);
 
 		$this->assertSame( $to_insert_expected, $to_insert_actual );
 
 		// Make sure it looks correct for a REST request.
-		$to_json_actual = $dt_post->to_json();
-		$to_json_expected = wp_json_encode(
-			array(
-				'title'                   => 'Test Post',
-				'slug'                    => 'test-post',
-				'post_type'               => 'post',
-				'content'                 => '<!-- wp:paragraph --><p>Test Content</p><!-- /wp:paragraph -->',
-				'excerpt'                 => 'Test Excerpt',
-				'distributor_media'       => array(),
-				'distributor_terms'       => array(
-					'category' => array(),
-					'post_tag' => array(),
-				),
-				'distributor_meta'        => array(),
-				'distributor_raw_content' => '<!-- wp:paragraph --><p>Test Content</p><!-- /wp:paragraph -->',
-			)
+		$to_rest_actual = $dt_post->to_rest();
+		$to_rest_expected = array(
+			'title'                          => 'Test Post',
+			'slug'                           => 'test-post',
+			'type'                           => 'post',
+			'content'                        => '<!-- wp:paragraph --><p>Test Content</p><!-- /wp:paragraph -->',
+			'excerpt'                        => 'Test Excerpt',
+			'status'                         => 'publish',
+			'distributor_media'              => array(),
+			'distributor_terms'              => array(
+				'category' => array(),
+				'post_tag' => array(),
+			),
+			'distributor_meta'               => array(),
+			'distributor_original_site_name' => 'Test Internal Origin',
+			'distributor_original_site_url'  => 'http://test.com',
+			'distributor_original_post_url'  => 'http://example.org/?p=1',
+			'distributor_remote_post_id'     => 1,
+			'distributor_raw_content'        => '<!-- wp:paragraph --><p>Test Content</p><!-- /wp:paragraph -->',
 		);
 
-		$this->assertSame( $to_json_expected, $to_json_actual );
+		$this->assertSame( $to_rest_expected, $to_rest_actual );
 	}
 
 	/**
