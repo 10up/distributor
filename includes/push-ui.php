@@ -83,10 +83,6 @@ function syndicatable() {
 		return;
 	}
 
-	if ( ! in_array( $post->post_status, \Distributor\Utils\distributable_post_statuses(), true ) ) {
-		return false;
-	}
-
 	if ( ! in_array( get_post_type(), $distributable_post_types, true ) || ( ! empty( $_GET['post_type'] ) && 'dt_ext_connection' === $_GET['post_type'] ) ) { // @codingStandardsIgnoreLine Nonce not required
 		return false;
 	}

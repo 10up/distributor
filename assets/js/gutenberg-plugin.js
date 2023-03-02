@@ -179,11 +179,16 @@ const DistributorPlugin = () => {
 		return null;
 	}
 
+	const distributorTopMenu = document.querySelector(
+		'#wp-admin-bar-distributor'
+	);
+
 	// If we are on a non-supported post status, change what we show
 	if (
 		dtGutenberg.supportedPostStati &&
 		! dtGutenberg.supportedPostStati.includes( postStatus )
 	) {
+		distributorTopMenu.classList.add( 'hide' );
 		return (
 			<PluginDocumentSettingPanel
 				title={ __( 'Distributor', 'distributor' ) }
@@ -196,6 +201,7 @@ const DistributorPlugin = () => {
 		);
 	}
 
+	distributorTopMenu.classList.remove( 'hide' );
 	return (
 		<PluginDocumentSettingPanel
 			title={ __( 'Distributor', 'distributor' ) }
