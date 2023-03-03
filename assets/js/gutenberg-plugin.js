@@ -188,7 +188,7 @@ const DistributorPlugin = () => {
 		dtGutenberg.supportedPostStati &&
 		! dtGutenberg.supportedPostStati.includes( postStatus )
 	) {
-		distributorTopMenu.classList.add( 'hide' );
+		distributorTopMenu?.classList.add( 'hide' );
 		return (
 			<PluginDocumentSettingPanel
 				title={ __( 'Distributor', 'distributor' ) }
@@ -201,7 +201,7 @@ const DistributorPlugin = () => {
 		);
 	}
 
-	distributorTopMenu.classList.remove( 'hide' );
+	distributorTopMenu?.classList.remove( 'hide' );
 	return (
 		<PluginDocumentSettingPanel
 			title={ __( 'Distributor', 'distributor' ) }
