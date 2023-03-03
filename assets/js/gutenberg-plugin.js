@@ -183,6 +183,13 @@ const DistributorPlugin = () => {
 		'#wp-admin-bar-distributor'
 	);
 
+	// eslint-disable-next-line no-shadow, react-hooks/rules-of-hooks -- permission checks are needed.
+	const post = useSelect( ( select ) =>
+		select( 'core/editor' ).getCurrentPost()
+	);
+	// Make the post title available to the top menu.
+	dtGutenberg.postTitle = post.title;
+
 	// If we are on a non-supported post status, change what we show
 	if (
 		dtGutenberg.supportedPostStati &&
