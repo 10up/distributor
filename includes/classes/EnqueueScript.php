@@ -56,7 +56,7 @@ class EnqueueScript {
 	 *
 	 * @since x.x.x
 	 */
-	private string $version;
+	private string $version = DT_VERSION;
 
 	/**
 	 * Flag to decide whether load script in footer.
@@ -277,10 +277,6 @@ class EnqueueScript {
 	 * @return string
 	 */
 	public function get_version(): string {
-		if ( $this->version ) {
-			return $this->version;
-		}
-
 		$script_asset = $this->get_asset_file_data();
 
 		return $script_asset['version'];
