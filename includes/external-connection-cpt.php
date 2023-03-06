@@ -308,7 +308,7 @@ function admin_enqueue_scripts( $hook ) {
 	if ( ! empty( $_GET['page'] ) && 'distributor' === $_GET['page'] ) { // @codingStandardsIgnoreLine Nonce not required
 		$admin_external_connect_script = new EnqueueScript(
 			'dt-admin-external-connection',
-			'admin-external-connection.min.js'
+			'admin-external-connection.min'
 		);
 
 		wp_enqueue_style(
