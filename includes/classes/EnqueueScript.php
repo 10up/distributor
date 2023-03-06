@@ -177,7 +177,7 @@ class EnqueueScript {
 			wp_set_script_translations(
 				$this->script_id,
 				$this->text_domain,
-				$this->plugin_dir_path . 'languages'
+				$this->plugin_dir_path . 'lang'
 			);
 		}
 
