@@ -255,9 +255,9 @@ class EnqueueScript {
 			. basename( $this->absolute_script_path, '.js' )
 			. '.asset.php';
 
-		$script_asset = file_exists( $script_asset_path )
-			? require $script_asset_path
-			: [
+		$script_asset = file_exists( $script_asset_path ) ?
+			require $script_asset_path :
+			[
 				'dependencies' => [],
 				'version'      => $this->version ?: filemtime( $this->absolute_script_path ), // phpcs:ignore
 			];
