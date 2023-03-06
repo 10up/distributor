@@ -56,7 +56,7 @@ class EnqueueScript {
 	 *
 	 * @unreleased x.x.x
 	 */
-	private string $version = '';
+	private string $version;
 
 	/**
 	 * Flag to decide whether load script in footer.
@@ -77,14 +77,14 @@ class EnqueueScript {
 	 *
 	 * @unreleased x.x.x
 	 */
-	private string $localize_script_param_name;
+	private ?string $localize_script_param_name = null;
 
 	/**
 	 * Script localization parameter data.
 	 *
 	 * @unreleased x.x.x
 	 */
-	private array $localize_script_param_data;
+	private ?array $localize_script_param_data = null;
 
 	/**
 	 * Plugin root directory path.
