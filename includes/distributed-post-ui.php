@@ -7,6 +7,8 @@
 
 namespace Distributor\DistributedPostUI;
 
+use Distributor\EnqueueScript;
+
 /**
  * Setup actions and filters
  *
@@ -127,16 +129,17 @@ function enqueue_post_scripts_styles( $hook ) {
 		return;
 	}
 
-	$asset_file = DT_PLUGIN_PATH . '/dist/js/admin-distributed-post.min.asset.php';
-	// Fallback asset data.
-	$asset_data = array(
-		'version'      => DT_VERSION,
-		'dependencies' => array(),
+	$admin_distributed_post_script = new EnqueueScript(
+		'dt-admin-distributed-post',
+		'admin-distributed-post.min'
 	);
-	if ( file_exists( $asset_file ) ) {
-		$asset_data = require $asset_file;
-	}
 
-	wp_enqueue_style( 'dt-admin-distributed-post', plugins_url( '/dist/css/admin-distributed-post.min.css', __DIR__ ), array(), $asset_data['version'] );
-	wp_enqueue_script( 'dt-admin-distributed-post', plugins_url( '/dist/js/admin-distributed-post.min.js', __DIR__ ), $asset_data['dependencies'], $asset_data['version'], true );
+	wp_enqueue_style(
+		'dt-admin-distributed-post',
+		plugins_url( '/dist/css/admin-distributed-post.min.css', __DIR__ ),
+		array(),
+		$admin_distributed_post_script->get_script_id()
+	);
+
+	$admin_distributed_post_script->load_in_footer()->enqueue();
 }

@@ -3,6 +3,7 @@ import '../css/admin-pull-table.scss';
 import jQuery from 'jquery';
 import { addQueryArgs } from '@wordpress/url';
 
+const { __ } = wp.i18n;
 const { document, dt } = window;
 
 const chooseConnection = document.getElementById( 'pull_connections' );
@@ -13,7 +14,6 @@ const searchBtn = document.getElementById( 'search-submit' );
 const form = document.getElementById( 'posts-filter' );
 const asDraftCheckboxes = document.querySelectorAll( '[name=dt_as_draft]' );
 const pullLinks = document.querySelectorAll( '.distributor_page_pull .pull a' );
-const { pull: pullText, as_draft: pullAsDraftText } = dt;
 
 jQuery( chooseConnection ).on( 'change', ( event ) => {
 	document.location =
@@ -58,7 +58,7 @@ if ( chooseConnection && choosePostType && form ) {
 					pullLinks[ i ].href = addQueryArgs( pullLinks[ i ].href, {
 						dt_as_draft: 'draft' /*eslint camelcase: 0*/,
 					} );
-					pullLinks[ i ].text = pullAsDraftText;
+					pullLinks[ i ].text = __( 'Pull as draft', 'distributor' );
 				}
 			} else {
 				for ( let i = 0; i < asDraftCheckboxes.length; ++i ) {
@@ -69,7 +69,7 @@ if ( chooseConnection && choosePostType && form ) {
 					pullLinks[ i ].href = addQueryArgs( pullLinks[ i ].href, {
 						dt_as_draft: '' /*eslint camelcase: 0*/,
 					} );
-					pullLinks[ i ].text = pullText;
+					pullLinks[ i ].text = __( 'Pull', 'distributor' );
 				}
 			}
 		} );
