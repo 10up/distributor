@@ -21,6 +21,4 @@
 	<rule ref="Squiz.Commenting.VariableComment.MissingVar">
 		<severity>0</severity>
 	</rule>
-
-	<config name="testVersion" value="7.4-"/>
 </ruleset>
