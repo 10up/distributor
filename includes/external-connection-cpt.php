@@ -298,7 +298,9 @@ function admin_enqueue_scripts( $hook ) {
 			)
 		);
 
-		$admin_external_connect_script->load_in_footer()->enqueue();
+		$admin_external_connect_script->load_in_footer()
+			->register_translations()
+			->enqueue();
 
 		wp_dequeue_script( 'autosave' );
 	}
