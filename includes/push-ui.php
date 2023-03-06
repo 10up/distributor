@@ -418,6 +418,7 @@ function enqueue_scripts( $hook ) {
 			'nonce'                => wp_create_nonce( 'dt-push' ),
 			'loadConnectionsNonce' => wp_create_nonce( 'dt-load-connections' ),
 			'postId'               => (int) get_the_ID(),
+			'postTitle'            => get_the_title(),
 			'ajaxurl'              => esc_url( admin_url( 'admin-ajax.php' ) ),
 			'messages'             => array(
 				'ajax_error'   => __( 'Ajax error:', 'distributor' ),
