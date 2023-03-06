@@ -9,8 +9,8 @@
  *   - Script localization.
  *     It also handles script translation registration.
  *
- * @since x.x.x
- * @package    distributor
+ * @package distributor
+ * @since   x.x.x
  */
 
 namespace Distributor;
