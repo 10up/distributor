@@ -4,7 +4,7 @@ import jQuery from 'jquery';
 import _ from 'underscore';
 import Mustache from 'mustache';
 
-const { document, dt, dtGutenberg } = window;
+const { document, dt } = window;
 
 let selectedConnections = {},
 	searchString = '';
@@ -347,11 +347,11 @@ jQuery( window ).on( 'load', () => {
 		// If the post title has changed, we need to reload the template.
 		if (
 			distributorPushWrapper.classList.contains( 'loaded' ) &&
-			dtGutenberg.postTitle === dtGutenberg.previousPostTitle
+			dt.postTitle === dt.previousPostTitle
 		) {
 			return;
 		}
-		dtGutenberg.previousPostTitle = dtGutenberg.postTitle;
+		dt.previousPostTitle = dt.postTitle;
 
 		distributorPushWrapper.classList.remove( 'message-error' );
 		distributorPushWrapper.classList.add( 'loaded' );
@@ -399,7 +399,7 @@ jQuery( window ).on( 'load', () => {
 							connections: mustacheData.connections,
 							foundConnections: mustacheData.connections.length,
 							showSearch: 5 < mustacheData.connections.length,
-							postTitle: dtGutenberg.postTitle,
+							postTitle: dt.postTitle,
 						}
 					);
 
@@ -407,7 +407,7 @@ jQuery( window ).on( 'load', () => {
 				} else {
 					distributorPushWrapper.innerHTML = template( {
 						connections: dtConnections,
-						postTitle: dtGutenberg.postTitle,
+						postTitle: dt.postTitle,
 					} );
 				}
 

@@ -83,6 +83,10 @@ function syndicatable() {
 		return;
 	}
 
+	if ( ! use_block_editor_for_post( $post ) && ! in_array( $post->post_status, \Distributor\Utils\distributable_post_statuses(), true ) ) {
+		return false;
+	}
+
 	$distributable_post_types = array_diff( $distributable_post_types, array( 'dt_ext_connection' ) );
 	if ( ! in_array( get_post_type(), $distributable_post_types, true ) ) {
 		return false;
