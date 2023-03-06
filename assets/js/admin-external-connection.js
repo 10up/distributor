@@ -237,7 +237,7 @@ jQuery( authorizeConnectionButton ).on( 'click', ( event ) => {
 					__( 'Distributor on %1$s (%2$s)', 'distributor' ),
 					dt.blog_name,
 					dt.home_url
-				) /*eslint camelcase: 0*/,
+				),
 				success_url: encodeURI( successURL ) /*eslint camelcase: 0*/,
 				reject_url: encodeURI( failureURL ) /*eslint camelcase: 0*/,
 			} );
