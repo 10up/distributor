@@ -4,7 +4,7 @@ import jQuery from 'jquery';
 import { addQueryArgs } from '@wordpress/url';
 
 const { __ } = wp.i18n;
-const { document, dt } = window;
+const { document } = window;
 
 const chooseConnection = document.getElementById( 'pull_connections' );
 const choosePostType = document.getElementById( 'pull_post_type' );

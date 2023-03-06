@@ -533,7 +533,9 @@ jQuery( window ).on( 'load', () => {
 					}
 
 					if ( ! response.data || ! response.data.results ) {
-						doError( __( 'Received empty result.', 'distributor'  );
+						doError(
+							__( 'Received empty result.', 'distributor' )
+						);
 						return;
 					}
 
@@ -545,7 +547,12 @@ jQuery( window ).on( 'load', () => {
 				setTimeout( () => {
 					distributorTopMenu.classList.remove( 'syncing' );
 
-					doError( `${ __( 'Ajax error:', 'distributor' ) } ${ errorThrown }` );
+					doError(
+						`${ __(
+							'Ajax error:',
+							'distributor'
+						) } ${ errorThrown }`
+					);
 				}, 500 );
 			} );
 	} );

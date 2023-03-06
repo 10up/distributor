@@ -6,7 +6,7 @@ import { addQueryArgs, isURL, prependHTTP } from '@wordpress/url';
 import { speak } from '@wordpress/a11y';
 import compareVersions from 'compare-versions';
 
-const { __,sprintf } = wp.i18n;
+const { __, sprintf } = wp.i18n;
 
 const { ajaxurl, alert, document, dt, history } = window;
 
@@ -92,7 +92,12 @@ jQuery( authorizeConnectionButton ).on( 'click', ( event ) => {
 
 	let siteURL = prependHTTP( externalSiteUrlField.value );
 	if ( ! isURL( siteURL ) ) {
-		jQuery( wizardError[ 0 ] ).text( __( 'Please enter a valid URL, including the HTTP(S).', 'distributor' ) );
+		jQuery( wizardError[ 0 ] ).text(
+			__(
+				'Please enter a valid URL, including the HTTP(S).',
+				'distributor'
+			)
+		);
 		return false;
 	}
 
@@ -130,11 +135,21 @@ jQuery( authorizeConnectionButton ).on( 'click', ( event ) => {
 						'version'
 					)
 				) {
-					jQuery( wizardError[ 0 ] ).text( __( 'Distributor not installed on remote site.', 'distributor' ) );
+					jQuery( wizardError[ 0 ] ).text(
+						__(
+							'Distributor not installed on remote site.',
+							'distributor'
+						)
+					);
 					return;
 				}
 
-				jQuery( wizardError[ 0 ] ).text( __( 'Distributor not installed on remote site.', 'distributor' ) );
+				jQuery( wizardError[ 0 ] ).text(
+					__(
+						'Distributor not installed on remote site.',
+						'distributor'
+					)
+				);
 
 				if (
 					Object.prototype.hasOwnProperty.call( response, 'data' ) &&
@@ -166,7 +181,12 @@ jQuery( authorizeConnectionButton ).on( 'click', ( event ) => {
 			if (
 				compareVersions.compare( response.data.version, '1.6.0', '<' )
 			) {
-				jQuery( wizardError[ 0 ] ).text( __( 'Remote site requires Distributor version 1.6.0 or greater. Upgrade Distributor on the remote site to use the Authentication Wizard.', 'distributor' ) );
+				jQuery( wizardError[ 0 ] ).text(
+					__(
+						'Remote site requires Distributor version 1.6.0 or greater. Upgrade Distributor on the remote site to use the Authentication Wizard.',
+						'distributor'
+					)
+				);
 				return;
 			}
 
@@ -175,7 +195,10 @@ jQuery( authorizeConnectionButton ).on( 'click', ( event ) => {
 				! response.data.core_application_passwords_available
 			) {
 				jQuery( wizardError[ 0 ] ).text(
-					__( 'Application Passwords is not available on the remote site. Please set up connection manually!', 'distributor' )
+					__(
+						'Application Passwords is not available on the remote site. Please set up connection manually!',
+						'distributor'
+					)
 				);
 				return;
 			}
@@ -209,8 +232,12 @@ jQuery( authorizeConnectionButton ).on( 'click', ( event ) => {
 			}
 
 			const authURL = addQueryArgs( auth_url, {
-				/* translators: %1$s: site name, %2$s: site URL */
-				app_name: sprintf(__( 'Distributor on %1$s (%2$s)', 'distributor' ), dt.blog_name, dt.home_url ) /*eslint camelcase: 0*/,
+				app_name: sprintf(
+					/* translators: %1$s: site name, %2$s: site URL */
+					__( 'Distributor on %1$s (%2$s)', 'distributor' ),
+					dt.blog_name,
+					dt.home_url
+				) /*eslint camelcase: 0*/,
 				success_url: encodeURI( successURL ) /*eslint camelcase: 0*/,
 				reject_url: encodeURI( failureURL ) /*eslint camelcase: 0*/,
 			} );
@@ -249,7 +276,7 @@ function checkConnections() {
 	}
 
 	endpointResult.setAttribute( 'data-endpoint-state', 'loading' );
-	endpointResult.innerText = __( 'Checking endpoint...', 'distributor' );
+	endpointResult.innerText = __( 'Checking endpoint…', 'distributor' );
 
 	endpointErrors.innerText = '';
 
@@ -292,7 +319,10 @@ function checkConnections() {
 				endpointResult.setAttribute( 'data-endpoint-state', 'error' );
 
 				if ( response.data.endpoint_suggestion ) {
-					endpointResult.innerText = `${ __( 'Did you mean: ', 'distributor' ) } `;
+					endpointResult.innerText = `${ __(
+						'Did you mean: ',
+						'distributor'
+					) } `;
 
 					const suggestion = document.createElement( 'button' );
 					suggestion.classList.add( 'suggest' );
@@ -303,43 +333,86 @@ function checkConnections() {
 					endpointResult.appendChild( suggestion );
 
 					speak(
-						`${ __( 'Did you mean: ', 'distributor' ) } ${ response.data.endpoint_suggestion }`,
+						`${ __( 'Did you mean: ', 'distributor' ) } ${
+							response.data.endpoint_suggestion
+						}`,
 						'polite'
 					);
 				} else {
-					endpointResult.innerText = __( 'No connection found.', 'distributor' );
+					endpointResult.innerText = __(
+						'No connection found.',
+						'distributor'
+					);
 
-					speak( __( 'No connection found.', 'distributor' ), 'polite' );
+					speak(
+						__( 'No connection found.', 'distributor' ),
+						'polite'
+					);
 				}
 			} else if (
 				response.data.errors.no_distributor ||
 				! response.data.can_post.length
 			) {
 				endpointResult.setAttribute( 'data-endpoint-state', 'warning' );
-				endpointResult.innerText = __( 'Limited connection established.', 'distributor' );
+				endpointResult.innerText = __(
+					'Limited connection established.',
+					'distributor'
+				);
 
 				const warnings = [];
 
 				if ( response.data.errors.no_distributor ) {
-					endpointResult.innerText += ` ${ __( 'Distributor not installed on remote site.', 'distributor' ) }`;
+					endpointResult.innerText += ` ${ __(
+						'Distributor not installed on remote site.',
+						'distributor'
+					) }`;
 					speak(
-						`${ __( 'Limited connection established.', 'distributor' ) } ${ __( 'Distributor not installed on remote site.', 'distributor' ) }`,
+						`${ __(
+							'Limited connection established.',
+							'distributor'
+						) } ${ __(
+							'Distributor not installed on remote site.',
+							'distributor'
+						) }`,
 						'polite'
 					);
 				} else {
-					speak( `${ __( 'Limited connection established.', 'distributor' ) }`, 'polite' );
+					speak(
+						`${ __(
+							'Limited connection established.',
+							'distributor'
+						) }`,
+						'polite'
+					);
 				}
 
 				if ( 'no' === response.data.is_authenticated ) {
-					warnings.push( __( 'Authentication failed due to invalid credentials.', 'distributor' ) );
+					warnings.push(
+						__(
+							'Authentication failed due to invalid credentials.',
+							'distributor'
+						)
+					);
 				}
 
 				if ( 'yes' === response.data.is_authenticated ) {
-					warnings.push( __( 'Authentication succeeded but your account does not have permissions to create posts on the external site.', 'distributor' ) );
+					warnings.push(
+						__(
+							'Authentication succeeded but your account does not have permissions to create posts on the external site.',
+							'distributor'
+						)
+					);
 				}
 
-				warnings.push( __( 'Push distribution unavailable.', 'distributor' ) );
-				warnings.push( __( 'Pull distribution limited to basic content, i.e. title and content body.', 'distributor' ) );
+				warnings.push(
+					__( 'Push distribution unavailable.', 'distributor' )
+				);
+				warnings.push(
+					__(
+						'Pull distribution limited to basic content, i.e. title and content body.',
+						'distributor'
+					)
+				);
 
 				warnings.forEach( ( warning ) => {
 					const warningNode = document.createElement( 'li' );
@@ -349,9 +422,15 @@ function checkConnections() {
 				} );
 			} else {
 				endpointResult.setAttribute( 'data-endpoint-state', 'valid' );
-				endpointResult.innerText = __( 'Connection established.', 'distributor' );
+				endpointResult.innerText = __(
+					'Connection established.',
+					'distributor'
+				);
 
-				speak( __( 'Connection established.', 'distributor' ), 'polite' );
+				speak(
+					__( 'Connection established.', 'distributor' ),
+					'polite'
+				);
 			}
 		} )
 		.always( () => {
@@ -460,11 +539,11 @@ jQuery( changePassword ).on( 'click', ( event ) => {
 	if ( passwordField.disabled ) {
 		passwordField.disabled = false;
 		passwordField.value = '';
-		event.currentTarget.innerText = esc_html__( 'Cancel', 'distributor' );
+		event.currentTarget.innerText = __( 'Cancel', 'distributor' );
 	} else {
 		passwordField.disabled = true;
 		passwordField.value = 'sdfdsfsdfdsfdsfsd'; // filler password
-		event.currentTarget.innerText = esc_html__( 'Change', 'distributor' );
+		event.currentTarget.innerText = __( 'Change', 'distributor' );
 	}
 
 	checkConnections();
@@ -483,7 +562,12 @@ jQuery( rolesAllowed ).on( 'click', '.dt-role-checkbox', ( event ) => {
 		'administrator' !== event.target.value &&
 		'editor' !== event.target.value
 	) {
-		alert( __( 'Be careful assigning less trusted roles push privileges as they will inherit the capabilities of the user on the remote site.', 'distributor' ) ); // eslint-disable-line no-alert
+		alert(
+			__(
+				'Be careful assigning less trusted roles push privileges as they will inherit the capabilities of the user on the remote site.',
+				'distributor'
+			)
+		); // eslint-disable-line no-alert
 	}
 } );
 
