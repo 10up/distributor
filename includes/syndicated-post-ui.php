@@ -637,7 +637,7 @@ function enqueue_gutenberg_edit_scripts() {
 		$original_location_name = $original_site_name;
 	}
 
-	$post_type_singular = $post_type_object->labels->singular_name;
+	$post_type_singular               = $post_type_object->labels->singular_name;
 	$gutenberg_syndicated_post_script = new EnqueueScript(
 		'dt-gutenberg-syndicated-post',
 		'gutenberg-syndicated-post.min'

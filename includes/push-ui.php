@@ -404,7 +404,7 @@ function enqueue_scripts( $hook ) {
 		return;
 	}
 
-	$push_script = new EnqueueScript( 'dt-push', 'push.min' );
+	$push_script   = new EnqueueScript( 'dt-push', 'push.min' );
 	$localize_data = array(
 		'nonce'                => wp_create_nonce( 'dt-push' ),
 		'loadConnectionsNonce' => wp_create_nonce( 'dt-load-connections' ),

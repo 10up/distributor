@@ -290,11 +290,11 @@ function admin_enqueue_scripts( $hook ) {
 		$admin_external_connect_script->register_localize_data(
 			'dt',
 			array(
-				'nonce'                               => wp_create_nonce( 'dt-verify-ext-conn' ),
-				'blog_name'                           => $blog_name,
-				'home_url'                            => esc_url( home_url() ),
-				'admin_url'                           => admin_url(),
-				'wizard_return'                       => $wizard_return,
+				'nonce'         => wp_create_nonce( 'dt-verify-ext-conn' ),
+				'blog_name'     => $blog_name,
+				'home_url'      => esc_url( home_url() ),
+				'admin_url'     => admin_url(),
+				'wizard_return' => $wizard_return,
 			)
 		);
 
