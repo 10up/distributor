@@ -123,18 +123,6 @@ class EnqueueScript {
 	}
 
 	/**
-	 * Set script version.
-	 *
-	 * @unreleased x.x.x
-	 * @param string $version Script version.
-	 */
-	public function version( string $version ): EnqueueScript {
-		$this->version = $version;
-
-		return $this;
-	}
-
-	/**
 	 * Flag to decide whether load script in footer.
 	 *
 	 * @unreleased x.x.x
@@ -149,6 +137,7 @@ class EnqueueScript {
 	 * Set script dependencies.
 	 *
 	 * @unreleased x.x.x
+	 *
 	 * @param array $script_dependencies Script dependencies.
 	 */
 	public function dependencies( array $script_dependencies ): EnqueueScript {
@@ -165,6 +154,8 @@ class EnqueueScript {
 	public function register(): EnqueueScript {
 		$script_url   = $this->plugin_dir_url . $this->relative_script_path;
 		$script_asset = $this->get_asset_file_data();
+
+		$this->version = $script_asset['version'];
 
 		wp_register_script(
 			$this->script_id,
@@ -208,6 +199,7 @@ class EnqueueScript {
 	 * This function should be called after enqueue or register function.
 	 *
 	 * @unreleased x.x.x
+	 *
 	 * @param string $js_variable_name JS variable name.
 	 * @param array  $data             Data to be localized.
 	 */
@@ -267,5 +259,22 @@ class EnqueueScript {
 		}
 
 		return $script_asset;
+	}
+
+	/**
+	 * Should return script version.
+	 *
+	 * @unreleased x.x.x
+	 *
+	 * @return string
+	 */
+	public function get_version(): string {
+		if ( $this->version ) {
+			return $this->version;
+		}
+
+		$script_asset = $this->get_asset_file_data();
+
+		return $script_asset['version'];
 	}
 }
