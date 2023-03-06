@@ -115,7 +115,7 @@ class EnqueueScript {
 	 */
 	public function __construct( string $script_id, string $script_name ) {
 		$this->plugin_dir_path      = DT_PLUGIN_PATH;
-		$this->plugin_dir_url       = trailingslashit( plugin_dir_url( $this->plugin_dir_path ) );
+		$this->plugin_dir_url       = trailingslashit( plugin_dir_url( DT_PLUGIN_FULL_FILE ) );
 		$this->text_domain          = 'distributor';
 		$this->script_id            = $script_id;
 		$this->relative_script_path = 'dist/js/' . $script_name . '.js';
