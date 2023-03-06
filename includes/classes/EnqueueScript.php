@@ -15,6 +15,8 @@
 
 namespace Distributor;
 
+use Exception;
+
 /**
  * Class EnqueueScript
  *
@@ -112,6 +114,8 @@ class EnqueueScript {
 	 *
 	 * @param string $script_id   Script ID.
 	 * @param string $script_name Script name.
+	 *
+	 * @throws Exception If script file not found.
 	 */
 	public function __construct( string $script_id, string $script_name ) {
 		$this->plugin_dir_path      = DT_PLUGIN_PATH;
@@ -120,6 +124,10 @@ class EnqueueScript {
 		$this->script_id            = $script_id;
 		$this->relative_script_path = 'dist/js/' . $script_name . '.js';
 		$this->absolute_script_path = $this->plugin_dir_path . $this->relative_script_path;
+
+		if( ! file_exists( $this->absolute_script_path ) ) {
+			throw new Exception( 'Script file not found: ' . $this->absolute_script_path );
+		}
 	}
 
 	/**
