@@ -109,6 +109,9 @@ class EnqueueScript {
 	 * EnqueueScript constructor.
 	 *
 	 * @unreleased x.x.x
+	 *
+	 * @param string $script_id   Script ID.
+	 * @param string $script_name Script name.
 	 */
 	public function __construct( string $script_id, string $script_name ) {
 		$this->plugin_dir_path      = DT_PLUGIN_PATH;
@@ -123,8 +126,9 @@ class EnqueueScript {
 	 * Set script version.
 	 *
 	 * @unreleased x.x.x
+	 * @param string $version Script version.
 	 */
-	public function version( $version ): EnqueueScript {
+	public function version( string $version ): EnqueueScript {
 		$this->version = $version;
 
 		return $this;
@@ -145,6 +149,7 @@ class EnqueueScript {
 	 * Set script dependencies.
 	 *
 	 * @unreleased x.x.x
+	 * @param array $script_dependencies Script dependencies.
 	 */
 	public function dependencies( array $script_dependencies ): EnqueueScript {
 		$this->script_dependencies = $script_dependencies;
@@ -203,6 +208,8 @@ class EnqueueScript {
 	 * This function should be called after enqueue or register function.
 	 *
 	 * @unreleased x.x.x
+	 * @param string $js_variable_name JS variable name.
+	 * @param array  $data             Data to be localized.
 	 */
 	public function register_localize_data( string $js_variable_name, array $data ): EnqueueScript {
 		$this->localize_script_param_name = $js_variable_name;
@@ -226,6 +233,8 @@ class EnqueueScript {
 	}
 
 	/**
+	 * Should return script ID.
+	 *
 	 * @unreleased x.x.x
 	 *
 	 * @return string
@@ -250,7 +259,7 @@ class EnqueueScript {
 			? require $script_asset_path
 			: [
 				'dependencies' => [],
-				'version'      => $this->version ?: filemtime( $this->absolute_script_path ),
+				'version'      => $this->version ?: filemtime( $this->absolute_script_path ), // phpcs:ignore
 			];
 
 		if ( $this->script_dependencies ) {
