@@ -9,7 +9,7 @@
  *   - Script localization.
  *     It also handles script translation registration.
  *
- * @unreleased x.x.x
+ * @since x.x.x
  * @package    distributor
  */
 
@@ -20,97 +20,97 @@ use Exception;
 /**
  * Class EnqueueScript
  *
- * @unreleased x.x.x
+ * @since x.x.x
  */
 class EnqueueScript {
 	/**
 	 * Script ID.
 	 *
-	 * @unreleased x.x.x
+	 * @since x.x.x
 	 */
 	private string $script_id;
 
 	/**
 	 * Script path relative to plugin root directory.
 	 *
-	 * @unreleased x.x.x
+	 * @since x.x.x
 	 */
 	private string $relative_script_path;
 
 	/**
 	 * Script path absolute to plugin root directory.
 	 *
-	 * @unreleased x.x.x
+	 * @since x.x.x
 	 */
 	private string $absolute_script_path;
 
 	/**
 	 * Script dependencies.
 	 *
-	 * @unreleased x.x.x
+	 * @since x.x.x
 	 */
 	private array $script_dependencies = [];
 
 	/**
 	 * Script version.
 	 *
-	 * @unreleased x.x.x
+	 * @since x.x.x
 	 */
 	private string $version;
 
 	/**
 	 * Flag to decide whether load script in footer.
 	 *
-	 * @unreleased x.x.x
+	 * @since x.x.x
 	 */
 	private bool $load_script_in_footer = false;
 
 	/**
 	 * Flag to decide whether register script translation.
 	 *
-	 * @unreleased x.x.x
+	 * @since x.x.x
 	 */
 	private bool $register_translations = false;
 
 	/**
 	 * Script localization parameter name.
 	 *
-	 * @unreleased x.x.x
+	 * @since x.x.x
 	 */
 	private ?string $localize_script_param_name = null;
 
 	/**
 	 * Script localization parameter data.
 	 *
-	 * @unreleased x.x.x
+	 * @since x.x.x
 	 */
 	private ?array $localize_script_param_data = null;
 
 	/**
 	 * Plugin root directory path.
 	 *
-	 * @unreleased x.x.x
+	 * @since x.x.x
 	 */
 	private string $plugin_dir_path;
 
 	/**
 	 * Plugin root directory URL.
 	 *
-	 * @unreleased x.x.x
+	 * @since x.x.x
 	 */
 	private string $plugin_dir_url;
 
 	/**
 	 * Plugin text domain.
 	 *
-	 * @unreleased x.x.x
+	 * @since x.x.x
 	 */
 	private string $text_domain;
 
 	/**
 	 * EnqueueScript constructor.
 	 *
-	 * @unreleased x.x.x
+	 * @since x.x.x
 	 *
 	 * @param string $script_id   Script ID.
 	 * @param string $script_name Script name.
@@ -133,7 +133,7 @@ class EnqueueScript {
 	/**
 	 * Flag to decide whether load script in footer.
 	 *
-	 * @unreleased x.x.x
+	 * @since x.x.x
 	 */
 	public function load_in_footer(): EnqueueScript {
 		$this->load_script_in_footer = true;
@@ -144,7 +144,7 @@ class EnqueueScript {
 	/**
 	 * Set script dependencies.
 	 *
-	 * @unreleased x.x.x
+	 * @since x.x.x
 	 *
 	 * @param array $script_dependencies Script dependencies.
 	 */
@@ -157,7 +157,7 @@ class EnqueueScript {
 	/**
 	 * Register script.
 	 *
-	 * @unreleased x.x.x
+	 * @since x.x.x
 	 */
 	public function register(): EnqueueScript {
 		$script_url   = $this->plugin_dir_url . $this->relative_script_path;
@@ -195,7 +195,7 @@ class EnqueueScript {
 	/**
 	 * This function should be called before enqueue or register function.
 	 *
-	 * @unreleased x.x.x
+	 * @since x.x.x
 	 */
 	public function register_translations(): EnqueueScript {
 		$this->register_translations = true;
@@ -206,7 +206,7 @@ class EnqueueScript {
 	/**
 	 * This function should be called after enqueue or register function.
 	 *
-	 * @unreleased x.x.x
+	 * @since x.x.x
 	 *
 	 * @param string $js_variable_name JS variable name.
 	 * @param array  $data             Data to be localized.
@@ -221,7 +221,7 @@ class EnqueueScript {
 	/**
 	 * Enqueue script.
 	 *
-	 * @unreleased x.x.x
+	 * @since x.x.x
 	 */
 	public function enqueue(): EnqueueScript {
 		if ( ! wp_script_is( $this->script_id, 'registered' ) ) {
@@ -235,7 +235,7 @@ class EnqueueScript {
 	/**
 	 * Should return script ID.
 	 *
-	 * @unreleased x.x.x
+	 * @since x.x.x
 	 *
 	 * @return string
 	 */
@@ -246,7 +246,7 @@ class EnqueueScript {
 	/**
 	 * Get asset file data.
 	 *
-	 * @unreleased x.x.x
+	 * @since x.x.x
 	 *
 	 * @return array
 	 */
@@ -272,7 +272,7 @@ class EnqueueScript {
 	/**
 	 * Should return script version.
 	 *
-	 * @unreleased x.x.x
+	 * @since x.x.x
 	 *
 	 * @return string
 	 */

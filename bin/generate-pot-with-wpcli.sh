@@ -4,6 +4,8 @@
 # We are using wp-scripts to generate plugin zip which bundle files defined in 'package.json' in files param.
 # https://developer.wordpress.org/block-editor/packages/packages-scripts/#files
 # This script will run with npm run makepot command.
+#
+# @since x.x.x
 
 if ! command -v wp &>/dev/null; then
 	echo "Error: wp cli could not be found. Please install wp cli and try again."
