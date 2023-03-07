@@ -200,7 +200,22 @@ class NetworkSiteConnection extends Connection {
 		 * @param {array}      $args          The arguments passed into wp_insert_post.
 		 * @param {Connection} $this          The Distributor connection being pushed to.
 		 */
-		do_action( 'dt_push_post', $new_post_id, $post_id, $args, $this );
+		do_action_deprecated(
+			'dt_push_post',
+			array( $new_post_id, $post_id, $args, $this ),
+			'2.0.0',
+			''
+		);
+
+		/**
+		 * Fires the action after a post is pushed via Distributor before `restore_current_blog()`.
+		 *
+		 * @since 2.0.0
+		 *
+		 * @param {int} $new_post_id The newly created post.
+		 * @param {int} $post_id     The original post.
+		 */
+		do_action( 'dt_push_network_post', $new_post_id, $post_id );
 
 		restore_current_blog();
 

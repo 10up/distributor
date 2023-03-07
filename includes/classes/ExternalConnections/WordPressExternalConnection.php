@@ -724,7 +724,24 @@ class WordPressExternalConnection extends ExternalConnection {
 		);
 
 		// Action documented in includes/classes/InternalConnections/NetworkSiteConnection.php.
-		do_action( 'dt_push_post', $response, $post_body, $type_url, $post_id, $args, $this );
+		do_action_deprecated(
+			'dt_push_post',
+			array( $response, $post_body, $type_url, $post_id, $args, $this ),
+			'2.0.0',
+			'dt_push_external_post'
+		);
+
+		/**
+		 * Fires the action after a post is pushed via Distributor before `restore_current_blog()`.
+		 *
+		 * @since 2.0.0
+		 *
+		 * @param {WP_Post}    $response    The newly created post.
+		 * @param {WP_Post}    $post_id     The original post.
+		 * @param {array}      $args        The arguments passed into wp_insert_post.
+		 * @param {Connection} $this        The Distributor connection being pushed to.
+		 */
+		do_action( 'dt_push_external_post', $response, $post, $args, $this );
 
 		if ( is_wp_error( $response ) ) {
 			return $response;
