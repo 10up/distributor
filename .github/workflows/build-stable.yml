@@ -14,8 +14,14 @@ jobs:
       uses: actions/setup-node@v3
       with:
           node-version-file: '.nvmrc'
+    - name: Set PHP version
+      uses: shivammathur/setup-php@2.17.0
+      with:
+        php-version: 7.4
+        tools: composer:v2
     - name: Check versions
-      run: npm -v; node -v
+      run: npm -v; node -v, php -v, composer -v
+
     - name: Install and build
       run: |
         composer install --no-dev
