@@ -124,10 +124,6 @@ class EnqueueScript {
 		$this->script_handle        = $script_handle;
 		$this->relative_script_path = 'dist/js/' . $script_file_name . '.js';
 		$this->absolute_script_path = $this->plugin_dir_path . $this->relative_script_path;
-
-		if ( ! file_exists( $this->absolute_script_path ) ) {
-			throw new Exception( 'Script file not found: ' . $this->absolute_script_path );
-		}
 	}
 
 	/**
