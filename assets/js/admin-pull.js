@@ -2,8 +2,8 @@ import '../css/admin-pull-table.scss';
 
 import jQuery from 'jquery';
 import { addQueryArgs } from '@wordpress/url';
+import { __ } from '@wordpress/i18n';
 
-const { __ } = wp.i18n;
 const { document } = window;
 
 const chooseConnection = document.getElementById( 'pull_connections' );

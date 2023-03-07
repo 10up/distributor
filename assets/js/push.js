@@ -3,8 +3,8 @@ import '../css/push.scss';
 import jQuery from 'jquery';
 import _ from 'underscore';
 import Mustache from 'mustache';
+import { __ } from '@wordpress/i18n';
 
-const { __ } = wp.i18n;
 const { document, dt } = window;
 
 let selectedConnections = {},
