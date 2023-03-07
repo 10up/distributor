@@ -162,6 +162,20 @@ class NetworkSiteConnection extends Connection {
 			Utils\set_meta( $new_post_id, $post_meta );
 		}
 
+		/**
+		 * Allow bypassing of all term processing.
+		 *
+		 * @hook dt_push_post_terms
+		 *
+		 * @param {bool}       true           If Distributor should push the post terms.
+		 * @param {int}        $new_post_id   The newly created post ID.
+		 * @param {array}      $post_terms    Terms attached to the post, formatted by {@link \Distributor\Utils\prepare_taxonomy_terms()}.
+		 * @param {int}        $post_id       The original post ID.
+		 * @param {array}      $args          The arguments passed into wp_insert_post.
+		 * @param {Connection} $this          The distributor connection being pushed to.
+		 *
+		 * @return {bool} If Distributor should push the post terms.
+		 */
 		if ( apply_filters( 'dt_push_post_terms', true, $new_post_id, $post_terms, $post_id, $args, $this ) ) {
 			Utils\set_taxonomy_terms( $new_post_id, $post_terms );
 		}
@@ -191,20 +205,7 @@ class NetworkSiteConnection extends Connection {
 			delete_transient( 'dt_media_errors_' . $new_post_id );
 		}
 
-		/**
-		 * Allow bypassing of all term processing.
-		 *
-		 * @hook dt_push_post_terms
-		 *
-		 * @param {bool}       true           If Distributor should push the post terms.
-		 * @param {int}        $new_post_id   The newly created post ID.
-		 * @param {array}      $post_terms    Terms attached to the post, formatted by {@link \Distributor\Utils\prepare_taxonomy_terms()}.
-		 * @param {int}        $post_id       The original post ID.
-		 * @param {array}      $args          The arguments passed into wp_insert_post.
-		 * @param {Connection} $this          The distributor connection being pushed to.
-		 *
-		 * @return {bool} If Distributor should push the post terms.
-		 */
+		/** This filter is documented in includes/classes/InternalConnections/NetworkSiteConnection.php */
 		do_action_deprecated(
 			'dt_push_post',
 			array( $new_post_id, $post_id, $args, $this ),
