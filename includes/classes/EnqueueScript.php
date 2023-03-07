@@ -112,17 +112,17 @@ class EnqueueScript {
 	 *
 	 * @since x.x.x
 	 *
-	 * @param string $script_handle Script handle.
-	 * @param string $script_name   Script name.
+	 * @param string $script_handle    Script handle.
+	 * @param string $script_file_name Script file name.
 	 *
 	 * @throws Exception If script file not found.
 	 */
-	public function __construct( string $script_handle, string $script_name ) {
+	public function __construct( string $script_handle, string $script_file_name ) {
 		$this->plugin_dir_path      = DT_PLUGIN_PATH;
 		$this->plugin_dir_url       = trailingslashit( plugin_dir_url( DT_PLUGIN_FULL_FILE ) );
 		$this->text_domain          = 'distributor';
 		$this->script_handle        = $script_handle;
-		$this->relative_script_path = 'dist/js/' . $script_name . '.js';
+		$this->relative_script_path = 'dist/js/' . $script_file_name . '.js';
 		$this->absolute_script_path = $this->plugin_dir_path . $this->relative_script_path;
 
 		if ( ! file_exists( $this->absolute_script_path ) ) {
