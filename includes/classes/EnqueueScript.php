@@ -193,7 +193,7 @@ class EnqueueScript {
 	}
 
 	/**
-	 * This function should be called before enqueue or register function.
+	 * This function should be called before enqueue or register method.
 	 *
 	 * @since x.x.x
 	 */
