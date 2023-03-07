@@ -7,6 +7,23 @@ use WP_Mock\Tools\TestCase;
 class UtilsTest extends TestCase {
 
 	/**
+	 * Set up with WP_Mock
+	 *
+	 * Set up common mocks required for multiple tests.
+	 *
+	 * @since x.x.x
+	 */
+	public function setUp(): void {
+		parent::setUp();
+
+
+		// Return voids.
+		\WP_Mock::userFunction( '_prime_post_caches' );
+		\WP_Mock::userFunction( 'update_object_term_cache' );
+		\WP_Mock::userFunction( 'update_postmeta_cache' );
+	}
+
+	/**
 	 * Test set meta with string value and array value
 	 *
 	 * @since  1.0

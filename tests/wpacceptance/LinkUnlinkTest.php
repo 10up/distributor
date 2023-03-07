@@ -30,7 +30,7 @@ class LinkUnlinkTest extends \TestCase {
 
 		// I see linked link
 		if ( $editor_has_blocks ) {
-			$I->seeLink( 'View Original' );
+			$I->seeLink( 'View the origin post' );
 			// Unlink post
 			$I->click( '.components-notice__action' );
 
@@ -39,13 +39,13 @@ class LinkUnlinkTest extends \TestCase {
 			sleep( 1 );
 
 			// I see unlinked text
-			$I->seeText( 'Originally distributed from Site One. This Post has been unlinked from the original. However, you can alwaysrestore it.View Original', '.components-notice__content' );
+			$I->seeText( 'Originally distributed from Site One. This Post has been unlinked from the origin post. However, you can always restore it. View the origin post', '.components-notice__content' );
 
 			// I can interact with title field
 			$I->canInteractWithField( '#post-title-0' );
 
 		} else {
-			$I->seeLink( 'unlink from the original' );
+			$I->seeLink( 'unlink from the origin post' );
 			// I cant interact with title field
 			$I->cannotInteractWithField( '#title' );
 			// Unlink post
@@ -54,7 +54,7 @@ class LinkUnlinkTest extends \TestCase {
 			$I->waitUntilElementVisible( 'body.post-php' );;
 
 			// I see unlinked text
-			$I->seeText( 'This post has been unlinked from the original', '.syndicate-status' );
+			$I->seeText( 'This post has been unlinked from the origin post', '.syndicate-status' );
 
 			// I can interact with title field
 			$I->canInteractWithField( '#title' );

@@ -5,6 +5,19 @@ namespace Distributor\InternalConnections;
 use WP_Mock\Tools\TestCase;
 
 class NetworkSiteConnectionsTest extends TestCase {
+	/**
+	 * Site object.
+	 *
+	 * @var \WP_Site
+	 */
+	public $site_obj;
+
+	/**
+	 * Connection object.
+	 *
+	 * @var NetworkSiteConnection
+	 */
+	public $connection_obj;
 
 	public function setUp(): void {
 		$this->site_obj = \Mockery::mock(
@@ -18,6 +31,33 @@ class NetworkSiteConnectionsTest extends TestCase {
 	}
 
 	/**
+	 * Helper function to mock get_post_meta.
+	 */
+	public function setup_post_meta_mock( $post_meta ) {
+		$get_post_meta = function( $post_id, $key = '', $single = false ) use ( $post_meta ) {
+			if ( empty( $key ) ) {
+				return $post_meta;
+			}
+
+			if ( isset( $post_meta[ $key ] ) ) {
+				if ( $single ) {
+					return $post_meta[ $key ][0];
+				}
+				return $post_meta[ $key ];
+			}
+
+			return '';
+		};
+
+		\WP_Mock::userFunction(
+			'get_post_meta',
+			array(
+				'return' => $get_post_meta,
+			)
+		);
+	}
+
+	/**
 	 * Push returns an post ID on success instance of WP Error on failure.
 	 *
 	 * @since  0.8
@@ -25,6 +65,8 @@ class NetworkSiteConnectionsTest extends TestCase {
 	 * @runInSeparateProcess
 	 */
 	public function test_push() {
+		// There is no post meta to mock for a source post.
+		$this->setup_post_meta_mock( array() );
 
 		\WP_Mock::userFunction(
 			'get_post', [
@@ -34,7 +76,14 @@ class NetworkSiteConnectionsTest extends TestCase {
 					'post_excerpt' => '',
 					'post_type'    => '',
 					'post_name'    => '',
+					'post_status'  => 'publish',
 				],
+			]
+		);
+
+		\WP_Mock::userFunction(
+			'has_blocks', [
+				'return' => false,
 			]
 		);
 
@@ -45,10 +94,19 @@ class NetworkSiteConnectionsTest extends TestCase {
 		);
 
 		\WP_Mock::userFunction(
-			'get_bloginfo', [
-				'args'   => 'charset',
-				'return' => 'UTF-8',
-			]
+			'get_bloginfo',
+			array(
+				'return' => function( $info ) {
+					switch ( $info ) {
+						case 'charset':
+							return 'UTF-8';
+						case 'name':
+							return 'Example Dot Org';
+						default:
+							return '';
+					}
+				},
+			)
 		);
 
 		\WP_Mock::userFunction( 'get_current_user_id' );
@@ -59,6 +117,7 @@ class NetworkSiteConnectionsTest extends TestCase {
 		\WP_Mock::userFunction( 'remove_filter' );
 		\WP_Mock::userFunction( 'get_option' );
 		\WP_Mock::passthruFunction( 'wp_slash' );
+		\WP_Mock::passthruFunction( 'absint' );
 
 		$this->connection_obj->site->blog_id = 2;
 
@@ -66,16 +125,30 @@ class NetworkSiteConnectionsTest extends TestCase {
 		$new_post_id  = 123;
 
 		\WP_Mock::userFunction(
-			'wp_insert_post', [
-				'return' => $new_post_id,
+			'use_block_editor_for_post_type', [
+				'return' => true,
 			]
 		);
 
 		\WP_Mock::userFunction(
-			'update_post_meta', [
+			'wp_insert_post', [
 				'times'  => 1,
-				'args'   => [ $new_post_id, 'dt_original_post_id', true ],
-				'return' => [],
+				'args'   => [
+					[
+						'post_title'     => '',
+						'post_name'      => '',
+						'post_type'      => '',
+						'post_content'   => '',
+						'post_excerpt'   => '',
+						'post_status'    => 'publish',
+						'post_author'    => null,
+						'meta_input'     => [
+							'dt_original_post_id'   => 111,
+							'dt_original_post_url'  => $original_url,
+						],
+					],
+				],
+				'return' => $new_post_id,
 			]
 		);
 
@@ -96,14 +169,6 @@ class NetworkSiteConnectionsTest extends TestCase {
 		);
 
 		\WP_Mock::userFunction(
-			'update_post_meta', [
-				'times'  => 1,
-				'args'   => [ $new_post_id, 'dt_original_post_url', $original_url ],
-				'return' => [],
-			]
-		);
-
-		\WP_Mock::userFunction(
 			'get_permalink', [
 				'return' => $original_url,
 			]
@@ -115,9 +180,35 @@ class NetworkSiteConnectionsTest extends TestCase {
 			]
 		);
 
+		\WP_Mock::userFunction(
+			'wp_cache_get',
+			array(
+				'return' => false
+			)
+		);
+		\WP_Mock::userFunction(
+			'wp_cache_set',
+			array(
+				'return' => false
+			)
+		);
+
 		/**
 		 * We will test the util prepare/set functions later
 		 */
+		\WP_Mock::userFunction(
+			'get_attached_media',
+			array(
+				'return' => array(),
+			)
+		);
+		\WP_Mock::userFunction(
+			'get_post_thumbnail_id',
+			array(
+				'return' => false,
+			)
+		);
+
 		\WP_Mock::userFunction( '\Distributor\Utils\prepare_media' );
 		\WP_Mock::userFunction( '\Distributor\Utils\prepare_taxonomy_terms' );
 		\WP_Mock::userFunction( '\Distributor\Utils\prepare_meta' );

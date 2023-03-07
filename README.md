@@ -54,9 +54,9 @@ Distributor is built with the same extensible approach as WordPress itself, with
 
 ## Requirements
 
-* PHP 5.6+
-* [WordPress](http://wordpress.org) 4.7+
-* External connections require HTTP Basic Authentication or [WordPress.com OAuth2](https://developer.wordpress.com/docs/oauth2/) (must be on [WordPress VIP](https://wpvip.com/)) be set up on the remote website. For Basic Auth, we recommend the [Application Passwords](https://wordpress.org/plugins/application-passwords/) plugin (note that other plugins like JWT Auth will likely cause issues for external connections) though if you're running WordPress 5.6 or above then Application Passwords is already installed.
+* PHP 7.4+
+* [WordPress](http://wordpress.org) 5.7+
+* External connections require HTTP Basic Authentication or [WordPress.com OAuth2](https://developer.wordpress.com/docs/oauth2/) (must be on [WordPress VIP](https://wpvip.com/)) be set up on the remote website. For Basic Auth, we recommend using [Application Passwords](https://make.wordpress.org/core/2020/11/05/application-passwords-integration-guide/#Getting-Credentials) built in to WordPress.
 * For external connections, Distributor needs to be installed on BOTH sides of the connection.
 
 ## Installation
@@ -169,9 +169,15 @@ Enabling this will also provide more debugging information in your error log for
 
 ### Application Passwords and WordPress 5.6
 
-In WordPress 5.6, Application Passwords was merged into WordPress core with some limitations. From 5.6, Application Passwords is enabled by default only for live sites with HTTPS. To enable Application Passwords for development sites, you will need the following snippet:
+Application passwords are only available for live sites running over an HTTPS connection.
+
+For your local development environment, you will need these snippets to enable application passwords without the need for an HTTPS connection.  A local development environment is one that "can reach the internet but **is not reachable from the internet**".
 
 ```php
+// In your local environment's wp-config.php file.
+define( 'WP_ENVIRONMENT_TYPE', 'local' );
+
+// In a custom plugin on your local environment.
 add_filter( 'wp_is_application_passwords_available', '__return_true' );
 
 add_action( 'wp_authorize_application_password_request_errors', function( $error ) {

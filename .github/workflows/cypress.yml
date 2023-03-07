@@ -13,19 +13,22 @@ on:
 jobs:
   cypress:
     name: ${{ matrix.core.name }} / ${{ matrix.php.name }}
+    ## Pending upgrade of `@wordpress/env` package.
+    continue-on-error: ${{ matrix.core.version == 'WordPress/WordPress#master' }}
     runs-on: ubuntu-latest
     strategy:
       matrix:
         php:
           - {name: 'PHP Default', version: null}
         core:
-          - {name: 'WP latest', version: 'latest'}
+          - {name: 'WP stable', version: 'latest'}
+          - {name: 'WP 5.7', version: 'WordPress/WordPress#5.7'}
           - {name: 'WP trunk', version: 'WordPress/WordPress#master'}
         include:
+          - php: {name: 'PHP 7.4', version: '7.4'}
+            core: {name: 'WP 5.7', version: 'WordPress/WordPress#5.7'}
           - php: {name: 'PHP 8.1', version: '8.1'}
             core: {name: 'WP stable', version: 'latest'}
-          - php: {name: 'PHP 7.4', version: '7.4' }
-            core: {name: 'WP minimum', version: 'WordPress/WordPress#5.2'}
     steps:
     - name: Checkout
       uses: actions/checkout@v3

@@ -2,6 +2,7 @@
 namespace Distributor\ExternalConnections;
 
 use \Distributor\Authentications\WordPressBasicAuth as WordPressBasicAuth;
+use WP_Mock\Functions;
 use WP_Mock\Tools\TestCase;
 
 class WordPressExternalConnectionTest extends TestCase {
@@ -11,6 +12,33 @@ class WordPressExternalConnectionTest extends TestCase {
 		$this->auth       = new WordPressBasicAuth( array() );
 		$this->connection = new WordPressExternalConnection( 'name', 'url', 1, $this->auth );
 
+	}
+
+	/**
+	 * Helper function to mock get_post_meta.
+	 */
+	public function setup_post_meta_mock( $post_meta ) {
+		$get_post_meta = function( $post_id, $key = '', $single = false ) use ( $post_meta ) {
+			if ( empty( $key ) ) {
+				return $post_meta;
+			}
+
+			if ( isset( $post_meta[ $key ] ) ) {
+				if ( $single ) {
+					return $post_meta[ $key ][0];
+				}
+				return $post_meta[ $key ];
+			}
+
+			return '';
+		};
+
+		\WP_Mock::userFunction(
+			'get_post_meta',
+			array(
+				'return' => $get_post_meta,
+			)
+		);
 	}
 
 	/**
@@ -51,12 +79,32 @@ class WordPressExternalConnectionTest extends TestCase {
 	 * @runInSeparateProcess
 	 */
 	public function test_push() {
-
+		$this->setup_post_meta_mock( array() );
 		\WP_Mock::userFunction( 'untrailingslashit' );
 		\WP_Mock::userFunction( 'get_the_title' );
 		\WP_Mock::userFunction( 'wp_remote_post' );
 		\WP_Mock::userFunction( 'esc_html__' );
 		\WP_Mock::userFunction( 'get_bloginfo' );
+		\WP_Mock::passthruFunction( 'absint' );
+
+		\WP_Mock::userFunction(
+			'get_current_blog_id', [
+				'return' => 1,
+			]
+		);
+
+		\WP_Mock::userFunction(
+			'get_option', [
+				'args'   => [ 'page_for_posts' ],
+				'return' => 0,
+			]
+		);
+
+		\WP_Mock::userFunction(
+			'use_block_editor_for_post_type', [
+				'return' => false,
+			]
+		);
 
 		$post_type = 'foo';
 
@@ -75,20 +123,32 @@ class WordPressExternalConnectionTest extends TestCase {
 			]
 		);
 
+		$post = (object) [
+			'post_content' => 'my post content',
+			'post_type'    => $post_type,
+			'post_excerpt' => 'post excerpt',
+			'post_name'    => 'slug',
+			'post_status'  => 'publish',
+			'post_type'    => $post_type,
+			'ID'           => 1,
+		];
+
 		\WP_Mock::userFunction(
 			'get_post', [
-				'return' => (object) [
-					'post_content' => 'my post content',
-					'post_type'    => $post_type,
-					'post_excerpt' => 'post excerpt',
-					'post_name'    => 'slug',
-				],
+				'args'   => [ Functions::anyOf( $post->ID, $post ) ],
+				'return' => $post,
 			]
 		);
 
 		\WP_Mock::userFunction(
 			'get_post_type', [
 				'return' => $post_type,
+			]
+		);
+
+		\WP_Mock::userFunction(
+			'has_blocks', [
+				'return' => false,
 			]
 		);
 
@@ -119,6 +179,19 @@ class WordPressExternalConnectionTest extends TestCase {
 		/**
 		 * We will test the util prepare functions later
 		 */
+
+		\WP_Mock::userFunction(
+			'get_attached_media', [
+				'return' => [],
+			]
+		);
+
+		\WP_Mock::userFunction(
+			'get_post_thumbnail_id', [
+				'return' => 0,
+			]
+		);
+
 		\WP_Mock::userFunction(
 			'\Distributor\Utils\prepare_media', [
 				'return' => [],
