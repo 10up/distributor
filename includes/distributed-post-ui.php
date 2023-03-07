@@ -133,6 +133,7 @@ function enqueue_post_scripts_styles( $hook ) {
 		'dt-admin-distributed-post',
 		'admin-distributed-post.min'
 	);
+	$admin_distributed_post_script->load_in_footer()->enqueue();
 
 	wp_enqueue_style(
 		'dt-admin-distributed-post',
@@ -140,6 +141,4 @@ function enqueue_post_scripts_styles( $hook ) {
 		array(),
 		$admin_distributed_post_script->get_version()
 	);
-
-	$admin_distributed_post_script->load_in_footer()->enqueue();
 }
