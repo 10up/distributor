@@ -255,12 +255,14 @@ class EnqueueScript {
 			. basename( $this->absolute_script_path, '.js' )
 			. '.asset.php';
 
-		$script_asset = file_exists( $script_asset_path ) ?
-			require $script_asset_path :
-			[
+		if ( file_exists( $script_asset_path ) ) {
+			$script_asset = require $script_asset_path;
+		} else {
+			$script_asset = [
 				'dependencies' => [],
 				'version'      => $this->version ?: filemtime( $this->absolute_script_path ), // phpcs:ignore
 			];
+		}
 
 		if ( $this->script_dependencies ) {
 			$script_asset['dependencies'] = array_merge( $this->script_dependencies, $script_asset['dependencies'] );
