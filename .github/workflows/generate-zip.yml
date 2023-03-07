@@ -10,43 +10,42 @@ jobs:
     name: New ZIP file
     runs-on: ubuntu-latest
     steps:
-      steps:
-        - name: Checkout
-          uses: actions/checkout@v2.4.0
-        - name: Use desired version of NodeJS
-          uses: actions/setup-node@v3
-          with:
-            node-version-file: '.nvmrc'
-        - name: Set PHP version
-          uses: shivammathur/setup-php@2.17.0
-          with:
-            php-version: 7.4
-            tools: composer:v2
-        - name: Check versions
-          run: npm -v; node -v, php -v, composer -v
+      - name: Checkout
+        uses: actions/checkout@v2.4.0
+      - name: Use desired version of NodeJS
+        uses: actions/setup-node@v3
+        with:
+          node-version-file: '.nvmrc'
+      - name: Set PHP version
+        uses: shivammathur/setup-php@2.17.0
+        with:
+          php-version: 7.4
+          tools: composer:v2
+      - name: Check versions
+        run: npm -v; node -v, php -v, composer -v
 
-        - name: Install and build
-          run: |
-            composer install --no-dev
-            npm install
-            npm run makepot
-            npm run release
+      - name: Install and build
+        run: |
+          composer install --no-dev
+          npm install
+          npm run makepot
+          npm run release
 
-        - name: Upload the ZIP file as an artifact
-          if: ${{ github.event_name == 'workflow_dispatch' }}
-          uses: actions/upload-artifact@v3
-          with:
-            name: ${{ github.event.repository.name }}
-            path: release
-            retention-days: 5
+      - name: Upload the ZIP file as an artifact
+        if: ${{ github.event_name == 'workflow_dispatch' }}
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ github.event.repository.name }}
+          path: release
+          retention-days: 5
 
-        - name: Upload release asset
-          if: ${{ github.event_name == 'release' }}
-          uses: actions/upload-release-asset@v1
-          env:
-            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          with:
-            upload_url: ${{ github.event.release.upload_url }}
-            asset_path: ${{github.workspace}}/${{ github.event.repository.name }}.zip
-            asset_name: ${{ github.event.repository.name }}.zip
-            asset_content_type: application/zip
+      - name: Upload release asset
+        if: ${{ github.event_name == 'release' }}
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ github.event.release.upload_url }}
+          asset_path: ${{github.workspace}}/${{ github.event.repository.name }}.zip
+          asset_name: ${{ github.event.repository.name }}.zip
+          asset_content_type: application/zip
