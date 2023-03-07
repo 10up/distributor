@@ -24,11 +24,11 @@ use Exception;
  */
 class EnqueueScript {
 	/**
-	 * Script ID.
+	 * Script Handle.
 	 *
 	 * @since x.x.x
 	 */
-	private string $script_id;
+	private string $script_handle;
 
 	/**
 	 * Script path relative to plugin root directory.
