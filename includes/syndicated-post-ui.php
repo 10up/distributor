@@ -10,9 +10,6 @@ namespace Distributor\SyndicatedPostUI;
 use Distributor\EnqueueScript;
 use Distributor\Utils;
 
-use function Distributor\Utils\distributable_post_statuses;
-use function Distributor\Utils\distributable_post_types;
-
 /**
  * Setup actions and filters
  *
@@ -46,7 +43,7 @@ function setup() {
  * @since 1.0
  */
 function setup_columns() {
-	$post_types = distributable_post_types();
+	$post_types = \Distributor\Utils\distributable_post_types();
 
 	foreach ( $post_types as $post_type ) {
 		add_action( 'manage_' . $post_type . '_posts_custom_column', __NAMESPACE__ . '\output_distributor_column', 10, 2 );
@@ -657,8 +654,8 @@ function enqueue_gutenberg_edit_scripts() {
 		'originalLocationName' => sanitize_text_field( $original_location_name ),
 		'unlinkNonceUrl'       => wp_nonce_url( add_query_arg( 'action', 'unlink', admin_url( sprintf( $post_type_object->_edit_link, $post->ID ) ) ), "unlink-post_{$post->ID}" ),
 		'linkNonceUrl'         => wp_nonce_url( add_query_arg( 'action', 'link', admin_url( sprintf( $post_type_object->_edit_link, $post->ID ) ) ), "link-post_{$post->ID}" ),
-		'supportedPostTypes'   => distributable_post_types(),
-		'supportedPostStati'   => distributable_post_statuses(),
+		'supportedPostTypes'   => \Distributor\Utils\distributable_post_types(),
+		'supportedPostStati'   => \Distributor\Utils\distributable_post_statuses(),
 		// Filter documented in includes/push-ui.php.
 		'noPermissions'        => ! is_user_logged_in() || ! current_user_can( apply_filters( 'dt_syndicatable_capabilities', 'edit_posts' ) ),
 	];
