@@ -205,7 +205,14 @@ class NetworkSiteConnection extends Connection {
 			delete_transient( 'dt_media_errors_' . $new_post_id );
 		}
 
-		/** This filter is documented in includes/classes/InternalConnections/NetworkSiteConnection.php */
+		/**
+		 * Fires after a post is pushed via Distributor before `restore_current_blog()`.
+		 *
+		 * @param {int}        $new_post_id The newly created post.
+		 * @param {int}        $post_id     The original post.
+		 * @param {array}      $args        The arguments passed into wp_insert_post.
+		 * @param {Connection} $this        The Distributor connection being pushed to.
+		 */
 		do_action_deprecated(
 			'dt_push_post',
 			array( $new_post_id, $post_id, $args, $this ),
