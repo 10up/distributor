@@ -16,7 +16,7 @@ fi
 FILES=$(node -p "require('./package.json').files.join(',')")
 
 # Run the WP-CLI command.
-# This command will generate a POT file in the root directory of the plugin and store it in land directory.
+# This command will generate a POT file in the root directory of the plugin and store it in lang directory.
 wp i18n make-pot . --include="$FILES"
 
 echo '.pot file updated'
