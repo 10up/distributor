@@ -112,16 +112,16 @@ class EnqueueScript {
 	 *
 	 * @since x.x.x
 	 *
-	 * @param string $script_id   Script ID.
-	 * @param string $script_name Script name.
+	 * @param string $script_handle Script handle.
+	 * @param string $script_name   Script name.
 	 *
 	 * @throws Exception If script file not found.
 	 */
-	public function __construct( string $script_id, string $script_name ) {
+	public function __construct( string $script_handle, string $script_name ) {
 		$this->plugin_dir_path      = DT_PLUGIN_PATH;
 		$this->plugin_dir_url       = trailingslashit( plugin_dir_url( DT_PLUGIN_FULL_FILE ) );
 		$this->text_domain          = 'distributor';
-		$this->script_id            = $script_id;
+		$this->script_handle        = $script_handle;
 		$this->relative_script_path = 'dist/js/' . $script_name . '.js';
 		$this->absolute_script_path = $this->plugin_dir_path . $this->relative_script_path;
 
@@ -166,7 +166,7 @@ class EnqueueScript {
 		$this->version = $script_asset['version'];
 
 		wp_register_script(
-			$this->script_id,
+			$this->script_handle,
 			$script_url,
 			$script_asset['dependencies'],
 			$script_asset['version'],
@@ -175,7 +175,7 @@ class EnqueueScript {
 
 		if ( $this->register_translations ) {
 			wp_set_script_translations(
-				$this->script_id,
+				$this->script_handle,
 				$this->text_domain,
 				$this->plugin_dir_path . 'lang'
 			);
@@ -183,7 +183,7 @@ class EnqueueScript {
 
 		if ( $this->localize_script_param_data ) {
 			wp_localize_script(
-				$this->script_id,
+				$this->script_handle,
 				$this->localize_script_param_name,
 				$this->localize_script_param_data
 			);
@@ -224,23 +224,23 @@ class EnqueueScript {
 	 * @since x.x.x
 	 */
 	public function enqueue(): EnqueueScript {
-		if ( ! wp_script_is( $this->script_id, 'registered' ) ) {
+		if ( ! wp_script_is( $this->script_handle, 'registered' ) ) {
 			$this->register();
 		}
-		wp_enqueue_script( $this->script_id );
+		wp_enqueue_script( $this->script_handle );
 
 		return $this;
 	}
 
 	/**
-	 * Should return script ID.
+	 * Should return script handle.
 	 *
 	 * @since x.x.x
 	 *
 	 * @return string
 	 */
-	public function get_script_id(): string {
-		return $this->script_id;
+	public function get_script_handle(): string {
+		return $this->script_handle;
 	}
 
 	/**
