@@ -3,9 +3,10 @@ import '../css/push.scss';
 import jQuery from 'jquery';
 import _ from 'underscore';
 import Mustache from 'mustache';
+import { sprintf, _n } from '@wordpress/i18n';
 
 const { document, dt } = window;
-
+let selectedText = '';
 let selectedConnections = {},
 	searchString = '';
 const processTemplate = _.memoize( ( id ) => {
@@ -580,7 +581,19 @@ jQuery( window ).on( 'load', () => {
 				deleteNode.parentNode.removeChild( deleteNode );
 
 				delete selectedConnections[ type + id ];
-
+				selectedText = sprintf(
+					/* translators: %d: Number of selected connections. */
+					_n(
+						'Selected connection (%d)',
+						'Selected connections (%d)',
+						Object.keys( selectedConnections ).length,
+						'distributor'
+					),
+					Object.keys( selectedConnections ).length
+				);
+				document.querySelector(
+					'.selected-connections-text'
+				).textContent = selectedText;
 				if (
 					selectAllConnections.classList.contains( 'unavailable' )
 				) {
@@ -602,6 +615,19 @@ jQuery( window ).on( 'load', () => {
 				selectedConnections[ type + id ] = dtConnections[ type + id ];
 
 				const element = event.currentTarget.cloneNode( true );
+				selectedText = sprintf(
+					/* translators: %d: Number of selected connections. */
+					_n(
+						'Selected connection (%d)',
+						'Selected connections (%d)',
+						Object.keys( selectedConnections ).length,
+						'distributor'
+					),
+					Object.keys( selectedConnections ).length
+				);
+				document.querySelector(
+					'.selected-connections-text'
+				).textContent = selectedText;
 
 				const removeLink = document.createElement( 'span' );
 				removeLink.classList.add( 'remove-connection' );
@@ -660,6 +686,19 @@ jQuery( window ).on( 'load', () => {
 
 					element.appendChild( removeLink );
 					element.classList = 'added-connection';
+					selectedText = sprintf(
+						/* translators: %d: Number of selected connections. */
+						_n(
+							'Selected connection (%d)',
+							'Selected connections (%d)',
+							Object.keys( selectedConnections ).length,
+							'distributor'
+						),
+						Object.keys( selectedConnections ).length
+					);
+					document.querySelector(
+						'.selected-connections-text'
+					).textContent = selectedText;
 
 					connectionsSelectedList.appendChild( element );
 
@@ -691,6 +730,19 @@ jQuery( window ).on( 'load', () => {
 					);
 
 				delete selectedConnections[ type + id ];
+				selectedText = sprintf(
+					/* translators: %d: Number of selected connections. */
+					_n(
+						'Selected connection (%d)',
+						'Selected connections (%d)',
+						Object.keys( selectedConnections ).length,
+						'distributor'
+					),
+					Object.keys( selectedConnections ).length
+				);
+				document.querySelector(
+					'.selected-connections-text'
+				).textContent = selectedText;
 
 				connectionsSelectedList.removeChild(
 					connectionsSelectedList.firstChild
@@ -721,7 +773,18 @@ jQuery( window ).on( 'load', () => {
 			const id = event.currentTarget.getAttribute( 'data-connection-id' );
 
 			delete selectedConnections[ type + id ];
-
+			selectedText = sprintf(
+				/* translators: %d: Number of selected connections. */
+				_n(
+					'Selected connection (%d)',
+					'Selected connections (%d)',
+					Object.keys( selectedConnections ).length,
+					'distributor'
+				),
+				Object.keys( selectedConnections ).length
+			);
+			document.querySelector( '.selected-connections-text' ).textContent =
+				selectedText;
 			if ( selectAllConnections.classList.contains( 'unavailable' ) ) {
 				classList( 'all' );
 			}
