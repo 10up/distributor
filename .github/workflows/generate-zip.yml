@@ -38,6 +38,7 @@ jobs:
           composer install --no-dev
           npm install
           npm run release
+          npm run plugin-zip
           rm -rf ./release && unzip ${{ github.event.repository.name }}.zip -d ./release
 
       - name: Upload the ZIP file as an artifact
