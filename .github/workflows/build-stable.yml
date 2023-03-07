@@ -20,13 +20,16 @@ jobs:
         php-version: 7.4
         tools: composer:v2
     - name: Check versions
-      run: npm -v; node -v, php -v, composer -v
+      run: |
+        npm -v
+        node -v
+        php -v
+        composer -v
 
     - name: Install and build
       run: |
         composer install --no-dev
         npm install
-        npm run makepot
         npm run release
     - name: Push to Stable
       env:

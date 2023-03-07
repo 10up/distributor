@@ -5,7 +5,7 @@ on:
     inputs:
       ref:
         description: 'Git Commit Ref (branch, tag, or hash)'
-        required: true
+        required: false
         type: string
 
 jobs:
@@ -25,21 +25,24 @@ jobs:
         uses: shivammathur/setup-php@2.17.0
         with:
           php-version: 7.4
-          tools: composer:v2
+          tools: composer:v2, wp
       - name: Check versions
-        run: npm -v; node -v, php -v, composer -v
+        run: |
+          npm -v
+          node -v
+          php -v
+          composer -v
 
       - name: Install and build
         run: |
           composer install --no-dev
           npm install
-          npm run makepot
-          npm run plugin-zip
+          npm run release
+          rm -rf ./release && unzip ${{ github.event.repository.name }}.zip -d ./release
 
       - name: Upload the ZIP file as an artifact
-        if: ${{ github.event_name == 'workflow_dispatch' }}
         uses: actions/upload-artifact@v3
         with:
-          name: ${{ inputs.plugin_slug }}
-          path: ${{ inputs.plugin_slug }}
+          name: ${{ github.event.repository.name }}
+          path: release
           retention-days: 5

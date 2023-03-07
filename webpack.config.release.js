@@ -22,10 +22,6 @@ module.exports = {
 				{ from: 'lang/**/*', to: './' },
 				{ from: 'templates/**/*', to: './' },
 				{
-					from: 'vendor/georgestephanis/application-passwords/**/*',
-					to: './',
-				},
-				{
 					from: 'vendor/yahnis-elsts/plugin-update-checker/**/*',
 					to: './',
 				},
