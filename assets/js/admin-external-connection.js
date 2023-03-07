@@ -4,9 +4,8 @@ import jQuery from 'jquery';
 import _ from 'underscore';
 import { addQueryArgs, isURL, prependHTTP } from '@wordpress/url';
 import { speak } from '@wordpress/a11y';
+import { __, sprintf } from '@wordpress/i18n';
 import compareVersions from 'compare-versions';
-
-const { __, sprintf } = wp.i18n;
 
 const { ajaxurl, alert, document, dt, history } = window;
 
