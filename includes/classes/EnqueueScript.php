@@ -256,7 +256,7 @@ class EnqueueScript {
 		} else {
 			$script_asset = [
 				'dependencies' => [],
-				'version'      => $this->version ?: filemtime( $this->absolute_script_path ), // phpcs:ignore
+				'version'      => ! empty( $this->version ) ? $this->version : DT_VERSION,
 			];
 		}
 
