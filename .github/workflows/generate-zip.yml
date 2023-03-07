@@ -2,8 +2,11 @@ name: Generate ZIP
 
 on:
   workflow_dispatch:
-  release:
-    types: [ published ]
+    inputs:
+      ref:
+        description: 'Git Commit Ref (branch, tag, or hash)'
+        required: true
+        type: string
 
 jobs:
   generate_zip:
@@ -12,6 +15,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2.4.0
+        with:
+          ref: ${{ inputs.ref }}
       - name: Use desired version of NodeJS
         uses: actions/setup-node@v3
         with:
@@ -29,23 +34,12 @@ jobs:
           composer install --no-dev
           npm install
           npm run makepot
-          npm run release
+          npm run plugin-zip
 
       - name: Upload the ZIP file as an artifact
         if: ${{ github.event_name == 'workflow_dispatch' }}
         uses: actions/upload-artifact@v3
         with:
-          name: ${{ github.event.repository.name }}
-          path: release
+          name: ${{ inputs.plugin_slug }}
+          path: ${{ inputs.plugin_slug }}
           retention-days: 5
-
-      - name: Upload release asset
-        if: ${{ github.event_name == 'release' }}
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ github.event.release.upload_url }}
-          asset_path: ${{github.workspace}}/${{ github.event.repository.name }}.zip
-          asset_name: ${{ github.event.repository.name }}.zip
-          asset_content_type: application/zip
