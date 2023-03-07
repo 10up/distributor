@@ -6,7 +6,7 @@ import { PluginDocumentSettingPanel } from '@wordpress/edit-post';
 import { __, _n, _x, sprintf } from '@wordpress/i18n';
 import { registerPlugin } from '@wordpress/plugins';
 
-const { document, dtGutenberg, MouseEvent } = window;
+const { document, dt, dtGutenberg, MouseEvent } = window;
 
 /**
  * Add ability to show the admin bar, if needed
@@ -188,7 +188,7 @@ const DistributorPlugin = () => {
 		select( 'core/editor' ).getCurrentPost()
 	);
 	// Make the post title available to the top menu.
-	window.dt.postTitle = post.title;
+	dt.postTitle = post.title;
 
 	// If we are on a non-supported post status, change what we show
 	if (

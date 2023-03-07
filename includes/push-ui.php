@@ -83,6 +83,7 @@ function syndicatable() {
 		return;
 	}
 
+	// If we're using the classic editor, we need to make sure the post has a distributable status.
 	if ( ! use_block_editor_for_post( $post ) && ! in_array( $post->post_status, \Distributor\Utils\distributable_post_statuses(), true ) ) {
 		return false;
 	}
