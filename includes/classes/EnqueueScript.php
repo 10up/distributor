@@ -256,7 +256,7 @@ class EnqueueScript {
 		} else {
 			$script_asset = [
 				'dependencies' => [],
-				'version'      => ! empty( $this->version ) ? $this->version : DT_VERSION,
+				'version'      => $this->version,
 			];
 		}
 
