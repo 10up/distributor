@@ -138,7 +138,7 @@ function enqueue_post_scripts_styles( $hook ) {
 		'dt-admin-distributed-post',
 		plugins_url( '/dist/css/admin-distributed-post.min.css', __DIR__ ),
 		array(),
-		$admin_distributed_post_script->get_script_id()
+		$admin_distributed_post_script->get_version()
 	);
 
 	$admin_distributed_post_script->load_in_footer()->enqueue();
