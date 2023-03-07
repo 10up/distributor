@@ -17,8 +17,4 @@
 			</property>
 		</properties>
 	</rule>
-
-	<rule ref="Squiz.Commenting.VariableComment.MissingVar">
-		<severity>0</severity>
-	</rule>
 </ruleset>

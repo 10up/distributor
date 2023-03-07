@@ -27,6 +27,7 @@ class EnqueueScript {
 	 * Script Handle.
 	 *
 	 * @since x.x.x
+	 * @var string
 	 */
 	private string $script_handle;
 
@@ -34,6 +35,7 @@ class EnqueueScript {
 	 * Script path relative to plugin root directory.
 	 *
 	 * @since x.x.x
+	 * @var string
 	 */
 	private string $relative_script_path;
 
@@ -41,6 +43,7 @@ class EnqueueScript {
 	 * Script path absolute to plugin root directory.
 	 *
 	 * @since x.x.x
+	 * @var string
 	 */
 	private string $absolute_script_path;
 
@@ -48,6 +51,7 @@ class EnqueueScript {
 	 * Script dependencies.
 	 *
 	 * @since x.x.x
+	 * @var array
 	 */
 	private array $script_dependencies = [];
 
@@ -55,6 +59,7 @@ class EnqueueScript {
 	 * Script version.
 	 *
 	 * @since x.x.x
+	 * @var string
 	 */
 	private string $version = DT_VERSION;
 
@@ -62,6 +67,7 @@ class EnqueueScript {
 	 * Flag to decide whether load script in footer.
 	 *
 	 * @since x.x.x
+	 * @var bool
 	 */
 	private bool $load_script_in_footer = false;
 
@@ -69,6 +75,7 @@ class EnqueueScript {
 	 * Flag to decide whether register script translation.
 	 *
 	 * @since x.x.x
+	 * @var bool
 	 */
 	private bool $register_translations = false;
 
@@ -76,6 +83,7 @@ class EnqueueScript {
 	 * Script localization parameter name.
 	 *
 	 * @since x.x.x
+	 * @var string|null
 	 */
 	private ?string $localize_script_param_name = null;
 
@@ -83,6 +91,7 @@ class EnqueueScript {
 	 * Script localization parameter data.
 	 *
 	 * @since x.x.x
+	 * @var array|null
 	 */
 	private ?array $localize_script_param_data = null;
 
@@ -90,6 +99,7 @@ class EnqueueScript {
 	 * Plugin root directory path.
 	 *
 	 * @since x.x.x
+	 * @var string
 	 */
 	private string $plugin_dir_path;
 
@@ -97,6 +107,7 @@ class EnqueueScript {
 	 * Plugin root directory URL.
 	 *
 	 * @since x.x.x
+	 * @var string
 	 */
 	private string $plugin_dir_url;
 
@@ -104,6 +115,7 @@ class EnqueueScript {
 	 * Plugin text domain.
 	 *
 	 * @since x.x.x
+	 * @var string
 	 */
 	private string $text_domain;
 
