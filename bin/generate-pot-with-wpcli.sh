@@ -13,7 +13,7 @@ if ! command -v wp &>/dev/null; then
 fi
 
 # Get the list of files and directories which bundle in final zip file.
-FILES=$(node -p "require('./package.json').files.join(',')")
+FILES=$(node -p "require('./package.json').files.filter( directory_regex =>  -1 === directory_regex.indexOf('lang/') ).join(',')")
 
 # Run the WP-CLI command.
 # This command will generate a POT file in the root directory of the plugin and store it in lang directory.
