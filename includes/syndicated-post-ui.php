@@ -673,6 +673,7 @@ function enqueue_gutenberg_edit_scripts() {
 
 	$gutenberg_plugin_script
 		->load_in_footer()
+		->dependencies( array( 'dt-push' ) )
 		->register_translations()
 		->enqueue();
 }

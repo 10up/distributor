@@ -70,7 +70,7 @@ function syndicatable() {
 
 		global $pagenow;
 
-		if ( 'post.php' !== $pagenow ) {
+		if ( 'post.php' !== $pagenow && 'post-new.php' !== $pagenow ) {
 			return false;
 		}
 	} else {
@@ -79,17 +79,19 @@ function syndicatable() {
 		}
 	}
 
-	global $post;
+	$post = get_post();
 
 	if ( empty( $post ) ) {
 		return;
 	}
 
-	if ( ! in_array( $post->post_status, \Distributor\Utils\distributable_post_statuses(), true ) ) {
+	// If we're using the classic editor, we need to make sure the post has a distributable status.
+	if ( ! use_block_editor_for_post( $post ) && ! in_array( $post->post_status, \Distributor\Utils\distributable_post_statuses(), true ) ) {
 		return false;
 	}
 
-	if ( ! in_array( get_post_type(), $distributable_post_types, true ) || ( ! empty( $_GET['post_type'] ) && 'dt_ext_connection' === $_GET['post_type'] ) ) { // @codingStandardsIgnoreLine Nonce not required
+	$distributable_post_types = array_diff( $distributable_post_types, array( 'dt_ext_connection' ) );
+	if ( ! in_array( get_post_type(), $distributable_post_types, true ) ) {
 		return false;
 	}
 
@@ -409,6 +411,7 @@ function enqueue_scripts( $hook ) {
 		'nonce'                => wp_create_nonce( 'dt-push' ),
 		'loadConnectionsNonce' => wp_create_nonce( 'dt-load-connections' ),
 		'postId'               => (int) get_the_ID(),
+		'postTitle'            => get_the_title(),
 		'ajaxurl'              => esc_url( admin_url( 'admin-ajax.php' ) ),
 
 		/**
