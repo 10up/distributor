@@ -644,6 +644,7 @@ function enqueue_gutenberg_edit_scripts() {
 	if ( file_exists( $asset_file ) ) {
 		$asset_data = require $asset_file;
 	}
+	$asset_data['dependencies'][] = 'dt-push';
 
 	wp_enqueue_script( 'dt-gutenberg-syndicated-post', plugins_url( '/dist/js/gutenberg-syndicated-post.min.js', __DIR__ ), $asset_data['dependencies'], $asset_data['version'], true );
 	wp_set_script_translations( 'dt-gutenberg-syndicated-post', 'distributor', DT_PLUGIN_PATH . 'lang' );
