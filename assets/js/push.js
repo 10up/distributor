@@ -345,9 +345,14 @@ jQuery( window ).on( 'load', () => {
 		// Determine if we need to hide the admin bar
 		maybeHideAdminBar();
 
-		if ( distributorPushWrapper.classList.contains( 'loaded' ) ) {
+		// If the post title has changed, we need to reload the template.
+		if (
+			distributorPushWrapper.classList.contains( 'loaded' ) &&
+			dt.postTitle === dt.previousPostTitle
+		) {
 			return;
 		}
+		dt.previousPostTitle = dt.postTitle;
 
 		distributorPushWrapper.classList.remove( 'message-error' );
 		distributorPushWrapper.classList.add( 'loaded' );
@@ -395,6 +400,7 @@ jQuery( window ).on( 'load', () => {
 							connections: mustacheData.connections,
 							foundConnections: mustacheData.connections.length,
 							showSearch: 5 < mustacheData.connections.length,
+							postTitle: dt.postTitle,
 						}
 					);
 
@@ -402,6 +408,7 @@ jQuery( window ).on( 'load', () => {
 				} else {
 					distributorPushWrapper.innerHTML = template( {
 						connections: dtConnections,
+						postTitle: dt.postTitle,
 					} );
 				}
 

@@ -16,6 +16,10 @@ $mediaSmallScreen : "min-width: 480px";
 $mediaMediumScreen : "min-width: 768px";
 $mediaGutenbergSmallScreen : "max-width: 782px";
 
+#wp-admin-bar-distributor.hide {
+	display: none;
+}
+
 #distributor-push-wrapper,
 #wpadminbar #wp-admin-bar-distributor-placeholder > .ab-item {
 	display: none;
