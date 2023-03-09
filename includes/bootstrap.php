@@ -205,8 +205,8 @@ add_action(
 			apply_filters( 'dt_network_site_connection_enabled', true )
 		) {
 			\Distributor\Connections::factory()->register( '\Distributor\InternalConnections\NetworkSiteConnection' );
-			load_plugin_textdomain( 'distributor', false, basename( dirname( DT_PLUGIN_FULL_FILE ) ) . '/lang' );
 		}
+		load_plugin_textdomain( 'distributor', false, basename( dirname( DT_PLUGIN_FULL_FILE ) ) . '/lang' );
 	},
 	1
 );
