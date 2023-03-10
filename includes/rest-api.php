@@ -405,6 +405,10 @@ function check_post_types_permissions() {
 	return $response;
 }
 
+function protected_title_format() {
+	return '%s';
+}
+
 /**
  * Get a list of content to show on the Pull screen
  *
@@ -466,12 +470,47 @@ function get_pull_content( $request ) {
 			continue;
 		}
 
+		if ( current_user_can( 'edit_post', $post->ID ) ) {
+			// If the user can edit the post, they are permitted to view the unrendered content.
+			$formatted_posts[] = array(
+				'id'             => $post->ID,
+				'title'          => array( 'rendered' => $post->post_title ),
+				'excerpt'        => array( 'rendered' => $post->post_excerpt ),
+				'content'        => array( 'raw' => $post->post_content ),
+				'password'       => $post->post_password,
+				'date'           => $post->post_date,
+				'date_gmt'       => $post->post_date_gmt,
+				'guid'           => array( 'rendered' => $post->guid ),
+				'modified'       => $post->post_modified,
+				'modified_gmt'   => $post->post_modified_gmt,
+				'type'           => $post->post_type,
+				'link'           => get_the_permalink( $post ),
+				'comment_status' => $post->comment_status,
+				'ping_status'    => $post->ping_status,
+			);
+
+			// Skip rendered version of post.
+			continue;
+		}
+
+		// The user can read but not edit the post. They are only permitted to view the rendered content.
+		add_filter( 'protected_title_format', __NAMESPACE__ . '\\protected_title_format' );
 		$formatted_posts[] = array(
 			'id'             => $post->ID,
-			'title'          => array( 'rendered' => $post->post_title ),
-			'excerpt'        => array( 'rendered' => $post->post_excerpt ),
-			'content'        => array( 'raw' => $post->post_content ),
-			'password'       => $post->post_password,
+			'title'          => array(
+				'rendered'  => get_the_title( $post->ID ),
+				'protected' => (bool) $post->post_password,
+			),
+			'excerpt'        => array(
+				/** This filter is documented at http://developer.wordpress.org/reference/hooks/get_the_excerpt/ */
+				'rendered'  => post_password_required( $post ) ? '' : apply_filters( 'get_the_excerpt', $post->post_excerpt, $post ),
+				'protected' => (bool) $post->post_password,
+			),
+			'content'        => array(
+				'rendered'  => post_password_required( $post ) ? '' : Utils\get_processed_content( $post->post_content ),
+				'protected' => (bool) $post->post_password,
+			),
+			'password'       => '',
 			'date'           => $post->post_date,
 			'date_gmt'       => $post->post_date_gmt,
 			'guid'           => array( 'rendered' => $post->guid ),
@@ -482,6 +521,9 @@ function get_pull_content( $request ) {
 			'comment_status' => $post->comment_status,
 			'ping_status'    => $post->ping_status,
 		);
+		remove_filter( 'protected_title_format', __NAMESPACE__ . '\\protected_title_format' );
+
+
 	}
 
 	$response = rest_ensure_response( $formatted_posts );
