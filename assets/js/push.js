@@ -3,7 +3,7 @@ import '../css/push.scss';
 import jQuery from 'jquery';
 import _ from 'underscore';
 import Mustache from 'mustache';
-import { sprintf, _n } from '@wordpress/i18n';
+import { __, sprintf, _n } from '@wordpress/i18n';
 
 const { document, dt } = window;
 let selectedText = '';
@@ -540,7 +540,9 @@ jQuery( window ).on( 'load', () => {
 					}
 
 					if ( ! response.data || ! response.data.results ) {
-						doError( dt.messages.empty_result );
+						doError(
+							__( 'Received empty result.', 'distributor' )
+						);
 						return;
 					}
 
@@ -552,7 +554,12 @@ jQuery( window ).on( 'load', () => {
 				setTimeout( () => {
 					distributorTopMenu.classList.remove( 'syncing' );
 
-					doError( `${ dt.messages.ajax_error } ${ errorThrown }` );
+					doError(
+						`${ __(
+							'Ajax error:',
+							'distributor'
+						) } ${ errorThrown }`
+					);
 				}, 500 );
 			} );
 	} );
