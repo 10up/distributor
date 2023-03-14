@@ -150,7 +150,7 @@ function register_rest_routes() {
 		array(
 			'methods'             => 'POST',
 			'callback'            => __NAMESPACE__ . '\get_pull_content',
-			'permission_callback' => 'is_user_logged_in',
+			'permission_callback' => __NAMESPACE__ . '\\get_pull_content_permissions',
 			'args'                => get_pull_content_list_args(),
 		)
 	);
@@ -210,6 +210,28 @@ function get_pull_content_list_args() {
 			),
 		),
 	);
+}
+
+/**
+ * Check if the current user has permission to pull content.
+ *
+ * Checks whether the user can pull content for the specified post type.
+ *
+ * @param \WP_REST_Request $request Full details about the request.
+ * @return bool Whether the current user has permission to pull content.
+ */
+function get_pull_content_permissions( $request ) {
+	$post_type = $request->get_param( 'post_type' );
+	if ( ! $post_type ) {
+		return false;
+	}
+
+	$post_type_object = get_post_type_object( $post_type );
+	if ( ! $post_type_object ) {
+		return false;
+	}
+
+	return current_user_can( $post_type_object->cap->edit_posts );
 }
 
 /**
@@ -406,10 +428,6 @@ function check_post_types_permissions() {
 	return $response;
 }
 
-function protected_title_format() {
-	return '%s';
-}
-
 /**
  * Get a list of content to show on the Pull screen
  *
@@ -446,7 +464,9 @@ function get_pull_content( $request ) {
 	 */
 	$args = apply_filters( 'dt_get_pull_content_rest_query_args', $args, $request );
 
-	$query = new \WP_Query( $args );
+	// Only get posts that are editable by the user.
+	$args['perm'] = 'editable';
+	$query        = new \WP_Query( $args );
 
 	if ( empty( $query->posts ) ) {
 		return rest_ensure_response( array() );
@@ -467,51 +487,16 @@ function get_pull_content( $request ) {
 
 	$formatted_posts = array();
 	foreach ( $query->posts as $post ) {
-		if ( ! check_read_permission( $post ) ) {
+		if ( ! current_user_can( 'edit_post', $post->ID ) ) {
 			continue;
 		}
 
-		if ( current_user_can( 'edit_post', $post->ID ) ) {
-			// If the user can edit the post, they are permitted to view the unrendered content.
-			$formatted_posts[] = array(
-				'id'             => $post->ID,
-				'title'          => array( 'rendered' => $post->post_title ),
-				'excerpt'        => array( 'rendered' => $post->post_excerpt ),
-				'content'        => array( 'raw' => $post->post_content ),
-				'password'       => $post->post_password,
-				'date'           => $post->post_date,
-				'date_gmt'       => $post->post_date_gmt,
-				'guid'           => array( 'rendered' => $post->guid ),
-				'modified'       => $post->post_modified,
-				'modified_gmt'   => $post->post_modified_gmt,
-				'type'           => $post->post_type,
-				'link'           => get_the_permalink( $post ),
-				'comment_status' => $post->comment_status,
-				'ping_status'    => $post->ping_status,
-			);
-
-			// Skip rendered version of post.
-			continue;
-		}
-
-		// The user can read but not edit the post. They are only permitted to view the rendered content.
-		add_filter( 'protected_title_format', __NAMESPACE__ . '\\protected_title_format' );
 		$formatted_posts[] = array(
 			'id'             => $post->ID,
-			'title'          => array(
-				'rendered'  => get_the_title( $post->ID ),
-				'protected' => (bool) $post->post_password,
-			),
-			'excerpt'        => array(
-				/** This filter is documented at http://developer.wordpress.org/reference/hooks/get_the_excerpt/ */
-				'rendered'  => post_password_required( $post ) ? '' : apply_filters( 'get_the_excerpt', $post->post_excerpt, $post ),
-				'protected' => (bool) $post->post_password,
-			),
-			'content'        => array(
-				'rendered'  => post_password_required( $post ) ? '' : Utils\get_processed_content( $post->post_content ),
-				'protected' => (bool) $post->post_password,
-			),
-			'password'       => '',
+			'title'          => array( 'rendered' => $post->post_title ),
+			'excerpt'        => array( 'rendered' => $post->post_excerpt ),
+			'content'        => array( 'raw' => $post->post_content ),
+			'password'       => $post->post_password,
 			'date'           => $post->post_date,
 			'date_gmt'       => $post->post_date_gmt,
 			'guid'           => array( 'rendered' => $post->guid ),
@@ -522,9 +507,6 @@ function get_pull_content( $request ) {
 			'comment_status' => $post->comment_status,
 			'ping_status'    => $post->ping_status,
 		);
-		remove_filter( 'protected_title_format', __NAMESPACE__ . '\\protected_title_format' );
-
-
 	}
 
 	$response = rest_ensure_response( $formatted_posts );
