@@ -150,7 +150,7 @@ function register_rest_routes() {
 		array(
 			'methods'             => 'POST',
 			'callback'            => __NAMESPACE__ . '\get_pull_content',
-			'permission_callback' => 'is_user_logged_in',
+			'permission_callback' => __NAMESPACE__ . '\\get_pull_content_permissions',
 			'args'                => get_pull_content_list_args(),
 		)
 	);
@@ -210,6 +210,30 @@ function get_pull_content_list_args() {
 			),
 		),
 	);
+}
+
+/**
+ * Check if the current user has permission to pull content.
+ *
+ * Checks whether the user can pull content for the specified post type.
+ *
+ * @since 1.9.1
+ *
+ * @param \WP_REST_Request $request Full details about the request.
+ * @return bool Whether the current user has permission to pull content.
+ */
+function get_pull_content_permissions( $request ) {
+	$post_type = $request->get_param( 'post_type' );
+	if ( ! $post_type ) {
+		return false;
+	}
+
+	$post_type_object = get_post_type_object( $post_type );
+	if ( ! $post_type_object ) {
+		return false;
+	}
+
+	return current_user_can( $post_type_object->cap->edit_posts );
 }
 
 /**
@@ -441,7 +465,9 @@ function get_pull_content( $request ) {
 	 */
 	$args = apply_filters( 'dt_get_pull_content_rest_query_args', $args, $request );
 
-	$query = new \WP_Query( $args );
+	// Only get posts that are editable by the user.
+	$args['perm'] = 'editable';
+	$query        = new \WP_Query( $args );
 
 	if ( empty( $query->posts ) ) {
 		return rest_ensure_response( array() );
@@ -462,7 +488,7 @@ function get_pull_content( $request ) {
 
 	$formatted_posts = array();
 	foreach ( $query->posts as $post ) {
-		if ( ! check_read_permission( $post ) ) {
+		if ( ! current_user_can( 'edit_post', $post->ID ) ) {
 			continue;
 		}
 
