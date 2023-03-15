@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file, per [the Ke
 
 ## [Unreleased] - TBD
 
+## [1.9.1] - 2023-03-15
+### Security
+- Removed potential for data exposure via the REST API (props [@dkotter](https://github.com/dkotter), [@jeffpaul](https://github.com/jeffpaul), [@peterwilsoncc](https://github.com/peterwilsoncc) via [GHSA-q43c-v867-4cfp](https://github.com/10up/distributor/security/advisories/GHSA-q43c-v867-4cfp).
+
 ## [1.9.0] - 2022-12-15
 ### Changed
 - Change uses of `blacklist` and use `exclude` instead (props [@dkotter](https://github.com/dkotter), [@jeffpaul](https://github.com/jeffpaul), [@peterwilsoncc](https://github.com/peterwilsoncc) via [#961](https://github.com/10up/distributor/pull/961))
@@ -407,6 +411,7 @@ This adds a post type selector when viewing the Pull Content list for both exter
 - Initial closed release.
 
 [Unreleased]: https://github.com/10up/distributor/compare/trunk...develop
+[1.9.1]: https://github.com/10up/distributor/compare/1.9.0...1.9.1
 [1.9.0]: https://github.com/10up/distributor/compare/1.8.0...1.9.0
 [1.8.0]: https://github.com/10up/distributor/compare/1.7.1...1.8.0
 [1.7.1]: https://github.com/10up/distributor/compare/1.7.0...1.7.1
