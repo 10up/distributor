@@ -6,7 +6,7 @@ All notable changes to this project will be documented in this file, per [the Ke
 
 ## [1.9.1] - 2023-03-15
 ### Security
-- Removed potential for data exposure via the REST API (props [@dkotter](https://github.com/dkotter), [@jeffpaul](https://github.com/jeffpaul), [@peterwilsoncc](https://github.com/peterwilsoncc) via [GHSA-q43c-v867-4cfp](https://github.com/10up/distributor/security/advisories/GHSA-q43c-v867-4cfp).
+- Removed potential for data exposure via the REST API (props [@dkotter](https://github.com/dkotter), [@jeffpaul](https://github.com/jeffpaul), [@peterwilsoncc](https://github.com/peterwilsoncc) via [GHSA-q43c-v867-4cfp](https://github.com/10up/distributor/security/advisories/GHSA-q43c-v867-4cfp)).
 
 ## [1.9.0] - 2022-12-15
 ### Changed
