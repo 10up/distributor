@@ -217,6 +217,8 @@ function get_pull_content_list_args() {
  *
  * Checks whether the user can pull content for the specified post type.
  *
+ * @since 1.9.1
+ *
  * @param \WP_REST_Request $request Full details about the request.
  * @return bool Whether the current user has permission to pull content.
  */
