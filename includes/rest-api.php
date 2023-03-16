@@ -223,6 +223,32 @@ function get_pull_content_list_args() {
  * @return bool Whether the current user has permission to pull content.
  */
 function get_pull_content_permissions( $request ) {
+	/*
+	 * Ensure Distributor requests are coming from a supported version.
+	 *
+	 * Changes to this endpoint in Distributor 2.0.0 require both the source and remote
+	 * sites use a 2.x release of Distributor. This check ensures that the remote site
+	 * is running a version of Distributor that supports the new endpoint.
+	 *
+	 * Development versions of the plugin and Non-Distributor requests are allowed
+	 * to pass through this check.
+	 */
+	if (
+		true !== Utils\is_development_version()
+		&& null !== $request->get_param( 'distributor_request' )
+		&& (
+			null === $request->get_header( 'X-Distributor-Version' )
+			|| version_compare( $request->get_header( 'X-Distributor-Version' ), '2.0.0', '<' )
+		)
+	) {
+		return new \WP_Error(
+			'distributor_pull_content_permissions',
+			esc_html__( 'Pulling content from external connections requires Distributor version 2.0.0 or later.', 'distributor' ),
+			array( 'status' => 403 )
+		);
+
+	}
+
 	$post_type = $request->get_param( 'post_type' );
 	if ( ! $post_type ) {
 		return false;
