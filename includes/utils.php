@@ -10,6 +10,17 @@ namespace Distributor\Utils;
 use Distributor\DistributorPost;
 
 /**
+ * Determine if this is a development install of Distributor.
+ *
+ * @since x.x.x
+ *
+ * @return bool True if this is a development install, false otherwise.
+ */
+function is_development_version() {
+	return file_exists( DT_PLUGIN_PATH . 'composer.lock' );
+}
+
+/**
  * Determine if we are on VIP
  *
  * @since  1.0
