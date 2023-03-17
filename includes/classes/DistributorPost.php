@@ -44,6 +44,7 @@ use WP_Post;
  * @method array get_media()
  * @method array post_data()
  * @method array to_insert( array $args = [] )
+ * @method array to_pull_list( array $args = [] )
  * @method array to_rest( array $args = [] )
  */
 class DistributorPost {
@@ -814,6 +815,36 @@ class DistributorPost {
 		}
 
 		return $insert;
+	}
+
+	/**
+	 * Get the post data in a format suitable for the pull screen.
+	 *
+	 * This is a wrapper for the ::to_insert() method that includes extra
+	 * data required for the pull screen.
+	 *
+	 * @param mixed $args {
+	 *     Optional. Array of push arguments
+	 *     @see ::to_insert() for arguments.
+	 * }
+	 * @return array Post data formatted for the pull screen.
+	 */
+	protected function to_pull_list( $args = array() ) {
+		$display_data = $this->to_insert( $args );
+
+		// Additional information required for pull screen.
+		$display_data['ID']           = $this->post->ID;
+		$display_data['date']         = $this->post->post_date;
+		$display_data['date_gmt']     = $this->post->post_date_gmt;
+		$display_data['modified']     = $this->post->post_modified;
+		$display_data['modified_gmt'] = $this->post->post_modified_gmt;
+		$display_data['post_password'] = $this->post->post_password;
+		$display_data['guid']          = $this->post->guid;
+		$display_data['comment_status'] = $this->post->comment_status;
+		$display_data['ping_status']    = $this->post->ping_status;
+		$display_data['link']           = $this->get_permalink();
+
+		return $display_data;
 	}
 
 	/**
