@@ -523,7 +523,7 @@ function get_pull_content_list( $request ) {
 		}
 
 		$dt_post           = new DistributorPost( $post->ID );
-		$formatted_posts[] = $dt_post->to_insert();
+		$formatted_posts[] = $dt_post->to_pull_list();
 	}
 
 	$response = rest_ensure_response( $formatted_posts );
