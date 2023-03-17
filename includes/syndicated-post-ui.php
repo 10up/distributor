@@ -89,7 +89,7 @@ function output_distributor_column( $column_name, $post_id ) {
 			if ( $unlinked ) {
 				echo '<a href="' . esc_url( $post_url ) . '"><img class="dt-unlinked" src="' . esc_url( plugins_url( 'assets/img/icon.svg', __DIR__ ) ) . '" alt="' . esc_attr__( 'Unlinked', 'distributor' ) . '" title="' . esc_attr__( 'Unlinked', 'distributor' ) . '"></a>';
 			} else {
-				echo '<a href="' . esc_url( $post_url ) . '"><img src="' . esc_url( plugins_url( 'assets/img/icon.svg', __DIR__ ) ) . '" alt="' . esc_attr__( 'Linked', 'distributor' ) . '" title="' . esc_attr__( 'Linked', 'distributor' ) . '"></a>';
+				echo '<a target="_blank" href="' . esc_url( $post_url ) . '"><img src="' . esc_url( plugins_url( 'assets/img/icon.svg', __DIR__ ) ) . '" alt="' . esc_attr__( 'Linked', 'distributor' ) . '" title="' . esc_attr__( 'Linked', 'distributor' ) . '"></a>';
 			}
 		}
 	}
@@ -672,7 +672,7 @@ function enqueue_gutenberg_edit_scripts() {
 			'postTypeSingular'     => sanitize_text_field( $post_type_singular ),
 			'postUrl'              => sanitize_text_field( $post_url ),
 			'originalSiteName'     => sanitize_text_field( $original_site_name ),
-			'syndicationTime'      => ( ! empty( $syndication_time ) ) ? esc_html( gmdate( 'M j, Y @ h:i', ( $syndication_time + ( get_option( 'gmt_offset' ) * HOUR_IN_SECONDS ) ) ) ) : 0,
+			'syndicationTime'      => ( ! empty( $syndication_time ) ) ? esc_html( gmdate( 'M j, Y h:i', ( $syndication_time + ( get_option( 'gmt_offset' ) * HOUR_IN_SECONDS ) ) ) ) : 0,
 			'syndicationCount'     => $total_connections,
 			'originalLocationName' => sanitize_text_field( $original_location_name ),
 			'unlinkNonceUrl'       => wp_nonce_url( add_query_arg( 'action', 'unlink', admin_url( sprintf( $post_type_object->_edit_link, $post->ID ) ) ), "unlink-post_{$post->ID}" ),

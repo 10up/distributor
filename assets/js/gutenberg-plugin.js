@@ -132,13 +132,44 @@ const RenderDistributedTo = () => {
  */
 const RenderDistributedFrom = () => {
 	return (
-		<span id="distributed-from">
-			{ sprintf(
-				/* translators: 1: Syndication date and time. */
-				__( 'Distributed on: %1$s', 'distributor' ),
-				dtGutenberg.syndicationTime
-			) }
-		</span>
+		<div>
+			<span id="distributed-from">
+				{ sprintf(
+					/* translators: 1: Syndication date and time. */
+					__( 'Pulled & linked on %1$s from %2$s', 'distributor' ),
+					dtGutenberg.syndicationTime,
+					dtGutenberg.originalLocationName
+				) }
+			</span>
+			<br />
+			<span id="distributed-data">
+				{ sprintf(
+						/* translators: %s is the URL to Original Content */
+						__( 'Updating the ', 'distributor' ),
+					)
+				}
+				<a href={dtGutenberg.postUrl}>
+				{ sprintf(
+						/* translators: %s is the URL to Original Content */
+						__( 'Original Content', 'distributor' ),
+					)
+				},
+
+				</a> 
+				{ sprintf(
+						/* translators: %s is the URL to Original Content */
+						__( 'will update this post automatically.', 'distributor' ),
+					)
+				}
+			</span>
+			<br />
+			<span id="distributed-unlink">
+				{ sprintf(
+					/* translators: %s is the URL to Original Content */
+					__( 'Unlink from Original', 'distributor' ),
+				) }
+			</span>
+		</div>
 	);
 };
 
@@ -186,7 +217,7 @@ const DistributorPlugin = () => {
 	) {
 		return (
 			<PluginDocumentSettingPanel
-				title={ __( 'Distributor', 'distributor' ) }
+				title={ __( 'Pulled Content', 'distributor' ) }
 				icon={ DistributorIcon }
 				className="distributor-panel"
 			>
@@ -198,7 +229,7 @@ const DistributorPlugin = () => {
 
 	return (
 		<PluginDocumentSettingPanel
-			title={ __( 'Distributor', 'distributor' ) }
+			title={ __( 'Pulled Content', 'distributor' ) }
 			icon={ DistributorIcon }
 			className="distributor-panel"
 		>
