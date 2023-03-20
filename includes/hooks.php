@@ -128,7 +128,10 @@ function filter_the_author( $display_name ) {
  * @return string Modified author display name.
  */
 function get_the_author_display_name( $display_name, $user_id, $original_user_id ) {
-	if ( false !== $original_user_id ) {
+	$current_post   = get_post();
+	$is_distributed = empty( $current_post ) ? false : \Distributor\Utils\get_is_distributed_post( $current_post->ID );
+
+	if ( ! $is_distributed && false !== $original_user_id ) {
 		// get_the_author() was called for a specific user.
 		return $display_name;
 	}
@@ -166,7 +169,10 @@ function filter_author_link( $link ) {
  * @return string Modified author page URL.
  */
 function get_the_author_user_url( $author_url, $user_id, $original_user_id ) {
-	if ( false !== $original_user_id ) {
+	$current_post   = get_post();
+	$is_distributed = empty( $current_post ) ? false : \Distributor\Utils\get_is_distributed_post( $current_post->ID );
+
+	if ( ! $is_distributed && false !== $original_user_id ) {
 		// get_the_author() was called for a specific user.
 		return $author_url;
 	}
