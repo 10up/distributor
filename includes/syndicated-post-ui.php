@@ -80,16 +80,16 @@ function output_distributor_column( $column_name, $post_id ) {
 		$original_deleted   = (bool) get_post_meta( $post_id, 'dt_original_post_deleted', true );
 
 		if ( ( empty( $original_blog_id ) && empty( $original_source_id ) ) || $original_deleted ) {
-			echo '—';
+			echo '';
 		} else {
 			$unlinked         = (bool) get_post_meta( $post_id, 'dt_unlinked', true );
 			$post_type_object = get_post_type_object( get_post_type( $post_id ) );
 			$post_url         = get_post_meta( $post_id, 'dt_original_post_url', true );
 
 			if ( $unlinked ) {
-				echo '<a href="' . esc_url( $post_url ) . '"><img class="dt-unlinked" src="' . esc_url( plugins_url( 'assets/img/icon.svg', __DIR__ ) ) . '" alt="' . esc_attr__( 'Unlinked', 'distributor' ) . '" title="' . esc_attr__( 'Unlinked', 'distributor' ) . '"></a>';
+				echo '<a href="' . esc_url( $post_url ) . '"><span title="' . esc_attr__( 'Unlinked', 'distributor' ) . '" class="dashicons dashicons-editor-unlink"></span></span></a>';
 			} else {
-				echo '<a target="_blank" href="' . esc_url( $post_url ) . '"><img src="' . esc_url( plugins_url( 'assets/img/icon.svg', __DIR__ ) ) . '" alt="' . esc_attr__( 'Linked', 'distributor' ) . '" title="' . esc_attr__( 'Linked', 'distributor' ) . '"></a>';
+				echo '<a target="_blank" href="' . esc_url( $post_url ) . '"><span title="' . esc_attr__( 'Linked', 'distributor' ).'" class="dashicons dashicons-admin-links"></span></a>';
 			}
 		}
 	}

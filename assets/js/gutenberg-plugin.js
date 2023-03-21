@@ -311,6 +311,19 @@ const DistributorIcon = () => (
 );
 
 /**
+ * Create the Distributor title
+ */
+const DistributorTitle = () => {
+	if ( ! parseInt( dtGutenberg.unlinked ) ) {
+		return __( 'Pulled Content', 'distributor' );
+	} else {
+		return __( 'Unlinked Content', 'distributor' );
+	}
+
+	return null;
+};
+
+/**
  * Add the Distributor panel to Gutenberg
  */
 const DistributorPlugin = () => {
@@ -347,7 +360,7 @@ const DistributorPlugin = () => {
 	) {
 		return (
 			<PluginDocumentSettingPanel
-				title={ __( 'Pulled Content', 'distributor' ) }
+				title={ DistributorTitle }
 				icon={ DistributorIcon }
 				className="distributor-panel"
 			>
@@ -359,7 +372,7 @@ const DistributorPlugin = () => {
 
 	return (
 		<PluginDocumentSettingPanel
-			title={ __( 'Pulled Content', 'distributor' ) }
+			title={ DistributorTitle }
 			icon={ DistributorIcon }
 			className="distributor-panel"
 		>
