@@ -1190,6 +1190,6 @@ function remote_http_request( $url, $args = array(), $fallback = '', $threshold 
  * @return bool True if the post is distributed, false otherwise.
  */
 function get_is_distributed_post( $post_id ) {
-	$blog_id = get_post_meta( $post_id, 'dt_original_blog_id', true );
-	return ! empty( $blog_id );
+	$original_post_id = get_post_meta( $post_id, 'dt_original_post_id', true );
+	return ! empty( $original_post_id );
 }
