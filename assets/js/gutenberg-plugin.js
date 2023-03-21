@@ -7,7 +7,7 @@ import { __, _n, _x, sprintf } from '@wordpress/i18n';
 import { registerPlugin } from '@wordpress/plugins';
 import { useState } from '@wordpress/element';
 
-const { document, dtGutenberg, MouseEvent } = window;
+const { document, dt, dtGutenberg, MouseEvent } = window;
 
 /**
  * Add ability to show the admin bar, if needed
@@ -348,11 +348,23 @@ const DistributorPlugin = () => {
 		return null;
 	}
 
+	const distributorTopMenu = document.querySelector(
+		'#wp-admin-bar-distributor'
+	);
+
+	// eslint-disable-next-line no-shadow, react-hooks/rules-of-hooks -- permission checks are needed.
+	const post = useSelect( ( select ) =>
+		select( 'core/editor' ).getCurrentPost()
+	);
+	// Make the post title available to the top menu.
+	dt.postTitle = post.title;
+
 	// If we are on a non-supported post status, change what we show
 	if (
 		dtGutenberg.supportedPostStati &&
 		! dtGutenberg.supportedPostStati.includes( postStatus )
 	) {
+		distributorTopMenu?.classList.add( 'hide' );
 		return (
 			<PluginDocumentSettingPanel
 				title={ <DistributorTitle /> }
@@ -365,6 +377,7 @@ const DistributorPlugin = () => {
 		);
 	}
 
+	distributorTopMenu?.classList.remove( 'hide' );
 	return (
 		<PluginDocumentSettingPanel
 			title={ <DistributorTitle /> }
