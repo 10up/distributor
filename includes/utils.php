@@ -7,6 +7,8 @@
 
 namespace Distributor\Utils;
 
+use Distributor\DistributorPost;
+
 /**
  * Determine if we are on VIP
  *
@@ -325,18 +327,18 @@ function distributable_post_statuses() {
  * Returns list of excluded meta keys
  *
  * @since  1.2
- * @deprecated X.X.X Use excluded_meta()
+ * @deprecated 1.9.0 Use excluded_meta()
  * @return array
  */
 function blacklisted_meta() {
-	_deprecated_function( __FUNCTION__, 'X.X.X', '\Distributor\Utils\excluded_meta()' );
+	_deprecated_function( __FUNCTION__, '1.9.0', '\Distributor\Utils\excluded_meta()' );
 	return excluded_meta();
 }
 
 /**
  * Returns list of excluded meta keys
  *
- * @since  X.X.X
+ * @since  1.9.0
  * @return array
  */
 function excluded_meta() {
@@ -345,7 +347,7 @@ function excluded_meta() {
 	 * Filter meta keys that are excluded from distribution.
 	 *
 	 * @since 1.0.0
-	 * @deprecated x.x.x
+	 * @deprecated 1.9.0 Use dt_excluded_meta
 	 *
 	 * @param array $meta_keys Excluded meta keys.
 	 *
@@ -355,24 +357,25 @@ function excluded_meta() {
 		'dt_blacklisted_meta',
 		[
 			[
+				'classic-editor-remember',
 				'dt_unlinked',
-				'dt_connection_map',
-				'dt_subscription_update',
-				'dt_subscriptions',
-				'dt_subscription_signature',
-				'dt_original_post_id',
-				'dt_original_post_url',
-				'dt_original_blog_id',
 				'dt_syndicate_time',
-				'_wp_attached_file',
-				'_wp_attachment_metadata',
-				'_edit_lock',
-				'_edit_last',
+				'dt_subscriptions',
+				'dt_subscription_update',
+				'dt_subscription_signature',
+				'dt_original_post_url',
+				'dt_original_post_id',
+				'dt_original_blog_id',
+				'dt_connection_map',
 				'_wp_old_slug',
 				'_wp_old_date',
+				'_wp_attachment_metadata',
+				'_wp_attached_file',
+				'_edit_lock',
+				'_edit_last',
 			],
 		],
-		'X.X.X',
+		'1.9.0',
 		'dt_excluded_meta',
 		__( 'Please consider writing more inclusive code.', 'distributor' )
 	);
@@ -380,7 +383,7 @@ function excluded_meta() {
 	/**
 	 * Filter meta keys that are excluded from distribution.
 	 *
-	 * @since X.X.X
+	 * @since 1.9.0
 	 * @hook dt_excluded_meta
 	 *
 	 * @param {array} $meta_keys Excluded meta keys. Default `dt_unlinked, dt_connection_map, dt_subscription_update, dt_subscriptions, dt_subscription_signature, dt_original_post_id, dt_original_post_url, dt_original_blog_id, dt_syndicate_time, _wp_attached_file, _wp_attachment_metadata, _edit_lock, _edit_last, _wp_old_slug, _wp_old_date`.
@@ -398,6 +401,7 @@ function excluded_meta() {
  * @return array
  */
 function prepare_meta( $post_id ) {
+	update_postmeta_cache( array( $post_id ) );
 	$meta          = get_post_meta( $post_id );
 	$prepared_meta = array();
 	$excluded_meta = excluded_meta();
@@ -438,30 +442,12 @@ function prepare_meta( $post_id ) {
  * @return array
  */
 function prepare_media( $post_id ) {
-	$raw_media   = get_attached_media( get_allowed_mime_types(), $post_id );
-	$media_array = array();
-
-	$featured_image_id = get_post_thumbnail_id( $post_id );
-	$found_featured    = false;
-
-	foreach ( $raw_media as $media_post ) {
-		$media_item = format_media_post( $media_post );
-
-		if ( $media_item['featured'] ) {
-			$found_featured = true;
-		}
-
-		$media_array[] = $media_item;
+	$dt_post = new DistributorPost( $post_id );
+	if ( ! $dt_post ) {
+		return array();
 	}
 
-	if ( ! empty( $featured_image_id ) && ! $found_featured ) {
-		$featured_image             = format_media_post( get_post( $featured_image_id ) );
-		$featured_image['featured'] = true;
-
-		$media_array[] = $featured_image;
-	}
-
-	return $media_array;
+	return $dt_post->get_media();
 }
 
 /**
@@ -475,6 +461,13 @@ function prepare_media( $post_id ) {
  */
 function prepare_taxonomy_terms( $post_id, $args = array() ) {
 	$post = get_post( $post_id );
+
+	if ( ! $post ) {
+		return array();
+	}
+
+	// Warm the term cache for the post.
+	update_object_term_cache( array( $post->ID ), $post->post_type );
 
 	if ( empty( $args ) ) {
 		$args = array( 'publicly_queryable' => true );

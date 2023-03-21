@@ -11,7 +11,7 @@
 	<div class="inner">
 	<# if ( ! _.isEmpty( connections ) ) { #>
 		<?php /* translators: %s the post title */ ?>
-		<p><?php echo sprintf( esc_html__( 'Distribute &quot;%s&quot; to other connections.', 'distributor' ), esc_html( get_the_title( $post->ID ) ) ); ?></p>
+		<p><?php echo sprintf( esc_html__( 'Distribute &quot;%s&quot; to other connections.', 'distributor' ), '{{ postTitle }}' ); ?></p>
 
 		<div class="connections-selector">
 			<div>
@@ -43,7 +43,7 @@
 		</div>
 		<div class="connections-selected empty">
 			<header class="with-selected">
-				<?php esc_html_e( 'Selected connections', 'distributor' ); ?>
+				<span class="selected-connections-text"></span>
 				<button class="button button-link selectno-connections unavailable"><?php esc_html_e( 'Clear', 'distributor' ); ?></button>
 			</header>
 			<header class="no-selected">

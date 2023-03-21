@@ -32,6 +32,8 @@ function setup() {
 			add_action( 'after_plugin_row', __NAMESPACE__ . '\update_notice', 10, 3 );
 			add_action( 'admin_print_styles', __NAMESPACE__ . '\plugin_update_styles' );
 			add_action( 'admin_enqueue_scripts', __NAMESPACE__ . '\admin_enqueue_scripts' );
+
+			add_action( 'clean_post_cache', __NAMESPACE__ . '\clean_dt_post_cache' );
 		}
 	);
 }
@@ -434,6 +436,32 @@ function handle_network_settings() {
 	}
 
 	update_site_option( 'dt_settings', $new_settings );
+}
+
+/**
+ * Clean distributor post caches.
+ *
+ * Distributor caches a number of post related items to improve performance. This
+ * ensures they are cleared when a post is updated.
+ *
+ * Runs on the hook `clean_post_cache`.
+ *
+ * @since x.x.x
+ *
+ * @param int $post_id Post ID.
+ */
+function clean_dt_post_cache( int $post_id ) {
+	$cache_keys = array(
+		"dt_media::{$post_id}",
+	);
+
+	if ( function_exists( 'wp_cache_delete_multiple' ) ) {
+		wp_cache_delete_multiple( $cache_keys, 'dt::post' );
+	} else {
+		foreach ( $cache_keys as $cache_key ) {
+			wp_cache_delete( $cache_key, 'dt::post' );
+		}
+	}
 }
 
 
