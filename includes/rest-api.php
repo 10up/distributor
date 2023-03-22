@@ -279,7 +279,7 @@ function get_pull_content_list_args() {
 			'type'              => 'string',
 			'validate_callback' => 'rest_validate_request_arg',
 		),
-		'post_status' => array(
+		'post_status'    => array(
 			'default'           => array( 'publish' ),
 			'description'       => esc_html__( 'Limit result set to content assigned one or more statuses.', 'distributor' ),
 			'type'              => array( 'array', 'string' ),
