@@ -1,6 +1,6 @@
 import { pluginIcon } from './components/plugin-icon';
 
-import { Icon, Modal, Button } from '@wordpress/components';
+import { Icon, Modal } from '@wordpress/components';
 import { select, useSelect } from '@wordpress/data';
 import { PluginDocumentSettingPanel } from '@wordpress/edit-post';
 import { __, _n, _x, sprintf } from '@wordpress/i18n';
@@ -151,31 +151,19 @@ const RenderDistributedFrom = () => {
 					) }
 				</span>
 				<span id="distributed-data">
-					{ sprintf(
-						/* translators: 1: Pulled Message. */
-						__( 'Updating the ', 'distributor' )
-					) }
+					{ __( 'Updating the ', 'distributor' ) }
 					<a href={ dtGutenberg.postUrl }>
-						{ sprintf(
-							/* translators: 1: URL to Original Content */
-							__( 'Original Content', 'distributor' )
-						) }
-						,
+						{ __( 'Original Content', 'distributor' ) },
 					</a>
-					{ sprintf(
-						/* translators: 1: Pulled Message. */
-						__(
-							'will update this post automatically.',
-							'distributor'
-						)
+					{ __(
+						'will update this post automatically.',
+						'distributor'
 					) }
+					,
 				</span>
 				<span id="distributed-unlink" onClick={ openModal }>
 					<span className="dashicons dashicons-editor-unlink"></span>
-					{ sprintf(
-						/* translators: 1: URL to Unlink Original Content */
-						__( 'Unlink from Original', 'distributor' )
-					) }
+					{ __( 'Unlink from Original', 'distributor' ) }
 				</span>
 				{ isOpen && (
 					<Modal
@@ -185,38 +173,23 @@ const RenderDistributedFrom = () => {
 						onRequestClose={ closeModal }
 					>
 						<span id="distributed-data">
-							{ sprintf(
-								/* translators: 1: Unlinked Message for Modal.*/
-								__( 'Unlinking from the ', 'distributor' )
-							) }
+							{ __( 'Unlinking from the ', 'distributor' ) }
 							<a href={ dtGutenberg.postUrl }>
-								{ sprintf(
-									/* translators: 1: Unlinked Message for Modal. */
-									__( 'Original Content ', 'distributor' )
-								) }
+								{ __( 'Original Content ', 'distributor' ) }
 							</a>
-							{ sprintf(
-								/* translators: 1: Unlinked Message for Modal.  */
-								__(
-									'will stop updating this post automatically.',
-									'distributor'
-								)
+							{ __(
+								'will stop updating this post automatically.',
+								'distributor'
 							) }
 						</span>
 						<br />
 						<div className="actions">
 							<a href={ dtGutenberg.unlinkNonceUrl }>
 								<span className="dashicons dashicons-editor-unlink"></span>
-								{ sprintf(
-									/* translators: 1: Action link for Unlinked Modal. */
-									__( 'Unlink', 'distributor' )
-								) }
+								{ __( 'Unlink', 'distributor' ) }
 							</a>
 							<span id="close" onClick={ closeModal }>
-								{ sprintf(
-									/* translators: 1: Action link for Unlinked Modal. */
-									__( 'Cancel', 'distributor' )
-								) }
+								{ __( 'Cancel', 'distributor' ) }
 							</span>
 						</div>
 					</Modal>
@@ -235,23 +208,14 @@ const RenderDistributedFrom = () => {
 				) }
 			</span>
 			<span id="distributed-data">
-				{ sprintf(
-					/* translators: 1: Unlinked Message. */
-					__( 'This post has been unlinked from the ', 'distributor' )
-				) }
+				{ __( 'This post has been unlinked from the ', 'distributor' ) }
 				<a href={ dtGutenberg.postUrl }>
-					{ sprintf(
-						/* translators: 1: URL to Original Content */
-						__( 'Original Content', 'distributor' )
-					) }
+					{ __( 'Original Content', 'distributor' ) }
 				</a>
 			</span>
 			<span id="distributed-restorelink" onClick={ openModal }>
 				<span className="dashicons dashicons-editor-unlink"></span>
-				{ sprintf(
-					/* translators: 1: Restore Link Message for Modal.*/
-					__( 'Restore link to Original', 'distributor' )
-				) }
+				{ __( 'Restore link to Original', 'distributor' ) }
 			</span>
 			{ isOpen && (
 				<Modal
@@ -261,37 +225,22 @@ const RenderDistributedFrom = () => {
 					onRequestClose={ closeModal }
 				>
 					<span id="distributed-data">
-						{ sprintf(
-							/* translators: 1: Restore Link Message for Modal.*/
-							__( 'Restoring the link to the ', 'distributor' )
-						) }
+						{ __( 'Restoring the link to the ', 'distributor' ) }
 						<a href={ dtGutenberg.postUrl }>
-							{ sprintf(
-								/* translators: 1: Restore Link Message for Modal.*/
-								__( 'Original Content. ', 'distributor' )
-							) }
+							{ __( 'Original Content. ', 'distributor' ) }
 						</a>
-						{ sprintf(
-							/* translators: 1: Restore Link Message for Modal.*/
-							__(
-								'will start updating this post automatically from the Original, overwriting current content.',
-								'distributor'
-							)
+						{ __(
+							'will start updating this post automatically from the Original, overwriting current content.',
+							'distributor'
 						) }
 					</span>
 					<div className="actions">
 						<a href={ dtGutenberg.linkNonceUrl }>
 							<span className="dashicons dashicons-editor-unlink"></span>
-							{ sprintf(
-								/* translators: 1: Action link for Unlinked Modal. */
-								__( 'Restore link', 'distributor' )
-							) }
+							{ __( 'Restore link', 'distributor' ) }
 						</a>
 						<span id="close" onClick={ closeModal }>
-							{ sprintf(
-								/* translators: 1: Action link for Unlinked Modal. */
-								__( 'Cancel', 'distributor' )
-							) }
+							{ __( 'Cancel', 'distributor' ) }
 						</span>
 					</div>
 				</Modal>
