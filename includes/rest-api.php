@@ -9,6 +9,7 @@ namespace Distributor\RestApi;
 
 use Distributor\DistributorPost;
 use Distributor\Utils;
+use WP_Error;
 
 /**
  * Setup actions and filters
@@ -191,9 +192,71 @@ function get_pull_content_list_args() {
 		),
 		'post_type'      => array(
 			'description'       => esc_html__( 'Limit results to content matching a certain type.', 'distributor' ),
-			'type'              => 'string',
-			'default'           => 'post',
-			'sanitize_callback' => 'sanitize_text_field',
+			'type'              => array( 'array', 'string' ),
+			'items'             => array(
+				'type' => 'string',
+			),
+			'default'           => array( 'post' ),
+			'validate_callback' => function( $param ) {
+				if ( is_string( $param ) ) {
+					return sanitize_key( $param ) === $param;
+				}
+
+				foreach ( $param as $post_type ) {
+					if ( sanitize_key( $post_type ) !== $post_type ) {
+						return false;
+					}
+				}
+
+				return true;
+			},
+			'sanitize_callback' => function( $param ) {
+				if ( is_string( $param ) ) {
+					$param = array( $param );
+				}
+
+				$allowed_post_types = array_keys(
+					get_post_types(
+						array(
+							'show_in_rest' => true,
+						)
+					)
+				);
+
+				/*
+				 * Only post types viewable on the front end should be allowed.
+				 *
+				 * Some post types may be visible in the REST API but not intended
+				 * to be viewed on the front end. This removes any such posts from the
+				 * list of allowed post types.
+				 *
+				 * `is_post_type_viewable()` is used to filter the results as
+				 * WordPress applies different rules for custom and built in post
+				 * types to determine whether they are viewable on the front end.
+				 */
+				$allowed_post_types = array_filter( $allowed_post_types, 'is_post_type_viewable' );
+
+				if ( in_array( 'any', $param, true ) ) {
+					$param = $allowed_post_types;
+				} else {
+					$param = array_intersect( $param, $allowed_post_types );
+				}
+
+				$param = array_filter(
+					$param,
+					function( $post_type ) {
+						$post_type_object = get_post_type_object( $post_type );
+						return current_user_can( $post_type_object->cap->edit_posts );
+					}
+				);
+
+				if ( empty( $param ) ) {
+					// This will cause the parameter to fall back to the default.
+					$param = null;
+				}
+
+				return $param;
+			},
 			'validate_callback' => 'rest_validate_request_arg',
 		),
 		'search'         => array(
@@ -201,14 +264,53 @@ function get_pull_content_list_args() {
 			'type'              => 'string',
 			'validate_callback' => 'rest_validate_request_arg',
 		),
-		'post_status'    => array(
-			'default'     => 'publish',
-			'description' => esc_html__( 'Limit result set to content assigned one or more statuses.', 'distributor' ),
-			'type'        => 'array',
-			'items'       => array(
-				'enum' => array_merge( array_keys( get_post_stati() ), array( 'any' ) ),
+		'post_status' => array(
+			'default'           => array( 'publish' ),
+			'description'       => esc_html__( 'Limit result set to content assigned one or more statuses.', 'distributor' ),
+			'type'              => array( 'array', 'string' ),
+			'items'             => array(
 				'type' => 'string',
 			),
+			'validate_callback' => function( $param ) {
+				if ( is_string( $param ) ) {
+					return sanitize_key( $param ) === $param;
+				}
+
+				foreach ( $param as $post_status ) {
+					if ( sanitize_key( $post_status ) !== $post_status ) {
+						return false;
+					}
+				}
+
+				return true;
+			},
+			'sanitize_callback' => function( $param ) {
+				if ( is_string( $param ) ) {
+					$param = array( $param );
+				}
+
+				/*
+				 * Only show post statuses viewable post statues.
+				 *
+				 * `is_post_type_viewable()` is used to filter the results as
+				 * WordPress applies a complex set of rules to determine if a post
+				 * status is viewable.
+				 */
+				$allowed_statues = array_keys( array_filter( get_post_stati(), 'is_post_type_viewable' ) );
+
+				if ( in_array( 'any', $param, true ) ) {
+					return $allowed_statues;
+				}
+
+				$param = array_intersect( $param, $allowed_statues );
+
+				if ( empty( $param ) ) {
+					// This will cause the parameter to fall back to the default.
+					$param = null;
+				}
+
+				return $param;
+			},
 		),
 	);
 }
@@ -251,16 +353,27 @@ function get_pull_content_permissions( $request ) {
 	}
 
 	$post_type = $request->get_param( 'post_type' );
-	if ( ! $post_type ) {
+	if ( empty( $post_type ) ) {
 		return false;
 	}
 
-	$post_type_object = get_post_type_object( $post_type );
-	if ( ! $post_type_object ) {
-		return false;
+	if ( is_string( $post_type ) ) {
+		$post_type = array( $post_type );
 	}
 
-	return current_user_can( $post_type_object->cap->edit_posts );
+	foreach ( $post_type as $single_post_type ) {
+		$post_type_object = get_post_type_object( $single_post_type );
+		if ( ! $post_type_object ) {
+			return false;
+		}
+
+		if ( ! current_user_can( $post_type_object->cap->edit_posts ) ) {
+			return false;
+		}
+	}
+
+	// User can edit all post types.
+	return true;
 }
 
 /**
