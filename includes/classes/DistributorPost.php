@@ -833,16 +833,18 @@ class DistributorPost {
 		$display_data = $this->to_insert( $args );
 
 		// Additional information required for pull screen.
-		$display_data['ID']           = $this->post->ID;
-		$display_data['date']         = $this->post->post_date;
-		$display_data['date_gmt']     = $this->post->post_date_gmt;
-		$display_data['modified']     = $this->post->post_modified;
-		$display_data['modified_gmt'] = $this->post->post_modified_gmt;
-		$display_data['post_password'] = $this->post->post_password;
-		$display_data['guid']          = $this->post->guid;
-		$display_data['comment_status'] = $this->post->comment_status;
-		$display_data['ping_status']    = $this->post->ping_status;
-		$display_data['link']           = $this->get_permalink();
+		$display_data['ID']                             = $this->post->ID;
+		$display_data['date']                           = $this->post->post_date;
+		$display_data['date_gmt']                       = $this->post->post_date_gmt;
+		$display_data['modified']                       = $this->post->post_modified;
+		$display_data['modified_gmt']                   = $this->post->post_modified_gmt;
+		$display_data['post_password']                  = $this->post->post_password;
+		$display_data['guid']                           = $this->post->guid;
+		$display_data['comment_status']                 = $this->post->comment_status;
+		$display_data['ping_status']                    = $this->post->ping_status;
+		$display_data['link']                           = $this->get_permalink();
+		$display_data['distributor_original_site_name'] = $this->source_site['name'];
+		$display_data['distributor_original_site_url']  = $this->source_site['home_url'];
 
 		return $display_data;
 	}
