@@ -174,6 +174,21 @@ function get_pull_content_list_args() {
 			),
 			'default'     => array(),
 		),
+		'include'        => array(
+			'description'       => esc_html__( 'Ensure result set includes specific IDs.', 'distributor' ),
+			'type'              => array( 'array', 'integer' ),
+			'items'             => array(
+				'type' => 'integer',
+			),
+			'default'           => array(),
+			'sanitize_callback' => function( $param ) {
+				if ( ! is_array( $param ) ) {
+					$param = array( $param );
+				}
+
+				return wp_parse_id_list( $param );
+			},
+		),
 		'page'           => array(
 			'description'       => esc_html__( 'Current page of the collection.', 'distributor' ),
 			'type'              => 'integer',
@@ -592,6 +607,10 @@ function get_pull_content_list( $request ) {
 
 	if ( ! empty( $request['exclude'] ) ) {
 		$args['post__not_in'] = $request['exclude'];
+	}
+
+	if ( ! empty( $request['include'] ) ) {
+		$args['post__in'] = $request['include'];
 	}
 
 	/**
