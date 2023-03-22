@@ -352,7 +352,7 @@ function get_pull_content_permissions( $request ) {
 	 * to pass through this check.
 	 */
 	if (
-		true !== Utils\is_development_version()
+		false === Utils\is_development_version()
 		&& null !== $request->get_param( 'distributor_request' )
 		&& (
 			null === $request->get_header( 'X-Distributor-Version' )
