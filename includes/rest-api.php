@@ -367,17 +367,17 @@ function get_pull_content_permissions( $request ) {
 
 	}
 
-	$post_type = $request->get_param( 'post_type' );
-	if ( empty( $post_type ) ) {
+	$post_types = $request->get_param( 'post_type' );
+	if ( empty( $post_types ) ) {
 		return false;
 	}
 
-	if ( is_string( $post_type ) ) {
-		$post_type = array( $post_type );
+	if ( is_string( $post_types ) ) {
+		$post_types = array( $post_types );
 	}
 
-	foreach ( $post_type as $single_post_type ) {
-		$post_type_object = get_post_type_object( $single_post_type );
+	foreach ( $post_types as $post_type ) {
+		$post_type_object = get_post_type_object( $post_type );
 		if ( ! $post_type_object ) {
 			return false;
 		}
