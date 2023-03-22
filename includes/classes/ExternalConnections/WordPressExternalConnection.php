@@ -940,55 +940,18 @@ class WordPressExternalConnection extends ExternalConnection {
 	 * @return \WP_Post
 	 */
 	private function to_wp_post( $post ) {
-		$obj = new \stdClass();
+		$obj = (object) $post;
 
-		$obj->ID         = $post['id'];
-		$obj->post_title = $post['title']['rendered'];
-
-		if ( isset( $post['excerpt']['raw'] ) ) {
-			$obj->post_excerpt = $post['excerpt']['raw'];
-		} elseif ( isset( $post['excerpt']['rendered'] ) ) {
-			$obj->post_excerpt = $post['excerpt']['rendered'];
-		} else {
-			$obj->post_excerpt = '';
-		}
-
-		$obj->post_status = 'draft';
-		$obj->post_author = get_current_user_id();
-
-		$obj->post_password     = $post['password'];
-		$obj->post_date         = $post['date'];
-		$obj->post_date_gmt     = $post['date_gmt'];
-		$obj->guid              = $post['guid']['rendered'];
-		$obj->post_modified     = $post['modified'];
-		$obj->post_modified_gmt = $post['modified_gmt'];
-		$obj->post_type         = $post['type'];
-		$obj->link              = $post['link'];
-		$obj->comment_status    = $post['comment_status'];
-		$obj->ping_status       = $post['ping_status'];
-
-		if ( isset( $post['content']['raw'] ) ) {
-			// Use raw content if remote post uses Gutenberg and the local post type is compatible with it.
-			$obj->post_content = Utils\dt_use_block_editor_for_post_type( $obj->post_type ) && isset( $post['is_using_gutenberg'] ) ?
-				$post['content']['raw'] :
-				Utils\get_processed_content( $post['content']['raw'] );
-		} elseif ( isset( $post['content']['rendered'] ) ) {
-			$obj->post_content = $post['content']['rendered'];
-		} else {
-			$obj->post_content = '';
-		}
-
-
-		/**
+		/*
 		 * These will only be set if Distributor is active on the other side
 		 */
-		$obj->meta               = ( ! empty( $post['distributor_meta'] ) ) ? $post['distributor_meta'] : [];
-		$obj->terms              = ( ! empty( $post['distributor_terms'] ) ) ? $post['distributor_terms'] : [];
-		$obj->media              = ( ! empty( $post['distributor_media'] ) ) ? $post['distributor_media'] : [];
 		$obj->original_site_name = ( ! empty( $post['distributor_original_site_name'] ) ) ? $post['distributor_original_site_name'] : null;
 		$obj->original_site_url  = ( ! empty( $post['distributor_original_site_url'] ) ) ? $post['distributor_original_site_url'] : null;
 
-		$obj->full_connection = ( ! empty( $post['full_connection'] ) );
+		// Unset these as they are renamed above.
+		unset( $obj->distributor_original_site_name );
+		unset( $obj->distributor_original_site_url );
+
 
 		/**
 		 * Filter the post item.
@@ -1001,7 +964,9 @@ class WordPressExternalConnection extends ExternalConnection {
 		 *
 		 * @return {WP_Post} The WP_Post that is being pushed.
 		 */
-		return apply_filters( 'dt_item_mapping', new \WP_Post( $obj ), $post, $this );
+		$post_object = apply_filters( 'dt_item_mapping', new \WP_Post( $obj ), $post, $this );
+
+		return $post_object;
 	}
 
 	/**
