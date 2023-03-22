@@ -647,8 +647,8 @@ function screen_option() {
  */
 function add_menu_item() {
 	$hook = add_menu_page(
-		'Distributor',
-		'Distributor',
+		'Connections',
+		'Connections',
 		/**
 		 * Filter Distributor capabilities allowed to view external connections.
 		 *
@@ -701,7 +701,11 @@ function add_submenu_item() {
  * @since 0.8
  */
 function setup_cpt() {
-
+	$html   = '<span class="dashicons dashicons-editor-unlink"></span>
+				<h1>' . esc_html__( 'You dont have any Connections yet', 'distributor' ) . '</h1>
+				<a href="' . esc_url( admin_url( 'post-new.php?post_type=dt_ext_connection' ) ) . '" />' . esc_html__( 'Add a new Connection ', 'distributor' ) . '</a>
+				<span>to be able to push content to connected sites.</span>
+				<span class="need_help">Need help setting things up? Read More about Connections <a href="#" />' . esc_html__( 'here ', 'distributor' ) . '</a></span>';
 	$labels = array(
 		'name'               => esc_html__( 'External Connections', 'distributor' ),
 		'singular_name'      => esc_html__( 'External Connection', 'distributor' ),
@@ -712,7 +716,7 @@ function setup_cpt() {
 		'all_items'          => esc_html__( 'All External Connections', 'distributor' ),
 		'view_item'          => esc_html__( 'View External Connection', 'distributor' ),
 		'search_items'       => esc_html__( 'Search External Connections', 'distributor' ),
-		'not_found'          => esc_html__( 'No external connections found.', 'distributor' ),
+		'not_found'          => $html,
 		'not_found_in_trash' => esc_html__( 'No external connections found in trash.', 'distributor' ),
 		'filter_items_list'  => esc_html__( 'Filter connections list', 'distributor' ),
 		'parent_item_colon'  => '',
