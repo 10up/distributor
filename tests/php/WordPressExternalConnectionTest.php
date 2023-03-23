@@ -254,6 +254,7 @@ class WordPressExternalConnectionTest extends TestCase {
 	 * @runInSeparateProcess
 	 */
 	public function test_pull() {
+		$this->setup_post_meta_mock( array() );
 		$post_id = 123;
 
 		\WP_Mock::userFunction( 'wp_remote_retrieve_response_code' );
