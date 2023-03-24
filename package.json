@@ -1,6 +1,6 @@
 {
 	"name": "distributor",
-	"version": "1.9.0",
+	"version": "1.9.1",
 	"description": "Distributor is a WordPress plugin that makes it easy to distribute and reuse content across your websites — whether in a single multisite or across the web.",
 	"author": {
 		"name": "10up",
@@ -47,7 +47,7 @@
 		"lint:css": "wp-scripts lint-style",
 		"lint:js": "wp-scripts lint-js",
 		"lint:pkg-json": "wp-scripts lint-pkg-json",
-		"makepot": "wpi18n makepot && echo '.pot file updated'",
+		"makepot": "./bin/generate-pot-with-wpcli.sh",
 		"packages-update": "wp-scripts packages-update",
 		"plugin-zip": "wp-scripts plugin-zip",
 		"start": "wp-scripts start",

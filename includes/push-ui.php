@@ -7,6 +7,8 @@
 
 namespace Distributor\PushUI;
 
+use Distributor\EnqueueScript;
+
 /**
  * Setup actions and filters
  *
@@ -69,7 +71,7 @@ function syndicatable() {
 
 		global $pagenow;
 
-		if ( 'post.php' !== $pagenow ) {
+		if ( 'post.php' !== $pagenow && 'post-new.php' !== $pagenow ) {
 			return false;
 		}
 	} else {
@@ -78,17 +80,19 @@ function syndicatable() {
 		}
 	}
 
-	global $post;
+	$post = get_post();
 
 	if ( empty( $post ) ) {
 		return;
 	}
 
-	if ( ! in_array( $post->post_status, \Distributor\Utils\distributable_post_statuses(), true ) ) {
+	// If we're using the classic editor, we need to make sure the post has a distributable status.
+	if ( ! use_block_editor_for_post( $post ) && ! in_array( $post->post_status, \Distributor\Utils\distributable_post_statuses(), true ) ) {
 		return false;
 	}
 
-	if ( ! in_array( get_post_type(), $distributable_post_types, true ) || ( ! empty( $_GET['post_type'] ) && 'dt_ext_connection' === $_GET['post_type'] ) ) { // @codingStandardsIgnoreLine Nonce not required
+	$distributable_post_types = array_diff( $distributable_post_types, array( 'dt_ext_connection' ) );
+	if ( ! in_array( get_post_type(), $distributable_post_types, true ) ) {
 		return false;
 	}
 
@@ -403,47 +407,42 @@ function enqueue_scripts( $hook ) {
 		return;
 	}
 
-	$asset_file = DT_PLUGIN_PATH . '/dist/js/push.min.asset.php';
-	// Fallback asset data.
-	$asset_data = array(
-		'version'      => DT_VERSION,
-		'dependencies' => array(),
+	$push_script   = new EnqueueScript( 'dt-push', 'push.min' );
+	$localize_data = array(
+		'nonce'                => wp_create_nonce( 'dt-push' ),
+		'loadConnectionsNonce' => wp_create_nonce( 'dt-load-connections' ),
+		'postId'               => (int) get_the_ID(),
+		'postTitle'            => get_the_title(),
+		'ajaxurl'              => esc_url( admin_url( 'admin-ajax.php' ) ),
+
+		/**
+		 * Filter whether front end ajax requests should use xhrFields credentials:true.
+		 *
+		 * Front end ajax requests may require xhrFields with credentials when the front end and
+		 * back end domains do not match. This filter lets themes opt in.
+		 * See {@link https://vip.wordpress.com/documentation/handling-frontend-file-uploads/#handling-ajax-requests}
+		 *
+		 * @since 1.0.0
+		 * @hook dt_ajax_requires_with_credentials
+		 *
+		 * @param {bool} false Whether front end ajax requests should use xhrFields credentials:true.
+		 *
+		 * @return {bool} Whether front end ajax requests should use xhrFields credentials:true.
+		 */
+		'usexhr'               => apply_filters( 'dt_ajax_requires_with_credentials', false ),
 	);
-	if ( file_exists( $asset_file ) ) {
-		$asset_data = require $asset_file;
-	}
 
-	wp_enqueue_style( 'dt-push', plugins_url( '/dist/css/push.min.css', __DIR__ ), array(), $asset_data['version'] );
-	wp_enqueue_script( 'dt-push', plugins_url( '/dist/js/push.min.js', __DIR__ ), $asset_data['dependencies'], $asset_data['version'], true );
-	wp_localize_script(
+	$push_script
+		->load_in_footer()
+		->register_localize_data( 'dt', $localize_data )
+		->register_translations()
+		->enqueue();
+
+	wp_enqueue_style(
 		'dt-push',
-		'dt',
-		array(
-			'nonce'                => wp_create_nonce( 'dt-push' ),
-			'loadConnectionsNonce' => wp_create_nonce( 'dt-load-connections' ),
-			'postId'               => (int) get_the_ID(),
-			'ajaxurl'              => esc_url( admin_url( 'admin-ajax.php' ) ),
-			'messages'             => array(
-				'ajax_error'   => __( 'Ajax error:', 'distributor' ),
-				'empty_result' => __( 'Received empty result.', 'distributor' ),
-			),
-
-			/**
-			 * Filter whether front end ajax requests should use xhrFields credentials:true.
-			 *
-			 * Front end ajax requests may require xhrFields with credentials when the front end and
-			 * back end domains do not match. This filter lets themes opt in.
-			 * See {@link https://vip.wordpress.com/documentation/handling-frontend-file-uploads/#handling-ajax-requests}
-			 *
-			 * @since 1.0.0
-			 * @hook dt_ajax_requires_with_credentials
-			 *
-			 * @param {bool} false Whether front end ajax requests should use xhrFields credentials:true.
-			 *
-			 * @return {bool} Whether front end ajax requests should use xhrFields credentials:true.
-			 */
-			'usexhr'               => apply_filters( 'dt_ajax_requires_with_credentials', false ),
-		)
+		plugins_url( '/dist/css/push.min.css', __DIR__ ),
+		array(),
+		$push_script->get_version()
 	);
 }
 
@@ -587,19 +586,25 @@ function menu_content() {
 					<?php /* translators: %s: post type name */ ?>
 
 					<?php
-					echo wp_kses_post(
-						sprintf(
-							/* translators: 1) Distributor post type singular name, 2) Source of content. */
-							__( 'This %1$s was distributed from %2$s.', 'distributor' ),
-							esc_html( strtolower( $post_type_object->labels->singular_name ) ),
-							'<a href="' . esc_url( $site_url ) . '">' . esc_html( $blog_name ) . '</a>'
-						)
+					printf(
+						/* translators: 1) Distributor post type singular name, 2) Source of content. */
+						esc_html__( 'This %1$s was distributed from %2$s.', 'distributor' ),
+						esc_html( strtolower( $post_type_object->labels->singular_name ) ),
+						'<a href="' . esc_url( $site_url ) . '">' . esc_html( $blog_name ) . '</a>'
 					);
 
 					if ( ! empty( $post_url ) ) {
 						?>
 						<a href="<?php echo esc_url( $post_url ); ?>" target="_blank">
-							<?php esc_html_e( 'View original', 'distributor' ); ?>
+							<?php
+							echo wp_kses_post(
+								sprintf(
+									/* translators: 1) Distributor post type singular name. */
+									__( 'View the origin %1$s.', 'distributor' ),
+									esc_html( strtolower( $post_type_object->labels->singular_name ) ),
+								)
+							);
+							?>
 						</a>
 						<?php
 					}

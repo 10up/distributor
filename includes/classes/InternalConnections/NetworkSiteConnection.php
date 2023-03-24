@@ -7,6 +7,7 @@
 
 namespace Distributor\InternalConnections;
 
+use \Distributor\DistributorPost;
 use \Distributor\Connection as Connection;
 use Distributor\Utils;
 use \WP_Site as WP_Site;
@@ -57,160 +58,157 @@ class NetworkSiteConnection extends Connection {
 	/**
 	 * Push post to another internal site
 	 *
-	 * @param  int   $post_id Post ID.
-	 * @param  array $args Push args.
+	 * @param  int|WP_Post $post Post or Post ID to push. Required.
+	 * @param  array       $args {
+	 *     Optional. Array of push arguments
+	 *
+	 *     @type int    $remote_post_id Post ID on remote site. If not provided,
+	 *                                  a new post will be created.
+	 *     @type string $post_status    The post status to use on the remote site.
+	 *                                  Ignored when updating posts. Default 'publish'.
+	 * }
 	 * @since  0.8
 	 * @return array|\WP_Error
 	 */
-	public function push( $post_id, $args = array() ) {
-		$post              = get_post( $post_id );
-		$original_blog_id  = get_current_blog_id();
-		$original_post_url = get_permalink( $post_id );
-		$using_gutenberg   = \Distributor\Utils\is_using_gutenberg( $post );
-		$output            = array();
+	public function push( $post, $args = array() ) {
+		if ( empty( $post ) ) {
+			return new \WP_Error( 'no-push-post-id', esc_html__( 'Post ID required to push.', 'distributor' ) );
+		}
+		$post = get_post( $post );
+		if ( empty( $post ) ) {
+			return new \WP_Error( 'invalid-push-post-id', esc_html__( 'Post does not exist.', 'distributor' ) );
+		}
+		$post_id = $post->ID;
 
-		$new_post_args = array(
-			'post_title'   => html_entity_decode( get_the_title( $post_id ), ENT_QUOTES, get_bloginfo( 'charset' ) ),
-			'post_name'    => $post->post_name,
-			'post_content' => Utils\get_processed_content( $post->post_content ),
-			'post_excerpt' => $post->post_excerpt,
-			'post_type'    => $post->post_type,
-			'post_author'  => isset( $post->post_author ) ? $post->post_author : get_current_user_id(),
-			'post_status'  => 'publish',
+		$args = wp_parse_args(
+			$args,
+			array(
+				'post_status' => 'publish',
+			)
 		);
 
-		$post = Utils\prepare_post( $post );
+		$dt_post          = new DistributorPost( $post_id );
+		$dt_post_args     = $dt_post->to_insert( $args );
+		$original_blog_id = get_current_blog_id();
+		$output           = array();
+		$post             = Utils\prepare_post( get_post( $post_id ) );
+		$update           = false;
+		$post_meta        = $dt_post->get_meta();
+		$post_terms       = $dt_post->get_terms();
+		$post_media       = $dt_post->get_media();
 
 		switch_to_blog( $this->site->blog_id );
 
-		// Distribute raw HTML when going from Gutenberg enabled to Gutenberg enabled.
-		$remote_using_gutenberg = \Distributor\Utils\is_using_gutenberg( $post );
-		if ( $using_gutenberg && $remote_using_gutenberg ) {
-			$new_post_args['post_content'] = $post->post_content;
+		if ( ! empty( $args['remote_post_id'] ) && ! get_post( $args['remote_post_id'] ) ) {
+			// The remote post ID is not valid.
+			restore_current_blog();
+			return new \WP_Error( 'dt_invalid_remote_post_id', __( 'Invalid remote post ID', 'distributor' ) );
 		}
 
-		// Handle existing posts.
-		if ( ! empty( $args['remote_post_id'] ) && get_post( $args['remote_post_id'] ) ) {
-
-			// Setting the ID makes `wp_insert_post` perform an update.
-			$new_post_args['ID'] = $args['remote_post_id'];
-
-			// Do not modify the publishing date of the post.
-			$new_post_args['post_date']     = get_post( $args['remote_post_id'] )->post_date;
-			$new_post_args['post_date_gmt'] = get_post( $args['remote_post_id'] )->post_date_gmt;
-		}
-
-		if ( empty( $args['post_status'] ) ) {
-			if ( isset( $new_post_args['ID'] ) ) {
-
-				// Avoid updating the status of previously distributed posts.
-				$existing_status = get_post_status( (int) $new_post_args['ID'] );
-				if ( $existing_status ) {
-					$new_post_args['post_status'] = $existing_status;
-				}
-			}
-		} else {
-			$new_post_args['post_status'] = $args['post_status'];
+		// If we have a remote post ID, we're updating.
+		if ( ! empty( $args['remote_post_id'] ) ) {
+			$update = true;
 		}
 
 		add_filter( 'wp_insert_post_data', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'maybe_set_modified_date' ), 10, 2 );
 		// Filter documented in includes/classes/ExternalConnections/WordPressExternalConnection.php
-		$new_post_args = Utils\post_args_allow_list( apply_filters( 'dt_push_post_args', $new_post_args, $post, $args, $this ) );
-		$new_post_id   = wp_insert_post( wp_slash( $new_post_args ) );
-
+		$new_post_args = Utils\post_args_allow_list( apply_filters( 'dt_push_post_args', $dt_post_args, $post, $args, $this ) );
+		if ( $update ) {
+			$new_post_id = wp_update_post( wp_slash( $new_post_args ), true );
+		} else {
+			$new_post_id = wp_insert_post( wp_slash( $new_post_args ) );
+		}
 		remove_filter( 'wp_insert_post_data', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'maybe_set_modified_date' ), 10, 2 );
 
-		if ( ! is_wp_error( $new_post_id ) ) {
-			$output['id'] = $new_post_id;
-
-			update_post_meta( $new_post_id, 'dt_original_post_id', (int) $post_id );
-			update_post_meta( $new_post_id, 'dt_original_blog_id', (int) $original_blog_id );
-			update_post_meta( $new_post_id, 'dt_syndicate_time', time() );
-			update_post_meta( $new_post_id, 'dt_original_post_url', esc_url_raw( $original_post_url ) );
-
-			if ( ! empty( $post->post_parent ) ) {
-				update_post_meta( $new_post_id, 'dt_original_post_parent', (int) $post->post_parent );
-			}
-
+		if ( is_wp_error( $new_post_id ) ) {
 			/**
-			 * Allow bypassing of all meta processing.
+			 * Fires after a post is pushed via Distributor before `restore_current_blog()`.
 			 *
-			 * @hook dt_push_post_meta
+			 * @hook dt_push_post
 			 *
-			 * @param {bool}       true           If Distributor should push the post meta.
 			 * @param {int}        $new_post_id   The newly created post ID.
-			 * @param {array}      $terms         Meta attached to the post, formatted by {@link \Distributor\Utils\prepare_meta()}.
 			 * @param {int}        $post_id       The original post ID.
 			 * @param {array}      $args          The arguments passed into wp_insert_post.
-			 * @param {Connection} $this          The distributor connection being pushed to.
-			 *
-			 * @return {bool} If Distributor should push the post meta.
+			 * @param {Connection} $this          The Distributor connection being pushed to.
 			 */
-			if ( apply_filters( 'dt_push_post_meta', true, $new_post_id, $post->meta, $post_id, $args, $this ) ) {
-				Utils\set_meta( $new_post_id, $post->meta );
-			}
+			do_action( 'dt_push_post', $new_post_id, $post_id, $args, $this );
 
-			/**
-			 * Allow bypassing of all term processing.
-			 *
-			 * @hook dt_push_post_terms
-			 *
-			 * @param {bool}       true           If Distributor should push the post terms.
-			 * @param {int}        $new_post_id   The newly created post ID.
-			 * @param {array}      $terms         Terms attached to the post, formatted by {@link \Distributor\Utils\prepare_taxonomy_terms()}.
-			 * @param {int}        $post_id       The original post ID.
-			 * @param {array}      $args          The arguments passed into wp_insert_post.
-			 * @param {Connection} $this          The distributor connection being pushed to.
-			 *
-			 * @return {bool} If Distributor should push the post terms.
-			 */
-			if ( apply_filters( 'dt_push_post_terms', true, $new_post_id, $post->terms, $post_id, $args, $this ) ) {
-				Utils\set_taxonomy_terms( $new_post_id, $post->terms );
-			}
+			restore_current_blog();
 
-			/**
-			 * Allow bypassing of all media processing.
-			 *
-			 * @hook dt_push_post_media
-			 *
-			 * @param {bool}       true           If Distributor should push the post media.
-			 * @param {int}        $new_post_id   The newly created post ID.
-			 * @param {array}      $media         List of media items attached to the post, formatted by {@link \Distributor\Utils\prepare_media()}.
-			 * @param {int}        $post_id       The original post ID.
-			 * @param {array}      $args          The arguments passed into wp_insert_post.
-			 * @param {Connection} $this          The distributor connection being pushed to.
-			 *
-			 * @return {bool} If Distributor should push the post media.
-			 */
-			if ( apply_filters( 'dt_push_post_media', true, $new_post_id, $post->media, $post_id, $args, $this ) ) {
-				Utils\set_media( $new_post_id, $post->media, [ 'use_filesystem' => true ] );
-			};
+			return $new_post_id;
+		}
 
-			$media_errors = get_transient( 'dt_media_errors_' . $new_post_id );
 
-			if ( $media_errors ) {
-				$output['push-errors'] = $media_errors;
-				delete_transient( 'dt_media_errors_' . $new_post_id );
-			}
+		$output['id'] = $new_post_id;
+
+		update_post_meta( $new_post_id, 'dt_original_blog_id', (int) $original_blog_id );
+		update_post_meta( $new_post_id, 'dt_syndicate_time', time() );
+
+		/**
+		 * Allow bypassing of all meta processing.
+		 *
+		 * @hook dt_push_post_meta
+		 *
+		 * @param {bool}       true           If Distributor should push the post meta.
+		 * @param {int}        $new_post_id   The newly created post ID.
+		 * @param {array}      $post_meta     Meta attached to the post, formatted by {@link \Distributor\Utils\prepare_meta()}.
+		 * @param {int}        $post_id       The original post ID.
+		 * @param {array}      $args          The arguments passed into wp_insert_post.
+		 * @param {Connection} $this          The distributor connection being pushed to.
+		 *
+		 * @return {bool} If Distributor should push the post meta.
+		 */
+		if ( apply_filters( 'dt_push_post_meta', true, $new_post_id, $post_meta, $post_id, $args, $this ) ) {
+			Utils\set_meta( $new_post_id, $post_meta );
 		}
 
 		/**
-		 * Fires after a post is pushed via Distributor before `restore_current_blog()`.
+		 * Allow bypassing of all term processing.
 		 *
-		 * @hook dt_push_post
+		 * @hook dt_push_post_terms
 		 *
+		 * @param {bool}       true           If Distributor should push the post terms.
 		 * @param {int}        $new_post_id   The newly created post ID.
+		 * @param {array}      $post_terms    Terms attached to the post, formatted by {@link \Distributor\Utils\prepare_taxonomy_terms()}.
 		 * @param {int}        $post_id       The original post ID.
 		 * @param {array}      $args          The arguments passed into wp_insert_post.
-		 * @param {Connection} $this          The Distributor connection being pushed to.
+		 * @param {Connection} $this          The distributor connection being pushed to.
+		 *
+		 * @return {bool} If Distributor should push the post terms.
 		 */
+		if ( apply_filters( 'dt_push_post_terms', true, $new_post_id, $post_terms, $post_id, $args, $this ) ) {
+			Utils\set_taxonomy_terms( $new_post_id, $post_terms );
+		}
+
+		/**
+		 * Allow bypassing of all media processing.
+		 *
+		 * @hook dt_push_post_media
+		 *
+		 * @param {bool}       true           If Distributor should push the post media.
+		 * @param {int}        $new_post_id   The newly created post ID.
+		 * @param {array}      $post_media    List of media items attached to the post, formatted by {@link \Distributor\Utils\prepare_media()}.
+		 * @param {int}        $post_id       The original post ID.
+		 * @param {array}      $args          The arguments passed into wp_insert_post.
+		 * @param {Connection} $this          The distributor connection being pushed to.
+		 *
+		 * @return {bool} If Distributor should push the post media.
+		 */
+		if ( apply_filters( 'dt_push_post_media', true, $new_post_id, $post_media, $post_id, $args, $this ) ) {
+			Utils\set_media( $new_post_id, $post_media, [ 'use_filesystem' => true ] );
+		};
+
+		$media_errors = get_transient( 'dt_media_errors_' . $new_post_id );
+
+		if ( $media_errors ) {
+			$output['push-errors'] = $media_errors;
+			delete_transient( 'dt_media_errors_' . $new_post_id );
+		}
+
+		/** This filter is documented in includes/classes/InternalConnections/NetworkSiteConnection.php */
 		do_action( 'dt_push_post', $new_post_id, $post_id, $args, $this );
 
 		restore_current_blog();
-
-		if ( is_wp_error( $new_post_id ) ) {
-			return $new_post_id;
-		}
 
 		return $output;
 	}

@@ -7,6 +7,7 @@
 
 namespace Distributor\ExternalConnections;
 
+use Distributor\DistributorPost;
 use \Distributor\ExternalConnection as ExternalConnection;
 use \Distributor\Utils;
 
@@ -595,26 +596,29 @@ class WordPressExternalConnection extends ExternalConnection {
 	/**
 	 * Push a post to an external connection
 	 *
-	 * @param  int   $post_id Post id
-	 * @param  array $args Post args to push.
+	 * @param  int|WP_Post $post Post or Post ID to push. Required.
+	 * @param  array       $args Post args to push. Optional.
 	 * @since  0.8
 	 * @return array|\WP_Error
 	 */
-	public function push( $post_id, $args = array() ) {
-		if ( empty( $post_id ) ) {
+	public function push( $post, $args = array() ) {
+		if ( empty( $post ) ) {
 			return new \WP_Error( 'no-push-post-id', esc_html__( 'Post ID required to push.', 'distributor' ) );
 		}
+		$post = get_post( $post );
+		if ( empty( $post ) ) {
+			return new \WP_Error( 'invalid-push-post-id', esc_html__( 'Post does not exist.', 'distributor' ) );
+		}
 
-		$post = get_post( $post_id );
 
-		$post_type = get_post_type( $post_id );
+		$dt_post   = new DistributorPost( $post );
+		$post_id   = $dt_post->post->ID;
+		$post_type = $dt_post->get_post_type();
+		$path      = self::$namespace;
 
-		$path = self::$namespace;
-
-		/**
+		/*
 		 * First let's get the actual route. We don't know the "plural" of our post type
 		 */
-
 		$types_path = untrailingslashit( $this->base_url ) . '/' . $path . '/types';
 
 		$response = Utils\remote_http_request(
@@ -642,37 +646,15 @@ class WordPressExternalConnection extends ExternalConnection {
 
 		$signature = \Distributor\Subscriptions\generate_signature();
 
-		/**
+		/*
 		 * Now let's push
 		 */
-		$post_body = [
-			'title'                          => html_entity_decode( get_the_title( $post_id ), ENT_QUOTES, get_bloginfo( 'charset' ) ),
-			'slug'                           => $post->post_name,
-			'content'                        => Utils\get_processed_content( $post->post_content ),
-			'type'                           => $post->post_type,
+		$rest_args = array(
 			'status'                         => ( ! empty( $args['post_status'] ) ) ? $args['post_status'] : 'publish',
-			'excerpt'                        => $post->post_excerpt,
-			'distributor_original_source_id' => $this->id,
-			'distributor_original_site_name' => get_bloginfo( 'name' ),
-			'distributor_original_site_url'  => home_url(),
-			'distributor_original_post_url'  => get_permalink( $post_id ),
-			'distributor_remote_post_id'     => $post_id,
 			'distributor_signature'          => $signature,
-			'distributor_media'              => \Distributor\Utils\prepare_media( $post_id ),
-			'distributor_terms'              => \Distributor\Utils\prepare_taxonomy_terms( $post_id ),
-			'distributor_meta'               => \Distributor\Utils\prepare_meta( $post_id ),
-		];
-
-		// Gutenberg posts also distribute raw content.
-		if ( \Distributor\Utils\is_using_gutenberg( $post ) ) {
-			if ( \Distributor\Utils\dt_use_block_editor_for_post_type( $post->post_type ) ) {
-				$post_body['distributor_raw_content'] = $post->post_content;
-			}
-		}
-
-		if ( ! empty( $post->post_parent ) ) {
-			$post_body['distributor_original_post_parent'] = (int) $post->post_parent;
-		}
+			'distributor_original_source_id' => $this->id,
+		);
+		$post_body = $dt_post->to_rest( $rest_args );
 
 		// Map to remote ID if a push has already happened
 		if ( ! empty( $args['remote_post_id'] ) ) {
@@ -966,10 +948,17 @@ class WordPressExternalConnection extends ExternalConnection {
 		$obj->comment_status    = $post['comment_status'];
 		$obj->ping_status       = $post['ping_status'];
 
-		// Use raw content if remote post uses Gutenberg and the local post type is compatible with it.
-		$obj->post_content = Utils\dt_use_block_editor_for_post_type( $obj->post_type ) && isset( $post['is_using_gutenberg'] ) ?
-			$post['content']['raw'] :
-			Utils\get_processed_content( $post['content']['raw'] );
+		if ( isset( $post['content']['raw'] ) ) {
+			// Use raw content if remote post uses Gutenberg and the local post type is compatible with it.
+			$obj->post_content = Utils\dt_use_block_editor_for_post_type( $obj->post_type ) && isset( $post['is_using_gutenberg'] ) ?
+				$post['content']['raw'] :
+				Utils\get_processed_content( $post['content']['raw'] );
+		} elseif ( isset( $post['content']['rendered'] ) ) {
+			$obj->post_content = $post['content']['rendered'];
+		} else {
+			$obj->post_content = '';
+		}
+
 
 		/**
 		 * These will only be set if Distributor is active on the other side
