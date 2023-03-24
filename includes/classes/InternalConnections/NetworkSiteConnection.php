@@ -832,12 +832,13 @@ class NetworkSiteConnection extends Connection {
 		$authorized_sites = get_transient( $cache_key );
 
 		if ( $force || false === $authorized_sites ) {
-			$sites           = get_sites(
+			$authorized_sites = ! is_array( $authorized_sites ) ? array() : $authorized_sites;
+			$sites            = get_sites(
 				array(
 					'number' => 1000,
 				)
 			);
-			$current_blog_id = (int) get_current_blog_id();
+			$current_blog_id  = (int) get_current_blog_id();
 
 			foreach ( $sites as $site ) {
 				$blog_id = (int) $site->blog_id;
