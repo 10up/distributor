@@ -135,7 +135,7 @@ class NetworkSiteConnection extends Connection {
 			 */
 			do_action_deprecated(
 				'dt_push_post',
-				array($new_post_id, $post_id, $args, $this),
+				array( $new_post_id, $post_id, $args, $this ),
 				'2.0.0',
 				'dt_push_network_post|dt_push_external_post',
 				esc_html__( 'The dt_push_post action has been deprecated. Please use dt_push_network_post or dt_push_external_post instead.', 'distributor' )
