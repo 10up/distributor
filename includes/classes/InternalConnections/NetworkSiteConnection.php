@@ -124,7 +124,7 @@ class NetworkSiteConnection extends Connection {
 			/**
 			 * Fires after a post is pushed via Distributor before `restore_current_blog()`.
 			 *
-			 * @since 1.0.0
+			 * @since 1.2.2
 			 * @deprecated 2.0.0 The dt_push_post action has been deprecated. Please use dt_push_network_post or dt_push_external_post instead.
 			 * @hook  dt_push_post
 			 *
