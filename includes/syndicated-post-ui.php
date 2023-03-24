@@ -7,6 +7,7 @@
 
 namespace Distributor\SyndicatedPostUI;
 
+use Distributor\EnqueueScript;
 use Distributor\Utils;
 
 /**
@@ -633,57 +634,48 @@ function enqueue_gutenberg_edit_scripts() {
 		$original_location_name = $original_site_name;
 	}
 
-	$post_type_singular = $post_type_object->labels->singular_name;
-
-	$asset_file = DT_PLUGIN_PATH . '/dist/js/gutenberg-syndicated-post.min.asset.php';
-	// Fallback asset data.
-	$asset_data = array(
-		'version'      => DT_VERSION,
-		'dependencies' => array(),
-	);
-	if ( file_exists( $asset_file ) ) {
-		$asset_data = require $asset_file;
-	}
-	$asset_data['dependencies'][] = 'dt-push';
-
-	wp_enqueue_script( 'dt-gutenberg-syndicated-post', plugins_url( '/dist/js/gutenberg-syndicated-post.min.js', __DIR__ ), $asset_data['dependencies'], $asset_data['version'], true );
-	wp_set_script_translations( 'dt-gutenberg-syndicated-post', 'distributor', DT_PLUGIN_PATH . 'lang' );
-
-	$asset_file = DT_PLUGIN_PATH . '/dist/js/gutenberg-plugin.min.asset.php';
-	// Fallback asset data.
-	$asset_data = array(
-		'version'      => DT_VERSION,
-		'dependencies' => array(),
-	);
-	if ( file_exists( $asset_file ) ) {
-		$asset_data = require $asset_file;
-	}
-	wp_enqueue_script( 'dt-gutenberg-plugin', plugins_url( '/dist/js/gutenberg-plugin.min.js', __DIR__ ), $asset_data['dependencies'], $asset_data['version'], true );
-	wp_set_script_translations( 'dt-gutenberg-plugin', 'distributor', DT_PLUGIN_PATH . 'lang' );
-
-	wp_localize_script(
+	$post_type_singular               = $post_type_object->labels->singular_name;
+	$gutenberg_syndicated_post_script = new EnqueueScript(
 		'dt-gutenberg-syndicated-post',
-		'dtGutenberg',
-		[
-			'originalBlogId'       => (int) $original_blog_id,
-			'originalPostId'       => (int) $original_post_id,
-			'originalSourceId'     => (int) $original_source_id,
-			'originalDelete'       => (int) $original_deleted,
-			'unlinked'             => (int) $unlinked,
-			'postTypeSingular'     => sanitize_text_field( $post_type_singular ),
-			'postUrl'              => sanitize_text_field( $post_url ),
-			'originalSiteName'     => sanitize_text_field( $original_site_name ),
-			'syndicationTime'      => ( ! empty( $syndication_time ) ) ? esc_html( gmdate( 'M j, Y @ h:i', ( $syndication_time + ( get_option( 'gmt_offset' ) * HOUR_IN_SECONDS ) ) ) ) : 0,
-			'syndicationCount'     => $total_connections,
-			'originalLocationName' => sanitize_text_field( $original_location_name ),
-			'unlinkNonceUrl'       => wp_nonce_url( add_query_arg( 'action', 'unlink', admin_url( sprintf( $post_type_object->_edit_link, $post->ID ) ) ), "unlink-post_{$post->ID}" ),
-			'linkNonceUrl'         => wp_nonce_url( add_query_arg( 'action', 'link', admin_url( sprintf( $post_type_object->_edit_link, $post->ID ) ) ), "link-post_{$post->ID}" ),
-			'supportedPostTypes'   => \Distributor\Utils\distributable_post_types(),
-			'supportedPostStati'   => \Distributor\Utils\distributable_post_statuses(),
-			// Filter documented in includes/push-ui.php.
-			'noPermissions'        => ! is_user_logged_in() || ! current_user_can( apply_filters( 'dt_syndicatable_capabilities', 'edit_posts' ) ),
-		]
+		'gutenberg-syndicated-post.min'
 	);
+
+	$localize_data = [
+		'originalBlogId'       => (int) $original_blog_id,
+		'originalPostId'       => (int) $original_post_id,
+		'originalSourceId'     => (int) $original_source_id,
+		'originalDelete'       => (int) $original_deleted,
+		'unlinked'             => (int) $unlinked,
+		'postTypeSingular'     => sanitize_text_field( $post_type_singular ),
+		'postUrl'              => sanitize_text_field( $post_url ),
+		'originalSiteName'     => sanitize_text_field( $original_site_name ),
+		'syndicationTime'      => ( ! empty( $syndication_time ) ) ? esc_html( gmdate( 'M j, Y @ h:i', ( $syndication_time + ( get_option( 'gmt_offset' ) * HOUR_IN_SECONDS ) ) ) ) : 0,
+		'syndicationCount'     => $total_connections,
+		'originalLocationName' => sanitize_text_field( $original_location_name ),
+		'unlinkNonceUrl'       => wp_nonce_url( add_query_arg( 'action', 'unlink', admin_url( sprintf( $post_type_object->_edit_link, $post->ID ) ) ), "unlink-post_{$post->ID}" ),
+		'linkNonceUrl'         => wp_nonce_url( add_query_arg( 'action', 'link', admin_url( sprintf( $post_type_object->_edit_link, $post->ID ) ) ), "link-post_{$post->ID}" ),
+		'supportedPostTypes'   => \Distributor\Utils\distributable_post_types(),
+		'supportedPostStati'   => \Distributor\Utils\distributable_post_statuses(),
+		// Filter documented in includes/push-ui.php.
+		'noPermissions'        => ! is_user_logged_in() || ! current_user_can( apply_filters( 'dt_syndicatable_capabilities', 'edit_posts' ) ),
+	];
+
+	$gutenberg_syndicated_post_script
+		->load_in_footer()
+		->register_translations()
+		->register_localize_data( 'dtGutenberg', $localize_data )
+		->enqueue();
+
+	$gutenberg_plugin_script = new EnqueueScript(
+		'dt-gutenberg-plugin',
+		'gutenberg-plugin.min'
+	);
+
+	$gutenberg_plugin_script
+		->load_in_footer()
+		->dependencies( array( 'dt-push' ) )
+		->register_translations()
+		->enqueue();
 }
 
 /**
