@@ -591,6 +591,8 @@ class NetworkSiteConnection extends Connection {
 			} else {
 				$dt_post        = new DistributorPost( $post );
 				$formatted_post = $dt_post->to_insert( $new_post_args );
+				// The pull method requires the connection map despite it being on the deny list.
+				$formatted_post['meta']['dt_connection_map'] = get_post_meta( $id, 'dt_connection_map', true );
 			}
 
 			restore_current_blog();
