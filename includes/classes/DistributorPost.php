@@ -17,7 +17,34 @@ use WP_Post;
  * includes the phrase Distributor to make it clear to developers `use`ing
  * the class that they are not using the `WP_Post` object.
  *
+ * Developer note: This class uses the `__call()` magic method to ensure the
+ * post data is from the correct site on multisite installs. This is to avoid
+ * repeating code to determine if `switch_to_blog()` is required.
+ *
+ * When adding new methods to this class, please ensure that the method is
+ * protected to ensure the magic method is used. If the method is intended to
+ * be public, please add it to the `@method` docblock below to ensure it is
+ * shown in IDEs.
+ *
  * @since x.x.x
+ *
+ * @method bool has_blocks()
+ * @method bool has_block( string $block_name )
+ * @method int  get_the_ID()
+ * @method string get_permalink()
+ * @method string get_post_type()
+ * @method int|false get_post_thumbnail_id()
+ * @method string|false get_post_thumbnail_url( string $size = 'post-thumbnail' )
+ * @method string|false get_the_post_thumbnail( string $size = 'post-thumbnail', array $attr = '' )
+ * @method string get_canonical_url( string $canonical_url = '' )
+ * @method string get_author_name( string $author_name = '' )
+ * @method string get_author_link( string $author_link = '' )
+ * @method array get_meta()
+ * @method array get_terms()
+ * @method array get_media()
+ * @method array post_data()
+ * @method array to_insert( array $args = [] )
+ * @method array to_rest( array $args = [] )
  */
 class DistributorPost {
 	/**
@@ -95,6 +122,13 @@ class DistributorPost {
 	public $connection_id = 0;
 
 	/**
+	 * The site ID of this post.
+	 *
+	 * @var int
+	 */
+	public $site_id = 0;
+
+	/**
 	 * The source site data for internal connections.
 	 *
 	 * This is an array of site data for the source site. This is set by
@@ -111,6 +145,16 @@ class DistributorPost {
 	private $source_site = [];
 
 	/**
+	 * The cache for accessing methods when the site has been switched.
+	 *
+	 * This prevents the need to switch sites multiple times when accessing
+	 * the same method multiple times.
+	 *
+	 * @var array
+	 */
+	private $switched_site_cache = [];
+
+	/**
 	 * Initialize the DistributorPost object.
 	 *
 	 * @param WP_Post|int $post WordPress post object or post ID.
@@ -122,7 +166,8 @@ class DistributorPost {
 			return;
 		}
 
-		$this->post = $post;
+		$this->site_id = get_current_blog_id();
+		$this->post    = $post;
 
 		/*
 		 * The original post ID is listed as excluded post meta and therefore
@@ -176,6 +221,95 @@ class DistributorPost {
 			$this->connection_direction = 'pulled';
 			$this->connection_id        = (int) get_post_meta( $post->ID, 'dt_original_source_id', true );
 		}
+	}
+
+	/**
+	 * Magic method for calling methods on the post object.
+	 *
+	 * This is used to ensure the post object is switched to the correct site before
+	 * running any of the internal methods.
+	 *
+	 * @param string $name      Method name.
+	 * @param array  $arguments Method arguments.
+	 */
+	public function __call( $name, $arguments ) {
+		$switched  = false;
+		$cache_key = md5( "{$name}::" . wp_json_encode( $arguments ) );
+		if ( ! method_exists( $this, $name ) ) {
+			// Emulate default behavior of calling non existent method (a fatal error).
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_trigger_error
+			trigger_error(
+				sprintf(
+					/* translators: %s: method name */
+					esc_html__( 'Call to undefined method %s', 'distributor' ),
+					esc_html( __CLASS__ . '::' . $name . '()' )
+				),
+				E_USER_ERROR
+			);
+		}
+
+		if ( get_current_blog_id() !== $this->site_id ) {
+			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_trigger_error -- throwing a warning is the correct behavior.
+				trigger_error( esc_html__( 'DistributorPost object was called from a switched site.', 'distributor' ), E_USER_WARNING );
+			}
+			// array_key_exists as opposed to isset to avoid false negatives.
+			if ( array_key_exists( $cache_key, $this->switched_site_cache ) ) {
+				/*
+				 * Avoid switching sites if the result is already cached.
+				 *
+				 * Due to the use of filters within various functions called by
+				 * the helper methods, this data may not be correct at runtime if
+				 * hooks have been added or removed. However, caching is a performance
+				 * compromise to avoid switching sites on every call.
+				 */
+				return $this->switched_site_cache[ $cache_key ];
+			}
+			switch_to_blog( $this->site_id );
+			$switched = true;
+		}
+		$result                                  = call_user_func_array( array( $this, $name ), $arguments );
+		$this->switched_site_cache[ $cache_key ] = $result;
+		if ( $switched ) {
+			restore_current_blog();
+		}
+		return $result;
+	}
+
+	/**
+	 * Magic getter method.
+	 *
+	 * This method is used to get the value of the `source_site` property and
+	 * populate it if needs be. For internal connections the post permalink is
+	 * updated with live data.
+	 *
+	 * @param string $name Property name.
+	 * @return mixed
+	 */
+	public function __get( $name ) {
+		if ( in_array( $name, array( 'source_site', 'original_post_url' ), true ) ) {
+			$this->populate_source_site();
+		}
+
+		return $this->$name;
+	}
+
+	/**
+	 * Magic isset method.
+	 *
+	 * This method is used to check if the `source_site` property is set and
+	 * populate it if needs be.
+	 *
+	 * @param string $name Property name.
+	 * @return bool
+	 */
+	public function __isset( $name ) {
+		if ( 'source_site' === $name && empty( $this->source_site ) ) {
+			$this->populate_source_site();
+			return ! empty( $this->source_site );
+		}
+
+		return isset( $this->$name );
 	}
 
 	/**
@@ -233,42 +367,6 @@ class DistributorPost {
 	}
 
 	/**
-	 * Magic getter method.
-	 *
-	 * This method is used to get the value of the `source_site` property and
-	 * populate it if needs be. For internal connections the post permalink is
-	 * updated with live data.
-	 *
-	 * @param string $name Property name.
-	 * @return mixed
-	 */
-	public function __get( $name ) {
-		if ( in_array( $name, array( 'source_site', 'original_post_url' ), true ) ) {
-			$this->populate_source_site();
-		}
-
-		return $this->$name;
-	}
-
-	/**
-	 * Magic isset method.
-	 *
-	 * This method is used to check if the `source_site` property is set and
-	 * populate it if needs be.
-	 *
-	 * @param string $name Property name.
-	 * @return bool
-	 */
-	public function __isset( $name ) {
-		if ( 'source_site' === $name && empty( $this->source_site ) ) {
-			$this->populate_source_site();
-			return ! empty( $this->source_site );
-		}
-
-		return isset( $this->$name );
-	}
-
-	/**
 	 * Determines whether the post has blocks.
 	 *
 	 * This test optimizes for performance rather than strict accuracy, detecting
@@ -279,7 +377,7 @@ class DistributorPost {
 	 *
 	 * @return bool Whether the post has blocks.
 	 */
-	public function has_blocks() {
+	protected function has_blocks() {
 		return has_blocks( $this->post->post_content );
 	}
 
@@ -295,7 +393,7 @@ class DistributorPost {
 	 * @param string $block_name Full block type to look for.
 	 * @return bool Whether the post content contains the specified block.
 	 */
-	public function has_block( $block_name ) {
+	protected function has_block( $block_name ) {
 		return has_block( $block_name, $this->post->post_content );
 	}
 
@@ -304,7 +402,7 @@ class DistributorPost {
 	 *
 	 * @return int Post ID.
 	 */
-	public function get_the_id() {
+	protected function get_the_id() {
 		return $this->post->ID;
 	}
 
@@ -313,7 +411,7 @@ class DistributorPost {
 	 *
 	 * @return string Post permalink.
 	 */
-	public function get_permalink() {
+	protected function get_permalink() {
 		return get_permalink( $this->post );
 	}
 
@@ -322,7 +420,7 @@ class DistributorPost {
 	 *
 	 * @return string Post type.
 	 */
-	public function get_post_type() {
+	protected function get_post_type() {
 		return get_post_type( $this->post );
 	}
 
@@ -331,7 +429,7 @@ class DistributorPost {
 	 *
 	 * @return int|false Post thumbnail ID or false if no thumbnail is set.
 	 */
-	public function get_post_thumbnail_id() {
+	protected function get_post_thumbnail_id() {
 		return get_post_thumbnail_id( $this->post );
 	}
 
@@ -341,7 +439,7 @@ class DistributorPost {
 	 * @param string $size Thumbnail size. Defaults to 'post-thumbnail'.
 	 * @return string|false The post's thumbnail URL or false if no thumbnail is set.
 	 */
-	public function get_post_thumbnail_url( $size = 'post-thumbnail' ) {
+	protected function get_post_thumbnail_url( $size = 'post-thumbnail' ) {
 		return get_the_post_thumbnail_url( $this->post, $size );
 	}
 
@@ -352,7 +450,7 @@ class DistributorPost {
 	 * @param array  $attr Optional. Attributes for the image markup. Default empty.
 	 * @return string|false The post's thumbnail HTML or false if no thumbnail is set.
 	 */
-	public function get_the_post_thumbnail( $size = 'post-thumbnail', $attr = '' ) {
+	protected function get_the_post_thumbnail( $size = 'post-thumbnail', $attr = '' ) {
 		return get_the_post_thumbnail( $this->post, $size, $attr );
 	}
 
@@ -367,7 +465,7 @@ class DistributorPost {
 	 *                               original source URL.
 	 * @return string The post's canonical URL.
 	 */
-	public function get_canonical_url( $canonical_url = '' ) {
+	protected function get_canonical_url( $canonical_url = '' ) {
 		if (
 			$this->is_source
 			|| $this->original_deleted
@@ -394,7 +492,7 @@ class DistributorPost {
 	 *                             author name does not need to be replaced by the original source name.
 	 * @return string The post's author name.
 	 */
-	public function get_author_name( $author_name = '' ) {
+	protected function get_author_name( $author_name = '' ) {
 		$settings = Utils\get_settings();
 
 		if (
@@ -425,7 +523,7 @@ class DistributorPost {
 	 *                             author link does not need to be replaced by the original source name.
 	 * @return string The post's author link.
 	 */
-	public function get_author_link( $author_link = '' ) {
+	protected function get_author_link( $author_link = '' ) {
 		$settings = Utils\get_settings();
 
 		if (
@@ -451,7 +549,7 @@ class DistributorPost {
 	 *
 	 * @return array Array of meta data.
 	 */
-	public function get_meta() {
+	protected function get_meta() {
 		return Utils\prepare_meta( $this->post->ID );
 	}
 
@@ -462,7 +560,7 @@ class DistributorPost {
 	 *    @type WP_Term[] Post terms keyed by taxonomy.
 	 * }
 	 */
-	public function get_terms() {
+	protected function get_terms() {
 		return Utils\prepare_taxonomy_terms( $this->post->ID );
 	}
 
@@ -471,7 +569,7 @@ class DistributorPost {
 	 *
 	 * @return array
 	 */
-	public function get_media() {
+	protected function get_media() {
 		$post_id = $this->post->ID;
 		if ( $this->has_blocks() ) {
 			$raw_media = $this->parse_media_blocks();
@@ -511,7 +609,7 @@ class DistributorPost {
 	 *
 	 * @return WP_Post[] Array of media posts.
 	 */
-	public function parse_media_blocks() {
+	protected function parse_media_blocks() {
 		$found = false;
 
 		// Note: changes to the cache key or group should be reflected in `includes/settings.php`
@@ -555,7 +653,7 @@ class DistributorPost {
 	 * @param array $block Block to parse.
 	 * @return int[] Array of media attachment IDs.
 	 */
-	private function parse_blocks_for_attachment_id( $block ) {
+	protected function parse_blocks_for_attachment_id( $block ) {
 		$media_blocks = array(
 			'core/image' => 'id',
 			'core/audio' => 'id',
@@ -609,22 +707,33 @@ class DistributorPost {
 	 *    @type string $post_type         Post type.
 	 *    @type string $content           Processed post content.
 	 *    @type string $excerpt           Post excerpt.
+	 *    @type int    $parent            Post parent ID.
+	 *    @type string $status            Post status.
 	 *    @type array  $distributor_media Media data.
 	 *    @type array  $distributor_terms Post terms.
 	 *    @type array  $distributor_meta  Post meta.
 	 * }
 	 */
-	public function post_data() {
-		return [
-			'title'             => html_entity_decode( get_the_title( $this->post->ID ), ENT_QUOTES, get_bloginfo( 'charset' ) ),
-			'slug'              => $this->post->post_name,
-			'post_type'         => $this->post->post_type,
-			'content'           => Utils\get_processed_content( $this->post->post_content ),
-			'excerpt'           => $this->post->post_excerpt,
-			'distributor_media' => $this->get_media(),
-			'distributor_terms' => $this->get_terms(),
-			'distributor_meta'  => $this->get_meta(),
-		];
+	protected function post_data() {
+		$this->populate_source_site();
+		return array(
+			'title'                          => html_entity_decode( get_the_title( $this->post->ID ), ENT_QUOTES, get_bloginfo( 'charset' ) ),
+			'slug'                           => $this->post->post_name,
+			'type'                           => $this->post->post_type,
+			'content'                        => Utils\get_processed_content( $this->post->post_content ),
+			'excerpt'                        => $this->post->post_excerpt,
+			'parent'                         => ! empty( $this->post->post_parent ) ? (int) $this->post->post_parent : 0,
+			'status'                         => $this->post->post_status,
+			'distributor_media'              => $this->get_media(),
+			'distributor_terms'              => $this->get_terms(),
+			'distributor_meta'               => $this->get_meta(),
+
+			// Original site and post data.
+			'distributor_original_site_name' => $this->source_site['name'],
+			'distributor_original_site_url'  => $this->source_site['home_url'],
+			'distributor_original_post_url'  => $this->get_permalink(),
+			'distributor_original_post_id'   => $this->post->ID,
+		);
 	}
 
 	/**
@@ -633,13 +742,22 @@ class DistributorPost {
 	 * @todo `distributor_media` needs work for unattached media items.
 	 * @todo check if `distributor_raw_content` should be included here too.
 	 *
+	 * @param  array $args {
+	 *     Optional. Array of push arguments
+	 *
+	 *     @type int    $remote_post_id Post ID on remote site. If not provided,
+	 *                                  a new post will be created.
+	 *     @type string $post_status    The post status to use on the remote site.
+	 *                                  Ignored when updating posts.
+	 * }
+	 *
 	 * @return array {
 	 *    Post data.
 	 *
 	 *    @type string $post_title   Post title.
 	 *    @type string $post_name    Post slug.
 	 *    @type string $post_type    Post type.
-	 *    @type string $post_content Processed post content.
+	 *    @type string $post_content Post content. The raw content is used for posts containing blocks.
 	 *    @type string $post_excerpt Post excerpt.
 	 *    @type array  $tax_input    Post terms.
 	 *    @type array  $meta_input   Post meta.
@@ -647,24 +765,52 @@ class DistributorPost {
 	 *    @type array  $distributor_media Media data.
 	 * }
 	 */
-	public function to_insert() {
+	protected function to_insert( $args = array() ) {
 		$insert       = [];
 		$post_data    = $this->post_data();
 		$key_mappings = [
-			'post_title'        => 'title',
-			'post_name'         => 'slug',
-			'post_type'         => 'post_type',
-			'post_content'      => 'content',
-			'post_excerpt'      => 'excerpt',
-			'tax_input'         => 'distributor_terms',
-			'meta_input'        => 'distributor_meta',
+			'post_title'   => 'title',
+			'post_name'    => 'slug',
+			'post_type'    => 'type',
+			'post_content' => 'content',
+			'post_excerpt' => 'excerpt',
+			'post_status'  => 'status',
+			'terms'        => 'distributor_terms',
+			'meta'         => 'distributor_meta',
 
 			// This needs to be figured out.
-			'distributor_media' => 'distributor_media',
+			'media'        => 'distributor_media',
 		];
 
 		foreach ( $key_mappings as $key => $value ) {
 			$insert[ $key ] = $post_data[ $value ];
+		}
+
+		// Additional data required for wp_insert_post().
+		$insert['post_author'] = isset( $this->post->post_author ) ? $this->post->post_author : get_current_user_id();
+
+		// If the post has blocks, use the raw content.
+		if ( $this->has_blocks() ) {
+			$insert['post_content'] = $this->post->post_content;
+		}
+
+		if ( ! empty( $args['remote_post_id'] ) ) {
+			// Updating an existing post.
+			$insert['ID'] = (int) $args['remote_post_id'];
+			unset( $insert['post_status'] );
+		}
+
+		if ( ! empty( $args['post_status'] ) ) {
+			$insert['post_status'] = $args['post_status'];
+		}
+
+		// Post meta used by wp_insert_post, wp_update_post.
+		$insert['meta_input'] = array(
+			'dt_original_post_id'  => $post_data['distributor_original_post_id'],
+			'dt_original_post_url' => $post_data['distributor_original_post_url'],
+		);
+		if ( ! empty( $post_data['parent'] ) ) {
+			$insert['meta_input']['dt_original_post_parent'] = $post_data['parent'];
 		}
 
 		return $insert;
@@ -673,12 +819,28 @@ class DistributorPost {
 	/**
 	 * Get the post data in a format suitable for the distributor REST API endpoint.
 	 *
-	 * @param int $options Optional. Options to be passed to json_encode(). Default 0.
-	 * @param int $depth   Optional. Maximum depth to walk through $data. Default 512.
-	 * @return string JSON encoded post data.
+	 * @param array $rest_args Optional. Arguments to be passed to the REST API endpoint.
+	 * @return array Post data formatted for the REST API endpoint.
 	 */
-	public function to_json( $options = 0, $depth = 512 ) {
+	protected function to_rest( $rest_args = array() ) {
 		$post_data = $this->post_data();
+
+		if ( ! empty( $post_data['parent'] ) ) {
+			$post_data['distributor_original_post_parent'] = (int) $post_data['parent'];
+		}
+		unset( $post_data['parent'] );
+
+		// Replace any default values with those that have been passed.
+		$post_data = array_merge( $post_data, $rest_args );
+
+		/*
+		 * Rename the original post ID to the remote post ID.
+		 *
+		 * JSON requests are sent to external sites via the REST API so from the perspective
+		 * of the external site, the original post ID is the remote post ID.
+		 */
+		$post_data['distributor_remote_post_id'] = $post_data['distributor_original_post_id'];
+		unset( $post_data['distributor_original_post_id'] );
 
 		/*
 		 * Check if the post has block to determine whether to use the raw content or not.
@@ -691,6 +853,6 @@ class DistributorPost {
 			$post_data['distributor_raw_content'] = $this->post->post_content;
 		}
 
-		return wp_json_encode( $post_data, $options, $depth );
+		return $post_data;
 	}
 }

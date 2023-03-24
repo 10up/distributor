@@ -6,8 +6,12 @@ vendor/*
 !vendor/georgestephanis
 release/*
 dist/*
-screenshots/
 lang/
 docs-built
 .phpunit.result.cache
 /.wp-env.override.json
+
+tests/cypress/videos
+tests/cypress/screenshots
+
+distributor.zip

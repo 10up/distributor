@@ -10,7 +10,7 @@ namespace Distributor;
 use \Distributor\Connection as Connection;
 
 /**
- * External connections extend this base abstract class. External onnections are used to push and pull content.
+ * External connections extend this base abstract class. External connections are used to push and pull content.
  * Note that static methods are used for interacting with the type whereas class instances
  * deal with an actual connection.
  */
