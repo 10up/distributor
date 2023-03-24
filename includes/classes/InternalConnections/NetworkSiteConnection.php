@@ -141,6 +141,19 @@ class NetworkSiteConnection extends Connection {
 				esc_html__( 'The dt_push_post action has been deprecated. Please use dt_push_network_post or dt_push_external_post instead.', 'distributor' )
 			);
 
+			/**
+			 * Fires the action after a post is pushed via Distributor before `restore_current_blog()`.
+			 *
+			 * @since 2.0.0
+			 * @hook  dt_push_network_post
+			 *
+			 * @param {int}                   $new_post_id The newly created post.
+			 * @param {int}                   $post_id     The original post.
+			 * @param {array}                 $args        The arguments passed into wp_insert_post.
+			 * @param {NetworkSiteConnection} $this        The Distributor connection being pushed to.
+			 */
+			do_action( 'dt_push_network_post', $new_post_id, $post_id, $args, $this );
+
 			restore_current_blog();
 
 			return $new_post_id;
@@ -222,17 +235,7 @@ class NetworkSiteConnection extends Connection {
 			esc_html__( 'The dt_push_post action has been deprecated. Please use dt_push_network_post or dt_push_external_post instead.', 'distributor' )
 		);
 
-		/**
-		 * Fires the action after a post is pushed via Distributor before `restore_current_blog()`.
-		 *
-		 * @since 2.0.0
-		 * @hook  dt_push_network_post
-		 *
-		 * @param {int}                   $new_post_id The newly created post.
-		 * @param {int}                   $post_id     The original post.
-		 * @param {array}                 $args        The arguments passed into wp_insert_post.
-		 * @param {NetworkSiteConnection} $this        The Distributor connection being pushed to.
-		 */
+		/** This filter is documented in includes/classes/InternalConnections/NetworkSiteConnection.php */
 		do_action( 'dt_push_network_post', $new_post_id, $post_id, $args, $this );
 
 		restore_current_blog();
