@@ -714,16 +714,19 @@ class WordPressExternalConnection extends ExternalConnection {
 		);
 
 		/**
-		 * Fires the action after a post is pushed via Distributor before `restore_current_blog()`.
+		 * Fires the action after a post is pushed via Distributor before remote request validation.
 		 *
 		 * @since 2.0.0
+		 * @hook  dt_push_external_post
 		 *
-		 * @param {WP_Post}    $response    The newly created post.
-		 * @param {WP_Post}    $post_id     The original post.
-		 * @param {array}      $args        The arguments passed into wp_insert_post.
-		 * @param {Connection} $this        The Distributor connection being pushed to.
+		 * @param {array|WP_Error}              $response    The response from the remote request.
+		 * @param {array}                       $post_body   The Post data formatted for the REST API endpoint.
+		 * @param {string}                      $type_url    The Post type api endpoint.
+		 * @param {int}                         $post_id     The Post id.
+		 * @param {array}                       $args        The arguments passed into wp_insert_post.
+		 * @param {WordPressExternalConnection} $this        The Distributor connection being pushed to.
 		 */
-		do_action( 'dt_push_external_post', $response, $post, $args, $this );
+		do_action( 'dt_push_external_post', $response, $post_body, $type_url, $post_id, $args, $this );
 
 		if ( is_wp_error( $response ) ) {
 			return $response;
