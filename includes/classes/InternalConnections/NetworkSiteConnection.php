@@ -274,7 +274,7 @@ class NetworkSiteConnection extends Connection {
 			}
 
 			$post_props      = $post;
-			$post_array      = array();
+			$post_array      = $post_props;
 			$current_blog_id = get_current_blog_id();
 
 			if ( ! empty( $post_props['meta']['dt_connection_map'] ) ) {
