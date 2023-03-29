@@ -423,7 +423,63 @@ class NetworkSiteConnectionsTest extends TestCase {
 				'return' => (object) [
 					'ID'         => 111,
 					'post_title' => 'my title',
+					'post_name' => 'my-title',
+					'post_type' => 'post',
+					'post_status' => 'publish',
+					'post_content' => 'My post content',
+					'post_excerpt' => 'My post excerpt',
 				],
+			]
+		);
+
+		\WP_Mock::userFunction(
+			'get_bloginfo',
+			array(
+				'return' => function( $info ) {
+					switch ( $info ) {
+						case 'charset':
+							return 'UTF-8';
+						case 'name':
+							return 'Test Internal Origin';
+						default:
+							return '';
+					}
+				},
+			)
+		);
+
+		\WP_Mock::userFunction(
+			'get_current_blog_id', [
+				'return' => 1,
+			]
+		);
+
+		\WP_Mock::userFunction(
+			'get_the_title', [
+				'return' => 'my title',
+			]
+		);
+		\WP_Mock::userFunction(
+			'has_blocks',
+			array(
+				'return' => false,
+			)
+		);
+		\WP_Mock::userFunction(
+			'get_attached_media',
+			array(
+				'return' => array(),
+			)
+		);
+		\WP_Mock::userFunction(
+			'get_post_thumbnail_id',
+			array(
+				'return' => false,
+			)
+		);
+		\WP_Mock::userFunction(
+			'get_current_user_id', [
+				'return' => 1,
 			]
 		);
 
