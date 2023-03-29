@@ -354,14 +354,6 @@ class NetworkSiteConnectionsTest extends TestCase {
 		);
 
 		\WP_Mock::userFunction(
-			'get_post_meta', [
-				'times'  => 1,
-				'args'   => [ \WP_Mock\Functions::type( 'int' ), 'dt_connection_map', true ],
-				'return' => [],
-			]
-		);
-
-		\WP_Mock::userFunction(
 			'update_post_meta', [
 				'times' => 1,
 				'args'  => [ \WP_Mock\Functions::type( 'int' ), 'dt_connection_map', \WP_Mock\Functions::type( 'array' ) ],
