@@ -324,7 +324,7 @@ class NetworkSiteConnectionsTest extends TestCase {
 		\WP_Mock::userFunction(
 			'update_post_meta', [
 				'times'  => 1,
-				'args'   => [ \WP_Mock\Functions::type( 'int' ), 'dt_original_post_id', 2 ],
+				'args'   => [ \WP_Mock\Functions::type( 'int' ), 'dt_original_post_id', 111 ],
 				'return' => [],
 			]
 		);
