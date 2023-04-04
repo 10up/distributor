@@ -17,6 +17,13 @@ body.dt-linked-post {
 		cursor: default;
 	}
 
+	/* Allow clicks on confirmation dialog buttons */
+	.components-confirm-dialog button {
+		opacity: 1;
+		pointer-events: auto;
+		cursor: pointer;
+	}
+
 	.edit-post-header__settings,
 	.components-time-picker,
 	.react-datepicker,
