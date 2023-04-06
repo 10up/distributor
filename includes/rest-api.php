@@ -333,6 +333,22 @@ function get_pull_content_list_args() {
 			'default'     => 'desc',
 			'enum'        => array( 'asc', 'desc' ),
 		),
+		'orderby'        => array(
+			'description' => esc_html__( 'Sort collection by object attribute.', 'distributor' ),
+			'type'        => 'string',
+			'default'     => 'date',
+			'enum'        => array(
+				'author',
+				'date',
+				'id',
+				'include',
+				'modified',
+				'parent',
+				'relevance',
+				'slug',
+				'title',
+			),
+		),
 	);
 }
 
@@ -609,7 +625,8 @@ function get_pull_content_list( $request ) {
 	];
 
 	if ( ! empty( $request['search'] ) ) {
-		$args['s'] = rawurldecode( $request['search'] );
+		$args['s']       = rawurldecode( $request['search'] );
+		$args['orderby'] = 'relevance';
 	}
 
 	if ( ! empty( $request['exclude'] ) ) {
@@ -618,6 +635,30 @@ function get_pull_content_list( $request ) {
 
 	if ( ! empty( $request['include'] ) ) {
 		$args['post__in'] = $request['include'];
+	}
+
+	if ( ! empty( $request['orderby'] ) ) {
+		$args['orderby'] = $request['orderby'];
+
+		if ( 'id' === $request['orderby'] ) {
+			// Flip the case to uppercase for WP_Query.
+			$args['orderby'] = 'ID';
+		} elseif ( 'slug' === $request['orderby'] ) {
+			$args['orderby'] = 'name';
+		} elseif ( 'relevance' === $request['orderby'] ) {
+			$args['orderby'] = 'relevance';
+
+			// If ordering by relevance, a search term must be defined.
+			if ( empty( $request['search'] ) ) {
+				return new WP_Error(
+					'rest_no_search_term_defined',
+					__( 'You need to define a search term to order by relevance.', 'distributor' ),
+					array( 'status' => 400 )
+				);
+			}
+		} elseif ( 'include' === $request['orderby'] ) {
+			$args['orderby'] = 'post__in';
+		}
 	}
 
 	/**
