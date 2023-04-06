@@ -327,6 +327,12 @@ function get_pull_content_list_args() {
 				return $param;
 			},
 		),
+		'order'          => array(
+			'description' => esc_html__( 'Order sort attribute ascending or descending.', 'distributor' ),
+			'type'        => 'string',
+			'default'     => 'desc',
+			'enum'        => array( 'asc', 'desc' ),
+		),
 	);
 }
 
@@ -599,6 +605,7 @@ function get_pull_content_list( $request ) {
 		'paged'          => isset( $request['page'] ) ? $request['page'] : 1,
 		'post_type'      => isset( $request['post_type'] ) ? $request['post_type'] : 'post',
 		'post_status'    => isset( $request['post_status'] ) ? $request['post_status'] : array( 'any' ),
+		'order'          => ! empty( $request['order'] ) ? strtoupper( $request['order'] ) : 'DESC',
 	];
 
 	if ( ! empty( $request['search'] ) ) {
