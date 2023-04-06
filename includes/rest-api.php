@@ -159,7 +159,9 @@ function register_rest_routes() {
 }
 
 /**
- * Set the accepted arguments for the pull content list endpoint
+ * Set the accepted arguments for the pull content list endpoint.
+ *
+ * @since x.x.x Introduced the include, order and orderby arguments.
  *
  * @return array
  */
