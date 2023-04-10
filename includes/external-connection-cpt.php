@@ -350,7 +350,7 @@ function filter_enter_title_here( $label, $post = 0 ) {
 		return $label;
 	}
 
-	return esc_html__( 'Label this external connection', 'distributor' );
+	return esc_html__( 'Label this connection', 'distributor' );
 }
 
 /**
@@ -360,6 +360,7 @@ function filter_enter_title_here( $label, $post = 0 ) {
  * @since 0.8
  */
 function save_post( $post_id ) {
+
 	if ( ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) || ! current_user_can( 'edit_post', $post_id ) || 'revision' === get_post_type( $post_id ) ) {
 		return;
 	}
@@ -424,6 +425,8 @@ function save_post( $post_id ) {
 
 		$auth_handler_class_again::store_credentials( $post_id, $auth_creds );
 	}
+	wp_safe_redirect( esc_url( admin_url( 'admin.php?page=distributor' ) ) );
+	exit;
 }
 
 /**
@@ -603,7 +606,7 @@ function dashboard() {
 	?>
 
 	<div class="wrap">
-		<h1 class="wp-heading-inline"><?php esc_html_e( 'External Connections', 'distributor' ); ?></h1>
+		<h1 class="wp-heading-inline"><?php esc_html_e( 'Connections', 'distributor' ); ?></h1>
 		<a href="<?php echo esc_url( admin_url( 'post-new.php?post_type=dt_ext_connection' ) ); ?>" class="page-title-action"><?php esc_html_e( 'Add New', 'distributor' ); ?></a>
 		<hr class="wp-header-end">
 
@@ -678,8 +681,8 @@ function add_submenu_item() {
 	unset( $submenu['distributor'][0] );
 	add_submenu_page(
 		'distributor',
-		esc_html__( 'External Connections', 'distributor' ),
-		esc_html__( 'External Connections', 'distributor' ),
+		esc_html__( 'Connections', 'distributor' ),
+		esc_html__( 'Connections', 'distributor' ),
 		/**
 		 * Filter Distributor capabilities allowed to manage external connections.
 		 *
@@ -707,20 +710,20 @@ function setup_cpt() {
 				<span>to be able to push content to connected sites.</span>
 				<span class="need_help">Need help setting things up? Read More about Connections <a href="#" />' . esc_html__( 'here ', 'distributor' ) . '</a></span>';
 	$labels = array(
-		'name'               => esc_html__( 'External Connections', 'distributor' ),
-		'singular_name'      => esc_html__( 'External Connection', 'distributor' ),
+		'name'               => esc_html__( 'Connections', 'distributor' ),
+		'singular_name'      => esc_html__( 'Connection', 'distributor' ),
 		'add_new'            => esc_html__( 'Add New', 'distributor' ),
-		'add_new_item'       => esc_html__( 'Add New External Connection', 'distributor' ),
-		'edit_item'          => esc_html__( 'Edit External Connection', 'distributor' ),
-		'new_item'           => esc_html__( 'New External Connection', 'distributor' ),
-		'all_items'          => esc_html__( 'All External Connections', 'distributor' ),
-		'view_item'          => esc_html__( 'View External Connection', 'distributor' ),
-		'search_items'       => esc_html__( 'Search External Connections', 'distributor' ),
+		'add_new_item'       => esc_html__( 'Add New Connection', 'distributor' ),
+		'edit_item'          => esc_html__( 'Edit Connection', 'distributor' ),
+		'new_item'           => esc_html__( 'New Connection', 'distributor' ),
+		'all_items'          => esc_html__( 'All Connections', 'distributor' ),
+		'view_item'          => esc_html__( 'View Connection', 'distributor' ),
+		'search_items'       => esc_html__( 'Search Connections', 'distributor' ),
 		'not_found'          => $html,
 		'not_found_in_trash' => esc_html__( 'No external connections found in trash.', 'distributor' ),
 		'filter_items_list'  => esc_html__( 'Filter connections list', 'distributor' ),
 		'parent_item_colon'  => '',
-		'menu_name'          => esc_html__( 'Distributor', 'distributor' ),
+		'menu_name'          => esc_html__( 'Connections', 'distributor' ),
 	);
 
 	$args = array(
@@ -752,21 +755,21 @@ function filter_post_updated_messages( $messages ) {
 
 	$messages['dt_ext_connection'] = array(
 		0  => '',
-		1  => esc_html__( 'External connection updated.', 'distributor' ),
+		1  => esc_html__( 'Connection updated.', 'distributor' ),
 		2  => esc_html__( 'Custom field updated.', 'distributor' ),
 		3  => esc_html__( 'Custom field deleted.', 'distributor' ),
-		4  => esc_html__( 'External connection updated.', 'distributor' ),
+		4  => esc_html__( 'Connection updated.', 'distributor' ),
 		/* translators: %s: revision title */
-		5  => isset( $_GET['revision'] ) ? sprintf( __( ' External connection restored to revision from %s', 'distributor' ), wp_post_revision_title( (int) $_GET['revision'], false ) ) : false, // @codingStandardsIgnoreLine Nonce not required
-		6  => esc_html__( 'External connection created.', 'distributor' ),
-		7  => esc_html__( 'External connection saved.', 'distributor' ),
-		8  => esc_html__( 'External connection submitted.', 'distributor' ),
+		5  => isset( $_GET['revision'] ) ? sprintf( __( ' Connection restored to revision from %s', 'distributor' ), wp_post_revision_title( (int) $_GET['revision'], false ) ) : false, // @codingStandardsIgnoreLine Nonce not required
+		6  => esc_html__( 'Connection created.', 'distributor' ),
+		7  => esc_html__( 'Connection saved.', 'distributor' ),
+		8  => esc_html__( 'Connection submitted.', 'distributor' ),
 		9  => sprintf(
 			/* translators: %s: a date and time */
-			__( 'External connection scheduled for: <strong>%1$s</strong>.', 'distributor' ),
+			__( 'Connection scheduled for: <strong>%1$s</strong>.', 'distributor' ),
 			date_i18n( __( 'M j, Y @ G:i' ), strtotime( $post->post_date ) )
 		),
-		10 => esc_html__( 'External connection draft updated.', 'distributor' ),
+		10 => esc_html__( 'Connection draft updated.', 'distributor' ),
 	);
 
 	return $messages;
