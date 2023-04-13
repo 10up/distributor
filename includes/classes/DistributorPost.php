@@ -834,10 +834,10 @@ class DistributorPost {
 
 		// Additional information required for pull screen.
 		$display_data['ID']                             = $this->post->ID;
-		$display_data['date']                           = $this->post->post_date;
-		$display_data['date_gmt']                       = $this->post->post_date_gmt;
-		$display_data['modified']                       = $this->post->post_modified;
-		$display_data['modified_gmt']                   = $this->post->post_modified_gmt;
+		$display_data['post_date']                      = $this->post->post_date;
+		$display_data['post_date_gmt']                  = $this->post->post_date_gmt;
+		$display_data['post_modified']                  = $this->post->post_modified;
+		$display_data['post_modified_gmt']              = $this->post->post_modified_gmt;
 		$display_data['post_password']                  = $this->post->post_password;
 		$display_data['guid']                           = $this->post->guid;
 		$display_data['comment_status']                 = $this->post->comment_status;
