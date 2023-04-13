@@ -520,6 +520,10 @@ class WordPressExternalConnection extends ExternalConnection {
 			$remote_post_args
 		);
 
+		if ( is_wp_error( $remote_posts ) ) {
+			return $remote_posts;
+		}
+
 		foreach ( $items as $item_array ) {
 			$post = wp_list_filter( $remote_posts['items'], array( 'ID' => $item_array['remote_post_id'] ) );
 			if ( empty( $post ) ) {
