@@ -284,7 +284,20 @@ class WordPressExternalConnection extends ExternalConnection {
 		}
 
 		if ( ! empty( $id ) ) {
-			$posts_url = untrailingslashit( $types_urls[ $post_type ] ) . '/' . $id . '/?context=' . $context;
+			$query_args     = array(
+				'include'   => (int) $id,
+				'post_type' => isset( $args['post_type'] ) ? $args['post_type'] : 'any',
+			);
+			$posts_response = $this->remote_post(
+				untrailingslashit( $this->base_url ) . '/' . self::$namespace . '/distributor/list-pull-content',
+				$query_args
+			);
+
+			if ( is_wp_error( $posts_response ) ) {
+				return $posts_response;
+			}
+
+			return $posts_response['items'][0];
 		} else {
 			$posts_url = untrailingslashit( $types_urls[ $post_type ] ) . '/?' . $args_str;
 		}
