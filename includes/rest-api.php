@@ -631,11 +631,17 @@ function get_pull_content_list( $request ) {
 		$args['orderby'] = 'relevance';
 	}
 
-	if ( ! empty( $request['exclude'] ) ) {
+	if ( ! empty( $request['exclude'] ) && ! empty( $request['include'] ) ) {
+		/*
+		 * Use only `post__in` if both `include` and `exclude` are populated.
+		 *
+		 * Excluded posts take priority over included posts, if the same post is
+		 * included in both arrays, it will be excluded.
+		 */
+		$args['post__in'] = array_diff( $request['include'], $request['exclude'] );
+	} elseif ( ! empty( $request['exclude'] ) ) {
 		$args['post__not_in'] = $request['exclude'];
-	}
-
-	if ( ! empty( $request['include'] ) ) {
+	} elseif ( ! empty( $request['include'] ) ) {
 		$args['post__in'] = $request['include'];
 	}
 
