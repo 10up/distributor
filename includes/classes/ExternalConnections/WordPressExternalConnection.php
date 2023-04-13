@@ -502,18 +502,31 @@ class WordPressExternalConnection extends ExternalConnection {
 	public function pull( $items ) {
 		$created_posts = array();
 
+		$remote_post_args = array(
+			'include'   => array(),
+			'post_type' => array(),
+		);
 		foreach ( $items as $item_array ) {
-			$post = $this->remote_get(
-				[
-					'id'        => $item_array['remote_post_id'],
-					'post_type' => $item_array['post_type'],
-				]
-			);
+			$remote_post_args['include'][]   = $item_array['remote_post_id'];
+			$remote_post_args['post_type'][] = $item_array['post_type'];
+		}
+		$remote_post_args['include']        = array_unique( $remote_post_args['include'] );
+		$remote_post_args['post_type']      = array_unique( $remote_post_args['post_type'] );
+		$remote_post_args['posts_per_page'] = count( $remote_post_args['include'] );
 
-			if ( is_wp_error( $post ) ) {
-				$created_posts[] = $post;
+		// Get all remote posts in a single request.
+		$remote_posts = $this->remote_post(
+			untrailingslashit( $this->base_url ) . '/' . self::$namespace . '/distributor/list-pull-content',
+			$remote_post_args
+		);
+
+		foreach ( $items as $item_array ) {
+			$post = wp_list_filter( $remote_posts['items'], array( 'ID' => $item_array['remote_post_id'] ) );
+			if ( empty( $post ) ) {
+				$created_posts[] = new \WP_Error( 'no-post', esc_html__( 'No post found.', 'distributor' ) );
 				continue;
 			}
+			$post = $post[0];
 
 			$post_props = get_object_vars( $post );
 			$post_array = array();
