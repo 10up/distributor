@@ -581,8 +581,8 @@ class WordPressExternalConnection extends ExternalConnection {
 			update_post_meta( $new_post, 'dt_original_source_id', (int) $this->id );
 			update_post_meta( $new_post, 'dt_syndicate_time', time() );
 			update_post_meta( $new_post, 'dt_original_post_url', esc_url_raw( $post_array['link'] ) );
-			update_post_meta( $new_post, 'dt_original_site_name', sanitize_text_field( $post_array['original_site_name'] ) );
-			update_post_meta( $new_post, 'dt_original_site_url', sanitize_text_field( $post_array['original_site_url'] ) );
+			update_post_meta( $new_post, 'dt_original_site_name', sanitize_text_field( $post_array['distributor_original_site_name'] ) );
+			update_post_meta( $new_post, 'dt_original_site_url', sanitize_text_field( $post_array['distributor_original_site_url'] ) );
 
 			if ( ! empty( $post->post_parent ) ) {
 				update_post_meta( $new_post, 'dt_original_post_parent', (int) $post->post_parent );
