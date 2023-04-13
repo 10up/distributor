@@ -257,12 +257,13 @@ class WordPressExternalConnectionTest extends TestCase {
 		$this->setup_post_meta_mock( array() );
 		$post_id = 123;
 
-		\WP_Mock::userFunction( 'wp_remote_retrieve_response_code' );
 		\WP_Mock::userFunction( 'untrailingslashit' );
 		\WP_Mock::userFunction( 'sanitize_text_field' );
 
 		remote_get_setup();
 
+		\WP_Mock::passthruFunction( 'wp_slash' );
+		\WP_Mock::passthruFunction( 'update_post_meta' );
 		\WP_Mock::userFunction( 'get_current_user_id' );
 		\WP_Mock::userFunction( 'delete_post_meta' );
 
@@ -284,24 +285,16 @@ class WordPressExternalConnectionTest extends TestCase {
 			]
 		);
 
-		\WP_Mock::userFunction(
-			'add_query_arg', [
-				'times' => 1,
+		$pull_actual = $this->connection->pull(
+			[
+				[
+					'remote_post_id' => $post_id,
+					'post_type'      => 'post',
+				],
 			]
 		);
 
-		$this->assertTrue(
-			is_array(
-				$this->connection->pull(
-					[
-						[
-							'remote_post_id' => $post_id,
-							'post_type'      => 'post',
-						],
-					]
-				)
-			)
-		);
+		$this->assertIsArray( $pull_actual );
 	}
 
 	/**
