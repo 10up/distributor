@@ -522,25 +522,20 @@ class WordPressExternalConnection extends ExternalConnection {
 				$post_array[ $key ] = $value;
 			}
 
+			// Unset data from remote site.
+			unset( $post_array['ID'] );
+			unset( $post_array['post_parent'] );
+			unset( $post_array['post_date'] );
+			unset( $post_array['post_date_gmt'] );
+			unset( $post_array['post_modified'] );
+			unset( $post_array['post_modified_gmt'] );
 			if ( ! empty( $item_array['post_id'] ) ) {
 				$post_array['ID'] = $item_array['post_id'];
-			} else {
-				unset( $post_array['ID'] );
-			}
-
-			if ( isset( $post_array['post_parent'] ) ) {
-				unset( $post_array['post_parent'] );
 			}
 
 			if ( ! empty( $item_array['post_status'] ) ) {
 				$post_array['post_status'] = $item_array['post_status'];
 			}
-
-			// Remove date stuff
-			unset( $post_array['post_date'] );
-			unset( $post_array['post_date_gmt'] );
-			unset( $post_array['post_modified'] );
-			unset( $post_array['post_modified_gmt'] );
 
 			/**
 			 * Filter the arguments passed into wp_insert_post during a pull.
