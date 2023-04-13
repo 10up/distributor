@@ -535,6 +535,7 @@ class WordPressExternalConnection extends ExternalConnection {
 				$post_array[ $key ] = $value;
 			}
 
+			$update = false;
 			// Unset data from remote site.
 			unset( $post_array['ID'] );
 			unset( $post_array['post_parent'] );
@@ -542,7 +543,9 @@ class WordPressExternalConnection extends ExternalConnection {
 			unset( $post_array['post_date_gmt'] );
 			unset( $post_array['post_modified'] );
 			unset( $post_array['post_modified_gmt'] );
+
 			if ( ! empty( $item_array['post_id'] ) ) {
+				$update           = true;
 				$post_array['ID'] = $item_array['post_id'];
 			}
 
@@ -564,7 +567,11 @@ class WordPressExternalConnection extends ExternalConnection {
 			 * @return {array} The post data to be inserted.
 			 */
 			$new_post_args = Utils\post_args_allow_list( apply_filters( 'dt_pull_post_args', $post_array, $item_array['remote_post_id'], $post, $this ) );
-			$new_post      = wp_insert_post( wp_slash( $new_post_args ) );
+			if ( $update ) {
+				$new_post = wp_update_post( wp_slash( $new_post_args ) );
+			} else {
+				$new_post = wp_insert_post( wp_slash( $new_post_args ) );
+			}
 
 			update_post_meta( $new_post, 'dt_original_post_id', (int) $item_array['remote_post_id'] );
 			update_post_meta( $new_post, 'dt_original_source_id', (int) $this->id );
