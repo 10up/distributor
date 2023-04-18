@@ -180,12 +180,6 @@ class WordPressExternalConnection extends ExternalConnection {
 			return $posts_response;
 		}
 
-		$args_str = '';
-
-		if ( ! empty( $posts_per_page ) ) {
-			$args_str .= 'per_page=' . (int) $posts_per_page;
-		}
-
 		$query_args     = array(
 			'include'   => (int) $id,
 			'post_type' => isset( $args['post_type'] ) ? $args['post_type'] : 'any',
