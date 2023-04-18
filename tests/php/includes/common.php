@@ -195,10 +195,8 @@ function remote_get_setup() {
 	);
 
 	\WP_Mock::userFunction(
-		'wp_remote_retrieve_headers', [
-			'return' => [
-				'X-Distributor' => 'yes',
-			],
+		'wp_remote_request', [
+			'return' => new stdClass(),
 		]
 	);
 
