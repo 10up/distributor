@@ -109,6 +109,7 @@ class NetworkSiteConnectionsTest extends TestCase {
 			)
 		);
 
+		\WP_Mock::userFunction( 'do_action_deprecated' );
 		\WP_Mock::userFunction( 'get_current_user_id' );
 		\WP_Mock::userFunction( 'switch_to_blog' );
 		\WP_Mock::userFunction( 'add_filter' );
