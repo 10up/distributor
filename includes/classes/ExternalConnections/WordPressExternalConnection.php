@@ -186,152 +186,20 @@ class WordPressExternalConnection extends ExternalConnection {
 			$args_str .= 'per_page=' . (int) $posts_per_page;
 		}
 
-		/**
-		 * Filter the remote_get query arguments
-		 *
-		 * @since 1.0
-		 * @hook dt_remote_get_query_args
-		 *
-		 * @param  {array}  $query_args The existing query arguments.
-		 * @param  {array}  $args       The arguments originally passed to `remote_get`.
-		 * @param  {object} $this       The authentication class.
-		 *
-		 * @return {array} The existing query arguments.
-		 */
-		$query_args = apply_filters( 'dt_remote_get_query_args', $query_args, $args, $this );
-
-		foreach ( $query_args as $arg_key => $arg_value ) {
-			if ( is_array( $arg_value ) ) {
-				foreach ( $arg_value as $arg_value_value ) {
-					if ( ! empty( $args_str ) ) {
-						$args_str .= '&';
-					}
-
-					$args_str .= $arg_key . '[]=' . $arg_value_value;
-				}
-			} else {
-				if ( ! empty( $args_str ) ) {
-					$args_str .= '&';
-				}
-
-				$args_str .= $arg_key . '=' . $arg_value;
-			}
-		}
-
-		$context = 'view';
-
-		$prelim_get_args = $this->auth_handler->format_get_args();
-
-		/**
-		 * See if we are trying to authenticate
-		 */
-		if ( ! empty( $prelim_get_args ) && ! empty( $prelim_get_args['headers'] ) && ! empty( $prelim_get_args['headers']['Authorization'] ) ) {
-			$context = 'edit';
-
-			if ( ! empty( $args_str ) ) {
-				$args_str .= '&';
-			}
-
-			$args_str .= 'context=edit';
-		}
-
-		if ( ! empty( $id ) ) {
-			$query_args     = array(
-				'include'   => (int) $id,
-				'post_type' => isset( $args['post_type'] ) ? $args['post_type'] : 'any',
-			);
-			$posts_response = $this->remote_post(
-				untrailingslashit( $this->base_url ) . '/' . self::$namespace . '/distributor/list-pull-content',
-				$query_args
-			);
-
-			if ( is_wp_error( $posts_response ) ) {
-				return $posts_response;
-			}
-
-			return $posts_response['items'][0];
-		} else {
-			$posts_url = untrailingslashit( $types_urls[ $post_type ] ) . '/?' . $args_str;
-		}
-
-		// Add request parameter to specify Distributor request
-		$posts_url = add_query_arg( 'distributor_request', '1', $posts_url );
-
-		$posts_response = Utils\remote_http_request(
-			/**
-			 * Filter the URL that remote_get will use
-			 *
-			 * @since 1.0
-			 * @hook dt_remote_get_url
-			 *
-			 * @param  {string} $posts_url  The posts URL
-			 * @param  {string} $args       The arguments originally passed to `remote_get`.
-			 * @param  {object} $this       The authentication class.
-			 *
-			 * @return {string} The posts URL.
-			 */
-			apply_filters( 'dt_remote_get_url', $posts_url, $args, $this ),
-			// phpcs:ignore WordPressVIPMinimum.Performance.RemoteRequestTimeout.timeout_timeout -- false positive, shorter on VIP.
-			$this->auth_handler->format_get_args( array( 'timeout' => 45 ) )
+		$query_args     = array(
+			'include'   => (int) $id,
+			'post_type' => isset( $args['post_type'] ) ? $args['post_type'] : 'any',
+		);
+		$posts_response = $this->remote_post(
+			untrailingslashit( $this->base_url ) . '/wp/v2/distributor/list-pull-content',
+			$query_args
 		);
 
 		if ( is_wp_error( $posts_response ) ) {
 			return $posts_response;
 		}
 
-		$response_code = wp_remote_retrieve_response_code( $posts_response );
-
-		if ( 200 !== $response_code ) {
-
-			if ( 404 === $response_code ) {
-				return new \WP_Error( 'bad-endpoint', esc_html__( 'Could not connect to API endpoint.', 'distributor' ) );
-			}
-
-			$posts_body = json_decode( wp_remote_retrieve_body( $posts_response ), true );
-
-			$code    = empty( $posts_body['code'] ) ? 'endpoint-error' : esc_html( $posts_body['code'] );
-			$message = empty( $posts_body['message'] ) ? esc_html__( 'API endpoint error.', 'distributor' ) : esc_html( $posts_body['message'] );
-
-			return new \WP_Error( $code, $message );
-		}
-
-		$posts_body = wp_remote_retrieve_body( $posts_response );
-
-		if ( empty( $posts_body ) ) {
-			return new \WP_Error( 'no-response-body', esc_html__( 'Response body is empty.', 'distributor' ) );
-		}
-
-		$posts           = json_decode( $posts_body, true );
-		$formatted_posts = array();
-
-		$response_headers = wp_remote_retrieve_headers( $posts_response );
-
-		if ( empty( $id ) ) {
-			foreach ( $posts as $post ) {
-				$post['full_connection'] = ( ! empty( $response_headers['X-Distributor'] ) );
-
-				$formatted_posts[] = $this->to_wp_post( $post );
-			}
-
-			$total_posts = wp_remote_retrieve_header( $posts_response, 'X-WP-Total' );
-			if ( empty( $total_posts ) ) {
-				$total_posts = count( $formatted_posts );
-			}
-
-			// Filter documented above.
-			return apply_filters(
-				'dt_remote_get',
-				[
-					'items'       => $formatted_posts,
-					'total_items' => $total_posts,
-				],
-				$args,
-				$this
-			);
-		} else {
-			// Filter documented above.
-			return apply_filters( 'dt_remote_get', $this->to_wp_post( $posts ), $args, $this );
-		}
+		return $posts_response['items'][0];
 	}
 
 	/**
