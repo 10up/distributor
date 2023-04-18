@@ -180,54 +180,6 @@ class WordPressExternalConnection extends ExternalConnection {
 			return $posts_response;
 		}
 
-		static $types_urls;
-		$types_urls = array();
-
-		if ( empty( $types_urls[ $post_type ] ) ) {
-			/**
-			 * First let's get the actual route if not cached. We don't know the "plural" of our post type
-			 */
-
-			/**
-			 * Todo: This should be cached in a transient
-			 */
-
-			$path = self::$namespace;
-
-			$types_path = untrailingslashit( $this->base_url ) . '/' . $path . '/types';
-
-			$types_response = Utils\remote_http_request(
-				$types_path,
-				$this->auth_handler->format_get_args( array( 'timeout' => self::$timeout ) )
-			);
-
-			if ( is_wp_error( $types_response ) ) {
-				return $types_response;
-			}
-
-			if ( 404 === wp_remote_retrieve_response_code( $types_response ) ) {
-				return new \WP_Error( 'bad-endpoint', esc_html__( 'Could not connect to API endpoint.', 'distributor' ) );
-			}
-
-			$types_body = wp_remote_retrieve_body( $types_response );
-
-			if ( empty( $types_body ) ) {
-				return new \WP_Error( 'no-response-body', esc_html__( 'Response body is empty.', 'distributor' ) );
-			}
-
-			$types_body_array = json_decode( $types_body, true );
-
-			if ( empty( $types_body_array ) || empty( $types_body_array[ $post_type ] ) ) {
-				return new \WP_Error( 'no-pull-post-type', esc_html__( 'Could not determine remote post type endpoint.', 'distributor' ) );
-			}
-
-			$types_urls[ $post_type ] = $this->parse_type_items_link( $types_body_array[ $post_type ] );
-
-			if ( empty( $types_urls[ $post_type ] ) ) {
-				return new \WP_Error( 'no-pull-post-type', esc_html__( 'Could not determine remote post type endpoint.', 'distributor' ) );
-			}
-		}
-
 		$args_str = '';
 
 		if ( ! empty( $posts_per_page ) ) {
