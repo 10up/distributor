@@ -344,7 +344,7 @@ class WordPressExternalConnection extends ExternalConnection {
 				$created_posts[] = new \WP_Error( 'no-post', esc_html__( 'No post found.', 'distributor' ) );
 				continue;
 			}
-			$post = $post[0];
+			$post = reset( $post );
 
 			$post_props = get_object_vars( $post );
 			$post_array = array();
