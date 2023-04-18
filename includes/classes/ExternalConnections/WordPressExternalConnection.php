@@ -168,7 +168,7 @@ class WordPressExternalConnection extends ExternalConnection {
 		}
 
 		// When running a query for the Pull screen, make a POST request instead
-		if ( empty( $id ) && isset( $args['dt_pull_list'] ) ) {
+		if ( empty( $id ) ) {
 			$query_args['post_type']      = isset( $post_type ) ? $post_type : 'post';
 			$query_args['posts_per_page'] = isset( $posts_per_page ) ? $posts_per_page : 20;
 
