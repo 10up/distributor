@@ -188,6 +188,12 @@ function remote_get_setup() {
 		],
 	];
 
+	$post_response = $rest_response[0];
+	$post_response['original_site_name'] = $post_response['distributor_original_site_name'];
+	$post_response['original_site_url']  = $post_response['distributor_original_site_url'];
+	unset( $post_response['distributor_original_site_name'] );
+	unset( $post_response['distributor_original_site_url'] );
+
 	\WP_Mock::userFunction(
 		'wp_remote_post', [
 			'return' => new stdClass(),
@@ -214,7 +220,7 @@ function remote_get_setup() {
 
 	\WP_Mock::userFunction(
 		'wp_list_filter', [
-			'return' => [ new WP_Post( (object) $rest_response[0] ) ],
+			'return' => [ new WP_Post( (object) $post_response ) ],
 		]
 	);
 }
