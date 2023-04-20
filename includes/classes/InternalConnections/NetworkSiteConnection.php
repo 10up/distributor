@@ -832,7 +832,7 @@ class NetworkSiteConnection extends Connection {
 		$authorized_sites = get_transient( $cache_key );
 
 		if ( $force || false === $authorized_sites ) {
-			$authorized_sites = ! is_array( $authorized_sites ) ? array() : $authorized_sites;
+			$authorized_sites = array();
 			$sites            = get_sites(
 				array(
 					'number' => 1000,
