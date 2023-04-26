@@ -301,9 +301,9 @@ class NetworkSiteConnection extends Connection {
 
 			if ( ! is_wp_error( $new_post_id ) ) {
 				update_post_meta( $new_post_id, 'dt_original_blog_id', (int) $this->site->blog_id );
-				update_post_meta( $new_post_id, 'dt_syndicate_time', time() );
-				update_post_meta( $new_post_id, 'dt_original_post_id', $new_post_args['meta_input']['dt_original_post_id'] );
-				update_post_meta( $new_post_id, 'dt_original_post_url', $new_post_args['meta_input']['dt_original_post_url'] );
+				update_post_meta( $new_post_id, 'dt_syndicate_time', (int) time() );
+				update_post_meta( $new_post_id, 'dt_original_post_id', (int) $new_post_args['meta_input']['dt_original_post_id'] );
+				update_post_meta( $new_post_id, 'dt_original_post_url', wp_slash( sanitize_url( $new_post_args['meta_input']['dt_original_post_url'] ) ) );
 
 				/**
 				 * Allow bypassing of all meta processing.
