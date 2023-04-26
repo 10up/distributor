@@ -12,7 +12,7 @@ use Distributor\DistributorPost;
 /**
  * Determine if this is a development install of Distributor.
  *
- * @since x.x.x
+ * @since 2.0.0
  *
  * @return bool True if this is a development install, false otherwise.
  */

@@ -161,7 +161,7 @@ function register_rest_routes() {
 /**
  * Set the accepted arguments for the pull content list endpoint.
  *
- * @since x.x.x Introduced the include, order and orderby arguments.
+ * @since 2.0.0 Introduced the include, order and orderby arguments.
  *
  * @return array
  */
@@ -612,7 +612,7 @@ function check_post_types_permissions() {
 /**
  * Get a list of content to show on the Pull screen
  *
- * @since x.x.x Renamed from get_pull_content() to get_pull_content_list().
+ * @since 2.0.0 Renamed from get_pull_content() to get_pull_content_list().
  *
  * @param \WP_Rest_Request $request API request arguments
  * @return \WP_REST_Response|\WP_Error
@@ -725,13 +725,13 @@ function get_pull_content_list( $request ) {
 /**
  * Get a list of content to show on the Pull screen
  *
- * @since x.x.x Deprecated in favour of get_pull_content_list().
+ * @since 2.0.0 Deprecated in favour of get_pull_content_list().
  *
  * @param array ...$args Arguments.
  * @return \WP_REST_Response|\WP_Error
  */
 function get_pull_content( ...$args ) {
-	_deprecated_function( __FUNCTION__, 'x.x.x', __NAMESPACE__ . '\\get_pull_content_list' );
+	_deprecated_function( __FUNCTION__, '2.0.0', __NAMESPACE__ . '\\get_pull_content_list' );
 	return get_pull_content_list( ...$args );
 }
 
