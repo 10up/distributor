@@ -307,13 +307,13 @@ function get_pull_content_list_args() {
 				}
 
 				/*
-				 * Only show post statuses viewable post statues.
+				 * Only show viewable post statues.
 				 *
-				 * `is_post_type_viewable()` is used to filter the results as
+				 * `is_post_status_viewable()` is used to filter the results as
 				 * WordPress applies a complex set of rules to determine if a post
 				 * status is viewable.
 				 */
-				$allowed_statues = array_keys( array_filter( get_post_stati(), 'is_post_type_viewable' ) );
+				$allowed_statues = array_keys( array_filter( get_post_stati(), 'is_post_status_viewable' ) );
 
 				if ( in_array( 'any', $param, true ) ) {
 					return $allowed_statues;
