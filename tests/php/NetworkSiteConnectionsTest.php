@@ -265,6 +265,7 @@ class NetworkSiteConnectionsTest extends TestCase {
 		\WP_Mock::userFunction( 'get_current_blog_id' );
 		\WP_Mock::userFunction( 'remove_filter' );
 		\WP_Mock::passthruFunction( 'wp_slash' );
+		\WP_Mock::passthruFunction( 'sanitize_url' );
 
 		\WP_Mock::userFunction(
 			'get_post', [
