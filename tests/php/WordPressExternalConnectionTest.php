@@ -80,6 +80,7 @@ class WordPressExternalConnectionTest extends TestCase {
 	 */
 	public function test_push() {
 		$this->setup_post_meta_mock( array() );
+		\WP_Mock::userFunction( 'do_action_deprecated' );
 		\WP_Mock::userFunction( 'untrailingslashit' );
 		\WP_Mock::userFunction( 'get_the_title' );
 		\WP_Mock::userFunction( 'wp_remote_post' );
@@ -129,7 +130,6 @@ class WordPressExternalConnectionTest extends TestCase {
 			'post_excerpt' => 'post excerpt',
 			'post_name'    => 'slug',
 			'post_status'  => 'publish',
-			'post_type'    => $post_type,
 			'ID'           => 1,
 		];
 

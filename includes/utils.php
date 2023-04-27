@@ -849,11 +849,11 @@ function process_media( $url, $post_id, $args = [] ) {
 	 * @since 1.3.7
 	 * @hook dt_media_processing_filename
 	 *
-	 * @param {string} $media_name Filemame of the media being processed.
+	 * @param {string} $media_name Filename of the media being processed.
 	 * @param {string} $url        Media url.
 	 * @param {int}    $post_id    Post ID.
 	 *
-	 * @return {string} Filemame of the media being processed.
+	 * @return {string} Filename of the media being processed.
 	 */
 	$media_name = apply_filters( 'dt_media_processing_filename', $media_name, $url, $post_id );
 

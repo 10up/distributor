@@ -124,14 +124,34 @@ class NetworkSiteConnection extends Connection {
 			/**
 			 * Fires after a post is pushed via Distributor before `restore_current_blog()`.
 			 *
-			 * @hook dt_push_post
+			 * @since 1.2.2
+			 * @deprecated 2.0.0 The dt_push_post action has been deprecated. Please use dt_push_network_post or dt_push_external_post instead.
+			 * @hook  dt_push_post
 			 *
-			 * @param {int}        $new_post_id   The newly created post ID.
-			 * @param {int}        $post_id       The original post ID.
-			 * @param {array}      $args          The arguments passed into wp_insert_post.
-			 * @param {Connection} $this          The Distributor connection being pushed to.
+			 * @param {int}        $new_post_id The newly created post.
+			 * @param {int}        $post_id     The original post.
+			 * @param {array}      $args        The arguments passed into wp_insert_post.
+			 * @param {Connection} $this        The Distributor connection being pushed to.
 			 */
-			do_action( 'dt_push_post', $new_post_id, $post_id, $args, $this );
+			do_action_deprecated(
+				'dt_push_post',
+				array( $new_post_id, $post_id, $args, $this ),
+				'2.0.0',
+				'dt_push_network_post|dt_push_external_post'
+			);
+
+			/**
+			 * Fires the action after a post is pushed via Distributor before `restore_current_blog()`.
+			 *
+			 * @since 2.0.0
+			 * @hook  dt_push_network_post
+			 *
+			 * @param {int}                   $new_post_id The newly created post.
+			 * @param {int}                   $post_id     The original post.
+			 * @param {array}                 $args        The arguments passed into wp_insert_post.
+			 * @param {NetworkSiteConnection} $this        The Distributor connection being pushed to.
+			 */
+			do_action( 'dt_push_network_post', $new_post_id, $post_id, $args, $this );
 
 			restore_current_blog();
 
@@ -206,7 +226,16 @@ class NetworkSiteConnection extends Connection {
 		}
 
 		/** This filter is documented in includes/classes/InternalConnections/NetworkSiteConnection.php */
-		do_action( 'dt_push_post', $new_post_id, $post_id, $args, $this );
+		do_action_deprecated(
+			'dt_push_post',
+			array( $new_post_id, $post_id, $args, $this ),
+			'2.0.0',
+			'dt_push_network_post|dt_push_external_post',
+			esc_html__( 'The dt_push_post action has been deprecated. Please use dt_push_network_post or dt_push_external_post instead.', 'distributor' )
+		);
+
+		/** This filter is documented in includes/classes/InternalConnections/NetworkSiteConnection.php */
+		do_action( 'dt_push_network_post', $new_post_id, $post_id, $args, $this );
 
 		restore_current_blog();
 
@@ -833,12 +862,13 @@ class NetworkSiteConnection extends Connection {
 		$authorized_sites = get_transient( $cache_key );
 
 		if ( $force || false === $authorized_sites ) {
-			$sites           = get_sites(
+			$authorized_sites = array();
+			$sites            = get_sites(
 				array(
 					'number' => 1000,
 				)
 			);
-			$current_blog_id = (int) get_current_blog_id();
+			$current_blog_id  = (int) get_current_blog_id();
 
 			foreach ( $sites as $site ) {
 				$blog_id = (int) $site->blog_id;
