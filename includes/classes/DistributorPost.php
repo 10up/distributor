@@ -823,6 +823,8 @@ class DistributorPost {
 	 * This is a wrapper for the ::to_insert() method that includes extra
 	 * data required for the pull screen.
 	 *
+	 * @since 2.0.0
+	 *
 	 * @param mixed $args {
 	 *     Optional. Array of push arguments
 	 *     @see ::to_insert() for arguments.
