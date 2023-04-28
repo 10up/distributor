@@ -151,7 +151,7 @@ function register_rest_routes() {
 		'distributor/list-pull-content',
 		array(
 			'methods'             => 'POST',
-			'callback'            => __NAMESPACE__ . '\get_pull_content_list',
+			'callback'            => __NAMESPACE__ . '\\get_pull_content_list',
 			'permission_callback' => __NAMESPACE__ . '\\get_pull_content_permissions',
 			'args'                => get_pull_content_list_args(),
 		)
