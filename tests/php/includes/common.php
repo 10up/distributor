@@ -297,6 +297,20 @@ function wp_parse_args( $settings, $defaults ) {
 }
 
 /**
+ * Mock absint() function.
+ *
+ * Copied from WordPress core.
+ *
+ * @since 2.0.0
+ *
+ * @param mixed $maybeint Data you wish to have converted to a non-negative integer.
+ * @return int A non-negative integer.
+ */
+function absint( $maybeint ) {
+	return abs( (int) $maybeint );
+}
+
+/**
  * Stub for remove_filter to avoid failure in test_remote_get()
  *
  * @return void
