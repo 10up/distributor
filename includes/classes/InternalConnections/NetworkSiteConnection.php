@@ -161,8 +161,8 @@ class NetworkSiteConnection extends Connection {
 
 		$output['id'] = $new_post_id;
 
-		update_post_meta( $new_post_id, 'dt_original_blog_id', (int) $original_blog_id );
-		update_post_meta( $new_post_id, 'dt_syndicate_time', time() );
+		update_post_meta( $new_post_id, 'dt_original_blog_id', absint( $original_blog_id ) );
+		update_post_meta( $new_post_id, 'dt_syndicate_time', absint( time() ) );
 
 		/**
 		 * Allow bypassing of all meta processing.
@@ -300,9 +300,9 @@ class NetworkSiteConnection extends Connection {
 			remove_filter( 'wp_insert_post_data', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'maybe_set_modified_date' ), 10, 2 );
 
 			if ( ! is_wp_error( $new_post_id ) ) {
-				update_post_meta( $new_post_id, 'dt_original_blog_id', (int) $this->site->blog_id );
-				update_post_meta( $new_post_id, 'dt_syndicate_time', (int) time() );
-				update_post_meta( $new_post_id, 'dt_original_post_id', (int) $new_post_args['meta_input']['dt_original_post_id'] );
+				update_post_meta( $new_post_id, 'dt_original_blog_id', absint( $this->site->blog_id ) );
+				update_post_meta( $new_post_id, 'dt_syndicate_time', absint( time() ) );
+				update_post_meta( $new_post_id, 'dt_original_post_id', absint( $new_post_args['meta_input']['dt_original_post_id'] ) );
 				update_post_meta( $new_post_id, 'dt_original_post_url', wp_slash( sanitize_url( $new_post_args['meta_input']['dt_original_post_url'] ) ) );
 
 				/**

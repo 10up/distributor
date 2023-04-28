@@ -181,7 +181,7 @@ class WordPressExternalConnection extends ExternalConnection {
 		}
 
 		$query_args     = array(
-			'include'   => (int) $id,
+			'include'   => absint( $id ),
 			'post_type' => isset( $args['post_type'] ) ? $args['post_type'] : 'any',
 		);
 		$posts_response = $this->remote_post(
