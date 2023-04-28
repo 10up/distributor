@@ -274,7 +274,6 @@ function get_pull_content_list_args() {
 
 				return $param;
 			},
-			'validate_callback' => 'rest_validate_request_arg',
 		),
 		'search'         => array(
 			'description'       => esc_html__( 'Limit results to those matching a string.', 'distributor' ),
