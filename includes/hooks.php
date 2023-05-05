@@ -129,7 +129,7 @@ function filter_the_author( $display_name ) {
  */
 function get_the_author_display_name( $display_name, $user_id, $original_user_id ) {
 	$current_post   = get_post();
-	$is_distributed = empty( $current_post ) ? false : Utils\get_is_distributed_post( $current_post->ID );
+	$is_distributed = empty( $current_post ) ? false : Utils\is_distributed_post( $current_post );
 
 	if ( ! $is_distributed && false !== $original_user_id ) {
 		// get_the_author() was called for a specific user.
@@ -170,7 +170,7 @@ function filter_author_link( $link ) {
  */
 function get_the_author_user_url( $author_url, $user_id, $original_user_id ) {
 	$current_post   = get_post();
-	$is_distributed = empty( $current_post ) ? false : Utils\get_is_distributed_post( $current_post->ID );
+	$is_distributed = empty( $current_post ) ? false : Utils\is_distributed_post( $current_post );
 
 	if ( ! $is_distributed && false !== $original_user_id ) {
 		// get_the_author() was called for a specific user.
