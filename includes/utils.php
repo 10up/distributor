@@ -1194,7 +1194,7 @@ function is_distributed_post( $post ) {
 	if ( ! $post ) {
 		return false;
 	}
-	$post_id = $post->ID;
+	$post_id          = $post->ID;
 	$original_post_id = get_post_meta( $post_id, 'dt_original_post_id', true );
 	return ! empty( $original_post_id );
 }
