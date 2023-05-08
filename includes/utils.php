@@ -1182,3 +1182,21 @@ function remote_http_request( $url, $args = array(), $fallback = '', $threshold 
 
 	return wp_remote_request( $url, $args );
 }
+
+/**
+ * Determines if a post is distributed.
+ *
+ * @since x.x.x
+ *
+ * @param int|\WP_Post $post The post object or ID been checked.
+ * @return bool True if the post is distributed, false otherwise.
+ */
+function is_distributed_post( $post ) {
+	$post = get_post( $post );
+	if ( ! $post ) {
+		return false;
+	}
+	$post_id          = $post->ID;
+	$original_post_id = get_post_meta( $post_id, 'dt_original_post_id', true );
+	return ! empty( $original_post_id );
+}

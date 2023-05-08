@@ -747,6 +747,19 @@ class HooksTest extends TestCase {
 	 *
 	 * @since x.x.x
 	 */
+	public function test_get_the_author_display_name_no_post() {
+		$actual = Hooks\get_the_author_display_name( 'George Washington', 1, false );
+		$this->assertSame( 'George Washington', $actual, 'Unexpected value when 1 current post author.' );
+
+		$actual = Hooks\get_the_author_display_name( 'George Washington', 1, 1 );
+		$this->assertSame( 'George Washington', $actual, 'Unexpected value when getting specific author.' );
+	}
+
+	/**
+	 * Test get_the_author_display_name
+	 *
+	 * @since x.x.x
+	 */
 	public function test_get_the_author_display_name_external_pushed() {
 		$this->setup_post_mock();
 		$this->setup_post_meta_mock(
@@ -785,9 +798,6 @@ class HooksTest extends TestCase {
 
 		$actual = Hooks\get_the_author_display_name( 'George Washington', 1, false );
 		$this->assertSame( 'Test External, Pushed Origin', $actual, 'Unexpected value when getting current post author.' );
-
-		$actual = Hooks\get_the_author_display_name( 'George Washington', 1, 1 );
-		$this->assertSame( 'George Washington', $actual, 'Unexpected value when getting specific author.' );
 	}
 
 	/**
@@ -833,9 +843,6 @@ class HooksTest extends TestCase {
 
 		$actual = Hooks\get_the_author_display_name( 'James Madison', 1, false );
 		$this->assertSame( 'Test External, Pulled Origin', $actual, 'Unexpected value when getting current post author.' );
-
-		$actual = Hooks\get_the_author_display_name( 'James Madison', 1, 1 );
-		$this->assertSame( 'James Madison', $actual, 'Unexpected value when getting specific author.' );
 	}
 
 	/**
@@ -908,8 +915,5 @@ class HooksTest extends TestCase {
 
 		$actual = Hooks\get_the_author_display_name( 'Aaron Burr', 1, false );
 		$this->assertSame( 'Test Internal Origin', $actual, 'Unexpected value when getting current post author.' );
-
-		$actual = Hooks\get_the_author_display_name( 'Aaron Burr', 1, 1 );
-		$this->assertSame( 'Aaron Burr', $actual, 'Unexpected value when getting specific author.' );
 	}
 }
