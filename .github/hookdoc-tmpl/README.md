@@ -14,7 +14,9 @@ To report an issue with Distributor or contribute back to the project, please vi
 
 ### Running Locally
 
-If you are compiling Distributor locally, note that there is a minimum requirement of Node.js 8.10.  If you're using an older version of Node, then it will not compile correctly.
+If you are compiling Distributor locally, note that the recommended version of Node.js is version 16.x. The minimum version required is Node.js 8.10.
+
+An `.nvmrc` file is included in the plugin repository. It's recommended you install [fnm (fast node manager)](https://github.com/Schniz/fnm/), [nvm (node version manager)](https://github.com/nvm-sh/nvm) or similar when developing locally.
 
 ### Testing
 
