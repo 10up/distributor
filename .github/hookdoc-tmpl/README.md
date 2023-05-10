@@ -45,5 +45,4 @@ add_action( 'wp_authorize_application_password_request_errors', function( $error
     $error->remove( 'invalid_redirect_scheme' );
 } );
 ```
-\
 <a href="http://10up.com/contact/" class="banner"><img src="https://10updotcom-wpengine.s3.amazonaws.com/uploads/2016/10/10up-Github-Banner.png" width="850"></a>
