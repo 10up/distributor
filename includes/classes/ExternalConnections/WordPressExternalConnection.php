@@ -271,6 +271,26 @@ class WordPressExternalConnection extends ExternalConnection {
 			return new \WP_Error( 'no-response-body', esc_html__( 'Response body is empty.', 'distributor' ) );
 		}
 
+		if (
+			false === Utils\is_development_version()
+			&& isset( $response_headers['x-distributor'] )
+			&& (
+				! isset( $response_headers['x-distributor-version'] )
+				|| version_compare( $response_headers['x-distributor-version'], '2.0.0', '<' )
+			)
+		) {
+			$version_error = new \WP_Error();
+			$version_error->add(
+				'old-distributor-version',
+				esc_html__( 'Pulling content from external connections requires Distributor version 2.0.0 or later.', 'distributor' )
+			);
+			$version_error->add(
+				'old-distributor-version',
+				esc_html__( 'Please update Distributor on the site you are pulling content from.', 'distributor' )
+			);
+			return $version_error;
+		}
+
 		$posts           = json_decode( $posts_body, true );
 		$formatted_posts = array();
 
