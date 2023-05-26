@@ -8,6 +8,7 @@
 namespace Distributor\PushUI;
 
 use Distributor\EnqueueScript;
+use Distributor\Utils;
 
 /**
  * Setup actions and filters
@@ -86,7 +87,7 @@ function syndicatable() {
 	}
 
 	// If we're using the classic editor, we need to make sure the post has a distributable status.
-	if ( ! use_block_editor_for_post( $post ) && ! in_array( $post->post_status, \Distributor\Utils\distributable_post_statuses(), true ) ) {
+	if ( ! Utils\is_using_gutenberg( $post ) && ! in_array( $post->post_status, Utils\distributable_post_statuses(), true ) ) {
 		return false;
 	}
 
