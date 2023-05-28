@@ -42,7 +42,7 @@ function syndicatable() {
 	// Retrieve the current global post, bail if not set.
 	$post = get_post();
 	if ( empty( $post ) ) {
-		return;
+		return false;
 	}
 
 	/**
