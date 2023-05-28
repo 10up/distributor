@@ -39,6 +39,12 @@ function setup() {
  * @return  bool
  */
 function syndicatable() {
+	// Retrieve the current global post, bail if not set.
+	$post = get_post();
+	if ( empty( $post ) ) {
+		return;
+	}
+
 	/**
 	 * Filter Distributor capabilities allowed to syndicate content.
 	 *
@@ -78,12 +84,6 @@ function syndicatable() {
 		if ( ! is_singular( $distributable_post_types ) ) {
 			return false;
 		}
-	}
-
-	$post = get_post();
-
-	if ( empty( $post ) ) {
-		return;
 	}
 
 	// If we're using the classic editor, we need to make sure the post has a distributable status.
