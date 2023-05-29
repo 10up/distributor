@@ -237,6 +237,24 @@ class NetworkSiteConnectionsTest extends TestCase {
 	 * @runInSeparateProcess
 	 */
 	public function test_pull() {
+		$this->setup_post_meta_mock( array(
+			'dt_connection_map' => array( array() )
+		) );
+		\WP_Mock::userFunction(
+			'get_bloginfo',
+			array(
+				'return' => function( $info ) {
+					switch ( $info ) {
+						case 'charset':
+							return 'UTF-8';
+						case 'name':
+							return 'Test Internal Origin';
+						default:
+							return '';
+					}
+				},
+			)
+		);
 
 		$this->connection_obj->site->blog_id = 2;
 
@@ -247,14 +265,48 @@ class NetworkSiteConnectionsTest extends TestCase {
 		\WP_Mock::userFunction( 'get_current_blog_id' );
 		\WP_Mock::userFunction( 'remove_filter' );
 		\WP_Mock::passthruFunction( 'wp_slash' );
+		\WP_Mock::passthruFunction( 'sanitize_url' );
 
 		\WP_Mock::userFunction(
 			'get_post', [
 				'return' => (object) [
 					'ID'        => 111,
-					'post_tite' => 'My post title',
+					'post_title' => 'My post title',
+					'post_name' => 'my-post-title',
+					'post_type' => 'post',
+					'post_status' => 'publish',
+					'post_content' => 'My post content',
+					'post_excerpt' => 'My post excerpt',
 					'meta'      => [],
 				],
+			]
+		);
+		\WP_Mock::userFunction(
+			'get_the_title', [
+				'return' => 'My post title',
+			]
+		);
+		\WP_Mock::userFunction(
+			'has_blocks',
+			array(
+				'return' => false,
+			)
+		);
+		\WP_Mock::userFunction(
+			'get_attached_media',
+			array(
+				'return' => array(),
+			)
+		);
+		\WP_Mock::userFunction(
+			'get_post_thumbnail_id',
+			array(
+				'return' => false,
+			)
+		);
+		\WP_Mock::userFunction(
+			'get_current_user_id', [
+				'return' => 1,
 			]
 		);
 
@@ -273,7 +325,7 @@ class NetworkSiteConnectionsTest extends TestCase {
 		\WP_Mock::userFunction(
 			'update_post_meta', [
 				'times'  => 1,
-				'args'   => [ \WP_Mock\Functions::type( 'int' ), 'dt_original_post_id', 2 ],
+				'args'   => [ \WP_Mock\Functions::type( 'int' ), 'dt_original_post_id', 111 ],
 				'return' => [],
 			]
 		);
@@ -298,14 +350,6 @@ class NetworkSiteConnectionsTest extends TestCase {
 			'update_post_meta', [
 				'times'  => 1,
 				'args'   => [ \WP_Mock\Functions::type( 'int' ), 'dt_syndicate_time', \WP_Mock\Functions::type( 'int' ) ],
-				'return' => [],
-			]
-		);
-
-		\WP_Mock::userFunction(
-			'get_post_meta', [
-				'times'  => 1,
-				'args'   => [ \WP_Mock\Functions::type( 'int' ), 'dt_connection_map', true ],
 				'return' => [],
 			]
 		);
@@ -380,7 +424,63 @@ class NetworkSiteConnectionsTest extends TestCase {
 				'return' => (object) [
 					'ID'         => 111,
 					'post_title' => 'my title',
+					'post_name' => 'my-title',
+					'post_type' => 'post',
+					'post_status' => 'publish',
+					'post_content' => 'My post content',
+					'post_excerpt' => 'My post excerpt',
 				],
+			]
+		);
+
+		\WP_Mock::userFunction(
+			'get_bloginfo',
+			array(
+				'return' => function( $info ) {
+					switch ( $info ) {
+						case 'charset':
+							return 'UTF-8';
+						case 'name':
+							return 'Test Internal Origin';
+						default:
+							return '';
+					}
+				},
+			)
+		);
+
+		\WP_Mock::userFunction(
+			'get_current_blog_id', [
+				'return' => 1,
+			]
+		);
+
+		\WP_Mock::userFunction(
+			'get_the_title', [
+				'return' => 'my title',
+			]
+		);
+		\WP_Mock::userFunction(
+			'has_blocks',
+			array(
+				'return' => false,
+			)
+		);
+		\WP_Mock::userFunction(
+			'get_attached_media',
+			array(
+				'return' => array(),
+			)
+		);
+		\WP_Mock::userFunction(
+			'get_post_thumbnail_id',
+			array(
+				'return' => false,
+			)
+		);
+		\WP_Mock::userFunction(
+			'get_current_user_id', [
+				'return' => 1,
 			]
 		);
 

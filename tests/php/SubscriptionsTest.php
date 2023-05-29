@@ -98,6 +98,9 @@ class SubscriptionsTest extends TestCase {
 					[
 						'timeout'  => 5,
 						'blocking' => \Distributor\Utils\is_dt_debug(),
+						'headers'  => [
+							'X-Distributor-Version' => DT_VERSION,
+						],
 						'body'     => [
 							'post_id'          => $remote_post_id,
 							'signature'        => $signature,
@@ -375,6 +378,7 @@ class SubscriptionsTest extends TestCase {
 						] ),
 						'headers' => [
 							'Content-Type' => 'application/json',
+							'X-Distributor-Version' => DT_VERSION,
 						],
 					],
 				],
@@ -566,6 +570,7 @@ class SubscriptionsTest extends TestCase {
 						] ),
 						'headers' => [
 							'Content-Type' => 'application/json',
+							'X-Distributor-Version' => DT_VERSION,
 						]
 					],
 				],
@@ -761,6 +766,9 @@ class SubscriptionsTest extends TestCase {
 					[
 						'timeout'  => 5,
 						'blocking' => \Distributor\Utils\is_dt_debug(),
+						'headers'  => [
+							'X-Distributor-Version' => DT_VERSION,
+						],
 						'body'     => [
 							'post_id'        => $remote_post_id,
 							'remote_post_id' => $post_id,

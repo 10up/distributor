@@ -54,6 +54,7 @@ add_filter(
 	'rest_post_dispatch',
 	function( $response ) {
 		$response->header( 'X-Distributor', 'yes' );
+		$response->header( 'X-Distributor-Version', DT_VERSION );
 
 		return $response;
 	}
