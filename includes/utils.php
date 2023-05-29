@@ -10,6 +10,17 @@ namespace Distributor\Utils;
 use Distributor\DistributorPost;
 
 /**
+ * Determine if this is a development install of Distributor.
+ *
+ * @since 2.0.0
+ *
+ * @return bool True if this is a development install, false otherwise.
+ */
+function is_development_version() {
+	return file_exists( DT_PLUGIN_PATH . 'composer.lock' );
+}
+
+/**
  * Determine if we are on VIP
  *
  * @since  1.0
@@ -108,6 +119,9 @@ function check_license_key( $email, $license_key ) {
 		[
 			// phpcs:ignore WordPressVIPMinimum.Performance.RemoteRequestTimeout.timeout_timeout
 			'timeout' => 10,
+			'headers' => [
+				'X-Distributor-Version' => DT_VERSION,
+			],
 			'body'    => [
 				'license_key' => $license_key,
 				'email'       => $email,

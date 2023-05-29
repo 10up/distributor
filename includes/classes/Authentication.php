@@ -47,6 +47,11 @@ abstract class Authentication {
 	 * @return array
 	 */
 	public function format_get_args( $args = array(), $context = array() ) {
+		if ( ! isset( $args['headers'] ) ) {
+			$args['headers'] = array();
+		}
+		$args['headers']['X-Distributor-Version'] = DT_VERSION;
+
 		/**
 		 * Format request args for a GET request so auth occurs.
 		 *
@@ -71,6 +76,11 @@ abstract class Authentication {
 	 * @return array
 	 */
 	public function format_post_args( $args, $context = array() ) {
+		if ( ! isset( $args['headers'] ) ) {
+			$args['headers'] = array();
+		}
+		$args['headers']['X-Distributor-Version'] = DT_VERSION;
+
 		/**
 		 * Format request args for a POST request so auth occurs
 		 *

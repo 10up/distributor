@@ -219,6 +219,9 @@ function delete_subscriptions( $post_id ) {
 					// phpcs:ignore WordPressVIPMinimum.Performance.RemoteRequestTimeout.timeout_timeout
 					'timeout'  => 5,
 					'blocking' => \Distributor\Utils\is_dt_debug(),
+					'headers'  => array(
+						'X-Distributor-Version' => DT_VERSION,
+					),
 					'body'     => [
 						'post_id'          => $remote_post_id,
 						'signature'        => $signature,
@@ -313,7 +316,8 @@ function send_notifications( $post ) {
 			'timeout' => $request_timeout,
 			'body'    => wp_json_encode( $post_body ),
 			'headers' => [
-				'Content-Type' => 'application/json',
+				'Content-Type'          => 'application/json',
+				'X-Distributor-Version' => DT_VERSION,
 			],
 		];
 
