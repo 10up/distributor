@@ -88,3 +88,28 @@ add_filter( 'dt_push_post_args', function( $post_body, $post ) {
     return $post_body;
 }, 10, 2 );
 ```
+
+### Set custom meta data on distributed content.
+
+Site owners may wish to modify the meta data on distributed content upon pushing or pulling.
+
+To set an item of meta data you can use the `dt_after_set_meta` hook.
+
+```php
+/**
+ * Automatically store custom meta data on distributed posts.
+ */
+add_action( 'dt_after_set_meta', function( $meta, $existing_meta, $post_id ) {
+	update_post_meta( $post_id, 'myplugin_custom_meta', 'some_value', true );
+}, 10, 3 );
+
+/**
+ * Automatically unlink a post once it is distributed.
+ *
+ * This prevents updates to the original content from modifying the copies
+ * distributed on other sites.
+ */
+add_action( 'dt_after_set_meta', function( $meta, $existing_meta, $post_id ) {
+	update_post_meta( $post_id, 'dt_unlinked', '1', true );
+}, 10, 3 );
+```
