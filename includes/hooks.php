@@ -19,8 +19,8 @@ function setup() {
 		return __NAMESPACE__ . "\\$function";
 	};
 
-	add_action( 'get_canonical_url', $n( 'get_canonical_url' ), 10, 2 );
-	add_action( 'wpseo_canonical', $n( 'wpseo_canonical' ), 10, 2 );
+	add_filter( 'get_canonical_url', $n( 'get_canonical_url' ), 10, 2 );
+	add_filter( 'wpseo_canonical', $n( 'wpseo_canonical' ), 10, 2 );
 	add_filter( 'wpseo_opengraph_url', $n( 'wpseo_opengraph_url' ), 10, 2 );
 	add_filter( 'the_author', $n( 'filter_the_author' ) );
 	add_filter( 'get_the_author_display_name', $n( 'get_the_author_display_name' ), 10, 3 );
