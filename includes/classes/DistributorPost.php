@@ -51,6 +51,7 @@ class DistributorPost {
 	/**
 	 * The WordPress post object.
 	 *
+	 * @since 2.0.0
 	 * @var WP_Post
 	 */
 	public $post = false;
@@ -58,6 +59,7 @@ class DistributorPost {
 	/**
 	 * Whether this is the source (true) or a distributed post (false).
 	 *
+	 * @since 2.0.0
 	 * @var bool
 	 */
 	public $is_source = true;
@@ -67,6 +69,7 @@ class DistributorPost {
 	 *
 	 * For the original post this is set to true.
 	 *
+	 * @since 2.0.0
 	 * @var bool
 	 */
 	public $is_linked = true;
@@ -74,6 +77,7 @@ class DistributorPost {
 	/**
 	 * The original post ID.
 	 *
+	 * @since 2.0.0
 	 * @var int
 	 */
 	public $original_post_id = 0;
@@ -84,6 +88,7 @@ class DistributorPost {
 	 * This is marked private but can be accessed via the `__get` method to allow
 	 * for live updates of the original post URL for internal connections.
 	 *
+	 * @since 2.0.0
 	 * @var string
 	 */
 	private $original_post_url = '';
@@ -91,6 +96,7 @@ class DistributorPost {
 	/**
 	 * Whether the original post has been deleted.
 	 *
+	 * @since 2.0.0
 	 * @var bool
 	 */
 	public $original_deleted = false;
@@ -101,6 +107,7 @@ class DistributorPost {
 	 * Internal connections are identical regardless of whether they are pushed or pulled
 	 * so are considered bidirectional.
 	 *
+	 * @since 2.0.0
 	 * @var string pushed|pulled|bidirectional|empty
 	 */
 	public $connection_direction = '';
@@ -108,6 +115,7 @@ class DistributorPost {
 	/**
 	 * The type of connection this post is distributed from.
 	 *
+	 * @since 2.0.0
 	 * @var string internal|external|empty (for source)
 	 */
 	public $connection_type = '';
@@ -118,6 +126,7 @@ class DistributorPost {
 	 * For internal connections this is the site ID. For external connections
 	 * this refers to the connection ID.
 	 *
+	 * @since 2.0.0
 	 * @var int|string
 	 */
 	public $connection_id = 0;
@@ -125,6 +134,7 @@ class DistributorPost {
 	/**
 	 * The site ID of this post.
 	 *
+	 * @since 2.0.0
 	 * @var int
 	 */
 	public $site_id = 0;
@@ -136,6 +146,7 @@ class DistributorPost {
 	 * the populate_source_site() method upon access to avoid switching
 	 * sites unnecessarily.
 	 *
+	 * @since 2.0.0
 	 * @var array {
 	 *    @type string $home_url The site's home page.
 	 *    @type string $site_url The site's WordPress address.
@@ -151,6 +162,7 @@ class DistributorPost {
 	 * This prevents the need to switch sites multiple times when accessing
 	 * the same method multiple times.
 	 *
+	 * @since 2.0.0
 	 * @var array
 	 */
 	private $switched_site_cache = [];
