@@ -69,8 +69,8 @@ function client_prefix_filter_authorized_sites( array $authorized_sites, string 
  * canonical URL.
  */
 add_action( 'plugins_loaded', function() {
-	add_action( 'get_canonical_url', '\\Distributor\\Hooks\\get_canonical_url', 10, 2 );
-	add_action( 'wpseo_canonical', '\\Distributor\\Hooks\\wpseo_canonical', 10, 2 );
+	remove_action( 'get_canonical_url', '\\Distributor\\Hooks\\get_canonical_url', 10, 2 );
+	remove_action( 'wpseo_canonical', '\\Distributor\\Hooks\\wpseo_canonical', 10, 2 );
 } );
 ```
 
