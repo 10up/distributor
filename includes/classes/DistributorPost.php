@@ -26,7 +26,7 @@ use WP_Post;
  * be public, please add it to the `@method` docblock below to ensure it is
  * shown in IDEs.
  *
- * @since x.x.x
+ * @since 2.0.0
  *
  * @method bool has_blocks()
  * @method bool has_block( string $block_name )
@@ -51,6 +51,7 @@ class DistributorPost {
 	/**
 	 * The WordPress post object.
 	 *
+	 * @since 2.0.0
 	 * @var WP_Post
 	 */
 	public $post = false;
@@ -58,6 +59,7 @@ class DistributorPost {
 	/**
 	 * Whether this is the source (true) or a distributed post (false).
 	 *
+	 * @since 2.0.0
 	 * @var bool
 	 */
 	public $is_source = true;
@@ -67,6 +69,7 @@ class DistributorPost {
 	 *
 	 * For the original post this is set to true.
 	 *
+	 * @since 2.0.0
 	 * @var bool
 	 */
 	public $is_linked = true;
@@ -74,6 +77,7 @@ class DistributorPost {
 	/**
 	 * The original post ID.
 	 *
+	 * @since 2.0.0
 	 * @var int
 	 */
 	public $original_post_id = 0;
@@ -84,6 +88,7 @@ class DistributorPost {
 	 * This is marked private but can be accessed via the `__get` method to allow
 	 * for live updates of the original post URL for internal connections.
 	 *
+	 * @since 2.0.0
 	 * @var string
 	 */
 	private $original_post_url = '';
@@ -91,6 +96,7 @@ class DistributorPost {
 	/**
 	 * Whether the original post has been deleted.
 	 *
+	 * @since 2.0.0
 	 * @var bool
 	 */
 	public $original_deleted = false;
@@ -101,6 +107,7 @@ class DistributorPost {
 	 * Internal connections are identical regardless of whether they are pushed or pulled
 	 * so are considered bidirectional.
 	 *
+	 * @since 2.0.0
 	 * @var string pushed|pulled|bidirectional|empty
 	 */
 	public $connection_direction = '';
@@ -108,6 +115,7 @@ class DistributorPost {
 	/**
 	 * The type of connection this post is distributed from.
 	 *
+	 * @since 2.0.0
 	 * @var string internal|external|empty (for source)
 	 */
 	public $connection_type = '';
@@ -118,6 +126,7 @@ class DistributorPost {
 	 * For internal connections this is the site ID. For external connections
 	 * this refers to the connection ID.
 	 *
+	 * @since 2.0.0
 	 * @var int|string
 	 */
 	public $connection_id = 0;
@@ -125,6 +134,7 @@ class DistributorPost {
 	/**
 	 * The site ID of this post.
 	 *
+	 * @since 2.0.0
 	 * @var int
 	 */
 	public $site_id = 0;
@@ -136,6 +146,7 @@ class DistributorPost {
 	 * the populate_source_site() method upon access to avoid switching
 	 * sites unnecessarily.
 	 *
+	 * @since 2.0.0
 	 * @var array {
 	 *    @type string $home_url The site's home page.
 	 *    @type string $site_url The site's WordPress address.
@@ -151,12 +162,15 @@ class DistributorPost {
 	 * This prevents the need to switch sites multiple times when accessing
 	 * the same method multiple times.
 	 *
+	 * @since 2.0.0
 	 * @var array
 	 */
 	private $switched_site_cache = [];
 
 	/**
 	 * Initialize the DistributorPost object.
+	 *
+	 * @since 2.0.0
 	 *
 	 * @param WP_Post|int $post WordPress post object or post ID.
 	 */
@@ -230,6 +244,8 @@ class DistributorPost {
 	 * This is used to ensure the post object is switched to the correct site before
 	 * running any of the internal methods.
 	 *
+	 * @since 2.0.0
+	 *
 	 * @param string $name      Method name.
 	 * @param array  $arguments Method arguments.
 	 */
@@ -284,6 +300,8 @@ class DistributorPost {
 	 * populate it if needs be. For internal connections the post permalink is
 	 * updated with live data.
 	 *
+	 * @since 2.0.0
+	 *
 	 * @param string $name Property name.
 	 * @return mixed
 	 */
@@ -300,6 +318,8 @@ class DistributorPost {
 	 *
 	 * This method is used to check if the `source_site` property is set and
 	 * populate it if needs be.
+	 *
+	 * @since 2.0.0
 	 *
 	 * @param string $name Property name.
 	 * @return bool
@@ -321,6 +341,8 @@ class DistributorPost {
 	 * switch_to_blog() and restore_current_blog().
 	 *
 	 * @todo Consider populating if the `switch_blog` action fires before site data is accessed.
+	 *
+	 * @since 2.0.0
 	 *
 	 * @return void
 	 */
@@ -376,6 +398,8 @@ class DistributorPost {
 	 *
 	 * Wraps the WordPress function of the same name.
 	 *
+	 * @since 2.0.0
+	 *
 	 * @return bool Whether the post has blocks.
 	 */
 	protected function has_blocks() {
@@ -391,6 +415,8 @@ class DistributorPost {
 	 *
 	 * Wraps the WordPress function of the same name.
 	 *
+	 * @since 2.0.0
+	 *
 	 * @param string $block_name Full block type to look for.
 	 * @return bool Whether the post content contains the specified block.
 	 */
@@ -401,6 +427,8 @@ class DistributorPost {
 	/**
 	 * Get the post ID.
 	 *
+	 * @since 2.0.0
+	 *
 	 * @return int Post ID.
 	 */
 	protected function get_the_id() {
@@ -409,6 +437,8 @@ class DistributorPost {
 
 	/**
 	 * Get the post permalink.
+	 *
+	 * @since 2.0.0
 	 *
 	 * @return string Post permalink.
 	 */
@@ -419,6 +449,8 @@ class DistributorPost {
 	/**
 	 * Get the post type.
 	 *
+	 * @since 2.0.0
+	 *
 	 * @return string Post type.
 	 */
 	protected function get_post_type() {
@@ -427,6 +459,8 @@ class DistributorPost {
 
 	/**
 	 * Get the post's thumbnail ID.
+	 *
+	 * @since 2.0.0
 	 *
 	 * @return int|false Post thumbnail ID or false if no thumbnail is set.
 	 */
@@ -437,6 +471,8 @@ class DistributorPost {
 	/**
 	 * Get the post's thumbnail URL.
 	 *
+	 * @since 2.0.0
+	 *
 	 * @param string $size Thumbnail size. Defaults to 'post-thumbnail'.
 	 * @return string|false The post's thumbnail URL or false if no thumbnail is set.
 	 */
@@ -446,6 +482,8 @@ class DistributorPost {
 
 	/**
 	 * Get the post's thumbnail HTML.
+	 *
+	 * @since 2.0.0
 	 *
 	 * @param string $size Thumbnail size. Defaults to 'post-thumbnail'.
 	 * @param array  $attr Optional. Attributes for the image markup. Default empty.
@@ -460,6 +498,8 @@ class DistributorPost {
 	 *
 	 * For distributed posts, this is the permalink of the original post. For
 	 * the original post, this is the result of get_permalink().
+	 *
+	 * @since 2.0.0
 	 *
 	 * @param  string $canonical_url The post's canonical URL. If specified, this will be returned
 	 *                               if the canonical URL does not need to be replaced by the
@@ -488,6 +528,8 @@ class DistributorPost {
 	 *
 	 * For distributed posts this is the name of the original site. For the
 	 * original post, this is the result of get_the_author().
+	 *
+	 * @since 2.0.0
 	 *
 	 * @param  string $author_name The post's author name. If specified, this will be returned if the
 	 *                             author name does not need to be replaced by the original source name.
@@ -520,6 +562,8 @@ class DistributorPost {
 	 * For distributed posts this is a link to the original site. For the
 	 * original post, this is the result of get_author_posts_url().
 	 *
+	 * @since 2.0.0
+	 *
 	 * @param  string $author_link The author's posts URL. If specified, this will be returned if the
 	 *                             author link does not need to be replaced by the original source name.
 	 * @return string The post's author link.
@@ -548,6 +592,8 @@ class DistributorPost {
 	/**
 	 * Get the post's distributable meta data.
 	 *
+	 * @since 2.0.0
+	 *
 	 * @return array Array of meta data.
 	 */
 	protected function get_meta() {
@@ -556,6 +602,8 @@ class DistributorPost {
 
 	/**
 	 * Get the post's distributable terms.
+	 *
+	 * @since 2.0.0
 	 *
 	 * @var array[] {
 	 *    @type WP_Term[] Post terms keyed by taxonomy.
@@ -567,6 +615,8 @@ class DistributorPost {
 
 	/**
 	 * Format media items for consumption
+	 *
+	 * @since 2.0.0
 	 *
 	 * @return array
 	 */
@@ -607,6 +657,8 @@ class DistributorPost {
 	 *
 	 * This uses the block parser to find media items within the post content
 	 * regardless of whether the media is attached to the post or not.
+	 *
+	 * @since 2.0.0
 	 *
 	 * @return WP_Post[] Array of media posts.
 	 */
@@ -651,6 +703,8 @@ class DistributorPost {
 	/**
 	 * Parse blocks to obtain each media item's attachment ID.
 	 *
+	 * @since 2.0.0
+	 *
 	 * @param array $block Block to parse.
 	 * @return int[] Array of media attachment IDs.
 	 */
@@ -674,6 +728,7 @@ class DistributorPost {
 		 *    'core/video' => 'id',
 		 * }
 		 *
+		 * @since 2.0.0
 		 * @hook dt_parse_media_blocks
 		 *
 		 * @param {array} $media_blocks Array of media blocks.
@@ -699,6 +754,8 @@ class DistributorPost {
 
 	/**
 	 * Get the post data for distribution.
+	 *
+	 * @since 2.0.0
 	 *
 	 * @return array {
 	 *    Post data.
@@ -739,6 +796,8 @@ class DistributorPost {
 
 	/**
 	 * Get the post data in a format suitable for wp_insert_post().
+	 *
+	 * @since 2.0.0
 	 *
 	 * @todo `distributor_media` needs work for unattached media items.
 	 * @todo check if `distributor_raw_content` should be included here too.
@@ -853,6 +912,8 @@ class DistributorPost {
 
 	/**
 	 * Get the post data in a format suitable for the distributor REST API endpoint.
+	 *
+	 * @since 2.0.0
 	 *
 	 * @param array $rest_args Optional. Arguments to be passed to the REST API endpoint.
 	 * @return array Post data formatted for the REST API endpoint.
