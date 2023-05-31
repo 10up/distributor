@@ -268,6 +268,15 @@ class WordPressExternalConnectionTest extends TestCase {
 		\WP_Mock::userFunction( 'delete_post_meta' );
 
 		\WP_Mock::userFunction(
+			'apply_filters_deprecated',
+			[
+				'return' => function( $name, $args ) {
+					return $args[0];
+				},
+			]
+		);
+
+		\WP_Mock::userFunction(
 			'wp_remote_retrieve_headers', [
 				'return' => [
 					'X-Distributor' => 'yes',
