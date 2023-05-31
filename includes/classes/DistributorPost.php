@@ -501,12 +501,12 @@ class DistributorPost {
 	 *
 	 * @since 2.0.0
 	 *
-	 * @param  string $canonical_url The post's canonical URL. If specified, this will be returned
-	 *                               if the canonical URL does not need to be replaced by the
-	 *                               original source URL.
+	 * @param  string|null $canonical_url The post's canonical URL. If specified, this will be returned
+	 *                                    if the canonical URL does not need to be replaced by the
+	 *                                    original source URL.
 	 * @return string The post's canonical URL.
 	 */
-	protected function get_canonical_url( $canonical_url = '' ) {
+	protected function get_canonical_url( $canonical_url = null ) {
 		if (
 			$this->is_source
 			|| $this->original_deleted
@@ -514,7 +514,7 @@ class DistributorPost {
 			|| ! $this->connection_id
 			|| ! $this->original_post_url
 		) {
-			if ( empty( $canonical_url ) ) {
+			if ( null === $canonical_url ) {
 				return $this->get_permalink();
 			}
 			return $canonical_url;
@@ -531,11 +531,11 @@ class DistributorPost {
 	 *
 	 * @since 2.0.0
 	 *
-	 * @param  string $author_name The post's author name. If specified, this will be returned if the
-	 *                             author name does not need to be replaced by the original source name.
+	 * @param  string|null $author_name The post's author name. If specified, this will be returned if the
+	 *                                  author name does not need to be replaced by the original source name.
 	 * @return string The post's author name.
 	 */
-	protected function get_author_name( $author_name = '' ) {
+	protected function get_author_name( $author_name = null ) {
 		$settings = Utils\get_settings();
 
 		if (
@@ -546,7 +546,7 @@ class DistributorPost {
 			|| ! $this->connection_id
 			|| ! $this->original_post_url
 		) {
-			if ( empty( $author_name ) ) {
+			if ( null === $author_name ) {
 				return get_the_author_meta( 'display_name', $this->post->post_author );
 			}
 			return $author_name;
@@ -564,11 +564,11 @@ class DistributorPost {
 	 *
 	 * @since 2.0.0
 	 *
-	 * @param  string $author_link The author's posts URL. If specified, this will be returned if the
-	 *                             author link does not need to be replaced by the original source name.
+	 * @param  string|null $author_link The author's posts URL. If specified, this will be returned if the
+	 *                                  author link does not need to be replaced by the original source name.
 	 * @return string The post's author link.
 	 */
-	protected function get_author_link( $author_link = '' ) {
+	protected function get_author_link( $author_link = null ) {
 		$settings = Utils\get_settings();
 
 		if (
@@ -579,7 +579,7 @@ class DistributorPost {
 			|| ! $this->connection_id
 			|| ! $this->original_post_url
 		) {
-			if ( empty( $author_link ) ) {
+			if ( null === $author_link ) {
 				return get_author_posts_url( $this->post->post_author );
 			}
 			return $author_link;
