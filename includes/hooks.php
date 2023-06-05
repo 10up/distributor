@@ -19,8 +19,8 @@ function setup() {
 		return __NAMESPACE__ . "\\$function";
 	};
 
-	add_action( 'get_canonical_url', $n( 'get_canonical_url' ), 10, 2 );
-	add_action( 'wpseo_canonical', $n( 'wpseo_canonical' ), 10, 2 );
+	add_filter( 'get_canonical_url', $n( 'get_canonical_url' ), 10, 2 );
+	add_filter( 'wpseo_canonical', $n( 'wpseo_canonical' ), 10, 2 );
 	add_filter( 'wpseo_opengraph_url', $n( 'wpseo_opengraph_url' ), 10, 2 );
 	add_filter( 'the_author', $n( 'filter_the_author' ) );
 	add_filter( 'get_the_author_display_name', $n( 'get_the_author_display_name' ), 10, 3 );
@@ -128,7 +128,10 @@ function filter_the_author( $display_name ) {
  * @return string Modified author display name.
  */
 function get_the_author_display_name( $display_name, $user_id, $original_user_id ) {
-	if ( false !== $original_user_id ) {
+	$current_post   = get_post();
+	$is_distributed = empty( $current_post ) ? false : Utils\is_distributed_post( $current_post );
+
+	if ( ! $is_distributed && false !== $original_user_id ) {
 		// get_the_author() was called for a specific user.
 		return $display_name;
 	}
@@ -166,7 +169,10 @@ function filter_author_link( $link ) {
  * @return string Modified author page URL.
  */
 function get_the_author_user_url( $author_url, $user_id, $original_user_id ) {
-	if ( false !== $original_user_id ) {
+	$current_post   = get_post();
+	$is_distributed = empty( $current_post ) ? false : Utils\is_distributed_post( $current_post );
+
+	if ( ! $is_distributed && false !== $original_user_id ) {
 		// get_the_author() was called for a specific user.
 		return $author_url;
 	}
