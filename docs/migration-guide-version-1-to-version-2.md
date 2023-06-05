@@ -17,7 +17,7 @@ If you have implemented this using the code snippet from our tutorial file, plea
  * canonical URL.
  */
 add_action( 'plugins_loaded', function() {
-	add_action( 'get_canonical_url', '\\Distributor\\Hooks\\get_canonical_url', 10, 2 );
-	add_action( 'wpseo_canonical', '\\Distributor\\Hooks\\wpseo_canonical', 10, 2 );
+	remove_filter( 'get_canonical_url', '\\Distributor\\Hooks\\get_canonical_url', 10, 2 );
+	remove_filter( 'wpseo_canonical', '\\Distributor\\Hooks\\wpseo_canonical', 10, 2 );
 } );
 ```

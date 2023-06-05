@@ -8,6 +8,7 @@
 namespace Distributor\PushUI;
 
 use Distributor\EnqueueScript;
+use Distributor\Utils;
 
 /**
  * Setup actions and filters
@@ -38,6 +39,12 @@ function setup() {
  * @return  bool
  */
 function syndicatable() {
+	// Retrieve the current global post, bail if not set.
+	$post = get_post();
+	if ( empty( $post ) ) {
+		return false;
+	}
+
 	/**
 	 * Filter Distributor capabilities allowed to syndicate content.
 	 *
@@ -80,14 +87,8 @@ function syndicatable() {
 		}
 	}
 
-	$post = get_post();
-
-	if ( empty( $post ) ) {
-		return;
-	}
-
 	// If we're using the classic editor, we need to make sure the post has a distributable status.
-	if ( ! use_block_editor_for_post( $post ) && ! in_array( $post->post_status, \Distributor\Utils\distributable_post_statuses(), true ) ) {
+	if ( ! Utils\is_using_gutenberg( $post ) && ! in_array( $post->post_status, Utils\distributable_post_statuses(), true ) ) {
 		return false;
 	}
 
@@ -566,9 +567,10 @@ function menu_content() {
 		return;
 	}
 
-	$unlinked         = (bool) get_post_meta( $post->ID, 'dt_unlinked', true );
-	$original_blog_id = get_post_meta( $post->ID, 'dt_original_blog_id', true );
-	$original_post_id = get_post_meta( $post->ID, 'dt_original_post_id', true );
+	$unlinked              = (bool) get_post_meta( $post->ID, 'dt_unlinked', true );
+	$original_blog_id      = get_post_meta( $post->ID, 'dt_original_blog_id', true );
+	$original_post_id      = get_post_meta( $post->ID, 'dt_original_post_id', true );
+	$original_post_deleted = get_post_meta( $post->ID, 'dt_original_post_deleted', true );
 
 	if ( ! empty( $original_blog_id ) && ! empty( $original_post_id ) && ! $unlinked && is_multisite() ) {
 		switch_to_blog( $original_blog_id );
@@ -593,7 +595,14 @@ function menu_content() {
 						'<a href="' . esc_url( $site_url ) . '">' . esc_html( $blog_name ) . '</a>'
 					);
 
-					if ( ! empty( $post_url ) ) {
+					if ( $original_post_deleted ) {
+						echo ' '; // Ensure whitespace between sentences.
+						printf(
+							/* translators: 1: post type name */
+							esc_html__( 'However, the origin %1$s has been deleted.', 'distributor' ),
+							esc_html( strtolower( $post_type_object->labels->singular_name ) )
+						);
+					} elseif ( ! empty( $post_url ) ) {
 						?>
 						<a href="<?php echo esc_url( $post_url ); ?>" target="_blank">
 							<?php
