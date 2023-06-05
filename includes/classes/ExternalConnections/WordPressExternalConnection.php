@@ -428,7 +428,7 @@ class WordPressExternalConnection extends ExternalConnection {
 				update_post_meta( $new_post, 'dt_full_connection', true );
 			}
 
-			if ( ! empty( $post_array['meta'] ) ) {
+			if ( isset( $post_array['meta'] ) && is_array( $post_array['meta'] ) ) {
 				// Filter documented in includes/classes/InternalConnections/NetworkSiteConnection.php.
 				if ( apply_filters( 'dt_pull_post_meta', true, $new_post, $post_array['meta'], $item_array['remote_post_id'], $post_array, $this ) ) {
 					\Distributor\Utils\set_meta( $new_post, $post_array['meta'] );
