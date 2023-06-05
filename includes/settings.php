@@ -32,6 +32,8 @@ function setup() {
 			add_action( 'after_plugin_row', __NAMESPACE__ . '\update_notice', 10, 3 );
 			add_action( 'admin_print_styles', __NAMESPACE__ . '\plugin_update_styles' );
 			add_action( 'admin_enqueue_scripts', __NAMESPACE__ . '\admin_enqueue_scripts' );
+
+			add_action( 'clean_post_cache', __NAMESPACE__ . '\clean_dt_post_cache' );
 		}
 	);
 }
@@ -105,9 +107,10 @@ function update_notice( $plugin_file, $plugin_data, $status ) {
 	?>
 
 	<tr class="plugin-update-tr <?php if ( $active ) : ?>active<?php endif; ?>" id="distributor-update" >
-		<td colspan="3" class="plugin-update colspanchange">
+		<td colspan="4" class="plugin-update colspanchange">
 			<div class="update-message notice inline notice-warning notice-alt">
 				<p>
+					<?php /* translators: %s: distributor notice url */ ?>
 					<?php echo wp_kses_post( sprintf( __( '<a href="%s">Register</a> for a free Distributor key to receive updates.', 'distributor' ), esc_url( $notice_url ) ) ); ?>
 				</p>
 			</div>
@@ -123,9 +126,10 @@ function update_notice( $plugin_file, $plugin_data, $status ) {
  */
 function maybe_notice() {
 	if ( 0 === strpos( get_current_screen()->parent_base, 'distributor' ) ) {
-		if ( preg_match( '/-dev$/', DT_VERSION ) ) {
+		if ( Utils\is_development_version() ) {
 			?>
 			<div class="notice notice-warning">
+			<?php /* translators: %1$s: npm commands, %2$s: distributor url */ ?>
 			<p><?php echo wp_kses_post( sprintf( __( 'You appear to be running a development version of Distributor. Certain features may not work correctly without regularly running %1$s. If you&rsquo;re not sure what this means, you may want to <a href="%2$s">download and install</a> the stable version of Distributor instead.', 'distributor' ), '<code>npm install && npm run build</code>', 'https://distributorplugin.com/' ) ); ?></p>
 			</div>
 			<?php
@@ -148,6 +152,7 @@ function maybe_notice() {
 			}
 			?>
 			<div data-notice="auto-upgrade-disabled" class="notice notice-warning">
+				<?php /* translators: %s: distributor url */ ?>
 				<p><?php echo wp_kses_post( sprintf( __( '<a href="%s">Register Distributor</a> to receive important plugin update notices and other Distributor news.', 'distributor' ), esc_url( $notice_url ) ) ); ?></p>
 			</div>
 			<?php
@@ -162,8 +167,18 @@ function maybe_notice() {
  * @since  1.2
  */
 function admin_enqueue_scripts( $hook ) {
-	if ( ! empty( $_GET['page'] ) && 'distributor-settings' === $_GET['page'] ) {
-		wp_enqueue_style( 'dt-admin-settings', plugins_url( '/dist/css/admin-settings.min.css', __DIR__ ), array(), DT_VERSION );
+	if ( ! empty( $_GET['page'] ) && 'distributor-settings' === $_GET['page'] ) { // @codingStandardsIgnoreLine Nonce not required.
+		$asset_file = DT_PLUGIN_PATH . '/dist/js/admin-settings-css.min.asset.php';
+		// Fallback asset data.
+		$asset_data = array(
+			'version'      => DT_VERSION,
+			'dependencies' => array(),
+		);
+		if ( file_exists( $asset_file ) ) {
+			$asset_data = require $asset_file;
+		}
+
+		wp_enqueue_style( 'dt-admin-settings', plugins_url( '/dist/css/admin-settings.min.css', __DIR__ ), array(), $asset_data['version'] );
 	}
 }
 
@@ -217,14 +232,29 @@ function license_key_callback() {
 	$license_key = ( ! empty( $settings['license_key'] ) ) ? $settings['license_key'] : '';
 	$email       = ( ! empty( $settings['email'] ) ) ? $settings['email'] : '';
 	?>
+
+	<?php if ( true === $settings['valid_license'] ) : ?>
+		<div class="registered">
+			<?php /* translators: %s is registered email. */ ?>
+			<p><?php echo esc_html( sprintf( __( 'Distributor is registered to %s.', 'distributor' ), $email ) ); ?></p>
+			<a href="#" onclick="this.parentNode.remove(); return false;"><?php esc_html_e( 'Update registration', 'distributor' ); ?></a>
+		</div>
+	<?php endif; ?>
+
 	<div class="license-wrap <?php if ( true === $settings['valid_license'] ) : ?>valid<?php elseif ( false === $settings['valid_license'] ) : ?>invalid<?php endif; ?>">
-		<input name="dt_settings[email]" type="email" placeholder="<?php esc_html_e( 'Email', 'distributor' ); ?>" value="<?php echo esc_attr( $email ); ?>"> <input name="dt_settings[license_key]" type="text" placeholder="<?php esc_html_e( 'Registration Key', 'distributor' ); ?>" value="<?php echo esc_attr( $license_key ); ?>">
+		<label class="screen-reader-text" for="dt_settings_email"><?php esc_html_e( 'Email', 'distributor' ); ?></label>
+		<input name="dt_settings[email]" type="email" placeholder="<?php esc_attr_e( 'Email', 'distributor' ); ?>" value="<?php echo esc_attr( $email ); ?>" id="dt_settings_email">
+
+		<label class="screen-reader-text" for="dt_settings_license_key"><?php esc_html_e( 'Registration Key', 'distributor' ); ?></label>
+		<input name="dt_settings[license_key]" type="text" placeholder="<?php esc_attr_e( 'Registration Key', 'distributor' ); ?>" value="<?php echo esc_attr( $license_key ); ?>" id="dt_settings_license_key">
 	</div>
 
-	<p class="description">
-		<?php echo wp_kses_post( __( 'Registration is 100% free and provides update notifications and upgrades inside the dashboard; <a href="https://distributorplugin.com/#cta">Register for your key</a>.', 'distributor' ) ); ?>
-	</p>
-	<?php
+	<?php if ( true !== $settings['valid_license'] ) : ?>
+		<p class="description">
+			<?php echo wp_kses_post( __( 'Registration is 100% free and provides update notifications and upgrades inside the dashboard. <a href="https://distributorplugin.com/#cta">Register for your key</a>.', 'distributor' ) ); ?>
+		</p>
+		<?php
+	endif;
 }
 
 /**
@@ -287,7 +317,15 @@ function network_admin_menu() {
 function settings_screen() {
 	?>
 	<div class="wrap">
-		<h2><?php esc_html_e( 'Distributor Settings', 'distributor' ); ?></h2>
+		<h1 class="distributor-title distributor-title--settings">
+			<span class="distributor-title__text">
+				<?php esc_html_e( 'Distributor Settings', 'distributor' ); ?>
+			</span>
+			<a class="distributor-help-link" target="_blank" href="https://github.com/10up/distributor#installation">
+				<span class="dashicons dashicons-info"></span>
+				<span class="distributor-help-link__text"><?php esc_html_e( 'Help', 'distributor' ); ?></span>
+			</a>
+		</h1>
 
 		<form action="options.php" method="post">
 
@@ -314,7 +352,15 @@ function network_settings_screen() {
 	?>
 
 	<div class="wrap">
-		<h2><?php esc_html_e( 'Distributor Network Settings', 'distributor' ); ?></h2>
+		<h1 class="distributor-title distributor-title--settings">
+			<span class="distributor-title__text">
+				<?php esc_html_e( 'Distributor Network Settings', 'distributor' ); ?>
+			</span>
+			<a class="distributor-help-link" target="_blank" href="https://github.com/10up/distributor#installation">
+				<span class="dashicons dashicons-info"></span>
+				<span class="distributor-help-link__text"><?php esc_html_e( 'Help', 'distributor' ); ?></span>
+			</a>
+		</h1>
 
 		<form action="" method="post">
 		<?php settings_fields( 'dt-settings' ); ?>
@@ -327,13 +373,23 @@ function network_settings_screen() {
 				<tr>
 					<th scope="row"><?php esc_html_e( 'Registration Key', 'distributor' ); ?></th>
 					<td>
+						<?php if ( true === $settings['valid_license'] ) : ?>
+							<div class="registered">
+								<?php /* translators: %s is registered email. */ ?>
+								<p><?php echo esc_html( sprintf( __( 'Distributor is registered to %s.', 'distributor' ), $email ) ); ?></p>
+								<a href="#" onclick="this.parentNode.remove(); return false;"><?php esc_html_e( 'Update registration', 'distributor' ); ?></a>
+							</div>
+						<?php endif; ?>
+
 						<div class="license-wrap <?php if ( true === $settings['valid_license'] ) : ?>valid<?php elseif ( false === $settings['valid_license'] ) : ?>invalid<?php endif; ?>">
-							<input name="dt_settings[email]" type="email" placeholder="<?php esc_html_e( 'Email', 'distributor' ); ?>" value="<?php echo esc_attr( $email ); ?>"> <input name="dt_settings[license_key]" type="text" placeholder="<?php esc_html_e( 'Registration Key', 'distributor' ); ?>" value="<?php echo esc_attr( $license_key ); ?>">
+							<input name="dt_settings[email]" type="email" placeholder="<?php esc_attr_e( 'Email', 'distributor' ); ?>" value="<?php echo esc_attr( $email ); ?>"> <input name="dt_settings[license_key]" type="text" placeholder="<?php esc_attr_e( 'Registration Key', 'distributor' ); ?>" value="<?php echo esc_attr( $license_key ); ?>">
 						</div>
 
-						<p class="description">
-							<?php echo wp_kses_post( __( 'Registration is 100% free and provides update notifications and upgrades inside the dashboard; <a href="https://distributorplugin.com/#cta">Register for your key</a>.', 'distributor' ) ); ?>
-						</p>
+						<?php if ( true !== $settings['valid_license'] ) : ?>
+							<p class="description">
+								<?php echo wp_kses_post( __( 'Registration is 100% free and provides update notifications and upgrades inside the dashboard. <a href="https://distributorplugin.com/#cta">Register for your key</a>.', 'distributor' ) ); ?>
+							</p>
+						<?php endif; ?>
 					</td>
 				</tr>
 			</tbody>
@@ -372,12 +428,40 @@ function handle_network_settings() {
 	}
 
 	if ( ! empty( $_POST['dt_settings']['email'] ) && ! empty( $_POST['dt_settings']['license_key'] ) ) {
-		$new_settings['valid_license'] = (bool) Utils\check_license_key( $_POST['dt_settings']['email'], $_POST['dt_settings']['license_key'] );
+		$email_address                 = sanitize_email( wp_unslash( $_POST['dt_settings']['email'] ) );
+		$license_key                   = sanitize_text_field( wp_unslash( $_POST['dt_settings']['license_key'] ) );
+		$new_settings['valid_license'] = (bool) Utils\check_license_key( $email_address, $license_key );
 	} else {
 		$new_settings['valid_license'] = null;
 	}
 
 	update_site_option( 'dt_settings', $new_settings );
+}
+
+/**
+ * Clean distributor post caches.
+ *
+ * Distributor caches a number of post related items to improve performance. This
+ * ensures they are cleared when a post is updated.
+ *
+ * Runs on the hook `clean_post_cache`.
+ *
+ * @since x.x.x
+ *
+ * @param int $post_id Post ID.
+ */
+function clean_dt_post_cache( int $post_id ) {
+	$cache_keys = array(
+		"dt_media::{$post_id}",
+	);
+
+	if ( function_exists( 'wp_cache_delete_multiple' ) ) {
+		wp_cache_delete_multiple( $cache_keys, 'dt::post' );
+	} else {
+		foreach ( $cache_keys as $cache_key ) {
+			wp_cache_delete( $cache_key, 'dt::post' );
+		}
+	}
 }
 
 

@@ -10,7 +10,7 @@ namespace Distributor;
 use \Distributor\Connection as Connection;
 
 /**
- * External connections extend this base abstract class. External onnections are used to push and pull content.
+ * External connections extend this base abstract class. External connections are used to push and pull content.
  * Note that static methods are used for interacting with the type whereas class instances
  * deal with an actual connection.
  */
@@ -40,7 +40,7 @@ abstract class ExternalConnection extends Connection {
 	/**
 	 * Auth handler class
 	 *
-	 * @var string
+	 * @var Authentication
 	 */
 	public $auth_handler;
 
@@ -69,16 +69,17 @@ abstract class ExternalConnection extends Connection {
 	 *
 	 * This let's us grab all the IDs of posts we've PULLED from a given connection
 	 *
-	 * @param array $item_id_mappings Mapping array to store; key = origin post ID, value = new post ID.
-	 * @param int   $connection_id Connection ID.
+	 * @param array   $item_id_mappings Mapping array to store; key = origin post ID, value = new post ID.
+	 * @param int     $connection_id Connection ID.
+	 * @param boolean $overwrite Whether to overwrite the sync log for this connection. Default false.
 	 * @since 0.8
 	 */
-	public function log_sync( array $item_id_mappings, $connection_id = 0 ) {
+	public function log_sync( array $item_id_mappings, $connection_id = 0, $overwrite = false ) {
 		$connection_id = 0 === $connection_id ? $this->id : $connection_id;
 
-		$sync_log = get_post_meta( $connection_id, 'dt_sync_log', true );
+		$sync_log = $this->get_sync_log( $connection_id );
 
-		if ( empty( $sync_log ) ) {
+		if ( true === $overwrite ) {
 			$sync_log = array();
 		}
 
@@ -96,12 +97,31 @@ abstract class ExternalConnection extends Connection {
 		 * Action fired when a sync is being logged.
 		 *
 		 * @since 1.0
+		 * @hook dt_log_sync
 		 *
-		 * @param array $item_id_mappings Item ID mappings.
-		 * @param array $sync_log The sync log
-		 * @param object $this This class.
+		 * @param {array} $item_id_mappings Item ID mappings.
+		 * @param {array} $sync_log The sync log
+		 * @param {object} $this The current connection class.
 		 */
 		do_action( 'dt_log_sync', $item_id_mappings, $sync_log, $this );
+	}
+
+	/**
+	 * Return the sync log for a specific connection
+	 *
+	 * @param int $connection_id Connection ID.
+	 * @return array
+	 */
+	public function get_sync_log( $connection_id = 0 ) {
+		$connection_id = 0 === $connection_id ? $this->id : $connection_id;
+
+		$sync_log = get_post_meta( $connection_id, 'dt_sync_log', true );
+
+		if ( empty( $sync_log ) ) {
+			$sync_log = [];
+		}
+
+		return $sync_log;
 	}
 
 	/**

@@ -14,7 +14,7 @@ class InternalPullTest extends \TestCase {
 	 * Test the correct posts show in "new", "pulled", "skipped"
 	 */
 	public function testPostShowingPerStatus() {
-		$I = $this->getAnonymousUser();
+		$I = $this->openBrowserPage();
 
 		$I->loginAs( 'wpsnapshots' );
 
@@ -43,7 +43,7 @@ class InternalPullTest extends \TestCase {
 	 * Test pulling a post
 	 */
 	public function testPullPost() {
-		$I = $this->getAnonymousUser();
+		$I = $this->openBrowserPage();
 
 		$I->loginAs( 'wpsnapshots' );
 
@@ -68,7 +68,7 @@ class InternalPullTest extends \TestCase {
 	 * Test skipping a post
 	 */
 	public function testSkipPost() {
-		$I = $this->getAnonymousUser();
+		$I = $this->openBrowserPage();
 
 		$I->loginAs( 'wpsnapshots' );
 
@@ -76,7 +76,7 @@ class InternalPullTest extends \TestCase {
 
 		$I->waitUntilElementVisible( '.wp-list-table' );
 
-		$I->selectOptions( '#bulk-action-selector-top', 'bulk-skip' );
+		$I->selectOptionByValue( '#bulk-action-selector-top', 'bulk-skip' );
 
 		$I->checkOptions( '.wp-list-table #cb-select-40');
 
@@ -89,5 +89,28 @@ class InternalPullTest extends \TestCase {
 		$I->waitUntilElementVisible( '.wp-list-table' );
 
 		$I->seeText( 'Test Post', '.wp-list-table .page-title' );
+	}
+
+	/**
+	 * Test searching mutilple words.
+	 * 
+	 * @link https://github.com/10up/distributor/pull/533
+	 */
+	public function testSearchMultipleWordsDuringPull() {
+		$I = $this->openBrowserPage();
+
+		$I->loginAs( 'wpsnapshots' );
+
+		$I->moveTo( 'two/wp-admin/admin.php?page=pull' );
+
+		$I->waitUntilElementVisible( '.wp-list-table' );
+
+		$I->typeInField( '#post-search-input', 'test post' );
+
+		$I->click( '#search-submit' );
+
+		$I->waitUntilElementVisible( '.wp-list-table' );
+
+		$I->dontSeeText( 'No items found.', 'table.distributor_page_pull' );
 	}
 }

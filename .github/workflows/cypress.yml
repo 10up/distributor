@@ -1,0 +1,114 @@
+name: E2E Tests
+
+on:
+  push:
+    branches:
+      - develop
+      - develop-v1
+      - trunk
+  pull_request:
+    branches:
+      - develop
+      - develop-v1
+jobs:
+  build:
+    name: NPM Install
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+
+    - name: Use desired version of NodeJS
+      uses: actions/setup-node@v3
+      with:
+          node-version-file: '.nvmrc'
+
+    - name: Cache Node
+      uses: actions/cache@v3
+      with:
+        path: |
+          node_modules
+          ~/.cache
+          ~/.npm
+        key: ${{ hashFiles('package-lock.json') }}
+
+    - name: Install dependencies
+      run: npm install
+
+  cypress:
+    name: ${{ matrix.core.name }} / ${{ matrix.php.name }}
+    needs: [build]
+    ## Pending upgrade of `@wordpress/env` package.
+    continue-on-error: ${{ matrix.core.version == 'WordPress/WordPress#master' }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        php:
+          - {name: 'PHP Default', version: null}
+        core:
+          - {name: 'WP stable', version: 'latest'}
+          - {name: 'WP 5.7', version: 'WordPress/WordPress#5.7'}
+          - {name: 'WP trunk', version: 'WordPress/WordPress#master'}
+        include:
+          - php: {name: 'PHP 7.4', version: '7.4'}
+            core: {name: 'WP 5.7', version: 'WordPress/WordPress#5.7'}
+          - php: {name: 'PHP 8.1', version: '8.1'}
+            core: {name: 'WP stable', version: 'latest'}
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+
+    - name: Use desired version of NodeJS
+      uses: actions/setup-node@v3
+      with:
+          node-version-file: '.nvmrc'
+
+    - name: Check versions
+      run: npm -v; node -v
+
+    - name: Cache Node
+      uses: actions/cache@v3
+      with:
+        path: |
+          node_modules
+          ~/.cache
+          ~/.npm
+        key: ${{ hashFiles('package-lock.json') }}
+
+    - name: Install dependencies
+      run: npm install
+
+    - name: Composer install
+      run: composer install
+
+    - name: Build
+      run: npm run build
+
+    - name: Set the core version
+      run: |
+        ./tests/bin/set-core-version.js ${{ matrix.core.version }} ${{ matrix.php.version }}
+
+    - name: Set up WP environment
+      run: npm run env:start
+
+    - name: Log WP environment versions
+      run: |
+        npx wp-env run cli "wp core version"
+        npx wp-env run cli "php --version"
+
+    - name: Copy .htaccess
+      run: npm run copy-htaccess
+
+    - name: Test
+      run: npm run cypress:run
+
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v2
+      if: failure()
+      with:
+        name: cypress-artifact
+        retention-days: 2
+        path: |
+          ${{ github.workspace }}/tests/cypress/screenshots/
+          ${{ github.workspace }}/tests/cypress/videos/

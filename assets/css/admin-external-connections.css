@@ -1,13 +1,13 @@
 .network-connections-notice {
-	margin-bottom: .5em;
+	margin-bottom: 0.5em;
 	font-style: italic;
 }
 
 .connection-status {
-	content: ' ';
+	content: " ";
 	display: inline-block;
 	border-radius: 50%;
-	background-color: #ff0000;
+	background-color: #f00;
 	width: 10px;
 	height: 10px;
 	border: 1px solid #999;

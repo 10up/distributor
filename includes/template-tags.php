@@ -43,7 +43,7 @@ function distributor_get_original_post_link( $post_id = null ) {
 	$original_site_name = get_post_meta( $post_id, 'dt_original_site_name', true );
 	$original_post_url  = get_post_meta( $post_id, 'dt_original_post_url', true );
 
-	if ( ! empty( $original_blog_id ) && ! empty( $original_post_id ) ) {
+	if ( ! empty( $original_blog_id ) && ! empty( $original_post_id ) && is_multisite() ) {
 		switch_to_blog( $original_blog_id );
 
 		$link = get_permalink( $original_post_id );
@@ -85,7 +85,7 @@ function distributor_get_original_site_name( $post_id = null ) {
 	$original_blog_id   = get_post_meta( $post_id, 'dt_original_blog_id', true );
 	$original_site_name = get_post_meta( $post_id, 'dt_original_site_name', true );
 
-	if ( ! empty( $original_blog_id ) ) {
+	if ( ! empty( $original_blog_id ) && is_multisite() ) {
 		switch_to_blog( $original_blog_id );
 
 		$text = get_bloginfo( 'name' );
@@ -127,7 +127,7 @@ function distributor_get_original_site_url( $post_id = null ) {
 	$original_blog_id  = get_post_meta( $post_id, 'dt_original_blog_id', true );
 	$original_site_url = get_post_meta( $post_id, 'dt_original_site_url', true );
 
-	if ( ! empty( $original_blog_id ) ) {
+	if ( ! empty( $original_blog_id ) && is_multisite() ) {
 		switch_to_blog( $original_blog_id );
 
 		$url = home_url();
@@ -164,16 +164,20 @@ function distributor_get_original_site_link( $post_id = null ) {
 	$site_url  = distributor_get_original_site_url( $post_id );
 
 	if ( empty( $site_name ) || empty( $site_url ) ) {
-		return;
+		return '';
 	}
 
 	/**
 	 * Filter the original site link for a distributed post.
 	 *
 	 * @since 1.0.0
+	 * @hook distributor_get_original_site_link
 	 *
-	 * @param string A formatted version of the original site link.
+	 * @param {string} $link A formatted version of the original site link.
+	 *
+	 * @return {string} A formatted version of the original site link.
 	 */
+	/* translators: %1$s: site url, %2$s; site name*/
 	return apply_filters( 'distributor_get_original_site_link', sprintf( __( 'By <a href="%1$s">%2$s</a>', 'distributor' ), esc_url( $site_url ), esc_html( $site_name ) ) );
 }
 

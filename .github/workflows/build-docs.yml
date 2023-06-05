@@ -1,0 +1,30 @@
+name: Build Hook Docs
+
+on:
+ push:
+   branches:
+    - trunk
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2.4.0
+    - name: Use desired version of NodeJS
+      uses: actions/setup-node@v3
+      with:
+          node-version-file: '.nvmrc'
+    - name: Check versions
+      run: npm -v; node -v
+    - name: npm install, and build docs
+      run: |
+        npm install
+        npm -g install gulp-cli
+        npm run build:docs
+      env:
+        CI: true
+    - name: Deploy to GH Pages
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: './docs-built'

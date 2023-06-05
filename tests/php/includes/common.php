@@ -157,49 +157,70 @@ function remote_get_setup() {
 
 	\WP_Mock::userFunction( 'get_option' );
 
-	$post_type = 'post';
-	$links     = [
-		'_links' => [
-			'wp:items' => [
-				[ 'href' => 'http://url.com' ],
+	$rest_response = [
+		[
+			'post_title'                     => 'My post title',
+			'post_name'                      => 'my-post-title',
+			'post_type'                      => 'post',
+			'post_content'                   => '',
+			'post_excerpt'                   => '',
+			'post_status'                    => 'publish',
+			'terms'                          => [],
+			'meta'                           => [],
+			'media'                          => [],
+			'post_author'                    => 1,
+			'meta_input'                     => [
+				'dt_original_post_id'  => 123,
+				'dt_original_post_url' => 'http://example.com/2023/04/11/my-post-title/',
 			],
+			'ID'                             => 123,
+			'post_date'                      => '2023-04-11 05:40:43',
+			'post_date_gmt'                  => '2023-04-11 05:40:43',
+			'post_modified'                  => '2023-04-11 05:40:43',
+			'post_modified_gmt'              => '2023-04-11 05:40:43',
+			'post_password'                  => '',
+			'guid'                           => 'http://example.com/?p=123',
+			'comment_status'                 => 'open',
+			'ping_status'                    => 'open',
+			'link'                           => 'http://example.com/2023/04/11/my-post-title/',
+			'distributor_original_site_name' => 'My site name',
+			'distributor_original_site_url'  => 'http://example.com/',
 		],
 	];
 
+	$post_response = $rest_response[0];
+	$post_response['original_site_name'] = $post_response['distributor_original_site_name'];
+	$post_response['original_site_url']  = $post_response['distributor_original_site_url'];
+	unset( $post_response['distributor_original_site_name'] );
+	unset( $post_response['distributor_original_site_url'] );
+
 	\WP_Mock::userFunction(
-		'wp_remote_get', [
-			'return' => json_encode(
-				[
-					$post_type => $links,
-				]
-			),
+		'wp_remote_post', [
+			'return' => new stdClass(),
+		]
+	);
+
+	\WP_Mock::userFunction(
+		'wp_remote_request', [
+			'return' => new stdClass(),
 		]
 	);
 
 	\WP_Mock::userFunction(
 		'wp_remote_retrieve_body', [
-			'return' => json_encode(
-				[
-					'id'                => 123,
-					'title'             => [ 'rendered' => 'My post title' ],
-					'content'           => [ 'rendered' => '', 'raw' => '' ],
-					'excerpt'           => [ 'rendered' => '' ],
-					'date'              => '',
-					'date_gmt'          => '',
-					'guid'              => [ 'rendered' => '' ],
-					'modified'          => '',
-					'modified_gmt'      => '',
-					'type'              => '',
-					'link'              => '',
-					'distributor_meta'  => [],
-					'distributor_terms' => [],
-					'distributor_media' => [],
-					$post_type          => $links,
-					'comment_status'    => 'open',
-					'ping_status'       => 'open',
-					'password'          => '',
-				]
-			),
+			'return' => json_encode( $rest_response ),
+		]
+	);
+
+	\WP_Mock::userFunction(
+		'wp_remote_retrieve_response_code', [
+			'return' => 200,
+		]
+	);
+
+	\WP_Mock::userFunction(
+		'wp_list_filter', [
+			'return' => [ new WP_Post( (object) $post_response ) ],
 		]
 	);
 }
@@ -249,6 +270,47 @@ function get_allowed_mime_types() {
 }
 
 /**
+ * Mock wp_json_encode() function.
+ *
+ * @since x.x.x
+ *
+ * @param mixed $data Data to encode.
+ * @param int   $options Optional. Options to be passed to json_encode(). Default 0.
+ * @param int   $depth Optional. Maximum depth to walk through $data.
+ * @return string|false The JSON encoded string, or false if it cannot be encoded.
+ */
+function wp_json_encode( $data, $options = 0, $depth = 512 ) {
+	return json_encode( $data, $options, $depth );
+}
+
+/**
+ * Mock wp_parse_args() function.
+ *
+ * @since x.x.x
+ *
+ * @param array $settings Array of arguments.
+ * @param array $defaults Array of default arguments.
+ * @return array Array of parsed arguments.
+ */
+function wp_parse_args( $settings, $defaults ) {
+	return array_merge( $defaults, $settings );
+}
+
+/**
+ * Mock absint() function.
+ *
+ * Copied from WordPress core.
+ *
+ * @since 2.0.0
+ *
+ * @param mixed $maybeint Data you wish to have converted to a non-negative integer.
+ * @return int A non-negative integer.
+ */
+function absint( $maybeint ) {
+	return abs( (int) $maybeint );
+}
+
+/**
  * Stub for remove_filter to avoid failure in test_remote_get()
  *
  * @return void
@@ -283,7 +345,9 @@ class TestInternalConnection extends \Distributor\Connection {
 
 	public function remote_get( $args ) { }
 
-	public function log_sync( array $item_id_mappings, $id ) { }
+	public function log_sync( array $item_id_mappings, $id, $overwrite ) {}
+
+	public function get_sync_log( $id ) {}
 
 	public function get_post_types() { }
 }

@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<ruleset name="Project Rules">
+	<rule ref="10up-Default">
+		<!-- Undeprecated in WordPress 5.9.0 -->
+		<exclude name="WordPress.WP.DeprecatedFunctions.sanitize_urlFound" />
+	</rule>
+	<rule ref="WordPress-VIP-Go"></rule>
+
+	<rule ref="WordPress.Security.ValidatedSanitizedInput">
+		<properties>
+			<property name="customUnslashingSanitizingFunctions" type="array">
+				<element value="wp_verify_nonce" />
+			</property>
+
+			<property name="customSanitizingFunctions" type="array">
+				<element value="wp_trim_words" />
+
+				<!-- Plugin custom sanitizing function -->
+				<element value="distributor_sanitize_connection" />
+			</property>
+		</properties>
+	</rule>
+</ruleset>

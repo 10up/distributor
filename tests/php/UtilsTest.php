@@ -2,7 +2,26 @@
 
 namespace Distributor;
 
-class UtilsTest extends \TestCase {
+use WP_Mock\Tools\TestCase;
+
+class UtilsTest extends TestCase {
+
+	/**
+	 * Set up with WP_Mock
+	 *
+	 * Set up common mocks required for multiple tests.
+	 *
+	 * @since x.x.x
+	 */
+	public function setUp(): void {
+		parent::setUp();
+
+
+		// Return voids.
+		\WP_Mock::userFunction( '_prime_post_caches' );
+		\WP_Mock::userFunction( 'update_object_term_cache' );
+		\WP_Mock::userFunction( 'update_postmeta_cache' );
+	}
 
 	/**
 	 * Test set meta with string value and array value
@@ -44,6 +63,26 @@ class UtilsTest extends \TestCase {
 			]
 		);
 
+		\WP_Mock::userFunction(
+			'wp_slash', [
+				'times'      => 4,
+				'return_arg' => 0,
+			]
+		);
+
+		\WP_Mock::userFunction(
+			'apply_filters_deprecated',
+			[
+				'return' => function( $name, $args ) {
+					return $args[0];
+				},
+			]
+		);
+
+		\WP_Mock::expectAction( 'dt_after_set_meta', [ 'key' => [ 'value' ] ], [], 1 );
+
+		\WP_Mock::expectAction( 'dt_after_set_meta', [ 'key' => [ [ 'value' ] ] ], [ 'key' => [ 'value' ] ], 1 );
+
 		Utils\set_meta(
 			1, [
 				'key' => [ 'value' ]
@@ -55,6 +94,8 @@ class UtilsTest extends \TestCase {
 				'key' => [ [ 'value' ] ],
 			]
 		);
+
+		$this->assertConditionsMet();
 	}
 
 	/**
@@ -121,6 +162,22 @@ class UtilsTest extends \TestCase {
 			]
 		);
 
+		\WP_Mock::userFunction(
+			'wp_slash', [
+				'times'      => 10,
+				'return_arg' => 0,
+			]
+		);
+
+		\WP_Mock::userFunction(
+			'apply_filters_deprecated',
+			[
+				'return' => function( $name, $args ) {
+					return $args[0];
+				},
+			]
+		);
+
 		Utils\set_meta(
 			1, [
 				'key'  => [ 'value' ],
@@ -137,6 +194,8 @@ class UtilsTest extends \TestCase {
 				'key2' => [ 'value3' ],
 			]
 		);
+
+		$this->assertConditionsMet();
 	}
 
 	/**
@@ -171,12 +230,30 @@ class UtilsTest extends \TestCase {
 			]
 		);
 
+		\WP_Mock::userFunction(
+			'wp_slash', [
+				'times'      => 4,
+				'return_arg' => 0,
+			]
+		);
+
+		\WP_Mock::userFunction(
+			'apply_filters_deprecated',
+			[
+				'return' => function( $name, $args ) {
+					return $args[0];
+				},
+			]
+		);
+
 		Utils\set_meta(
 			1, [
 				'key'  => [ 'value' ],
 				'key2' => [ 'a:1:{i:0;s:4:"test";}' ],
 			]
 		);
+
+		$this->assertConditionsMet();
 	}
 
 	/**
@@ -223,68 +300,16 @@ class UtilsTest extends \TestCase {
 			]
 		);
 
-		\WP_Mock::onFilter( 'dt_update_term_hierarchy' )
-			->with( true )
-			->reply( true );
-
 		\WP_Mock::userFunction(
-			'wp_set_object_terms', [
-				'times' => 1,
-				'args'  => [ $post_id, [ $term_id ], $taxonomy ],
-			]
-		);
-
-		Utils\set_taxonomy_terms(
-			$post_id, [
-				$taxonomy => [
+			'wp_update_term', [
+				'times'  => 1,
+				'args'   => [
+					$term_id,
+					$taxonomy,
 					[
-						'slug'    => $slug,
-						'name'    => $name,
-						'term_id' => $term_id,
-						'parent'  => 0,
-					],
+						'parent' => '',
+					]
 				],
-			]
-		);
-	}
-
-	/**
-	 * Test set taxonomy terms with an existing taxonomy and non existing term
-	 *
-	 * @since 1.0
-	 * @group Utils
-	 * @runInSeparateProcess
-	 */
-	public function test_set_taxonomy_terms_create_term() {
-		$post_id  = 1;
-		$term_id  = 1;
-		$taxonomy = 'taxonomy';
-		$slug     = 'slug';
-		$name     = 'name';
-
-		\WP_Mock::userFunction(
-			'taxonomy_exists', [
-				'times'  => 1,
-				'args'   => [ $taxonomy ],
-				'return' => true,
-			]
-		);
-
-		\WP_Mock::userFunction(
-			'get_term_by', [
-				'times'  => 1,
-				'args'   => [ 'slug', $slug, $taxonomy ],
-				'return' => false,
-			]
-		);
-
-		/**
-		 * Don't need to create any terms
-		 */
-		\WP_Mock::userFunction(
-			'wp_insert_term', [
-				'times'  => 1,
-				'args'   => [ $name, $taxonomy ],
 				'return' => [ 'term_id' => $term_id ],
 			]
 		);
@@ -312,6 +337,99 @@ class UtilsTest extends \TestCase {
 				],
 			]
 		);
+
+		$this->assertConditionsMet();
+	}
+
+	/**
+	 * Test set taxonomy terms with an existing taxonomy and non existing term
+	 *
+	 * @since 1.0
+	 * @group Utils
+	 * @runInSeparateProcess
+	 */
+	public function test_set_taxonomy_terms_create_term() {
+		$post_id     = 1;
+		$term_id     = 1;
+		$taxonomy    = 'taxonomy';
+		$slug        = 'slug';
+		$name        = 'name';
+		$description = 'description';
+
+		\WP_Mock::userFunction(
+			'taxonomy_exists', [
+				'times'  => 1,
+				'args'   => [ $taxonomy ],
+				'return' => true,
+			]
+		);
+
+		\WP_Mock::userFunction(
+			'get_term_by', [
+				'times'  => 1,
+				'args'   => [ 'slug', $slug, $taxonomy ],
+				'return' => false,
+			]
+		);
+
+		/**
+		 * Don't need to create any terms
+		 */
+		\WP_Mock::userFunction(
+			'wp_insert_term', [
+				'times'  => 1,
+				'args'   => [
+					$name,
+					$taxonomy,
+					[
+						'slug' => $slug,
+						'description' => $description
+					]
+				],
+				'return' => [ 'term_id' => $term_id ],
+			]
+		);
+
+		\WP_Mock::userFunction(
+			'wp_update_term', [
+				'times'  => 1,
+				'args'   => [
+					$term_id,
+					$taxonomy,
+					[
+						'parent' => '',
+					]
+				],
+				'return' => [ 'term_id' => $term_id ],
+			]
+		);
+
+		\WP_Mock::onFilter( 'dt_update_term_hierarchy' )
+			->with( true )
+			->reply( true );
+
+		\WP_Mock::userFunction(
+			'wp_set_object_terms', [
+				'times' => 1,
+				'args'  => [ $post_id, [ $term_id ], $taxonomy ],
+			]
+		);
+
+		Utils\set_taxonomy_terms(
+			$post_id, [
+				$taxonomy => [
+					[
+						'slug'        => $slug,
+						'name'        => $name,
+						'term_id'     => $term_id,
+						'parent'      => 0,
+						'description' => $description,
+					],
+				],
+			]
+		);
+
+		$this->assertConditionsMet();
 	}
 
 	/**
@@ -354,6 +472,8 @@ class UtilsTest extends \TestCase {
 				],
 			]
 		);
+
+		$this->assertConditionsMet();
 	}
 
 	/**
@@ -417,6 +537,14 @@ class UtilsTest extends \TestCase {
 		);
 
 		\WP_Mock::userFunction(
+			'get_attached_file', [
+				'times'  => 1,
+				'args'   => [ $media_post->ID ],
+				'return' => '/var/www/html/wp-content/uploads/mediaitem.jpg',
+			]
+		);
+
+		\WP_Mock::userFunction(
 			'get_post_meta', [
 				'times'  => 1,
 				'args'   => [ $media_post->ID ],
@@ -430,6 +558,15 @@ class UtilsTest extends \TestCase {
 		\WP_Mock::userFunction(
 			'remove_filter', [
 				'times' => 1,
+			]
+		);
+
+		\WP_Mock::userFunction(
+			'apply_filters_deprecated',
+			[
+				'return' => function( $name, $args ) {
+					return $args[0];
+				},
 			]
 		);
 
@@ -497,6 +634,14 @@ class UtilsTest extends \TestCase {
 		);
 
 		\WP_Mock::userFunction(
+			'get_attached_file', [
+				'times'  => 1,
+				'args'   => [ $media_post->ID ],
+				'return' => '/var/www/html/wp-content/uploads/mediaitem.jpg',
+			]
+		);
+
+		\WP_Mock::userFunction(
 			'get_post_meta', [
 				'times'  => 1,
 				'args'   => [ $media_post->ID ],
@@ -513,9 +658,115 @@ class UtilsTest extends \TestCase {
 			]
 		);
 
+		\WP_Mock::userFunction(
+			'apply_filters_deprecated',
+			[
+				'return' => function( $name, $args ) {
+					return $args[0];
+				},
+			]
+		);
+
 		$formatted_media = Utils\format_media_post( $media_post );
 
 		$this->assertTrue( $formatted_media['featured'] );
+
+		return $formatted_media;
+	}
+
+	/**
+	 * Test format media with no `_wp_attachment_metadata`
+	 *
+	 * @group Utils
+	 * @runInSeparateProcess
+	 */
+	public function test_format_media_no_attachment_meta() {
+		$media_post                 = new \stdClass();
+		$media_post->ID             = 1;
+		$media_post->post_parent    = 10;
+		$media_post->post_title     = 'title';
+		$media_post->post_content   = 'content';
+		$media_post->post_excerpt   = 'excerpt';
+		$media_post->post_mime_type = 'image/png';
+
+		\WP_Mock::userFunction(
+			'get_post_thumbnail_id', [
+				'times'  => 1,
+				'args'   => [ $media_post->post_parent ],
+				'return' => 0,
+			]
+		);
+
+		\WP_Mock::userFunction(
+			'get_post_meta', [
+				'times'  => 1,
+				'args'   => [ $media_post->ID, '_wp_attachment_image_alt', true ],
+				'return' => 'alt',
+			]
+		);
+
+		\WP_Mock::userFunction(
+			'wp_attachment_is_image', [
+				'times'  => 1,
+				'args'   => [ $media_post->ID ],
+				'return' => true,
+			]
+		);
+
+		\WP_Mock::userFunction(
+			'wp_get_attachment_metadata', [
+				'times'  => 1,
+				'args'   => [ $media_post->ID ],
+				'return' => [ 'test' => 1 ],
+			]
+		);
+
+		\WP_Mock::userFunction(
+			'wp_get_attachment_url', [
+				'times'  => 1,
+				'args'   => [ $media_post->ID ],
+				'return' => 'http://mediaitem.com',
+			]
+		);
+
+		\WP_Mock::userFunction(
+			'get_attached_file', [
+				'times'  => 1,
+				'args'   => [ $media_post->ID ],
+				'return' => '/var/www/html/wp-content/uploads/mediaitem.jpg',
+			]
+		);
+
+		\WP_Mock::userFunction(
+			'get_post_meta', [
+				'times'  => 1,
+				'args'   => [ $media_post->ID ],
+				'return' => [
+					'meta1'                   => [ true ],
+					'meta2'                   => [ false ],
+					'_wp_attachment_metadata' => [ true ],
+				],
+			]
+		);
+
+		\WP_Mock::userFunction(
+			'remove_filter', [
+				'times' => 1,
+			]
+		);
+
+		\WP_Mock::userFunction(
+			'apply_filters_deprecated',
+			[
+				'return' => function( $name, $args ) {
+					return $args[0];
+				},
+			]
+		);
+
+		$formatted_media = Utils\format_media_post( $media_post );
+
+		$this->assertFalse( array_key_exists( '_wp_attachment_metadata', $formatted_media['meta'] ) );
 
 		return $formatted_media;
 	}
@@ -563,6 +814,19 @@ class UtilsTest extends \TestCase {
 		);
 
 		\WP_Mock::userFunction(
+			'wp_parse_args', [
+				'times'  => 1,
+				'args'   => [
+					[ 'use_filesystem' => false ],
+					[ 'use_filesystem' => false ],
+				],
+				'return' => [
+					'use_filesystem' => false,
+				],
+			]
+		);
+
+		\WP_Mock::userFunction(
 			'wp_delete_attachment', [
 				'times' => 1,
 				'args'  => [ $attached_media_post->ID, true ],
@@ -588,7 +852,12 @@ class UtilsTest extends \TestCase {
 		\WP_Mock::userFunction(
 			'Distributor\Utils\process_media', [
 				'times'  => 1,
-				'args'   => [ $media_item['source_url'], $post_id ],
+				'args'   => [ $media_item['source_url'], $post_id,
+					[
+						'source_file'    => $media_item['source_file'],
+						'use_filesystem' => false,
+					]
+				],
 				'return' => $new_image_id,
 			]
 		);
@@ -650,7 +919,23 @@ class UtilsTest extends \TestCase {
 			]
 		);
 
-		Utils\set_media( $post_id, [ $media_item ] );
+		\WP_Mock::userFunction(
+			'wp_slash', [
+				'times'      => 4,
+				'return_arg' => 0,
+			]
+		);
+
+		\WP_Mock::userFunction(
+			'apply_filters_deprecated',
+			[
+				'return' => function( $name, $args ) {
+					return $args[0];
+				},
+			]
+		);
+
+		Utils\set_media( $post_id, [ $media_item ], [ 'use_filesystem' => false ] );
 	}
 
 	/**
@@ -661,4 +946,29 @@ class UtilsTest extends \TestCase {
 	 * Todo finish process_media
 	 */
 
+	 /**
+	  * Test post_args_allow_list
+	  *
+	  * @since 1.7.0
+	  */
+	function test_post_args_allow_list() {
+		$post_args = [
+			'post_title'   => 'Test Title',
+			'post_type'    => 'post',
+			'post_content' => 'Test Content',
+			'post_excerpt' => 'Test Excerpt',
+			'link'         => 'https://github.com/10up/distributor/issues/879',
+			'dt_source'    => 'https://github.com/10up/distributor/pull/895',
+		];
+
+		$expected = [
+			'post_title'   => 'Test Title',
+			'post_type'    => 'post',
+			'post_content' => 'Test Content',
+			'post_excerpt' => 'Test Excerpt',
+		];
+
+		$actual = Utils\post_args_allow_list( $post_args );
+		$this->assertSame( $expected, $actual );
+	}
 }

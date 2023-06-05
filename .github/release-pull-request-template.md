@@ -1,0 +1,16 @@
+- [x] Branch: Starting from `develop`, create a release branch named `release/X.Y.Z` for your changes.
+- [ ] Version bump: Bump the version number in `distributor.php`, `package.json`, `readme.txt` and `tests/php/bootstrap.php` if it does not already reflect the version being released.  In `distributor.php` update both the plugin "Version:" property and the plugin `DT_VERSION` constant.
+- [ ] New files: Ensure any new files, especially in the vendor folder, are correctly included in `webpack.config.release.js`.
+- [ ] Changelog: Add/update the changelog in `CHANGELOG.md`.
+- [ ] Props: Update `CREDITS.md` file with any new contributors, confirm maintainers are accurate.
+- [ ] Readme updates: Make any other readme changes as necessary.  `README.md` is geared toward GitHub and `readme.txt` contains WordPress.org-specific content.  The two are slightly different.
+- [ ] Since tag updates: ensure `@since` tags indicate the new version, replacing `x.x.x`, `n.e.x.t` and other placeholders.
+- [ ] Merge: Make a non-fast-forward merge from your release branch to `develop` (or merge the Pull Request), then do the same for `develop` into `trunk` (`git checkout trunk && git merge --no-ff develop`).  `trunk` contains the stable development version.
+- [ ] Build: Wait for the [Build Stable Release Action](https://github.com/10up/distributor/actions?query=workflow%3A%22Build+Stable+Release%22) to finish running.
+- [ ] Update this pull request's status from `draft` to `ready to merge`.
+- [ ] Review: Do a review of the commit to the `stable` branch to ensure the contents of the diffs are as expected.
+- [ ] Test: Check out the `stable` branch and test it locally to ensure everything works as expected.  It is recommended that you rename the existing `distributor` directory and check out `stable` fresh because switching branches does not delete files.  This can be done with `git clone --single-branch --branch stable git@github.com:10up/distributor.git`
+- [ ] Release: Create a [new release](https://github.com/10up/distributor/releases/new), naming the tag and the release with the new version number, and **targeting the `stable` branch**.  Paste the changelog from `CHANGELOG.md` into the body of the release and include a link to the [closed issues on the milestone](https://github.com/10up/distributor/milestone/#?closed=1).  The release should now appear under [releases](https://github.com/10up/distributor/releases).
+- [ ] Check release: Wait for the [Publish Release Action](https://github.com/10up/distributor/actions?query=workflow%3A%22Publish+Release%22) to complete, and then check the latest release to ensure that the ZIP has been attached as an asset.  Download the ZIP and inspect the contents to be sure they match the contents of the `stable` branch.
+- [ ] Close milestone: Edit the [milestone](https://github.com/10up/distributor/milestone/#) with release date (in the `Due date (optional)` field) and link to GitHub release (in the `Description` field), then close the milestone.
+- [ ] Punt incomplete items: If any open issues or PRs which were milestoned for `X.Y.Z` do not make it into the release, update their milestone to `X.Y.Z+1`, `X.Y+1.0`, `X+1.0.0`, or `Future Release`.

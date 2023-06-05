@@ -1,0 +1,47 @@
+name: Build Stable Release
+on:
+  push:
+    branches:
+    - trunk
+jobs:
+  stable:
+    name: Push (merge) to trunk
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2.4.0
+    - name: Use desired version of NodeJS
+      uses: actions/setup-node@v3
+      with:
+          node-version-file: '.nvmrc'
+    - name: Set PHP version
+      uses: shivammathur/setup-php@2.17.0
+      with:
+        php-version: 7.4
+        tools: composer:v2
+    - name: Check versions
+      run: |
+        npm -v
+        node -v
+        php -v
+        composer -v
+
+    - name: Install and build
+      run: |
+        composer install --no-dev
+        npm install
+        npm run release
+    - name: Push to Stable
+      env:
+        GITHUB_REPOSITORY: ${{ github.event.repository.name }}
+        GITHUB_SHA: ${{ github.event.commits[0].sha }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        git config --global user.email "10upbot+github@10up.com"
+        git config --global user.name "10upbot on GitHub"
+        git remote set-url origin "https://x-access-token:$GITHUB_TOKEN@github.com/$GITHUB_REPOSITORY.git"
+
+        cd release
+        git add .
+        git commit -m "Committing built version of $GITHUB_SHA"
+        git push origin stable

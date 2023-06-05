@@ -143,10 +143,12 @@ class SubscriptionsController extends \WP_REST_Controller {
 		if ( ! empty( $GLOBALS['wp']->query_vars['rest_route'] ) ) {
 			$path = $GLOBALS['wp']->query_vars['rest_route'];
 		} else {
-			$path = $_SERVER['REQUEST_URI'];
+			// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotValidated -- see wp_fix_server_vars().
+			$path = esc_url_raw( wp_unslash( $_SERVER['REQUEST_URI'] ) );
 		}
 
-		$request = new \WP_REST_Request( $_SERVER['REQUEST_METHOD'], $path );
+		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotValidated
+		$request = new \WP_REST_Request( strtoupper( sanitize_key( wp_unslash( $_SERVER['REQUEST_METHOD'] ) ) ), $path );
 		$request->set_body_params( wp_unslash( $_POST ) ); // phpcs:ignore
 
 		// If this is not a subscription request, return the original value.
@@ -222,7 +224,7 @@ class SubscriptionsController extends \WP_REST_Controller {
 
 			// When both sides of a subscription connection support Gutenberg, update with the raw content.
 			$content = $request['post_data']['content'];
-			if ( \Distributor\Utils\is_using_gutenberg() && isset( $request['post_data']['distributor_raw_content'] ) ) {
+			if ( \Distributor\Utils\is_using_gutenberg( $post ) && isset( $request['post_data']['distributor_raw_content'] ) ) {
 				if ( \Distributor\Utils\dt_use_block_editor_for_post_type( $post->post_type ) ) {
 					$content = $request['post_data']['distributor_raw_content'];
 
@@ -245,6 +247,11 @@ class SubscriptionsController extends \WP_REST_Controller {
 				'terms'        => ( isset( $request['post_data']['distributor_terms'] ) ) ? $request['post_data']['distributor_terms'] : [],
 				'media'        => ( isset( $request['post_data']['distributor_media'] ) ) ? $request['post_data']['distributor_media'] : [],
 			];
+
+			// Limit taxonomy updates to those shown in the REST API.
+			$rest_taxonomies = get_taxonomies( [ 'show_in_rest' => true ] );
+			$rest_taxonomies = array_fill_keys( $rest_taxonomies, true );
+			$update['terms'] = array_intersect_key( $update['terms'], $rest_taxonomies );
 
 			update_post_meta( (int) $request['post_id'], 'dt_subscription_update', $update );
 
@@ -284,6 +291,17 @@ class SubscriptionsController extends \WP_REST_Controller {
 				// remove any previously set featured image
 				delete_post_meta( (int) $request['post_id'], '_thumbnail_id' );
 			}
+
+			/**
+			 * Action fired after receiving a subscription update from Distributor
+			 *
+			 * @since 1.3.8
+			 * @hook dt_process_subscription_attributes
+			 *
+			 * @param {WP_Post}         $post    Updated post object.
+			 * @param {WP_REST_Request} $request Request object.
+			 */
+			do_action( 'dt_process_subscription_attributes', $post, $request );
 
 			$response = new \WP_REST_Response();
 			$response->set_data( array( 'updated' => true ) );

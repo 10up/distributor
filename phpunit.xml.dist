@@ -1,10 +1,10 @@
 <phpunit
-	bootstrap="./tests/php/bootstrap.php.dist"
+	bootstrap="./tests/php/bootstrap.php"
 	backupGlobals="false"
 	colors="true"
 	>
 	<testsuites>
-		<testsuite>
+		<testsuite name='distributor-tests'>
 			<directory suffix="Test.php">./tests/php/</directory>
 		</testsuite>
 	</testsuites>

@@ -13,11 +13,13 @@ class PushMenuTest extends \TestCase {
 	 * Test that the menu shows on hover
 	 */
 	public function testMenuItemHover() {
-		$I = $this->getAnonymousUser();
+		$I = $this->openBrowserPage();
 
 		$I->loginAs( 'wpsnapshots' );
 
 		$I->moveTo( 'wp-admin/post.php?post=40&action=edit' );
+
+		$this->disableFullscreenEditor( $I );
 
 		$I->waitUntilElementVisible( '#wp-admin-bar-distributor a' );
 
@@ -25,24 +27,36 @@ class PushMenuTest extends \TestCase {
 
 		$I->click( '#wp-admin-bar-distributor a' );
 
-		$I->seeElement( '#distributor-push-wrapper .new-connections-list' );
+		$I->click( '#wp-admin-bar-distributor a' );
+
+		$I->waitUntilElementVisible( '#distributor-push-wrapper .new-connections-list' );
+
+		$I->seeElement( '#distributor-push-wrapper .add-connection' );
 	}
 
 	/**
 	 * Test connection cross out
 	 */
 	public function testConnectionCrossOutOnPush() {
-		$I = $this->getAnonymousUser();
+		$I = $this->openBrowserPage();
 
 		$I->loginAs( 'wpsnapshots' );
 
 		$I->moveTo( 'wp-admin/post.php?post=40&action=edit' );
 
+		$this->disableFullscreenEditor( $I );
+
 		$I->waitUntilElementVisible( '#wp-admin-bar-distributor a' );
+
+		$this->dismissNUXTip( $I );
 
 		$I->moveMouse( '#wp-admin-bar-distributor a' );
 
 		$I->click( '#wp-admin-bar-distributor a' );
+
+		$I->click( '#wp-admin-bar-distributor a' );
+
+		$I->waitUntilElementVisible( '#distributor-push-wrapper .new-connections-list' );
 
 		$I->click( '#distributor-push-wrapper .new-connections-list .add-connection[data-connection-id="2"]' );
 
@@ -50,28 +64,36 @@ class PushMenuTest extends \TestCase {
 
 		// Distribute post (as draft)
 		$I->click( '#distributor-push-wrapper .syndicate-button' );
-
 		$I->waitUntilElementVisible( '#distributor-push-wrapper .dt-success' );
 
 		// See crossed out element
 		$I->seeElement( '#distributor-push-wrapper .new-connections-list .add-connection.syndicated[data-connection-id="2"]' );
+		$I->seeText( 'View', '#distributor-push-wrapper .new-connections-list .add-connection.syndicated[data-connection-id="2"]' );
 	}
 
 	/**
 	 * Test that we can select connections properly
 	 */
 	public function testSelectConnection() {
-		$I = $this->getAnonymousUser();
+		$I = $this->openBrowserPage();
 
 		$I->loginAs( 'wpsnapshots' );
 
 		$I->moveTo( 'wp-admin/post.php?post=40&action=edit' );
 
+		$this->disableFullscreenEditor( $I );
+
 		$I->waitUntilElementVisible( '#wp-admin-bar-distributor a' );
+
+		$this->dismissNUXTip( $I );
 
 		$I->moveMouse( '#wp-admin-bar-distributor a' );
 
 		$I->click( '#wp-admin-bar-distributor a' );
+
+		$I->click( '#wp-admin-bar-distributor a' );
+
+		$I->waitUntilElementVisible( '#distributor-push-wrapper .new-connections-list' );
 
 		$I->click( '#distributor-push-wrapper .new-connections-list .add-connection[data-connection-id="2"]' );
 

@@ -14,7 +14,7 @@ class SettingsTest extends \TestCase {
 	 * Test that settings actually save
 	 */
 	public function testSettingsSave() {
-		$I = $this->getAnonymousUser();
+		$I = $this->openBrowserPage();
 
 		$I->loginAs( 'wpsnapshots' );
 
@@ -51,7 +51,7 @@ class SettingsTest extends \TestCase {
 	 * Test author bylines
 	 */
 	public function testAuthorBylineSetting() {
-		$I = $this->getAnonymousUser();
+		$I = $this->openBrowserPage();
 
 		$I->loginAs( 'wpsnapshots' );
 
@@ -90,6 +90,6 @@ class SettingsTest extends \TestCase {
 		// Verify byline is normal
 		$I->moveTo( $post_info['distributed_front_url'] );
 
-		$I->seeText( 'wpsnapshots', '.byline .author' );
+		$I->seeText( 'admin', '.byline .author' );
 	}
 }

@@ -14,7 +14,7 @@ class LinkUnlinkTest extends \TestCase {
 	 * Test unlinking
 	 */
 	public function testUnlinkPublishPost() {
-		$I = $this->getAnonymousUser();
+		$I = $this->openBrowserPage();
 
 		$I->loginAs( 'wpsnapshots' );
 
@@ -24,23 +24,41 @@ class LinkUnlinkTest extends \TestCase {
 
 		$I->moveTo( $post_info['distributed_edit_url'] );
 
-		$I->waitUntilElementVisible( '#title' );
+		$I->waitUntilElementVisible( 'body.post-php' );
+
+		$editor_has_blocks =  $this->editorHasBlocks( $I );
 
 		// I see linked link
-		$I->seeLink( 'unlink from the original' );
+		if ( $editor_has_blocks ) {
+			$I->seeLink( 'View the origin post' );
+			// Unlink post
+			$I->click( '.components-notice__action' );
 
-		// I cant interact with title field
-		$I->cannotInteractWithField( '#title' );
+			$I->waitUntilElementVisible( 'body.post-php' );;
 
-		// Unlink post
-		$I->click( '.syndicate-status span a' );
+			sleep( 1 );
 
-		$I->waitUntilElementVisible( '#title' );
+			// I see unlinked text
+			$I->seeText( 'Originally distributed from Site One. This Post has been unlinked from the origin post. However, you can always restore it. View the origin post', '.components-notice__content' );
 
-		// I see unlinked text
-		$I->seeText( 'This post has been unlinked from the original', '.syndicate-status' );
+			// I can interact with title field
+			$I->canInteractWithField( '#post-title-0' );
 
-		// I can interact with title field
-		$I->canInteractWithField( '#title' );
+		} else {
+			$I->seeLink( 'unlink from the origin post' );
+			// I cant interact with title field
+			$I->cannotInteractWithField( '#title' );
+			// Unlink post
+			$I->click( '.syndicate-status span a' );
+
+			$I->waitUntilElementVisible( 'body.post-php' );;
+
+			// I see unlinked text
+			$I->seeText( 'This post has been unlinked from the origin post', '.syndicate-status' );
+
+			// I can interact with title field
+			$I->canInteractWithField( '#title' );
+		}
+
 	}
 }
