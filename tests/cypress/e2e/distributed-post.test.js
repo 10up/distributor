@@ -57,4 +57,48 @@ describe( 'Distributed Post Tests', () => {
 			} );
 		} );
 	} );
+
+	it( 'Should display source information in distributed copies of content', () => {
+		const postTitle = 'Post to push ' + randomName();
+
+		cy.createPost( { title: postTitle } ).then( ( post ) => {
+			cy.distributorPushPost( post.id, 'second', '', 'publish' ).then(
+				( postInfo ) => {
+					cy.visit( postInfo.distributedFrontUrl );
+					cy.get( '#wp-admin-bar-distributor .syndicated-notice' )
+						.should(
+							'contain.text',
+							'This post was distributed from'
+						)
+						.should( 'contain.text', 'View the origin post.' );
+
+					cy.visit( postInfo.distributedEditUrl );
+					cy.closeWelcomeGuide();
+					cy.get( '.components-notice__content' )
+						.should( 'contain.text', 'Distributed from' )
+						.should(
+							'contain.text',
+							'This post is linked to the origin post. Edits to the origin post will update this remote version.'
+						);
+
+					// Ensure the settings panel is open.
+					cy.get( 'button[aria-label="Settings"]' ).then(
+						( $settings ) => {
+							if (
+								$settings.attr( 'aria-expanded' ) === 'false'
+							) {
+								$settings.trigger( 'click' );
+							}
+							cy.openDocumentSettingsSidebar( 'Post' );
+							cy.openDocumentSettingsPanel( 'Distributor' );
+							cy.get( '#distributed-from' ).should(
+								'contain.text',
+								'Distributed on'
+							);
+						}
+					);
+				}
+			);
+		} );
+	} );
 } );
