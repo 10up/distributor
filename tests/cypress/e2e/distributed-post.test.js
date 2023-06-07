@@ -71,6 +71,11 @@ describe( 'Distributed Post Tests', () => {
 							'This post was distributed from'
 						)
 						.should( 'contain.text', 'View the origin post.' );
+					cy.get( 'link[rel=canonical]' ).should(
+						'have.attr',
+						'href',
+						post.link
+					);
 
 					cy.visit( postInfo.distributedEditUrl );
 					cy.closeWelcomeGuide();
