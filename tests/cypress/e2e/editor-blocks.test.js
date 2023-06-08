@@ -42,4 +42,30 @@ describe( 'Distributed content block tests', () => {
 			} );
 		} );
 	} );
+
+	it( 'Should distribute blocks when pulling from network connections.', () => {
+		const postTitle = 'Post to pull ' + randomName();
+
+		cy.createPost( { title: postTitle } ).then( ( sourcePost ) => {
+			cy.distributorPullPost(
+				sourcePost.id,
+				'second',
+				'',
+				'localhost'
+			).then( ( distributedPost ) => {
+				cy.closeWelcomeGuide();
+				const matches =
+					distributedPost.distributedEditUrl.match( /post=(\d+)/ );
+				let distributedPostId;
+				if ( matches ) {
+					distributedPostId = matches[ 1 ];
+				}
+				cy.postContains(
+					distributedPostId,
+					'<!-- wp:paragraph -->',
+					'http://localhost/second/'
+				);
+			} );
+		} );
+	} );
 } );
