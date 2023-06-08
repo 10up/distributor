@@ -43,7 +43,7 @@ describe( 'Push menu test', () => {
 				toConnectionName,
 				'',
 				'publish'
-			).then( ( distributedPost ) => {
+			).then( () => {
 				// Visit the source post in the dashboard.
 				cy.visit(
 					'/wp-admin/post.php?post=' + sourcePost.id + '&action=edit'
