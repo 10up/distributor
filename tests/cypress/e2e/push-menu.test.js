@@ -24,4 +24,32 @@ describe( 'Push menu test', () => {
 			);
 		} );
 	} );
+
+	it( 'Push menu should prevent pushing to the same site', () => {
+		const postTitle = 'Push menu test ' + randomName();
+		const toConnectionName = 'localhost/second';
+		cy.createPost( { title: postTitle } ).then( ( sourcePost ) => {
+			cy.distributorPushPost(
+				sourcePost.id,
+				toConnectionName,
+				'',
+				'publish'
+			).then( ( distributedPost ) => {
+				// Visit the source post in the dashboard.
+				cy.visit(
+					'/wp-admin/post.php?post=' + sourcePost.id + '&action=edit'
+				);
+				cy.disableFullscreenEditor();
+				cy.get( '#wp-admin-bar-distributor > a' ).click();
+
+				// Get menu item for site already distributed to.
+				cy.get(
+					'#distributor-push-wrapper .new-connections-list .add-connection'
+				)
+					.contains( toConnectionName )
+					.parent()
+					.should( 'be.disabled' );
+			} );
+		} );
+	} );
 } );
