@@ -28,11 +28,15 @@ describe( 'Linking and unlinking tests', () => {
 						'contain.text',
 						'This post is linked to the origin post.'
 					);
-				cy.get( '.components-notice__actions a:nth-child(1)' )
+				cy.get(
+					'.components-notice__content .components-notice__action:eq(0)'
+				)
 					.should( 'contain.text', 'Unlink from the origin post' )
 					.should( 'have.attr', 'href' )
 					.and( 'match', /&action=unlink&/ );
-				cy.get( '.components-notice__actions a:nth-child(2)' )
+				cy.get(
+					'.components-notice__content .components-notice__action:eq(1)'
+				)
 					.should( 'contain.text', 'View the origin post' )
 					.should( 'have.attr', 'href', sourcePost.link );
 
@@ -62,7 +66,9 @@ describe( 'Linking and unlinking tests', () => {
 				cy.closeWelcomeGuide();
 
 				// Unlink the post.
-				cy.get( '.components-notice__actions a:nth-child(1)' )
+				cy.get(
+					'.components-notice__content .components-notice__action:eq(0)'
+				)
 					.should( 'contain.text', 'Unlink from the origin post' )
 					.click();
 
