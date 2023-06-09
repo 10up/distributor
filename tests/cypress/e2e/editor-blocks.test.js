@@ -69,6 +69,25 @@ describe( 'Distributed content block tests', () => {
 		} );
 	} );
 
+	it( 'Should distribute blocks when pushing to external connections.', () => {
+		const postTitle = 'Post to push ' + randomName();
+
+		cy.createPost( { title: postTitle } ).then( ( sourcePost ) => {
+			cy.distributorPushPost(
+				sourcePost.id,
+				externalConnectionOneToTwo,
+				'',
+				'publish'
+			).then( ( distributedPost ) => {
+				cy.postContains(
+					distributedPost.distributedPostId,
+					'<!-- wp:paragraph -->',
+					'http://localhost/second/'
+				);
+			} );
+		} );
+	} );
+
 	it( 'Should distribute blocks when pulling from external connections.', () => {
 		const postTitle = 'Post to pull ' + randomName();
 
