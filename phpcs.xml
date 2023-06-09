@@ -21,6 +21,7 @@
 		</properties>
 	</rule>
 
+	<!-- Run phpcs on current directory -->
 	<file>.</file>
 
 	<!-- Show progress, show the error codes for each message (source). -->
@@ -43,4 +44,8 @@
 	<exclude-pattern>/tests/*</exclude-pattern>
 	<exclude-pattern>/node_modules/*</exclude-pattern>
 	<exclude-pattern>/bin/*</exclude-pattern>
+
+	<!--Sniff only php files-->
+	<exclude-pattern>!*.php</exclude-pattern>
+
 </ruleset>
