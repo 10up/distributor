@@ -151,6 +151,8 @@ __Distributing Canonical URL__ - By default, canonical URL of distributed post w
 
 __Drafts as Preferred Status__ - By default, drafts are the preferred status and can't be changed at the source site.
 
+__Conflicts with Security plugins__ - Oftentimes the communication Distributor attempts to make across sites using the REST API will be flagged by various security plugins and surreptitiously blocked.  If you run into an issue like this, please reach out to the support for your security plugin and ask about getting Distributor unblocked ([here is an example for doing so with Wordfence](https://wordpress.org/support/topic/distributor-plugin-being-blocked/)).
+
 ## Developers
 
 See [Distributor Developer Documentation](https://10up.github.io/distributor/#developers).
