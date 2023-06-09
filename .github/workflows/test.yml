@@ -1,4 +1,4 @@
-name: Test
+name: PHPUnit Tests
 
 env:
   COMPOSER_VERSION: "2"
@@ -10,15 +10,12 @@ on:
   push:
     branches:
       - develop
-      - develop-v1
       - trunk
   pull_request:
     branches:
       - develop
-      - develop-v1
 
 jobs:
-
   phpunit:
     name: ${{ matrix.php }} on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
@@ -29,33 +26,35 @@ jobs:
         os: [ ubuntu-latest ]
 
     steps:
-    - name: Checkout
-      uses: actions/checkout@v2.4.0
+      - name: Checkout
+        uses: actions/checkout@v2.4.0
 
-    - name: Set standard 10up cache directories
-      run: |
-        composer config -g cache-dir "${{ env.COMPOSER_CACHE }}"
+      - name: Set standard 10up cache directories
+        run: |
+          composer config -g cache-dir "${{ env.COMPOSER_CACHE }}"
 
-    - name: Prepare composer cache
-      uses: actions/cache@v2
-      with:
-        path: ${{ env.COMPOSER_CACHE }}
-        key: composer-${{ env.COMPOSER_VERSION }}-${{ hashFiles('**/composer.lock') }}
-        restore-keys: |
-          composer-${{ env.COMPOSER_VERSION }}-
+      - name: Prepare composer cache
+        uses: actions/cache@v2
+        with:
+          path: ${{ env.COMPOSER_CACHE }}
+          key: composer-${{ env.COMPOSER_VERSION }}-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            composer-${{ env.COMPOSER_VERSION }}-
 
-    - name: Set PHP version
-      uses: shivammathur/setup-php@2.17.0
-      with:
-        php-version: ${{ matrix.php }}
-        coverage: none
-        tools: phpunit-polyfills, composer:v2
+      - uses: getong/mariadb-action@v1.1
 
-    - name: Install dependencies
-      run: composer update -W
+      - name: Set PHP version
+        uses: shivammathur/setup-php@2.17.0
+        with:
+          php-version: ${{ matrix.php }}
+          coverage: none
+          tools: phpunit-polyfills, composer:v2
 
-    - name: Setup WP Tests
-      run: bash bin/install-wp-tests.sh wordpress_test root '' 127.0.0.1
+      - name: Install dependencies
+        run: composer update -W
 
-    - name: PHPUnit
-      run: './vendor/bin/phpunit'
+      - name: Setup WP Tests
+        run: bash bin/install-wp-tests.sh wordpress_test root '' 127.0.0.1
+
+      - name: PHPUnit
+        run: composer run test
