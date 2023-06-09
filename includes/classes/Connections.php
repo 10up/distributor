@@ -52,7 +52,7 @@ class Connections {
 	 * Singleton-ish class
 	 *
 	 * @since  0.8
-	 * @return object
+	 * @return self
 	 */
 	public static function factory() {
 		static $instance;
