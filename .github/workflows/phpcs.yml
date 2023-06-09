@@ -1,0 +1,30 @@
+name: phpcs
+
+on:
+  pull_request:
+    branches:
+      - trunk
+
+jobs:
+  changed:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - id: changed-files
+        uses: tj-actions/changed-files@v19
+        with:
+          files: |
+            **/*.php
+      - name: Set PHP version
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: 7.4
+          tools: composer:v2
+          coverage: none
+      - name: Install dependencies
+        if: ${{ steps.changed-files.outputs.any_changed == 'true' }}
+        run: composer install
+      - name: Test
+        if: ${{ steps.changed-files.outputs.any_changed == 'true' }}
+        run: ./vendor/bin/phpcs ${{ steps.changed-files.outputs.all_changed_files }}
