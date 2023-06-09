@@ -1,8 +1,8 @@
 <?php
 
-namespace Distributor;
+namespace Distributor\Tests;
 
-use WP_Mock\Tools\TestCase;
+use PHPUnit\Framework\TestCase;
 
 class ExternalConnectionTest extends TestCase {
 
@@ -11,7 +11,6 @@ class ExternalConnectionTest extends TestCase {
 	 *
 	 * @since  0.8
 	 * @group ExternalConnection
-	 * @runInSeparateProcess
 	 */
 	public function test_instantiate_fail_type() {
 		Connections::factory()->register( '\TestExternalConnection' );
@@ -59,7 +58,6 @@ class ExternalConnectionTest extends TestCase {
 	 *
 	 * @since  0.8
 	 * @group ExternalConnection
-	 * @runInSeparateProcess
 	 */
 	public function test_instantiate_fail_not_registered() {
 		Connections::factory()->register( '\TestExternalConnection' );
@@ -107,7 +105,6 @@ class ExternalConnectionTest extends TestCase {
 	 *
 	 * @since  0.8
 	 * @group ExternalConnection
-	 * @runInSeparateProcess
 	 */
 	public function test_instantiate_success() {
 		Connections::factory()->register( '\TestExternalConnection' );

@@ -1,8 +1,8 @@
 <?php
 
-namespace Distributor;
+namespace Distributor\Tests;
 
-use WP_Mock\Tools\TestCase;
+use PHPUnit\Framework\TestCase;
 use WP_Mock\Functions;
 
 class SubscriptionsTest extends TestCase {
@@ -12,7 +12,6 @@ class SubscriptionsTest extends TestCase {
 	 *
 	 * @since  1.0
 	 * @group Subscriptions
-	 * @runInSeparateProcess
 	 */
 	public function test_delete_subscribed_post() {
 		\WP_Mock::userFunction(
@@ -121,7 +120,6 @@ class SubscriptionsTest extends TestCase {
 	 *
 	 * @since  1.0
 	 * @group Subscriptions
-	 * @runInSeparateProcess
 	 */
 	public function test_delete_subscribing_post() {
 		\WP_Mock::userFunction(
@@ -178,7 +176,6 @@ class SubscriptionsTest extends TestCase {
 	 *
 	 * @since  1.0
 	 * @group Subscriptions
-	 * @runInSeparateProcess
 	 */
 	public function test_send_notifications_none() {
 
@@ -244,7 +241,6 @@ class SubscriptionsTest extends TestCase {
 	 *
 	 * @since  1.0
 	 * @group Subscriptions
-	 * @runInSeparateProcess
 	 */
 	public function test_send_notifications_no_remote_post() {
 		$post_id              = 1;
@@ -436,7 +432,6 @@ class SubscriptionsTest extends TestCase {
 	 *
 	 * @since  1.0
 	 * @group Subscriptions
-	 * @runInSeparateProcess
 	 */
 	public function test_send_notifications_remote_post_exists() {
 		$post_id              = 1;
@@ -625,7 +620,6 @@ class SubscriptionsTest extends TestCase {
 	 *
 	 * @since  1.0
 	 * @group Subscriptions
-	 * @runInSeparateProcess
 	 */
 	public function test_create_subscription() {
 		$post_id              = 1;
@@ -704,7 +698,6 @@ class SubscriptionsTest extends TestCase {
 	 *
 	 * @since  1.0
 	 * @group Subscriptions
-	 * @runInSeparateProcess
 	 */
 	public function test_create_remote_subscription() {
 		$post_id        = 1;
@@ -790,7 +783,6 @@ class SubscriptionsTest extends TestCase {
 	 *
 	 * @since  1.0
 	 * @group Subscriptions
-	 * @runInSeparateProcess
 	 */
 	public function test_delete_subscription_local() {
 		$post_id         = 1;

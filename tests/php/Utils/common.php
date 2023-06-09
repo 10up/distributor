@@ -4,6 +4,8 @@
  * Simple common WP classes/functions
  */
 
+namespace Distributor\Tests\Utils;
+
 /**
  * Hollowed out WP_Error class for mocking
  *
@@ -316,38 +318,3 @@ function absint( $maybeint ) {
  * @return void
  */
 function remove_filter() { }
-
-/**
- * Classes for testing connections
- */
-class TestExternalConnection extends \Distributor\ExternalConnection {
-	static $slug               = 'test-external-connection';
-	static $auth_handler_class = '\Distributor\Authentications\WordPressBasicAuth';
-	static $namespace          = 'wp/v2';
-
-	public function push( $item_id, $args = array() ) { }
-
-	public function pull( $items ) { }
-
-	public function check_connections() { }
-
-	public function remote_get( $args ) { }
-
-	public function get_post_types() { }
-}
-
-class TestInternalConnection extends \Distributor\Connection {
-	static $slug = 'test-internal-connection';
-
-	public function push( $item_id, $args = array() ) { }
-
-	public function pull( $items ) { }
-
-	public function remote_get( $args ) { }
-
-	public function log_sync( array $item_id_mappings, $id, $overwrite ) {}
-
-	public function get_sync_log( $id ) {}
-
-	public function get_post_types() { }
-}

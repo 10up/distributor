@@ -1,9 +1,9 @@
 <?php
-namespace Distributor\ExternalConnections;
+namespace Distributor\Tests;
 
 use \Distributor\Authentications\WordPressBasicAuth as WordPressBasicAuth;
+use PHPUnit\Framework\TestCase;
 use WP_Mock\Functions;
-use WP_Mock\Tools\TestCase;
 
 class WordPressExternalConnectionTest extends TestCase {
 
@@ -46,7 +46,6 @@ class WordPressExternalConnectionTest extends TestCase {
 	 *
 	 * @since  0.8
 	 * @group WordPressExternalConnection
-	 * @runInSeparateProcess
 	 */
 	public function test_construct() {
 		// Now test a successful creation
@@ -76,7 +75,6 @@ class WordPressExternalConnectionTest extends TestCase {
 	 *
 	 * @group WordPressExternalConnection
 	 * @since  0.8
-	 * @runInSeparateProcess
 	 */
 	public function test_push() {
 		$this->setup_post_meta_mock( array() );
@@ -251,7 +249,6 @@ class WordPressExternalConnectionTest extends TestCase {
 	 *
 	 * @since  0.8
 	 * @group WordPressExternalConnection
-	 * @runInSeparateProcess
 	 */
 	public function test_pull() {
 		$this->setup_post_meta_mock( array() );
@@ -319,7 +316,6 @@ class WordPressExternalConnectionTest extends TestCase {
 	 *
 	 * @since  0.8
 	 * @group WordPressExternalConnection
-	 * @runInSeparateProcess
 	 */
 	public function test_remote_get() {
 
@@ -379,7 +375,6 @@ class WordPressExternalConnectionTest extends TestCase {
 	 *
 	 * @since 0.8
 	 * @group WordPressExternalConnection
-	 * @runInSeparateProcess
 	 */
 	public function test_check_connections_no_errors() {
 
@@ -420,7 +415,6 @@ class WordPressExternalConnectionTest extends TestCase {
 	 *
 	 * @since 1.0
 	 * @group WordPressExternalConnection
-	 * @runInSeparateProcess
 	 */
 	public function test_check_connections_no_distributor() {
 		\WP_Mock::userFunction(

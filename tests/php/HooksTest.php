@@ -1,11 +1,10 @@
 <?php
 
-namespace Distributor;
+namespace Distributor\Tests;
 
 use Distributor\Hooks;
-use WP_Mock\Tools\TestCase;
 
-class HooksTest extends TestCase {
+class HooksTest extends \PHPUnit\Framework\TestCase {
 
 	/**
 	 * Set up with WP_Mock

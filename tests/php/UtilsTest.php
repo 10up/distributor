@@ -1,8 +1,8 @@
 <?php
 
-namespace Distributor;
+namespace Distributor\Tests;
 
-use WP_Mock\Tools\TestCase;
+use PHPUnit\Framework\TestCase;
 
 class UtilsTest extends TestCase {
 
@@ -28,7 +28,6 @@ class UtilsTest extends TestCase {
 	 *
 	 * @since  1.0
 	 * @group Utils
-	 * @runInSeparateProcess
 	 */
 	public function test_set_meta_simple() {
 		\WP_Mock::userFunction(
@@ -103,7 +102,6 @@ class UtilsTest extends TestCase {
 	 *
 	 * @since  1.0
 	 * @group Utils
-	 * @runInSeparateProcess
 	 */
 	public function test_set_meta_multi() {
 		\WP_Mock::userFunction(
@@ -203,7 +201,6 @@ class UtilsTest extends TestCase {
 	 *
 	 * @since  1.0
 	 * @group Utils
-	 * @runInSeparateProcess
 	 */
 	public function test_set_meta_serialize() {
 		\WP_Mock::userFunction(
@@ -261,7 +258,6 @@ class UtilsTest extends TestCase {
 	 *
 	 * @since 1.0
 	 * @group Utils
-	 * @runInSeparateProcess
 	 */
 	public function test_set_taxonomy_terms_simple() {
 		$post_id  = 1;
@@ -346,7 +342,6 @@ class UtilsTest extends TestCase {
 	 *
 	 * @since 1.0
 	 * @group Utils
-	 * @runInSeparateProcess
 	 */
 	public function test_set_taxonomy_terms_create_term() {
 		$post_id     = 1;
@@ -437,7 +432,6 @@ class UtilsTest extends TestCase {
 	 *
 	 * @since 1.0
 	 * @group Utils
-	 * @runInSeparateProcess
 	 */
 	public function test_set_taxonomy_terms_no_taxonomy() {
 		$post_id  = 1;
@@ -485,7 +479,6 @@ class UtilsTest extends TestCase {
 	 *
 	 * @since 1.0
 	 * @group Utils
-	 * @runInSeparateProcess
 	 */
 	public function test_format_media_not_featured() {
 		$media_post                 = new \stdClass();
@@ -582,7 +575,6 @@ class UtilsTest extends TestCase {
 	 *
 	 * @since 1.0
 	 * @group Utils
-	 * @runInSeparateProcess
 	 */
 	public function test_format_media_featured() {
 		$media_post                 = new \stdClass();
@@ -678,7 +670,6 @@ class UtilsTest extends TestCase {
 	 * Test format media with no `_wp_attachment_metadata`
 	 *
 	 * @group Utils
-	 * @runInSeparateProcess
 	 */
 	public function test_format_media_no_attachment_meta() {
 		$media_post                 = new \stdClass();
@@ -776,7 +767,6 @@ class UtilsTest extends TestCase {
 	 *
 	 * @since 1.0
 	 * @group Utils
-	 * @runInSeparateProcess
 	 */
 	public function test_set_media() {
 		$post_id    = 1;

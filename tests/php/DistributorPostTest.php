@@ -1,8 +1,8 @@
 <?php
 
-namespace Distributor;
+namespace Distributor\Tests;
 
-use WP_Mock\Tools\TestCase;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Tests for the DistributorPost class.
@@ -123,7 +123,6 @@ class DistributorPostTest extends TestCase {
 	 * __call() method to handle all other methods.
 	 *
 	 * @covers ::__construct
-	 * @runInSeparateProcess
 	 */
 	public function test_public_methods() {
 		$actual_methods = get_class_methods( 'Distributor\DistributorPost' );
@@ -143,7 +142,6 @@ class DistributorPostTest extends TestCase {
 	 * Test the DistributorPost object for internal connections.
 	 *
 	 * @covers ::__construct
-	 * @runInSeparateProcess
 	 */
 	public function test_internal_connection() {
 		$this->setup_post_mock();
@@ -211,7 +209,6 @@ class DistributorPostTest extends TestCase {
 	 * Test the DistributorPost object for external, pushed posts.
 	 *
 	 * @covers ::__construct
-	 * @runInSeparateProcess
 	 */
 	public function test_external_connection_with_pushed_post() {
 		$this->setup_post_mock();
@@ -245,7 +242,6 @@ class DistributorPostTest extends TestCase {
 	 * Test the DistributorPost object for external, pushed posts.
 	 *
 	 * @covers ::__construct
-	 * @runInSeparateProcess
 	 */
 	public function test_external_connection_with_pulled_post() {
 		$this->setup_post_mock();
@@ -279,7 +275,6 @@ class DistributorPostTest extends TestCase {
 	 * Test the DistributorPost object a source post.
 	 *
 	 * @covers ::__construct
-	 * @runInSeparateProcess
 	 */
 	public function test_source_post() {
 		$this->setup_post_mock();
@@ -332,7 +327,6 @@ class DistributorPostTest extends TestCase {
 	 * Test the get_the_id() method.
 	 *
 	 * @covers ::get_the_id
-	 * @runInSeparateProcess
 	 */
 	public function test_get_the_id() {
 		$this->setup_post_mock();
@@ -353,7 +347,6 @@ class DistributorPostTest extends TestCase {
 	 * Test the get_permalink() method.
 	 *
 	 * @covers ::get_permalink
-	 * @runInSeparateProcess
 	 */
 	public function test_get_permalink() {
 		$this->setup_post_mock();
@@ -374,7 +367,6 @@ class DistributorPostTest extends TestCase {
 	 * Test the get_post_type() method.
 	 *
 	 * @covers ::get_post_type
-	 * @runInSeparateProcess
 	 */
 	public function test_get_post_type() {
 		$this->setup_post_mock();
@@ -402,7 +394,6 @@ class DistributorPostTest extends TestCase {
 	 * Test the get_post_thumbnail_id() method.
 	 *
 	 * @covers ::get_post_thumbnail_id
-	 * @runInSeparateProcess
 	 */
 	public function test_get_post_thumbnail_id() {
 		$this->setup_post_mock();
@@ -430,7 +421,6 @@ class DistributorPostTest extends TestCase {
 	 * Test the get_post_thumbnail_url() method.
 	 *
 	 * @covers ::get_post_thumbnail_url
-	 * @runInSeparateProcess
 	 */
 	public function test_get_post_thumbnail_url() {
 		$this->setup_post_mock();
@@ -458,7 +448,6 @@ class DistributorPostTest extends TestCase {
 	 * Test the get_the_post_thumbnail() method.
 	 *
 	 * @covers ::get_the_post_thumbnail
-	 * @runInSeparateProcess
 	 */
 	public function test_get_the_post_thumbnail() {
 		$this->setup_post_mock();
@@ -487,7 +476,6 @@ class DistributorPostTest extends TestCase {
 	 * Test the get_meta() method.
 	 *
 	 * @covers ::get_meta
-	 * @runInSeparateProcess
 	 */
 	public function test_get_meta() {
 		$this->setup_post_mock();
@@ -520,7 +508,6 @@ class DistributorPostTest extends TestCase {
 	 * Test the get_terms() method.
 	 *
 	 * @covers ::get_terms
-	 * @runInSeparateProcess
 	 */
 	public function test_get_terms() {
 		$this->setup_post_mock();
@@ -624,7 +611,6 @@ class DistributorPostTest extends TestCase {
 	 * @covers ::get_media
 	 * @covers ::parse_media_blocks
 	 * @covers ::parse_blocks_for_attachment_id
-	 * @runInSeparateProcess
 	 */
 	public function test_get_media_with_blocks() {
 		$post_content = '<!-- wp:image {"id":11,"sizeSlug":"large","linkDestination":"none"} -->
@@ -1035,7 +1021,6 @@ class DistributorPostTest extends TestCase {
 	 * authored in the classic editor.
 	 *
 	 * @covers ::get_media()
-	 * @runInSeparateProcess
 	 */
 	public function test_get_media_with_attachments() {
 		$this->setup_post_meta_mock( array() );
@@ -1382,7 +1367,6 @@ class DistributorPostTest extends TestCase {
 	 * @covers ::post_data()
 	 * @covers ::to_insert()
 	 * @covers ::to_json()
-	 * @runInSeparateProcess
 	 */
 	public function test_post_data_without_blocks() {
 		$this->setup_post_mock();
@@ -1537,7 +1521,6 @@ class DistributorPostTest extends TestCase {
 	 * @covers ::post_data()
 	 * @covers ::to_insert()
 	 * @covers ::to_json()
-	 * @runInSeparateProcess
 	 */
 	public function test_post_data_with_blocks() {
 		$block_content = '<!-- wp:paragraph --><p>Test Content</p><!-- /wp:paragraph -->';

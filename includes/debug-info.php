@@ -78,9 +78,8 @@ function enqueue_scripts( $hook ) {
  * @return array Filtered debug information.
  */
 function add_debug_info( $info ) {
+	$text_domain = 'distributor';
 
-	$plugin_data = get_plugin_data( WP_PLUGIN_DIR . '/' . DT_PLUGIN_FILE );
-	$text_domain = $plugin_data['TextDomain'];
 	$defaults    = [
 		'email'                  => '',
 		'valid_license'          => false,
@@ -97,7 +96,7 @@ function add_debug_info( $info ) {
 	$fields = [
 		[
 			'label' => __( 'Version', 'distributor' ),
-			'value' => $plugin_data['Version'],
+			'value' => DT_VERSION,
 		],
 	];
 
@@ -134,7 +133,7 @@ function add_debug_info( $info ) {
 	);
 
 	$info[ $text_domain ] = [
-		'label'  => $plugin_data['Name'],
+		'label'  => 'Distributor',
 		'fields' => $fields,
 	];
 

@@ -1,8 +1,8 @@
 <?php
 
-namespace Distributor\InternalConnections;
+namespace Distributor\Tests;
 
-use WP_Mock\Tools\TestCase;
+use PHPUnit\Framework\TestCase;
 
 class NetworkSiteConnectionsTest extends TestCase {
 	/**
@@ -62,7 +62,6 @@ class NetworkSiteConnectionsTest extends TestCase {
 	 *
 	 * @since  0.8
 	 * @group NetworkSiteConnection
-	 * @runInSeparateProcess
 	 */
 	public function test_push() {
 		// There is no post meta to mock for a source post.
@@ -234,7 +233,6 @@ class NetworkSiteConnectionsTest extends TestCase {
 	 *
 	 * @since  0.8
 	 * @group NetworkSiteConnection
-	 * @runInSeparateProcess
 	 */
 	public function test_pull() {
 		$this->setup_post_meta_mock( array(
@@ -380,7 +378,6 @@ class NetworkSiteConnectionsTest extends TestCase {
 	 *
 	 * @since 0.8
 	 * @group NetworkSiteConnection
-	 * @runInSeparateProcess
 	 */
 	public function test_remote_get_empty_id() {
 
@@ -404,7 +401,6 @@ class NetworkSiteConnectionsTest extends TestCase {
 	 *
 	 * @since 0.8
 	 * @group NetworkSiteConnection
-	 * @runInSeparateProcess
 	 */
 	public function test_remote_get() {
 

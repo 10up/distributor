@@ -1,8 +1,9 @@
 <?php
 
-namespace Distributor;
+namespace Distributor\Tests;
 
-use WP_Mock\Tools\TestCase;
+use Distributor\EnqueueScript;
+use PHPUnit\Framework\TestCase;
 
 /**
  * @since x.x.x
