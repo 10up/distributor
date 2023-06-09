@@ -3,12 +3,11 @@
 namespace Distributor\Tests;
 
 use Distributor\EnqueueScript;
-use PHPUnit\Framework\TestCase;
 
 /**
  * @since x.x.x
  */
-class EnqueueScriptTest extends TestCase {
+class EnqueueScriptTest extends Utils\TestCase {
 	public function test_script_registration(): void {
 		$this->markTestIncomplete();
 	}

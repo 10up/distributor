@@ -7,37 +7,30 @@
 namespace Distributor\Tests\Utils;
 
 /**
- * Hollowed out WP_Error class for mocking
- *
- * @since  0.8
- */
-class WP_Error {
-	public function __construct( $code = '', $message = '' ) {
-		$this->code    = $code;
-		$this->message = $message;
-	}
-}
-
-/**
  * Maybe unserialize variable. Pulled from WP core
  *
- * @param  mixed $original
  * @since  1.0
+ *
+ * @param mixed $original
+ *
  * @return array
  */
 function maybe_unserialize( $original ) {
 	if ( is_serialized( $original ) ) { // don't attempt to unserialize data that wasn't serialized going in
 		return @unserialize( $original );
 	}
+
 	return $original;
 }
 
 /**
  * Check if variable is serialized. Pulled from WP core
  *
- * @param  mixed $data
- * @param  bool  $strict
  * @since  1.0
+ *
+ * @param bool  $strict
+ * @param mixed $data
+ *
  * @return bool
  */
 function is_serialized( $data, $strict = true ) {
@@ -56,7 +49,7 @@ function is_serialized( $data, $strict = true ) {
 		return false;
 	}
 	if ( $strict ) {
-		$lastc = substr( $data, -1 );
+		$lastc = substr( $data, - 1 );
 		if ( ';' !== $lastc && '}' !== $lastc ) {
 			return false;
 		}
@@ -79,13 +72,13 @@ function is_serialized( $data, $strict = true ) {
 	switch ( $token ) {
 		case 's':
 			if ( $strict ) {
-				if ( '"' !== substr( $data, -2, 1 ) ) {
+				if ( '"' !== substr( $data, - 2, 1 ) ) {
 					return false;
 				}
 			} elseif ( false === strpos( $data, '"' ) ) {
 				return false;
 			}
-			// or else fall through
+		// or else fall through
 		case 'a':
 		case 'O':
 			return (bool) preg_match( "/^{$token}:[0-9]+:/s", $data );
@@ -93,8 +86,10 @@ function is_serialized( $data, $strict = true ) {
 		case 'i':
 		case 'd':
 			$end = $strict ? '$' : '';
+
 			return (bool) preg_match( "/^{$token}:[0-9.E-]+;$end/", $data );
 	}
+
 	return false;
 }
 
@@ -105,7 +100,6 @@ function is_serialized( $data, $strict = true ) {
  */
 class WP_Query {
 	public function __construct( $args = array() ) {
-
 		$items = [
 			[
 				'ID'      => 2,
@@ -133,16 +127,16 @@ class WP_Query {
 
 		$this->found_posts = count( $items );
 		$this->posts       = $posts;
-
 	}
-
 }
 
 /**
  * Check if object is WP_Error
  *
- * @param  Object $thing
  * @since  0.8
+ *
+ * @param Object $thing
+ *
  * @return boolean
  */
 function is_wp_error( $thing ) {
@@ -156,7 +150,6 @@ function is_wp_error( $thing ) {
  * @return void
  */
 function remote_get_setup() {
-
 	\WP_Mock::userFunction( 'get_option' );
 
 	$rest_response = [
@@ -190,7 +183,7 @@ function remote_get_setup() {
 		],
 	];
 
-	$post_response = $rest_response[0];
+	$post_response                       = $rest_response[0];
 	$post_response['original_site_name'] = $post_response['distributor_original_site_name'];
 	$post_response['original_site_url']  = $post_response['distributor_original_site_url'];
 	unset( $post_response['distributor_original_site_name'] );
@@ -276,9 +269,10 @@ function get_allowed_mime_types() {
  *
  * @since x.x.x
  *
- * @param mixed $data Data to encode.
+ * @param mixed $data    Data to encode.
  * @param int   $options Optional. Options to be passed to json_encode(). Default 0.
- * @param int   $depth Optional. Maximum depth to walk through $data.
+ * @param int   $depth   Optional. Maximum depth to walk through $data.
+ *
  * @return string|false The JSON encoded string, or false if it cannot be encoded.
  */
 function wp_json_encode( $data, $options = 0, $depth = 512 ) {
@@ -292,6 +286,7 @@ function wp_json_encode( $data, $options = 0, $depth = 512 ) {
  *
  * @param array $settings Array of arguments.
  * @param array $defaults Array of default arguments.
+ *
  * @return array Array of parsed arguments.
  */
 function wp_parse_args( $settings, $defaults ) {
@@ -306,6 +301,7 @@ function wp_parse_args( $settings, $defaults ) {
  * @since 2.0.0
  *
  * @param mixed $maybeint Data you wish to have converted to a non-negative integer.
+ *
  * @return int A non-negative integer.
  */
 function absint( $maybeint ) {
@@ -317,4 +313,5 @@ function absint( $maybeint ) {
  *
  * @return void
  */
-function remove_filter() { }
+function remove_filter() {
+}

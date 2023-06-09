@@ -11,7 +11,7 @@ class DebugInfoTest extends TestCase {
 	/**
 	 * @covers \Distributor\DebugInfo\add_debug_info
 	 */
-	public function test_add_debug_info() {
+	public function test_add_debug_info(): void {
 		$info = \Distributor\DebugInfo\add_debug_info( [] );
 		$this->assertArrayHasKey( 'distributor', $info );
 		$this->assertArrayHasKey( 'label', $info['distributor'] );
