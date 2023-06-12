@@ -7,10 +7,12 @@ body.dt-linked-post {
 		cursor: default;
 	}
 
+	.components-form-token-field__input-container,
 	input,
 	select,
 	button,
 	textarea,
+	label,
 	.button {
 		opacity: 0.5;
 		pointer-events: none;
@@ -22,10 +24,12 @@ body.dt-linked-post {
 	.react-datepicker,
 	.components-panel__header {
 
+		.components-form-token-field__input-container,
 		input,
 		select,
 		button,
 		textarea,
+		label,
 		.button {
 			opacity: 1;
 			pointer-events: auto;
@@ -38,7 +42,8 @@ body.dt-linked-post {
 	.editor-post-trash,
 	.editor-post-publish-button,
 	.edit-post-post-schedule__toggle,
-	.components-menu-item__button {
+	.components-menu-item__button,
+	.editor-post-publish-panel button {
 		opacity: 1;
 		pointer-events: auto;
 		cursor: pointer;
