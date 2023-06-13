@@ -14,7 +14,7 @@ To report an issue with Distributor or contribute back to the project, please vi
 
 ### Running Locally
 
-If you are compiling Distributor locally, note that the recommended version of Node.js is version 16.x. The minimum version required is Node.js 8.10.
+If you are compiling Distributor locally, note that the recommended version of Node.js is version 16.x. The minimum version required is Node.js 12.x.
 
 An `.nvmrc` file is included in the plugin repository. It's recommended you install [fnm (fast node manager)](https://github.com/Schniz/fnm/), [nvm (node version manager)](https://github.com/nvm-sh/nvm) or similar when developing locally.
 
@@ -28,7 +28,7 @@ You can define a constant `DISTRIBUTOR_DEBUG` to `true` to increase the ease of 
 
 Enabling this will also provide more debugging information in your error log for image side loading issues. The specific logging method may change in the future.
 
-### Application Passwords and WordPress 5.6
+### Application Passwords
 
 Application passwords are only available for live sites running over an HTTPS connection.
 
