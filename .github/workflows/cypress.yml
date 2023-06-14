@@ -101,7 +101,7 @@ jobs:
       run: npm run copy-htaccess
 
     - name: Test
-      run: npm run cypress:run
+      run: npm run cypress:run --config-file tests/cypress/config.js
 
     - name: Upload artifacts
       uses: actions/upload-artifact@v2
