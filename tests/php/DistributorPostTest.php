@@ -17,7 +17,7 @@ class DistributorPostTest extends TestCase {
 	 *
 	 * Set up common mocks required for multiple tests.
 	 *
-	 * @since x.x.x
+	 * @since 2.0.0
 	 */
 	public function setUp(): void {
 		parent::setUp();

@@ -10,7 +10,7 @@
  *     It also handles script translation registration.
  *
  * @package distributor
- * @since   x.x.x
+ * @since   2.0.0
  */
 
 namespace Distributor;
@@ -20,13 +20,13 @@ use Exception;
 /**
  * Class EnqueueScript
  *
- * @since x.x.x
+ * @since 2.0.0
  */
 class EnqueueScript {
 	/**
 	 * Script Handle.
 	 *
-	 * @since x.x.x
+	 * @since 2.0.0
 	 * @var string
 	 */
 	private string $script_handle;
@@ -34,7 +34,7 @@ class EnqueueScript {
 	/**
 	 * Script path relative to plugin root directory.
 	 *
-	 * @since x.x.x
+	 * @since 2.0.0
 	 * @var string
 	 */
 	private string $relative_script_path;
@@ -42,7 +42,7 @@ class EnqueueScript {
 	/**
 	 * Script path absolute to plugin root directory.
 	 *
-	 * @since x.x.x
+	 * @since 2.0.0
 	 * @var string
 	 */
 	private string $absolute_script_path;
@@ -50,7 +50,7 @@ class EnqueueScript {
 	/**
 	 * Script dependencies.
 	 *
-	 * @since x.x.x
+	 * @since 2.0.0
 	 * @var array
 	 */
 	private array $script_dependencies = [];
@@ -58,7 +58,7 @@ class EnqueueScript {
 	/**
 	 * Script version.
 	 *
-	 * @since x.x.x
+	 * @since 2.0.0
 	 * @var string
 	 */
 	private string $version = DT_VERSION;
@@ -66,7 +66,7 @@ class EnqueueScript {
 	/**
 	 * Flag to decide whether load script in footer.
 	 *
-	 * @since x.x.x
+	 * @since 2.0.0
 	 * @var bool
 	 */
 	private bool $load_script_in_footer = false;
@@ -74,7 +74,7 @@ class EnqueueScript {
 	/**
 	 * Flag to decide whether register script translation.
 	 *
-	 * @since x.x.x
+	 * @since 2.0.0
 	 * @var bool
 	 */
 	private bool $register_translations = false;
@@ -82,7 +82,7 @@ class EnqueueScript {
 	/**
 	 * Script localization parameter name.
 	 *
-	 * @since x.x.x
+	 * @since 2.0.0
 	 * @var string|null
 	 */
 	private ?string $localize_script_param_name = null;
@@ -90,7 +90,7 @@ class EnqueueScript {
 	/**
 	 * Script localization parameter data.
 	 *
-	 * @since x.x.x
+	 * @since 2.0.0
 	 * @var array|null
 	 */
 	private ?array $localize_script_param_data = null;
@@ -98,7 +98,7 @@ class EnqueueScript {
 	/**
 	 * Plugin root directory path.
 	 *
-	 * @since x.x.x
+	 * @since 2.0.0
 	 * @var string
 	 */
 	private string $plugin_dir_path;
@@ -106,7 +106,7 @@ class EnqueueScript {
 	/**
 	 * Plugin root directory URL.
 	 *
-	 * @since x.x.x
+	 * @since 2.0.0
 	 * @var string
 	 */
 	private string $plugin_dir_url;
@@ -114,7 +114,7 @@ class EnqueueScript {
 	/**
 	 * Plugin text domain.
 	 *
-	 * @since x.x.x
+	 * @since 2.0.0
 	 * @var string
 	 */
 	private string $text_domain;
@@ -122,7 +122,7 @@ class EnqueueScript {
 	/**
 	 * EnqueueScript constructor.
 	 *
-	 * @since x.x.x
+	 * @since 2.0.0
 	 *
 	 * @param string $script_handle    Script handle.
 	 * @param string $script_file_name Script file name.
@@ -141,7 +141,7 @@ class EnqueueScript {
 	/**
 	 * Flag to decide whether load script in footer.
 	 *
-	 * @since x.x.x
+	 * @since 2.0.0
 	 */
 	public function load_in_footer(): EnqueueScript {
 		$this->load_script_in_footer = true;
@@ -152,7 +152,7 @@ class EnqueueScript {
 	/**
 	 * Set script dependencies.
 	 *
-	 * @since x.x.x
+	 * @since 2.0.0
 	 *
 	 * @param array $script_dependencies Script dependencies.
 	 */
@@ -165,7 +165,7 @@ class EnqueueScript {
 	/**
 	 * Register script.
 	 *
-	 * @since x.x.x
+	 * @since 2.0.0
 	 */
 	public function register(): EnqueueScript {
 		$script_url   = $this->plugin_dir_url . $this->relative_script_path;
@@ -203,7 +203,7 @@ class EnqueueScript {
 	/**
 	 * This function should be called before enqueue or register method.
 	 *
-	 * @since x.x.x
+	 * @since 2.0.0
 	 */
 	public function register_translations(): EnqueueScript {
 		$this->register_translations = true;
@@ -214,7 +214,7 @@ class EnqueueScript {
 	/**
 	 * This function should be called after enqueue or register method.
 	 *
-	 * @since x.x.x
+	 * @since 2.0.0
 	 *
 	 * @param string $js_variable_name JS variable name.
 	 * @param array  $data             Data to be localized.
@@ -229,7 +229,7 @@ class EnqueueScript {
 	/**
 	 * Enqueue script.
 	 *
-	 * @since x.x.x
+	 * @since 2.0.0
 	 */
 	public function enqueue(): EnqueueScript {
 		if ( ! wp_script_is( $this->script_handle, 'registered' ) ) {
@@ -243,7 +243,7 @@ class EnqueueScript {
 	/**
 	 * Should return script handle.
 	 *
-	 * @since x.x.x
+	 * @since 2.0.0
 	 *
 	 * @return string
 	 */
@@ -254,7 +254,7 @@ class EnqueueScript {
 	/**
 	 * Get asset file data.
 	 *
-	 * @since x.x.x
+	 * @since 2.0.0
 	 *
 	 * @return array
 	 */
@@ -282,7 +282,7 @@ class EnqueueScript {
 	/**
 	 * Should return script version.
 	 *
-	 * @since x.x.x
+	 * @since 2.0.0
 	 *
 	 * @return string
 	 */

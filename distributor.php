@@ -45,7 +45,7 @@ if ( is_multisite() && isset( $active_plugins[ plugin_basename( __FILE__ ) ] ) )
 /**
  * Get the minimum version of WordPress required by this plugin.
  *
- * @since x.x.x
+ * @since 2.0.0
  *
  * @return string Minimum version required.
  */
@@ -56,7 +56,7 @@ function minimum_wp_requirement() {
 /**
  * Get the minimum version of PHP required by this plugin.
  *
- * @since x.x.x
+ * @since 2.0.0
  *
  * @return string Minimum version required.
  */
@@ -67,7 +67,7 @@ function minimum_php_requirement() {
 /**
  * Whether WP installation meets the minimum requirements
  *
- * @since x.x.x
+ * @since 2.0.0
  *
  * @return bool True if meets minimum requirements, false otherwise.
  */
@@ -79,7 +79,7 @@ function site_meets_wp_requirements() {
 /**
  * Whether PHP installation meets the minimum requirements
  *
- * @since x.x.x
+ * @since 2.0.0
  *
  * @return bool True if meets minimum requirements, false otherwise.
  */
