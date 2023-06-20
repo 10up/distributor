@@ -21,9 +21,6 @@
 		</properties>
 	</rule>
 
-	<!-- Run phpcs on current directory -->
-	<file>.</file>
-
 	<!-- Show progress, show the error codes for each message (source). -->
 	<arg value="ps"/>
 
