@@ -57,6 +57,10 @@ describe( 'Internal Push', () => {
 			);
 
 			// Set Featured Image
+			// This test is temporarily disabled due to failures in GitHub actions that are not reproducible locally.
+			// On GitHub the success message expected within the cy.distributorPushPost command is not found as the
+			// distribution fails with an undefined error.
+
 			// cy.uploadMedia( 'assets/img/banner-772x250.png' ).then(
 			// 	( media ) => {
 			// 		if ( media && media.mediaId ) {
