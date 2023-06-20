@@ -32,7 +32,6 @@
 
 	<!-- Configs -->
 	<config name="minimum_supported_wp_version" value="5.7"/>
-	<config name="testVersion" value="7.4-"/>
 
 	<!-- Exclude directory -->
 	<exclude-pattern>/vendor/*</exclude-pattern>

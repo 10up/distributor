@@ -28,7 +28,7 @@
     "automattic/vipwpcs": "^2.3"
   },
   "scripts": {
-    "lint": "@php phpcs",
+    "lint": "@php phpcs . --runtime-set testVersion 7.4-",
     "lint-fix": "phpcbf .",
     "test": "@php phpunit"
   },

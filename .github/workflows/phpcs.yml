@@ -27,4 +27,4 @@ jobs:
         run: composer install
       - name: Test
         if: ${{ steps.changed-files.outputs.any_changed == 'true' }}
-        run: ./vendor/bin/phpcs ${{ steps.changed-files.outputs.all_changed_files }}
+        run: ./vendor/bin/phpcs ${{ steps.changed-files.outputs.all_changed_files }} --runtime-set testVersion 7.4-
