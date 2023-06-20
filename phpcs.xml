@@ -46,6 +46,6 @@
 	<exclude-pattern>/bin/*</exclude-pattern>
 
 	<!--Sniff only php files-->
-	<exclude-pattern>!*.php</exclude-pattern>
+	<arg name="extensions" value="php"/>
 
 </ruleset>
