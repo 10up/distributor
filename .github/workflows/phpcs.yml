@@ -4,6 +4,8 @@ on:
   pull_request:
     branches:
       - trunk
+      - develop
+      - develop-v1
 
 jobs:
   changed:
