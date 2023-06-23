@@ -74,5 +74,5 @@ jobs:
         if: ${{ steps.changed-files.outputs.any_changed == 'true' }}
         run: ./vendor/bin/phpcs ${{ steps.changed-files.outputs.all_changed_files }} --report-full --report-checkstyle=./.github/phpcs-report.xml --runtime-set testVersion 7.4-
       - name: Show PHPCS results in PR
-        if: ${{ steps.changed-files.outputs.any_changed == 'true' }}
+        if: ${{ always() }}
         run: cs2pr ./.github/phpcs-report.xml
