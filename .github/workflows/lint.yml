@@ -61,18 +61,26 @@ jobs:
         with:
           files: |
             **/*.php
+
       - name: Set PHP version
         uses: shivammathur/setup-php@v2
         with:
           php-version: 7.4
           tools: composer:v2, cs2pr
           coverage: none
+
       - name: Install dependencies
         if: ${{ steps.changed-files.outputs.any_changed == 'true' }}
         run: composer install
-      - name: Test
-        if: ${{ steps.changed-files.outputs.any_changed == 'true' }}
+
+      - name: Test all files
+        if: ${{ github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/trunk' }}
+        run: ./vendor/bin/phpcs . --report-full --report-checkstyle=./.github/phpcs-report.xml
+
+      - name: Test changed files
+        if: ${{ steps.changed-files.outputs.any_changed == 'true' && github.ref != 'refs/heads/develop' && github.ref != 'refs/heads/trunk' }}
         run: ./vendor/bin/phpcs ${{ steps.changed-files.outputs.all_changed_files }} --report-full --report-checkstyle=./.github/phpcs-report.xml --runtime-set testVersion 7.4-
+
       - name: Show PHPCS results in PR
         if: ${{ always() }}
         run: cs2pr ./.github/phpcs-report.xml
