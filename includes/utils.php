@@ -445,6 +445,8 @@ function prepare_meta( $post_id ) {
 		}
 	}
 
+	$prepared_meta = apply_filters( 'dt_prepared_meta', $prepared_meta, $post_id );
+
 	return $prepared_meta;
 }
 
@@ -506,6 +508,8 @@ function prepare_taxonomy_terms( $post_id, $args = array() ) {
 	foreach ( $taxonomies as $taxonomy ) {
 		$taxonomy_terms[ $taxonomy ] = wp_get_object_terms( $post_id, $taxonomy );
 	}
+
+	$taxonomy_terms = apply_filters( 'dt_prepared_taxonomy_terms', $taxonomy_terms, $post_id );
 
 	return $taxonomy_terms;
 }
