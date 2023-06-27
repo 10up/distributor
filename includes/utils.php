@@ -660,7 +660,7 @@ function set_media( $post_id, $media, $args = [] ) {
 			if ( ! empty( $current_media[ $media_item['source_url'] ] ) ) {
 				$image_id = $current_media[ $media_item['source_url'] ];
 			} else {
-				$image_id = process_media( $media_item['source_url'], $post_id, $args );
+				//$image_id = process_media( $media_item['source_url'], $post_id, $args );
 			}
 		}
 
