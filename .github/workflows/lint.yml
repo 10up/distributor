@@ -70,7 +70,6 @@ jobs:
           coverage: none
 
       - name: Install dependencies
-        if: ${{ steps.changed-files.outputs.any_changed == 'true' }}
         run: composer install
 
       - name: Test all files
