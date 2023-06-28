@@ -155,37 +155,7 @@ __Conflicts with Security plugins__ - Oftentimes the communication Distributor a
 
 ## Developers
 
-### Running Locally
-
-If you are compiling Distributor locally, note that there is a minimum requirement of Node.js 8.10.  If you're using an older version of Node, then it will not compile correctly.
-
-### Testing
-
-The plugin contains a standard test suite compatible with PHPUnit. If you want to test across multiple PHP versions, a [Dockunit](https://github.com/dockunit/dockunit) file is included.
-
-### Debugging
-
-You can define a constant `DISTRIBUTOR_DEBUG` to `true` to increase the ease of debugging in Distributor. This will make all remote requests blocking and expose the subscription post type.
-
-Enabling this will also provide more debugging information in your error log for image side loading issues. The specific logging method may change in the future.
-
-### Application Passwords and WordPress 5.6
-
-Application passwords are only available for live sites running over an HTTPS connection.
-
-For your local development environment, you will need these snippets to enable application passwords without the need for an HTTPS connection.  A local development environment is one that "can reach the internet but **is not reachable from the internet**".
-
-```php
-// In your local environment's wp-config.php file.
-define( 'WP_ENVIRONMENT_TYPE', 'local' );
-
-// In a custom plugin on your local environment.
-add_filter( 'wp_is_application_passwords_available', '__return_true' );
-
-add_action( 'wp_authorize_application_password_request_errors', function( $error ) {
-    $error->remove( 'invalid_redirect_scheme' );
-} );
-```
+See [Distributor Developer Documentation](https://10up.github.io/distributor/#developers).
 
 ## Changelog
 
