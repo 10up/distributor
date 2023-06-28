@@ -7,6 +7,19 @@
 
 namespace Distributor\Utils;
 
+use Distributor\DistributorPost;
+
+/**
+ * Determine if this is a development install of Distributor.
+ *
+ * @since 2.0.0
+ *
+ * @return bool True if this is a development install, false otherwise.
+ */
+function is_development_version() {
+	return file_exists( DT_PLUGIN_PATH . 'composer.lock' );
+}
+
 /**
  * Determine if we are on VIP
  *
@@ -20,79 +33,35 @@ function is_vip_com() {
 /**
  * Determine if Gutenberg is being used.
  *
- * There are several possible variations that need to be accounted for:
- *
- *  - WordPress 4.9, Gutenberg plugin is not active.
- *  - WordPress 4.9, Gutenberg plugin is active.
- *  - WordPress 5.0, block editor by default.
- *  - WordPress 5.0, Classic editor plugin active, using classic editor.
- *  - WordPress 5.0, Classic editor plugin active, using the block editor.
+ * This duplicates the check from `use_block_editor_for_post()` in WordPress
+ * but removes the check for the `meta-box-loader` querystring parameter as
+ * it is not required for Distributor.
  *
  * @since  1.2
  * @since  1.7 Update Gutenberg plugin sniff to avoid deprecated function.
  *             Update Classic Editor sniff to account for mu-plugins.
+ * @since  2.0 Duplicate the check from WordPress Core's `use_block_editor_for_post()`.
  *
- * @param object $post The post object.
- * @return boolean
+ * @param int|WP_Post $post The post ID or object.
+ * @return boolean Whether post is using the block editor/Gutenberg.
  */
 function is_using_gutenberg( $post ) {
-	global $wp_version;
-
-	$gutenberg_available = function_exists( 'gutenberg_pre_init' );
-	$version_5_plus      = version_compare( $wp_version, '5', '>=' );
-
-	if ( ! $gutenberg_available && ! $version_5_plus ) {
-		return false;
-	}
-
 	$post = get_post( $post );
 
 	if ( ! $post ) {
 		return false;
 	}
 
-	// This duplicates the check from `use_block_editor_for_post()` as of WP 5.0.
-	// We duplicate this here to remove the $_GET['meta-box-loader'] check
-	if ( function_exists( 'use_block_editor_for_post_type' ) ) {
-		// The posts page can't be edited in the block editor.
-		if ( absint( get_option( 'page_for_posts' ) ) === $post->ID && empty( $post->post_content ) ) {
-			return false;
-		}
-
-		// Make sure this post type supports Gutenberg
-		$use_block_editor = use_block_editor_for_post_type( $post->post_type );
-
-		/** This filter is documented in wp-admin/includes/post.php */
-		return apply_filters( 'use_block_editor_for_post', $use_block_editor, $post );
+	// The posts page can't be edited in the block editor.
+	if ( absint( get_option( 'page_for_posts' ) ) === $post->ID && empty( $post->post_content ) ) {
+		return false;
 	}
 
-	// This duplicates the check from `has_blocks()` as of WP 5.2.
-	if ( ! empty( $post->post_content ) ) {
-		return false !== strpos( (string) $post->post_content, '<!-- wp:' );
-	}
+	// Make sure this post type supports Gutenberg
+	$use_block_editor = dt_use_block_editor_for_post_type( $post->post_type );
 
-	$use_block_editor = false;
-
-	if ( class_exists( 'Classic_Editor' ) && is_callable( array( 'Classic_Editor', 'init_actions' ) ) ) {
-		$allow_site_override = true;
-		if ( is_multisite() ) {
-			$use_block_editor    = in_array( get_site_option( 'classic-editor-replace', 'block' ), array( 'no-replace', 'block' ), true );
-			$allow_site_override = ( get_site_option( 'classic-editor-allow-sites', 'allow' ) === 'allow' );
-		}
-		if (
-			$allow_site_override &&
-			get_option( 'classic-editor-replace' )
-		) {
-			$use_block_editor = in_array( get_option( 'classic-editor-replace', 'block' ), array( 'no-replace', 'block' ), true );
-		}
-	}
-
-	if ( $use_block_editor && is_a( $post, '\WP_Post' ) && class_exists( '\Gutenberg_Ramp' ) ) {
-		$gutenberg_ramp   = \Gutenberg_Ramp::get_instance();
-		$use_block_editor = $gutenberg_ramp->gutenberg_should_load( $post );
-	}
-
-	return $use_block_editor;
+	/** This filter is documented in wp-admin/includes/post.php */
+	return apply_filters( 'use_block_editor_for_post', $use_block_editor, $post );
 }
 
 /**
@@ -150,6 +119,9 @@ function check_license_key( $email, $license_key ) {
 		[
 			// phpcs:ignore WordPressVIPMinimum.Performance.RemoteRequestTimeout.timeout_timeout
 			'timeout' => 10,
+			'headers' => [
+				'X-Distributor-Version' => DT_VERSION,
+			],
 			'body'    => [
 				'license_key' => $license_key,
 				'email'       => $email,
@@ -224,6 +196,7 @@ function set_meta( $post_id, $meta ) {
 	 *
 	 * @since 1.3.8
 	 * @hook dt_after_set_meta
+	 * @tutorial snippets
 	 *
 	 * @param {array} $meta          All received meta for the post
 	 * @param {array} $existing_meta Existing meta for the post
@@ -325,6 +298,7 @@ function distributable_post_types( $output = 'names' ) {
 	 *
 	 * @since 1.0.0
 	 * @hook distributable_post_types
+	 * @tutorial snippets
 	 *
 	 * @param {array} Post types that are distributable.
 	 *
@@ -427,6 +401,7 @@ function excluded_meta() {
 	 *
 	 * @since 1.9.0
 	 * @hook dt_excluded_meta
+	 * @tutorial snippets
 	 *
 	 * @param {array} $meta_keys Excluded meta keys. Default `dt_unlinked, dt_connection_map, dt_subscription_update, dt_subscriptions, dt_subscription_signature, dt_original_post_id, dt_original_post_url, dt_original_blog_id, dt_syndicate_time, _wp_attached_file, _wp_attachment_metadata, _edit_lock, _edit_last, _wp_old_slug, _wp_old_date`.
 	 *
@@ -443,6 +418,7 @@ function excluded_meta() {
  * @return array
  */
 function prepare_meta( $post_id ) {
+	update_postmeta_cache( array( $post_id ) );
 	$meta          = get_post_meta( $post_id );
 	$prepared_meta = array();
 	$excluded_meta = excluded_meta();
@@ -483,44 +459,39 @@ function prepare_meta( $post_id ) {
  * @return array
  */
 function prepare_media( $post_id ) {
-	$raw_media   = get_attached_media( get_allowed_mime_types(), $post_id );
-	$media_array = array();
-
-	$featured_image_id = get_post_thumbnail_id( $post_id );
-	$found_featured    = false;
-
-	foreach ( $raw_media as $media_post ) {
-		$media_item = format_media_post( $media_post );
-
-		if ( $media_item['featured'] ) {
-			$found_featured = true;
-		}
-
-		$media_array[] = $media_item;
+	$dt_post = new DistributorPost( $post_id );
+	if ( ! $dt_post ) {
+		return array();
 	}
 
-	if ( ! empty( $featured_image_id ) && ! $found_featured ) {
-		$featured_image             = format_media_post( get_post( $featured_image_id ) );
-		$featured_image['featured'] = true;
-
-		$media_array[] = $featured_image;
-	}
-
-	return $media_array;
+	return $dt_post->get_media();
 }
 
 /**
  * Format taxonomy terms for consumption
  *
- * @param  int $post_id Post ID.
  * @since  1.0
- * @return array
+ *
+ * @param  int   $post_id Post ID.
+ * @param  array $args    Taxonomy query arguments. See get_taxonomies().
+ * @return array[] Array of taxonomy terms.
  */
-function prepare_taxonomy_terms( $post_id ) {
+function prepare_taxonomy_terms( $post_id, $args = array() ) {
 	$post = get_post( $post_id );
 
+	if ( ! $post ) {
+		return array();
+	}
+
+	// Warm the term cache for the post.
+	update_object_term_cache( array( $post->ID ), $post->post_type );
+
+	if ( empty( $args ) ) {
+		$args = array( 'publicly_queryable' => true );
+	}
+
 	$taxonomy_terms = [];
-	$taxonomies     = get_object_taxonomies( $post );
+	$taxonomies     = get_taxonomies( $args );
 
 	/**
 	 * Filters the taxonomies that should be synced.
@@ -892,11 +863,11 @@ function process_media( $url, $post_id, $args = [] ) {
 	 * @since 1.3.7
 	 * @hook dt_media_processing_filename
 	 *
-	 * @param {string} $media_name Filemame of the media being processed.
+	 * @param {string} $media_name Filename of the media being processed.
 	 * @param {string} $url        Media url.
 	 * @param {int}    $post_id    Post ID.
 	 *
-	 * @return {string} Filemame of the media being processed.
+	 * @return {string} Filename of the media being processed.
 	 */
 	$media_name = apply_filters( 'dt_media_processing_filename', $media_name, $url, $post_id );
 
@@ -1005,12 +976,21 @@ function process_media( $url, $post_id, $args = [] ) {
  * The block editor depends on the REST API, and if the post type is not shown in the
  * REST API, then it won't work with the block editor.
  *
+ * This duplicates the function use_block_editor_for_post_type() in WordPress Core
+ * to ensure the function is always available in Distributor. The function is not
+ * available in some WordPress contexts.
+ *
  * @source WordPress 5.0.0
  *
  * @param string $post_type The post type.
  * @return bool Whether the post type can be edited with the block editor.
  */
 function dt_use_block_editor_for_post_type( $post_type ) {
+	// In some contexts this function doesn't exist so we can't reliably use it.
+	if ( function_exists( 'use_block_editor_for_post_type' ) ) {
+		return use_block_editor_for_post_type( $post_type );
+	}
+
 	if ( ! post_type_exists( $post_type ) ) {
 		return false;
 	}
@@ -1022,12 +1002,6 @@ function dt_use_block_editor_for_post_type( $post_type ) {
 	$post_type_object = get_post_type_object( $post_type );
 	if ( $post_type_object && ! $post_type_object->show_in_rest ) {
 		return false;
-	}
-
-	// In some contexts this function doesn't exist so we can't reliably use the filter.
-	if ( function_exists( 'use_block_editor_for_post_type' ) ) {
-		// Filter documented in WordPress core.
-		return apply_filters( 'use_block_editor_for_post_type', true, $post_type );
 	}
 
 	/**
@@ -1224,4 +1198,22 @@ function remote_http_request( $url, $args = array(), $fallback = '', $threshold 
 	}
 
 	return wp_remote_request( $url, $args );
+}
+
+/**
+ * Determines if a post is distributed.
+ *
+ * @since 2.0.0
+ *
+ * @param int|\WP_Post $post The post object or ID been checked.
+ * @return bool True if the post is distributed, false otherwise.
+ */
+function is_distributed_post( $post ) {
+	$post = get_post( $post );
+	if ( ! $post ) {
+		return false;
+	}
+	$post_id          = $post->ID;
+	$original_post_id = get_post_meta( $post_id, 'dt_original_post_id', true );
+	return ! empty( $original_post_id );
 }

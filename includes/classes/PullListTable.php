@@ -321,14 +321,14 @@ class PullListTable extends \WP_List_Table {
 				$disable = true;
 			} else {
 				/**
-				 * Filter the default value of the 'Pull in as draft' option in the pull ui
+				 * Filter the default value of the 'Pull as draft' option in the pull ui
 				 *
 				 * @hook dt_pull_as_draft
 				 *
-				 * @param {bool}   $as_draft   Whether the 'Pull in as draft' option should be checked.
+				 * @param {bool}   $as_draft   Whether the 'Pull as draft' option should be checked.
 				 * @param {object} $connection The connection being used to pull from.
 				 *
-				 * @return {bool} Whether the 'Pull in as draft' option should be checked.
+				 * @return {bool} Whether the 'Pull as draft' option should be checked.
 				 */
 				$as_draft = apply_filters( 'dt_pull_as_draft', true, $connection_now );
 
@@ -639,7 +639,7 @@ class PullListTable extends \WP_List_Table {
 					?>
 
 					<label class="dt-as-draft" for="dt-as-draft-<?php echo esc_attr( $which ); ?>">
-						<input type="checkbox" id="dt-as-draft-<?php echo esc_attr( $which ); ?>" name="dt_as_draft" value="draft" <?php checked( $as_draft ); ?>> <?php esc_html_e( 'Pull in as draft', 'distributor' ); ?>
+						<input type="checkbox" id="dt-as-draft-<?php echo esc_attr( $which ); ?>" name="dt_as_draft" value="draft" <?php checked( $as_draft ); ?>> <?php esc_html_e( 'Pull as draft', 'distributor' ); ?>
 					</label>
 				<?php endif; ?>
 			</div>

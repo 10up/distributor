@@ -1,44 +1,83 @@
-import { wp, dtGutenberg } from 'window';
+import { dispatch } from '@wordpress/data';
+import { __, sprintf } from '@wordpress/i18n';
 
+const { dtGutenberg } = window;
 
-wp.i18n.setLocaleData( dtGutenberg.i18n, 'distributor' );
-
-if ( '0' !== dtGutenberg.originalSourceId || '0' !== dtGutenberg.originalBlogId ) {
-
+if (
+	'0' !== dtGutenberg.originalSourceId ||
+	'0' !== dtGutenberg.originalBlogId
+) {
 	let message = '';
 	const actions = [];
 
 	if ( parseInt( dtGutenberg.originalDelete ) ) {
-		message = wp.i18n.sprintf( wp.i18n.__( 'This %1$s was distributed from %2$s. However, the original has been deleted.' ), dtGutenberg.postTypeSingular, dtGutenberg.originalLocationName );
+		message = sprintf(
+			/* translators: 1) Distributor post type singular name, 2) Source of content. */
+			__(
+				'This %1$s was distributed from %2$s. However, the origin %1$s has been deleted.'
+			),
+			dtGutenberg.postTypeSingular.toLowerCase(),
+			dtGutenberg.originalLocationName
+		);
 	} else if ( ! parseInt( dtGutenberg.unlinked ) ) {
-		message = wp.i18n.sprintf( wp.i18n.__( 'Distributed from %s. The original will update this version unless you', 'distributor' ), dtGutenberg.originalLocationName );
+		message = sprintf(
+			/* translators: 1) Source of content, 2) Distributor post type singular name. */
+			__(
+				'Distributed from %1$s. This %2$s is linked to the origin %2$s. Edits to the origin %2$s will update this remote version.',
+				'distributor'
+			),
+			dtGutenberg.originalLocationName,
+			dtGutenberg.postTypeSingular.toLowerCase()
+		);
 
 		actions.push( {
-			label: wp.i18n. __( 'unlink from original.', 'distributor' ),
-			url: dtGutenberg.unlinkNonceUrl
+			label: sprintf(
+				/* translators: 1) Distributor post type singular name. */
+				__( 'Unlink from the origin %1$s.', 'distributor' ),
+				dtGutenberg.postTypeSingular.toLowerCase()
+			),
+			url: dtGutenberg.unlinkNonceUrl,
 		} );
 
 		actions.push( {
-			label: wp.i18n.__( 'View Original', 'distributor' ),
+			label: sprintf(
+				/* translators: 1) Distributor post type singular name. */
+				__( 'View the origin %1$s.', 'distributor' ),
+				dtGutenberg.postTypeSingular.toLowerCase()
+			),
 			url: dtGutenberg.postUrl,
 		} );
-
-
 	} else {
-		message = wp.i18n.sprintf( wp.i18n.__( 'Originally distributed from %1$s. This %2$s has been unlinked from the original. However, you can always', 'distributor' ), dtGutenberg.originalLocationName, dtGutenberg.postTypeSingular );
+		message = sprintf(
+			/* translators: 1) Source of content, 2) Distributor post type singular name. */
+			__(
+				'Originally distributed from %1$s. This %2$s has been unlinked from the origin %2$s. Edits to the origin %2$s will not update this remote version.',
+				'distributor'
+			),
+			dtGutenberg.originalLocationName,
+			dtGutenberg.postTypeSingular.toLowerCase()
+		);
 
 		actions.push( {
-			label: wp.i18n. __( 'restore it.', 'distributor' ),
-			url: dtGutenberg.linkNonceUrl
+			label: sprintf(
+				/* translators: 1) Distributor post type singular name. */
+				__( 'Relink to the origin %1$s.', 'distributor' ),
+				dtGutenberg.postTypeSingular.toLowerCase()
+			),
+			url: dtGutenberg.linkNonceUrl,
 		} );
 
 		actions.push( {
-			label: wp.i18n. __( 'View Original', 'distributor' ),
-			url: dtGutenberg.postUrl
+			label: sprintf(
+				/* translators: 1) Distributor post type singular name. */
+				__( 'View the origin %1$s.', 'distributor' ),
+				dtGutenberg.postTypeSingular.toLowerCase()
+			),
+			url: dtGutenberg.postUrl,
 		} );
 	}
 
-	wp.data.dispatch( 'core/notices' ).createWarningNotice( message, {
+	dispatch( 'core/notices' ).createWarningNotice( message, {
 		id: 'distributor-notice',
 		actions,
 	} );

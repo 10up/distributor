@@ -1,0 +1,68 @@
+body.dt-linked-post {
+
+	.edit-post-visual-editor,
+	.editor-post-excerpt__textarea {
+		opacity: 0.5;
+		pointer-events: none;
+		cursor: default;
+	}
+
+	.components-form-token-field__input-container,
+	input,
+	select,
+	button,
+	textarea,
+	label,
+	.button {
+		opacity: 0.5;
+		pointer-events: none;
+		cursor: default;
+	}
+
+	.edit-post-welcome-guide,
+	.edit-post-header__settings,
+	.components-time-picker,
+	.react-datepicker,
+	.components-panel__header {
+
+		.components-form-token-field__input-container,
+		input,
+		select,
+		button,
+		textarea,
+		label,
+		.button {
+			opacity: 1;
+			pointer-events: auto;
+			cursor: pointer;
+		}
+	}
+
+	.components-panel__body-toggle,
+	.edit-post-post-visibility__toggle,
+	.editor-post-trash,
+	.editor-post-publish-button,
+	.edit-post-post-schedule__toggle,
+	.components-menu-item__button,
+	.editor-post-publish-panel button {
+		opacity: 1;
+		pointer-events: auto;
+		cursor: pointer;
+	}
+
+	#post-sticky-toggle-0 {
+		pointer-events: auto;
+		cursor: pointer;
+	}
+
+	.edit-post-last-revision__panel {
+		display: none;
+	}
+
+}
+
+#distributed-from,
+#distributed-from strong,
+#distributed-from a {
+	vertical-align: top;
+}
