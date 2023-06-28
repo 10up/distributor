@@ -306,22 +306,22 @@ class NetworkSiteConnection extends Connection {
 				update_post_meta( $new_post_id, 'dt_original_post_url', wp_slash( sanitize_url( $new_post_args['meta_input']['dt_original_post_url'] ) ) );
 
 				/**
-				 * Allow bypassing of all meta processing.
+				 * Allow bypassing of all media processing.
 				 *
-				 * @hook dt_pull_post_meta
+				 * @hook dt_pull_post_media
 				 *
-				 * @param {bool}                  true            If Distributor should set the post meta.
+				 * @param {bool}                  true            If Distributor should set the post media.
 				 * @param {int}                   $new_post_id    The newly created post ID.
-				 * @param {array}                 $post_meta      List of meta items attached to the post, formatted by {@link \Distributor\Utils\prepare_meta()}.
+				 * @param {array}                 $post_media     List of media items attached to the post, formatted by {@link \Distributor\Utils\prepare_media()}.
 				 * @param {int}                   $remote_post_id The original post ID.
 				 * @param {array}                 $post_array     The arguments passed into wp_insert_post.
 				 * @param {NetworkSiteConnection} $this           The Distributor connection being pulled from.
 				 *
-				 * @return {bool} If Distributor should set the post meta.
+				 * @return {bool} If Distributor should set the post media.
 				 */
-				if ( apply_filters( 'dt_pull_post_meta', true, $new_post_id, $post['meta'], $item_array['remote_post_id'], $post_array, $this ) ) {
-					\Distributor\Utils\set_meta( $new_post_id, $post['meta'] );
-				}
+				if ( apply_filters( 'dt_pull_post_media', true, $new_post_id, $post['media'], $item_array['remote_post_id'], $post_array, $this ) ) {
+					\Distributor\Utils\set_media( $new_post_id, $post['media'], [ 'use_filesystem' => true ] );
+				};
 
 				/**
 				 * Allow bypassing of all terms processing.
@@ -340,24 +340,24 @@ class NetworkSiteConnection extends Connection {
 				if ( apply_filters( 'dt_pull_post_terms', true, $new_post_id, $post['terms'], $item_array['remote_post_id'], $post_array, $this ) ) {
 					\Distributor\Utils\set_taxonomy_terms( $new_post_id, $post['terms'] );
 				}
-
+				
 				/**
-				 * Allow bypassing of all media processing.
+				 * Allow bypassing of all meta processing.
 				 *
-				 * @hook dt_pull_post_media
+				 * @hook dt_pull_post_meta
 				 *
-				 * @param {bool}                  true            If Distributor should set the post media.
+				 * @param {bool}                  true            If Distributor should set the post meta.
 				 * @param {int}                   $new_post_id    The newly created post ID.
-				 * @param {array}                 $post_media     List of media items attached to the post, formatted by {@link \Distributor\Utils\prepare_media()}.
+				 * @param {array}                 $post_meta      List of meta items attached to the post, formatted by {@link \Distributor\Utils\prepare_meta()}.
 				 * @param {int}                   $remote_post_id The original post ID.
 				 * @param {array}                 $post_array     The arguments passed into wp_insert_post.
 				 * @param {NetworkSiteConnection} $this           The Distributor connection being pulled from.
 				 *
-				 * @return {bool} If Distributor should set the post media.
+				 * @return {bool} If Distributor should set the post meta.
 				 */
-				if ( apply_filters( 'dt_pull_post_media', true, $new_post_id, $post['media'], $item_array['remote_post_id'], $post_array, $this ) ) {
-					\Distributor\Utils\set_media( $new_post_id, $post['media'], [ 'use_filesystem' => true ] );
-				};
+				if ( apply_filters( 'dt_pull_post_meta', true, $new_post_id, $post['meta'], $item_array['remote_post_id'], $post_array, $this ) ) {
+					\Distributor\Utils\set_meta( $new_post_id, $post['meta'] );
+				}
 			}
 
 			switch_to_blog( $this->site->blog_id );
