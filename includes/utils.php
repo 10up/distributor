@@ -159,6 +159,20 @@ function is_dt_debug() {
  * @param array $meta Array of meta as key => value
  */
 function set_meta( $post_id, $meta ) {
+	/**
+	 * Fires before Distributor sets post meta.
+	 *
+	 * Note: All sent meta is included in the `$meta` array, including excluded keys.
+	 * Take care to continue to filter out excluded keys in any further meta setting.
+	 *
+	 * @since 2.0.1
+	 * @hook dt_before_set_meta
+	 *
+	 * @param {array} $meta          All received meta for the post
+	 * @param {int}   $post_id       Post ID
+	 */
+	$meta = apply_filters( 'dt_before_set_meta', $meta, $post_id );
+
 	$existing_meta = get_post_meta( $post_id );
 	$excluded_meta = excluded_meta();
 
