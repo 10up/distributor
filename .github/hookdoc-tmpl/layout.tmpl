@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title><?js= title ?> - 10up Distributor Hook Docs</title>
+    <title><?js= title ?> - 10up Distributor Developer Documentation</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -32,11 +32,18 @@
 		<a href="https://10up.com/careers">Careers at 10up</a>
 	</footer>
 
-	
 </div>
 
 <nav>
-    <?js= this.nav ?>
+	<?js
+		// Re-order tutorials to the top of the nav. The nav is hard-coded in wp-hooksdoc.
+		const indexOfFirstSubHeading = this.nav.indexOf('<h3');
+		const indexOfTutorial = this.nav.indexOf('<h3>Tutorials');
+		const headingLink = this.nav.substr(0, indexOfFirstSubHeading);
+		const hooksSection = this.nav.substr(indexOfFirstSubHeading, indexOfTutorial - indexOfFirstSubHeading);
+		const tutorialSection = this.nav.substr(indexOfTutorial);
+	?>
+	<?js= headingLink + tutorialSection+ hooksSection ?>
 </nav>
 
 <br class="clear">

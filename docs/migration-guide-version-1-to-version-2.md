@@ -1,5 +1,3 @@
-## Migration Guide Version 1 to Version 2.
-
 Version 2 of Distributor includes a number of breaking changes that will require updates to custom code you may have written for distributor.
 
 ## External connections require a minimum of version 2.0
