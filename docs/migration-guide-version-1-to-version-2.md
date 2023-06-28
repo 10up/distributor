@@ -1,5 +1,11 @@
 Version 2 of Distributor includes a number of breaking changes that will require updates to custom code you may have written for distributor.
 
+## External connections require a minimum of version 2.0
+
+It is recommended that both ends of an external connection run the same version of Distributor.
+
+Version 2.0 of Distributor will prevent the pulling of posts from sites running Version 1.9.x or lower of Distributor.
+
 ### Remove canonical links for both Internal and External Connections
 
 The code snippet required to prevent sites from displaying the source post as canonical URLs for distributed posts has changed.
