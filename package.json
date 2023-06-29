@@ -26,8 +26,8 @@
 	},
 	"devDependencies": {
 		"@10up/cypress-wp-utils": "github:10up/cypress-wp-utils#build",
-		"@wordpress/env": "^5.0.0",
-		"@wordpress/scripts": "^23.5.0",
+		"@wordpress/env": "^8.2.0",
+		"@wordpress/scripts": "^26.6.0",
 		"compare-versions": "^4.1.3",
 		"cypress": "^10.8.0",
 		"eslint-plugin-cypress": "^2.12.1",
