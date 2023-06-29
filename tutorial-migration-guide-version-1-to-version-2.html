@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>Filter: dt_debug_info_enabled - 10up Distributor Developer Documentation</title>
+    <title>Tutorial: Migration Guide Version 1 to Version 2 - 10up Distributor Developer Documentation</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -21,187 +21,42 @@
 <div id="main">
 
 	
-    <h1 class="page-title">Filter: dt_debug_info_enabled</h1>
+    <h1 class="page-title">Tutorial: Migration Guide Version 1 to Version 2</h1>
 	
 
-    
-
-
-
-
-<section>
+    <section>
 
 <header>
-    <h2></h2>
     
+
+    <h2>Migration Guide Version 1 to Version 2</h2>
 </header>
 
 <article>
-    <div class="container-overview">
-    
-        
-
-    
-
-    <h4 class="name" id="dt_debug_info_enabled">apply_filters( 'dt_debug_info_enabled', <span class="signature">true )</span><span class="type-signature"> &rarr; {bool}</span></h4>
-
-    
-
-
-
-<div class="description">
-    <p>Filter whether the debug info is enabled. Enabled by default, return false to disable.</p>
-</div>
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>true</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">bool</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>Whether the debug info should be enabled.</p></td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-    <dt class="tag-since">Since:</dt>
-    <dd class="tag-since"><ul class="dummy"><li>2.0.0</li></ul></dd>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="debug-info.php.html">debug-info.php</a>, <a href="debug-info.php.html#line24">line 24</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-<h5>Returns:</h5>
-
-        
-<div class="param-desc">
-    <p>Whether the debug info should be enabled.</p>
-</div>
-
-
-
-<dl>
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
-<span class="param-type">bool</span>
-
-
-    </dd>
-</dl>
-
-    
-
-
-
-    
-    </div>
-
-    
+    <p>Version 2 of Distributor includes a number of breaking changes that will require updates to custom code you may have written for distributor.</p>
+<h2 id="external-connections-require-a-minimum-of-version-2.0">External connections require a minimum of version 2.0</h2>
+<p>It is recommended that both ends of an external connection run the same version of Distributor.</p>
+<p>Version 2.0 of Distributor will prevent the pulling of posts from sites running Version 1.9.x or lower of Distributor.</p>
+<h3 id="remove-canonical-links-for-both-internal-and-external-connections">Remove canonical links for both Internal and External Connections</h3>
+<p>The code snippet required to prevent sites from displaying the source post as canonical URLs for distributed posts has changed.</p>
+<p>If you have implemented this using the code snippet from our tutorial file, please update your code to the following:</p>
+<pre class="prettyprint source lang-php"><code>/**
+ * Stop Distributor from changing the canonical links.
+ *
+ * This removes Distributor's canonical functionality from both Internal and
+ * External Connections.
+ *
+ * This accounts for sites using either WordPress or Yoast SEO to generate the
+ * canonical URL.
+ */
+add_action( 'plugins_loaded', function() {
+	remove_filter( 'get_canonical_url', '\\Distributor\\Hooks\\get_canonical_url', 10, 2 );
+	remove_filter( 'wpseo_canonical', '\\Distributor\\Hooks\\wpseo_canonical', 10, 2 );
+} );
+</code></pre>
 </article>
 
 </section>
-
-
-
 
 
     <footer>

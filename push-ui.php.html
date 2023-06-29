@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>Source: includes/push-ui.php - 10up Distributor Hook Docs</title>
+    <title>Source: push-ui.php - 10up Distributor Developer Documentation</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -21,7 +21,7 @@
 <div id="main">
 
 	
-    <h1 class="page-title">Source: includes/push-ui.php</h1>
+    <h1 class="page-title">Source: push-ui.php</h1>
 	
 
     
@@ -39,6 +39,9 @@
  */
 
 namespace Distributor\PushUI;
+
+use Distributor\EnqueueScript;
+use Distributor\Utils;
 
 /**
  * Setup actions and filters
@@ -69,10 +72,17 @@ function setup() {
  * @return  bool
  */
 function syndicatable() {
+	// Retrieve the current global post, bail if not set.
+	$post = get_post();
+	if ( empty( $post ) ) {
+		return false;
+	}
+
 	/**
 	 * Filter Distributor capabilities allowed to syndicate content.
 	 *
 	 * @hook dt_syndicatable_capabilities
+	 * @tutorial snippets
 	 *
 	 * @param {string} edit_posts The capability allowed to syndicate content.
 	 *
@@ -101,7 +111,7 @@ function syndicatable() {
 
 		global $pagenow;
 
-		if ( 'post.php' !== $pagenow ) {
+		if ( 'post.php' !== $pagenow &amp;&amp; 'post-new.php' !== $pagenow ) {
 			return false;
 		}
 	} else {
@@ -110,17 +120,13 @@ function syndicatable() {
 		}
 	}
 
-	global $post;
-
-	if ( empty( $post ) ) {
-		return;
-	}
-
-	if ( ! in_array( $post->post_status, \Distributor\Utils\distributable_post_statuses(), true ) ) {
+	// If we're using the classic editor, we need to make sure the post has a distributable status.
+	if ( ! Utils\is_using_gutenberg( $post ) &amp;&amp; ! in_array( $post->post_status, Utils\distributable_post_statuses(), true ) ) {
 		return false;
 	}
 
-	if ( ! in_array( get_post_type(), $distributable_post_types, true ) || ( ! empty( $_GET['post_type'] ) &amp;&amp; 'dt_ext_connection' === $_GET['post_type'] ) ) { // @codingStandardsIgnoreLine Nonce not required
+	$distributable_post_types = array_diff( $distributable_post_types, array( 'dt_ext_connection' ) );
+	if ( ! in_array( get_post_type(), $distributable_post_types, true ) ) {
 		return false;
 	}
 
@@ -435,37 +441,42 @@ function enqueue_scripts( $hook ) {
 		return;
 	}
 
-	wp_enqueue_style( 'dt-push', plugins_url( '/dist/css/push.min.css', __DIR__ ), array(), DT_VERSION );
-	wp_enqueue_script( 'dt-push', plugins_url( '/dist/js/push.min.js', __DIR__ ), array( 'jquery', 'underscore' ), DT_VERSION, true );
-	wp_localize_script(
-		'dt-push',
-		'dt',
-		array(
-			'nonce'                => wp_create_nonce( 'dt-push' ),
-			'loadConnectionsNonce' => wp_create_nonce( 'dt-load-connections' ),
-			'postId'               => (int) get_the_ID(),
-			'ajaxurl'              => esc_url( admin_url( 'admin-ajax.php' ) ),
-			'messages'             => array(
-				'ajax_error'   => __( 'Ajax error:', 'distributor' ),
-				'empty_result' => __( 'Received empty result.', 'distributor' ),
-			),
+	$push_script   = new EnqueueScript( 'dt-push', 'push.min' );
+	$localize_data = array(
+		'nonce'                => wp_create_nonce( 'dt-push' ),
+		'loadConnectionsNonce' => wp_create_nonce( 'dt-load-connections' ),
+		'postId'               => (int) get_the_ID(),
+		'postTitle'            => get_the_title(),
+		'ajaxurl'              => esc_url( admin_url( 'admin-ajax.php' ) ),
 
-			/**
-			 * Filter whether front end ajax requests should use xhrFields credentials:true.
-			 *
-			 * Front end ajax requests may require xhrFields with credentials when the front end and
-			 * back end domains do not match. This filter lets themes opt in.
-			 * See {@link https://vip.wordpress.com/documentation/handling-frontend-file-uploads/#handling-ajax-requests}
-			 *
-			 * @since 1.0.0
-			 * @hook dt_ajax_requires_with_credentials
-			 *
-			 * @param {bool} false Whether front end ajax requests should use xhrFields credentials:true.
-			 *
-			 * @return {bool} Whether front end ajax requests should use xhrFields credentials:true.
-			 */
-			'usexhr'               => apply_filters( 'dt_ajax_requires_with_credentials', false ),
-		)
+		/**
+		 * Filter whether front end ajax requests should use xhrFields credentials:true.
+		 *
+		 * Front end ajax requests may require xhrFields with credentials when the front end and
+		 * back end domains do not match. This filter lets themes opt in.
+		 * See {@link https://vip.wordpress.com/documentation/handling-frontend-file-uploads/#handling-ajax-requests}
+		 *
+		 * @since 1.0.0
+		 * @hook dt_ajax_requires_with_credentials
+		 *
+		 * @param {bool} false Whether front end ajax requests should use xhrFields credentials:true.
+		 *
+		 * @return {bool} Whether front end ajax requests should use xhrFields credentials:true.
+		 */
+		'usexhr'               => apply_filters( 'dt_ajax_requires_with_credentials', false ),
+	);
+
+	$push_script
+		->load_in_footer()
+		->register_localize_data( 'dt', $localize_data )
+		->register_translations()
+		->enqueue();
+
+	wp_enqueue_style(
+		'dt-push',
+		plugins_url( '/dist/css/push.min.css', __DIR__ ),
+		array(),
+		$push_script->get_version()
 	);
 }
 
@@ -589,9 +600,10 @@ function menu_content() {
 		return;
 	}
 
-	$unlinked         = (bool) get_post_meta( $post->ID, 'dt_unlinked', true );
-	$original_blog_id = get_post_meta( $post->ID, 'dt_original_blog_id', true );
-	$original_post_id = get_post_meta( $post->ID, 'dt_original_post_id', true );
+	$unlinked              = (bool) get_post_meta( $post->ID, 'dt_unlinked', true );
+	$original_blog_id      = get_post_meta( $post->ID, 'dt_original_blog_id', true );
+	$original_post_id      = get_post_meta( $post->ID, 'dt_original_post_id', true );
+	$original_post_deleted = get_post_meta( $post->ID, 'dt_original_post_deleted', true );
 
 	if ( ! empty( $original_blog_id ) &amp;&amp; ! empty( $original_post_id ) &amp;&amp; ! $unlinked &amp;&amp; is_multisite() ) {
 		switch_to_blog( $original_blog_id );
@@ -607,11 +619,38 @@ function menu_content() {
 			&lt;div class="inner">
 				&lt;p class="syndicated-notice">
 					&lt;?php /* translators: %s: post type name */ ?>
-					&lt;?php printf( esc_html__( 'This %s has been distributed from', 'distributor' ), esc_html( strtolower( $post_type_object->labels->singular_name ) ) ); ?>
-					&lt;a href="&lt;?php echo esc_url( $site_url ); ?>">&lt;?php echo esc_html( $blog_name ); ?>&lt;/a>.
 
-					&lt;?php esc_html_e( 'You can ', 'distributor' ); ?>
-					&lt;a href="&lt;?php echo esc_url( $post_url ); ?>">&lt;?php esc_html_e( 'view the original', 'distributor' ); ?>&lt;/a>
+					&lt;?php
+					printf(
+						/* translators: 1) Distributor post type singular name, 2) Source of content. */
+						esc_html__( 'This %1$s was distributed from %2$s.', 'distributor' ),
+						esc_html( strtolower( $post_type_object->labels->singular_name ) ),
+						'&lt;a href="' . esc_url( $site_url ) . '">' . esc_html( $blog_name ) . '&lt;/a>'
+					);
+
+					if ( $original_post_deleted ) {
+						echo ' '; // Ensure whitespace between sentences.
+						printf(
+							/* translators: 1: post type name */
+							esc_html__( 'However, the origin %1$s has been deleted.', 'distributor' ),
+							esc_html( strtolower( $post_type_object->labels->singular_name ) )
+						);
+					} elseif ( ! empty( $post_url ) ) {
+						?>
+						&lt;a href="&lt;?php echo esc_url( $post_url ); ?>" target="_blank">
+							&lt;?php
+							echo wp_kses_post(
+								sprintf(
+									/* translators: 1) Distributor post type singular name. */
+									__( 'View the origin %1$s.', 'distributor' ),
+									esc_html( strtolower( $post_type_object->labels->singular_name ) ),
+								)
+							);
+							?>
+						&lt;/a>
+						&lt;?php
+					}
+					?>
 				&lt;/p>
 			&lt;/div>
 		&lt;/div>
@@ -668,11 +707,11 @@ function menu_content() {
 		<a href="https://10up.com/careers">Careers at 10up</a>
 	</footer>
 
-	
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Actions</h3><ul><li><a href="dt_after_set_meta.html">dt_after_set_meta</a></li><li><a href="dt_link_post.html">dt_link_post</a></li><li><a href="dt_log_sync.html">dt_log_sync</a></li><li><a href="dt_oauth_admin_notices.html">dt_oauth_admin_notices</a></li><li><a href="dt_process_distributor_attributes.html">dt_process_distributor_attributes</a></li><li><a href="dt_process_subscription_attributes.html">dt_process_subscription_attributes</a></li><li><a href="dt_pull_filters.html">dt_pull_filters</a></li><li><a href="dt_pull_list_table_custom_column.html">dt_pull_list_table_custom_column</a></li><li><a href="dt_pull_post.html">dt_pull_post</a></li><li><a href="dt_push_post.html">dt_push_post</a></li><li><a href="dt_unlink_post.html">dt_unlink_post</a></li></ul><h3>Filters</h3><ul><li><a href="distributable_post_types.html">distributable_post_types</a></li><li><a href="distributor_get_original_site_link.html">distributor_get_original_site_link</a></li><li><a href="dt_ajax_requires_with_credentials.html">dt_ajax_requires_with_credentials</a></li><li><a href="dt_allow_post_unlink.html">dt_allow_post_unlink</a></li><li><a href="dt_allowed_media_extensions.html">dt_allowed_media_extensions</a></li><li><a href="dt_auth_format_get_args.html">dt_auth_format_get_args</a></li><li><a href="dt_auth_format_post_args.html">dt_auth_format_post_args</a></li><li><a href="dt_auth_prepare_credentials.html">dt_auth_prepare_credentials</a></li><li><a href="dt_authorized_sites.html">dt_authorized_sites</a></li><li><a href="dt_available_pull_post_types.html">dt_available_pull_post_types</a></li><li><a href="dt_available_push_post_types.html">dt_available_push_post_types</a></li><li><a href="dt_capabilities.html">dt_capabilities</a></li><li><a href="dt_create_missing_terms.html">dt_create_missing_terms</a></li><li><a href="dt_debug_info_enabled.html">dt_debug_info_enabled</a></li><li><a href="dt_distributable_post_statuses.html">dt_distributable_post_statuses</a></li><li><a href="dt_excluded_meta.html">dt_excluded_meta</a></li><li><a href="dt_external_capabilities.html">dt_external_capabilities</a></li><li><a href="dt_get_media_details.html">dt_get_media_details</a></li><li><a href="dt_get_pull_content_rest_query_args.html">dt_get_pull_content_rest_query_args</a></li><li><a href="dt_get_rest_url.html">dt_get_rest_url</a></li><li><a href="dt_item_mapping.html">dt_item_mapping</a></li><li><a href="dt_media_item_formatted.html">dt_media_item_formatted</a></li><li><a href="dt_media_processing_filename.html">dt_media_processing_filename</a></li><li><a href="dt_network_site_connection_enabled.html">dt_network_site_connection_enabled</a></li><li><a href="dt_pre_get_authorized_sites.html">dt_pre_get_authorized_sites</a></li><li><a href="dt_process_media_args.html">dt_process_media_args</a></li><li><a href="dt_process_media_save_source_file_path.html">dt_process_media_save_source_file_path</a></li><li><a href="dt_pull_as_draft.html">dt_pull_as_draft</a></li><li><a href="dt_pull_capabilities.html">dt_pull_capabilities</a></li><li><a href="dt_pull_list_table_columns.html">dt_pull_list_table_columns</a></li><li><a href="dt_pull_list_table_tr_class.html">dt_pull_list_table_tr_class</a></li><li><a href="dt_pull_post_apply_rendered_content.html">dt_pull_post_apply_rendered_content</a></li><li><a href="dt_pull_post_args.html">dt_pull_post_args</a></li><li><a href="dt_pull_post_media.html">dt_pull_post_media</a></li><li><a href="dt_pull_post_meta.html">dt_pull_post_meta</a></li><li><a href="dt_pull_post_terms.html">dt_pull_post_terms</a></li><li><a href="dt_push_capabilities.html">dt_push_capabilities</a></li><li><a href="dt_push_post_args.html">dt_push_post_args</a></li><li><a href="dt_push_post_media.html">dt_push_post_media</a></li><li><a href="dt_push_post_meta.html">dt_push_post_meta</a></li><li><a href="dt_push_post_terms.html">dt_push_post_terms</a></li><li><a href="dt_push_post_timeout.html">dt_push_post_timeout</a></li><li><a href="dt_remote_get.html">dt_remote_get</a></li><li><a href="dt_remote_get_query_args.html">dt_remote_get_query_args</a></li><li><a href="dt_remote_get_url.html">dt_remote_get_url</a></li><li><a href="dt_remote_post.html">dt_remote_post</a></li><li><a href="dt_remote_post_query_args.html">dt_remote_post_query_args</a></li><li><a href="dt_remote_post_timeout.html">dt_remote_post_timeout</a></li><li><a href="dt_set_media_args.html">dt_set_media_args</a></li><li><a href="dt_subscription_post_args.html">dt_subscription_post_args</a></li><li><a href="dt_subscription_post_timeout.html">dt_subscription_post_timeout</a></li><li><a href="dt_sync_media_delete_and_replace.html">dt_sync_media_delete_and_replace</a></li><li><a href="dt_sync_meta.html">dt_sync_meta</a></li><li><a href="dt_syncable_taxonomies.html">dt_syncable_taxonomies</a></li><li><a href="dt_syndicatable_capabilities.html">dt_syndicatable_capabilities</a></li><li><a href="dt_update_content_via_request_args.html">dt_update_content_via_request_args</a></li><li><a href="dt_update_term_hierarchy.html">dt_update_term_hierarchy</a></li><li><a href="dt_use_block_editor_for_post_type.html">dt_use_block_editor_for_post_type</a></li></ul><h3>Tutorials</h3><ul><li><a href="tutorial-snippets.html">snippets</a></li></ul>
+	
+	<h2><a href="index.html">Home</a></h2><h3>Tutorials</h3><ul><li><a href="tutorial-connect-to-an-existing-post.html">Connect to an Existing Post</a></li><li><a href="tutorial-exclude-meta-from-yoast-duplicate-post.html">Exclude Meta from Yoast Duplicate Post</a></li><li><a href="tutorial-migration-guide-version-1-to-version-2.html">Migration Guide Version 1 to Version 2</a></li><li><a href="tutorial-post-meta.html">Post Meta</a></li><li><a href="tutorial-snippets.html">Snippets</a></li></ul><h3>Actions</h3><ul><li><a href="dt_after_set_meta.html">dt_after_set_meta</a></li><li><a href="dt_link_post.html">dt_link_post</a></li><li><a href="dt_log_sync.html">dt_log_sync</a></li><li><a href="dt_oauth_admin_notices.html">dt_oauth_admin_notices</a></li><li><a href="dt_process_distributor_attributes.html">dt_process_distributor_attributes</a></li><li><a href="dt_process_subscription_attributes.html">dt_process_subscription_attributes</a></li><li><a href="dt_pull_filters.html">dt_pull_filters</a></li><li><a href="dt_pull_list_table_custom_column.html">dt_pull_list_table_custom_column</a></li><li><a href="dt_pull_post.html">dt_pull_post</a></li><li><a href="dt_push_external_post.html">dt_push_external_post</a></li><li><a href="dt_push_network_post.html">dt_push_network_post</a></li><li><a href="dt_push_post.html">dt_push_post</a></li><li><a href="dt_unlink_post.html">dt_unlink_post</a></li></ul><h3>Filters</h3><ul><li><a href="distributable_post_types.html">distributable_post_types</a></li><li><a href="distributor_get_original_site_link.html">distributor_get_original_site_link</a></li><li><a href="dt_ajax_requires_with_credentials.html">dt_ajax_requires_with_credentials</a></li><li><a href="dt_allow_post_unlink.html">dt_allow_post_unlink</a></li><li><a href="dt_allowed_media_extensions.html">dt_allowed_media_extensions</a></li><li><a href="dt_auth_format_get_args.html">dt_auth_format_get_args</a></li><li><a href="dt_auth_format_post_args.html">dt_auth_format_post_args</a></li><li><a href="dt_auth_prepare_credentials.html">dt_auth_prepare_credentials</a></li><li><a href="dt_authorized_sites.html">dt_authorized_sites</a></li><li><a href="dt_available_pull_post_types.html">dt_available_pull_post_types</a></li><li><a href="dt_available_push_post_types.html">dt_available_push_post_types</a></li><li><a href="dt_capabilities.html">dt_capabilities</a></li><li><a href="dt_create_missing_terms.html">dt_create_missing_terms</a></li><li><a href="dt_debug_info_enabled.html">dt_debug_info_enabled</a></li><li><a href="dt_distributable_post_statuses.html">dt_distributable_post_statuses</a></li><li><a href="dt_excluded_meta.html">dt_excluded_meta</a></li><li><a href="dt_external_capabilities.html">dt_external_capabilities</a></li><li><a href="dt_get_media_details.html">dt_get_media_details</a></li><li><a href="dt_get_pull_content_rest_query_args.html">dt_get_pull_content_rest_query_args</a></li><li><a href="dt_get_rest_url.html">dt_get_rest_url</a></li><li><a href="dt_item_mapping.html">dt_item_mapping</a></li><li><a href="dt_media_item_formatted.html">dt_media_item_formatted</a></li><li><a href="dt_media_processing_filename.html">dt_media_processing_filename</a></li><li><a href="dt_network_site_connection_enabled.html">dt_network_site_connection_enabled</a></li><li><a href="dt_parse_media_blocks.html">dt_parse_media_blocks</a></li><li><a href="dt_pre_get_authorized_sites.html">dt_pre_get_authorized_sites</a></li><li><a href="dt_process_media_args.html">dt_process_media_args</a></li><li><a href="dt_process_media_save_source_file_path.html">dt_process_media_save_source_file_path</a></li><li><a href="dt_pull_as_draft.html">dt_pull_as_draft</a></li><li><a href="dt_pull_capabilities.html">dt_pull_capabilities</a></li><li><a href="dt_pull_list_table_columns.html">dt_pull_list_table_columns</a></li><li><a href="dt_pull_list_table_tr_class.html">dt_pull_list_table_tr_class</a></li><li><a href="dt_pull_post_apply_rendered_content.html">dt_pull_post_apply_rendered_content</a></li><li><a href="dt_pull_post_args.html">dt_pull_post_args</a></li><li><a href="dt_pull_post_media.html">dt_pull_post_media</a></li><li><a href="dt_pull_post_meta.html">dt_pull_post_meta</a></li><li><a href="dt_pull_post_terms.html">dt_pull_post_terms</a></li><li><a href="dt_push_capabilities.html">dt_push_capabilities</a></li><li><a href="dt_push_post_args.html">dt_push_post_args</a></li><li><a href="dt_push_post_media.html">dt_push_post_media</a></li><li><a href="dt_push_post_meta.html">dt_push_post_meta</a></li><li><a href="dt_push_post_terms.html">dt_push_post_terms</a></li><li><a href="dt_push_post_timeout.html">dt_push_post_timeout</a></li><li><a href="dt_remote_get.html">dt_remote_get</a></li><li><a href="dt_remote_post.html">dt_remote_post</a></li><li><a href="dt_remote_post_query_args.html">dt_remote_post_query_args</a></li><li><a href="dt_remote_post_timeout.html">dt_remote_post_timeout</a></li><li><a href="dt_set_media_args.html">dt_set_media_args</a></li><li><a href="dt_subscription_post_args.html">dt_subscription_post_args</a></li><li><a href="dt_subscription_post_timeout.html">dt_subscription_post_timeout</a></li><li><a href="dt_sync_media_delete_and_replace.html">dt_sync_media_delete_and_replace</a></li><li><a href="dt_sync_meta.html">dt_sync_meta</a></li><li><a href="dt_syncable_taxonomies.html">dt_syncable_taxonomies</a></li><li><a href="dt_syndicatable_capabilities.html">dt_syndicatable_capabilities</a></li><li><a href="dt_update_content_via_request_args.html">dt_update_content_via_request_args</a></li><li><a href="dt_update_term_hierarchy.html">dt_update_term_hierarchy</a></li><li><a href="dt_use_block_editor_for_post_type.html">dt_use_block_editor_for_post_type</a></li></ul>
 </nav>
 
 <br class="clear">

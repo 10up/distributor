@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>Source: includes/syndicated-post-ui.php - 10up Distributor Hook Docs</title>
+    <title>Source: syndicated-post-ui.php - 10up Distributor Developer Documentation</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -21,7 +21,7 @@
 <div id="main">
 
 	
-    <h1 class="page-title">Source: includes/syndicated-post-ui.php</h1>
+    <h1 class="page-title">Source: syndicated-post-ui.php</h1>
 	
 
     
@@ -39,6 +39,9 @@
  */
 
 namespace Distributor\SyndicatedPostUI;
+
+use Distributor\EnqueueScript;
+use Distributor\Utils;
 
 /**
  * Setup actions and filters
@@ -59,12 +62,8 @@ function setup() {
 			add_filter( 'admin_body_class', __NAMESPACE__ . '\add_linked_class' );
 			add_filter( 'post_row_actions', __NAMESPACE__ . '\remove_quick_edit', 10, 2 );
 
-			$post = isset( $_GET['post'] ) ? get_post( (int) $_GET['post'] ) : false; // @codingStandardsIgnoreLine Nonce not required
-
-			if ( $post &amp;&amp; ! \Distributor\Utils\is_using_gutenberg( $post ) ) {
-				add_action( 'do_meta_boxes', __NAMESPACE__ . '\replace_revisions_meta_box', 10, 3 );
-				add_action( 'add_meta_boxes', __NAMESPACE__ . '\add_revisions_meta_box' );
-			}
+			add_action( 'do_meta_boxes', __NAMESPACE__ . '\replace_revisions_meta_box', 10, 3 );
+			add_action( 'add_meta_boxes', __NAMESPACE__ . '\add_revisions_meta_box' );
 
 			add_action( 'admin_init', __NAMESPACE__ . '\setup_columns' );
 		}
@@ -226,7 +225,15 @@ function syndication_date( $post ) {
 	?>
 
 	&lt;div class="misc-pub-section curtime misc-pub-curtime">
-		&lt;span id="syndicate-time">&lt;?php esc_html_e( 'Distributed on: ', 'distributor' ); ?>&lt;strong>&lt;?php echo esc_html( gmdate( 'M j, Y @ h:i', ( $syndicate_time + ( get_option( 'gmt_offset' ) * HOUR_IN_SECONDS ) ) ) ); ?>&lt;/strong>&lt;/span>
+		&lt;span id="syndicate-time">
+			&lt;?php
+			printf(
+				/* translators: 1: Syndication date and time. */
+				esc_html__( 'Distributed on: %1$s', 'distributor' ),
+				'&lt;strong>' . esc_html( gmdate( 'M j, Y @ h:i', ( $syndicate_time + ( get_option( 'gmt_offset' ) * HOUR_IN_SECONDS ) ) ) ) . '&lt;/strong>'
+			);
+			?>
+		&lt;/span>
 	&lt;/div>
 
 	&lt;?php
@@ -286,6 +293,10 @@ function new_revisions_meta_box( $post_id ) {
  */
 function replace_revisions_meta_box( $post_type, $context, $post ) {
 	if ( empty( $post ) ) {
+		return;
+	}
+
+	if ( Utils\is_using_gutenberg( $post ) ) {
 		return;
 	}
 
@@ -453,7 +464,7 @@ function syndicated_message( $post ) {
 
 	$post_type_object = get_post_type_object( $post->post_type );
 
-	$post_url           = get_post_meta( $post->ID, 'dt_original_post_url', true );
+	$original_post_url  = get_post_meta( $post->ID, 'dt_original_post_url', true );
 	$original_site_name = get_post_meta( $post->ID, 'dt_original_site_name', true );
 
 	if ( ! empty( $original_blog_id ) &amp;&amp; is_multisite() ) {
@@ -462,7 +473,7 @@ function syndicated_message( $post ) {
 		restore_current_blog();
 
 		if ( empty( $original_location_name ) ) {
-			/* translators: %d: the blog ID */
+			/* translators: %d: The site ID */
 			$original_location_name = sprintf( esc_html__( 'Blog #%d', 'distributor' ), $original_blog_id );
 		}
 	} else {
@@ -476,30 +487,85 @@ function syndicated_message( $post ) {
 		&lt;?php if ( $original_deleted ) : ?>
 			&lt;p>
 				&lt;?php
-					/* translators: %1$s: post type name, %2$s: site url, %3$s: site name */
-					echo wp_kses_post( sprintf( __( 'This %1$s was distributed from &lt;a href="%2$s">%3$s&lt;/a>. However, the original has been deleted.', 'distributor' ), esc_html( strtolower( $post_type_singular ) ), esc_url( $post_url ), esc_html( $original_location_name ) ) );
+					printf(
+						/* translators: 1) Distributor post type singular name, 2) Source of content. */
+						esc_html__( 'This %1$s was distributed from %2$s. However, the origin %1$s has been deleted.', 'distributor' ),
+						esc_html( strtolower( $post_type_singular ) ),
+						esc_html( $original_location_name )
+					);
 				?>
 			&lt;/p>
 		&lt;?php elseif ( ! $unlinked ) : ?>
 			&lt;p>
 				&lt;?php
-					/* translators: %1$s: site url, %2$s: site name */
-					echo wp_kses_post( sprintf( __( 'Distributed from &lt;a href="%1$s">%2$s&lt;/a>.', 'distributor' ), esc_url( $post_url ), esc_html( $original_location_name ) ) );
+					printf(
+						/* translators: 1) Source of content, 2) Distributor post type singular name. */
+						esc_html__( 'Distributed from %1$s. This %2$s is linked to the origin %2$s. Edits to the origin %2$s will update this remote version.', 'distributor' ),
+						esc_html( $original_location_name ),
+						esc_html( strtolower( $post_type_singular ) )
+					);
 				?>
 				&lt;?php
 					// Filter documented above.
 				if ( apply_filters( 'dt_allow_post_unlink', true, $post->ID ) ) :
+					$unlink_url = wp_nonce_url( add_query_arg( 'action', 'unlink', admin_url( sprintf( $post_type_object->_edit_link, $post->ID ) ) ), "unlink-post_{$post->ID}" );
 					?>
-					&lt;?php /* translators: %1$s: post type name, %2$s: unlink url */ ?>
-					&lt;span>&lt;?php echo wp_kses_post( sprintf( __( 'The original %1$s will update this version unless you &lt;a href="%2$s">unlink from the original.&lt;/a>', 'distributor' ), esc_html( strtolower( $post_type_singular ) ), wp_nonce_url( add_query_arg( 'action', 'unlink', admin_url( sprintf( $post_type_object->_edit_link, $post->ID ) ) ), "unlink-post_{$post->ID}" ) ) ); ?>&lt;/span>
+					&lt;/p>
+					&lt;p>
+					&lt;span>&lt;a href="&lt;?php echo esc_url( $unlink_url ); ?>">
+						&lt;?php
+							printf(
+								/* translators: 1) Distributor post type singular name. */
+								esc_html__( 'Unlink from the origin %1$s.', 'distributor' ),
+								esc_html( strtolower( $post_type_singular ) )
+							);
+						// phpcs:ignore Squiz.PHP.EmbeddedPhp.ContentAfterEnd, avoids layout issues.
+						?>&lt;/a>&lt;/span>
+					&lt;span>&lt;a href="&lt;?php echo esc_url( $original_post_url ); ?>">
+						&lt;?php
+							printf(
+								/* translators: 1) Distributor post type singular name. */
+								esc_html__( 'View the origin %1$s.', 'distributor' ),
+								esc_html( strtolower( $post_type_singular ) )
+							);
+						?>
+					&lt;/a>&lt;/span>
 				&lt;?php endif; ?>
 			&lt;/p>
 		&lt;?php else : ?>
 			&lt;p>
-				&lt;?php /* translators: %1$s: site url, %2$s: site name */ ?>
-				&lt;?php echo wp_kses_post( sprintf( __( 'Originally distributed from &lt;a href="%1$s">%1$s&lt;/a>.', 'distributor' ), esc_url( $post_url ), esc_html( $original_location_name ) ) ); ?>
-				&lt;?php /* translators: %1$s: post type name, %2$s: link url */ ?>
-				&lt;span>&lt;?php echo wp_kses_post( sprintf( __( "This %1\$s has been unlinked from the original. However, you can always &lt;a href='%2\$s'>restore it.&lt;/a>", 'distributor' ), esc_html( strtolower( $post_type_singular ) ), wp_nonce_url( add_query_arg( 'action', 'link', admin_url( sprintf( $post_type_object->_edit_link, $post->ID ) ) ), "link-post_{$post->ID}" ) ) ); ?>&lt;/span>
+				&lt;?php
+				printf(
+					/* translators: 1) Source of content, 2) Distributor post type singular name. */
+					esc_html__(
+						'Originally distributed from %1$s. This %2$s has been unlinked from the origin %2$s. Edits to the origin %2$s will not update this remote version.',
+						'distributor'
+					),
+					esc_html( $original_location_name ),
+					esc_html( strtolower( $post_type_singular ) )
+				);
+				$relink_url = wp_nonce_url( add_query_arg( 'action', 'link', admin_url( sprintf( $post_type_object->_edit_link, $post->ID ) ) ), "link-post_{$post->ID}" );
+				?>
+			&lt;/p>
+			&lt;p>
+				&lt;span>&lt;a href="&lt;?php echo esc_url( $relink_url ); ?>">
+				&lt;?php
+					printf(
+						/* translators: 1) Distributor post type singular name. */
+						esc_html__( 'Relink to the origin %1$s.', 'distributor' ),
+						esc_html( strtolower( $post_type_singular ) )
+					);
+				// phpcs:ignore Squiz.PHP.EmbeddedPhp.ContentAfterEnd, avoids layout issues.
+				?>&lt;/a>&lt;/span>
+				&lt;span>&lt;a href="&lt;?php echo esc_url( $original_post_url ); ?>">
+				&lt;?php
+					printf(
+						/* translators: 1) Distributor post type singular name. */
+						esc_html__( 'View the origin %1$s.', 'distributor' ),
+						esc_html( strtolower( $post_type_singular ) )
+					);
+				?>
+			&lt;/a>&lt;/span>
 			&lt;/p>
 		&lt;?php endif; ?>
 	&lt;/div>
@@ -528,9 +594,27 @@ function enqueue_post_scripts( $hook ) {
 	}
 
 	if ( \Distributor\Utils\is_using_gutenberg( $post ) ) {
-		wp_enqueue_style( 'dt-gutenberg-syndicated-post', plugins_url( '/dist/css/gutenberg-syndicated-post.min.css', __DIR__ ), array(), DT_VERSION );
+		$asset_file = DT_PLUGIN_PATH . '/dist/js/gutenberg-syndicated-post-css.min.asset.php';
+		// Fallback asset data.
+		$asset_data = array(
+			'version'      => DT_VERSION,
+			'dependencies' => array(),
+		);
+		if ( file_exists( $asset_file ) ) {
+			$asset_data = require $asset_file;
+		}
+		wp_enqueue_style( 'dt-gutenberg-syndicated-post', plugins_url( '/dist/css/gutenberg-syndicated-post.min.css', __DIR__ ), array(), $asset_data['version'] );
 	} else {
-		wp_enqueue_style( 'dt-admin-syndicated-post', plugins_url( '/dist/css/admin-syndicated-post.min.css', __DIR__ ), array(), DT_VERSION );
+		$asset_file = DT_PLUGIN_PATH . '/dist/js/admin-syndicated-post-css.min.asset.php';
+		// Fallback asset data.
+		$asset_data = array(
+			'version'      => DT_VERSION,
+			'dependencies' => array(),
+		);
+		if ( file_exists( $asset_file ) ) {
+			$asset_data = require $asset_file;
+		}
+		wp_enqueue_style( 'dt-admin-syndicated-post', plugins_url( '/dist/css/admin-syndicated-post.min.css', __DIR__ ), array(), $asset_data['version'] );
 	}
 
 	$unlinked = (bool) get_post_meta( $post->ID, 'dt_unlinked', true );
@@ -576,53 +660,55 @@ function enqueue_gutenberg_edit_scripts() {
 		restore_current_blog();
 
 		if ( empty( $original_location_name ) ) {
-			/* translators: %d: the original blog id */
+			/* translators: %d: The site ID */
 			$original_location_name = sprintf( esc_html__( 'Blog #%d', 'distributor' ), $original_blog_id );
 		}
 	} else {
 		$original_location_name = $original_site_name;
 	}
 
-	$post_type_singular = $post_type_object->labels->singular_name;
-
-	if ( function_exists( 'gutenberg_get_jed_locale_data' ) ) {
-		$i18n_locale = gutenberg_get_jed_locale_data( 'distributor' );
-	} else {
-		$i18n_locale = [
-			'' => [
-				'domain' => 'distributor',
-				'lang'   => get_user_locale(),
-			],
-		]; // this is a temp hacky substitute for gutenberg_get_jed_locale_data()
-	}
-
-	wp_enqueue_script( 'dt-gutenberg-syndicated-post', plugins_url( '/dist/js/gutenberg-syndicated-post.min.js', __DIR__ ), [ 'wp-blocks' ], DT_VERSION, true );
-	wp_enqueue_script( 'dt-gutenberg-plugin', plugins_url( '/dist/js/gutenberg-plugin.min.js', __DIR__ ), [ 'wp-blocks', 'wp-components', 'wp-data', 'wp-element', 'wp-edit-post', 'wp-i18n', 'wp-plugins' ], DT_VERSION, true );
-
-	wp_localize_script(
+	$post_type_singular               = $post_type_object->labels->singular_name;
+	$gutenberg_syndicated_post_script = new EnqueueScript(
 		'dt-gutenberg-syndicated-post',
-		'dtGutenberg',
-		[
-			'i18n'                 => $i18n_locale,
-			'originalBlogId'       => (int) $original_blog_id,
-			'originalPostId'       => (int) $original_post_id,
-			'originalSourceId'     => (int) $original_source_id,
-			'originalDelete'       => (int) $original_deleted,
-			'unlinked'             => (int) $unlinked,
-			'postTypeSingular'     => sanitize_text_field( $post_type_singular ),
-			'postUrl'              => sanitize_text_field( $post_url ),
-			'originalSiteName'     => sanitize_text_field( $original_site_name ),
-			'syndicationTime'      => ( ! empty( $syndication_time ) ) ? esc_html( gmdate( 'M j, Y @ h:i', ( $syndication_time + ( get_option( 'gmt_offset' ) * HOUR_IN_SECONDS ) ) ) ) : 0,
-			'syndicationCount'     => $total_connections,
-			'originalLocationName' => sanitize_text_field( $original_location_name ),
-			'unlinkNonceUrl'       => wp_nonce_url( add_query_arg( 'action', 'unlink', admin_url( sprintf( $post_type_object->_edit_link, $post->ID ) ) ), "unlink-post_{$post->ID}" ),
-			'linkNonceUrl'         => wp_nonce_url( add_query_arg( 'action', 'link', admin_url( sprintf( $post_type_object->_edit_link, $post->ID ) ) ), "link-post_{$post->ID}" ),
-			'supportedPostTypes'   => \Distributor\Utils\distributable_post_types(),
-			'supportedPostStati'   => \Distributor\Utils\distributable_post_statuses(),
-			// Filter documented in includes/push-ui.php.
-			'noPermissions'        => ! is_user_logged_in() || ! current_user_can( apply_filters( 'dt_syndicatable_capabilities', 'edit_posts' ) ),
-		]
+		'gutenberg-syndicated-post.min'
 	);
+
+	$localize_data = [
+		'originalBlogId'       => (int) $original_blog_id,
+		'originalPostId'       => (int) $original_post_id,
+		'originalSourceId'     => (int) $original_source_id,
+		'originalDelete'       => (int) $original_deleted,
+		'unlinked'             => (int) $unlinked,
+		'postTypeSingular'     => sanitize_text_field( $post_type_singular ),
+		'postUrl'              => sanitize_text_field( $post_url ),
+		'originalSiteName'     => sanitize_text_field( $original_site_name ),
+		'syndicationTime'      => ( ! empty( $syndication_time ) ) ? esc_html( gmdate( 'M j, Y @ h:i', ( $syndication_time + ( get_option( 'gmt_offset' ) * HOUR_IN_SECONDS ) ) ) ) : 0,
+		'syndicationCount'     => $total_connections,
+		'originalLocationName' => sanitize_text_field( $original_location_name ),
+		'unlinkNonceUrl'       => wp_nonce_url( add_query_arg( 'action', 'unlink', admin_url( sprintf( $post_type_object->_edit_link, $post->ID ) ) ), "unlink-post_{$post->ID}" ),
+		'linkNonceUrl'         => wp_nonce_url( add_query_arg( 'action', 'link', admin_url( sprintf( $post_type_object->_edit_link, $post->ID ) ) ), "link-post_{$post->ID}" ),
+		'supportedPostTypes'   => \Distributor\Utils\distributable_post_types(),
+		'supportedPostStati'   => \Distributor\Utils\distributable_post_statuses(),
+		// Filter documented in includes/push-ui.php.
+		'noPermissions'        => ! is_user_logged_in() || ! current_user_can( apply_filters( 'dt_syndicatable_capabilities', 'edit_posts' ) ),
+	];
+
+	$gutenberg_syndicated_post_script
+		->load_in_footer()
+		->register_translations()
+		->register_localize_data( 'dtGutenberg', $localize_data )
+		->enqueue();
+
+	$gutenberg_plugin_script = new EnqueueScript(
+		'dt-gutenberg-plugin',
+		'gutenberg-plugin.min'
+	);
+
+	$gutenberg_plugin_script
+		->load_in_footer()
+		->dependencies( array( 'dt-push' ) )
+		->register_translations()
+		->enqueue();
 }
 
 /**
@@ -636,7 +722,17 @@ function enqueue_edit_scripts( $hook ) {
 		return;
 	}
 
-	wp_enqueue_style( 'dt-admin-syndicated-post', plugins_url( '/dist/css/admin-edit-table.min.css', __DIR__ ), array(), DT_VERSION );
+	$asset_file = DT_PLUGIN_PATH . '/dist/js/gadmin-edit-table-css.min.asset.php';
+	// Fallback asset data.
+	$asset_data = array(
+		'version'      => DT_VERSION,
+		'dependencies' => array(),
+	);
+	if ( file_exists( $asset_file ) ) {
+		$asset_data = require $asset_file;
+	}
+
+	wp_enqueue_style( 'dt-admin-syndicated-post', plugins_url( '/dist/css/admin-edit-table.min.css', __DIR__ ), array(), $asset_data['version'] );
 }
 </code></pre>
         </article>
@@ -652,11 +748,11 @@ function enqueue_edit_scripts( $hook ) {
 		<a href="https://10up.com/careers">Careers at 10up</a>
 	</footer>
 
-	
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Actions</h3><ul><li><a href="dt_after_set_meta.html">dt_after_set_meta</a></li><li><a href="dt_link_post.html">dt_link_post</a></li><li><a href="dt_log_sync.html">dt_log_sync</a></li><li><a href="dt_oauth_admin_notices.html">dt_oauth_admin_notices</a></li><li><a href="dt_process_distributor_attributes.html">dt_process_distributor_attributes</a></li><li><a href="dt_process_subscription_attributes.html">dt_process_subscription_attributes</a></li><li><a href="dt_pull_filters.html">dt_pull_filters</a></li><li><a href="dt_pull_list_table_custom_column.html">dt_pull_list_table_custom_column</a></li><li><a href="dt_pull_post.html">dt_pull_post</a></li><li><a href="dt_push_post.html">dt_push_post</a></li><li><a href="dt_unlink_post.html">dt_unlink_post</a></li></ul><h3>Filters</h3><ul><li><a href="distributable_post_types.html">distributable_post_types</a></li><li><a href="distributor_get_original_site_link.html">distributor_get_original_site_link</a></li><li><a href="dt_ajax_requires_with_credentials.html">dt_ajax_requires_with_credentials</a></li><li><a href="dt_allow_post_unlink.html">dt_allow_post_unlink</a></li><li><a href="dt_allowed_media_extensions.html">dt_allowed_media_extensions</a></li><li><a href="dt_auth_format_get_args.html">dt_auth_format_get_args</a></li><li><a href="dt_auth_format_post_args.html">dt_auth_format_post_args</a></li><li><a href="dt_auth_prepare_credentials.html">dt_auth_prepare_credentials</a></li><li><a href="dt_authorized_sites.html">dt_authorized_sites</a></li><li><a href="dt_available_pull_post_types.html">dt_available_pull_post_types</a></li><li><a href="dt_available_push_post_types.html">dt_available_push_post_types</a></li><li><a href="dt_capabilities.html">dt_capabilities</a></li><li><a href="dt_create_missing_terms.html">dt_create_missing_terms</a></li><li><a href="dt_debug_info_enabled.html">dt_debug_info_enabled</a></li><li><a href="dt_distributable_post_statuses.html">dt_distributable_post_statuses</a></li><li><a href="dt_excluded_meta.html">dt_excluded_meta</a></li><li><a href="dt_external_capabilities.html">dt_external_capabilities</a></li><li><a href="dt_get_media_details.html">dt_get_media_details</a></li><li><a href="dt_get_pull_content_rest_query_args.html">dt_get_pull_content_rest_query_args</a></li><li><a href="dt_get_rest_url.html">dt_get_rest_url</a></li><li><a href="dt_item_mapping.html">dt_item_mapping</a></li><li><a href="dt_media_item_formatted.html">dt_media_item_formatted</a></li><li><a href="dt_media_processing_filename.html">dt_media_processing_filename</a></li><li><a href="dt_network_site_connection_enabled.html">dt_network_site_connection_enabled</a></li><li><a href="dt_pre_get_authorized_sites.html">dt_pre_get_authorized_sites</a></li><li><a href="dt_process_media_args.html">dt_process_media_args</a></li><li><a href="dt_process_media_save_source_file_path.html">dt_process_media_save_source_file_path</a></li><li><a href="dt_pull_as_draft.html">dt_pull_as_draft</a></li><li><a href="dt_pull_capabilities.html">dt_pull_capabilities</a></li><li><a href="dt_pull_list_table_columns.html">dt_pull_list_table_columns</a></li><li><a href="dt_pull_list_table_tr_class.html">dt_pull_list_table_tr_class</a></li><li><a href="dt_pull_post_apply_rendered_content.html">dt_pull_post_apply_rendered_content</a></li><li><a href="dt_pull_post_args.html">dt_pull_post_args</a></li><li><a href="dt_pull_post_media.html">dt_pull_post_media</a></li><li><a href="dt_pull_post_meta.html">dt_pull_post_meta</a></li><li><a href="dt_pull_post_terms.html">dt_pull_post_terms</a></li><li><a href="dt_push_capabilities.html">dt_push_capabilities</a></li><li><a href="dt_push_post_args.html">dt_push_post_args</a></li><li><a href="dt_push_post_media.html">dt_push_post_media</a></li><li><a href="dt_push_post_meta.html">dt_push_post_meta</a></li><li><a href="dt_push_post_terms.html">dt_push_post_terms</a></li><li><a href="dt_push_post_timeout.html">dt_push_post_timeout</a></li><li><a href="dt_remote_get.html">dt_remote_get</a></li><li><a href="dt_remote_get_query_args.html">dt_remote_get_query_args</a></li><li><a href="dt_remote_get_url.html">dt_remote_get_url</a></li><li><a href="dt_remote_post.html">dt_remote_post</a></li><li><a href="dt_remote_post_query_args.html">dt_remote_post_query_args</a></li><li><a href="dt_remote_post_timeout.html">dt_remote_post_timeout</a></li><li><a href="dt_set_media_args.html">dt_set_media_args</a></li><li><a href="dt_subscription_post_args.html">dt_subscription_post_args</a></li><li><a href="dt_subscription_post_timeout.html">dt_subscription_post_timeout</a></li><li><a href="dt_sync_media_delete_and_replace.html">dt_sync_media_delete_and_replace</a></li><li><a href="dt_sync_meta.html">dt_sync_meta</a></li><li><a href="dt_syncable_taxonomies.html">dt_syncable_taxonomies</a></li><li><a href="dt_syndicatable_capabilities.html">dt_syndicatable_capabilities</a></li><li><a href="dt_update_content_via_request_args.html">dt_update_content_via_request_args</a></li><li><a href="dt_update_term_hierarchy.html">dt_update_term_hierarchy</a></li><li><a href="dt_use_block_editor_for_post_type.html">dt_use_block_editor_for_post_type</a></li></ul><h3>Tutorials</h3><ul><li><a href="tutorial-snippets.html">snippets</a></li></ul>
+	
+	<h2><a href="index.html">Home</a></h2><h3>Tutorials</h3><ul><li><a href="tutorial-connect-to-an-existing-post.html">Connect to an Existing Post</a></li><li><a href="tutorial-exclude-meta-from-yoast-duplicate-post.html">Exclude Meta from Yoast Duplicate Post</a></li><li><a href="tutorial-migration-guide-version-1-to-version-2.html">Migration Guide Version 1 to Version 2</a></li><li><a href="tutorial-post-meta.html">Post Meta</a></li><li><a href="tutorial-snippets.html">Snippets</a></li></ul><h3>Actions</h3><ul><li><a href="dt_after_set_meta.html">dt_after_set_meta</a></li><li><a href="dt_link_post.html">dt_link_post</a></li><li><a href="dt_log_sync.html">dt_log_sync</a></li><li><a href="dt_oauth_admin_notices.html">dt_oauth_admin_notices</a></li><li><a href="dt_process_distributor_attributes.html">dt_process_distributor_attributes</a></li><li><a href="dt_process_subscription_attributes.html">dt_process_subscription_attributes</a></li><li><a href="dt_pull_filters.html">dt_pull_filters</a></li><li><a href="dt_pull_list_table_custom_column.html">dt_pull_list_table_custom_column</a></li><li><a href="dt_pull_post.html">dt_pull_post</a></li><li><a href="dt_push_external_post.html">dt_push_external_post</a></li><li><a href="dt_push_network_post.html">dt_push_network_post</a></li><li><a href="dt_push_post.html">dt_push_post</a></li><li><a href="dt_unlink_post.html">dt_unlink_post</a></li></ul><h3>Filters</h3><ul><li><a href="distributable_post_types.html">distributable_post_types</a></li><li><a href="distributor_get_original_site_link.html">distributor_get_original_site_link</a></li><li><a href="dt_ajax_requires_with_credentials.html">dt_ajax_requires_with_credentials</a></li><li><a href="dt_allow_post_unlink.html">dt_allow_post_unlink</a></li><li><a href="dt_allowed_media_extensions.html">dt_allowed_media_extensions</a></li><li><a href="dt_auth_format_get_args.html">dt_auth_format_get_args</a></li><li><a href="dt_auth_format_post_args.html">dt_auth_format_post_args</a></li><li><a href="dt_auth_prepare_credentials.html">dt_auth_prepare_credentials</a></li><li><a href="dt_authorized_sites.html">dt_authorized_sites</a></li><li><a href="dt_available_pull_post_types.html">dt_available_pull_post_types</a></li><li><a href="dt_available_push_post_types.html">dt_available_push_post_types</a></li><li><a href="dt_capabilities.html">dt_capabilities</a></li><li><a href="dt_create_missing_terms.html">dt_create_missing_terms</a></li><li><a href="dt_debug_info_enabled.html">dt_debug_info_enabled</a></li><li><a href="dt_distributable_post_statuses.html">dt_distributable_post_statuses</a></li><li><a href="dt_excluded_meta.html">dt_excluded_meta</a></li><li><a href="dt_external_capabilities.html">dt_external_capabilities</a></li><li><a href="dt_get_media_details.html">dt_get_media_details</a></li><li><a href="dt_get_pull_content_rest_query_args.html">dt_get_pull_content_rest_query_args</a></li><li><a href="dt_get_rest_url.html">dt_get_rest_url</a></li><li><a href="dt_item_mapping.html">dt_item_mapping</a></li><li><a href="dt_media_item_formatted.html">dt_media_item_formatted</a></li><li><a href="dt_media_processing_filename.html">dt_media_processing_filename</a></li><li><a href="dt_network_site_connection_enabled.html">dt_network_site_connection_enabled</a></li><li><a href="dt_parse_media_blocks.html">dt_parse_media_blocks</a></li><li><a href="dt_pre_get_authorized_sites.html">dt_pre_get_authorized_sites</a></li><li><a href="dt_process_media_args.html">dt_process_media_args</a></li><li><a href="dt_process_media_save_source_file_path.html">dt_process_media_save_source_file_path</a></li><li><a href="dt_pull_as_draft.html">dt_pull_as_draft</a></li><li><a href="dt_pull_capabilities.html">dt_pull_capabilities</a></li><li><a href="dt_pull_list_table_columns.html">dt_pull_list_table_columns</a></li><li><a href="dt_pull_list_table_tr_class.html">dt_pull_list_table_tr_class</a></li><li><a href="dt_pull_post_apply_rendered_content.html">dt_pull_post_apply_rendered_content</a></li><li><a href="dt_pull_post_args.html">dt_pull_post_args</a></li><li><a href="dt_pull_post_media.html">dt_pull_post_media</a></li><li><a href="dt_pull_post_meta.html">dt_pull_post_meta</a></li><li><a href="dt_pull_post_terms.html">dt_pull_post_terms</a></li><li><a href="dt_push_capabilities.html">dt_push_capabilities</a></li><li><a href="dt_push_post_args.html">dt_push_post_args</a></li><li><a href="dt_push_post_media.html">dt_push_post_media</a></li><li><a href="dt_push_post_meta.html">dt_push_post_meta</a></li><li><a href="dt_push_post_terms.html">dt_push_post_terms</a></li><li><a href="dt_push_post_timeout.html">dt_push_post_timeout</a></li><li><a href="dt_remote_get.html">dt_remote_get</a></li><li><a href="dt_remote_post.html">dt_remote_post</a></li><li><a href="dt_remote_post_query_args.html">dt_remote_post_query_args</a></li><li><a href="dt_remote_post_timeout.html">dt_remote_post_timeout</a></li><li><a href="dt_set_media_args.html">dt_set_media_args</a></li><li><a href="dt_subscription_post_args.html">dt_subscription_post_args</a></li><li><a href="dt_subscription_post_timeout.html">dt_subscription_post_timeout</a></li><li><a href="dt_sync_media_delete_and_replace.html">dt_sync_media_delete_and_replace</a></li><li><a href="dt_sync_meta.html">dt_sync_meta</a></li><li><a href="dt_syncable_taxonomies.html">dt_syncable_taxonomies</a></li><li><a href="dt_syndicatable_capabilities.html">dt_syndicatable_capabilities</a></li><li><a href="dt_update_content_via_request_args.html">dt_update_content_via_request_args</a></li><li><a href="dt_update_term_hierarchy.html">dt_update_term_hierarchy</a></li><li><a href="dt_use_block_editor_for_post_type.html">dt_use_block_editor_for_post_type</a></li></ul>
 </nav>
 
 <br class="clear">

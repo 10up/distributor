@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>Filter: dt_debug_info_enabled - 10up Distributor Developer Documentation</title>
+    <title>Action: dt_push_external_post - 10up Distributor Developer Documentation</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -21,7 +21,7 @@
 <div id="main">
 
 	
-    <h1 class="page-title">Filter: dt_debug_info_enabled</h1>
+    <h1 class="page-title">Action: dt_push_external_post</h1>
 	
 
     
@@ -43,14 +43,14 @@
 
     
 
-    <h4 class="name" id="dt_debug_info_enabled">apply_filters( 'dt_debug_info_enabled', <span class="signature">true )</span><span class="type-signature"> &rarr; {bool}</span></h4>
+    <h4 class="name" id="dt_push_external_post">do_action( 'dt_push_external_post', <span class="signature">$response, $post_body, $type_url, $post_id, $args, $this )</span><span class="type-signature"></span></h4>
 
     
 
 
 
 <div class="description">
-    <p>Filter whether the debug info is enabled. Enabled by default, return false to disable.</p>
+    <p>Fires the action after a post is pushed via Distributor before remote request validation.</p>
 </div>
 
 
@@ -84,13 +84,16 @@
 
         <tr>
             
-                <td class="name"><code>true</code></td>
+                <td class="name"><code>$response</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">bool</span>
+<span class="param-type">array</span>
+|
+
+<span class="param-type">WP_Error</span>
 
 
             
@@ -100,7 +103,122 @@
 
             
 
-            <td class="description last"><p>Whether the debug info should be enabled.</p></td>
+            <td class="description last"><p>The response from the remote request.</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>$post_body</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">array</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>The Post data formatted for the REST API endpoint.</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>$type_url</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>The Post type api endpoint.</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>$post_id</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">int</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>The Post id.</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>$args</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">array</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>The arguments passed into wp_insert_post.</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>$this</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">WordPressExternalConnection</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>The Distributor connection being pushed to.</p></td>
         </tr>
 
     
@@ -144,7 +262,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="debug-info.php.html">debug-info.php</a>, <a href="debug-info.php.html#line24">line 24</a>
+        <a href="classes_ExternalConnections_WordPressExternalConnection.php.html">classes/ExternalConnections/WordPressExternalConnection.php</a>, <a href="classes_ExternalConnections_WordPressExternalConnection.php.html#line583">line 583</a>
     </li></ul></dd>
     
 
@@ -167,28 +285,6 @@
 
 
 
-<h5>Returns:</h5>
-
-        
-<div class="param-desc">
-    <p>Whether the debug info should be enabled.</p>
-</div>
-
-
-
-<dl>
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
-<span class="param-type">bool</span>
-
-
-    </dd>
-</dl>
-
-    
 
 
 

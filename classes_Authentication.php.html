@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>Filter: dt_debug_info_enabled - 10up Distributor Developer Documentation</title>
+    <title>Source: classes/Authentication.php - 10up Distributor Developer Documentation</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -21,184 +21,170 @@
 <div id="main">
 
 	
-    <h1 class="page-title">Filter: dt_debug_info_enabled</h1>
+    <h1 class="page-title">Source: classes/Authentication.php</h1>
 	
 
     
 
 
 
-
-<section>
-
-<header>
-    <h2></h2>
     
-</header>
-
-<article>
-    <div class="container-overview">
-    
-        
-
-    
-
-    <h4 class="name" id="dt_debug_info_enabled">apply_filters( 'dt_debug_info_enabled', <span class="signature">true )</span><span class="type-signature"> &rarr; {bool}</span></h4>
-
-    
-
-
-
-<div class="description">
-    <p>Filter whether the debug info is enabled. Enabled by default, return false to disable.</p>
-</div>
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>true</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">bool</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>Whether the debug info should be enabled.</p></td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-    <dt class="tag-since">Since:</dt>
-    <dd class="tag-since"><ul class="dummy"><li>2.0.0</li></ul></dd>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="debug-info.php.html">debug-info.php</a>, <a href="debug-info.php.html#line24">line 24</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-<h5>Returns:</h5>
-
-        
-<div class="param-desc">
-    <p>Whether the debug info should be enabled.</p>
-</div>
-
-
-
-<dl>
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
-<span class="param-type">bool</span>
-
-
-    </dd>
-</dl>
-
-    
-
-
-
-    
-    </div>
-
-    
-</article>
-
-</section>
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>&lt;?php
+/**
+ * Authentication base class
+ *
+ * @package  distributor
+ */
+
+namespace Distributor;
+
+use \Distributor\ExternalConnection as ExternalConnection;
+
+/**
+ * Authentication types extend this base abstract class. Authentication types
+ * are used to authenticate push and pull requests for an external connection. Note that static
+ * methods are used for interacting with the type whereas class instances deal with
+ * an actual external connection.
+ */
+abstract class Authentication {
+
+	/**
+	 * Error message
+	 *
+	 * @var string
+	 */
+	public static $error_message;
+
+	/**
+	 * Set associative arguments as instance variables
+	 *
+	 * @param array $args Array of arguments to set.
+	 * @since       0.8
+	 */
+	public function __construct( $args ) {
+		if ( ! empty( $args ) ) {
+			foreach ( $args as $key => $value ) {
+				$this->$key = $value;
+			}
+		}
+	}
+
+	/**
+	 * Format request args for a GET request so auth occurs
+	 *
+	 * @param  array $args Arguments to format.
+	 * @param  array $context optional array of information about the request
+	 * @since  0.8
+	 * @return array
+	 */
+	public function format_get_args( $args = array(), $context = array() ) {
+		if ( ! isset( $args['headers'] ) ) {
+			$args['headers'] = array();
+		}
+		$args['headers']['X-Distributor-Version'] = DT_VERSION;
+
+		/**
+		 * Format request args for a GET request so auth occurs.
+		 *
+		 * @since 0.8
+		 * @hook dt_auth_format_get_args
+		 *
+		 * @param  {array}  $args    Array of request arguments.
+		 * @param  {array}  $context Optional array of information about the request.
+		 * @param  {object} $this    The authentication class.
+		 *
+		 * @return {array} Array of request arguments.
+		 */
+		return apply_filters( 'dt_auth_format_get_args', $args, $context, $this );
+	}
+
+	/**
+	 * Format request args for a POST request so auth occurs
+	 *
+	 * @param  array $args Arguments to format.
+	 * @param  array $context optional array of information about the request
+	 * @since  0.8
+	 * @return array
+	 */
+	public function format_post_args( $args, $context = array() ) {
+		if ( ! isset( $args['headers'] ) ) {
+			$args['headers'] = array();
+		}
+		$args['headers']['X-Distributor-Version'] = DT_VERSION;
+
+		/**
+		 * Format request args for a POST request so auth occurs
+		 *
+		 * @since 0.8
+		 * @hook dt_auth_format_post_args
+		 *
+		 * @param  {array}  $args    Array of request arguments.
+		 * @param  {array}  $context Optional array of information about the request.
+		 * @param  {object} $this    The authentication class.
+		 *
+		 * @return {array} Array of request arguments.
+		 */
+		return apply_filters( 'dt_auth_format_post_args', $args, $context, $this );
+	}
+
+	/**
+	 * Output a credentials form in the external connection management screen.
+	 *
+	 * Child classes should implement - public static function credentials_form();
+	 */
+
+	/**
+	 * Store an associate array as credentials for use with an external connection.
+	 *
+	 * Child classes should implement - public static function prepare_credentials( $args );
+	 */
+
+	/**
+	 * Store pre-sanizited auth credentials in DB
+	 *
+	 * @param int   $external_connection_id External connection ID.
+	 * @param array $args Array of creds to store. Should be pre-sanitized.
+	 * @since 0.8
+	 */
+	public static function store_credentials( $external_connection_id, $args ) {
+		update_post_meta( $external_connection_id, 'dt_external_connection_auth', $args );
+	}
+
+	/**
+	 * Oauth connection error logging facility for non production environments.
+	 *
+	 * @param string $error_message The error message to log.
+	 */
+	public static function log_authentication_error( $error_message ) {
+
+		// Store the message for output at the top of the authorization form
+		self::$error_message = $error_message;
+		add_action(
+			'auth_admin_notices',
+			function() {
+				?>
+		&lt;div class="notice notice-error is-dismissible">
+			&lt;p>
+				&lt;strong>
+					&lt;?php esc_html_e( 'Authorization error:', 'distributor' ); ?>
+				&lt;/strong> &lt;?php echo esc_html( self::$error_message ); ?>
+			&lt;/p>
+		&lt;/div>
+				&lt;?php
+			}
+		);
+		if ( defined( 'WP_DEBUG' ) &amp;&amp; WP_DEBUG ) {
+			$time = gmdate( '[d/M/Y:H:i:s]' );
+			// @codingStandardsIgnoreLine - error_log is only used when WP_DEBUG is true.
+			error_log( $time . ': ' . $error_message );
+		}
+	}
+}
+</code></pre>
+        </article>
+    </section>
 
 
 

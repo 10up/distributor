@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>Source: includes/classes/ExternalConnections/WordPressExternalConnection.php - 10up Distributor Hook Docs</title>
+    <title>Source: classes/ExternalConnections/WordPressExternalConnection.php - 10up Distributor Developer Documentation</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -21,7 +21,7 @@
 <div id="main">
 
 	
-    <h1 class="page-title">Source: includes/classes/ExternalConnections/WordPressExternalConnection.php</h1>
+    <h1 class="page-title">Source: classes/ExternalConnections/WordPressExternalConnection.php</h1>
 	
 
     
@@ -40,6 +40,7 @@
 
 namespace Distributor\ExternalConnections;
 
+use Distributor\DistributorPost;
 use \Distributor\ExternalConnection as ExternalConnection;
 use \Distributor\Utils;
 
@@ -199,8 +200,8 @@ class WordPressExternalConnection extends ExternalConnection {
 			}
 		}
 
-		// When running a query for the Pull screen with excluded items, make a POST request instead
-		if ( empty( $id ) &amp;&amp; isset( $args['post__not_in'] ) &amp;&amp; isset( $args['dt_pull_list'] ) ) {
+		// When running a query for the Pull screen, make a POST request instead
+		if ( empty( $id ) ) {
 			$query_args['post_type']      = isset( $post_type ) ? $post_type : 'post';
 			$query_args['posts_per_page'] = isset( $posts_per_page ) ? $posts_per_page : 20;
 
@@ -212,193 +213,20 @@ class WordPressExternalConnection extends ExternalConnection {
 			return $posts_response;
 		}
 
-		static $types_urls;
-		$types_urls = array();
-
-		if ( empty( $types_urls[ $post_type ] ) ) {
-			/**
-			 * First let's get the actual route if not cached. We don't know the "plural" of our post type
-			 */
-
-			/**
-			 * Todo: This should be cached in a transient
-			 */
-
-			$path = self::$namespace;
-
-			$types_path = untrailingslashit( $this->base_url ) . '/' . $path . '/types';
-
-			$types_response = Utils\remote_http_request(
-				$types_path,
-				$this->auth_handler->format_get_args( array( 'timeout' => self::$timeout ) )
-			);
-
-			if ( is_wp_error( $types_response ) ) {
-				return $types_response;
-			}
-
-			if ( 404 === wp_remote_retrieve_response_code( $types_response ) ) {
-				return new \WP_Error( 'bad-endpoint', esc_html__( 'Could not connect to API endpoint.', 'distributor' ) );
-			}
-
-			$types_body = wp_remote_retrieve_body( $types_response );
-
-			if ( empty( $types_body ) ) {
-				return new \WP_Error( 'no-response-body', esc_html__( 'Response body is empty', 'distributor' ) );
-			}
-
-			$types_body_array = json_decode( $types_body, true );
-
-			if ( empty( $types_body_array ) || empty( $types_body_array[ $post_type ] ) ) {
-				return new \WP_Error( 'no-pull-post-type', esc_html__( 'Could not determine remote post type endpoint', 'distributor' ) );
-			}
-
-			$types_urls[ $post_type ] = $this->parse_type_items_link( $types_body_array[ $post_type ] );
-
-			if ( empty( $types_urls[ $post_type ] ) ) {
-				return new \WP_Error( 'no-pull-post-type', esc_html__( 'Could not determine remote post type endpoint', 'distributor' ) );
-			}
-		}
-
-		$args_str = '';
-
-		if ( ! empty( $posts_per_page ) ) {
-			$args_str .= 'per_page=' . (int) $posts_per_page;
-		}
-
-		/**
-		 * Filter the remote_get query arguments
-		 *
-		 * @since 1.0
-		 * @hook dt_remote_get_query_args
-		 *
-		 * @param  {array}  $query_args The existing query arguments.
-		 * @param  {array}  $args       The arguments originally passed to `remote_get`.
-		 * @param  {object} $this       The authentication class.
-		 *
-		 * @return {array} The existing query arguments.
-		 */
-		$query_args = apply_filters( 'dt_remote_get_query_args', $query_args, $args, $this );
-
-		foreach ( $query_args as $arg_key => $arg_value ) {
-			if ( is_array( $arg_value ) ) {
-				foreach ( $arg_value as $arg_value_value ) {
-					if ( ! empty( $args_str ) ) {
-						$args_str .= '&amp;';
-					}
-
-					$args_str .= $arg_key . '[]=' . $arg_value_value;
-				}
-			} else {
-				if ( ! empty( $args_str ) ) {
-					$args_str .= '&amp;';
-				}
-
-				$args_str .= $arg_key . '=' . $arg_value;
-			}
-		}
-
-		$context = 'view';
-
-		$prelim_get_args = $this->auth_handler->format_get_args();
-
-		/**
-		 * See if we are trying to authenticate
-		 */
-		if ( ! empty( $prelim_get_args ) &amp;&amp; ! empty( $prelim_get_args['headers'] ) &amp;&amp; ! empty( $prelim_get_args['headers']['Authorization'] ) ) {
-			$context = 'edit';
-
-			if ( ! empty( $args_str ) ) {
-				$args_str .= '&amp;';
-			}
-
-			$args_str .= 'context=edit';
-		}
-
-		if ( ! empty( $id ) ) {
-			$posts_url = untrailingslashit( $types_urls[ $post_type ] ) . '/' . $id . '/?context=' . $context;
-		} else {
-			$posts_url = untrailingslashit( $types_urls[ $post_type ] ) . '/?' . $args_str;
-		}
-
-		// Add request parameter to specify Distributor request
-		$posts_url = add_query_arg( 'distributor_request', '1', $posts_url );
-
-		$posts_response = Utils\remote_http_request(
-			/**
-			 * Filter the URL that remote_get will use
-			 *
-			 * @since 1.0
-			 * @hook dt_remote_get_url
-			 *
-			 * @param  {string} $posts_url  The posts URL
-			 * @param  {string} $args       The arguments originally passed to `remote_get`.
-			 * @param  {object} $this       The authentication class.
-			 *
-			 * @return {string} The posts URL.
-			 */
-			apply_filters( 'dt_remote_get_url', $posts_url, $args, $this ),
-			// phpcs:ignore WordPressVIPMinimum.Performance.RemoteRequestTimeout.timeout_timeout -- false positive, shorter on VIP.
-			$this->auth_handler->format_get_args( array( 'timeout' => 45 ) )
+		$query_args     = array(
+			'include'   => absint( $id ),
+			'post_type' => isset( $args['post_type'] ) ? $args['post_type'] : 'any',
+		);
+		$posts_response = $this->remote_post(
+			untrailingslashit( $this->base_url ) . '/wp/v2/distributor/list-pull-content',
+			$query_args
 		);
 
 		if ( is_wp_error( $posts_response ) ) {
 			return $posts_response;
 		}
 
-		$response_code = wp_remote_retrieve_response_code( $posts_response );
-
-		if ( 200 !== $response_code ) {
-
-			if ( 404 === $response_code ) {
-				return new \WP_Error( 'bad-endpoint', esc_html__( 'Could not connect to API endpoint.', 'distributor' ) );
-			}
-
-			$posts_body = json_decode( wp_remote_retrieve_body( $posts_response ), true );
-
-			$code    = empty( $posts_body['code'] ) ? 'endpoint-error' : esc_html( $posts_body['code'] );
-			$message = empty( $posts_body['message'] ) ? esc_html__( 'API endpoint error.', 'distributor' ) : esc_html( $posts_body['message'] );
-
-			return new \WP_Error( $code, $message );
-		}
-
-		$posts_body = wp_remote_retrieve_body( $posts_response );
-
-		if ( empty( $posts_body ) ) {
-			return new \WP_Error( 'no-response-body', esc_html__( 'Response body is empty', 'distributor' ) );
-		}
-
-		$posts           = json_decode( $posts_body, true );
-		$formatted_posts = array();
-
-		$response_headers = wp_remote_retrieve_headers( $posts_response );
-
-		if ( empty( $id ) ) {
-			foreach ( $posts as $post ) {
-				$post['full_connection'] = ( ! empty( $response_headers['X-Distributor'] ) );
-
-				$formatted_posts[] = $this->to_wp_post( $post );
-			}
-
-			$total_posts = wp_remote_retrieve_header( $posts_response, 'X-WP-Total' );
-			if ( empty( $total_posts ) ) {
-				$total_posts = count( $formatted_posts );
-			}
-
-			// Filter documented above.
-			return apply_filters(
-				'dt_remote_get',
-				[
-					'items'       => $formatted_posts,
-					'total_items' => $total_posts,
-				],
-				$args,
-				$this
-			);
-		} else {
-			// Filter documented above.
-			return apply_filters( 'dt_remote_get', $this->to_wp_post( $posts ), $args, $this );
-		}
+		return $posts_response['items'][0];
 	}
 
 	/**
@@ -410,7 +238,7 @@ class WordPressExternalConnection extends ExternalConnection {
 	 */
 	public function remote_post( $url = '', $args = array() ) {
 		if ( ! $url ) {
-			return new \WP_Error( 'endpoint-error', esc_html__( 'Endpoint URL must be set', 'distributor' ) );
+			return new \WP_Error( 'endpoint-error', esc_html__( 'Endpoint URL must be set.', 'distributor' ) );
 		}
 
 		/**
@@ -473,7 +301,27 @@ class WordPressExternalConnection extends ExternalConnection {
 		$response_headers = wp_remote_retrieve_headers( $request );
 
 		if ( empty( $posts_body ) ) {
-			return new \WP_Error( 'no-response-body', esc_html__( 'Response body is empty', 'distributor' ) );
+			return new \WP_Error( 'no-response-body', esc_html__( 'Response body is empty.', 'distributor' ) );
+		}
+
+		if (
+			false === Utils\is_development_version()
+			&amp;&amp; isset( $response_headers['x-distributor'] )
+			&amp;&amp; (
+				! isset( $response_headers['x-distributor-version'] )
+				|| version_compare( $response_headers['x-distributor-version'], '2.0.0-alpha', '&lt;' )
+			)
+		) {
+			$version_error = new \WP_Error();
+			$version_error->add(
+				'old-distributor-version',
+				esc_html__( 'Pulling content from external connections requires Distributor version 2.0.0 or later.', 'distributor' )
+			);
+			$version_error->add(
+				'old-distributor-version',
+				esc_html__( 'Please update Distributor on the site you are pulling content from.', 'distributor' )
+			);
+			return $version_error;
 		}
 
 		$posts           = json_decode( $posts_body, true );
@@ -521,18 +369,35 @@ class WordPressExternalConnection extends ExternalConnection {
 	public function pull( $items ) {
 		$created_posts = array();
 
+		$remote_post_args = array(
+			'include'   => array(),
+			'post_type' => array(),
+		);
 		foreach ( $items as $item_array ) {
-			$post = $this->remote_get(
-				[
-					'id'        => $item_array['remote_post_id'],
-					'post_type' => $item_array['post_type'],
-				]
-			);
+			$remote_post_args['include'][]   = $item_array['remote_post_id'];
+			$remote_post_args['post_type'][] = $item_array['post_type'];
+		}
+		$remote_post_args['include']        = array_unique( $remote_post_args['include'] );
+		$remote_post_args['post_type']      = array_unique( $remote_post_args['post_type'] );
+		$remote_post_args['posts_per_page'] = count( $remote_post_args['include'] );
 
-			if ( is_wp_error( $post ) ) {
-				$created_posts[] = $post;
+		// Get all remote posts in a single request.
+		$remote_posts = $this->remote_post(
+			untrailingslashit( $this->base_url ) . '/' . self::$namespace . '/distributor/list-pull-content',
+			$remote_post_args
+		);
+
+		if ( is_wp_error( $remote_posts ) ) {
+			return $remote_posts;
+		}
+
+		foreach ( $items as $item_array ) {
+			$post = wp_list_filter( $remote_posts['items'], array( 'ID' => $item_array['remote_post_id'] ) );
+			if ( empty( $post ) ) {
+				$created_posts[] = new \WP_Error( 'no-post', esc_html__( 'No post found.', 'distributor' ) );
 				continue;
 			}
+			$post = reset( $post );
 
 			$post_props = get_object_vars( $post );
 			$post_array = array();
@@ -541,25 +406,23 @@ class WordPressExternalConnection extends ExternalConnection {
 				$post_array[ $key ] = $value;
 			}
 
-			if ( ! empty( $item_array['post_id'] ) ) {
-				$post_array['ID'] = $item_array['post_id'];
-			} else {
-				unset( $post_array['ID'] );
-			}
+			$update = false;
+			// Unset data from remote site.
+			unset( $post_array['ID'] );
+			unset( $post_array['post_parent'] );
+			unset( $post_array['post_date'] );
+			unset( $post_array['post_date_gmt'] );
+			unset( $post_array['post_modified'] );
+			unset( $post_array['post_modified_gmt'] );
 
-			if ( isset( $post_array['post_parent'] ) ) {
-				unset( $post_array['post_parent'] );
+			if ( ! empty( $item_array['post_id'] ) ) {
+				$update           = true;
+				$post_array['ID'] = $item_array['post_id'];
 			}
 
 			if ( ! empty( $item_array['post_status'] ) ) {
 				$post_array['post_status'] = $item_array['post_status'];
 			}
-
-			// Remove date stuff
-			unset( $post_array['post_date'] );
-			unset( $post_array['post_date_gmt'] );
-			unset( $post_array['post_modified'] );
-			unset( $post_array['post_modified_gmt'] );
 
 			/**
 			 * Filter the arguments passed into wp_insert_post during a pull.
@@ -575,7 +438,11 @@ class WordPressExternalConnection extends ExternalConnection {
 			 * @return {array} The post data to be inserted.
 			 */
 			$new_post_args = Utils\post_args_allow_list( apply_filters( 'dt_pull_post_args', $post_array, $item_array['remote_post_id'], $post, $this ) );
-			$new_post      = wp_insert_post( wp_slash( $new_post_args ) );
+			if ( $update ) {
+				$new_post = wp_update_post( wp_slash( $new_post_args ) );
+			} else {
+				$new_post = wp_insert_post( wp_slash( $new_post_args ) );
+			}
 
 			update_post_meta( $new_post, 'dt_original_post_id', (int) $item_array['remote_post_id'] );
 			update_post_meta( $new_post, 'dt_original_source_id', (int) $this->id );
@@ -594,7 +461,7 @@ class WordPressExternalConnection extends ExternalConnection {
 				update_post_meta( $new_post, 'dt_full_connection', true );
 			}
 
-			if ( ! empty( $post_array['meta'] ) ) {
+			if ( isset( $post_array['meta'] ) &amp;&amp; is_array( $post_array['meta'] ) ) {
 				// Filter documented in includes/classes/InternalConnections/NetworkSiteConnection.php.
 				if ( apply_filters( 'dt_pull_post_meta', true, $new_post, $post_array['meta'], $item_array['remote_post_id'], $post_array, $this ) ) {
 					\Distributor\Utils\set_meta( $new_post, $post_array['meta'] );
@@ -628,26 +495,29 @@ class WordPressExternalConnection extends ExternalConnection {
 	/**
 	 * Push a post to an external connection
 	 *
-	 * @param  int   $post_id Post id
-	 * @param  array $args Post args to push.
+	 * @param  int|WP_Post $post Post or Post ID to push. Required.
+	 * @param  array       $args Post args to push. Optional.
 	 * @since  0.8
 	 * @return array|\WP_Error
 	 */
-	public function push( $post_id, $args = array() ) {
-		if ( empty( $post_id ) ) {
-			return new \WP_Error( 'no-push-post-id', esc_html__( 'Post id required to push', 'distributor' ) );
+	public function push( $post, $args = array() ) {
+		if ( empty( $post ) ) {
+			return new \WP_Error( 'no-push-post-id', esc_html__( 'Post ID required to push.', 'distributor' ) );
+		}
+		$post = get_post( $post );
+		if ( empty( $post ) ) {
+			return new \WP_Error( 'invalid-push-post-id', esc_html__( 'Post does not exist.', 'distributor' ) );
 		}
 
-		$post = get_post( $post_id );
 
-		$post_type = get_post_type( $post_id );
+		$dt_post   = new DistributorPost( $post );
+		$post_id   = $dt_post->post->ID;
+		$post_type = $dt_post->get_post_type();
+		$path      = self::$namespace;
 
-		$path = self::$namespace;
-
-		/**
+		/*
 		 * First let's get the actual route. We don't know the "plural" of our post type
 		 */
-
 		$types_path = untrailingslashit( $this->base_url ) . '/' . $path . '/types';
 
 		$response = Utils\remote_http_request(
@@ -662,7 +532,7 @@ class WordPressExternalConnection extends ExternalConnection {
 		$body = wp_remote_retrieve_body( $response );
 
 		if ( empty( $body ) ) {
-			return new \WP_Error( 'no-response-body', esc_html__( 'Response body is empty', 'distributor' ) );
+			return new \WP_Error( 'no-response-body', esc_html__( 'Response body is empty.', 'distributor' ) );
 		}
 
 		$body_array = json_decode( $body, true );
@@ -670,42 +540,20 @@ class WordPressExternalConnection extends ExternalConnection {
 		$type_url = $this->parse_type_items_link( $body_array[ $post_type ] );
 
 		if ( empty( $type_url ) ) {
-			return new \WP_Error( 'no-push-post-type', esc_html__( 'Could not determine remote post type endpoint', 'distributor' ) );
+			return new \WP_Error( 'no-push-post-type', esc_html__( 'Could not determine remote post type endpoint.', 'distributor' ) );
 		}
 
 		$signature = \Distributor\Subscriptions\generate_signature();
 
-		/**
+		/*
 		 * Now let's push
 		 */
-		$post_body = [
-			'title'                          => html_entity_decode( get_the_title( $post_id ), ENT_QUOTES, get_bloginfo( 'charset' ) ),
-			'slug'                           => $post->post_name,
-			'content'                        => Utils\get_processed_content( $post->post_content ),
-			'type'                           => $post->post_type,
+		$rest_args = array(
 			'status'                         => ( ! empty( $args['post_status'] ) ) ? $args['post_status'] : 'publish',
-			'excerpt'                        => $post->post_excerpt,
-			'distributor_original_source_id' => $this->id,
-			'distributor_original_site_name' => get_bloginfo( 'name' ),
-			'distributor_original_site_url'  => home_url(),
-			'distributor_original_post_url'  => get_permalink( $post_id ),
-			'distributor_remote_post_id'     => $post_id,
 			'distributor_signature'          => $signature,
-			'distributor_media'              => \Distributor\Utils\prepare_media( $post_id ),
-			'distributor_terms'              => \Distributor\Utils\prepare_taxonomy_terms( $post_id ),
-			'distributor_meta'               => \Distributor\Utils\prepare_meta( $post_id ),
-		];
-
-		// Gutenberg posts also distribute raw content.
-		if ( \Distributor\Utils\is_using_gutenberg( $post ) ) {
-			if ( \Distributor\Utils\dt_use_block_editor_for_post_type( $post->post_type ) ) {
-				$post_body['distributor_raw_content'] = $post->post_content;
-			}
-		}
-
-		if ( ! empty( $post->post_parent ) ) {
-			$post_body['distributor_original_post_parent'] = (int) $post->post_parent;
-		}
+			'distributor_original_source_id' => $this->id,
+		);
+		$post_body = $dt_post->to_rest( $rest_args );
 
 		// Map to remote ID if a push has already happened
 		if ( ! empty( $args['remote_post_id'] ) ) {
@@ -743,6 +591,7 @@ class WordPressExternalConnection extends ExternalConnection {
 					 *
 					 * @since 1.0
 					 * @hook dt_push_post_args
+					 * @tutorial snippets
 					 *
 					 * @param  {array}              $post_body  The request body to send.
 					 * @param  {object}             $post       The WP_Post that is being pushed.
@@ -757,7 +606,27 @@ class WordPressExternalConnection extends ExternalConnection {
 		);
 
 		// Action documented in includes/classes/InternalConnections/NetworkSiteConnection.php.
-		do_action( 'dt_push_post', $response, $post_body, $type_url, $post_id, $args, $this );
+		do_action_deprecated(
+			'dt_push_post',
+			array( $response, $post_body, $type_url, $post_id, $args, $this ),
+			'2.0.0',
+			'dt_push_network_post|dt_push_external_post'
+		);
+
+		/**
+		 * Fires the action after a post is pushed via Distributor before remote request validation.
+		 *
+		 * @since 2.0.0
+		 * @hook  dt_push_external_post
+		 *
+		 * @param {array|WP_Error}              $response    The response from the remote request.
+		 * @param {array}                       $post_body   The Post data formatted for the REST API endpoint.
+		 * @param {string}                      $type_url    The Post type api endpoint.
+		 * @param {int}                         $post_id     The Post id.
+		 * @param {array}                       $args        The arguments passed into wp_insert_post.
+		 * @param {WordPressExternalConnection} $this        The Distributor connection being pushed to.
+		 */
+		do_action( 'dt_push_external_post', $response, $post_body, $type_url, $post_id, $args, $this );
 
 		if ( is_wp_error( $response ) ) {
 			return $response;
@@ -766,13 +635,13 @@ class WordPressExternalConnection extends ExternalConnection {
 		$body = wp_remote_retrieve_body( $response );
 
 		if ( empty( $body ) ) {
-			return new \WP_Error( 'no-response-body', esc_html__( 'Response body is empty', 'distributor' ) );
+			return new \WP_Error( 'no-response-body', esc_html__( 'Response body is empty.', 'distributor' ) );
 		}
 
 		$body_array = json_decode( $body, true );
 
 		if ( empty( $body_array['id'] ) ) {
-			return new \WP_Error( 'no-push-post-remote-id', esc_html__( 'Could not determine remote post id.', 'distributor' ) );
+			return new \WP_Error( 'no-push-post-remote-id', esc_html__( 'Could not determine remote post ID.', 'distributor' ) );
 		}
 
 		$response_headers = wp_remote_retrieve_headers( $response );
@@ -820,7 +689,7 @@ class WordPressExternalConnection extends ExternalConnection {
 		$types_body = wp_remote_retrieve_body( $types_response );
 
 		if ( empty( $types_body ) ) {
-			return new \WP_Error( 'no-response-body', esc_html__( 'Response body is empty', 'distributor' ) );
+			return new \WP_Error( 'no-response-body', esc_html__( 'Response body is empty.', 'distributor' ) );
 		}
 
 		$types_body_array = json_decode( $types_body, true );
@@ -842,7 +711,13 @@ class WordPressExternalConnection extends ExternalConnection {
 			'endpoint_suggestion' => false,
 		);
 
-		$response = Utils\remote_http_request( untrailingslashit( $this->base_url ), $this->auth_handler->format_get_args( array( 'timeout' => self::$timeout ) ) );
+		$remote_request_url = untrailingslashit( $this->base_url );
+		if ( str_ends_with( $remote_request_url, '?rest_route=' ) ) {
+			// It's a request to get the REST API index using plain permalinks and needs a trailing slash.
+			$remote_request_url = trailingslashit( $remote_request_url );
+		}
+
+		$response = Utils\remote_http_request( $remote_request_url, $this->auth_handler->format_get_args( array( 'timeout' => self::$timeout ) ) );
 
 		$body = wp_remote_retrieve_body( $response );
 
@@ -965,55 +840,18 @@ class WordPressExternalConnection extends ExternalConnection {
 	 * @return \WP_Post
 	 */
 	private function to_wp_post( $post ) {
-		$obj = new \stdClass();
+		$obj = (object) $post;
 
-		$obj->ID         = $post['id'];
-		$obj->post_title = $post['title']['rendered'];
-
-		if ( isset( $post['excerpt']['raw'] ) ) {
-			$obj->post_excerpt = $post['excerpt']['raw'];
-		} elseif ( isset( $post['excerpt']['rendered'] ) ) {
-			$obj->post_excerpt = $post['excerpt']['rendered'];
-		} else {
-			$obj->post_excerpt = '';
-		}
-
-		$obj->post_status = 'draft';
-		$obj->post_author = get_current_user_id();
-
-		$obj->post_password     = $post['password'];
-		$obj->post_date         = $post['date'];
-		$obj->post_date_gmt     = $post['date_gmt'];
-		$obj->guid              = $post['guid']['rendered'];
-		$obj->post_modified     = $post['modified'];
-		$obj->post_modified_gmt = $post['modified_gmt'];
-		$obj->post_type         = $post['type'];
-		$obj->link              = $post['link'];
-		$obj->comment_status    = $post['comment_status'];
-		$obj->ping_status       = $post['ping_status'];
-
-		if ( isset( $post['content']['raw'] ) ) {
-			// Use raw content if remote post uses Gutenberg and the local post type is compatible with it.
-			$obj->post_content = Utils\dt_use_block_editor_for_post_type( $obj->post_type ) &amp;&amp; isset( $post['is_using_gutenberg'] ) ?
-				$post['content']['raw'] :
-				Utils\get_processed_content( $post['content']['raw'] );
-		} elseif ( isset( $post['content']['rendered'] ) ) {
-			$obj->post_content = $post['content']['rendered'];
-		} else {
-			$obj->post_content = '';
-		}
-
-
-		/**
+		/*
 		 * These will only be set if Distributor is active on the other side
 		 */
-		$obj->meta               = ( ! empty( $post['distributor_meta'] ) ) ? $post['distributor_meta'] : [];
-		$obj->terms              = ( ! empty( $post['distributor_terms'] ) ) ? $post['distributor_terms'] : [];
-		$obj->media              = ( ! empty( $post['distributor_media'] ) ) ? $post['distributor_media'] : [];
 		$obj->original_site_name = ( ! empty( $post['distributor_original_site_name'] ) ) ? $post['distributor_original_site_name'] : null;
 		$obj->original_site_url  = ( ! empty( $post['distributor_original_site_url'] ) ) ? $post['distributor_original_site_url'] : null;
 
-		$obj->full_connection = ( ! empty( $post['full_connection'] ) );
+		// Unset these as they are renamed above.
+		unset( $obj->distributor_original_site_name );
+		unset( $obj->distributor_original_site_url );
+
 
 		/**
 		 * Filter the post item.
@@ -1026,7 +864,9 @@ class WordPressExternalConnection extends ExternalConnection {
 		 *
 		 * @return {WP_Post} The WP_Post that is being pushed.
 		 */
-		return apply_filters( 'dt_item_mapping', new \WP_Post( $obj ), $post, $this );
+		$post_object = apply_filters( 'dt_item_mapping', new \WP_Post( $obj ), $post, $this );
+
+		return $post_object;
 	}
 
 	/**
@@ -1035,158 +875,98 @@ class WordPressExternalConnection extends ExternalConnection {
 	 * @since 1.0
 	 */
 	public static function bootstrap() {
-		add_action( 'template_redirect', array( '\Distributor\ExternalConnections\WordPressExternalConnection', 'canonicalize_front_end' ) );
 	}
 
 	/**
 	 * Setup canonicalization on front end
 	 *
 	 * @since  1.0
+	 * @deprecated 2.0.0
 	 */
 	public static function canonicalize_front_end() {
-		add_filter( 'get_canonical_url', array( '\Distributor\ExternalConnections\WordPressExternalConnection', 'canonical_url' ), 10, 2 );
-		add_filter( 'wpseo_canonical', array( '\Distributor\ExternalConnections\WordPressExternalConnection', 'wpseo_canonical_url' ) );
-		add_filter( 'wpseo_opengraph_url', array( '\Distributor\ExternalConnections\WordPressExternalConnection', 'wpseo_og_url' ) );
-		add_filter( 'the_author', array( '\Distributor\ExternalConnections\WordPressExternalConnection', 'the_author_distributed' ) );
-		add_filter( 'get_the_author_display_name', array( '\Distributor\ExternalConnections\WordPressExternalConnection', 'the_author_distributed' ) );
-		add_filter( 'author_link', array( '\Distributor\ExternalConnections\WordPressExternalConnection', 'author_posts_url_distributed' ), 10, 3 );
+		_deprecated_function( __METHOD__, '2.0.0' );
 	}
 
 	/**
 	 * Override author with site name on distributed post
+	 *
+	 * @since  1.0
+	 * @deprecated 2.0.0 Use Distributor\Hooks\filter_author_link instead.
 	 *
 	 * @param  string $link Author link.
 	 * @param  int    $author_id Author ID.
 	 * @param  string $author_nicename Author name.
-	 * @since  1.0
 	 * @return string
 	 */
 	public static function author_posts_url_distributed( $link, $author_id, $author_nicename ) {
-		global $post;
-
-		if ( empty( $post ) ) {
-			return $link;
-		}
-
-		$settings = Utils\get_settings();
-
-		if ( empty( $settings['override_author_byline'] ) ) {
-			return $link;
-		}
-
-		$original_source_id = get_post_meta( $post->ID, 'dt_original_source_id', true );
-		$original_site_url  = get_post_meta( $post->ID, 'dt_original_site_url', true );
-		$unlinked           = (bool) get_post_meta( $post->ID, 'dt_unlinked', true );
-
-		if ( empty( $original_source_id ) || empty( $original_site_url ) || $unlinked ) {
-			return $link;
-		}
-
-		return $original_site_url;
+		_deprecated_function( __METHOD__, '2.0.0', 'Distributor\Hooks\filter_author_link' );
+		return \Distributor\Hooks\filter_author_link( $link );
 	}
 
 	/**
 	 * Override author with site name on distributed post
 	 *
-	 * @param  string $author Author name.
 	 * @since  1.0
+	 * @deprecated 2.0.0 Use Distributor\Hooks\filter_the_author instead.
+	 *
+	 * @param  string $author Author name.
 	 * @return string
 	 */
 	public static function the_author_distributed( $author ) {
-		global $post;
-
-		if ( empty( $post ) ) {
-			return $author;
-		}
-
-		$settings = Utils\get_settings();
-
-		if ( empty( $settings['override_author_byline'] ) ) {
-			return $author;
-		}
-
-		$original_source_id = get_post_meta( $post->ID, 'dt_original_source_id', true );
-		$original_site_name = get_post_meta( $post->ID, 'dt_original_site_name', true );
-		$original_site_url  = get_post_meta( $post->ID, 'dt_original_site_url', true );
-		$unlinked           = (bool) get_post_meta( $post->ID, 'dt_unlinked', true );
-
-		if ( empty( $original_source_id ) || empty( $original_site_url ) || empty( $original_site_name ) || $unlinked ) {
-			return $author;
-		}
-
-		return $original_site_name;
+		_deprecated_function( __METHOD__, '2.0.0', 'Distributor\Hooks\filter_the_author' );
+		return \Distributor\Hooks\filter_the_author( $author );
 	}
 
 	/**
 	 * Make sure canonical url header is outputted
 	 *
+	 * @since  1.0
+	 * @deprecated 2.0.0 Use Distributor\Hooks\get_canonical_url instead.
+	 *
 	 * @param  string $canonical_url Canonical URL.
 	 * @param  object $post Post object.
-	 * @since  1.0
 	 * @return string
 	 */
 	public static function canonical_url( $canonical_url, $post ) {
-		$original_source_id = get_post_meta( $post->ID, 'dt_original_source_id', true );
-		$original_post_url  = get_post_meta( $post->ID, 'dt_original_post_url', true );
-		$unlinked           = (bool) get_post_meta( $post->ID, 'dt_unlinked', true );
-		$original_deleted   = (bool) get_post_meta( $post->ID, 'dt_original_post_deleted', true );
-
-		if ( empty( $original_source_id ) || empty( $original_post_url ) || $unlinked || $original_deleted ) {
-			return $canonical_url;
-		}
-
-		return $original_post_url;
+		_deprecated_function( __METHOD__, '2.0.0', 'Distributor\Hooks\get_canonical_url' );
+		return \Distributor\Hooks\get_canonical_url( $canonical_url, $post );
 	}
 
 	/**
 	 * Handles the canonical URL change for distributed content when Yoast SEO is in use
 	 *
-	 * @param string $canonical_url The Yoast WPSEO deduced canonical URL
 	 * @since  1.0
+	 * @deprecated 2.0.0 Use Distributor\Hooks\wpseo_canonical instead.
+	 *
+	 * @param string $canonical_url The Yoast WPSEO deduced canonical URL
 	 * @return string $canonical_url The updated distributor friendly URL
 	 */
 	public static function wpseo_canonical_url( $canonical_url ) {
-
-		// Return as is if not on a singular page - taken from rel_canonical()
-		if ( ! is_singular() ) {
-			return $canonical_url;
+		_deprecated_function( __METHOD__, '2.0.0', 'Distributor\Hooks\wpseo_canonical' );
+		$presentation = false;
+		if ( is_singular() ) {
+			$source       = get_post();
+			$presentation = (object) array( 'source' => $source );
 		}
-
-		$id = get_queried_object_id();
-
-		// Return as is if we do not have a object id for context - taken from rel_canonical()
-		if ( 0 === $id ) {
-			return $canonical_url;
-		}
-
-		$post = get_post( $id );
-
-		// Return as is if we don't have a valid post object - taken from wp_get_canonical_url()
-		if ( ! $post ) {
-			return $canonical_url;
-		}
-
-		// Return as is if current post is not published - taken from wp_get_canonical_url()
-		if ( 'publish' !== $post->post_status ) {
-			return $canonical_url;
-		}
-
-		return self::canonical_url( $canonical_url, $post );
+		return \Distributor\Hooks\wpseo_canonical( $canonical_url, $presentation );
 	}
 
 	/**
 	 * Handles the og:url change for distributed content when Yoast SEO is in use
 	 *
-	 * @param string $og_url The Yoast WPSEO deduced OG URL which is a result of wpseo_canonical_url
+	 * @deprecated 2.0.0 Use Distributor\Hooks\wpseo_opengraph_url instead.
 	 *
+	 * @param string $og_url The Yoast WPSEO deduced OG URL which is a result of wpseo_canonical_url
 	 * @return string $og_url The updated distributor friendly URL
 	 */
-	public static function wpseo_og_url( $og_url ) {
+	public static function wpseo_opengraph_url( $og_url ) {
+		_deprecated_function( __METHOD__, '2.0.0', 'Distributor\Hooks\wpseo_opengraph_url' );
+		$presentation = false;
 		if ( is_singular() ) {
-			$og_url = get_permalink();
+			$source       = get_post();
+			$presentation = (object) array( 'source' => $source );
 		}
-
-		return $og_url;
+		return \Distributor\Hooks\wpseo_opengraph_url( $og_url, $presentation );
 	}
 }
 </code></pre>
@@ -1203,11 +983,11 @@ class WordPressExternalConnection extends ExternalConnection {
 		<a href="https://10up.com/careers">Careers at 10up</a>
 	</footer>
 
-	
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Actions</h3><ul><li><a href="dt_after_set_meta.html">dt_after_set_meta</a></li><li><a href="dt_link_post.html">dt_link_post</a></li><li><a href="dt_log_sync.html">dt_log_sync</a></li><li><a href="dt_oauth_admin_notices.html">dt_oauth_admin_notices</a></li><li><a href="dt_process_distributor_attributes.html">dt_process_distributor_attributes</a></li><li><a href="dt_process_subscription_attributes.html">dt_process_subscription_attributes</a></li><li><a href="dt_pull_filters.html">dt_pull_filters</a></li><li><a href="dt_pull_list_table_custom_column.html">dt_pull_list_table_custom_column</a></li><li><a href="dt_pull_post.html">dt_pull_post</a></li><li><a href="dt_push_post.html">dt_push_post</a></li><li><a href="dt_unlink_post.html">dt_unlink_post</a></li></ul><h3>Filters</h3><ul><li><a href="distributable_post_types.html">distributable_post_types</a></li><li><a href="distributor_get_original_site_link.html">distributor_get_original_site_link</a></li><li><a href="dt_ajax_requires_with_credentials.html">dt_ajax_requires_with_credentials</a></li><li><a href="dt_allow_post_unlink.html">dt_allow_post_unlink</a></li><li><a href="dt_allowed_media_extensions.html">dt_allowed_media_extensions</a></li><li><a href="dt_auth_format_get_args.html">dt_auth_format_get_args</a></li><li><a href="dt_auth_format_post_args.html">dt_auth_format_post_args</a></li><li><a href="dt_auth_prepare_credentials.html">dt_auth_prepare_credentials</a></li><li><a href="dt_authorized_sites.html">dt_authorized_sites</a></li><li><a href="dt_available_pull_post_types.html">dt_available_pull_post_types</a></li><li><a href="dt_available_push_post_types.html">dt_available_push_post_types</a></li><li><a href="dt_capabilities.html">dt_capabilities</a></li><li><a href="dt_create_missing_terms.html">dt_create_missing_terms</a></li><li><a href="dt_debug_info_enabled.html">dt_debug_info_enabled</a></li><li><a href="dt_distributable_post_statuses.html">dt_distributable_post_statuses</a></li><li><a href="dt_excluded_meta.html">dt_excluded_meta</a></li><li><a href="dt_external_capabilities.html">dt_external_capabilities</a></li><li><a href="dt_get_media_details.html">dt_get_media_details</a></li><li><a href="dt_get_pull_content_rest_query_args.html">dt_get_pull_content_rest_query_args</a></li><li><a href="dt_get_rest_url.html">dt_get_rest_url</a></li><li><a href="dt_item_mapping.html">dt_item_mapping</a></li><li><a href="dt_media_item_formatted.html">dt_media_item_formatted</a></li><li><a href="dt_media_processing_filename.html">dt_media_processing_filename</a></li><li><a href="dt_network_site_connection_enabled.html">dt_network_site_connection_enabled</a></li><li><a href="dt_pre_get_authorized_sites.html">dt_pre_get_authorized_sites</a></li><li><a href="dt_process_media_args.html">dt_process_media_args</a></li><li><a href="dt_process_media_save_source_file_path.html">dt_process_media_save_source_file_path</a></li><li><a href="dt_pull_as_draft.html">dt_pull_as_draft</a></li><li><a href="dt_pull_capabilities.html">dt_pull_capabilities</a></li><li><a href="dt_pull_list_table_columns.html">dt_pull_list_table_columns</a></li><li><a href="dt_pull_list_table_tr_class.html">dt_pull_list_table_tr_class</a></li><li><a href="dt_pull_post_apply_rendered_content.html">dt_pull_post_apply_rendered_content</a></li><li><a href="dt_pull_post_args.html">dt_pull_post_args</a></li><li><a href="dt_pull_post_media.html">dt_pull_post_media</a></li><li><a href="dt_pull_post_meta.html">dt_pull_post_meta</a></li><li><a href="dt_pull_post_terms.html">dt_pull_post_terms</a></li><li><a href="dt_push_capabilities.html">dt_push_capabilities</a></li><li><a href="dt_push_post_args.html">dt_push_post_args</a></li><li><a href="dt_push_post_media.html">dt_push_post_media</a></li><li><a href="dt_push_post_meta.html">dt_push_post_meta</a></li><li><a href="dt_push_post_terms.html">dt_push_post_terms</a></li><li><a href="dt_push_post_timeout.html">dt_push_post_timeout</a></li><li><a href="dt_remote_get.html">dt_remote_get</a></li><li><a href="dt_remote_get_query_args.html">dt_remote_get_query_args</a></li><li><a href="dt_remote_get_url.html">dt_remote_get_url</a></li><li><a href="dt_remote_post.html">dt_remote_post</a></li><li><a href="dt_remote_post_query_args.html">dt_remote_post_query_args</a></li><li><a href="dt_remote_post_timeout.html">dt_remote_post_timeout</a></li><li><a href="dt_set_media_args.html">dt_set_media_args</a></li><li><a href="dt_subscription_post_args.html">dt_subscription_post_args</a></li><li><a href="dt_subscription_post_timeout.html">dt_subscription_post_timeout</a></li><li><a href="dt_sync_media_delete_and_replace.html">dt_sync_media_delete_and_replace</a></li><li><a href="dt_sync_meta.html">dt_sync_meta</a></li><li><a href="dt_syncable_taxonomies.html">dt_syncable_taxonomies</a></li><li><a href="dt_syndicatable_capabilities.html">dt_syndicatable_capabilities</a></li><li><a href="dt_update_content_via_request_args.html">dt_update_content_via_request_args</a></li><li><a href="dt_update_term_hierarchy.html">dt_update_term_hierarchy</a></li><li><a href="dt_use_block_editor_for_post_type.html">dt_use_block_editor_for_post_type</a></li></ul><h3>Tutorials</h3><ul><li><a href="tutorial-snippets.html">snippets</a></li></ul>
+	
+	<h2><a href="index.html">Home</a></h2><h3>Tutorials</h3><ul><li><a href="tutorial-connect-to-an-existing-post.html">Connect to an Existing Post</a></li><li><a href="tutorial-exclude-meta-from-yoast-duplicate-post.html">Exclude Meta from Yoast Duplicate Post</a></li><li><a href="tutorial-migration-guide-version-1-to-version-2.html">Migration Guide Version 1 to Version 2</a></li><li><a href="tutorial-post-meta.html">Post Meta</a></li><li><a href="tutorial-snippets.html">Snippets</a></li></ul><h3>Actions</h3><ul><li><a href="dt_after_set_meta.html">dt_after_set_meta</a></li><li><a href="dt_link_post.html">dt_link_post</a></li><li><a href="dt_log_sync.html">dt_log_sync</a></li><li><a href="dt_oauth_admin_notices.html">dt_oauth_admin_notices</a></li><li><a href="dt_process_distributor_attributes.html">dt_process_distributor_attributes</a></li><li><a href="dt_process_subscription_attributes.html">dt_process_subscription_attributes</a></li><li><a href="dt_pull_filters.html">dt_pull_filters</a></li><li><a href="dt_pull_list_table_custom_column.html">dt_pull_list_table_custom_column</a></li><li><a href="dt_pull_post.html">dt_pull_post</a></li><li><a href="dt_push_external_post.html">dt_push_external_post</a></li><li><a href="dt_push_network_post.html">dt_push_network_post</a></li><li><a href="dt_push_post.html">dt_push_post</a></li><li><a href="dt_unlink_post.html">dt_unlink_post</a></li></ul><h3>Filters</h3><ul><li><a href="distributable_post_types.html">distributable_post_types</a></li><li><a href="distributor_get_original_site_link.html">distributor_get_original_site_link</a></li><li><a href="dt_ajax_requires_with_credentials.html">dt_ajax_requires_with_credentials</a></li><li><a href="dt_allow_post_unlink.html">dt_allow_post_unlink</a></li><li><a href="dt_allowed_media_extensions.html">dt_allowed_media_extensions</a></li><li><a href="dt_auth_format_get_args.html">dt_auth_format_get_args</a></li><li><a href="dt_auth_format_post_args.html">dt_auth_format_post_args</a></li><li><a href="dt_auth_prepare_credentials.html">dt_auth_prepare_credentials</a></li><li><a href="dt_authorized_sites.html">dt_authorized_sites</a></li><li><a href="dt_available_pull_post_types.html">dt_available_pull_post_types</a></li><li><a href="dt_available_push_post_types.html">dt_available_push_post_types</a></li><li><a href="dt_capabilities.html">dt_capabilities</a></li><li><a href="dt_create_missing_terms.html">dt_create_missing_terms</a></li><li><a href="dt_debug_info_enabled.html">dt_debug_info_enabled</a></li><li><a href="dt_distributable_post_statuses.html">dt_distributable_post_statuses</a></li><li><a href="dt_excluded_meta.html">dt_excluded_meta</a></li><li><a href="dt_external_capabilities.html">dt_external_capabilities</a></li><li><a href="dt_get_media_details.html">dt_get_media_details</a></li><li><a href="dt_get_pull_content_rest_query_args.html">dt_get_pull_content_rest_query_args</a></li><li><a href="dt_get_rest_url.html">dt_get_rest_url</a></li><li><a href="dt_item_mapping.html">dt_item_mapping</a></li><li><a href="dt_media_item_formatted.html">dt_media_item_formatted</a></li><li><a href="dt_media_processing_filename.html">dt_media_processing_filename</a></li><li><a href="dt_network_site_connection_enabled.html">dt_network_site_connection_enabled</a></li><li><a href="dt_parse_media_blocks.html">dt_parse_media_blocks</a></li><li><a href="dt_pre_get_authorized_sites.html">dt_pre_get_authorized_sites</a></li><li><a href="dt_process_media_args.html">dt_process_media_args</a></li><li><a href="dt_process_media_save_source_file_path.html">dt_process_media_save_source_file_path</a></li><li><a href="dt_pull_as_draft.html">dt_pull_as_draft</a></li><li><a href="dt_pull_capabilities.html">dt_pull_capabilities</a></li><li><a href="dt_pull_list_table_columns.html">dt_pull_list_table_columns</a></li><li><a href="dt_pull_list_table_tr_class.html">dt_pull_list_table_tr_class</a></li><li><a href="dt_pull_post_apply_rendered_content.html">dt_pull_post_apply_rendered_content</a></li><li><a href="dt_pull_post_args.html">dt_pull_post_args</a></li><li><a href="dt_pull_post_media.html">dt_pull_post_media</a></li><li><a href="dt_pull_post_meta.html">dt_pull_post_meta</a></li><li><a href="dt_pull_post_terms.html">dt_pull_post_terms</a></li><li><a href="dt_push_capabilities.html">dt_push_capabilities</a></li><li><a href="dt_push_post_args.html">dt_push_post_args</a></li><li><a href="dt_push_post_media.html">dt_push_post_media</a></li><li><a href="dt_push_post_meta.html">dt_push_post_meta</a></li><li><a href="dt_push_post_terms.html">dt_push_post_terms</a></li><li><a href="dt_push_post_timeout.html">dt_push_post_timeout</a></li><li><a href="dt_remote_get.html">dt_remote_get</a></li><li><a href="dt_remote_post.html">dt_remote_post</a></li><li><a href="dt_remote_post_query_args.html">dt_remote_post_query_args</a></li><li><a href="dt_remote_post_timeout.html">dt_remote_post_timeout</a></li><li><a href="dt_set_media_args.html">dt_set_media_args</a></li><li><a href="dt_subscription_post_args.html">dt_subscription_post_args</a></li><li><a href="dt_subscription_post_timeout.html">dt_subscription_post_timeout</a></li><li><a href="dt_sync_media_delete_and_replace.html">dt_sync_media_delete_and_replace</a></li><li><a href="dt_sync_meta.html">dt_sync_meta</a></li><li><a href="dt_syncable_taxonomies.html">dt_syncable_taxonomies</a></li><li><a href="dt_syndicatable_capabilities.html">dt_syndicatable_capabilities</a></li><li><a href="dt_update_content_via_request_args.html">dt_update_content_via_request_args</a></li><li><a href="dt_update_term_hierarchy.html">dt_update_term_hierarchy</a></li><li><a href="dt_use_block_editor_for_post_type.html">dt_use_block_editor_for_post_type</a></li></ul>
 </nav>
 
 <br class="clear">

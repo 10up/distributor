@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>Source: includes/classes/InternalConnections/NetworkSiteConnection.php - 10up Distributor Hook Docs</title>
+    <title>Source: classes/InternalConnections/NetworkSiteConnection.php - 10up Distributor Developer Documentation</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -21,7 +21,7 @@
 <div id="main">
 
 	
-    <h1 class="page-title">Source: includes/classes/InternalConnections/NetworkSiteConnection.php</h1>
+    <h1 class="page-title">Source: classes/InternalConnections/NetworkSiteConnection.php</h1>
 	
 
     
@@ -40,6 +40,7 @@
 
 namespace Distributor\InternalConnections;
 
+use \Distributor\DistributorPost;
 use \Distributor\Connection as Connection;
 use Distributor\Utils;
 use \WP_Site as WP_Site;
@@ -90,156 +91,186 @@ class NetworkSiteConnection extends Connection {
 	/**
 	 * Push post to another internal site
 	 *
-	 * @param  int   $post_id Post ID.
-	 * @param  array $args Push args.
+	 * @param  int|WP_Post $post Post or Post ID to push. Required.
+	 * @param  array       $args {
+	 *     Optional. Array of push arguments
+	 *
+	 *     @type int    $remote_post_id Post ID on remote site. If not provided,
+	 *                                  a new post will be created.
+	 *     @type string $post_status    The post status to use on the remote site.
+	 *                                  Ignored when updating posts. Default 'publish'.
+	 * }
 	 * @since  0.8
 	 * @return array|\WP_Error
 	 */
-	public function push( $post_id, $args = array() ) {
-		$post              = get_post( $post_id );
-		$original_blog_id  = get_current_blog_id();
-		$original_post_url = get_permalink( $post_id );
-		$using_gutenberg   = \Distributor\Utils\is_using_gutenberg( $post );
-		$output            = array();
+	public function push( $post, $args = array() ) {
+		if ( empty( $post ) ) {
+			return new \WP_Error( 'no-push-post-id', esc_html__( 'Post ID required to push.', 'distributor' ) );
+		}
+		$post = get_post( $post );
+		if ( empty( $post ) ) {
+			return new \WP_Error( 'invalid-push-post-id', esc_html__( 'Post does not exist.', 'distributor' ) );
+		}
+		$post_id = $post->ID;
 
-		$new_post_args = array(
-			'post_title'   => html_entity_decode( get_the_title( $post_id ), ENT_QUOTES, get_bloginfo( 'charset' ) ),
-			'post_name'    => $post->post_name,
-			'post_content' => Utils\get_processed_content( $post->post_content ),
-			'post_excerpt' => $post->post_excerpt,
-			'post_type'    => $post->post_type,
-			'post_author'  => isset( $post->post_author ) ? $post->post_author : get_current_user_id(),
-			'post_status'  => 'publish',
+		$args = wp_parse_args(
+			$args,
+			array(
+				'post_status' => 'publish',
+			)
 		);
 
-		$post = Utils\prepare_post( $post );
+		$dt_post          = new DistributorPost( $post_id );
+		$dt_post_args     = $dt_post->to_insert( $args );
+		$original_blog_id = get_current_blog_id();
+		$output           = array();
+		$post             = Utils\prepare_post( get_post( $post_id ) );
+		$update           = false;
+		$post_meta        = $dt_post->get_meta();
+		$post_terms       = $dt_post->get_terms();
+		$post_media       = $dt_post->get_media();
 
 		switch_to_blog( $this->site->blog_id );
 
-		// Distribute raw HTML when going from Gutenberg enabled to Gutenberg enabled.
-		$remote_using_gutenberg = \Distributor\Utils\is_using_gutenberg( $post );
-		if ( $using_gutenberg &amp;&amp; $remote_using_gutenberg ) {
-			$new_post_args['post_content'] = $post->post_content;
+		if ( ! empty( $args['remote_post_id'] ) &amp;&amp; ! get_post( $args['remote_post_id'] ) ) {
+			// The remote post ID is not valid.
+			restore_current_blog();
+			return new \WP_Error( 'dt_invalid_remote_post_id', __( 'Invalid remote post ID', 'distributor' ) );
 		}
 
-		// Handle existing posts.
-		if ( ! empty( $args['remote_post_id'] ) &amp;&amp; get_post( $args['remote_post_id'] ) ) {
-
-			// Setting the ID makes `wp_insert_post` perform an update.
-			$new_post_args['ID'] = $args['remote_post_id'];
-		}
-
-		if ( empty( $args['post_status'] ) ) {
-			if ( isset( $new_post_args['ID'] ) ) {
-
-				// Avoid updating the status of previously distributed posts.
-				$existing_status = get_post_status( (int) $new_post_args['ID'] );
-				if ( $existing_status ) {
-					$new_post_args['post_status'] = $existing_status;
-				}
-			}
-		} else {
-			$new_post_args['post_status'] = $args['post_status'];
+		// If we have a remote post ID, we're updating.
+		if ( ! empty( $args['remote_post_id'] ) ) {
+			$update = true;
 		}
 
 		add_filter( 'wp_insert_post_data', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'maybe_set_modified_date' ), 10, 2 );
 		// Filter documented in includes/classes/ExternalConnections/WordPressExternalConnection.php
-		$new_post_args = Utils\post_args_allow_list( apply_filters( 'dt_push_post_args', $new_post_args, $post, $args, $this ) );
-		$new_post_id   = wp_insert_post( wp_slash( $new_post_args ) );
-
+		$new_post_args = Utils\post_args_allow_list( apply_filters( 'dt_push_post_args', $dt_post_args, $post, $args, $this ) );
+		if ( $update ) {
+			$new_post_id = wp_update_post( wp_slash( $new_post_args ), true );
+		} else {
+			$new_post_id = wp_insert_post( wp_slash( $new_post_args ) );
+		}
 		remove_filter( 'wp_insert_post_data', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'maybe_set_modified_date' ), 10, 2 );
 
-		if ( ! is_wp_error( $new_post_id ) ) {
-			$output['id'] = $new_post_id;
-
-			update_post_meta( $new_post_id, 'dt_original_post_id', (int) $post_id );
-			update_post_meta( $new_post_id, 'dt_original_blog_id', (int) $original_blog_id );
-			update_post_meta( $new_post_id, 'dt_syndicate_time', time() );
-			update_post_meta( $new_post_id, 'dt_original_post_url', esc_url_raw( $original_post_url ) );
-
-			if ( ! empty( $post->post_parent ) ) {
-				update_post_meta( $new_post_id, 'dt_original_post_parent', (int) $post->post_parent );
-			}
+		if ( is_wp_error( $new_post_id ) ) {
+			/**
+			 * Fires after a post is pushed via Distributor before `restore_current_blog()`.
+			 *
+			 * @since 1.2.2
+			 * @deprecated 2.0.0 The dt_push_post action has been deprecated. Please use dt_push_network_post or dt_push_external_post instead.
+			 * @hook  dt_push_post
+			 *
+			 * @param {int}        $new_post_id The newly created post.
+			 * @param {int}        $post_id     The original post.
+			 * @param {array}      $args        The arguments passed into wp_insert_post.
+			 * @param {Connection} $this        The Distributor connection being pushed to.
+			 */
+			do_action_deprecated(
+				'dt_push_post',
+				array( $new_post_id, $post_id, $args, $this ),
+				'2.0.0',
+				'dt_push_network_post|dt_push_external_post'
+			);
 
 			/**
-			 * Allow bypassing of all meta processing.
+			 * Fires the action after a post is pushed via Distributor before `restore_current_blog()`.
 			 *
-			 * @hook dt_push_post_meta
+			 * @since 2.0.0
+			 * @hook  dt_push_network_post
 			 *
-			 * @param {bool}       true           If Distributor should push the post meta.
-			 * @param {int}        $new_post_id   The newly created post ID.
-			 * @param {array}      $terms         Meta attached to the post, formatted by {@link \Distributor\Utils\prepare_meta()}.
-			 * @param {int}        $post_id       The original post ID.
-			 * @param {array}      $args          The arguments passed into wp_insert_post.
-			 * @param {Connection} $this          The distributor connection being pushed to.
-			 *
-			 * @return {bool} If Distributor should push the post meta.
+			 * @param {int}                   $new_post_id The newly created post.
+			 * @param {int}                   $post_id     The original post.
+			 * @param {array}                 $args        The arguments passed into wp_insert_post.
+			 * @param {NetworkSiteConnection} $this        The Distributor connection being pushed to.
 			 */
-			if ( apply_filters( 'dt_push_post_meta', true, $new_post_id, $post->meta, $post_id, $args, $this ) ) {
-				Utils\set_meta( $new_post_id, $post->meta );
-			}
+			do_action( 'dt_push_network_post', $new_post_id, $post_id, $args, $this );
 
-			/**
-			 * Allow bypassing of all term processing.
-			 *
-			 * @hook dt_push_post_terms
-			 *
-			 * @param {bool}       true           If Distributor should push the post terms.
-			 * @param {int}        $new_post_id   The newly created post ID.
-			 * @param {array}      $terms         Terms attached to the post, formatted by {@link \Distributor\Utils\prepare_taxonomy_terms()}.
-			 * @param {int}        $post_id       The original post ID.
-			 * @param {array}      $args          The arguments passed into wp_insert_post.
-			 * @param {Connection} $this          The distributor connection being pushed to.
-			 *
-			 * @return {bool} If Distributor should push the post terms.
-			 */
-			if ( apply_filters( 'dt_push_post_terms', true, $new_post_id, $post->terms, $post_id, $args, $this ) ) {
-				Utils\set_taxonomy_terms( $new_post_id, $post->terms );
-			}
+			restore_current_blog();
 
-			/**
-			 * Allow bypassing of all media processing.
-			 *
-			 * @hook dt_push_post_media
-			 *
-			 * @param {bool}       true           If Distributor should push the post media.
-			 * @param {int}        $new_post_id   The newly created post ID.
-			 * @param {array}      $media         List of media items attached to the post, formatted by {@link \Distributor\Utils\prepare_media()}.
-			 * @param {int}        $post_id       The original post ID.
-			 * @param {array}      $args          The arguments passed into wp_insert_post.
-			 * @param {Connection} $this          The distributor connection being pushed to.
-			 *
-			 * @return {bool} If Distributor should push the post media.
-			 */
-			if ( apply_filters( 'dt_push_post_media', true, $new_post_id, $post->media, $post_id, $args, $this ) ) {
-				Utils\set_media( $new_post_id, $post->media, [ 'use_filesystem' => true ] );
-			};
+			return $new_post_id;
+		}
 
-			$media_errors = get_transient( 'dt_media_errors_' . $new_post_id );
 
-			if ( $media_errors ) {
-				$output['push-errors'] = $media_errors;
-				delete_transient( 'dt_media_errors_' . $new_post_id );
-			}
+		$output['id'] = $new_post_id;
+
+		update_post_meta( $new_post_id, 'dt_original_blog_id', absint( $original_blog_id ) );
+		update_post_meta( $new_post_id, 'dt_syndicate_time', absint( time() ) );
+
+		/**
+		 * Allow bypassing of all meta processing.
+		 *
+		 * @hook dt_push_post_meta
+		 *
+		 * @param {bool}       true           If Distributor should push the post meta.
+		 * @param {int}        $new_post_id   The newly created post ID.
+		 * @param {array}      $post_meta     Meta attached to the post, formatted by {@link \Distributor\Utils\prepare_meta()}.
+		 * @param {int}        $post_id       The original post ID.
+		 * @param {array}      $args          The arguments passed into wp_insert_post.
+		 * @param {Connection} $this          The distributor connection being pushed to.
+		 *
+		 * @return {bool} If Distributor should push the post meta.
+		 */
+		if ( apply_filters( 'dt_push_post_meta', true, $new_post_id, $post_meta, $post_id, $args, $this ) ) {
+			Utils\set_meta( $new_post_id, $post_meta );
 		}
 
 		/**
-		 * Fires after a post is pushed via Distributor before `restore_current_blog()`.
+		 * Allow bypassing of all term processing.
 		 *
-		 * @hook dt_push_post
+		 * @hook dt_push_post_terms
 		 *
+		 * @param {bool}       true           If Distributor should push the post terms.
 		 * @param {int}        $new_post_id   The newly created post ID.
+		 * @param {array}      $post_terms    Terms attached to the post, formatted by {@link \Distributor\Utils\prepare_taxonomy_terms()}.
 		 * @param {int}        $post_id       The original post ID.
 		 * @param {array}      $args          The arguments passed into wp_insert_post.
-		 * @param {Connection} $this          The Distributor connection being pushed to.
+		 * @param {Connection} $this          The distributor connection being pushed to.
+		 *
+		 * @return {bool} If Distributor should push the post terms.
 		 */
-		do_action( 'dt_push_post', $new_post_id, $post_id, $args, $this );
+		if ( apply_filters( 'dt_push_post_terms', true, $new_post_id, $post_terms, $post_id, $args, $this ) ) {
+			Utils\set_taxonomy_terms( $new_post_id, $post_terms );
+		}
+
+		/**
+		 * Allow bypassing of all media processing.
+		 *
+		 * @hook dt_push_post_media
+		 *
+		 * @param {bool}       true           If Distributor should push the post media.
+		 * @param {int}        $new_post_id   The newly created post ID.
+		 * @param {array}      $post_media    List of media items attached to the post, formatted by {@link \Distributor\Utils\prepare_media()}.
+		 * @param {int}        $post_id       The original post ID.
+		 * @param {array}      $args          The arguments passed into wp_insert_post.
+		 * @param {Connection} $this          The distributor connection being pushed to.
+		 *
+		 * @return {bool} If Distributor should push the post media.
+		 */
+		if ( apply_filters( 'dt_push_post_media', true, $new_post_id, $post_media, $post_id, $args, $this ) ) {
+			Utils\set_media( $new_post_id, $post_media, [ 'use_filesystem' => true ] );
+		};
+
+		$media_errors = get_transient( 'dt_media_errors_' . $new_post_id );
+
+		if ( $media_errors ) {
+			$output['push-errors'] = $media_errors;
+			delete_transient( 'dt_media_errors_' . $new_post_id );
+		}
+
+		/** This filter is documented in includes/classes/InternalConnections/NetworkSiteConnection.php */
+		do_action_deprecated(
+			'dt_push_post',
+			array( $new_post_id, $post_id, $args, $this ),
+			'2.0.0',
+			'dt_push_network_post|dt_push_external_post',
+			esc_html__( 'The dt_push_post action has been deprecated. Please use dt_push_network_post or dt_push_external_post instead.', 'distributor' )
+		);
+
+		/** This filter is documented in includes/classes/InternalConnections/NetworkSiteConnection.php */
+		do_action( 'dt_push_network_post', $new_post_id, $post_id, $args, $this );
 
 		restore_current_blog();
-
-		if ( is_wp_error( $new_post_id ) ) {
-			return $new_post_id;
-		}
 
 		return $output;
 	}
@@ -258,15 +289,25 @@ class NetworkSiteConnection extends Connection {
 		$created_posts = array();
 
 		foreach ( $items as $item_array ) {
-			$post = $this->remote_get( [ 'id' => $item_array['remote_post_id'] ] );
+			$update      = false;
+			$insert_args = array();
+			if ( ! empty( $item_array['post_status'] ) ) {
+				$insert_args['post_status'] = $item_array['post_status'];
+			}
+			if ( ! empty( $item_array['post_id'] ) ) {
+				$insert_args['remote_post_id'] = $item_array['post_id'];
+				$update                        = true;
+			}
+
+			$post = $this->remote_get( [ 'id' => $item_array['remote_post_id'] ], $insert_args );
 
 			if ( is_wp_error( $post ) ) {
 				$created_posts[] = $post;
 				continue;
 			}
 
-			$post_props      = get_object_vars( $post );
-			$post_array      = array();
+			$post_props      = $post;
+			$post_array      = $post_props;
 			$current_blog_id = get_current_blog_id();
 
 			if ( ! empty( $post_props['meta']['dt_connection_map'] ) ) {
@@ -280,41 +321,22 @@ class NetworkSiteConnection extends Connection {
 				}
 			}
 
-			foreach ( $post_props as $key => $value ) {
-				$post_array[ $key ] = $value;
-			}
-
-			if ( ! empty( $item_array['post_id'] ) ) {
-				$post_array['ID'] = $item_array['post_id'];
-			} else {
-				unset( $post_array['ID'] );
-			}
-
-			if ( isset( $post_array['post_parent'] ) ) {
-				unset( $post_array['post_parent'] );
-			}
-
-			if ( ! empty( $item_array['post_status'] ) ) {
-				$post_array['post_status'] = $item_array['post_status'];
-			}
-
 			add_filter( 'wp_insert_post_data', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'maybe_set_modified_date' ), 10, 2 );
 
 			// Filter documented in includes/classes/ExternalConnections/WordPressExternalConnection.php
 			$new_post_args = Utils\post_args_allow_list( apply_filters( 'dt_pull_post_args', $post_array, $item_array['remote_post_id'], $post, $this ) );
-			$new_post_id   = wp_insert_post( wp_slash( $new_post_args ) );
-
+			if ( $update ) {
+				$new_post_id = wp_update_post( wp_slash( $new_post_args ) );
+			} else {
+				$new_post_id = wp_insert_post( wp_slash( $new_post_args ) );
+			}
 			remove_filter( 'wp_insert_post_data', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'maybe_set_modified_date' ), 10, 2 );
 
 			if ( ! is_wp_error( $new_post_id ) ) {
-				update_post_meta( $new_post_id, 'dt_original_post_id', (int) $item_array['remote_post_id'] );
-				update_post_meta( $new_post_id, 'dt_original_blog_id', (int) $this->site->blog_id );
-				update_post_meta( $new_post_id, 'dt_syndicate_time', time() );
-				update_post_meta( $new_post_id, 'dt_original_post_url', esc_url_raw( $post->link ) );
-
-				if ( ! empty( $post->post_parent ) ) {
-					update_post_meta( $new_post_id, 'dt_original_post_parent', (int) $post->post_parent );
-				}
+				update_post_meta( $new_post_id, 'dt_original_blog_id', absint( $this->site->blog_id ) );
+				update_post_meta( $new_post_id, 'dt_syndicate_time', absint( time() ) );
+				update_post_meta( $new_post_id, 'dt_original_post_id', absint( $new_post_args['meta_input']['dt_original_post_id'] ) );
+				update_post_meta( $new_post_id, 'dt_original_post_url', wp_slash( sanitize_url( $new_post_args['meta_input']['dt_original_post_url'] ) ) );
 
 				/**
 				 * Allow bypassing of all meta processing.
@@ -323,15 +345,15 @@ class NetworkSiteConnection extends Connection {
 				 *
 				 * @param {bool}                  true            If Distributor should set the post meta.
 				 * @param {int}                   $new_post_id    The newly created post ID.
-				 * @param {array}                 $post->meta     List of meta items attached to the post, formatted by {@link \Distributor\Utils\prepare_meta()}.
+				 * @param {array}                 $post_meta      List of meta items attached to the post, formatted by {@link \Distributor\Utils\prepare_meta()}.
 				 * @param {int}                   $remote_post_id The original post ID.
 				 * @param {array}                 $post_array     The arguments passed into wp_insert_post.
 				 * @param {NetworkSiteConnection} $this           The Distributor connection being pulled from.
 				 *
 				 * @return {bool} If Distributor should set the post meta.
 				 */
-				if ( apply_filters( 'dt_pull_post_meta', true, $new_post_id, $post->meta, $item_array['remote_post_id'], $post_array, $this ) ) {
-					\Distributor\Utils\set_meta( $new_post_id, $post->meta );
+				if ( apply_filters( 'dt_pull_post_meta', true, $new_post_id, $post['meta'], $item_array['remote_post_id'], $post_array, $this ) ) {
+					\Distributor\Utils\set_meta( $new_post_id, $post['meta'] );
 				}
 
 				/**
@@ -341,15 +363,15 @@ class NetworkSiteConnection extends Connection {
 				 *
 				 * @param {bool}                  true            If Distributor should set the post terms.
 				 * @param {int}                   $new_post_id    The newly created post ID.
-				 * @param {array}                 $post->terms    List of terms items attached to the post, formatted by {@link \Distributor\Utils\prepare_taxonomy_terms()}.
+				 * @param {array}                 $post_terms     List of terms items attached to the post, formatted by {@link \Distributor\Utils\prepare_taxonomy_terms()}.
 				 * @param {int}                   $remote_post_id The original post ID.
 				 * @param {array}                 $post_array     The arguments passed into wp_insert_post.
 				 * @param {NetworkSiteConnection} $this           The Distributor connection being pulled from.
 				 *
 				 * @return {bool} If Distributor should set the post terms.
 				 */
-				if ( apply_filters( 'dt_pull_post_terms', true, $new_post_id, $post->terms, $item_array['remote_post_id'], $post_array, $this ) ) {
-					\Distributor\Utils\set_taxonomy_terms( $new_post_id, $post->terms );
+				if ( apply_filters( 'dt_pull_post_terms', true, $new_post_id, $post['terms'], $item_array['remote_post_id'], $post_array, $this ) ) {
+					\Distributor\Utils\set_taxonomy_terms( $new_post_id, $post['terms'] );
 				}
 
 				/**
@@ -359,15 +381,15 @@ class NetworkSiteConnection extends Connection {
 				 *
 				 * @param {bool}                  true            If Distributor should set the post media.
 				 * @param {int}                   $new_post_id    The newly created post ID.
-				 * @param {array}                 $post->media    List of media items attached to the post, formatted by {@link \Distributor\Utils\prepare_media()}.
+				 * @param {array}                 $post_media     List of media items attached to the post, formatted by {@link \Distributor\Utils\prepare_media()}.
 				 * @param {int}                   $remote_post_id The original post ID.
 				 * @param {array}                 $post_array     The arguments passed into wp_insert_post.
 				 * @param {NetworkSiteConnection} $this           The Distributor connection being pulled from.
 				 *
 				 * @return {bool} If Distributor should set the post media.
 				 */
-				if ( apply_filters( 'dt_pull_post_media', true, $new_post_id, $post->media, $item_array['remote_post_id'], $post_array, $this ) ) {
-					\Distributor\Utils\set_media( $new_post_id, $post->media, [ 'use_filesystem' => true ] );
+				if ( apply_filters( 'dt_pull_post_media', true, $new_post_id, $post['media'], $item_array['remote_post_id'], $post_array, $this ) ) {
+					\Distributor\Utils\set_media( $new_post_id, $post['media'], [ 'use_filesystem' => true ] );
 				};
 			}
 
@@ -506,11 +528,18 @@ class NetworkSiteConnection extends Connection {
 	/**
 	 * Remotely get posts so we can list them for pulling
 	 *
-	 * @param  array $args Array of args for getting.
 	 * @since  0.8
+	 * @since 2.0.0 Added $new_post_args parameter.
+	 *
+	 * @param  array $args Array of args for getting.
+	 * @param  array $new_post_args {
+	 *    Array of args for creating new post.
+	 *
+	 *    @type string $post_status Post status for new post.
+	 * }
 	 * @return array|WP_Post|bool
 	 */
-	public function remote_get( $args = array() ) {
+	public function remote_get( $args = array(), $new_post_args = array() ) {
 
 		$id = ( empty( $args['id'] ) ) ? false : $args['id'];
 
@@ -595,7 +624,10 @@ class NetworkSiteConnection extends Connection {
 			if ( empty( $post ) ) {
 				$formatted_post = false;
 			} else {
-				$formatted_post = Utils\prepare_post( $post );
+				$dt_post        = new DistributorPost( $post );
+				$formatted_post = $dt_post->to_insert( $new_post_args );
+				// The pull method requires the connection map despite it being on the deny list.
+				$formatted_post['meta']['dt_connection_map'] = get_post_meta( $id, 'dt_connection_map', true );
 			}
 
 			restore_current_blog();
@@ -611,8 +643,7 @@ class NetworkSiteConnection extends Connection {
 	 * @since 0.8
 	 */
 	public static function bootstrap() {
-		add_action( 'template_redirect', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'canonicalize_front_end' ) );
-		add_action( 'save_post', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'update_syndicated' ), 99 );
+		add_action( 'wp_after_insert_post', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'update_syndicated' ), 99 );
 		add_action( 'before_delete_post', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'separate_syndicated_on_delete' ) );
 		add_action( 'before_delete_post', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'remove_distributor_post_from_original' ) );
 		add_action( 'wp_trash_post', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'separate_syndicated_on_delete' ) );
@@ -737,12 +768,6 @@ class NetworkSiteConnection extends Connection {
 			return;
 		}
 
-		// If using Gutenberg, short circuit early and run this method later to make sure terms and meta are saved before syndicating.
-		if ( \Distributor\Utils\is_using_gutenberg( $post ) &amp;&amp; doing_action( 'save_post' ) &amp;&amp; ! isset( $_GET['meta-box-loader'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification
-			add_action( "rest_after_insert_{$post->post_type}", array( '\Distributor\InternalConnections\NetworkSiteConnection', 'update_syndicated' ) );
-			return;
-		}
-
 		$connection_map = get_post_meta( $post_id, 'dt_connection_map', true );
 
 		if ( empty( $connection_map ) || ! is_array( $connection_map ) || empty( $connection_map['internal'] ) ) {
@@ -840,6 +865,7 @@ class NetworkSiteConnection extends Connection {
 		 * @since 1.2
 		 * @since 1.3.7 Added the `$context` parameter.
 		 * @hook dt_authorized_sites
+		 * @tutorial snippets
 		 *
 		 * @param {array}  $authorized_sites An array of `WP_Site` objects and the post type objects the user can edit.
 		 * @param {string} $context          The context of the authorization.
@@ -870,12 +896,13 @@ class NetworkSiteConnection extends Connection {
 		$authorized_sites = get_transient( $cache_key );
 
 		if ( $force || false === $authorized_sites ) {
-			$sites           = get_sites(
+			$authorized_sites = array();
+			$sites            = get_sites(
 				array(
 					'number' => 1000,
 				)
 			);
-			$current_blog_id = (int) get_current_blog_id();
+			$current_blog_id  = (int) get_current_blog_id();
 
 			foreach ( $sites as $site ) {
 				$blog_id = (int) $site->blog_id;
@@ -959,154 +986,92 @@ class NetworkSiteConnection extends Connection {
 	 * Setup canonicalization on front end
 	 *
 	 * @since  0.8
+	 * @deprecated 2.0.0
 	 */
 	public static function canonicalize_front_end() {
-		add_filter( 'get_canonical_url', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'canonical_url' ), 10, 2 );
-		add_filter( 'wpseo_canonical', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'wpseo_canonical_url' ) );
-		add_filter( 'wpseo_opengraph_url', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'wpseo_og_url' ) );
-		add_filter( 'the_author', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'the_author_distributed' ) );
-		add_filter( 'get_the_author_display_name', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'the_author_distributed' ) );
-		add_filter( 'author_link', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'author_posts_url_distributed' ), 10, 3 );
+		_deprecated_function( __METHOD__, '2.0.0' );
 	}
 
 	/**
 	 * Override author with site name on distributed post
 	 *
-	 * @param  string $link Author link
-	 * @param  int    $author_id Author id.
-	 * @param  string $author_nicename Author name.
 	 * @since  1.0
+	 * @deprecated 2.0.0 Use Distributor\Hooks\filter_author_link instead.
+	 *
+	 * @param  string $link Author link.
+	 * @param  int    $author_id Author ID.
+	 * @param  string $author_nicename Author name.
 	 * @return string
 	 */
 	public static function author_posts_url_distributed( $link, $author_id, $author_nicename ) {
-		global $post;
-
-		if ( empty( $post ) ) {
-			return $link;
-		}
-
-		$settings = Utils\get_settings();
-
-		if ( empty( $settings['override_author_byline'] ) ) {
-			return $link;
-		}
-
-		$original_blog_id = get_post_meta( $post->ID, 'dt_original_blog_id', true );
-		$original_post_id = get_post_meta( $post->ID, 'dt_original_post_id', true );
-		$unlinked         = (bool) get_post_meta( $post->ID, 'dt_unlinked', true );
-
-		if ( empty( $original_blog_id ) || empty( $original_post_id ) || $unlinked ) {
-			return $link;
-		}
-
-		return get_home_url( $original_blog_id );
+		_deprecated_function( __METHOD__, '2.0.0', 'Distributor\Hooks\filter_author_link' );
+		return \Distributor\Hooks\filter_author_link( $link );
 	}
 
 	/**
 	 * Override author with site name on distributed post
 	 *
-	 * @param  string $author Author name.
 	 * @since  1.0
+	 * @deprecated 2.0.0 Use Distributor\Hooks\filter_the_author instead.
+	 *
+	 * @param  string $author Author name.
 	 * @return string
 	 */
 	public static function the_author_distributed( $author ) {
-		global $post;
-
-		if ( empty( $post ) ) {
-			return $author;
-		}
-
-		$settings = Utils\get_settings();
-
-		if ( empty( $settings['override_author_byline'] ) ) {
-			return $author;
-		}
-
-		$original_blog_id = get_post_meta( $post->ID, 'dt_original_blog_id', true );
-		$original_post_id = get_post_meta( $post->ID, 'dt_original_post_id', true );
-		$unlinked         = (bool) get_post_meta( $post->ID, 'dt_unlinked', true );
-
-		if ( empty( $original_blog_id ) || empty( $original_post_id ) || $unlinked ) {
-			return $author;
-		}
-
-		$blog_details = get_blog_details( $original_blog_id );
-
-		return $blog_details->blogname;
+		_deprecated_function( __METHOD__, '2.0.0', 'Distributor\Hooks\filter_the_author' );
+		return \Distributor\Hooks\filter_the_author( $author );
 	}
 
 	/**
 	 * Make sure canonical url header is outputted
 	 *
-	 * @param  string $canonical_url Canonical url.
-	 * @param  object $post Post object.
 	 * @since  0.8
+	 * @deprecated 2.0.0 Use Distributor\Hooks\get_canonical_url instead.
+	 *
+	 * @param  string $canonical_url Canonical URL.
+	 * @param  object $post Post object.
 	 * @return string
 	 */
 	public static function canonical_url( $canonical_url, $post ) {
-		$original_blog_id = get_post_meta( $post->ID, 'dt_original_blog_id', true );
-		$original_post_id = get_post_meta( $post->ID, 'dt_original_post_id', true );
-		$unlinked         = (bool) get_post_meta( $post->ID, 'dt_unlinked', true );
-		$original_deleted = (bool) get_post_meta( $post->ID, 'dt_original_post_deleted', true );
-
-		if ( empty( $original_blog_id ) || empty( $original_post_id ) || $unlinked || $original_deleted ) {
-			return $canonical_url;
-		}
-
-		$original_post_url = get_post_meta( $post->ID, 'dt_original_post_url', true );
-
-		return $original_post_url;
+		_deprecated_function( __METHOD__, '2.0.0', 'Distributor\Hooks\get_canonical_url' );
+		return \Distributor\Hooks\get_canonical_url( $canonical_url, $post );
 	}
 
 	/**
 	 * Handles the canonical URL change for distributed content when Yoast SEO is in use
 	 *
-	 * @param string $canonical_url The Yoast WPSEO deduced canonical URL
 	 * @since  1.0
+	 * @deprecated 2.0.0 Use Distributor\Hooks\wpseo_canonical instead.
+	 *
+	 * @param string $canonical_url The Yoast WPSEO deduced canonical URL
 	 * @return string $canonical_url The updated distributor friendly URL
 	 */
 	public static function wpseo_canonical_url( $canonical_url ) {
-
-		// Return as is if not on a singular page - taken from rel_canonical()
-		if ( ! is_singular() ) {
-			$canonical_url;
+		_deprecated_function( __METHOD__, '2.0.0', 'Distributor\Hooks\wpseo_canonical' );
+		$presentation = false;
+		if ( is_singular() ) {
+			$source       = get_post();
+			$presentation = (object) array( 'source' => $source );
 		}
-
-		$id = get_queried_object_id();
-
-		// Return as is if we do not have a object id for context - taken from rel_canonical()
-		if ( 0 === $id ) {
-			return $canonical_url;
-		}
-
-		$post = get_post( $id );
-
-		// Return as is if we don't have a valid post object - taken from wp_get_canonical_url()
-		if ( ! $post ) {
-			return $canonical_url;
-		}
-
-		// Return as is if current post is not published - taken from wp_get_canonical_url()
-		if ( 'publish' !== $post->post_status ) {
-			return $canonical_url;
-		}
-
-		return self::canonical_url( $canonical_url, $post );
+		return \Distributor\Hooks\wpseo_canonical( $canonical_url, $presentation );
 	}
 
 	/**
 	 * Handles the og:url change for distributed content when Yoast SEO is in use
 	 *
-	 * @param string $og_url The Yoast WPSEO deduced OG URL which is a result of wpseo_canonical_url
+	 * @deprecated 2.0.0 Use Distributor\Hooks\wpseo_opengraph_url instead.
 	 *
+	 * @param string $og_url The Yoast WPSEO deduced OG URL which is a result of wpseo_canonical_url
 	 * @return string $og_url The updated distributor friendly URL
 	 */
-	public static function wpseo_og_url( $og_url ) {
+	public static function wpseo_opengraph_url( $og_url ) {
+		_deprecated_function( __METHOD__, '2.0.0', 'Distributor\Hooks\wpseo_opengraph_url' );
+		$presentation = false;
 		if ( is_singular() ) {
-			$og_url = get_permalink();
+			$source       = get_post();
+			$presentation = (object) array( 'source' => $source );
 		}
-
-		return $og_url;
+		return \Distributor\Hooks\wpseo_opengraph_url( $og_url, $presentation );
 	}
 
 	/**
@@ -1189,11 +1154,11 @@ class NetworkSiteConnection extends Connection {
 		<a href="https://10up.com/careers">Careers at 10up</a>
 	</footer>
 
-	
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Actions</h3><ul><li><a href="dt_after_set_meta.html">dt_after_set_meta</a></li><li><a href="dt_link_post.html">dt_link_post</a></li><li><a href="dt_log_sync.html">dt_log_sync</a></li><li><a href="dt_oauth_admin_notices.html">dt_oauth_admin_notices</a></li><li><a href="dt_process_distributor_attributes.html">dt_process_distributor_attributes</a></li><li><a href="dt_process_subscription_attributes.html">dt_process_subscription_attributes</a></li><li><a href="dt_pull_filters.html">dt_pull_filters</a></li><li><a href="dt_pull_list_table_custom_column.html">dt_pull_list_table_custom_column</a></li><li><a href="dt_pull_post.html">dt_pull_post</a></li><li><a href="dt_push_post.html">dt_push_post</a></li><li><a href="dt_unlink_post.html">dt_unlink_post</a></li></ul><h3>Filters</h3><ul><li><a href="distributable_post_types.html">distributable_post_types</a></li><li><a href="distributor_get_original_site_link.html">distributor_get_original_site_link</a></li><li><a href="dt_ajax_requires_with_credentials.html">dt_ajax_requires_with_credentials</a></li><li><a href="dt_allow_post_unlink.html">dt_allow_post_unlink</a></li><li><a href="dt_allowed_media_extensions.html">dt_allowed_media_extensions</a></li><li><a href="dt_auth_format_get_args.html">dt_auth_format_get_args</a></li><li><a href="dt_auth_format_post_args.html">dt_auth_format_post_args</a></li><li><a href="dt_auth_prepare_credentials.html">dt_auth_prepare_credentials</a></li><li><a href="dt_authorized_sites.html">dt_authorized_sites</a></li><li><a href="dt_available_pull_post_types.html">dt_available_pull_post_types</a></li><li><a href="dt_available_push_post_types.html">dt_available_push_post_types</a></li><li><a href="dt_capabilities.html">dt_capabilities</a></li><li><a href="dt_create_missing_terms.html">dt_create_missing_terms</a></li><li><a href="dt_debug_info_enabled.html">dt_debug_info_enabled</a></li><li><a href="dt_distributable_post_statuses.html">dt_distributable_post_statuses</a></li><li><a href="dt_excluded_meta.html">dt_excluded_meta</a></li><li><a href="dt_external_capabilities.html">dt_external_capabilities</a></li><li><a href="dt_get_media_details.html">dt_get_media_details</a></li><li><a href="dt_get_pull_content_rest_query_args.html">dt_get_pull_content_rest_query_args</a></li><li><a href="dt_get_rest_url.html">dt_get_rest_url</a></li><li><a href="dt_item_mapping.html">dt_item_mapping</a></li><li><a href="dt_media_item_formatted.html">dt_media_item_formatted</a></li><li><a href="dt_media_processing_filename.html">dt_media_processing_filename</a></li><li><a href="dt_network_site_connection_enabled.html">dt_network_site_connection_enabled</a></li><li><a href="dt_pre_get_authorized_sites.html">dt_pre_get_authorized_sites</a></li><li><a href="dt_process_media_args.html">dt_process_media_args</a></li><li><a href="dt_process_media_save_source_file_path.html">dt_process_media_save_source_file_path</a></li><li><a href="dt_pull_as_draft.html">dt_pull_as_draft</a></li><li><a href="dt_pull_capabilities.html">dt_pull_capabilities</a></li><li><a href="dt_pull_list_table_columns.html">dt_pull_list_table_columns</a></li><li><a href="dt_pull_list_table_tr_class.html">dt_pull_list_table_tr_class</a></li><li><a href="dt_pull_post_apply_rendered_content.html">dt_pull_post_apply_rendered_content</a></li><li><a href="dt_pull_post_args.html">dt_pull_post_args</a></li><li><a href="dt_pull_post_media.html">dt_pull_post_media</a></li><li><a href="dt_pull_post_meta.html">dt_pull_post_meta</a></li><li><a href="dt_pull_post_terms.html">dt_pull_post_terms</a></li><li><a href="dt_push_capabilities.html">dt_push_capabilities</a></li><li><a href="dt_push_post_args.html">dt_push_post_args</a></li><li><a href="dt_push_post_media.html">dt_push_post_media</a></li><li><a href="dt_push_post_meta.html">dt_push_post_meta</a></li><li><a href="dt_push_post_terms.html">dt_push_post_terms</a></li><li><a href="dt_push_post_timeout.html">dt_push_post_timeout</a></li><li><a href="dt_remote_get.html">dt_remote_get</a></li><li><a href="dt_remote_get_query_args.html">dt_remote_get_query_args</a></li><li><a href="dt_remote_get_url.html">dt_remote_get_url</a></li><li><a href="dt_remote_post.html">dt_remote_post</a></li><li><a href="dt_remote_post_query_args.html">dt_remote_post_query_args</a></li><li><a href="dt_remote_post_timeout.html">dt_remote_post_timeout</a></li><li><a href="dt_set_media_args.html">dt_set_media_args</a></li><li><a href="dt_subscription_post_args.html">dt_subscription_post_args</a></li><li><a href="dt_subscription_post_timeout.html">dt_subscription_post_timeout</a></li><li><a href="dt_sync_media_delete_and_replace.html">dt_sync_media_delete_and_replace</a></li><li><a href="dt_sync_meta.html">dt_sync_meta</a></li><li><a href="dt_syncable_taxonomies.html">dt_syncable_taxonomies</a></li><li><a href="dt_syndicatable_capabilities.html">dt_syndicatable_capabilities</a></li><li><a href="dt_update_content_via_request_args.html">dt_update_content_via_request_args</a></li><li><a href="dt_update_term_hierarchy.html">dt_update_term_hierarchy</a></li><li><a href="dt_use_block_editor_for_post_type.html">dt_use_block_editor_for_post_type</a></li></ul><h3>Tutorials</h3><ul><li><a href="tutorial-snippets.html">snippets</a></li></ul>
+	
+	<h2><a href="index.html">Home</a></h2><h3>Tutorials</h3><ul><li><a href="tutorial-connect-to-an-existing-post.html">Connect to an Existing Post</a></li><li><a href="tutorial-exclude-meta-from-yoast-duplicate-post.html">Exclude Meta from Yoast Duplicate Post</a></li><li><a href="tutorial-migration-guide-version-1-to-version-2.html">Migration Guide Version 1 to Version 2</a></li><li><a href="tutorial-post-meta.html">Post Meta</a></li><li><a href="tutorial-snippets.html">Snippets</a></li></ul><h3>Actions</h3><ul><li><a href="dt_after_set_meta.html">dt_after_set_meta</a></li><li><a href="dt_link_post.html">dt_link_post</a></li><li><a href="dt_log_sync.html">dt_log_sync</a></li><li><a href="dt_oauth_admin_notices.html">dt_oauth_admin_notices</a></li><li><a href="dt_process_distributor_attributes.html">dt_process_distributor_attributes</a></li><li><a href="dt_process_subscription_attributes.html">dt_process_subscription_attributes</a></li><li><a href="dt_pull_filters.html">dt_pull_filters</a></li><li><a href="dt_pull_list_table_custom_column.html">dt_pull_list_table_custom_column</a></li><li><a href="dt_pull_post.html">dt_pull_post</a></li><li><a href="dt_push_external_post.html">dt_push_external_post</a></li><li><a href="dt_push_network_post.html">dt_push_network_post</a></li><li><a href="dt_push_post.html">dt_push_post</a></li><li><a href="dt_unlink_post.html">dt_unlink_post</a></li></ul><h3>Filters</h3><ul><li><a href="distributable_post_types.html">distributable_post_types</a></li><li><a href="distributor_get_original_site_link.html">distributor_get_original_site_link</a></li><li><a href="dt_ajax_requires_with_credentials.html">dt_ajax_requires_with_credentials</a></li><li><a href="dt_allow_post_unlink.html">dt_allow_post_unlink</a></li><li><a href="dt_allowed_media_extensions.html">dt_allowed_media_extensions</a></li><li><a href="dt_auth_format_get_args.html">dt_auth_format_get_args</a></li><li><a href="dt_auth_format_post_args.html">dt_auth_format_post_args</a></li><li><a href="dt_auth_prepare_credentials.html">dt_auth_prepare_credentials</a></li><li><a href="dt_authorized_sites.html">dt_authorized_sites</a></li><li><a href="dt_available_pull_post_types.html">dt_available_pull_post_types</a></li><li><a href="dt_available_push_post_types.html">dt_available_push_post_types</a></li><li><a href="dt_capabilities.html">dt_capabilities</a></li><li><a href="dt_create_missing_terms.html">dt_create_missing_terms</a></li><li><a href="dt_debug_info_enabled.html">dt_debug_info_enabled</a></li><li><a href="dt_distributable_post_statuses.html">dt_distributable_post_statuses</a></li><li><a href="dt_excluded_meta.html">dt_excluded_meta</a></li><li><a href="dt_external_capabilities.html">dt_external_capabilities</a></li><li><a href="dt_get_media_details.html">dt_get_media_details</a></li><li><a href="dt_get_pull_content_rest_query_args.html">dt_get_pull_content_rest_query_args</a></li><li><a href="dt_get_rest_url.html">dt_get_rest_url</a></li><li><a href="dt_item_mapping.html">dt_item_mapping</a></li><li><a href="dt_media_item_formatted.html">dt_media_item_formatted</a></li><li><a href="dt_media_processing_filename.html">dt_media_processing_filename</a></li><li><a href="dt_network_site_connection_enabled.html">dt_network_site_connection_enabled</a></li><li><a href="dt_parse_media_blocks.html">dt_parse_media_blocks</a></li><li><a href="dt_pre_get_authorized_sites.html">dt_pre_get_authorized_sites</a></li><li><a href="dt_process_media_args.html">dt_process_media_args</a></li><li><a href="dt_process_media_save_source_file_path.html">dt_process_media_save_source_file_path</a></li><li><a href="dt_pull_as_draft.html">dt_pull_as_draft</a></li><li><a href="dt_pull_capabilities.html">dt_pull_capabilities</a></li><li><a href="dt_pull_list_table_columns.html">dt_pull_list_table_columns</a></li><li><a href="dt_pull_list_table_tr_class.html">dt_pull_list_table_tr_class</a></li><li><a href="dt_pull_post_apply_rendered_content.html">dt_pull_post_apply_rendered_content</a></li><li><a href="dt_pull_post_args.html">dt_pull_post_args</a></li><li><a href="dt_pull_post_media.html">dt_pull_post_media</a></li><li><a href="dt_pull_post_meta.html">dt_pull_post_meta</a></li><li><a href="dt_pull_post_terms.html">dt_pull_post_terms</a></li><li><a href="dt_push_capabilities.html">dt_push_capabilities</a></li><li><a href="dt_push_post_args.html">dt_push_post_args</a></li><li><a href="dt_push_post_media.html">dt_push_post_media</a></li><li><a href="dt_push_post_meta.html">dt_push_post_meta</a></li><li><a href="dt_push_post_terms.html">dt_push_post_terms</a></li><li><a href="dt_push_post_timeout.html">dt_push_post_timeout</a></li><li><a href="dt_remote_get.html">dt_remote_get</a></li><li><a href="dt_remote_post.html">dt_remote_post</a></li><li><a href="dt_remote_post_query_args.html">dt_remote_post_query_args</a></li><li><a href="dt_remote_post_timeout.html">dt_remote_post_timeout</a></li><li><a href="dt_set_media_args.html">dt_set_media_args</a></li><li><a href="dt_subscription_post_args.html">dt_subscription_post_args</a></li><li><a href="dt_subscription_post_timeout.html">dt_subscription_post_timeout</a></li><li><a href="dt_sync_media_delete_and_replace.html">dt_sync_media_delete_and_replace</a></li><li><a href="dt_sync_meta.html">dt_sync_meta</a></li><li><a href="dt_syncable_taxonomies.html">dt_syncable_taxonomies</a></li><li><a href="dt_syndicatable_capabilities.html">dt_syndicatable_capabilities</a></li><li><a href="dt_update_content_via_request_args.html">dt_update_content_via_request_args</a></li><li><a href="dt_update_term_hierarchy.html">dt_update_term_hierarchy</a></li><li><a href="dt_use_block_editor_for_post_type.html">dt_use_block_editor_for_post_type</a></li></ul>
 </nav>
 
 <br class="clear">

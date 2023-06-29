@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>Filter: dt_debug_info_enabled - 10up Distributor Developer Documentation</title>
+    <title>Tutorial: Post Meta - 10up Distributor Developer Documentation</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -21,187 +21,104 @@
 <div id="main">
 
 	
-    <h1 class="page-title">Filter: dt_debug_info_enabled</h1>
+    <h1 class="page-title">Tutorial: Post Meta</h1>
 	
 
-    
-
-
-
-
-<section>
+    <section>
 
 <header>
-    <h2></h2>
     
+
+    <h2>Post Meta</h2>
 </header>
 
 <article>
-    <div class="container-overview">
-    
-        
-
-    
-
-    <h4 class="name" id="dt_debug_info_enabled">apply_filters( 'dt_debug_info_enabled', <span class="signature">true )</span><span class="type-signature"> &rarr; {bool}</span></h4>
-
-    
-
-
-
-<div class="description">
-    <p>Filter whether the debug info is enabled. Enabled by default, return false to disable.</p>
-</div>
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>true</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">bool</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>Whether the debug info should be enabled.</p></td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-    <dt class="tag-since">Since:</dt>
-    <dd class="tag-since"><ul class="dummy"><li>2.0.0</li></ul></dd>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="debug-info.php.html">debug-info.php</a>, <a href="debug-info.php.html#line24">line 24</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-<h5>Returns:</h5>
-
-        
-<div class="param-desc">
-    <p>Whether the debug info should be enabled.</p>
-</div>
-
-
-
-<dl>
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
-<span class="param-type">bool</span>
-
-
-    </dd>
-</dl>
-
-    
-
-
-
-    
-    </div>
-
-    
+    <hr>
+<h3 id="table-of-contents">Table of Contents</h3>
+<ul>
+<li><a href="#source-post-meta">Source post meta</a>
+<ul>
+<li><a href="#network-connections">Network connections</a></li>
+</ul>
+</li>
+<li><a href="#distributed-post-meta">Distributed post meta</a>
+<ul>
+<li><a href="#connects-a-source-post-to-a-subscription">Connects a Source Post to a Subscription</a></li>
+<li><a href="#network-connections-1">Network connections</a></li>
+<li><a href="#external-connections">External connections</a></li>
+</ul>
+</li>
+<li><a href="#distributed-post-meta-1">Distributed post meta</a></li>
+<li><a href="#connections-post-type-post-meta">Connections post type post meta</a>
+<ul>
+<li><a href="#external-connections-1">External connections</a></li>
+</ul>
+</li>
+</ul>
+<hr>
+<h3 id="source-post-meta">Source post meta</h3>
+<ul>
+<li><code>dt_unlinked</code> Whether this post is linked to the original version. For the original post this is set to true.</li>
+</ul>
+<h4 id="network-connections">Network connections</h4>
+<ul>
+<li><code>dt_connection_map</code></li>
+</ul>
+<hr>
+<h3 id="distributed-post-meta">Distributed post meta</h3>
+<ul>
+<li><code>dt_original_post_id</code></li>
+<li><code>dt_original_media_url</code></li>
+<li><code>dt_original_media_id</code></li>
+<li><code>dt_original_source_id</code></li>
+<li><code>dt_original_post_deleted</code></li>
+<li><code>dt_original_post_parent</code></li>
+<li><code>dt_original_site_name</code></li>
+<li><code>dt_original_site_url</code></li>
+<li><code>dt_original_post_url</code></li>
+<li><code>dt_original_deleted</code> Whether the original post has been deleted.</li>
+<li><code>dt_unlinked</code> Whether this post is linked to the original version.</li>
+<li><code>dt_original_file_path</code> Only saved if filter <code>dt_process_media_save_source_file_path</code> is used.</li>
+<li><code>dt_syndicate_time</code></li>
+</ul>
+<h4 id="connects-a-source-post-to-a-subscription">Connects a Source Post to a Subscription</h4>
+<ul>
+<li><code>dt_subscriptions</code></li>
+<li><code>dt_subscription_update</code></li>
+</ul>
+<h4 id="network-connections-1">Network connections</h4>
+<ul>
+<li><code>dt_original_blog_id</code></li>
+</ul>
+<h4 id="external-connections">External connections</h4>
+<ul>
+<li><code>dt_full_connection</code></li>
+</ul>
+<hr>
+<h3 id="distributed-post-meta-1">Distributed post meta</h3>
+<p>For non-public <code>dt_subscription</code> post type.</p>
+<ul>
+<li><code>dt_subscription_remote_post_id</code></li>
+<li><code>dt_subscription_signature</code></li>
+<li><code>dt_subscription_remote_post_id</code></li>
+<li><code>dt_subscription_target_url</code></li>
+<li><code>dt_subscription_post_id</code></li>
+</ul>
+<hr>
+<h3 id="connections-post-type-post-meta">Connections post type post meta</h3>
+<h4 id="external-connections-1">External connections</h4>
+<ul>
+<li><code>dt_sync_log</code></li>
+<li><code>dt_external_connection_type</code></li>
+<li><code>dt_external_connection_allowed_roles</code></li>
+<li><code>dt_external_connection_check_time</code></li>
+<li><code>dt_external_connection_url</code></li>
+<li><code>dt_external_connection_auth</code></li>
+<li><code>dt_external_connections</code> Stores what we can do with a given external connection (push or pull).</li>
+</ul>
 </article>
 
 </section>
-
-
-
 
 
     <footer>
