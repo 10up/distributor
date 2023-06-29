@@ -210,6 +210,7 @@ function set_meta( $post_id, $meta ) {
 	 *
 	 * @since 1.3.8
 	 * @hook dt_after_set_meta
+	 * @tutorial snippets
 	 *
 	 * @param {array} $meta          All received meta for the post
 	 * @param {array} $existing_meta Existing meta for the post
@@ -311,6 +312,7 @@ function distributable_post_types( $output = 'names' ) {
 	 *
 	 * @since 1.0.0
 	 * @hook distributable_post_types
+	 * @tutorial snippets
 	 *
 	 * @param {array} Post types that are distributable.
 	 *
@@ -413,6 +415,7 @@ function excluded_meta() {
 	 *
 	 * @since 1.9.0
 	 * @hook dt_excluded_meta
+	 * @tutorial snippets
 	 *
 	 * @param {array} $meta_keys Excluded meta keys. Default `dt_unlinked, dt_connection_map, dt_subscription_update, dt_subscriptions, dt_subscription_signature, dt_original_post_id, dt_original_post_url, dt_original_blog_id, dt_syndicate_time, _wp_attached_file, _wp_attachment_metadata, _edit_lock, _edit_last, _wp_old_slug, _wp_old_date`.
 	 *
@@ -1218,7 +1221,7 @@ function remote_http_request( $url, $args = array(), $fallback = '', $threshold 
 /**
  * Determines if a post is distributed.
  *
- * @since x.x.x
+ * @since 2.0.0
  *
  * @param int|\WP_Post $post The post object or ID been checked.
  * @return bool True if the post is distributed, false otherwise.

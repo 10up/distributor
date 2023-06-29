@@ -832,6 +832,7 @@ class NetworkSiteConnection extends Connection {
 		 * @since 1.2
 		 * @since 1.3.7 Added the `$context` parameter.
 		 * @hook dt_authorized_sites
+		 * @tutorial snippets
 		 *
 		 * @param {array}  $authorized_sites An array of `WP_Site` objects and the post type objects the user can edit.
 		 * @param {string} $context          The context of the authorization.

@@ -1,4 +1,16 @@
-## Snippets
+---
+
+### Table of Contents
+- [Limit to certain post types](#limit-to-certain-post-types)
+- [Limit to certain user capabilities](#limit-to-certain-user-capabilities)
+- [Limit to certain sites on the network](#limit-to-certain-sites-on-the-network)
+- [Remove canonical links for both Internal and External Connections](#remove-canonical-links-for-both-internal-and-external-connections)
+- [Push original publication date](#push-original-publication-date)
+- [Automatically unlink posts](#automatically-unlink-posts)
+- [Modify custom meta data](#modify-custom-meta-data)
+- [Exclude meta key from distribution](#exclude-meta-key-from-distribution)
+
+---
 
 ### Limit to certain post types
 
@@ -89,27 +101,63 @@ add_filter( 'dt_push_post_args', function( $post_body, $post ) {
 }, 10, 2 );
 ```
 
-### Set custom meta data on distributed content.
+### Automatically unlink posts
+```php
+/**
+ * Auto unlink distributor posts automatically.
+ *
+ * Runs on the `dt_after_set_meta` hook.
+ *
+ * @param mixed $meta          All received meta for the post
+ * @param mixed $existing_meta Existing meta for the post
+ * @param mixed $post_id       Post ID
+ * @return void
+ */
+function client_prefix_auto_unlink_distributed_posts( $meta, $existing_meta, $post_id ) {
+	$post = get_post( $post_id );
 
-Site owners may wish to modify the meta data on distributed content upon pushing or pulling.
+	if ( ! $post ) {
+		return;
+	}
 
-To set an item of meta data you can use the `dt_after_set_meta` hook.
+	$is_distributed = get_post_meta( $post->ID, 'dt_original_post_id', true ) ? true : false;
+
+	if ( ! $is_distributed ) {
+		return;
+	}
+
+	update_post_meta( $post->ID, 'dt_unlinked', true );
+}
+add_action( 'dt_after_set_meta', 'client_prefix_auto_unlink_distributed_posts', 10, 3 );
+```
+
+### Modify custom meta data
 
 ```php
 /**
- * Automatically store custom meta data on distributed posts.
- */
-add_action( 'dt_after_set_meta', function( $meta, $existing_meta, $post_id ) {
-	update_post_meta( $post_id, 'myplugin_custom_meta', 'some_value', true );
-}, 10, 3 );
-
-/**
- * Automatically unlink a post once it is distributed.
+ * Set default post meta if not set in the original.
  *
- * This prevents updates to the original content from modifying the copies
- * distributed on other sites.
+ * @param {array} $meta          All received meta for the post
+ * @param {array} $existing_meta Existing meta for the post
+ * @param {int}   $post_id       Post ID
  */
-add_action( 'dt_after_set_meta', function( $meta, $existing_meta, $post_id ) {
-	update_post_meta( $post_id, 'dt_unlinked', '1', true );
-}, 10, 3 );
+function client_prefix_modify_meta( $meta, $existing_meta, $post_id ) {
+	// Set post meta if not set.
+	if ( ! isset( $existing_meta['my_meta_key'] ) ) {
+		add_post_meta( $post_id, 'my_meta_key', 'my meta value' );
+	}
+}
+add_action( 'dt_after_set_meta', 'client_prefix_modify_meta', 10, 3 );
+```
+
+### Exclude meta key from distribution
+
+```php
+/**
+ * Denylist a meta key from distribution.
+ */
+add_filter( 'dt_excluded_meta', function( $meta_keys ) {
+	$meta_keys[] = 'my_meta_key';
+	return $meta_keys;
+} );
 ```

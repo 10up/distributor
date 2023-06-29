@@ -276,7 +276,7 @@ class WordPressExternalConnection extends ExternalConnection {
 			&& isset( $response_headers['x-distributor'] )
 			&& (
 				! isset( $response_headers['x-distributor-version'] )
-				|| version_compare( $response_headers['x-distributor-version'], '2.0.0', '<' )
+				|| version_compare( $response_headers['x-distributor-version'], '2.0.0-alpha', '<' )
 			)
 		) {
 			$version_error = new \WP_Error();
@@ -558,6 +558,7 @@ class WordPressExternalConnection extends ExternalConnection {
 					 *
 					 * @since 1.0
 					 * @hook dt_push_post_args
+					 * @tutorial snippets
 					 *
 					 * @param  {array}              $post_body  The request body to send.
 					 * @param  {object}             $post       The WP_Post that is being pushed.
