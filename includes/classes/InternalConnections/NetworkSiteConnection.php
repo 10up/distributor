@@ -160,6 +160,8 @@ class NetworkSiteConnection extends Connection {
 
 
 		$output['id'] = $new_post_id;
+		// @author: Seth Rubenstein
+		$output['target_url'] = get_permalink( $new_post_id );
 
 		update_post_meta( $new_post_id, 'dt_original_blog_id', absint( $original_blog_id ) );
 		update_post_meta( $new_post_id, 'dt_syndicate_time', absint( time() ) );
@@ -340,7 +342,7 @@ class NetworkSiteConnection extends Connection {
 				if ( apply_filters( 'dt_pull_post_terms', true, $new_post_id, $post['terms'], $item_array['remote_post_id'], $post_array, $this ) ) {
 					\Distributor\Utils\set_taxonomy_terms( $new_post_id, $post['terms'] );
 				}
-				
+
 				/**
 				 * Allow bypassing of all meta processing.
 				 *
