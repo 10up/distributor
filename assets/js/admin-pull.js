@@ -15,6 +15,7 @@ const form = document.getElementById( 'posts-filter' );
 const asDraftCheckboxes = document.querySelectorAll( '[name=dt_as_draft]' );
 const pullLinks = document.querySelectorAll( '.distributor_page_pull .pull a' );
 
+// Change target website to pull contents from
 jQuery( chooseConnection ).on( 'change', ( event ) => {
 	document.location =
 		event.currentTarget.options[
@@ -25,6 +26,7 @@ jQuery( chooseConnection ).on( 'change', ( event ) => {
 } );
 
 if ( chooseConnection && choosePostType && form ) {
+	// Handle post type selection
 	if ( choosePostTypeBtn ) {
 		jQuery( choosePostTypeBtn ).on( 'click', ( event ) => {
 			event.preventDefault();
@@ -35,6 +37,7 @@ if ( chooseConnection && choosePostType && form ) {
 		} );
 	}
 
+	// Handle search button click
 	if ( searchField && searchBtn ) {
 		jQuery( searchBtn ).on( 'click', ( event ) => {
 			event.preventDefault();
@@ -47,9 +50,11 @@ if ( chooseConnection && choosePostType && form ) {
 		} );
 	}
 
+	// Handle pull mode checkbox event
 	if ( asDraftCheckboxes && pullLinks ) {
 		jQuery( asDraftCheckboxes ).on( 'change', ( event ) => {
 			if ( event.currentTarget.checked ) {
+				// Check all pull mode checkbox as there are multiple. Ideally before and after post list.
 				for ( let i = 0; i < asDraftCheckboxes.length; ++i ) {
 					asDraftCheckboxes[ i ].checked = true;
 				}
@@ -61,6 +66,7 @@ if ( chooseConnection && choosePostType && form ) {
 					pullLinks[ i ].text = __( 'Pull as draft', 'distributor' );
 				}
 			} else {
+				// Uncheck all pull mode checkbox as there are multiple. Ideally before and after post list.
 				for ( let i = 0; i < asDraftCheckboxes.length; ++i ) {
 					asDraftCheckboxes[ i ].checked = false;
 				}
