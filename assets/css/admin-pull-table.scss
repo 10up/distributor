@@ -18,6 +18,28 @@
 			padding-left: 10px;
 		}
 	}
+
+	#distributor-pull-modal{
+		position: fixed;
+		left: 0;
+		right: 0;
+		top: 0;
+		bottom: 0;
+		background: rgba(0, 0, 0, 50%);
+		display: flex;
+		align-items: center;
+		z-index: 9999;
+
+		&>div{
+			margin: 0 auto;
+			display: block;
+			width: 300px;
+			background: white;
+			padding: 20px;
+			border-radius: 10px;
+			box-shadow: 1px 2px 15px rgba(0, 0, 0, 30%);
+		}
+	}
 }
 
 .wp-list-table .disabled {
