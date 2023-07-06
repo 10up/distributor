@@ -7,6 +7,9 @@
 
 namespace Distributor\SyndicatedPostUI;
 
+use Distributor\EnqueueScript;
+use Distributor\Utils;
+
 /**
  * Setup actions and filters
  *
@@ -26,12 +29,8 @@ function setup() {
 			add_filter( 'admin_body_class', __NAMESPACE__ . '\add_linked_class' );
 			add_filter( 'post_row_actions', __NAMESPACE__ . '\remove_quick_edit', 10, 2 );
 
-			$post = isset( $_GET['post'] ) ? get_post( (int) $_GET['post'] ) : false; // @codingStandardsIgnoreLine Nonce not required
-
-			if ( $post && ! \Distributor\Utils\is_using_gutenberg( $post ) ) {
-				add_action( 'do_meta_boxes', __NAMESPACE__ . '\replace_revisions_meta_box', 10, 3 );
-				add_action( 'add_meta_boxes', __NAMESPACE__ . '\add_revisions_meta_box' );
-			}
+			add_action( 'do_meta_boxes', __NAMESPACE__ . '\replace_revisions_meta_box', 10, 3 );
+			add_action( 'add_meta_boxes', __NAMESPACE__ . '\add_revisions_meta_box' );
 
 			add_action( 'admin_init', __NAMESPACE__ . '\setup_columns' );
 		}
@@ -193,7 +192,15 @@ function syndication_date( $post ) {
 	?>
 
 	<div class="misc-pub-section curtime misc-pub-curtime">
-		<span id="syndicate-time"><?php esc_html_e( 'Distributed on: ', 'distributor' ); ?><strong><?php echo esc_html( gmdate( 'M j, Y @ h:i', ( $syndicate_time + ( get_option( 'gmt_offset' ) * HOUR_IN_SECONDS ) ) ) ); ?></strong></span>
+		<span id="syndicate-time">
+			<?php
+			printf(
+				/* translators: 1: Syndication date and time. */
+				esc_html__( 'Distributed on: %1$s', 'distributor' ),
+				'<strong>' . esc_html( gmdate( 'M j, Y @ h:i', ( $syndicate_time + ( get_option( 'gmt_offset' ) * HOUR_IN_SECONDS ) ) ) ) . '</strong>'
+			);
+			?>
+		</span>
 	</div>
 
 	<?php
@@ -253,6 +260,10 @@ function new_revisions_meta_box( $post_id ) {
  */
 function replace_revisions_meta_box( $post_type, $context, $post ) {
 	if ( empty( $post ) ) {
+		return;
+	}
+
+	if ( Utils\is_using_gutenberg( $post ) ) {
 		return;
 	}
 
@@ -420,7 +431,7 @@ function syndicated_message( $post ) {
 
 	$post_type_object = get_post_type_object( $post->post_type );
 
-	$post_url           = get_post_meta( $post->ID, 'dt_original_post_url', true );
+	$original_post_url  = get_post_meta( $post->ID, 'dt_original_post_url', true );
 	$original_site_name = get_post_meta( $post->ID, 'dt_original_site_name', true );
 
 	if ( ! empty( $original_blog_id ) && is_multisite() ) {
@@ -429,7 +440,7 @@ function syndicated_message( $post ) {
 		restore_current_blog();
 
 		if ( empty( $original_location_name ) ) {
-			/* translators: %d: the blog ID */
+			/* translators: %d: The site ID */
 			$original_location_name = sprintf( esc_html__( 'Blog #%d', 'distributor' ), $original_blog_id );
 		}
 	} else {
@@ -443,30 +454,85 @@ function syndicated_message( $post ) {
 		<?php if ( $original_deleted ) : ?>
 			<p>
 				<?php
-					/* translators: %1$s: post type name, %2$s: site url, %3$s: site name */
-					echo wp_kses_post( sprintf( __( 'This %1$s was distributed from <a href="%2$s">%3$s</a>. However, the original has been deleted.', 'distributor' ), esc_html( strtolower( $post_type_singular ) ), esc_url( $post_url ), esc_html( $original_location_name ) ) );
+					printf(
+						/* translators: 1) Distributor post type singular name, 2) Source of content. */
+						esc_html__( 'This %1$s was distributed from %2$s. However, the origin %1$s has been deleted.', 'distributor' ),
+						esc_html( strtolower( $post_type_singular ) ),
+						esc_html( $original_location_name )
+					);
 				?>
 			</p>
 		<?php elseif ( ! $unlinked ) : ?>
 			<p>
 				<?php
-					/* translators: %1$s: site url, %2$s: site name */
-					echo wp_kses_post( sprintf( __( 'Distributed from <a href="%1$s">%2$s</a>.', 'distributor' ), esc_url( $post_url ), esc_html( $original_location_name ) ) );
+					printf(
+						/* translators: 1) Source of content, 2) Distributor post type singular name. */
+						esc_html__( 'Distributed from %1$s. This %2$s is linked to the origin %2$s. Edits to the origin %2$s will update this remote version.', 'distributor' ),
+						esc_html( $original_location_name ),
+						esc_html( strtolower( $post_type_singular ) )
+					);
 				?>
 				<?php
 					// Filter documented above.
 				if ( apply_filters( 'dt_allow_post_unlink', true, $post->ID ) ) :
+					$unlink_url = wp_nonce_url( add_query_arg( 'action', 'unlink', admin_url( sprintf( $post_type_object->_edit_link, $post->ID ) ) ), "unlink-post_{$post->ID}" );
 					?>
-					<?php /* translators: %1$s: post type name, %2$s: unlink url */ ?>
-					<span><?php echo wp_kses_post( sprintf( __( 'The original %1$s will update this version unless you <a href="%2$s">unlink from the original.</a>', 'distributor' ), esc_html( strtolower( $post_type_singular ) ), wp_nonce_url( add_query_arg( 'action', 'unlink', admin_url( sprintf( $post_type_object->_edit_link, $post->ID ) ) ), "unlink-post_{$post->ID}" ) ) ); ?></span>
+					</p>
+					<p>
+					<span><a href="<?php echo esc_url( $unlink_url ); ?>">
+						<?php
+							printf(
+								/* translators: 1) Distributor post type singular name. */
+								esc_html__( 'Unlink from the origin %1$s.', 'distributor' ),
+								esc_html( strtolower( $post_type_singular ) )
+							);
+						// phpcs:ignore Squiz.PHP.EmbeddedPhp.ContentAfterEnd, avoids layout issues.
+						?></a></span>
+					<span><a href="<?php echo esc_url( $original_post_url ); ?>">
+						<?php
+							printf(
+								/* translators: 1) Distributor post type singular name. */
+								esc_html__( 'View the origin %1$s.', 'distributor' ),
+								esc_html( strtolower( $post_type_singular ) )
+							);
+						?>
+					</a></span>
 				<?php endif; ?>
 			</p>
 		<?php else : ?>
 			<p>
-				<?php /* translators: %1$s: site url, %2$s: site name */ ?>
-				<?php echo wp_kses_post( sprintf( __( 'Originally distributed from <a href="%1$s">%1$s</a>.', 'distributor' ), esc_url( $post_url ), esc_html( $original_location_name ) ) ); ?>
-				<?php /* translators: %1$s: post type name, %2$s: link url */ ?>
-				<span><?php echo wp_kses_post( sprintf( __( "This %1\$s has been unlinked from the original. However, you can always <a href='%2\$s'>restore it.</a>", 'distributor' ), esc_html( strtolower( $post_type_singular ) ), wp_nonce_url( add_query_arg( 'action', 'link', admin_url( sprintf( $post_type_object->_edit_link, $post->ID ) ) ), "link-post_{$post->ID}" ) ) ); ?></span>
+				<?php
+				printf(
+					/* translators: 1) Source of content, 2) Distributor post type singular name. */
+					esc_html__(
+						'Originally distributed from %1$s. This %2$s has been unlinked from the origin %2$s. Edits to the origin %2$s will not update this remote version.',
+						'distributor'
+					),
+					esc_html( $original_location_name ),
+					esc_html( strtolower( $post_type_singular ) )
+				);
+				$relink_url = wp_nonce_url( add_query_arg( 'action', 'link', admin_url( sprintf( $post_type_object->_edit_link, $post->ID ) ) ), "link-post_{$post->ID}" );
+				?>
+			</p>
+			<p>
+				<span><a href="<?php echo esc_url( $relink_url ); ?>">
+				<?php
+					printf(
+						/* translators: 1) Distributor post type singular name. */
+						esc_html__( 'Relink to the origin %1$s.', 'distributor' ),
+						esc_html( strtolower( $post_type_singular ) )
+					);
+				// phpcs:ignore Squiz.PHP.EmbeddedPhp.ContentAfterEnd, avoids layout issues.
+				?></a></span>
+				<span><a href="<?php echo esc_url( $original_post_url ); ?>">
+				<?php
+					printf(
+						/* translators: 1) Distributor post type singular name. */
+						esc_html__( 'View the origin %1$s.', 'distributor' ),
+						esc_html( strtolower( $post_type_singular ) )
+					);
+				?>
+			</a></span>
 			</p>
 		<?php endif; ?>
 	</div>
@@ -495,9 +561,27 @@ function enqueue_post_scripts( $hook ) {
 	}
 
 	if ( \Distributor\Utils\is_using_gutenberg( $post ) ) {
-		wp_enqueue_style( 'dt-gutenberg-syndicated-post', plugins_url( '/dist/css/gutenberg-syndicated-post.min.css', __DIR__ ), array(), DT_VERSION );
+		$asset_file = DT_PLUGIN_PATH . '/dist/js/gutenberg-syndicated-post-css.min.asset.php';
+		// Fallback asset data.
+		$asset_data = array(
+			'version'      => DT_VERSION,
+			'dependencies' => array(),
+		);
+		if ( file_exists( $asset_file ) ) {
+			$asset_data = require $asset_file;
+		}
+		wp_enqueue_style( 'dt-gutenberg-syndicated-post', plugins_url( '/dist/css/gutenberg-syndicated-post.min.css', __DIR__ ), array(), $asset_data['version'] );
 	} else {
-		wp_enqueue_style( 'dt-admin-syndicated-post', plugins_url( '/dist/css/admin-syndicated-post.min.css', __DIR__ ), array(), DT_VERSION );
+		$asset_file = DT_PLUGIN_PATH . '/dist/js/admin-syndicated-post-css.min.asset.php';
+		// Fallback asset data.
+		$asset_data = array(
+			'version'      => DT_VERSION,
+			'dependencies' => array(),
+		);
+		if ( file_exists( $asset_file ) ) {
+			$asset_data = require $asset_file;
+		}
+		wp_enqueue_style( 'dt-admin-syndicated-post', plugins_url( '/dist/css/admin-syndicated-post.min.css', __DIR__ ), array(), $asset_data['version'] );
 	}
 
 	$unlinked = (bool) get_post_meta( $post->ID, 'dt_unlinked', true );
@@ -543,53 +627,55 @@ function enqueue_gutenberg_edit_scripts() {
 		restore_current_blog();
 
 		if ( empty( $original_location_name ) ) {
-			/* translators: %d: the original blog id */
+			/* translators: %d: The site ID */
 			$original_location_name = sprintf( esc_html__( 'Blog #%d', 'distributor' ), $original_blog_id );
 		}
 	} else {
 		$original_location_name = $original_site_name;
 	}
 
-	$post_type_singular = $post_type_object->labels->singular_name;
-
-	if ( function_exists( 'gutenberg_get_jed_locale_data' ) ) {
-		$i18n_locale = gutenberg_get_jed_locale_data( 'distributor' );
-	} else {
-		$i18n_locale = [
-			'' => [
-				'domain' => 'distributor',
-				'lang'   => get_user_locale(),
-			],
-		]; // this is a temp hacky substitute for gutenberg_get_jed_locale_data()
-	}
-
-	wp_enqueue_script( 'dt-gutenberg-syndicated-post', plugins_url( '/dist/js/gutenberg-syndicated-post.min.js', __DIR__ ), [ 'wp-blocks' ], DT_VERSION, true );
-	wp_enqueue_script( 'dt-gutenberg-plugin', plugins_url( '/dist/js/gutenberg-plugin.min.js', __DIR__ ), [ 'wp-blocks', 'wp-components', 'wp-data', 'wp-element', 'wp-edit-post', 'wp-i18n', 'wp-plugins' ], DT_VERSION, true );
-
-	wp_localize_script(
+	$post_type_singular               = $post_type_object->labels->singular_name;
+	$gutenberg_syndicated_post_script = new EnqueueScript(
 		'dt-gutenberg-syndicated-post',
-		'dtGutenberg',
-		[
-			'i18n'                 => $i18n_locale,
-			'originalBlogId'       => (int) $original_blog_id,
-			'originalPostId'       => (int) $original_post_id,
-			'originalSourceId'     => (int) $original_source_id,
-			'originalDelete'       => (int) $original_deleted,
-			'unlinked'             => (int) $unlinked,
-			'postTypeSingular'     => sanitize_text_field( $post_type_singular ),
-			'postUrl'              => sanitize_text_field( $post_url ),
-			'originalSiteName'     => sanitize_text_field( $original_site_name ),
-			'syndicationTime'      => ( ! empty( $syndication_time ) ) ? esc_html( gmdate( 'M j, Y @ h:i', ( $syndication_time + ( get_option( 'gmt_offset' ) * HOUR_IN_SECONDS ) ) ) ) : 0,
-			'syndicationCount'     => $total_connections,
-			'originalLocationName' => sanitize_text_field( $original_location_name ),
-			'unlinkNonceUrl'       => wp_nonce_url( add_query_arg( 'action', 'unlink', admin_url( sprintf( $post_type_object->_edit_link, $post->ID ) ) ), "unlink-post_{$post->ID}" ),
-			'linkNonceUrl'         => wp_nonce_url( add_query_arg( 'action', 'link', admin_url( sprintf( $post_type_object->_edit_link, $post->ID ) ) ), "link-post_{$post->ID}" ),
-			'supportedPostTypes'   => \Distributor\Utils\distributable_post_types(),
-			'supportedPostStati'   => \Distributor\Utils\distributable_post_statuses(),
-			// Filter documented in includes/push-ui.php.
-			'noPermissions'        => ! is_user_logged_in() || ! current_user_can( apply_filters( 'dt_syndicatable_capabilities', 'edit_posts' ) ),
-		]
+		'gutenberg-syndicated-post.min'
 	);
+
+	$localize_data = [
+		'originalBlogId'       => (int) $original_blog_id,
+		'originalPostId'       => (int) $original_post_id,
+		'originalSourceId'     => (int) $original_source_id,
+		'originalDelete'       => (int) $original_deleted,
+		'unlinked'             => (int) $unlinked,
+		'postTypeSingular'     => sanitize_text_field( $post_type_singular ),
+		'postUrl'              => sanitize_text_field( $post_url ),
+		'originalSiteName'     => sanitize_text_field( $original_site_name ),
+		'syndicationTime'      => ( ! empty( $syndication_time ) ) ? esc_html( gmdate( 'M j, Y @ h:i', ( $syndication_time + ( get_option( 'gmt_offset' ) * HOUR_IN_SECONDS ) ) ) ) : 0,
+		'syndicationCount'     => $total_connections,
+		'originalLocationName' => sanitize_text_field( $original_location_name ),
+		'unlinkNonceUrl'       => wp_nonce_url( add_query_arg( 'action', 'unlink', admin_url( sprintf( $post_type_object->_edit_link, $post->ID ) ) ), "unlink-post_{$post->ID}" ),
+		'linkNonceUrl'         => wp_nonce_url( add_query_arg( 'action', 'link', admin_url( sprintf( $post_type_object->_edit_link, $post->ID ) ) ), "link-post_{$post->ID}" ),
+		'supportedPostTypes'   => \Distributor\Utils\distributable_post_types(),
+		'supportedPostStati'   => \Distributor\Utils\distributable_post_statuses(),
+		// Filter documented in includes/push-ui.php.
+		'noPermissions'        => ! is_user_logged_in() || ! current_user_can( apply_filters( 'dt_syndicatable_capabilities', 'edit_posts' ) ),
+	];
+
+	$gutenberg_syndicated_post_script
+		->load_in_footer()
+		->register_translations()
+		->register_localize_data( 'dtGutenberg', $localize_data )
+		->enqueue();
+
+	$gutenberg_plugin_script = new EnqueueScript(
+		'dt-gutenberg-plugin',
+		'gutenberg-plugin.min'
+	);
+
+	$gutenberg_plugin_script
+		->load_in_footer()
+		->dependencies( array( 'dt-push' ) )
+		->register_translations()
+		->enqueue();
 }
 
 /**
@@ -603,5 +689,15 @@ function enqueue_edit_scripts( $hook ) {
 		return;
 	}
 
-	wp_enqueue_style( 'dt-admin-syndicated-post', plugins_url( '/dist/css/admin-edit-table.min.css', __DIR__ ), array(), DT_VERSION );
+	$asset_file = DT_PLUGIN_PATH . '/dist/js/gadmin-edit-table-css.min.asset.php';
+	// Fallback asset data.
+	$asset_data = array(
+		'version'      => DT_VERSION,
+		'dependencies' => array(),
+	);
+	if ( file_exists( $asset_file ) ) {
+		$asset_data = require $asset_file;
+	}
+
+	wp_enqueue_style( 'dt-admin-syndicated-post', plugins_url( '/dist/css/admin-edit-table.min.css', __DIR__ ), array(), $asset_data['version'] );
 }

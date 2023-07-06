@@ -9,18 +9,38 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout
-      uses: actions/checkout@v2.4.0
+      uses: actions/checkout@v3.5.3
     - name: Use desired version of NodeJS
       uses: actions/setup-node@v3
       with:
           node-version-file: '.nvmrc'
+    - name: Set PHP version
+      uses: shivammathur/setup-php@2.25.4
+      with:
+        php-version: 7.4
+        tools: composer:v2, wp
+
+    - name: Clone stable branch to the release folder
+      env:
+        GITHUB_REPOSITORY: ${{ github.event.repository.name }}
+      run: |
+        git clone --depth 1 --branch stable https://github.com/$GITHUB_REPOSITORY.git release
+        cd release
+        git branch --show-current
+        mv .git $RUNNER_TEMP/.git
+        cd ..
+
     - name: Check versions
-      run: npm -v; node -v
+      run: |
+        npm -v
+        node -v
+        php -v
+        composer -v
+
     - name: Install and build
       run: |
         composer install --no-dev
         npm install
-        npm run makepot
         npm run release
     - name: Push to Stable
       env:
@@ -28,11 +48,14 @@ jobs:
         GITHUB_SHA: ${{ github.event.commits[0].sha }}
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
+        cd release
+        mv $RUNNER_TEMP/.git .git
+        git branch --show-current
+
         git config --global user.email "10upbot+github@10up.com"
         git config --global user.name "10upbot on GitHub"
         git remote set-url origin "https://x-access-token:$GITHUB_TOKEN@github.com/$GITHUB_REPOSITORY.git"
 
-        cd release
         git add .
         git commit -m "Committing built version of $GITHUB_SHA"
-        git push origin stable
+        git push origin HEAD:stable

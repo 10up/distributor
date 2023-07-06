@@ -7,6 +7,7 @@
 
 namespace Distributor\ExternalConnectionCPT;
 
+use Distributor\EnqueueScript;
 use Distributor\Utils;
 
 /**
@@ -271,48 +272,51 @@ function ajax_verify_external_connection() {
  */
 function admin_enqueue_scripts( $hook ) {
 	if ( ( 'post.php' === $hook && 'dt_ext_connection' === get_post_type() ) || ( 'post-new.php' === $hook && ! empty( $_GET['post_type'] ) && 'dt_ext_connection' === $_GET['post_type'] ) ) { // @codingStandardsIgnoreLine Nonce not required.
+		$admin_external_connect_script = new EnqueueScript(
+			'dt-admin-external-connection',
+			'admin-external-connection.min'
+		);
 
-		wp_enqueue_style( 'dt-admin-external-connection', plugins_url( '/dist/css/admin-external-connection.min.css', __DIR__ ), array(), DT_VERSION );
-		wp_enqueue_script( 'dt-admin-external-connection', plugins_url( '/dist/js/admin-external-connection.min.js', __DIR__ ), array( 'jquery', 'underscore', 'wp-a11y' ), DT_VERSION, true );
+		wp_enqueue_style(
+			'dt-admin-external-connection',
+			plugins_url( '/dist/css/admin-external-connection.min.css', __DIR__ ),
+			array(),
+			$admin_external_connect_script->get_version()
+		);
 
 		$blog_name     = get_bloginfo( 'name ' );
 		$wizard_return = get_wizard_return_data();
 
-		wp_localize_script(
-			'dt-admin-external-connection',
+		$admin_external_connect_script->register_localize_data(
 			'dt',
 			array(
-				'nonce'                               => wp_create_nonce( 'dt-verify-ext-conn' ),
-				'bad_connection'                      => esc_html__( 'No connection found.', 'distributor' ),
-				'good_connection'                     => esc_html__( 'Connection established.', 'distributor' ),
-				'limited_connection'                  => esc_html__( 'Limited connection established.', 'distributor' ),
-				'no_push'                             => esc_html__( 'Push distribution unavailable.', 'distributor' ),
-				'no_permissions'                      => esc_html__( 'Authentication succeeded but your account does not have permissions to create posts on the external site.', 'distributor' ),
-				'pull_limited'                        => esc_html__( 'Pull distribution limited to basic content, i.e. title and content body.', 'distributor' ),
-				'endpoint_suggestion'                 => esc_html__( 'Did you mean: ', 'distributor' ),
-				'endpoint_checking_message'           => esc_html__( 'Checking endpoint...', 'distributor' ),
-				'bad_auth'                            => esc_html__( 'Authentication failed due to invalid credentials.', 'distributor' ),
-				'change'                              => esc_html__( 'Change', 'distributor' ),
-				'cancel'                              => esc_html__( 'Cancel', 'distributor' ),
-				'invalid_url'                         => esc_html__( 'Please enter a valid URL, including the HTTP(S).', 'distributor' ),
-				'norest'                              => esc_html__( 'No REST API endpoint was located for this site.', 'distributor' ),
-				'noconnection'                        => esc_html__( 'Unable to connect to site.', 'distributor' ),
-				'minversion'                          => esc_html__( 'Remote site requires Distributor version 1.6.0 or greater. Upgrade Distributor on the remote site to use the Authentication Wizard.', 'distributor' ),
-				'no_distributor'                      => esc_html__( 'Distributor not installed on remote site.', 'distributor' ),
-				'roles_warning'                       => esc_html__( 'Be careful assigning less trusted roles push privileges as they will inherit the capabilities of the user on the remote site.', 'distributor' ),
-				'admin_url'                           => admin_url(),
-				/* translators: %1$s: site name, %2$s: site URL */
-				'distributor_from'                    => sprintf( esc_html__( 'Distributor on %1$s (%2$s)', 'distributor' ), $blog_name, esc_url( home_url() ) ),
-				'wizard_return'                       => $wizard_return,
-				'application_passwords_not_available' => __( 'Application Passwords is not available on the remote site. Please set up connection manually!', 'distributor' ),
+				'nonce'         => wp_create_nonce( 'dt-verify-ext-conn' ),
+				'blog_name'     => $blog_name,
+				'home_url'      => esc_url( home_url() ),
+				'admin_url'     => admin_url(),
+				'wizard_return' => $wizard_return,
 			)
 		);
+
+		$admin_external_connect_script->load_in_footer()
+			->register_translations()
+			->enqueue();
 
 		wp_dequeue_script( 'autosave' );
 	}
 
 	if ( ! empty( $_GET['page'] ) && 'distributor' === $_GET['page'] ) { // @codingStandardsIgnoreLine Nonce not required
-		wp_enqueue_style( 'dt-admin-external-connections', plugins_url( '/dist/css/admin-external-connections.min.css', __DIR__ ), array(), DT_VERSION );
+		$admin_external_connect_script = new EnqueueScript(
+			'dt-admin-external-connection',
+			'admin-external-connection.min'
+		);
+
+		wp_enqueue_style(
+			'dt-admin-external-connections',
+			plugins_url( '/dist/css/admin-external-connections.min.css', __DIR__ ),
+			array(),
+			$admin_external_connect_script->get_version()
+		);
 	}
 }
 

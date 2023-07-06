@@ -54,10 +54,11 @@ Distributor is built with the same extensible approach as WordPress itself, with
 
 ## Requirements
 
-* PHP 5.6+
-* [WordPress](http://wordpress.org) 4.7+
-* External connections require HTTP Basic Authentication or [WordPress.com OAuth2](https://developer.wordpress.com/docs/oauth2/) (must be on [WordPress VIP](https://wpvip.com/)) be set up on the remote website. For Basic Auth, we recommend the [Application Passwords](https://wordpress.org/plugins/application-passwords/) plugin (note that other plugins like JWT Auth will likely cause issues for external connections) though if you're running WordPress 5.6 or above then Application Passwords is already installed.
+* PHP 7.4+
+* [WordPress](http://wordpress.org) 5.7+
+* External connections require HTTP Basic Authentication or [WordPress.com OAuth2](https://developer.wordpress.com/docs/oauth2/) (must be on [WordPress VIP](https://wpvip.com/)) be set up on the remote website. For Basic Auth, we recommend using [Application Passwords](https://make.wordpress.org/core/2020/11/05/application-passwords-integration-guide/#Getting-Credentials) built in to WordPress.
 * For external connections, Distributor needs to be installed on BOTH sides of the connection.
+* Version 2 of Distributor requires version two on BOTH sides of all connections.
 
 ## Installation
 
@@ -143,41 +144,19 @@ __Backwards Compatibility__ - While we strive to be mindful of backwards compati
 
 __Distributing Post content__ - By default, post content is rendered before being copied.  This means that shortcodes are expanded before being distributed and remote posts will not have the shortcode, but rather the expanded HTML content.
 
-__Distributing Authors__ - By default, distributed stories reference the original site as the "author" with a link to it.  This can be altered by extending Distributor with custom code to make it sync authors.
+__Distributing Authors__ - By default, distributed posts reference the original site as the "author" with a link to it.  This can be altered by extending Distributor with custom code to make it sync authors.
 
-__Distributing Post Date__ - By default, the "post date" on distributed stories is the date its published on the remote site, not the date published on the origin site.  This can be overridden by extending Distributor with custom code to make it preserve the post date.
+__Distributing Post Date__ - By default, the "post date" on distributed posts is the date its published on the remote site, not the date published on the origin site.  This can be overridden by extending Distributor with custom code to make it preserve the post date.
 
 __Distributing Canonical URL__ - By default, canonical URL of distributed post will point to original content, which corresponds to SEO best practices. This can be overridden by extending Distributor with custom code and removing Distributor's default front end canonical URL filtering (look for `'get_canonical_url'` and `'wpseo_canonical'`).
 
 __Drafts as Preferred Status__ - By default, drafts are the preferred status and can't be changed at the source site.
 
+__Conflicts with Security plugins__ - Oftentimes the communication Distributor attempts to make across sites using the REST API will be flagged by various security plugins and surreptitiously blocked.  If you run into an issue like this, please reach out to the support for your security plugin and ask about getting Distributor unblocked ([here is an example for doing so with Wordfence](https://wordpress.org/support/topic/distributor-plugin-being-blocked/)).
+
 ## Developers
 
-### Running Locally
-
-If you are compiling Distributor locally, note that there is a minimum requirement of Node.js 8.10.  If you're using an older version of Node, then it will not compile correctly.
-
-### Testing
-
-The plugin contains a standard test suite compatible with PHPUnit. If you want to test across multiple PHP versions, a [Dockunit](https://github.com/dockunit/dockunit) file is included.
-
-### Debugging
-
-You can define a constant `DISTRIBUTOR_DEBUG` to `true` to increase the ease of debugging in Distributor. This will make all remote requests blocking and expose the subscription post type.
-
-Enabling this will also provide more debugging information in your error log for image side loading issues. The specific logging method may change in the future.
-
-### Application Passwords and WordPress 5.6
-
-In WordPress 5.6, Application Passwords was merged into WordPress core with some limitations. From 5.6, Application Passwords is enabled by default only for live sites with HTTPS. To enable Application Passwords for development sites, you will need the following snippet:
-
-```php
-add_filter( 'wp_is_application_passwords_available', '__return_true' );
-
-add_action( 'wp_authorize_application_password_request_errors', function( $error ) {
-    $error->remove( 'invalid_redirect_scheme' );
-} );
-```
+See [Distributor Developer Documentation](https://10up.github.io/distributor/#developers).
 
 ## Changelog
 

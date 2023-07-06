@@ -7,7 +7,9 @@
 
 namespace Distributor\RestApi;
 
+use Distributor\DistributorPost;
 use Distributor\Utils;
+use WP_Error;
 
 /**
  * Setup actions and filters
@@ -149,7 +151,7 @@ function register_rest_routes() {
 		'distributor/list-pull-content',
 		array(
 			'methods'             => 'POST',
-			'callback'            => __NAMESPACE__ . '\get_pull_content',
+			'callback'            => __NAMESPACE__ . '\\get_pull_content_list',
 			'permission_callback' => __NAMESPACE__ . '\\get_pull_content_permissions',
 			'args'                => get_pull_content_list_args(),
 		)
@@ -157,7 +159,9 @@ function register_rest_routes() {
 }
 
 /**
- * Set the accepted arguments for the pull content list endpoint
+ * Set the accepted arguments for the pull content list endpoint.
+ *
+ * @since 2.0.0 Introduced the include, order and orderby arguments.
  *
  * @return array
  */
@@ -171,6 +175,21 @@ function get_pull_content_list_args() {
 				'type' => 'integer',
 			),
 			'default'     => array(),
+		),
+		'include'        => array(
+			'description'       => esc_html__( 'Ensure result set includes specific IDs.', 'distributor' ),
+			'type'              => array( 'array', 'integer' ),
+			'items'             => array(
+				'type' => 'integer',
+			),
+			'default'           => array(),
+			'sanitize_callback' => function( $param ) {
+				if ( ! is_array( $param ) ) {
+					$param = array( $param );
+				}
+
+				return wp_parse_id_list( $param );
+			},
 		),
 		'page'           => array(
 			'description'       => esc_html__( 'Current page of the collection.', 'distributor' ),
@@ -190,10 +209,71 @@ function get_pull_content_list_args() {
 		),
 		'post_type'      => array(
 			'description'       => esc_html__( 'Limit results to content matching a certain type.', 'distributor' ),
-			'type'              => 'string',
-			'default'           => 'post',
-			'sanitize_callback' => 'sanitize_text_field',
-			'validate_callback' => 'rest_validate_request_arg',
+			'type'              => array( 'array', 'string' ),
+			'items'             => array(
+				'type' => 'string',
+			),
+			'default'           => array( 'post' ),
+			'validate_callback' => function( $param ) {
+				if ( is_string( $param ) ) {
+					return sanitize_key( $param ) === $param;
+				}
+
+				foreach ( $param as $post_type ) {
+					if ( sanitize_key( $post_type ) !== $post_type ) {
+						return false;
+					}
+				}
+
+				return true;
+			},
+			'sanitize_callback' => function( $param ) {
+				if ( is_string( $param ) ) {
+					$param = array( $param );
+				}
+
+				$allowed_post_types = array_keys(
+					get_post_types(
+						array(
+							'show_in_rest' => true,
+						)
+					)
+				);
+
+				/*
+				 * Only post types viewable on the front end should be allowed.
+				 *
+				 * Some post types may be visible in the REST API but not intended
+				 * to be viewed on the front end. This removes any such posts from the
+				 * list of allowed post types.
+				 *
+				 * `is_post_type_viewable()` is used to filter the results as
+				 * WordPress applies different rules for custom and built in post
+				 * types to determine whether they are viewable on the front end.
+				 */
+				$allowed_post_types = array_filter( $allowed_post_types, 'is_post_type_viewable' );
+
+				if ( in_array( 'any', $param, true ) ) {
+					$param = $allowed_post_types;
+				} else {
+					$param = array_intersect( $param, $allowed_post_types );
+				}
+
+				$param = array_filter(
+					$param,
+					function( $post_type ) {
+						$post_type_object = get_post_type_object( $post_type );
+						return current_user_can( $post_type_object->cap->edit_posts );
+					}
+				);
+
+				if ( empty( $param ) ) {
+					// This will cause the parameter to fall back to the default.
+					$param = null;
+				}
+
+				return $param;
+			},
 		),
 		'search'         => array(
 			'description'       => esc_html__( 'Limit results to those matching a string.', 'distributor' ),
@@ -201,12 +281,73 @@ function get_pull_content_list_args() {
 			'validate_callback' => 'rest_validate_request_arg',
 		),
 		'post_status'    => array(
-			'default'     => 'publish',
-			'description' => esc_html__( 'Limit result set to content assigned one or more statuses.', 'distributor' ),
-			'type'        => 'array',
-			'items'       => array(
-				'enum' => array_merge( array_keys( get_post_stati() ), array( 'any' ) ),
+			'default'           => array( 'publish' ),
+			'description'       => esc_html__( 'Limit result set to content assigned one or more statuses.', 'distributor' ),
+			'type'              => array( 'array', 'string' ),
+			'items'             => array(
 				'type' => 'string',
+			),
+			'validate_callback' => function( $param ) {
+				if ( is_string( $param ) ) {
+					return sanitize_key( $param ) === $param;
+				}
+
+				foreach ( $param as $post_status ) {
+					if ( sanitize_key( $post_status ) !== $post_status ) {
+						return false;
+					}
+				}
+
+				return true;
+			},
+			'sanitize_callback' => function( $param ) {
+				if ( is_string( $param ) ) {
+					$param = array( $param );
+				}
+
+				/*
+				 * Only show viewable post statues.
+				 *
+				 * `is_post_status_viewable()` is used to filter the results as
+				 * WordPress applies a complex set of rules to determine if a post
+				 * status is viewable.
+				 */
+				$allowed_statues = array_keys( array_filter( get_post_stati(), 'is_post_status_viewable' ) );
+
+				if ( in_array( 'any', $param, true ) ) {
+					return $allowed_statues;
+				}
+
+				$param = array_intersect( $param, $allowed_statues );
+
+				if ( empty( $param ) ) {
+					// This will cause the parameter to fall back to the default.
+					$param = null;
+				}
+
+				return $param;
+			},
+		),
+		'order'          => array(
+			'description' => esc_html__( 'Order sort attribute ascending or descending.', 'distributor' ),
+			'type'        => 'string',
+			'default'     => 'desc',
+			'enum'        => array( 'asc', 'desc' ),
+		),
+		'orderby'        => array(
+			'description' => esc_html__( 'Sort collection by object attribute.', 'distributor' ),
+			'type'        => 'string',
+			'default'     => 'date',
+			'enum'        => array(
+				'author',
+				'date',
+				'id',
+				'include',
+				'modified',
+				'parent',
+				'relevance',
+				'slug',
+				'title',
 			),
 		),
 	);
@@ -223,17 +364,54 @@ function get_pull_content_list_args() {
  * @return bool Whether the current user has permission to pull content.
  */
 function get_pull_content_permissions( $request ) {
-	$post_type = $request->get_param( 'post_type' );
-	if ( ! $post_type ) {
+	/*
+	 * Ensure Distributor requests are coming from a supported version.
+	 *
+	 * Changes to this endpoint in Distributor 2.0.0 require both the source and remote
+	 * sites use a 2.x release of Distributor. This check ensures that the remote site
+	 * is running a version of Distributor that supports the new endpoint.
+	 *
+	 * Development versions of the plugin and Non-Distributor requests are allowed
+	 * to pass through this check.
+	 */
+	if (
+		false === Utils\is_development_version()
+		&& null !== $request->get_param( 'distributor_request' )
+		&& (
+			null === $request->get_header( 'X-Distributor-Version' )
+			|| version_compare( $request->get_header( 'X-Distributor-Version' ), '2.0.0-alpha', '<' )
+		)
+	) {
+		return new \WP_Error(
+			'distributor_pull_content_permissions',
+			esc_html__( 'Pulling content from external connections requires Distributor version 2.0.0 or later.', 'distributor' ),
+			array( 'status' => 403 )
+		);
+
+	}
+
+	$post_types = $request->get_param( 'post_type' );
+	if ( empty( $post_types ) ) {
 		return false;
 	}
 
-	$post_type_object = get_post_type_object( $post_type );
-	if ( ! $post_type_object ) {
-		return false;
+	if ( is_string( $post_types ) ) {
+		$post_types = array( $post_types );
 	}
 
-	return current_user_can( $post_type_object->cap->edit_posts );
+	foreach ( $post_types as $post_type ) {
+		$post_type_object = get_post_type_object( $post_type );
+		if ( ! $post_type_object ) {
+			return false;
+		}
+
+		if ( ! current_user_can( $post_type_object->cap->edit_posts ) ) {
+			return false;
+		}
+	}
+
+	// User can edit all post types.
+	return true;
 }
 
 /**
@@ -395,8 +573,9 @@ function register_endpoints() {
 function distributor_meta() {
 	return array(
 		'version'                              => DT_VERSION,
-		'core_has_application_passwords'       => function_exists( 'wp_is_application_passwords_available' ),
-		'core_application_passwords_available' => function_exists( 'wp_is_application_passwords_available' ) && ! wp_is_application_passwords_available() ? false : true,
+		'core_has_application_passwords'       => true,
+		'core_application_passwords_available' => ! wp_is_application_passwords_available() ? false : true,
+		'core_application_passwords_endpoint'  => admin_url( 'authorize-application.php' ),
 	);
 }
 
@@ -432,23 +611,61 @@ function check_post_types_permissions() {
 /**
  * Get a list of content to show on the Pull screen
  *
+ * @since 2.0.0 Renamed from get_pull_content() to get_pull_content_list().
+ *
  * @param \WP_Rest_Request $request API request arguments
  * @return \WP_REST_Response|\WP_Error
  */
-function get_pull_content( $request ) {
+function get_pull_content_list( $request ) {
 	$args = [
 		'posts_per_page' => isset( $request['posts_per_page'] ) ? $request['posts_per_page'] : 20,
 		'paged'          => isset( $request['page'] ) ? $request['page'] : 1,
 		'post_type'      => isset( $request['post_type'] ) ? $request['post_type'] : 'post',
 		'post_status'    => isset( $request['post_status'] ) ? $request['post_status'] : array( 'any' ),
+		'order'          => ! empty( $request['order'] ) ? strtoupper( $request['order'] ) : 'DESC',
 	];
 
 	if ( ! empty( $request['search'] ) ) {
-		$args['s'] = rawurldecode( $request['search'] );
+		$args['s']       = rawurldecode( $request['search'] );
+		$args['orderby'] = 'relevance';
 	}
 
-	if ( ! empty( $request['exclude'] ) ) {
+	if ( ! empty( $request['exclude'] ) && ! empty( $request['include'] ) ) {
+		/*
+		 * Use only `post__in` if both `include` and `exclude` are populated.
+		 *
+		 * Excluded posts take priority over included posts, if the same post is
+		 * included in both arrays, it will be excluded.
+		 */
+		$args['post__in'] = array_diff( $request['include'], $request['exclude'] );
+	} elseif ( ! empty( $request['exclude'] ) ) {
 		$args['post__not_in'] = $request['exclude'];
+	} elseif ( ! empty( $request['include'] ) ) {
+		$args['post__in'] = $request['include'];
+	}
+
+	if ( ! empty( $request['orderby'] ) ) {
+		$args['orderby'] = $request['orderby'];
+
+		if ( 'id' === $request['orderby'] ) {
+			// Flip the case to uppercase for WP_Query.
+			$args['orderby'] = 'ID';
+		} elseif ( 'slug' === $request['orderby'] ) {
+			$args['orderby'] = 'name';
+		} elseif ( 'relevance' === $request['orderby'] ) {
+			$args['orderby'] = 'relevance';
+
+			// If ordering by relevance, a search term must be defined.
+			if ( empty( $request['search'] ) ) {
+				return new WP_Error(
+					'rest_no_search_term_defined',
+					__( 'You need to define a search term to order by relevance.', 'distributor' ),
+					array( 'status' => 400 )
+				);
+			}
+		} elseif ( 'include' === $request['orderby'] ) {
+			$args['orderby'] = 'post__in';
+		}
 	}
 
 	/**
@@ -492,22 +709,8 @@ function get_pull_content( $request ) {
 			continue;
 		}
 
-		$formatted_posts[] = array(
-			'id'             => $post->ID,
-			'title'          => array( 'rendered' => $post->post_title ),
-			'excerpt'        => array( 'rendered' => $post->post_excerpt ),
-			'content'        => array( 'raw' => $post->post_content ),
-			'password'       => $post->post_password,
-			'date'           => $post->post_date,
-			'date_gmt'       => $post->post_date_gmt,
-			'guid'           => array( 'rendered' => $post->guid ),
-			'modified'       => $post->post_modified,
-			'modified_gmt'   => $post->post_modified_gmt,
-			'type'           => $post->post_type,
-			'link'           => get_the_permalink( $post ),
-			'comment_status' => $post->comment_status,
-			'ping_status'    => $post->ping_status,
-		);
+		$dt_post           = new DistributorPost( $post->ID );
+		$formatted_posts[] = $dt_post->to_pull_list();
 	}
 
 	$response = rest_ensure_response( $formatted_posts );
@@ -516,6 +719,19 @@ function get_pull_content( $request ) {
 	$response->header( 'X-WP-TotalPages', (int) $max_pages );
 
 	return $response;
+}
+
+/**
+ * Get a list of content to show on the Pull screen
+ *
+ * @since 2.0.0 Deprecated in favour of get_pull_content_list().
+ *
+ * @param array ...$args Arguments.
+ * @return \WP_REST_Response|\WP_Error
+ */
+function get_pull_content( ...$args ) {
+	_deprecated_function( __FUNCTION__, '2.0.0', __NAMESPACE__ . '\\get_pull_content_list' );
+	return get_pull_content_list( ...$args );
 }
 
 /**

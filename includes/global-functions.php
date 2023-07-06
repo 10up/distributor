@@ -2,8 +2,7 @@
 /**
  * Functions in the global namespace.
  *
- * These functions are required in the global namespace for the coding standards
- * sniffs to recognize them as custom escaping or sanitization functions.
+ * These functions are required in the global namespace.
  *
  * @package distributor
  */
@@ -48,4 +47,68 @@ function distributor_sanitize_connection( $connection ) {
 		'syndicated' => sanitize_text_field( $connection['syndicated'] ),
 	);
 	return $sanitized_connection;
+}
+
+if ( ! function_exists( 'str_contains' ) ) {
+	/**
+	 * Polyfill for `str_contains()` function added in PHP 8.0/WP 5.9.0.
+	 *
+	 * Performs a case-sensitive check indicating if needle is
+	 * contained in haystack.
+	 *
+	 * @since 2.0.0
+	 *
+	 * @param string $haystack The string to search in.
+	 * @param string $needle   The substring to search for in the haystack.
+	 * @return bool True if `$needle` is in `$haystack`, otherwise false.
+	 */
+	function str_contains( $haystack, $needle ) {
+		return ( '' === $needle || false !== strpos( $haystack, $needle ) );
+	}
+}
+
+if ( ! function_exists( 'str_starts_with' ) ) {
+	/**
+	 * Polyfill for `str_starts_with()` function added in PHP 8.0/WP 5.9.0.
+	 *
+	 * Performs a case-sensitive check indicating if
+	 * the haystack begins with needle.
+	 *
+	 * @since 2.0.0
+	 *
+	 * @param string $haystack The string to search in.
+	 * @param string $needle   The substring to search for in the `$haystack`.
+	 * @return bool True if `$haystack` starts with `$needle`, otherwise false.
+	 */
+	function str_starts_with( $haystack, $needle ) {
+		if ( '' === $needle ) {
+			return true;
+		}
+
+		return 0 === strpos( $haystack, $needle );
+	}
+}
+
+if ( ! function_exists( 'str_ends_with' ) ) {
+	/**
+	 * Polyfill for `str_ends_with()` function added in PHP 8.0/WP 5.9.0.
+	 *
+	 * Performs a case-sensitive check indicating if
+	 * the haystack ends with needle.
+	 *
+	 * @since 2.0.0
+	 *
+	 * @param string $haystack The string to search in.
+	 * @param string $needle   The substring to search for in the `$haystack`.
+	 * @return bool True if `$haystack` ends with `$needle`, otherwise false.
+	 */
+	function str_ends_with( $haystack, $needle ) {
+		if ( '' === $haystack && '' !== $needle ) {
+			return false;
+		}
+
+		$len = strlen( $needle );
+
+		return 0 === substr_compare( $haystack, $needle, -$len, $len );
+	}
 }

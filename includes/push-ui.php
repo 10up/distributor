@@ -7,6 +7,9 @@
 
 namespace Distributor\PushUI;
 
+use Distributor\EnqueueScript;
+use Distributor\Utils;
+
 /**
  * Setup actions and filters
  *
@@ -36,10 +39,17 @@ function setup() {
  * @return  bool
  */
 function syndicatable() {
+	// Retrieve the current global post, bail if not set.
+	$post = get_post();
+	if ( empty( $post ) ) {
+		return false;
+	}
+
 	/**
 	 * Filter Distributor capabilities allowed to syndicate content.
 	 *
 	 * @hook dt_syndicatable_capabilities
+	 * @tutorial snippets
 	 *
 	 * @param {string} edit_posts The capability allowed to syndicate content.
 	 *
@@ -68,7 +78,7 @@ function syndicatable() {
 
 		global $pagenow;
 
-		if ( 'post.php' !== $pagenow ) {
+		if ( 'post.php' !== $pagenow && 'post-new.php' !== $pagenow ) {
 			return false;
 		}
 	} else {
@@ -77,17 +87,13 @@ function syndicatable() {
 		}
 	}
 
-	global $post;
-
-	if ( empty( $post ) ) {
-		return;
-	}
-
-	if ( ! in_array( $post->post_status, \Distributor\Utils\distributable_post_statuses(), true ) ) {
+	// If we're using the classic editor, we need to make sure the post has a distributable status.
+	if ( ! Utils\is_using_gutenberg( $post ) && ! in_array( $post->post_status, Utils\distributable_post_statuses(), true ) ) {
 		return false;
 	}
 
-	if ( ! in_array( get_post_type(), $distributable_post_types, true ) || ( ! empty( $_GET['post_type'] ) && 'dt_ext_connection' === $_GET['post_type'] ) ) { // @codingStandardsIgnoreLine Nonce not required
+	$distributable_post_types = array_diff( $distributable_post_types, array( 'dt_ext_connection' ) );
+	if ( ! in_array( get_post_type(), $distributable_post_types, true ) ) {
 		return false;
 	}
 
@@ -402,37 +408,42 @@ function enqueue_scripts( $hook ) {
 		return;
 	}
 
-	wp_enqueue_style( 'dt-push', plugins_url( '/dist/css/push.min.css', __DIR__ ), array(), DT_VERSION );
-	wp_enqueue_script( 'dt-push', plugins_url( '/dist/js/push.min.js', __DIR__ ), array( 'jquery', 'underscore' ), DT_VERSION, true );
-	wp_localize_script(
-		'dt-push',
-		'dt',
-		array(
-			'nonce'                => wp_create_nonce( 'dt-push' ),
-			'loadConnectionsNonce' => wp_create_nonce( 'dt-load-connections' ),
-			'postId'               => (int) get_the_ID(),
-			'ajaxurl'              => esc_url( admin_url( 'admin-ajax.php' ) ),
-			'messages'             => array(
-				'ajax_error'   => __( 'Ajax error:', 'distributor' ),
-				'empty_result' => __( 'Received empty result.', 'distributor' ),
-			),
+	$push_script   = new EnqueueScript( 'dt-push', 'push.min' );
+	$localize_data = array(
+		'nonce'                => wp_create_nonce( 'dt-push' ),
+		'loadConnectionsNonce' => wp_create_nonce( 'dt-load-connections' ),
+		'postId'               => (int) get_the_ID(),
+		'postTitle'            => get_the_title(),
+		'ajaxurl'              => esc_url( admin_url( 'admin-ajax.php' ) ),
 
-			/**
-			 * Filter whether front end ajax requests should use xhrFields credentials:true.
-			 *
-			 * Front end ajax requests may require xhrFields with credentials when the front end and
-			 * back end domains do not match. This filter lets themes opt in.
-			 * See {@link https://vip.wordpress.com/documentation/handling-frontend-file-uploads/#handling-ajax-requests}
-			 *
-			 * @since 1.0.0
-			 * @hook dt_ajax_requires_with_credentials
-			 *
-			 * @param {bool} false Whether front end ajax requests should use xhrFields credentials:true.
-			 *
-			 * @return {bool} Whether front end ajax requests should use xhrFields credentials:true.
-			 */
-			'usexhr'               => apply_filters( 'dt_ajax_requires_with_credentials', false ),
-		)
+		/**
+		 * Filter whether front end ajax requests should use xhrFields credentials:true.
+		 *
+		 * Front end ajax requests may require xhrFields with credentials when the front end and
+		 * back end domains do not match. This filter lets themes opt in.
+		 * See {@link https://vip.wordpress.com/documentation/handling-frontend-file-uploads/#handling-ajax-requests}
+		 *
+		 * @since 1.0.0
+		 * @hook dt_ajax_requires_with_credentials
+		 *
+		 * @param {bool} false Whether front end ajax requests should use xhrFields credentials:true.
+		 *
+		 * @return {bool} Whether front end ajax requests should use xhrFields credentials:true.
+		 */
+		'usexhr'               => apply_filters( 'dt_ajax_requires_with_credentials', false ),
+	);
+
+	$push_script
+		->load_in_footer()
+		->register_localize_data( 'dt', $localize_data )
+		->register_translations()
+		->enqueue();
+
+	wp_enqueue_style(
+		'dt-push',
+		plugins_url( '/dist/css/push.min.css', __DIR__ ),
+		array(),
+		$push_script->get_version()
 	);
 }
 
@@ -556,9 +567,10 @@ function menu_content() {
 		return;
 	}
 
-	$unlinked         = (bool) get_post_meta( $post->ID, 'dt_unlinked', true );
-	$original_blog_id = get_post_meta( $post->ID, 'dt_original_blog_id', true );
-	$original_post_id = get_post_meta( $post->ID, 'dt_original_post_id', true );
+	$unlinked              = (bool) get_post_meta( $post->ID, 'dt_unlinked', true );
+	$original_blog_id      = get_post_meta( $post->ID, 'dt_original_blog_id', true );
+	$original_post_id      = get_post_meta( $post->ID, 'dt_original_post_id', true );
+	$original_post_deleted = get_post_meta( $post->ID, 'dt_original_post_deleted', true );
 
 	if ( ! empty( $original_blog_id ) && ! empty( $original_post_id ) && ! $unlinked && is_multisite() ) {
 		switch_to_blog( $original_blog_id );
@@ -574,11 +586,38 @@ function menu_content() {
 			<div class="inner">
 				<p class="syndicated-notice">
 					<?php /* translators: %s: post type name */ ?>
-					<?php printf( esc_html__( 'This %s has been distributed from', 'distributor' ), esc_html( strtolower( $post_type_object->labels->singular_name ) ) ); ?>
-					<a href="<?php echo esc_url( $site_url ); ?>"><?php echo esc_html( $blog_name ); ?></a>.
 
-					<?php esc_html_e( 'You can ', 'distributor' ); ?>
-					<a href="<?php echo esc_url( $post_url ); ?>"><?php esc_html_e( 'view the original', 'distributor' ); ?></a>
+					<?php
+					printf(
+						/* translators: 1) Distributor post type singular name, 2) Source of content. */
+						esc_html__( 'This %1$s was distributed from %2$s.', 'distributor' ),
+						esc_html( strtolower( $post_type_object->labels->singular_name ) ),
+						'<a href="' . esc_url( $site_url ) . '">' . esc_html( $blog_name ) . '</a>'
+					);
+
+					if ( $original_post_deleted ) {
+						echo ' '; // Ensure whitespace between sentences.
+						printf(
+							/* translators: 1: post type name */
+							esc_html__( 'However, the origin %1$s has been deleted.', 'distributor' ),
+							esc_html( strtolower( $post_type_object->labels->singular_name ) )
+						);
+					} elseif ( ! empty( $post_url ) ) {
+						?>
+						<a href="<?php echo esc_url( $post_url ); ?>" target="_blank">
+							<?php
+							echo wp_kses_post(
+								sprintf(
+									/* translators: 1) Distributor post type singular name. */
+									__( 'View the origin %1$s.', 'distributor' ),
+									esc_html( strtolower( $post_type_object->labels->singular_name ) ),
+								)
+							);
+							?>
+						</a>
+						<?php
+					}
+					?>
 				</p>
 			</div>
 		</div>

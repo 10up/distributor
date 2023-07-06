@@ -25,53 +25,61 @@ jobs:
       uses: actions/setup-node@v3
       with:
           node-version-file: '.nvmrc'
+    - name: Cache Node
+      uses: actions/cache@v3
+      with:
+        path: |
+          node_modules
+          ~/.cache
+          ~/.npm
+        key: ${{ hashFiles('package-lock.json') }}
     - name: Check versions
       run: npm -v; node -v
     - name: npm install
       run: npm install
-    - name: eslint
-      uses: icrawl/action-eslint@v1
+    - name: Generate linting report
+      run: npm run lint:js -- --output-file eslint-report.json --format json
+      continue-on-error: true
+    - name: Annotate code linting results
+      uses: ataylorme/eslint-annotate-action@1.2.0
       with:
-        custom-glob: assets/js
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  phpcs:
-    name: phpcs
-    runs-on: ubuntu-latest
-
-    steps:
-    - name: Checkout
-      uses: actions/checkout@v3
-
-    - name: Set standard 10up cache directories
+        repo-token: '${{ secrets.GITHUB_TOKEN }}'
+        report-json: 'eslint-report.json'
+    - name: Update summary
       run: |
-        composer config -g cache-dir "${{ env.COMPOSER_CACHE }}"
+        npm_config_yes=true npx github:10up/eslint-json-to-md --path ./eslint-report.json --output ./eslint-report.md
+        cat eslint-report.md >> $GITHUB_STEP_SUMMARY
+      if: ${{ failure() }}
 
-    - name: Prepare composer cache
-      uses: actions/cache@v2
-      with:
-        path: ${{ env.COMPOSER_CACHE }}
-        key: composer-${{ env.COMPOSER_VERSION }}-${{ hashFiles('**/composer.lock') }}
-        restore-keys: |
-          composer-${{ env.COMPOSER_VERSION }}-
+  phpcs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - id: changed-files
+        uses: tj-actions/changed-files@v36
+        with:
+          files: |
+            **/*.php
 
-    - name: Set PHP version
-      uses: shivammathur/setup-php@v2
-      with:
-        php-version: '7.4'
-        coverage: none
-        tools: composer:v2, cs2pr
+      - name: Set PHP version
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: 7.4
+          tools: composer:v2, cs2pr
+          coverage: none
 
-    - name: Install dependencies
-      run: composer install --ignore-platform-reqs
+      - name: Install dependencies
+        run: composer install
 
-    - name: Check PHPCS standard
-      run: ./vendor/bin/phpcs -i
+      - name: Test all files
+        if: ${{ github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/trunk' }}
+        run: ./vendor/bin/phpcs . --report-full --report-checkstyle=./.github/phpcs-report.xml
 
-    - name: PHPCS check
-      id: phpcs-sniffs
-      run: ./vendor/bin/phpcs . --runtime-set testVersion 5.6- --report-full --report-checkstyle=./.github/phpcs-report.xml
+      - name: Test changed files
+        if: ${{ steps.changed-files.outputs.any_changed == 'true' && github.ref != 'refs/heads/develop' && github.ref != 'refs/heads/trunk' }}
+        run: ./vendor/bin/phpcs ${{ steps.changed-files.outputs.all_changed_files }} --report-full --report-checkstyle=./.github/phpcs-report.xml --runtime-set testVersion 7.4-
 
-    - name: Show PHPCS results in PR
-      if: ${{ always() }}
-      run: cs2pr ./.github/phpcs-report.xml
+      - name: Show PHPCS results in PR
+        if: ${{ always() }}
+        run: cs2pr ./.github/phpcs-report.xml
