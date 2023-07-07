@@ -527,6 +527,21 @@ function prepare_taxonomy_terms( $post_id, $args = array() ) {
 		$taxonomy_terms[ $taxonomy ] = wp_get_object_terms( $post_id, $taxonomy );
 	}
 
+	/**
+	 * Filters the taxonomy terms for consumption.
+	 *
+	 * Modify taxonomies and terms prior to distribution. The array should be
+	 * keyed by taxonomy. The returned data by filters should only return
+	 * taxonomies permitted for distribution. See the `dt_syncable_taxonomies` hook.
+	 *
+	 * @since 2.0.0
+	 * @hook dt_prepared_taxonomy_terms
+	 *
+	 * @param {array} $taxonomy_terms Associative array of terms keyed by taxonomy.
+	 * @param {int}   $post_id        Post ID.
+	 *
+	 * @param {array} $args           Modified array of terms keyed by taxonomy.
+	 */
 	$taxonomy_terms = apply_filters( 'dt_prepared_taxonomy_terms', $taxonomy_terms, $post_id );
 
 	return $taxonomy_terms;
