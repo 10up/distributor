@@ -162,10 +162,11 @@ function set_meta( $post_id, $meta ) {
 	/**
 	 * Fires before Distributor sets post meta.
 	 *
-	 * Note: All sent meta is included in the `$meta` array, including excluded keys.
-	 * Take care to continue to filter out excluded keys in any further meta setting.
+	 * All sent meta is included in the `$meta` array, including excluded keys.
+	 * Any excluded keys returned in this filter will be subsequently removed
+	 * from the saved meta data.
 	 *
-	 * @since 2.0.1
+	 * @since 2.0.0
 	 * @hook dt_before_set_meta
 	 *
 	 * @param {array} $meta          All received meta for the post
