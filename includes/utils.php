@@ -463,6 +463,21 @@ function prepare_meta( $post_id ) {
 		}
 	}
 
+	/**
+	 * Filter prepared meta for consumption.
+	 *
+	 * Modify meta data before it is sent for consumption by a distributed
+	 * post. The prepared meta data should not include any excluded meta.
+	 * see `excluded_meta()`.
+	 *
+	 * @since 2.0.0
+	 * @hook dt_prepared_meta
+	 *
+	 * @param {array} $prepared_meta Prepared meta.
+	 * @param {int}   $post_id      Post ID.
+	 *
+	 * @return {array} Prepared meta.
+	 */
 	$prepared_meta = apply_filters( 'dt_prepared_meta', $prepared_meta, $post_id );
 
 	return $prepared_meta;
