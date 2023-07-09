@@ -49,6 +49,7 @@ function syndicatable() {
 	 * Filter Distributor capabilities allowed to syndicate content.
 	 *
 	 * @hook dt_syndicatable_capabilities
+	 * @tutorial snippets
 	 *
 	 * @param {string} edit_posts The capability allowed to syndicate content.
 	 *
