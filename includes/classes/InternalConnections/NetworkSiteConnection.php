@@ -160,8 +160,6 @@ class NetworkSiteConnection extends Connection {
 
 
 		$output['id'] = $new_post_id;
-		// @author: Seth Rubenstein
-		$output['target_url'] = get_permalink( $new_post_id );
 
 		update_post_meta( $new_post_id, 'dt_original_blog_id', absint( $original_blog_id ) );
 		update_post_meta( $new_post_id, 'dt_syndicate_time', absint( time() ) );
