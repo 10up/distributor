@@ -162,10 +162,11 @@ function set_meta( $post_id, $meta ) {
 	/**
 	 * Fires before Distributor sets post meta.
 	 *
-	 * Note: All sent meta is included in the `$meta` array, including excluded keys.
-	 * Take care to continue to filter out excluded keys in any further meta setting.
+	 * All sent meta is included in the `$meta` array, including excluded keys.
+	 * Any excluded keys returned in this filter will be subsequently removed
+	 * from the saved meta data.
 	 *
-	 * @since 2.0.1
+	 * @since 2.0.0
 	 * @hook dt_before_set_meta
 	 *
 	 * @param {array} $meta          All received meta for the post
@@ -459,6 +460,21 @@ function prepare_meta( $post_id ) {
 		}
 	}
 
+	/**
+	 * Filter prepared meta for consumption.
+	 *
+	 * Modify meta data before it is sent for consumption by a distributed
+	 * post. The prepared meta data should not include any excluded meta.
+	 * see `excluded_meta()`.
+	 *
+	 * @since 2.0.0
+	 * @hook dt_prepared_meta
+	 *
+	 * @param {array} $prepared_meta Prepared meta.
+	 * @param {int}   $post_id      Post ID.
+	 *
+	 * @return {array} Prepared meta.
+	 */
 	$prepared_meta = apply_filters( 'dt_prepared_meta', $prepared_meta, $post_id );
 
 	return $prepared_meta;
@@ -523,6 +539,21 @@ function prepare_taxonomy_terms( $post_id, $args = array() ) {
 		$taxonomy_terms[ $taxonomy ] = wp_get_object_terms( $post_id, $taxonomy );
 	}
 
+	/**
+	 * Filters the taxonomy terms for consumption.
+	 *
+	 * Modify taxonomies and terms prior to distribution. The array should be
+	 * keyed by taxonomy. The returned data by filters should only return
+	 * taxonomies permitted for distribution. See the `dt_syncable_taxonomies` hook.
+	 *
+	 * @since 2.0.0
+	 * @hook dt_prepared_taxonomy_terms
+	 *
+	 * @param {array} $taxonomy_terms Associative array of terms keyed by taxonomy.
+	 * @param {int}   $post_id        Post ID.
+	 *
+	 * @param {array} $args           Modified array of terms keyed by taxonomy.
+	 */
 	$taxonomy_terms = apply_filters( 'dt_prepared_taxonomy_terms', $taxonomy_terms, $post_id );
 
 	return $taxonomy_terms;
@@ -537,7 +568,6 @@ function prepare_taxonomy_terms( $post_id, $args = array() ) {
  * @since 1.0
  */
 function set_taxonomy_terms( $post_id, $taxonomy_terms ) {
-	error_log("SET_TAXONOMY_TERMS" . print_r($taxonomy_terms, true));
 	// Now let's add the taxonomy/terms to syndicated post
 	foreach ( $taxonomy_terms as $taxonomy => $terms ) {
 		// Continue if taxonomy doesnt exist
