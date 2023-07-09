@@ -537,6 +537,7 @@ function prepare_taxonomy_terms( $post_id, $args = array() ) {
  * @since 1.0
  */
 function set_taxonomy_terms( $post_id, $taxonomy_terms ) {
+	error_log("SET_TAXONOMY_TERMS" . print_r($taxonomy_terms, true));
 	// Now let's add the taxonomy/terms to syndicated post
 	foreach ( $taxonomy_terms as $taxonomy => $terms ) {
 		// Continue if taxonomy doesnt exist
