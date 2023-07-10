@@ -1125,9 +1125,14 @@ class NetworkSiteConnection extends Connection {
 	 * @return string[] Array of meta to include in the distribution after filtering out excluded meta.
 	 */
 	public static function exclude_additional_meta_data( $post_meta ) {
+		$keys_to_exclude = array();
 		$keys_to_exclude[] = '_thumbnail_id';
 		$keys_to_exclude = apply_filters( 'dt_exclude_additional_meta_data', $keys_to_exclude );
-		$modified_meta = array_diff( $post_meta, $keys_to_exclude );
+		error_log("HERE IS WHATS IN HERE" . print_r($post_meta, true) . "END");
+		error_log("HERE IS WHATS IN HERE" . print_r($keys_to_exclude, true) . "END");
+
+		$modified_meta = array_diff_key( $post_meta, array_flip( $keys_to_exclude ) );
+
 		return $modified_meta;
 	}
 }
