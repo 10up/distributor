@@ -924,6 +924,11 @@ function process_media( $url, $post_id, $args = [] ) {
 	// Default for external or if a local file copy failed.
 	if ( $download_url ) {
 
+		// Set the scheme to http: if a relative URL is specified.
+		if ( str_starts_with( $url, '//' ) ) {
+			$url = 'http:' . $url;
+		}
+
 		// Allows to pull media from local IP addresses
 		// Uses a "magic number" for priority so we only unhook our call, just in case.
 		add_filter( 'http_request_host_is_external', '__return_true', 88 );
