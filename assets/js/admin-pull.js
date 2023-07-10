@@ -1,7 +1,6 @@
 import '../css/admin-pull-table.scss';
 
 import jQuery from 'jquery';
-import { addQueryArgs } from '@wordpress/url';
 import { __ } from '@wordpress/i18n';
 
 const { document } = window;
@@ -76,54 +75,65 @@ if ( chooseConnection && choosePostType && form ) {
 	}
 
 	// Pull content via ajax
-	jQuery( '#doaction, #doaction2' ).on( 'click', e => {
+	jQuery( '#doaction, #doaction2' ).on( 'click', ( e ) => {
 		// Check action
-		var action = jQuery( '[name="action"]' ).val();
-		if ( action != 'bulk-syndicate' ) {
+		if ( 'bulk-syndicate' !== jQuery( '[name="action"]' ).val() ) {
 			return;
 		}
 		e.preventDefault();
 		openModal();
-	});
+	} );
 
-	jQuery( '.distributor_page_pull .pull a' ).on( 'click', function( e ) {
+	jQuery( '.distributor_page_pull .pull a' ).on( 'click', function ( e ) {
 		e.preventDefault();
-		jQuery( this ).closest( 'tr' ).find( '.check-column input[type="checkbox"]' ).prop( 'checked', true );
+		jQuery( this )
+			.closest( 'tr' )
+			.find( '.check-column input[type="checkbox"]' )
+			.prop( 'checked', true );
 		openModal();
-	});
-	
+	} );
+
 	function openModal() {
 		// Prepare data
-		var aborted        = false;
-		var post_ids       = [];
-		var source_label   = jQuery('#pull_connections option:selected').text();
+		let aborted = false;
+		const postIds = [];
 
-		jQuery( '#the-list .check-column input[type="checkbox"]:checked' ).each( function() {
-			var id = parseInt( jQuery( this ).val() );
-			if ( id && post_ids.indexOf( id ) === -1 ) {
-				post_ids.push( id );
+		jQuery( '#the-list .check-column input[type="checkbox"]:checked' ).each(
+			function () {
+				const id = parseInt( jQuery( this ).val() );
+				if ( id && postIds.indexOf( id ) === -1 ) {
+					postIds.push( id );
+				}
 			}
-		} );
+		);
 
-		var post_ids_count = post_ids.length;
-		if ( ! post_ids_count ) {
-			alert( 'Please select posts to pull' );
+		const postIdsCount = postIds.length;
+		if ( ! postIdsCount ) {
 			return;
 		}
 
-		function log( custom_content ) {
-			jQuery( '#distributor-pull-modal .pull-progress' ).html( custom_content || `Pulled: ${post_ids_count-post_ids.length}/${post_ids_count}` );
+		function log( customContent ) {
+			jQuery( '#distributor-pull-modal .pull-progress' ).html(
+				customContent ||
+					`Pulled: ${
+						postIdsCount - postIds.length
+					}/${ postIdsCount }`
+			);
 		}
 
 		// Create modal for pulling via ajax
+		const sourceLabel = jQuery(
+			'#pull_connections option:selected'
+		).text();
+
 		jQuery( '#distributor-pull-modal' ).remove();
 		jQuery( 'body' ).append(
 			`
 			<div id="distributor-pull-modal">
 				<div>
 					<div class="pull-head-section">
-						<h3>Pulling from <b>${source_label}</b></h3>
-						<div class="pull-progress">Selected: ${post_ids_count}</div>
+						<h3>Pulling from <b>${ sourceLabel }</b></h3>
+						<div class="pull-progress">Selected: ${ postIdsCount }</div>
 					</div>
 					<br/>
 					<div id="pull-button-container">
@@ -135,69 +145,78 @@ if ( chooseConnection && choosePostType && form ) {
 			`
 		);
 
-		jQuery( '#distributor-pull-modal' ).on( 'click', '[data-action="start"]', function() {
-			jQuery( this ).prop( 'disabled', true );
-			
-			var excludes  = [ 'post[]', 'action2', 'page', 'paged' ];
-			var form_data = {};
-			jQuery( '#posts-filter' ).serializeArray().forEach( field => {
-				if ( excludes.indexOf( field.name ) == -1 ) {
-					form_data[ field.name ] = field.value;
-				}
-			});
-			form_data.action = 'distributor_pull_content';
+		jQuery( '#distributor-pull-modal' )
+			.on( 'click', '[data-action="start"]', function () {
+				jQuery( this ).prop( 'disabled', true );
 
-			function looper() {
-				if ( aborted ) {
-					jQuery('#distributor-pull-modal').remove()
-				}
-
-				log();
-
-				form_data.post_id = post_ids.shift();
-				var xhr = new XMLHttpRequest();
-
-				jQuery.ajax({
-					url: window.ajaxurl,
-					type: 'POST',
-					data: form_data,
-					xhr: function() {
-						return xhr;
-					},
-					success: function (resp) {
-						if ( aborted ) {
-							return;
+				const excludes = [ 'post[]', 'action2', 'page', 'paged' ];
+				const formData = {};
+				jQuery( '#posts-filter' )
+					.serializeArray()
+					.forEach( ( field ) => {
+						if ( excludes.indexOf( field.name ) === -1 ) {
+							formData[ field.name ] = field.value;
 						}
-						
-						if ( ! resp.success || ! resp.data?.redirect_to ) {
-							log( `<span style="color:#a00;">${resp.data?.message || 'Something went wrong!'}</span>`);
-							return;
-						}
+					} );
+				formData.action = 'distributor_pull_content';
 
-						log();
-
-						if ( post_ids.length ) {
-							// Call the pull again for remaing post
-							looper();
-						} else {
-							// Redirect to where it asks to
-							window.location.assign( resp.data.redirect_to );
-						}
+				function looper() {
+					if ( aborted ) {
+						jQuery( '#distributor-pull-modal' ).remove();
 					}
-				});
-			}
 
-			looper();
-		}).on( 'click', '[data-action="cancel"]', function() {
-			aborted = true;
-			jQuery( '#distributor-pull-modal' ).remove();
-			
-			// Refresh the page if any post already pulled.
-			if ( post_ids_count > post_ids.length ) {
-				window.location.reload();
-			}
-		} );
-	};
+					log();
+
+					formData.post_id = postIds.shift();
+					const xhr = new window.XMLHttpRequest();
+
+					jQuery.ajax( {
+						url: window.ajaxurl,
+						type: 'POST',
+						data: formData,
+						xhr() {
+							return xhr;
+						},
+						success( resp ) {
+							if ( aborted ) {
+								return;
+							}
+
+							if ( ! resp.success || ! resp.data?.redirect_to ) {
+								log(
+									`<span style="color:#a00;">${
+										resp.data?.message ||
+										'Something went wrong!'
+									}</span>`
+								);
+								return;
+							}
+
+							log();
+
+							if ( postIds.length ) {
+								// Call the pull again for remaing post
+								looper();
+							} else {
+								// Redirect to where it asks to
+								window.location.assign( resp.data.redirect_to );
+							}
+						},
+					} );
+				}
+
+				looper();
+			} )
+			.on( 'click', '[data-action="cancel"]', function () {
+				aborted = true;
+				jQuery( '#distributor-pull-modal' ).remove();
+
+				// Refresh the page if any post already pulled.
+				if ( postIdsCount > postIds.length ) {
+					window.location.reload();
+				}
+			} );
+	}
 }
 
 /**
