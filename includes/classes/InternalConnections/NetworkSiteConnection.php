@@ -1125,11 +1125,7 @@ class NetworkSiteConnection extends Connection {
 	 * @return string[] Array of meta to include in the distribution after filtering out excluded meta.
 	 */
 	public static function exclude_additional_meta_data( $post_meta ) {
-		$keys_to_exclude = array();
-		$keys_to_exclude[] = '_thumbnail_id';
-		$keys_to_exclude = apply_filters( 'dt_exclude_additional_meta_data', $keys_to_exclude );
-		$modified_meta = array_diff_key( $post_meta, array_flip( $keys_to_exclude ) );
-
-		return $modified_meta;
+		unset( $post_meta['_thumbnail_id'] );
+		return $post_meta;
 	}
 }
