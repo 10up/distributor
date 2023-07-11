@@ -358,7 +358,7 @@ class NetworkSiteConnection extends Connection {
 				 */
 				if ( apply_filters( 'dt_pull_post_meta', true, $new_post_id, $post['meta'], $item_array['remote_post_id'], $post_array, $this ) ) {
 					$post_meta = $this->exclude_additional_meta_data( $post['meta'] );
-					\Distributor\Utils\set_meta( $new_post_id, $post['meta'] );
+					\Distributor\Utils\set_meta( $new_post_id, $post_meta );
 				}
 			}
 
@@ -1111,25 +1111,17 @@ class NetworkSiteConnection extends Connection {
 	/**
 	 * Exclude additional meta data for network distributions
 	 *
-	 * @hook dt_exclude_additional_meta_data
-	 *
 	 * In network connections the featured image is set prior to the meta data.
 	 * Excluding the `_thumbnail_id` meta from distribution prevents the meta
 	 * data from referring to the attachment ID of the original site.
 	 *
-	 * You can use this filter to exclude additional meta data from the distribution.
-	 *
-	 * @since 2.0.2
+	 * @since 2.0.0
 	 *
 	 * @param string[] $post_meta Array of meta to include in the distribution.
 	 * @return string[] Array of meta to include in the distribution after filtering out excluded meta.
 	 */
 	public static function exclude_additional_meta_data( $post_meta ) {
-		$keys_to_exclude = array();
-		$keys_to_exclude[] = '_thumbnail_id';
-		$keys_to_exclude = apply_filters( 'dt_exclude_additional_meta_data', $keys_to_exclude );
-		$modified_meta = array_diff_key( $post_meta, array_flip( $keys_to_exclude ) );
-
-		return $modified_meta;
+		unset( $post_meta['_thumbnail_id'] );
+		return $post_meta;
 	}
 }

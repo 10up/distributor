@@ -211,6 +211,7 @@ function set_meta( $post_id, $meta ) {
 	 *
 	 * @since 1.3.8
 	 * @hook dt_after_set_meta
+	 * @tutorial snippets
 	 *
 	 * @param {array} $meta          All received meta for the post
 	 * @param {array} $existing_meta Existing meta for the post
