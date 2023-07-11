@@ -358,7 +358,7 @@ class NetworkSiteConnection extends Connection {
 				 */
 				if ( apply_filters( 'dt_pull_post_meta', true, $new_post_id, $post['meta'], $item_array['remote_post_id'], $post_array, $this ) ) {
 					$post_meta = $this->exclude_additional_meta_data( $post['meta'] );
-					\Distributor\Utils\set_meta( $new_post_id, $post['meta'] );
+					\Distributor\Utils\set_meta( $new_post_id, $post_meta );
 				}
 			}
 
