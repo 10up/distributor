@@ -1249,7 +1249,7 @@ function remote_http_request( $url, $args = array(), $fallback = '', $threshold 
 /**
  * Determines if a post is distributed.
  *
- * @since x.x.x
+ * @since 2.0.0
  *
  * @param int|\WP_Post $post The post object or ID been checked.
  * @return bool True if the post is distributed, false otherwise.
