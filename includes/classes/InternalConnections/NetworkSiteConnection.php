@@ -1111,15 +1111,11 @@ class NetworkSiteConnection extends Connection {
 	/**
 	 * Exclude additional meta data for network distributions
 	 *
-	 * @hook dt_exclude_additional_meta_data
-	 *
 	 * In network connections the featured image is set prior to the meta data.
 	 * Excluding the `_thumbnail_id` meta from distribution prevents the meta
 	 * data from referring to the attachment ID of the original site.
 	 *
-	 * You can use this filter to exclude additional meta data from the distribution.
-	 *
-	 * @since 2.0.2
+	 * @since 2.0.0
 	 *
 	 * @param string[] $post_meta Array of meta to include in the distribution.
 	 * @return string[] Array of meta to include in the distribution after filtering out excluded meta.
