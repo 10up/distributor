@@ -31,3 +31,8 @@ There are two connection types: `internal` and `external`.
 * External connections are external websites, connected by the JSON REST API. External connections can be added in the WordPress admin dashboard under `Distributor` > `External Connections`. Administrators can decide which user roles are allowed to distribute content to and from that connection (Editors and Administrators by default). All users with those roles will inherit the permissions of the user account used to establish the remote connection.
 * External connections require HTTP Basic Authentication or [WordPress.com OAuth2](https://developer.wordpress.com/docs/oauth2/) (must be on VIP) be set up on the remote website. For Basic Auth, we recommend the [Application Passwords](https://make.wordpress.org/core/2020/11/05/application-passwords-integration-guide/#Getting-Credentials) feature built in to WordPress.
 * For external connections, Distributor needs to be installed on BOTH sides of the connection.
+
+== Upgrade Notice ==
+
+= 2.0.0 =
+**Distributor now requires PHP 7.4 or later and WordPress 5.7 or later.**
