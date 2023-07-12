@@ -21,6 +21,7 @@ _This entry was generated for the 2.0.0-beta1 release and will be updated during
 - End-to-end tests for minimum requirements (props [@peterwilsoncc](https://github.com/peterwilsoncc), [@jeffpaul](https://github.com/jeffpaul), [@faisal-alvi](https://github.com/faisal-alvi) via [#936](https://github.com/10up/distributor/pull/936)).
 - Migrate WPAcceptance end-to-end tests to Cypress (props [@cadic](https://github.com/cadic), [@Sidsector9](https://github.com/Sidsector9), [@iamdharmesh](https://github.com/iamdharmesh), [@jeffpaul](https://github.com/jeffpaul), [@peterwilsoncc](https://github.com/peterwilsoncc) via [#941](https://github.com/10up/distributor/pull/941)).
 - Generate POT file with WP-CLI (props [@ravinderk](https://github.com/ravinderk), [@peterwilsoncc](https://github.com/peterwilsoncc) via [#1014](https://github.com/10up/distributor/pull/1014)).
+- `dt_before_set_meta`, `dt_prepared_meta` and `dt_prepared_taxonomy_terms` filter hooks (props [@sethrubenstein](https://github.com/sethrubenstein), [@jeffpaul](https://github.com/jeffpaul), [@peterwilsoncc](https://github.com/peterwilsoncc) via [#1095](https://github.com/10up/distributor/pull/1095)).
 
 ### Changed
 - Now requires PHP 7.4 or later and WordPress 5.7 or later (props [@peterwilsoncc](https://github.com/peterwilsoncc), [@vikrampm1](https://github.com/vikrampm1), [@iamdharmesh](https://github.com/iamdharmesh), [@jeffpaul](https://github.com/jeffpaul), [@dkotter](https://github.com/dkotter) via [#917](https://github.com/10up/distributor/pull/917)).
@@ -34,6 +35,7 @@ _This entry was generated for the 2.0.0-beta1 release and will be updated during
 - Build process now uses `@wordpress/scripts` in place of Gulp (props [@peterwilsoncc](https://github.com/peterwilsoncc), [@dinhtungdu](https://github.com/dinhtungdu), [@dkotter](https://github.com/dkotter) via [#916](https://github.com/10up/distributor/pull/916)).
 - Migrated E2E tests to Cypress (props [@peterwilsoncc](https://github.com/peterwilsoncc), [@jeffpaul](https://github.com/jeffpaul), [@iamdharmesh](https://github.com/iamdharmesh) via [#1070](https://github.com/10up/distributor/pull/1070)).
 - Update `dependency-review.yml` (props [@jeffpaul](https://github.com/jeffpaul), [@peterwilsoncc](https://github.com/peterwilsoncc) via [#1054](https://github.com/10up/distributor/pull/1054)).
+- Order of operations setting meta, media and terms in the network push and pull functions (props [@sethrubenstein](https://github.com/sethrubenstein), [@jeffpaul](https://github.com/jeffpaul), [@peterwilsoncc](https://github.com/peterwilsoncc) via [#1095](https://github.com/10up/distributor/pull/1095)).
 
 ### Deprecated
 - `dt_push_post` action hook (props [@dkotter](https://github.com/dkotter), [@peterwilsoncc](https://github.com/peterwilsoncc), [@dhanendran](https://github.com/dhanendran), [@ravinderk](https://github.com/ravinderk), [@jeffpaul](https://github.com/jeffpaul) via [#1024](https://github.com/10up/distributor/pull/1024)).
