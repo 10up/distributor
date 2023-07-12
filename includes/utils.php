@@ -313,6 +313,7 @@ function distributable_post_types( $output = 'names' ) {
 	 *
 	 * @since 1.0.0
 	 * @hook distributable_post_types
+	 * @tutorial snippets
 	 *
 	 * @param {array} Post types that are distributable.
 	 *
