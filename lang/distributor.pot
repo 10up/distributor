@@ -2,20 +2,21 @@
 # This file is distributed under the GPLv2 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: Distributor 2.0.0-beta1\n"
+"Project-Id-Version: Distributor 2.0.0-beta2\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/distributor\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2023-07-06T00:37:02+00:00\n"
+"POT-Creation-Date: 2023-07-13T03:36:48+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.8.1\n"
 "X-Domain: distributor\n"
 
 #. Plugin Name of the plugin
 #: dist/js/gutenberg-plugin.min.js:4
+#: release/dist/js/gutenberg-plugin.min.js:1
 msgid "Distributor"
 msgstr ""
 
@@ -38,25 +39,33 @@ msgstr ""
 #. translators: %1$s: Minimum required PHP version, %2$s: Minimum required WordPress version
 #: distributor.php:103
 #: distributor.php:153
+#: release/distributor.php:103
+#: release/distributor.php:153
 msgid "Distributor requires PHP version %1$s or later and WordPress version %2$s or later. Please upgrade your software or disable the plugin."
 msgstr ""
 
 #: distributor.php:107
 #: distributor.php:117
 #: distributor.php:126
-#: release/distributor.php:66
+#: release/distributor.php:107
+#: release/distributor.php:117
+#: release/distributor.php:126
 msgid "Error Activating"
 msgstr ""
 
 #. translators: %s: Minimum required WordPress version
 #: distributor.php:114
 #: distributor.php:171
+#: release/distributor.php:114
+#: release/distributor.php:171
 msgid "Distributor requires WordPress version %s or later. Please upgrade WordPress or disable the plugin."
 msgstr ""
 
 #. translators: %s: Minimum required PHP version
 #: distributor.php:123
 #: distributor.php:188
+#: release/distributor.php:123
+#: release/distributor.php:188
 msgid "Distributor requires PHP version %s or later. Please upgrade PHP or disable the plugin."
 msgstr ""
 
@@ -121,29 +130,29 @@ msgid "No post data for update."
 msgstr ""
 
 #: includes/classes/API/SubscriptionsController.php:336
-#: release/includes/classes/API/SubscriptionsController.php:331
+#: release/includes/classes/API/SubscriptionsController.php:336
 msgid "Sorry, you are not allowed to create subscriptions."
 msgstr ""
 
 #: includes/classes/API/SubscriptionsController.php:351
-#: release/includes/classes/API/SubscriptionsController.php:346
+#: release/includes/classes/API/SubscriptionsController.php:351
 msgid "Cannot create existing subscription."
 msgstr ""
 
 #: includes/classes/API/SubscriptionsController.php:355
-#: release/includes/classes/API/SubscriptionsController.php:350
+#: release/includes/classes/API/SubscriptionsController.php:355
 msgid "Subscription post does not exist."
 msgstr ""
 
 #: includes/classes/API/SubscriptionsController.php:407
 #: includes/classes/API/SubscriptionsController.php:430
-#: release/includes/classes/API/SubscriptionsController.php:402
-#: release/includes/classes/API/SubscriptionsController.php:425
+#: release/includes/classes/API/SubscriptionsController.php:407
+#: release/includes/classes/API/SubscriptionsController.php:430
 msgid "Invalid post ID."
 msgstr ""
 
 #: includes/classes/Authentication.php:138
-#: release/includes/classes/Authentication.php:128
+#: release/includes/classes/Authentication.php:138
 msgid "Authorization error:"
 msgstr ""
 
@@ -214,60 +223,65 @@ msgstr ""
 
 #. translators: %s: Application Passwords documentation URL
 #: includes/classes/Authentications/WordPressBasicAuth.php:121
+#: release/includes/classes/Authentications/WordPressBasicAuth.php:121
 msgid "<strong>Important:</strong> We strongly recommend using the <a href=\"%s\">Application Passwords</a> feature on the site you are connecting to in order to create a unique password for this connection. This helps limit the use of your primary password and will allow you to revoke access in the future if needed."
 msgstr ""
 
 #. translators: %1$s URL of wordpress.com applications manager.
 #: includes/classes/Authentications/WordPressDotcomOauth2Authentication.php:115
+#: release/includes/classes/Authentications/WordPressDotcomOauth2Authentication.php:115
 msgid "To connect, first <a href=\"%1$s\">create an application with the WordPress.com applications manager</a>."
 msgstr ""
 
 #. translators: %1$s Redirect URL for WordPress.com application displayed as bold text.
 #: includes/classes/Authentications/WordPressDotcomOauth2Authentication.php:126
+#: release/includes/classes/Authentications/WordPressDotcomOauth2Authentication.php:126
 msgid "Use the following redirect URL when creating your application: %1$s"
 msgstr ""
 
 #: includes/classes/Authentications/WordPressDotcomOauth2Authentication.php:139
-#: release/includes/classes/Authentications/WordPressDotcomOauth2Authentication.php:122
+#: release/includes/classes/Authentications/WordPressDotcomOauth2Authentication.php:139
 msgid "Start Setup"
 msgstr ""
 
 #: includes/classes/Authentications/WordPressDotcomOauth2Authentication.php:150
-#: release/includes/classes/Authentications/WordPressDotcomOauth2Authentication.php:133
+#: release/includes/classes/Authentications/WordPressDotcomOauth2Authentication.php:150
 msgid "Connection Authorized"
 msgstr ""
 
 #: includes/classes/Authentications/WordPressDotcomOauth2Authentication.php:150
-#: release/includes/classes/Authentications/WordPressDotcomOauth2Authentication.php:133
+#: release/includes/classes/Authentications/WordPressDotcomOauth2Authentication.php:150
 msgid "Change credentials."
 msgstr ""
 
 #: includes/classes/Authentications/WordPressDotcomOauth2Authentication.php:183
-#: release/includes/classes/Authentications/WordPressDotcomOauth2Authentication.php:166
+#: release/includes/classes/Authentications/WordPressDotcomOauth2Authentication.php:183
 msgid "WordPress.com Application Client ID and Client Secret: "
 msgstr ""
 
 #: includes/classes/Authentications/WordPressDotcomOauth2Authentication.php:186
-#: release/includes/classes/Authentications/WordPressDotcomOauth2Authentication.php:169
+#: release/includes/classes/Authentications/WordPressDotcomOauth2Authentication.php:186
 msgid "Client ID"
 msgstr ""
 
 #: includes/classes/Authentications/WordPressDotcomOauth2Authentication.php:189
-#: release/includes/classes/Authentications/WordPressDotcomOauth2Authentication.php:172
+#: release/includes/classes/Authentications/WordPressDotcomOauth2Authentication.php:189
 msgid "Client Secret"
 msgstr ""
 
 #: includes/classes/Authentications/WordPressDotcomOauth2Authentication.php:194
-#: release/includes/classes/Authentications/WordPressDotcomOauth2Authentication.php:177
+#: release/includes/classes/Authentications/WordPressDotcomOauth2Authentication.php:194
 msgid "Authorize Connection with WordPress.com"
 msgstr ""
 
 #. translators: %s: method name
 #: includes/classes/DistributorPost.php:261
+#: release/includes/classes/DistributorPost.php:261
 msgid "Call to undefined method %s"
 msgstr ""
 
 #: includes/classes/DistributorPost.php:271
+#: release/includes/classes/DistributorPost.php:271
 msgid "DistributorPost object was called from a switched site."
 msgstr ""
 
@@ -329,21 +343,19 @@ msgid "Delete Permanently"
 msgstr ""
 
 #: includes/classes/ExternalConnections/WordPressExternalConnection.php:208
+#: release/includes/classes/ExternalConnections/WordPressExternalConnection.php:208
 msgid "Endpoint URL must be set."
 msgstr ""
 
 #: includes/classes/ExternalConnections/WordPressExternalConnection.php:256
 #: includes/classes/ExternalConnections/WordPressExternalConnection.php:653
-#: release/includes/classes/ExternalConnections/WordPressExternalConnection.php:208
-#: release/includes/classes/ExternalConnections/WordPressExternalConnection.php:321
-#: release/includes/classes/ExternalConnections/WordPressExternalConnection.php:428
-#: release/includes/classes/ExternalConnections/WordPressExternalConnection.php:784
+#: release/includes/classes/ExternalConnections/WordPressExternalConnection.php:256
+#: release/includes/classes/ExternalConnections/WordPressExternalConnection.php:653
 msgid "Could not connect to API endpoint."
 msgstr ""
 
 #: includes/classes/ExternalConnections/WordPressExternalConnection.php:262
-#: release/includes/classes/ExternalConnections/WordPressExternalConnection.php:327
-#: release/includes/classes/ExternalConnections/WordPressExternalConnection.php:434
+#: release/includes/classes/ExternalConnections/WordPressExternalConnection.php:262
 msgid "API endpoint error."
 msgstr ""
 
@@ -351,44 +363,59 @@ msgstr ""
 #: includes/classes/ExternalConnections/WordPressExternalConnection.php:502
 #: includes/classes/ExternalConnections/WordPressExternalConnection.php:605
 #: includes/classes/ExternalConnections/WordPressExternalConnection.php:659
+#: release/includes/classes/ExternalConnections/WordPressExternalConnection.php:271
+#: release/includes/classes/ExternalConnections/WordPressExternalConnection.php:502
+#: release/includes/classes/ExternalConnections/WordPressExternalConnection.php:605
+#: release/includes/classes/ExternalConnections/WordPressExternalConnection.php:659
 msgid "Response body is empty."
 msgstr ""
 
 #: includes/classes/ExternalConnections/WordPressExternalConnection.php:285
+#: release/includes/classes/ExternalConnections/WordPressExternalConnection.php:285
 msgid "Pulling content from external connections requires Distributor version 2.0.0 or later."
 msgstr ""
 
 #: includes/classes/ExternalConnections/WordPressExternalConnection.php:289
+#: release/includes/classes/ExternalConnections/WordPressExternalConnection.php:289
 msgid "Please update Distributor on the site you are pulling content from."
 msgstr ""
 
 #: includes/classes/ExternalConnections/WordPressExternalConnection.php:364
+#: release/includes/classes/ExternalConnections/WordPressExternalConnection.php:364
 msgid "No post found."
 msgstr ""
 
 #: includes/classes/ExternalConnections/WordPressExternalConnection.php:472
 #: includes/classes/InternalConnections/NetworkSiteConnection.php:75
+#: release/includes/classes/ExternalConnections/WordPressExternalConnection.php:472
+#: release/includes/classes/InternalConnections/NetworkSiteConnection.php:75
 msgid "Post ID required to push."
 msgstr ""
 
 #: includes/classes/ExternalConnections/WordPressExternalConnection.php:476
 #: includes/classes/InternalConnections/NetworkSiteConnection.php:79
+#: release/includes/classes/ExternalConnections/WordPressExternalConnection.php:476
+#: release/includes/classes/InternalConnections/NetworkSiteConnection.php:79
 msgid "Post does not exist."
 msgstr ""
 
 #: includes/classes/ExternalConnections/WordPressExternalConnection.php:510
+#: release/includes/classes/ExternalConnections/WordPressExternalConnection.php:510
 msgid "Could not determine remote post type endpoint."
 msgstr ""
 
 #: includes/classes/ExternalConnections/WordPressExternalConnection.php:611
+#: release/includes/classes/ExternalConnections/WordPressExternalConnection.php:611
 msgid "Could not determine remote post ID."
 msgstr ""
 
 #: includes/classes/InternalConnections/NetworkSiteConnection.php:105
+#: release/includes/classes/InternalConnections/NetworkSiteConnection.php:105
 msgid "Invalid remote post ID"
 msgstr ""
 
-#: includes/classes/InternalConnections/NetworkSiteConnection.php:234
+#: includes/classes/InternalConnections/NetworkSiteConnection.php:235
+#: release/includes/classes/InternalConnections/NetworkSiteConnection.php:234
 msgid "The dt_push_post action has been deprecated. Please use dt_push_network_post or dt_push_external_post instead."
 msgstr ""
 
@@ -499,7 +526,9 @@ msgstr ""
 #: includes/classes/PullListTable.php:642
 #: release/includes/classes/PullListTable.php:342
 #: release/includes/classes/PullListTable.php:358
+#: release/includes/classes/PullListTable.php:642
 #: dist/js/admin-pull.min.js:1
+#: release/dist/js/admin-pull.min.js:1
 msgid "Pull as draft"
 msgstr ""
 
@@ -512,6 +541,7 @@ msgstr ""
 #: release/includes/classes/PullListTable.php:585
 #: release/includes/classes/PullListTable.php:591
 #: dist/js/admin-pull.min.js:1
+#: release/dist/js/admin-pull.min.js:1
 msgid "Pull"
 msgstr ""
 
@@ -566,152 +596,117 @@ msgstr ""
 msgid "Filter"
 msgstr ""
 
-#: release/distributor.php:65
-msgid "Distributor requires PHP version 5.6."
-msgstr ""
-
-#. translators: %s is the URL to the guide to enable Application Passwords for non HTTPS sites.
-#: release/distributor.php:133
-msgid "Your site is not using HTTPS or is a local environment. Follow this <a href=\"%s\">guide</a> to enable Application Passwords."
-msgstr ""
-
-#. translators: %s: Application Passwords plugin URL
-#: release/includes/classes/Authentications/WordPressBasicAuth.php:119
-msgid "<strong>Important:</strong> We strongly recommend using the <a href=\"%s\">Application Passwords</a> plugin on the site you are connecting to in order to create a unique password for this connection. This helps limit the use of your primary password and will allow you to revoke access in the future if needed."
-msgstr ""
-
-#: release/includes/classes/Authentications/WordPressDotcomOauth2Authentication.php:110
-msgid "To connect, first "
-msgstr ""
-
-#: release/includes/classes/Authentications/WordPressDotcomOauth2Authentication.php:111
-msgid "create an application with the WordPress.com applications manager"
-msgstr ""
-
-#: release/includes/classes/Authentications/WordPressDotcomOauth2Authentication.php:112
-msgid "Use the following redirect URL when creating your application: "
-msgstr ""
-
-#: release/includes/classes/ExternalConnections/WordPressExternalConnection.php:214
-#: release/includes/classes/ExternalConnections/WordPressExternalConnection.php:335
-#: release/includes/classes/ExternalConnections/WordPressExternalConnection.php:443
-#: release/includes/classes/ExternalConnections/WordPressExternalConnection.php:632
-#: release/includes/classes/ExternalConnections/WordPressExternalConnection.php:736
-#: release/includes/classes/ExternalConnections/WordPressExternalConnection.php:790
-msgid "Response body is empty"
-msgstr ""
-
-#: release/includes/classes/ExternalConnections/WordPressExternalConnection.php:220
-#: release/includes/classes/ExternalConnections/WordPressExternalConnection.php:226
-#: release/includes/classes/ExternalConnections/WordPressExternalConnection.php:640
-msgid "Could not determine remote post type endpoint"
-msgstr ""
-
-#: release/includes/classes/ExternalConnections/WordPressExternalConnection.php:380
-msgid "Endpoint URL must be set"
-msgstr ""
-
-#: release/includes/classes/ExternalConnections/WordPressExternalConnection.php:605
-msgid "Post id required to push"
-msgstr ""
-
-#: release/includes/classes/ExternalConnections/WordPressExternalConnection.php:742
-msgid "Could not determine remote post id."
-msgstr ""
-
-#: release/includes/classes/PullListTable.php:642
-msgid "Pull in as draft"
-msgstr ""
-
 #: dist/js/admin-external-connection.min.js:1
+#: release/dist/js/admin-external-connection.min.js:1
 msgid "Checking endpoint…"
 msgstr ""
 
 #: dist/js/admin-external-connection.min.js:1
+#: release/dist/js/admin-external-connection.min.js:1
 msgid "Did you mean: "
 msgstr ""
 
 #: dist/js/admin-external-connection.min.js:1
+#: release/dist/js/admin-external-connection.min.js:1
 msgid "No connection found."
 msgstr ""
 
 #: dist/js/admin-external-connection.min.js:1
+#: release/dist/js/admin-external-connection.min.js:1
 msgid "Limited connection established."
 msgstr ""
 
 #: dist/js/admin-external-connection.min.js:1
+#: release/dist/js/admin-external-connection.min.js:1
 msgid "Distributor not installed on remote site."
 msgstr ""
 
 #: dist/js/admin-external-connection.min.js:1
+#: release/dist/js/admin-external-connection.min.js:1
 msgid "Authentication failed due to invalid credentials."
 msgstr ""
 
 #: dist/js/admin-external-connection.min.js:1
+#: release/dist/js/admin-external-connection.min.js:1
 msgid "Authentication succeeded but your account does not have permissions to create posts on the external site."
 msgstr ""
 
 #: dist/js/admin-external-connection.min.js:1
+#: release/dist/js/admin-external-connection.min.js:1
 msgid "Push distribution unavailable."
 msgstr ""
 
 #: dist/js/admin-external-connection.min.js:1
+#: release/dist/js/admin-external-connection.min.js:1
 msgid "Pull distribution limited to basic content, i.e. title and content body."
 msgstr ""
 
 #: dist/js/admin-external-connection.min.js:1
+#: release/dist/js/admin-external-connection.min.js:1
 msgid "Connection established."
 msgstr ""
 
 #: dist/js/admin-external-connection.min.js:1
+#: release/dist/js/admin-external-connection.min.js:1
 msgid "Remote site requires Distributor version 1.6.0 or greater. Upgrade Distributor on the remote site to use the Authentication Wizard."
 msgstr ""
 
 #: dist/js/admin-external-connection.min.js:1
+#: release/dist/js/admin-external-connection.min.js:1
 msgid "Application Passwords is not available on the remote site. Please set up connection manually!"
 msgstr ""
 
 #. translators: %1$s: site name, %2$s: site URL
 #: dist/js/admin-external-connection.min.js:2
+#: release/dist/js/admin-external-connection.min.js:1
 msgid "Distributor on %1$s (%2$s)"
 msgstr ""
 
 #: dist/js/admin-external-connection.min.js:2
+#: release/dist/js/admin-external-connection.min.js:1
 msgid "Please enter a valid URL, including the HTTP(S)."
 msgstr ""
 
 #: dist/js/admin-external-connection.min.js:2
+#: release/dist/js/admin-external-connection.min.js:1
 msgid "Cancel"
 msgstr ""
 
 #: dist/js/admin-external-connection.min.js:2
+#: release/dist/js/admin-external-connection.min.js:1
 msgid "Change"
 msgstr ""
 
 #: dist/js/admin-external-connection.min.js:2
+#: release/dist/js/admin-external-connection.min.js:1
 msgid "Be careful assigning less trusted roles push privileges as they will inherit the capabilities of the user on the remote site."
 msgstr ""
 
 #: dist/js/gutenberg-plugin.min.js:1
+#: release/dist/js/gutenberg-plugin.min.js:1
 msgid "Refresh page to see distribution options"
 msgstr ""
 
 #. translators: 1: Post type or generic term content.
 #: dist/js/gutenberg-plugin.min.js:2
+#: release/dist/js/gutenberg-plugin.min.js:1
 msgid "Distribute %1$s"
 msgstr ""
 
 #: dist/js/gutenberg-plugin.min.js:2
+#: release/dist/js/gutenberg-plugin.min.js:1
 msgctxt "generic term for post content"
 msgid "content"
 msgstr ""
 
 #: dist/js/gutenberg-plugin.min.js:2
+#: release/dist/js/gutenberg-plugin.min.js:1
 msgid "Distribution options available once published"
 msgstr ""
 
 #. translators: 1: Number of connections content distributed to.
 #: dist/js/gutenberg-plugin.min.js:3
+#: release/dist/js/gutenberg-plugin.min.js:1
 msgid "Distributed to %1$s connection."
 msgid_plural "Distributed to %1$s connections."
 msgstr[0] ""
@@ -719,40 +714,48 @@ msgstr[1] ""
 
 #. translators: 1: Syndication date and time.
 #: dist/js/gutenberg-plugin.min.js:4
+#: release/dist/js/gutenberg-plugin.min.js:1
 msgid "Distributed on: %1$s"
 msgstr ""
 
 #. translators: 1) Source of content, 2) Distributor post type singular name.
 #: dist/js/gutenberg-syndicated-post.min.js:3
+#: release/dist/js/gutenberg-syndicated-post.min.js:1
 msgid "Originally distributed from %1$s. This %2$s has been unlinked from the origin %2$s. Edits to the origin %2$s will not update this remote version."
 msgstr ""
 
 #. translators: 1) Distributor post type singular name.
 #: dist/js/gutenberg-syndicated-post.min.js:4
+#: release/dist/js/gutenberg-syndicated-post.min.js:1
 msgid "Relink to the origin %1$s."
 msgstr ""
 
 #. translators: 1) Distributor post type singular name.
 #: dist/js/gutenberg-syndicated-post.min.js:5
 #: dist/js/gutenberg-syndicated-post.min.js:8
+#: release/dist/js/gutenberg-syndicated-post.min.js:1
 msgid "View the origin %1$s."
 msgstr ""
 
 #. translators: 1) Source of content, 2) Distributor post type singular name.
 #: dist/js/gutenberg-syndicated-post.min.js:6
+#: release/dist/js/gutenberg-syndicated-post.min.js:1
 msgid "Distributed from %1$s. This %2$s is linked to the origin %2$s. Edits to the origin %2$s will update this remote version."
 msgstr ""
 
 #. translators: 1) Distributor post type singular name.
 #: dist/js/gutenberg-syndicated-post.min.js:7
+#: release/dist/js/gutenberg-syndicated-post.min.js:1
 msgid "Unlink from the origin %1$s."
 msgstr ""
 
 #: dist/js/push.min.js:1
+#: release/dist/js/push.min.js:1
 msgid "Received empty result."
 msgstr ""
 
 #: dist/js/push.min.js:1
+#: release/dist/js/push.min.js:1
 msgid "Ajax error:"
 msgstr ""
 
@@ -762,27 +765,8 @@ msgstr ""
 #: dist/js/push.min.js:4
 #: dist/js/push.min.js:5
 #: dist/js/push.min.js:6
+#: release/dist/js/push.min.js:1
 msgid "Selected connection (%d)"
 msgid_plural "Selected connections (%d)"
 msgstr[0] ""
 msgstr[1] ""
-
-#: release/dist/js/gutenberg-syndicated-post.min.js:1
-msgid "Originally distributed from %1$s. This %2$s has been unlinked from the original. However, you can always"
-msgstr ""
-
-#: release/dist/js/gutenberg-syndicated-post.min.js:1
-msgid "restore it."
-msgstr ""
-
-#: release/dist/js/gutenberg-syndicated-post.min.js:1
-msgid "View Original"
-msgstr ""
-
-#: release/dist/js/gutenberg-syndicated-post.min.js:1
-msgid "Distributed from %s. The original will update this version unless you"
-msgstr ""
-
-#: release/dist/js/gutenberg-syndicated-post.min.js:1
-msgid "unlink from original."
-msgstr ""
