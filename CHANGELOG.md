@@ -7,7 +7,7 @@ All notable changes to this project will be documented in this file, per [the Ke
 ## [2.0.0] - TBD
 **Note that Distributor now requires PHP 7.4 or later and WordPress 5.7 or later.**
 
-_This entry was generated for the 2.0.0-beta1 release and will be updated during the Beta and Release Candidate processes._
+_This entry was generated for the 2.0.0-beta2 release and will be updated during the Beta and Release Candidate processes._
 
 ### Added
 - Migration guide for version 1 to version 2 (props [@peterwilsoncc](https://github.com/peterwilsoncc), [@faisal-alvi](https://github.com/faisal-alvi), [@jeffpaul](https://github.com/jeffpaul) via [#996](https://github.com/10up/distributor/pull/996)).
@@ -17,10 +17,11 @@ _This entry was generated for the 2.0.0-beta1 release and will be updated during
 -  `dt_push_external_post` and `dt_push_network_post` action hooks (props [@dkotter](https://github.com/dkotter), [@peterwilsoncc](https://github.com/peterwilsoncc), [@dhanendran](https://github.com/dhanendran), [@ravinderk](https://github.com/ravinderk), [@jeffpaul](https://github.com/jeffpaul) via [#1024](https://github.com/10up/distributor/pull/1024)).
 - Register scripts with `EnqueueScript` class (props [@ravinderk](https://github.com/ravinderk), [@peterwilsoncc](https://github.com/peterwilsoncc) via [#1014](https://github.com/10up/distributor/pull/1014)).
 - Snippets for setting meta data automatically (props [@peterwilsoncc](https://github.com/peterwilsoncc), [@iamdharmesh](https://github.com/iamdharmesh) via [#1063](https://github.com/10up/distributor/pull/1063)).
-- Documentation updates (props [@adamsilverstein](https://github.com/adamsilverstein), [@jeffpaul](https://github.com/jeffpaul), [@peterwilsoncc](https://github.com/peterwilsoncc) via [#1066](https://github.com/10up/distributor/pull/1066), [#1072](https://github.com/10up/distributor/pull/1072)).
+- Documentation updates (props [@adamsilverstein](https://github.com/adamsilverstein), [@jeffpaul](https://github.com/jeffpaul), [@peterwilsoncc](https://github.com/peterwilsoncc) via [#1066](https://github.com/10up/distributor/pull/1066), [#1072](https://github.com/10up/distributor/pull/1072), [#1112](https://github.com/10up/distributor/pull/1112)).
 - End-to-end tests for minimum requirements (props [@peterwilsoncc](https://github.com/peterwilsoncc), [@jeffpaul](https://github.com/jeffpaul), [@faisal-alvi](https://github.com/faisal-alvi) via [#936](https://github.com/10up/distributor/pull/936)).
 - Migrate WPAcceptance end-to-end tests to Cypress (props [@cadic](https://github.com/cadic), [@Sidsector9](https://github.com/Sidsector9), [@iamdharmesh](https://github.com/iamdharmesh), [@jeffpaul](https://github.com/jeffpaul), [@peterwilsoncc](https://github.com/peterwilsoncc) via [#941](https://github.com/10up/distributor/pull/941)).
 - Generate POT file with WP-CLI (props [@ravinderk](https://github.com/ravinderk), [@peterwilsoncc](https://github.com/peterwilsoncc) via [#1014](https://github.com/10up/distributor/pull/1014)).
+- `dt_before_set_meta`, `dt_prepared_meta` and `dt_prepared_taxonomy_terms` filter hooks (props [@sethrubenstein](https://github.com/sethrubenstein), [@jeffpaul](https://github.com/jeffpaul), [@peterwilsoncc](https://github.com/peterwilsoncc) via [#1095](https://github.com/10up/distributor/pull/1095)).
 
 ### Changed
 - Now requires PHP 7.4 or later and WordPress 5.7 or later (props [@peterwilsoncc](https://github.com/peterwilsoncc), [@vikrampm1](https://github.com/vikrampm1), [@iamdharmesh](https://github.com/iamdharmesh), [@jeffpaul](https://github.com/jeffpaul), [@dkotter](https://github.com/dkotter) via [#917](https://github.com/10up/distributor/pull/917)).
@@ -34,6 +35,7 @@ _This entry was generated for the 2.0.0-beta1 release and will be updated during
 - Build process now uses `@wordpress/scripts` in place of Gulp (props [@peterwilsoncc](https://github.com/peterwilsoncc), [@dinhtungdu](https://github.com/dinhtungdu), [@dkotter](https://github.com/dkotter) via [#916](https://github.com/10up/distributor/pull/916)).
 - Migrated E2E tests to Cypress (props [@peterwilsoncc](https://github.com/peterwilsoncc), [@jeffpaul](https://github.com/jeffpaul), [@iamdharmesh](https://github.com/iamdharmesh) via [#1070](https://github.com/10up/distributor/pull/1070)).
 - Update `dependency-review.yml` (props [@jeffpaul](https://github.com/jeffpaul), [@peterwilsoncc](https://github.com/peterwilsoncc) via [#1054](https://github.com/10up/distributor/pull/1054)).
+- Order of operations setting meta, media and terms in the network push and pull functions (props [@sethrubenstein](https://github.com/sethrubenstein), [@jeffpaul](https://github.com/jeffpaul), [@peterwilsoncc](https://github.com/peterwilsoncc) via [#1095](https://github.com/10up/distributor/pull/1095)).
 
 ### Deprecated
 - `dt_push_post` action hook (props [@dkotter](https://github.com/dkotter), [@peterwilsoncc](https://github.com/peterwilsoncc), [@dhanendran](https://github.com/dhanendran), [@ravinderk](https://github.com/ravinderk), [@jeffpaul](https://github.com/jeffpaul) via [#1024](https://github.com/10up/distributor/pull/1024)).
@@ -53,6 +55,7 @@ _This entry was generated for the 2.0.0-beta1 release and will be updated during
 - Retain published time when editing distributed posts (props [@madriverweb](https://github.com/madriverweb), [@codiller](https://github.com/codiller), [@peterwilsoncc](https://github.com/peterwilsoncc), [@Sidsector9](https://github.com/Sidsector9) via [#956](https://github.com/10up/distributor/pull/956)).
 - Undefined variable notice (props [@peterwilsoncc](https://github.com/peterwilsoncc), [@Sidsector9](https://github.com/Sidsector9), [@jeffpaul](https://github.com/jeffpaul) via [#945](https://github.com/10up/distributor/pull/945)).
 - Updated numerous strings to improve their translatability (props [@helen](https://github.com/helen), [@peterwilsoncc](https://github.com/peterwilsoncc), [@Sidsector9](https://github.com/Sidsector9) via [#935](https://github.com/10up/distributor/pull/935)).
+- Account for relative scheme URLs when processing media (props [@peterwilsoncc](https://github.com/peterwilsoncc), [@ravinderk](https://github.com/ravinderk), [@jeffpaul](https://github.com/jeffpaul) via [#1110](https://github.com/10up/distributor/pull/1110)).
 
 ### Security
 - Bump `loader-utils` from 2.0.2 to 2.0.4 (props [@dependabot[bot]](https://github.com/apps/dependabot), [@jeffpaul](https://github.com/jeffpaul), [@peterwilsoncc](https://github.com/peterwilsoncc) via [#963](https://github.com/10up/distributor/pull/963), [#970](https://github.com/10up/distributor/pull/970)).
