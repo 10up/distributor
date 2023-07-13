@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>Action: dt_pull_filters - 10up Distributor Developer Documentation</title>
+    <title>Action: dt_prepared_taxonomy_terms - 10up Distributor Developer Documentation</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -21,7 +21,7 @@
 <div id="main">
 
 	
-    <h1 class="page-title">Action: dt_pull_filters</h1>
+    <h1 class="page-title">Action: dt_prepared_taxonomy_terms</h1>
 	
 
     
@@ -43,20 +43,118 @@
 
     
 
-    <h4 class="name" id="dt_pull_filters">do_action( 'dt_pull_filters' )</h4>
+    <h4 class="name" id="dt_prepared_taxonomy_terms">do_action( 'dt_prepared_taxonomy_terms', <span class="signature">$taxonomy_terms, $post_id, $args )</span><span class="type-signature"></span></h4>
 
     
 
 
 
 <div class="description">
-    <p>Action fired when extra table nav is generated.</p>
+    <p>Filters the taxonomy terms for consumption.</p>
+<p>Modify taxonomies and terms prior to distribution. The array should be
+keyed by taxonomy. The returned data by filters should only return
+taxonomies permitted for distribution. See the <code>dt_syncable_taxonomies</code> hook.</p>
 </div>
 
 
 
 
 
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>$taxonomy_terms</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">array</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>Associative array of terms keyed by taxonomy.</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>$post_id</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">int</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>Post ID.</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>$args</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">array</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>Modified array of terms keyed by taxonomy.</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
 
 
 
@@ -69,7 +167,7 @@
 
     
     <dt class="tag-since">Since:</dt>
-    <dd class="tag-since"><ul class="dummy"><li>1.0</li></ul></dd>
+    <dd class="tag-since"><ul class="dummy"><li>2.0.0</li></ul></dd>
     
 
     
@@ -95,7 +193,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="classes_PullListTable.php.html">classes/PullListTable.php</a>, <a href="classes_PullListTable.php.html#line650">line 650</a>
+        <a href="utils.php.html">utils.php</a>, <a href="utils.php.html#line545">line 545</a>
     </li></ul></dd>
     
 
