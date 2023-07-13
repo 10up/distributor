@@ -165,42 +165,6 @@ class NetworkSiteConnection extends Connection {
 		update_post_meta( $new_post_id, 'dt_syndicate_time', absint( time() ) );
 
 		/**
-		 * Allow bypassing of all meta processing.
-		 *
-		 * @hook dt_push_post_meta
-		 *
-		 * @param {bool}       true           If Distributor should push the post meta.
-		 * @param {int}        $new_post_id   The newly created post ID.
-		 * @param {array}      $post_meta     Meta attached to the post, formatted by {@link \Distributor\Utils\prepare_meta()}.
-		 * @param {int}        $post_id       The original post ID.
-		 * @param {array}      $args          The arguments passed into wp_insert_post.
-		 * @param {Connection} $this          The distributor connection being pushed to.
-		 *
-		 * @return {bool} If Distributor should push the post meta.
-		 */
-		if ( apply_filters( 'dt_push_post_meta', true, $new_post_id, $post_meta, $post_id, $args, $this ) ) {
-			Utils\set_meta( $new_post_id, $post_meta );
-		}
-
-		/**
-		 * Allow bypassing of all term processing.
-		 *
-		 * @hook dt_push_post_terms
-		 *
-		 * @param {bool}       true           If Distributor should push the post terms.
-		 * @param {int}        $new_post_id   The newly created post ID.
-		 * @param {array}      $post_terms    Terms attached to the post, formatted by {@link \Distributor\Utils\prepare_taxonomy_terms()}.
-		 * @param {int}        $post_id       The original post ID.
-		 * @param {array}      $args          The arguments passed into wp_insert_post.
-		 * @param {Connection} $this          The distributor connection being pushed to.
-		 *
-		 * @return {bool} If Distributor should push the post terms.
-		 */
-		if ( apply_filters( 'dt_push_post_terms', true, $new_post_id, $post_terms, $post_id, $args, $this ) ) {
-			Utils\set_taxonomy_terms( $new_post_id, $post_terms );
-		}
-
-		/**
 		 * Allow bypassing of all media processing.
 		 *
 		 * @hook dt_push_post_media
@@ -223,6 +187,43 @@ class NetworkSiteConnection extends Connection {
 		if ( $media_errors ) {
 			$output['push-errors'] = $media_errors;
 			delete_transient( 'dt_media_errors_' . $new_post_id );
+		}
+
+		/**
+		 * Allow bypassing of all term processing.
+		 *
+		 * @hook dt_push_post_terms
+		 *
+		 * @param {bool}       true           If Distributor should push the post terms.
+		 * @param {int}        $new_post_id   The newly created post ID.
+		 * @param {array}      $post_terms    Terms attached to the post, formatted by {@link \Distributor\Utils\prepare_taxonomy_terms()}.
+		 * @param {int}        $post_id       The original post ID.
+		 * @param {array}      $args          The arguments passed into wp_insert_post.
+		 * @param {Connection} $this          The distributor connection being pushed to.
+		 *
+		 * @return {bool} If Distributor should push the post terms.
+		 */
+		if ( apply_filters( 'dt_push_post_terms', true, $new_post_id, $post_terms, $post_id, $args, $this ) ) {
+			Utils\set_taxonomy_terms( $new_post_id, $post_terms );
+		}
+
+		/**
+		 * Allow bypassing of all meta processing.
+		 *
+		 * @hook dt_push_post_meta
+		 *
+		 * @param {bool}       true           If Distributor should push the post meta.
+		 * @param {int}        $new_post_id   The newly created post ID.
+		 * @param {array}      $post_meta     Meta attached to the post, formatted by {@link \Distributor\Utils\prepare_meta()}.
+		 * @param {int}        $post_id       The original post ID.
+		 * @param {array}      $args          The arguments passed into wp_insert_post.
+		 * @param {Connection} $this          The distributor connection being pushed to.
+		 *
+		 * @return {bool} If Distributor should push the post meta.
+		 */
+		if ( apply_filters( 'dt_push_post_meta', true, $new_post_id, $post_meta, $post_id, $args, $this ) ) {
+			$post_meta = $this->exclude_additional_meta_data( $post_meta );
+			Utils\set_meta( $new_post_id, $post_meta );
 		}
 
 		/** This filter is documented in includes/classes/InternalConnections/NetworkSiteConnection.php */
@@ -306,22 +307,22 @@ class NetworkSiteConnection extends Connection {
 				update_post_meta( $new_post_id, 'dt_original_post_url', wp_slash( sanitize_url( $new_post_args['meta_input']['dt_original_post_url'] ) ) );
 
 				/**
-				 * Allow bypassing of all meta processing.
+				 * Allow bypassing of all media processing.
 				 *
-				 * @hook dt_pull_post_meta
+				 * @hook dt_pull_post_media
 				 *
-				 * @param {bool}                  true            If Distributor should set the post meta.
+				 * @param {bool}                  true            If Distributor should set the post media.
 				 * @param {int}                   $new_post_id    The newly created post ID.
-				 * @param {array}                 $post_meta      List of meta items attached to the post, formatted by {@link \Distributor\Utils\prepare_meta()}.
+				 * @param {array}                 $post_media     List of media items attached to the post, formatted by {@link \Distributor\Utils\prepare_media()}.
 				 * @param {int}                   $remote_post_id The original post ID.
 				 * @param {array}                 $post_array     The arguments passed into wp_insert_post.
 				 * @param {NetworkSiteConnection} $this           The Distributor connection being pulled from.
 				 *
-				 * @return {bool} If Distributor should set the post meta.
+				 * @return {bool} If Distributor should set the post media.
 				 */
-				if ( apply_filters( 'dt_pull_post_meta', true, $new_post_id, $post['meta'], $item_array['remote_post_id'], $post_array, $this ) ) {
-					\Distributor\Utils\set_meta( $new_post_id, $post['meta'] );
-				}
+				if ( apply_filters( 'dt_pull_post_media', true, $new_post_id, $post['media'], $item_array['remote_post_id'], $post_array, $this ) ) {
+					\Distributor\Utils\set_media( $new_post_id, $post['media'], [ 'use_filesystem' => true ] );
+				};
 
 				/**
 				 * Allow bypassing of all terms processing.
@@ -342,22 +343,23 @@ class NetworkSiteConnection extends Connection {
 				}
 
 				/**
-				 * Allow bypassing of all media processing.
+				 * Allow bypassing of all meta processing.
 				 *
-				 * @hook dt_pull_post_media
+				 * @hook dt_pull_post_meta
 				 *
-				 * @param {bool}                  true            If Distributor should set the post media.
+				 * @param {bool}                  true            If Distributor should set the post meta.
 				 * @param {int}                   $new_post_id    The newly created post ID.
-				 * @param {array}                 $post_media     List of media items attached to the post, formatted by {@link \Distributor\Utils\prepare_media()}.
+				 * @param {array}                 $post_meta      List of meta items attached to the post, formatted by {@link \Distributor\Utils\prepare_meta()}.
 				 * @param {int}                   $remote_post_id The original post ID.
 				 * @param {array}                 $post_array     The arguments passed into wp_insert_post.
 				 * @param {NetworkSiteConnection} $this           The Distributor connection being pulled from.
 				 *
-				 * @return {bool} If Distributor should set the post media.
+				 * @return {bool} If Distributor should set the post meta.
 				 */
-				if ( apply_filters( 'dt_pull_post_media', true, $new_post_id, $post['media'], $item_array['remote_post_id'], $post_array, $this ) ) {
-					\Distributor\Utils\set_media( $new_post_id, $post['media'], [ 'use_filesystem' => true ] );
-				};
+				if ( apply_filters( 'dt_pull_post_meta', true, $new_post_id, $post['meta'], $item_array['remote_post_id'], $post_array, $this ) ) {
+					$post_meta = $this->exclude_additional_meta_data( $post['meta'] );
+					\Distributor\Utils\set_meta( $new_post_id, $post_meta );
+				}
 			}
 
 			switch_to_blog( $this->site->blog_id );
@@ -1105,5 +1107,22 @@ class NetworkSiteConnection extends Connection {
 				]
 			);
 		}
+	}
+
+	/**
+	 * Exclude additional meta data for network distributions
+	 *
+	 * In network connections the featured image is set prior to the meta data.
+	 * Excluding the `_thumbnail_id` meta from distribution prevents the meta
+	 * data from referring to the attachment ID of the original site.
+	 *
+	 * @since 2.0.0
+	 *
+	 * @param string[] $post_meta Array of meta to include in the distribution.
+	 * @return string[] Array of meta to include in the distribution after filtering out excluded meta.
+	 */
+	public static function exclude_additional_meta_data( $post_meta ) {
+		unset( $post_meta['_thumbnail_id'] );
+		return $post_meta;
 	}
 }
