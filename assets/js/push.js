@@ -399,7 +399,6 @@ jQuery( window ).on( 'load', () => {
 							foundConnections: mustacheData.connections.length,
 							showSearch: 5 < mustacheData.connections.length,
 							postTitle: dt.postTitle,
-							postStatus: dt.postStatus,
 						}
 					);
 
@@ -408,7 +407,6 @@ jQuery( window ).on( 'load', () => {
 					distributorPushWrapper.innerHTML = template( {
 						connections: dtConnections,
 						postTitle: dt.postTitle,
-						postStatus: dt.postStatus,
 					} );
 				}
 
