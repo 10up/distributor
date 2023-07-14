@@ -187,8 +187,11 @@ const DistributorPlugin = () => {
 	const post = useSelect( ( select ) =>
 		select( 'core/editor' ).getCurrentPost()
 	);
+	console.log( post );
 	// Make the post title available to the top menu.
 	dt.postTitle = post.title;
+	// Make the post status available to the top menu.
+	dt.postStatus = post.status;
 
 	// If we are on a non-supported post status, change what we show
 	if (

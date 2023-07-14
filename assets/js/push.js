@@ -401,6 +401,7 @@ jQuery( window ).on( 'load', () => {
 							foundConnections: mustacheData.connections.length,
 							showSearch: 5 < mustacheData.connections.length,
 							postTitle: dt.postTitle,
+							postStatus: dt.postStatus,
 						}
 					);
 
@@ -409,6 +410,7 @@ jQuery( window ).on( 'load', () => {
 					distributorPushWrapper.innerHTML = template( {
 						connections: dtConnections,
 						postTitle: dt.postTitle,
+						postStatus: dt.postStatus,
 					} );
 				}
 
@@ -516,7 +518,7 @@ jQuery( window ).on( 'load', () => {
 		data.postStatus =
 			null !== asDraftInput && asDraftInput.checked
 				? 'draft'
-				: postStatusInput.value;
+				: dt.postStatus;
 
 		const xhr = dt.usexhr ? { withCredentials: true } : false;
 
