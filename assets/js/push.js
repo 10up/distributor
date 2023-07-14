@@ -50,7 +50,6 @@ jQuery( window ).on( 'load', () => {
 	let selectAllConnections = '';
 	let selectNoConnections = '';
 	let connectionsSearchInput = '';
-	let postStatusInput = '';
 	let asDraftInput = '';
 	let errorDetails = '';
 
@@ -91,7 +90,6 @@ jQuery( window ).on( 'load', () => {
 		connectionsSearchInput = document.getElementById(
 			'dt-connection-search'
 		);
-		postStatusInput = document.getElementById( 'dt-post-status' );
 		asDraftInput = document.getElementById( 'dt-as-draft' );
 		errorDetails = document.querySelector( '.dt-error ul.details' );
 
