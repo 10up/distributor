@@ -143,10 +143,12 @@ class SubscriptionsController extends \WP_REST_Controller {
 		if ( ! empty( $GLOBALS['wp']->query_vars['rest_route'] ) ) {
 			$path = $GLOBALS['wp']->query_vars['rest_route'];
 		} else {
-			$path = $_SERVER['REQUEST_URI'];
+			// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotValidated -- see wp_fix_server_vars().
+			$path = esc_url_raw( wp_unslash( $_SERVER['REQUEST_URI'] ) );
 		}
 
-		$request = new \WP_REST_Request( $_SERVER['REQUEST_METHOD'], $path );
+		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotValidated
+		$request = new \WP_REST_Request( strtoupper( sanitize_key( wp_unslash( $_SERVER['REQUEST_METHOD'] ) ) ), $path );
 		$request->set_body_params( wp_unslash( $_POST ) ); // phpcs:ignore
 
 		// If this is not a subscription request, return the original value.
@@ -245,6 +247,11 @@ class SubscriptionsController extends \WP_REST_Controller {
 				'terms'        => ( isset( $request['post_data']['distributor_terms'] ) ) ? $request['post_data']['distributor_terms'] : [],
 				'media'        => ( isset( $request['post_data']['distributor_media'] ) ) ? $request['post_data']['distributor_media'] : [],
 			];
+
+			// Limit taxonomy updates to those shown in the REST API.
+			$rest_taxonomies = get_taxonomies( [ 'show_in_rest' => true ] );
+			$rest_taxonomies = array_fill_keys( $rest_taxonomies, true );
+			$update['terms'] = array_intersect_key( $update['terms'], $rest_taxonomies );
 
 			update_post_meta( (int) $request['post_id'], 'dt_subscription_update', $update );
 

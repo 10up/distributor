@@ -47,6 +47,11 @@ abstract class Authentication {
 	 * @return array
 	 */
 	public function format_get_args( $args = array(), $context = array() ) {
+		if ( ! isset( $args['headers'] ) ) {
+			$args['headers'] = array();
+		}
+		$args['headers']['X-Distributor-Version'] = DT_VERSION;
+
 		/**
 		 * Format request args for a GET request so auth occurs.
 		 *
@@ -71,6 +76,11 @@ abstract class Authentication {
 	 * @return array
 	 */
 	public function format_post_args( $args, $context = array() ) {
+		if ( ! isset( $args['headers'] ) ) {
+			$args['headers'] = array();
+		}
+		$args['headers']['X-Distributor-Version'] = DT_VERSION;
+
 		/**
 		 * Format request args for a POST request so auth occurs
 		 *
@@ -133,7 +143,7 @@ abstract class Authentication {
 			}
 		);
 		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-			$time = date( '[d/M/Y:H:i:s]' );
+			$time = gmdate( '[d/M/Y:H:i:s]' );
 			// @codingStandardsIgnoreLine - error_log is only used when WP_DEBUG is true.
 			error_log( $time . ': ' . $error_message );
 		}

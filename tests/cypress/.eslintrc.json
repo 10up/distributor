@@ -1,0 +1,13 @@
+{
+	"extends": [
+	  "plugin:cypress/recommended"
+	],
+	"rules": {
+		"jest/no-disabled-tests": 0,
+		"jest/no-focused-tests": 0,
+		"jest/no-identical-title": 0,
+		"jest/prefer-to-have-length": 0,
+		"jest/valid-expect": 0,
+		"jest/expect-expect": 0
+	}
+}

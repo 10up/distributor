@@ -20,7 +20,7 @@ function setup() {
 		'plugins_loaded',
 		function() {
 			add_action( 'init', __NAMESPACE__ . '\register_cpt' );
-			add_action( 'save_post', __NAMESPACE__ . '\send_notifications' );
+			add_action( 'wp_after_insert_post', __NAMESPACE__ . '\send_notifications', 99 );
 			add_action( 'before_delete_post', __NAMESPACE__ . '\delete_subscriptions' );
 		}
 	);
@@ -119,6 +119,7 @@ function create_remote_subscription( ExternalConnection $connection, $remote_pos
 		$url,
 		$connection->auth_handler->format_post_args(
 			array(
+				// phpcs:ignore WordPressVIPMinimum.Performance.RemoteRequestTimeout.timeout_timeout
 				'timeout'  => 5,
 				'blocking' => \Distributor\Utils\is_dt_debug(),
 				'body'     => $post_body,
@@ -146,6 +147,7 @@ function delete_remote_subscription( ExternalConnection $connection, $remote_pos
 	wp_remote_request(
 		untrailingslashit( $connection->base_url ) . '/' . $connection::$namespace . '/dt_subscription/delete',
 		array(
+			// phpcs:ignore WordPressVIPMinimum.Performance.RemoteRequestTimeout.timeout_timeout
 			'timeout'  => 5,
 			'method'   => 'DELETE',
 			'blocking' => \Distributor\Utils\is_dt_debug(),
@@ -214,8 +216,12 @@ function delete_subscriptions( $post_id ) {
 			wp_remote_post(
 				untrailingslashit( $target_url ) . '/wp/v2/dt_subscription/receive',
 				[
+					// phpcs:ignore WordPressVIPMinimum.Performance.RemoteRequestTimeout.timeout_timeout
 					'timeout'  => 5,
 					'blocking' => \Distributor\Utils\is_dt_debug(),
+					'headers'  => array(
+						'X-Distributor-Version' => DT_VERSION,
+					),
 					'body'     => [
 						'post_id'          => $remote_post_id,
 						'signature'        => $signature,
@@ -230,10 +236,13 @@ function delete_subscriptions( $post_id ) {
 /**
  * Send notifications on post update to each subscription for that post
  *
- * @param  int $post_id Post ID.
+ * @param  int|WP_Post $post Post ID or WP_Post, depending on which action the method is hooked to.
  * @since  1.0
  */
-function send_notifications( $post_id ) {
+function send_notifications( $post ) {
+	$post    = get_post( $post );
+	$post_id = $post->ID;
+
 	if ( ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) || wp_is_post_revision( $post_id ) || ! current_user_can( 'edit_post', $post_id ) ) {
 		return;
 	}
@@ -261,49 +270,60 @@ function send_notifications( $post_id ) {
 			'post_id'   => $remote_post_id,
 			'signature' => $signature,
 			'post_data' => [
-				'title'             => get_the_title( $post_id ),
+				'title'             => html_entity_decode( get_the_title( $post_id ), ENT_QUOTES, get_bloginfo( 'charset' ) ),
 				'slug'              => $post->post_name,
 				'post_type'         => $post->post_type,
 				'content'           => Utils\get_processed_content( $post->post_content ),
 				'excerpt'           => $post->post_excerpt,
 				'distributor_media' => \Distributor\Utils\prepare_media( $post_id ),
-				'distributor_terms' => \Distributor\Utils\prepare_taxonomy_terms( $post_id ),
+				'distributor_terms' => \Distributor\Utils\prepare_taxonomy_terms( $post_id, array( 'show_in_rest' => true ) ),
 				'distributor_meta'  => \Distributor\Utils\prepare_meta( $post_id ),
 			],
 		];
+
 		if ( \Distributor\Utils\is_using_gutenberg( $post ) ) {
 			if ( \Distributor\Utils\dt_use_block_editor_for_post_type( $post->post_type ) ) {
 				$post_body['post_data']['distributor_raw_content'] = $post->post_content;
 			}
 		}
 
+		/**
+		 * Filter the timeout used when calling `\Distributor\Subscriptions\send_notifications`
+		 *
+		 * @hook dt_subscription_post_timeout
+		 *
+		 * @param {int}     $timeout The timeout to use for the remote post. Default `5`.
+		 * @param {WP_Post} $post    The post object
+		 *
+		 * @return {int} The timeout to use for the remote post.
+		 */
+		$request_timeout = apply_filters( 'dt_subscription_post_timeout', 5, $post );
+
+		/**
+		 * Filter the arguments sent to the remote server during a subscription update.
+		 *
+		 * @since 1.3.0
+		 * @hook dt_subscription_post_args
+		 *
+		 * @param  {array}   $post_body The request body to send.
+		 * @param  {WP_Post} $post      The WP_Post that is being pushed.
+		 *
+		 * @return {array} The request body to send.
+		 */
+		$post_body = apply_filters( 'dt_subscription_post_args', $post_body, $post );
+
+		$post_arguments = [
+			'timeout' => $request_timeout,
+			'body'    => wp_json_encode( $post_body ),
+			'headers' => [
+				'Content-Type'          => 'application/json',
+				'X-Distributor-Version' => DT_VERSION,
+			],
+		];
+
 		$request = wp_remote_post(
 			untrailingslashit( $target_url ) . '/wp/v2/dt_subscription/receive',
-			[
-				/**
-				 * Filter the timeout used when calling `\Distributor\Subscriptions\send_notifications`
-				 *
-				 * @hook dt_subscription_post_timeout
-				 *
-				 * @param int $timeout The timeout to use for the remote post. Default `5`.
-				 * @param \WP_Post $post The post object
-				 *
-				 * @return int The timeout to use for the remote post.
-				 */
-				'timeout' => apply_filters( 'dt_subscription_post_timeout', 5, $post ),
-				/**
-				 * Filter the arguments sent to the remote server during a subscription update.
-				 *
-				 * @since 1.3.0
-				 * @hook dt_subscription_post_args
-				 *
-				 * @param  {array}   $post_body The request body to send.
-				 * @param  {WP_Post} $post      The WP_Post that is being pushed.
-				 *
-				 * @return {array} The request body to send.
-				 */
-				'body'    => apply_filters( 'dt_subscription_post_args', $post_body, $post ),
-			]
+			$post_arguments
 		);
 
 		if ( ! is_wp_error( $request ) ) {

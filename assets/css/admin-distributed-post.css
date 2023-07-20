@@ -8,19 +8,3 @@
 	cursor: pointer;
 	text-decoration: underline;
 }
-
-.open-distributor-help {
-	cursor: pointer;
-}
-
-#distributed-to:before {
-	content: ' ';
-	display: inline-block;
-	top: 5px;
-	padding-right: 25px;
-	width: 20px;
-	height: 20px;
-	background: url(../../assets/img/icon.svg) no-repeat top left;
-	background-size: contain;
-	position: relative;
-}

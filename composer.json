@@ -1,15 +1,18 @@
 {
   "name": "10up/distributor",
   "type": "wordpress-plugin",
+  "description": "Distributor is a WordPress plugin that makes it easy to distribute and reuse content across your websites — whether in a single multisite or across the web.",
+  "homepage": "https://distributorplugin.com/",
+  "license": "GPL-2.0-or-later",
   "authors": [
     {
-      "name": "Taylor Lovett",
-      "email": "taylor.lovett@10up.com"
+      "name": "10up",
+      "email": "opensource@10up.com"
     }
   ],
   "require": {
-    "php": ">=5.6",
-    "yahnis-elsts/plugin-update-checker": "^4.4",
+    "php": ">=7.4",
+    "yahnis-elsts/plugin-update-checker": "4.13",
     "ext-json": "*"
   },
   "autoload": {
@@ -18,15 +21,23 @@
     }
   },
   "require-dev": {
-    "10up/wp_mock": "~0.4",
-    "phpunit/phpunit": "~7.5",
     "10up/phpcs-composer": "dev-master",
-    "10up/wpacceptance": "dev-master"
+    "10up/wp_mock": "~0.4",
+    "phpunit/phpunit": ">=7.0 <9.0",
+    "yoast/phpunit-polyfills": "^1.0",
+    "automattic/vipwpcs": "^2.3"
   },
   "scripts": {
-    "lint": "./vendor/bin/phpcs . --runtime-set testVersion 5.6-",
-    "lint-fix": "phpcbf . --runtime-set testVersion 5.6-"
+    "lint": "@php phpcs . --runtime-set testVersion 7.4-",
+    "lint-fix": "phpcbf .",
+    "test": "@php phpunit"
   },
   "minimum-stability": "dev",
-  "prefer-stable": true
+  "prefer-stable": true,
+  "config": {
+    "allow-plugins": {
+      "composer/installers": true,
+      "dealerdirect/phpcodesniffer-composer-installer": true
+    }
+  }
 }

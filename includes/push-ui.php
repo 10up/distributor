@@ -7,6 +7,9 @@
 
 namespace Distributor\PushUI;
 
+use Distributor\EnqueueScript;
+use Distributor\Utils;
+
 /**
  * Setup actions and filters
  *
@@ -18,6 +21,8 @@ function setup() {
 		function() {
 			add_action( 'admin_enqueue_scripts', __NAMESPACE__ . '\enqueue_scripts' );
 			add_action( 'wp_enqueue_scripts', __NAMESPACE__ . '\enqueue_scripts' );
+			add_filter( 'amp_dev_mode_element_xpaths', __NAMESPACE__ . '\add_element_xpaths' );
+			add_filter( 'script_loader_tag', __NAMESPACE__ . '\add_dev_mode_to_assets', 10, 2 );
 			add_action( 'wp_ajax_dt_load_connections', __NAMESPACE__ . '\get_connections' );
 			add_action( 'wp_ajax_dt_push', __NAMESPACE__ . '\ajax_push' );
 			add_action( 'admin_bar_menu', __NAMESPACE__ . '\menu_button', 999 );
@@ -34,41 +39,61 @@ function setup() {
  * @return  bool
  */
 function syndicatable() {
+	// Retrieve the current global post, bail if not set.
+	$post = get_post();
+	if ( empty( $post ) ) {
+		return false;
+	}
+
 	/**
 	 * Filter Distributor capabilities allowed to syndicate content.
 	 *
 	 * @hook dt_syndicatable_capabilities
+	 * @tutorial snippets
 	 *
-	 * @param string edit_posts The capability allowed to syndicate content.
+	 * @param {string} edit_posts The capability allowed to syndicate content.
+	 *
+	 * @return {string} The capability allowed to syndicate content.
 	 */
 	if ( ! is_user_logged_in() || ! current_user_can( apply_filters( 'dt_syndicatable_capabilities', 'edit_posts' ) ) ) {
 		return false;
 	}
 
+	$distributable_post_types = \Distributor\Utils\distributable_post_types();
+
+	/**
+	 * Filter the post types that should be available for push.
+	 *
+	 * Helpful for sites that want to push custom post type content to another site.
+	 *
+	 * @hook dt_available_push_post_types
+	 *
+	 * @param {array} Post types that are distributable.
+	 *
+	 * @return {array} Post types available for push.
+	 */
+	$distributable_post_types = apply_filters( 'dt_available_push_post_types', $distributable_post_types );
+
 	if ( is_admin() ) {
 
 		global $pagenow;
 
-		if ( 'post.php' !== $pagenow ) {
+		if ( 'post.php' !== $pagenow && 'post-new.php' !== $pagenow ) {
 			return false;
 		}
 	} else {
-		if ( ! is_single() ) {
+		if ( ! is_singular( $distributable_post_types ) ) {
 			return false;
 		}
 	}
 
-	global $post;
-
-	if ( empty( $post ) ) {
-		return;
-	}
-
-	if ( ! in_array( $post->post_status, \Distributor\Utils\distributable_post_statuses(), true ) ) {
+	// If we're using the classic editor, we need to make sure the post has a distributable status.
+	if ( ! Utils\is_using_gutenberg( $post ) && ! in_array( $post->post_status, Utils\distributable_post_statuses(), true ) ) {
 		return false;
 	}
 
-	if ( ! in_array( get_post_type(), \Distributor\Utils\distributable_post_types(), true ) || ( ! empty( $_GET['post_type'] ) && 'dt_ext_connection' === $_GET['post_type'] ) ) { // @codingStandardsIgnoreLine Nonce not required
+	$distributable_post_types = array_diff( $distributable_post_types, array( 'dt_ext_connection' ) );
+	if ( ! in_array( get_post_type(), $distributable_post_types, true ) ) {
 		return false;
 	}
 
@@ -123,7 +148,7 @@ function get_connections() {
 					'type'       => 'internal',
 					'id'         => $connection->site->blog_id,
 					'url'        => untrailingslashit( preg_replace( '#(https?:\/\/|www\.)#i', '', get_site_url( $connection->site->blog_id ) ) ),
-					'name'       => $connection->site->blogname,
+					'name'       => html_entity_decode( $connection->site->blogname, ENT_QUOTES, get_bloginfo( 'charset' ) ),
 					'syndicated' => $syndicated,
 				];
 			}
@@ -188,12 +213,25 @@ function get_connections() {
 		$connection = \Distributor\ExternalConnection::instantiate( $external_connection->ID );
 
 		if ( ! is_wp_error( $connection ) ) {
+			$syndicated = false;
+
+			if ( ! empty( $connection_map['external'][ (int) $external_connection->ID ] ) ) {
+				$post_syndicated = $connection_map['external'][ (int) $external_connection->ID ];
+				if ( ! empty( $post_syndicated['post_id'] ) ) {
+					$syndicated = sprintf(
+						'%1$s/?p=%2$d',
+						get_site_url_from_rest_url( $connection->base_url ),
+						$post_syndicated['post_id']
+					);
+				}
+			}
+
 			$dom_connections[ 'external' . $connection->id ] = [
 				'type'       => 'external',
 				'id'         => $connection->id,
 				'url'        => $connection->base_url,
-				'name'       => $connection->name,
-				'syndicated' => ! empty( $connection_map['external'][ (int) $external_connection->ID ] ) ? $connection_map['external'][ (int) $external_connection->ID ] : false,
+				'name'       => html_entity_decode( $connection->name, ENT_QUOTES, get_bloginfo( 'charset' ) ),
+				'syndicated' => $syndicated,
 			];
 		}
 	}
@@ -208,19 +246,20 @@ function get_connections() {
  */
 function ajax_push() {
 	if ( ! check_ajax_referer( 'dt-push', 'nonce', false ) ) {
-		wp_send_json_error();
+		wp_send_json_error( new \WP_Error( 'invalid-referal', __( 'Invalid Ajax referer.', 'distributor' ) ) );
 		exit;
 	}
 
 	if ( empty( $_POST['postId'] ) ) {
-		wp_send_json_error();
+		wp_send_json_error( new \WP_Error( 'no-post-id', __( 'No post ID provided.', 'distributor' ) ) );
 		exit;
 	}
 
 	if ( empty( $_POST['connections'] ) ) {
-		wp_send_json_success();
+		wp_send_json_error( new \WP_Error( 'no-connection', __( 'No connection provided.', 'distributor' ) ) );
 		exit;
 	}
+	$connections = array_filter( array_map( 'distributor_sanitize_connection', wp_unslash( $_POST['connections'] ) ) );
 
 	$connection_map = get_post_meta( intval( $_POST['postId'] ), 'dt_connection_map', true );
 	if ( empty( $connection_map ) ) {
@@ -238,7 +277,7 @@ function ajax_push() {
 	$external_push_results = array();
 	$internal_push_results = array();
 
-	foreach ( $_POST['connections'] as $connection ) {
+	foreach ( $connections as $connection ) {
 		if ( 'external' === $connection['type'] ) {
 			$external_connection_type = get_post_meta( $connection['id'], 'dt_external_connection_type', true );
 			$external_connection_url  = get_post_meta( $connection['id'], 'dt_external_connection_url', true );
@@ -262,33 +301,39 @@ function ajax_push() {
 				}
 
 				if ( ! empty( $_POST['postStatus'] ) ) {
-					$push_args['post_status'] = $_POST['postStatus'];
+					$push_args['post_status'] = sanitize_key( wp_unslash( $_POST['postStatus'] ) );
 				}
 
-				$remote_id = $external_connection->push( intval( $_POST['postId'] ), $push_args );
+				$remote_post = $external_connection->push( intval( $_POST['postId'] ), $push_args );
 
 				/**
 				 * Record the external connection id's remote post id for this local post
 				 */
 
-				if ( ! is_wp_error( $remote_id ) ) {
+				if ( ! is_wp_error( $remote_post ) ) {
 					$connection_map['external'][ (int) $connection['id'] ] = array(
-						'post_id' => (int) $remote_id,
+						'post_id' => (int) $remote_post['id'],
 						'time'    => time(),
 					);
 
 					$external_push_results[ (int) $connection['id'] ] = array(
-						'post_id' => (int) $remote_id,
-						'date'    => date( 'F j, Y g:i a' ),
+						'post_id' => (int) $remote_post['id'],
+						'date'    => gmdate( 'F j, Y g:i a' ),
 						'status'  => 'success',
+						'url'     => sprintf(
+							'%1$s/?p=%2$d',
+							get_site_url_from_rest_url( $external_connection_url ),
+							(int) $remote_post['id']
+						),
+						'errors'  => empty( $remote_post['push-errors'] ) ? array() : $remote_post['push-errors'],
 					);
 
-					$external_connection->log_sync( array( $remote_id => $_POST['postId'] ) );
+					$external_connection->log_sync( array( (int) $remote_post['id'] => absint( wp_unslash( $_POST['postId'] ) ) ) );
 				} else {
 					$external_push_results[ (int) $connection['id'] ] = array(
-						'post_id' => (int) $remote_id,
-						'date'    => date( 'F j, Y g:i a' ),
-						'status'  => 'fail',
+						'date'   => gmdate( 'F j, Y g:i a' ),
+						'status' => 'fail',
+						'errors' => array( $remote_post->get_error_message() ),
 					);
 				}
 			}
@@ -301,37 +346,38 @@ function ajax_push() {
 			}
 
 			if ( ! empty( $_POST['postStatus'] ) ) {
-				$push_args['post_status'] = esc_attr( $_POST['postStatus'] );
+				$push_args['post_status'] = sanitize_key( wp_unslash( $_POST['postStatus'] ) );
 			}
 
-			$remote_id = $internal_connection->push( intval( $_POST['postId'] ), $push_args );
+			$remote_post = $internal_connection->push( intval( $_POST['postId'] ), $push_args );
 
 			/**
 			 * Record the internal connection id's remote post id for this local post
 			 */
-			if ( ! is_wp_error( $remote_id ) ) {
+			if ( ! is_wp_error( $remote_post ) ) {
 				$origin_site = get_current_blog_id();
 				switch_to_blog( intval( $connection['id'] ) );
-				$remote_url = get_permalink( $remote_id );
-				$internal_connection->log_sync( array( $_POST['postId'] => $remote_id ), $origin_site );
+				$remote_url = get_permalink( $remote_post['id'] );
+				$internal_connection->log_sync( array( $_POST['postId'] => $remote_post['id'] ), $origin_site );
 				restore_current_blog();
 
 				$connection_map['internal'][ (int) $connection['id'] ] = array(
-					'post_id' => (int) $remote_id,
+					'post_id' => (int) $remote_post['id'],
 					'time'    => time(),
 				);
 
-				$internal_push_results[ (int) $connection['id']  ] = array(
-					'post_id' => (int) $remote_id,
+				$internal_push_results[ (int) $connection['id'] ] = array(
+					'post_id' => (int) $remote_post['id'],
 					'url'     => esc_url_raw( $remote_url ),
-					'date'    => date( 'F j, Y g:i a' ),
+					'date'    => gmdate( 'F j, Y g:i a' ),
 					'status'  => 'success',
+					'errors'  => empty( $remote_post['push-errors'] ) ? array() : $remote_post['push-errors'],
 				);
 			} else {
 				$internal_push_results[ (int) $connection['id'] ] = array(
-					'post_id' => (int) $remote_id,
-					'date'    => date( 'F j, Y g:i a' ),
-					'status'  => 'fail',
+					'errors' => array( $remote_post->get_error_message() ),
+					'date'   => gmdate( 'F j, Y g:i a' ),
+					'status' => 'fail',
 				);
 			}
 		}
@@ -362,34 +408,97 @@ function enqueue_scripts( $hook ) {
 		return;
 	}
 
-	wp_enqueue_style( 'dt-push', plugins_url( '/dist/css/push.min.css', __DIR__ ), array(), DT_VERSION );
-	wp_enqueue_script( 'dt-push', plugins_url( '/dist/js/push.min.js', __DIR__ ), array( 'jquery', 'underscore', 'hoverIntent' ), DT_VERSION, true );
-	wp_localize_script(
-		'dt-push',
-		'dt',
-		array(
-			'nonce'                => wp_create_nonce( 'dt-push' ),
-			'loadConnectionsNonce' => wp_create_nonce( 'dt-load-connections' ),
-			'postId'               => (int) get_the_ID(),
-			'ajaxurl'              => esc_url( admin_url( 'admin-ajax.php' ) ),
+	$push_script   = new EnqueueScript( 'dt-push', 'push.min' );
+	$localize_data = array(
+		'nonce'                => wp_create_nonce( 'dt-push' ),
+		'loadConnectionsNonce' => wp_create_nonce( 'dt-load-connections' ),
+		'postId'               => (int) get_the_ID(),
+		'postTitle'            => get_the_title(),
+		'postStatus'           => get_post_status(),
+		'ajaxurl'              => esc_url( admin_url( 'admin-ajax.php' ) ),
 
-			/**
-			 * Filter whether front end ajax requests should use xhrFields credentials:true.
-			 *
-			 * Front end ajax requests may require xhrFields with credentials when the front end and
-			 * back end domains do not match. This filter lets themes opt in.
-			 * See {@link https://vip.wordpress.com/documentation/handling-frontend-file-uploads/#handling-ajax-requests}
-			 *
-			 * @since 1.0.0
-			 * @hook dt_ajax_requires_with_credentials
-			 *
-			 * @param {bool} false Whether front end ajax requests should use xhrFields credentials:true.
-			 *
-			 * @return {bool} Whether front end ajax requests should use xhrFields credentials:true.
-			 */
-			'usexhr'               => apply_filters( 'dt_ajax_requires_with_credentials', false ),
-		)
+		/**
+		 * Filter whether front end ajax requests should use xhrFields credentials:true.
+		 *
+		 * Front end ajax requests may require xhrFields with credentials when the front end and
+		 * back end domains do not match. This filter lets themes opt in.
+		 * See {@link https://vip.wordpress.com/documentation/handling-frontend-file-uploads/#handling-ajax-requests}
+		 *
+		 * @since 1.0.0
+		 * @hook dt_ajax_requires_with_credentials
+		 *
+		 * @param {bool} false Whether front end ajax requests should use xhrFields credentials:true.
+		 *
+		 * @return {bool} Whether front end ajax requests should use xhrFields credentials:true.
+		 */
+		'usexhr'               => apply_filters( 'dt_ajax_requires_with_credentials', false ),
 	);
+
+	$push_script
+		->load_in_footer()
+		->register_localize_data( 'dt', $localize_data )
+		->register_translations()
+		->enqueue();
+
+	wp_enqueue_style(
+		'dt-push',
+		plugins_url( '/dist/css/push.min.css', __DIR__ ),
+		array(),
+		$push_script->get_version()
+	);
+}
+
+/**
+ * Add the elements we want amp dev mode added to
+ *
+ * @param array $xpaths Current array of element paths
+ * @return array
+ */
+function add_element_xpaths( $xpaths = [] ) {
+	if ( ! syndicatable() ) {
+		return $xpaths;
+	}
+
+	$ids = [
+		'dt-push-css',
+		'dt-push-js',
+		'dt-push-js-extra',
+	];
+
+	foreach ( $ids as $id ) {
+		$xpaths[] = sprintf( '//*[ @id = "%s" ]', $id );
+	}
+
+	return $xpaths;
+}
+
+/**
+ * Add the amp dev mode to assets we need for distribution to work
+ *
+ * @param string $tag The `<script>` tag for the enqueued script.
+ * @param string $handle The script's registered handle.
+ * @return string
+ */
+function add_dev_mode_to_assets( $tag, $handle ) {
+	if ( is_admin() || ! syndicatable() || ! function_exists( 'amp_is_request' ) || ! amp_is_request() ) {
+		return $tag;
+	}
+
+	$script_handles = [
+		'jquery',
+		'jquery-core',
+		'underscore',
+	];
+
+	if ( in_array( $handle, $script_handles, true ) ) {
+		$tag = preg_replace(
+			'/(?<=<script)(?=\s|>)/i',
+			' data-ampdevmode',
+			$tag
+		);
+	}
+
+	return $tag;
 }
 
 /**
@@ -410,6 +519,41 @@ function menu_button( $wp_admin_bar ) {
 			'href'  => '#',
 		)
 	);
+
+	$wp_admin_bar->add_node(
+		array(
+			'parent' => 'distributor',
+			'id'     => 'distributor-placeholder',
+			'title'  => esc_html__( 'Distributor', 'distributor' ),
+			'href'   => '#',
+		)
+	);
+}
+
+/**
+ * Get Site URL from REST URL.
+ * We can not assume the REST API prefix is wp-json because it can be changed to
+ * a custom prefix.
+ *
+ * @param string $rest_url REST URL. Eg: domain.com/wp-json
+ *
+ * @return string Site URL.
+ */
+function get_site_url_from_rest_url( $rest_url ) {
+	$_url = explode( '/', untrailingslashit( $rest_url ) );
+
+	if ( count( $_url ) < 2 ) {
+		return $rest_url;
+	}
+
+	array_pop( $_url );
+	$url = implode( '/', $_url );
+
+	if ( false === strpos( $url, 'http' ) ) {
+		$url = '//' . $url;
+	}
+
+	return $url;
 }
 
 /**
@@ -424,11 +568,12 @@ function menu_content() {
 		return;
 	}
 
-	$unlinked         = (bool) get_post_meta( $post->ID, 'dt_unlinked', true );
-	$original_blog_id = get_post_meta( $post->ID, 'dt_original_blog_id', true );
-	$original_post_id = get_post_meta( $post->ID, 'dt_original_post_id', true );
+	$unlinked              = (bool) get_post_meta( $post->ID, 'dt_unlinked', true );
+	$original_blog_id      = get_post_meta( $post->ID, 'dt_original_blog_id', true );
+	$original_post_id      = get_post_meta( $post->ID, 'dt_original_post_id', true );
+	$original_post_deleted = get_post_meta( $post->ID, 'dt_original_post_deleted', true );
 
-	if ( ! empty( $original_blog_id ) && ! empty( $original_post_id ) && ! $unlinked ) {
+	if ( ! empty( $original_blog_id ) && ! empty( $original_post_id ) && ! $unlinked && is_multisite() ) {
 		switch_to_blog( $original_blog_id );
 		$post_url  = get_permalink( $original_post_id );
 		$site_url  = home_url();
@@ -442,112 +587,51 @@ function menu_content() {
 			<div class="inner">
 				<p class="syndicated-notice">
 					<?php /* translators: %s: post type name */ ?>
-					<?php printf( esc_html__( 'This %s has been distributed from', 'distributor' ), esc_html( strtolower( $post_type_object->labels->singular_name ) ) ); ?>
-					<a href="<?php echo esc_url( $site_url ); ?>"><?php echo esc_html( $blog_name ); ?></a>.
 
-					<?php esc_html_e( 'You can ', 'distributor' ); ?>
-					<a href="<?php echo esc_url( $post_url ); ?>"><?php esc_html_e( 'view the original', 'distributor' ); ?></a>
+					<?php
+					printf(
+						/* translators: 1) Distributor post type singular name, 2) Source of content. */
+						esc_html__( 'This %1$s was distributed from %2$s.', 'distributor' ),
+						esc_html( strtolower( $post_type_object->labels->singular_name ) ),
+						'<a href="' . esc_url( $site_url ) . '">' . esc_html( $blog_name ) . '</a>'
+					);
+
+					if ( $original_post_deleted ) {
+						echo ' '; // Ensure whitespace between sentences.
+						printf(
+							/* translators: 1: post type name */
+							esc_html__( 'However, the origin %1$s has been deleted.', 'distributor' ),
+							esc_html( strtolower( $post_type_object->labels->singular_name ) )
+						);
+					} elseif ( ! empty( $post_url ) ) {
+						?>
+						<a href="<?php echo esc_url( $post_url ); ?>" target="_blank">
+							<?php
+							echo wp_kses_post(
+								sprintf(
+									/* translators: 1) Distributor post type singular name. */
+									__( 'View the origin %1$s.', 'distributor' ),
+									esc_html( strtolower( $post_type_object->labels->singular_name ) ),
+								)
+							);
+							?>
+						</a>
+						<?php
+					}
+					?>
 				</p>
 			</div>
 		</div>
 		<?php
 	} else {
+		if ( function_exists( 'amp_is_request' ) && amp_is_request() && ! is_admin() ) {
+			include DT_PLUGIN_PATH . 'templates/show-connections-amp.php';
+			include DT_PLUGIN_PATH . 'templates/add-connection-amp.php';
+		} else {
+			include DT_PLUGIN_PATH . 'templates/show-connections.php';
+			include DT_PLUGIN_PATH . 'templates/add-connection.php';
+		}
 		?>
-
-		<script id="dt-show-connections" type="text/html">
-			<div class="inner">
-			<# if ( ! _.isEmpty( connections ) ) { #>
-				<?php /* translators: %s the post title */ ?>
-				<p><?php echo sprintf( esc_html__( 'Distribute &quot;%s&quot; to other connections.', 'distributor' ), esc_html( get_the_title( $post->ID ) ) ); ?></p>
-
-				<div class="connections-selector">
-					<div>
-						<button class="selectall-connections unavailable"><?php esc_html_e( 'Select All', 'distributor' ); ?></button>
-						<button class="selectno-connections unavailable"><?php esc_html_e( 'None', 'distributor' ); ?></button>
-						<# if ( 5 < _.keys( connections ).length ) { #>
-							<input type="text" id="dt-connection-search" placeholder="<?php esc_attr_e( 'Search available connections', 'distributor' ); ?>">
-						<# } #>
-
-						<div class="new-connections-list">
-							<# for ( var key in connections ) { #>
-								<# if ( 'external' === connections[ key ]['type'] ) { #>
-									<div class="add-connection<# if ( ! _.isEmpty( connections[ key ]['syndicated'] ) ) { #> syndicated<# } #>" data-connection-type="external" data-connection-id="{{ connections[ key ]['id'] }}">
-										<span>{{ connections[ key ]['name'] }}</span>
-									</div>
-								<# } else { #>
-									<div class="add-connection<# if ( ! _.isEmpty( connections[ key ]['syndicated'] ) ) { #> syndicated<# } #>" data-connection-type="internal" data-connection-id="{{ connections[ key ]['id'] }}">
-										<span>{{ connections[ key ]['url'] }}</span>
-										<# if ( ! _.isEmpty( connections[ key ]['syndicated'] ) ) { #>
-											<a href="{{ connections[ key ]['syndicated'] }}"><?php esc_html_e( 'View', 'distributor' ); ?></a>
-										<# } #>
-									</div>
-								<# } #>
-							<# } #>
-						</div>
-					</div>
-				</div>
-				<div class="connections-selected empty">
-					<header class="with-selected">
-						<?php esc_html_e( 'Selected connections', 'distributor' ); ?>
-					</header>
-					<header class="no-selected">
-						<?php esc_html_e( 'No connections selected', 'distributor' ); ?>
-					</header>
-
-					<div class="selected-connections-list"></div>
-
-					<div class="action-wrapper">
-						<input type="hidden" id="dt-post-status" value="<?php echo esc_attr( $post->post_status ); ?>">
-						<?php
-						$as_draft = ( 'draft' !== $post->post_status ) ? true : false;
-						/**
-						 * Filter whether the 'As Draft' option appears in the push ui.
-						 *
-						 * @hook dt_allow_as_draft_distribute
-						 *
-						 * @param {bool}    $as_draft   Whether the 'As Draft' option should appear.
-						 * @param {object}  $connection The connection being used to push.
-						 * @param {WP_Post} $post       The post being pushed.
-						 *
-						 * @return {bool} Whether the 'As Draft' option should appear.
-						 */
-						$as_draft = apply_filters( 'dt_allow_as_draft_distribute', $as_draft, $connection = null, $post );
-						?>
-						<button class="syndicate-button"><?php esc_html_e( 'Distribute', 'distributor' ); ?></button> <?php if ( $as_draft ) : ?><label class="as-draft" for="dt-as-draft"><input type="checkbox" id="dt-as-draft" checked> <?php esc_html_e( 'As draft', 'distributor' ); ?></label><?php endif; ?>
-					</div>
-
-				</div>
-
-				<div class="messages">
-					<div class="dt-success">
-						<?php esc_html_e( 'Post successfully distributed.', 'distributor' ); ?>
-					</div>
-					<div class="dt-error">
-						<?php esc_html_e( 'There was an issue distributing the post.', 'distributor' ); ?>
-					</div>
-				</div>
-
-			<# } else { #>
-				<p class="no-connections-notice">
-					<?php esc_html_e( 'No connections available for distribution.', 'distributor' ); ?>
-				</p>
-			<# } #>
-			</div>
-		</script>
-
-		<script id="dt-add-connection" type="text/html">
-			<div class="<# if (selectedConnections[connection.type + connection.id]) { #>added<# }#> add-connection <# if (connection.syndicated) { #>syndicated<# } #>" data-connection-type="{{ connection.type }}" data-connection-id="{{ connection.id }}">
-				<# if ('internal' === connection.type) { #>
-					<span>{{ connection.url }}</span>
-				<# } else { #>
-					<span>{{{ connection.name }}}</span>
-				<# } #>
-
-				<# if ('internal' === connection.type && connection.syndicated) { #>
-					<a href="{{ connection.syndicated }}"><?php esc_html_e( 'View', 'distributor' ); ?></a>
-				<# } #>
-			</div>
-		</script>
 
 		<div id="distributor-push-wrapper">
 			<div class="inner">
@@ -568,6 +652,7 @@ function menu_content() {
 				<div class="loader-messages messages">
 					<div class="dt-error">
 						<?php esc_html_e( 'There was an issue loading connections.', 'distributor' ); ?>
+						<ul class="details"></ul>
 					</div>
 				</div>
 			</div>

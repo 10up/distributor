@@ -13,8 +13,15 @@
 	box-shadow: none;
 }
 
+.dt-roles-allowed legend {
+	font-size: 14px;
+	font-weight: bold;
+	margin-bottom: 4px;
+}
+
 #dt_external_connection_details .dt-roles-allowed label {
 	font-weight: normal;
+	vertical-align: top;
 }
 
 #dt_external_connection_details .dt-roles-allowed label:first-child {
@@ -22,7 +29,6 @@
 	display: inline-block;
 	font-weight: bold;
 }
-
 
 #dt_external_connection_details label {
 	font-size: 14px;
@@ -48,6 +54,8 @@
 }
 
 #dt_external_connection_details p,
+#dt_external_connection_details .dt-roles-allowed,
+#dt_external_connection_details .post-types-permissions,
 #dt_external_connection_details .connection-field-wrap {
 	margin-bottom: 2em;
 }
@@ -69,8 +77,8 @@
 	font-style: italic;
 }
 
-.endpoint-errors li:before {
-	content: '-';
+.endpoint-errors li::before {
+	content: "-";
 	margin-right: 5px;
 }
 
@@ -78,22 +86,22 @@
 	display: none;
 }
 
-.endpoint-result[data-endpoint-state="loading"]:before {
-	content: ' ';
+.endpoint-result[data-endpoint-state="loading"]::before {
+	content: " ";
 	vertical-align: middle;
-	top: -.25em;
+	top: -0.25em;
 	border-radius: 50%;
-	width: .8em;
+	width: 0.8em;
 	margin-right: 8px;
-	height: .8em;
+	height: 0.8em;
 	display: inline-block;
 	font-size: 9px;
 	position: relative;
 	text-indent: -9999em;
-	border-top: .5em solid #cfcfcf;
-	border-right: .5em solid #cfcfcf;
-	border-bottom: .5em solid #cfcfcf;
-	border-left: .5em solid #666;
+	border-top: 0.5em solid #cfcfcf;
+	border-right: 0.5em solid #cfcfcf;
+	border-bottom: 0.5em solid #cfcfcf;
+	border-left: 0.5em solid #666;
 	-webkit-transform: translateZ(0);
 	-ms-transform: translateZ(0);
 	transform: translateZ(0);
@@ -101,13 +109,13 @@
 	animation: load8 1.1s infinite linear;
 }
 
-.endpoint-result[data-endpoint-state="error"]:before,
-.endpoint-result[data-endpoint-state="warning"]:before,
-.endpoint-result[data-endpoint-state="valid"]:before {
-	content: ' ';
+.endpoint-result[data-endpoint-state="error"]::before,
+.endpoint-result[data-endpoint-state="warning"]::before,
+.endpoint-result[data-endpoint-state="valid"]::before {
+	content: " ";
 	display: inline-block;
 	border-radius: 50%;
-	background-color: #ff0000;
+	background-color: #f00;
 	width: 10px;
 	height: 10px;
 	border: 1px solid #999;
@@ -117,11 +125,11 @@
 	margin-right: 5px;
 }
 
-.endpoint-result[data-endpoint-state="valid"]:before {
+.endpoint-result[data-endpoint-state="valid"]::before {
 	background-color: #62ff00;
 }
 
-.endpoint-result[data-endpoint-state="warning"]:before {
+.endpoint-result[data-endpoint-state="warning"]::before {
 	background-color: #ffe000;
 }
 
@@ -134,10 +142,12 @@
 }
 
 @-webkit-keyframes load8 {
+
 	0% {
 		-webkit-transform: rotate(0deg);
 		transform: rotate(0deg);
 	}
+
 	100% {
 		-webkit-transform: rotate(360deg);
 		transform: rotate(360deg);
@@ -145,10 +155,12 @@
 }
 
 @keyframes load8 {
+
 	0% {
 		-webkit-transform: rotate(0deg);
 		transform: rotate(0deg);
 	}
+
 	100% {
 		-webkit-transform: rotate(360deg);
 		transform: rotate(360deg);
@@ -163,11 +175,11 @@
 	color: #a00;
 	margin-left: 1em;
 	text-decoration: none;
+}
 
-	&:hover {
-		color: #f00;
-		text-decoration: none;
-	}
+.delete-link:hover {
+	color: #f00;
+	text-decoration: none;
 }
 
 #poststuff #post-body.columns-2 {
@@ -175,16 +187,67 @@
 }
 
 #side-sortables {
-	display: none
+	display: none;
 }
 
 .oauth-connection-established .message-header {
 	font-size: 16px;
-	color: green;
+	color: #008000;
 	font-weight: bold;
 }
 
 input[type="text"].error-required,
 input[type="password"].error-required {
-	border: 2px solid red;
+	border: 2px solid #f00;
+}
+
+.post-new-php .external-connection-setup,
+.post-new-php .connection-field-wrap,
+.post-new-php .dt-roles-allowed,
+.post-new-php .dt-submit-connection {
+	display: none;
+}
+
+.post-php .external-connection-wizard {
+	display: none;
+}
+
+.post-new-php .external-connection-wizard {
+	display: none;
+}
+
+.post-new-php #wpbody.wp .external-connection-wizard {
+	display: inline-block;
+}
+
+.post-new-php .auth-credentials.dotcom-oauth2,
+.post-php #wpbody.wp .auth-credentials.dotcom-oauth2 {
+	display: none;
+}
+
+.post-new-php #wpbody.wpdotcom .auth-credentials.dotcom-oauth2 {
+	display: inline-block;
+}
+
+.post-php .choose-authentication,
+.post-php #wpbody.wpdotcom .external-connection-setup {
+	display: none;
+}
+
+.manual-setup-button {
+	padding-left: 5px;
+}
+
+.dt-wizard-status {
+	display: none;
+}
+
+.dt-wizard-status .spinner {
+	float: none;
+	margin-top: 0;
+	margin-left: 0;
+}
+
+.dt-wizard-error {
+	color: #a00;
 }

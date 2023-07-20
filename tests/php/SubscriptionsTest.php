@@ -3,6 +3,7 @@
 namespace Distributor;
 
 use WP_Mock\Tools\TestCase;
+use WP_Mock\Functions;
 
 class SubscriptionsTest extends TestCase {
 
@@ -97,6 +98,9 @@ class SubscriptionsTest extends TestCase {
 					[
 						'timeout'  => 5,
 						'blocking' => \Distributor\Utils\is_dt_debug(),
+						'headers'  => [
+							'X-Distributor-Version' => DT_VERSION,
+						],
 						'body'     => [
 							'post_id'          => $remote_post_id,
 							'signature'        => $signature,
@@ -177,6 +181,39 @@ class SubscriptionsTest extends TestCase {
 	 * @runInSeparateProcess
 	 */
 	public function test_send_notifications_none() {
+
+		$post = (object) [
+			'ID' => 1,
+			'post_type' => 'post',
+		];
+
+		\WP_Mock::passthruFunction( 'absint' );
+		\WP_Mock::userFunction(
+			'get_post', [
+				'args'   => [ Functions::anyOf( $post->ID, $post ) ],
+				'return' => $post,
+			]
+		);
+
+		\WP_Mock::userFunction(
+			'get_option', [
+				'args'   => [ 'page_for_posts' ],
+				'return' => 0,
+			]
+		);
+
+		\WP_Mock::userFunction(
+			'use_block_editor_for_post_type', [
+				'return' => false,
+			]
+		);
+
+		\WP_Mock::userFunction(
+			'wp_is_post_revision', [
+				'return' => false,
+			]
+		);
+
 		\WP_Mock::userFunction(
 			'current_user_can', [
 				'return' => true,
@@ -197,7 +234,7 @@ class SubscriptionsTest extends TestCase {
 			]
 		);
 
-		Subscriptions\send_notifications( 1 );
+		Subscriptions\send_notifications( $post->ID );
 
 		$this->assertConditionsMet();
 	}
@@ -215,6 +252,13 @@ class SubscriptionsTest extends TestCase {
 		$remote_post_id       = 9;
 		$target_url           = 'http://target';
 		$signature            = 'signature';
+
+		$post               = new \stdClass();
+		$post->post_content = 'content';
+		$post->post_excerpt = 'excerpt';
+		$post->post_name    = 'slug';
+		$post->post_type    = 'post';
+		$post->ID           = $post_id;
 
 		\WP_Mock::userFunction(
 			'current_user_can', [
@@ -291,16 +335,23 @@ class SubscriptionsTest extends TestCase {
 
 		\WP_Mock::userFunction(
 			'get_post', [
-				'args'   => [ $post_id ],
-				'return' => function() {
-					$post               = new \stdClass();
-					$post->post_content = 'content';
-					$post->post_excerpt = 'excerpt';
-					$post->post_name    = 'slug';
-					$post->post_type    = 'post';
+				'args'   => [ Functions::anyOf( $post->ID, $post ) ],
+				'return' => $post,
+			]
+		);
 
-					return $post;
-				},
+		\WP_Mock::passthruFunction( 'absint' );
+
+		\WP_Mock::userFunction(
+			'get_option', [
+				'args'   => [ 'page_for_posts' ],
+				'return' => 0,
+			]
+		);
+
+		\WP_Mock::userFunction(
+			'use_block_editor_for_post_type', [
+				'return' => false,
 			]
 		);
 
@@ -311,19 +362,23 @@ class SubscriptionsTest extends TestCase {
 					$target_url . '/wp/v2/dt_subscription/receive',
 					[
 						'timeout' => 5,
-						'body'    => [
+						'body'    => wp_json_encode( [
 							'post_id'   => $remote_post_id,
 							'signature' => $signature,
 							'post_data' => [
 								'title'             => 'title',
+								'slug'              => 'slug',
+								'post_type'         => 'post',
 								'content'           => 'content',
 								'excerpt'           => 'excerpt',
-								'post_type'         => 'post',
-								'slug'              => 'slug',
-								'distributor_media' => [],
-								'distributor_terms' => [],
-								'distributor_meta'  => [],
-							],
+								'distributor_media' => null, // Accounts for https://github.com/10up/wp_mock/issues/173
+								'distributor_terms' => null, // Accounts for https://github.com/10up/wp_mock/issues/173
+								'distributor_meta'  => null, // Accounts for https://github.com/10up/wp_mock/issues/173
+							]
+						] ),
+						'headers' => [
+							'Content-Type' => 'application/json',
+							'X-Distributor-Version' => DT_VERSION,
 						],
 					],
 				],
@@ -364,6 +419,13 @@ class SubscriptionsTest extends TestCase {
 			]
 		);
 
+		\WP_Mock::userFunction(
+			'get_bloginfo', [
+				'args'   => 'charset',
+				'return' => 'UTF-8',
+			]
+		);
+
 		Subscriptions\send_notifications( $post_id );
 
 		$this->assertConditionsMet();
@@ -382,6 +444,13 @@ class SubscriptionsTest extends TestCase {
 		$remote_post_id       = 9;
 		$target_url           = 'http://target';
 		$signature            = 'signature';
+
+		$post               = new \stdClass();
+		$post->post_content = 'content';
+		$post->post_excerpt = 'excerpt';
+		$post->post_name    = 'slug';
+		$post->post_type    = 'post';
+		$post->ID           = $post_id;
 
 		\WP_Mock::userFunction(
 			'current_user_can', [
@@ -458,16 +527,23 @@ class SubscriptionsTest extends TestCase {
 
 		\WP_Mock::userFunction(
 			'get_post', [
-				'args'   => [ $post_id ],
-				'return' => function() {
-					$post               = new \stdClass();
-					$post->post_content = 'content';
-					$post->post_excerpt = 'excerpt';
-					$post->post_name    = 'slug';
-					$post->post_type    = 'post';
+				'args'   => [ Functions::anyOf( $post->ID, $post ) ],
+				'return' => $post,
+			]
+		);
 
-					return $post;
-				},
+		\WP_Mock::passthruFunction( 'absint' );
+
+		\WP_Mock::userFunction(
+			'get_option', [
+				'args'   => [ 'page_for_posts' ],
+				'return' => 0,
+			]
+		);
+
+		\WP_Mock::userFunction(
+			'use_block_editor_for_post_type', [
+				'return' => false,
 			]
 		);
 
@@ -478,20 +554,24 @@ class SubscriptionsTest extends TestCase {
 					$target_url . '/wp/v2/dt_subscription/receive',
 					[
 						'timeout' => 5,
-						'body'    => [
+						'body'    => wp_json_encode( [
 							'post_id'   => $remote_post_id,
 							'signature' => $signature,
 							'post_data' => [
 								'title'             => 'title',
 								'slug'              => 'slug',
+								'post_type'         => 'post',
 								'content'           => 'content',
 								'excerpt'           => 'excerpt',
-								'post_type'         => 'post',
-								'distributor_media' => [],
-								'distributor_terms' => [],
-								'distributor_meta'  => [],
+								'distributor_media' => null, // Accounts for https://github.com/10up/wp_mock/issues/173
+								'distributor_terms' => null, // Accounts for https://github.com/10up/wp_mock/issues/173
+								'distributor_meta'  => null, // Accounts for https://github.com/10up/wp_mock/issues/173
 							],
-						],
+						] ),
+						'headers' => [
+							'Content-Type' => 'application/json',
+							'X-Distributor-Version' => DT_VERSION,
+						]
 					],
 				],
 			]
@@ -524,6 +604,13 @@ class SubscriptionsTest extends TestCase {
 		\WP_Mock::userFunction(
 			'remove_filter', [
 				'times' => 1,
+			]
+		);
+
+		\WP_Mock::userFunction(
+			'get_bloginfo', [
+				'args'   => 'charset',
+				'return' => 'UTF-8',
 			]
 		);
 
@@ -679,6 +766,9 @@ class SubscriptionsTest extends TestCase {
 					[
 						'timeout'  => 5,
 						'blocking' => \Distributor\Utils\is_dt_debug(),
+						'headers'  => [
+							'X-Distributor-Version' => DT_VERSION,
+						],
 						'body'     => [
 							'post_id'        => $remote_post_id,
 							'remote_post_id' => $post_id,
