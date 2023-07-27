@@ -446,7 +446,7 @@ function handle_network_settings() {
  *
  * Runs on the hook `clean_post_cache`.
  *
- * @since x.x.x
+ * @since 2.0.0
  *
  * @param int $post_id Post ID.
  */

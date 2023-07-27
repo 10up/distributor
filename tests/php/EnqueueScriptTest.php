@@ -5,7 +5,7 @@ namespace Distributor;
 use WP_Mock\Tools\TestCase;
 
 /**
- * @since x.x.x
+ * @since 2.0.0
  */
 class EnqueueScriptTest extends TestCase {
 	public function test_script_registration(): void {

@@ -382,7 +382,7 @@ function get_pull_content_permissions( $request ) {
 		&& null !== $request->get_param( 'distributor_request' )
 		&& (
 			null === $request->get_header( 'X-Distributor-Version' )
-			|| version_compare( $request->get_header( 'X-Distributor-Version' ), '2.0.0', '<' )
+			|| version_compare( $request->get_header( 'X-Distributor-Version' ), '2.0.0-alpha', '<' )
 		)
 	) {
 		return new \WP_Error(

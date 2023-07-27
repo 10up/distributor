@@ -95,4 +95,23 @@ describe( 'Admin can add a new external connection', () => {
 			.find( '.connection-status' )
 			.should( 'have.class', 'error' );
 	} );
+
+	it( 'Should display limited connection warning', () => {
+		cy.visit( '/wp-admin/admin.php?page=distributor' );
+		cy.get( '.page-title-action' ).contains( 'Add New' ).click();
+
+		const name = randomName();
+		cy.get( '#title' ).click().type( name );
+
+		cy.get( '.manual-setup-button' ).click();
+		cy.get( '#dt_username' ).type( 'invalid_username' );
+		cy.get( '#dt_password' ).type( 'invalid_password' );
+		cy.get( '#dt_external_connection_url' ).type(
+			'http://localhost/second/wp-json'
+		);
+		cy.get( '.description.endpoint-result' ).should(
+			'contain.text',
+			'Limited connection established.'
+		);
+	} );
 } );

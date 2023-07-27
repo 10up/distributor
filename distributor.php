@@ -4,7 +4,7 @@
  * Plugin URI:        https://github.com/10up/distributor
  * Update URI:        https://distributorplugin.com
  * Description:       Makes it easy to distribute and reuse content across your websites, whether inside of a multisite or across the web.
- * Version:           1.9.1
+ * Version:           2.0.0-beta2
  * Requires at least: 5.7
  * Requires PHP:      7.4
  * Author:            10up Inc.
@@ -28,7 +28,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly.
 }
 
-define( 'DT_VERSION', '1.9.1' );
+define( 'DT_VERSION', '2.0.0-beta2' );
 define( 'DT_PLUGIN_FILE', preg_replace( '#^.*plugins/(.*)$#i', '$1', __FILE__ ) );
 define( 'DT_PLUGIN_PATH', plugin_dir_path( __FILE__ ) );
 define( 'DT_PLUGIN_FULL_FILE', __FILE__ );
@@ -45,7 +45,7 @@ if ( is_multisite() && isset( $active_plugins[ plugin_basename( __FILE__ ) ] ) )
 /**
  * Get the minimum version of WordPress required by this plugin.
  *
- * @since x.x.x
+ * @since 2.0.0
  *
  * @return string Minimum version required.
  */
@@ -56,7 +56,7 @@ function minimum_wp_requirement() {
 /**
  * Get the minimum version of PHP required by this plugin.
  *
- * @since x.x.x
+ * @since 2.0.0
  *
  * @return string Minimum version required.
  */
@@ -67,7 +67,7 @@ function minimum_php_requirement() {
 /**
  * Whether WP installation meets the minimum requirements
  *
- * @since x.x.x
+ * @since 2.0.0
  *
  * @return bool True if meets minimum requirements, false otherwise.
  */
@@ -79,7 +79,7 @@ function site_meets_wp_requirements() {
 /**
  * Whether PHP installation meets the minimum requirements
  *
- * @since x.x.x
+ * @since 2.0.0
  *
  * @return bool True if meets minimum requirements, false otherwise.
  */
