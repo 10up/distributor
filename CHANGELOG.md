@@ -7,7 +7,7 @@ All notable changes to this project will be documented in this file, per [the Ke
 ## [2.0.0] - TBD
 **Note that Distributor now requires PHP 7.4 or later and WordPress 5.7 or later.**
 
-_This entry was generated for the 2.0.0-beta2 release and will be updated during the Beta and Release Candidate processes._
+_This entry was generated for the 2.0.0-rc1 release and will be updated during the Beta and Release Candidate processes._
 
 ### Added
 - Migration guide for version 1 to version 2 (props [@peterwilsoncc](https://github.com/peterwilsoncc), [@faisal-alvi](https://github.com/faisal-alvi), [@jeffpaul](https://github.com/jeffpaul) via [#996](https://github.com/10up/distributor/pull/996)).
