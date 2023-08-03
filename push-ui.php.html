@@ -447,6 +447,7 @@ function enqueue_scripts( $hook ) {
 		'loadConnectionsNonce' => wp_create_nonce( 'dt-load-connections' ),
 		'postId'               => (int) get_the_ID(),
 		'postTitle'            => get_the_title(),
+		'postStatus'           => get_post_status(),
 		'ajaxurl'              => esc_url( admin_url( 'admin-ajax.php' ) ),
 
 		/**
