@@ -53,7 +53,6 @@
 			<div class="selected-connections-list"></div>
 
 			<div class="action-wrapper">
-				<input type="hidden" id="dt-post-status" value="<?php echo esc_attr( $post->post_status ); ?>">
 				<?php
 				$as_draft = ( 'draft' !== $post->post_status ) ? true : false;
 				/**

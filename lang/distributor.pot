@@ -2,14 +2,14 @@
 # This file is distributed under the GPLv2 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: Distributor 2.0.0-beta2\n"
+"Project-Id-Version: Distributor 2.0.0-rc1\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/distributor\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2023-07-13T03:36:48+00:00\n"
+"POT-Creation-Date: 2023-08-03T22:53:58+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.8.1\n"
 "X-Domain: distributor\n"
@@ -415,7 +415,7 @@ msgid "Invalid remote post ID"
 msgstr ""
 
 #: includes/classes/InternalConnections/NetworkSiteConnection.php:235
-#: release/includes/classes/InternalConnections/NetworkSiteConnection.php:234
+#: release/includes/classes/InternalConnections/NetworkSiteConnection.php:235
 msgid "The dt_push_post action has been deprecated. Please use dt_push_network_post or dt_push_external_post instead."
 msgstr ""
 
