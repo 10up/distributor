@@ -10,11 +10,14 @@ on:
   schedule:
     - cron: '0 0 * * 1'
 
+permissions:
+  issues: write
+
 jobs:
   wordpress-version-checker:
     runs-on: ubuntu-latest
     steps:
       - name: WordPress version checker
-        uses: skaut/wordpress-version-checker@v1.2.0
+        uses: skaut/wordpress-version-checker@master
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
