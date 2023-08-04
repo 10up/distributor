@@ -19,3 +19,6 @@ $wpdb->query( "DELETE FROM $wpdb->options WHERE option_name LIKE '_transients\_d
 // Delete our data from the post and post meta tables.
 $wpdb->query( "DELETE FROM {$wpdb->posts} WHERE post_type IN ( 'dt_subscription', 'dt_ext_connection' );" );
 $wpdb->query( "DELETE meta FROM {$wpdb->postmeta} meta LEFT JOIN {$wpdb->posts} posts ON posts.ID = meta.post_id WHERE posts.ID IS NULL;" );
+
+// Clear cache.
+wp_cache_flush();
