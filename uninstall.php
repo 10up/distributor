@@ -2,7 +2,8 @@
 /**
  * Distributor uninstall script.
  *
- * @since 2.0.0
+ * @since x.x.x
+ * @package distributor
  */
 
 if ( ! defined( 'ABSPATH' ) || ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
