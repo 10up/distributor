@@ -12,6 +12,8 @@ if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
 	die;
 }
 
+global $wpdb;
+
 // Delete options.
 $wpdb->query( "DELETE FROM $wpdb->options WHERE option_name LIKE 'dt\_%';" );
 
