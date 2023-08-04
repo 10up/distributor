@@ -6,6 +6,8 @@
  * @package distributor
  */
 
+// phpcs:disable
+
 if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
 	die;
 }
@@ -22,3 +24,5 @@ $wpdb->query( "DELETE FROM $wpdb->postmeta as meta LEFT JOIN $wpdb->posts as pos
 
 // Clear cache.
 wp_cache_flush();
+
+// phpcs:enable
