@@ -26,22 +26,6 @@ if ( defined( 'DT_REMOVE_ALL_DATA' ) && true === DT_REMOVE_ALL_DATA ) {
 	// Remove transients.
 	$wpdb->query( "DELETE FROM $wpdb->options WHERE option_name LIKE '_transients\_dt\_%';" );
 
-	// Delete our data from the comment and comment meta tables.
-	$wpdb->query(
-		"
-		DELETE comments FROM $wpdb->comments comments
-		LEFT JOIN $wpdb->posts posts ON posts.ID = comments.comment_post_ID
-		WHERE posts.post_type IN ( 'dt_subscription', 'dt_ext_connection' );
-		"
-	);
-	$wpdb->query(
-		"
-		DELETE meta FROM {$wpdb->commentmeta} meta
-		LEFT JOIN {$wpdb->comments} comments ON comments.comment_ID = meta.comment_id
-		WHERE comments.comment_ID IS NULL;
-		"
-	);
-
 	// Delete our data from the post and post meta tables.
 	$wpdb->query(
 		"
@@ -54,32 +38,6 @@ if ( defined( 'DT_REMOVE_ALL_DATA' ) && true === DT_REMOVE_ALL_DATA ) {
 		DELETE meta FROM $wpdb->postmeta meta
 		LEFT JOIN $wpdb->posts posts ON posts.ID = meta.post_id
 		WHERE posts.ID IS NULL;
-		"
-	);
-
-	// Delete orphan relationships.
-	$wpdb->query(
-		"
-		DELETE tr FROM {$wpdb->term_relationships} tr
-		LEFT JOIN {$wpdb->posts} posts ON posts.ID = tr.object_id
-		WHERE posts.ID IS NULL;"
-	);
-
-	// Delete orphan terms.
-	$wpdb->query(
-		"
-		DELETE t FROM {$wpdb->terms} t
-		LEFT JOIN {$wpdb->term_taxonomy} tt ON t.term_id = tt.term_id
-		WHERE tt.term_id IS NULL;
-		"
-	);
-
-	// Delete orphan term meta.
-	$wpdb->query(
-		"
-		DELETE tm FROM {$wpdb->termmeta} tm
-		LEFT JOIN {$wpdb->term_taxonomy} tt ON tm.term_id = tt.term_id
-		WHERE tt.term_id IS NULL;
 		"
 	);
 
