@@ -2,8 +2,8 @@
 /**
  * Distributor uninstall script.
  *
- * @since x.x.x
  * @package distributor
+ * @since   x.x.x
  */
 
 // phpcs:disable
@@ -25,6 +25,8 @@ $wpdb->query( "DELETE FROM $wpdb->posts WHERE post_type IN ( 'dt_subscription', 
 $wpdb->query( "DELETE FROM $wpdb->postmeta as meta LEFT JOIN $wpdb->posts as posts ON posts.ID = meta.post_id WHERE posts.ID IS NULL;" );
 
 // Clear cache.
-wp_cache_flush();
+if ( wp_cache_flush() ) {
+	wp_cache_set_posts_last_changed();
+}
 
 // phpcs:enable
