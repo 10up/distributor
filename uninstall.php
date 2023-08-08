@@ -29,8 +29,8 @@ if ( defined( 'DT_REMOVE_ALL_DATA' ) && true === DT_REMOVE_ALL_DATA ) {
 	// Delete our data from the comment and comment meta tables.
 	$wpdb->query(
 		"
-		DELETE FROM $wpdb->comments as comments
-		LEFT JOIN $wpdb->posts as posts ON posts.ID = comments.comment_post_ID
+		DELETE FROM $wpdb->comments comments
+		LEFT JOIN $wpdb->posts posts ON posts.ID = comments.comment_post_ID
 		WHERE posts.post_type IN ( 'dt_subscription', 'dt_ext_connection' );
 		"
 	);
@@ -51,8 +51,8 @@ if ( defined( 'DT_REMOVE_ALL_DATA' ) && true === DT_REMOVE_ALL_DATA ) {
 	);
 	$wpdb->query(
 		"
-		DELETE FROM $wpdb->postmeta as meta
-		LEFT JOIN $wpdb->posts as posts ON posts.ID = meta.post_id
+		DELETE FROM $wpdb->postmeta meta
+		LEFT JOIN $wpdb->posts posts ON posts.ID = meta.post_id
 		WHERE posts.ID IS NULL;
 		"
 	);
