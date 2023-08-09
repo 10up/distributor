@@ -30,6 +30,9 @@ if ( defined( 'DT_REMOVE_ALL_DATA' ) && true === DT_REMOVE_ALL_DATA ) {
 	$wpdb->query( "DELETE FROM $wpdb->posts WHERE post_type IN ( 'dt_subscription', 'dt_ext_connection' );" );
 	$wpdb->query( "DELETE meta FROM $wpdb->postmeta meta LEFT JOIN $wpdb->posts posts ON posts.ID = meta.post_id WHERE posts.ID IS NULL;" );
 
+	// Delete distributor data from postmeta table.
+	$wpdb->query( "DELETE FROM $wpdb->postmeta WHERE meta_key LIKE 'dt\_%';" );
+
 	// Clear cache.
 	if ( wp_cache_flush() ) {
 		wp_cache_set_posts_last_changed();
