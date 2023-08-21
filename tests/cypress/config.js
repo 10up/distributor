@@ -2,6 +2,7 @@ const { defineConfig } = require( 'cypress' );
 const { readConfig } = require( '@wordpress/env/lib/config' );
 
 module.exports = defineConfig( {
+	chromeWebSecurity: false,
 	fixturesFolder: 'tests/cypress/fixtures',
 	screenshotsFolder: 'tests/cypress/screenshots',
 	videosFolder: 'tests/cypress/videos',
