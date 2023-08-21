@@ -7,8 +7,6 @@ All notable changes to this project will be documented in this file, per [the Ke
 ## [2.0.0] - TBD
 **Note that Distributor now requires PHP 7.4 or later and WordPress 5.7 or later.**
 
-_This entry was generated for the 2.0.0-rc1 release and will be updated during the Beta and Release Candidate processes._
-
 ### Added
 - Migration guide for version 1 to version 2 (props [@peterwilsoncc](https://github.com/peterwilsoncc), [@faisal-alvi](https://github.com/faisal-alvi), [@jeffpaul](https://github.com/jeffpaul) via [#996](https://github.com/10up/distributor/pull/996)).
 - Show count of selected connections in Push menu (props [@roshniahuja](https://github.com/roshniahuja), [@peterwilsoncc](https://github.com/peterwilsoncc), [@jeffpaul](https://github.com/jeffpaul) via [#1020](https://github.com/10up/distributor/pull/1020)).
@@ -470,7 +468,7 @@ This adds a post type selector when viewing the Pull Content list for both exter
 - Initial closed release.
 
 [Unreleased]: https://github.com/10up/distributor/compare/trunk...develop
-[2.0.0]: https://github.com/10up/distributor/compare/1.9.1...develop
+[2.0.0]: https://github.com/10up/distributor/compare/1.9.1...2.0.0
 [1.9.1]: https://github.com/10up/distributor/compare/1.9.0...1.9.1
 [1.9.0]: https://github.com/10up/distributor/compare/1.8.0...1.9.0
 [1.8.0]: https://github.com/10up/distributor/compare/1.7.1...1.8.0
