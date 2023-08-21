@@ -58,7 +58,7 @@ Distributor is built with the same extensible approach as WordPress itself, with
 * [WordPress](http://wordpress.org) 5.7+
 * External connections require HTTP Basic Authentication or [WordPress.com OAuth2](https://developer.wordpress.com/docs/oauth2/) (must be on [WordPress VIP](https://wpvip.com/)) be set up on the remote website. For Basic Auth, we recommend using [Application Passwords](https://make.wordpress.org/core/2020/11/05/application-passwords-integration-guide/#Getting-Credentials) built in to WordPress.
 * For external connections, Distributor needs to be installed on BOTH sides of the connection.
-* Version 2 of Distributor requires version two on BOTH sides of all connections.
+* Version 2.0.0 of Distributor requires version 2.0.0 on BOTH sides of all connections.
 
 ## Installation
 
