@@ -7,6 +7,8 @@ All notable changes to this project will be documented in this file, per [the Ke
 ## [2.0.0] - TBD
 **Note that Distributor now requires PHP 7.4 or later and WordPress 5.7 or later.**
 
+Please see the [migration guide](https://10up.github.io/distributor/tutorial-migration-guide-version-1-to-version-2.html) for important changes between version 1 and version 2 that may require your action.
+
 ### Added
 - Migration guide for version 1 to version 2 (props [@peterwilsoncc](https://github.com/peterwilsoncc), [@faisal-alvi](https://github.com/faisal-alvi), [@jeffpaul](https://github.com/jeffpaul) via [#996](https://github.com/10up/distributor/pull/996)).
 - Show count of selected connections in Push menu (props [@roshniahuja](https://github.com/roshniahuja), [@peterwilsoncc](https://github.com/peterwilsoncc), [@jeffpaul](https://github.com/jeffpaul) via [#1020](https://github.com/10up/distributor/pull/1020)).
