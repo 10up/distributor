@@ -50,3 +50,9 @@ The fields returned by the endpoint have been modified to match the names used b
 The <a href="./dt_push_post.html">`dt_push_post`</a> action has been deprecated in favor of two actions: <a href="./dt_push_external_post.html">`dt_push_external_post`</a> and <a href="./dt_push_network_post.html">`dt_push_network_post`</a>.
 
 Extenders using the old action are advised to switch to the new actions as a matter of priority. The deprecated action had conflicting arguments so can not be relied upon to pass data consistently.
+
+### Internationalization improvements
+
+The generation of translation files has been updated to include strings included in JavaScript files.
+
+Version 2.0.0 of Distributor has also improved pluralization of strings and combined similar strings to reduce the burden on translators.
