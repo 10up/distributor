@@ -27,3 +27,20 @@ add_action( 'plugins_loaded', function() {
 	remove_filter( 'wpseo_canonical', '\\Distributor\\Hooks\\wpseo_canonical', 10, 2 );
 } );
 ```
+
+### REST API Changes
+
+The distributor REST API endpoint at `/wp/v2/distributor/list-pull-content` has been modified substantially and will now reject connections from 1.x versions of Distributor.
+
+The fields returned by the endpoint have been modified to match the names used by `wp_insert_post` and `wp_update_post`.
+
+#### Additional parameters
+
+* `include` (Array|Int): Ensure result set includes specific Post IDs. Default empty.
+* `order` (`asc`|`desc`): Specify order of returned data. Default `desc`.
+* `orderby` (`author`|`date`|`id`|`include`|`modified`|`parent`|`relevance`|`slug`|`title`): Field to order results by. Default `date`, `relevance` for search queries.
+
+#### Modified parameters
+
+* `post_type` (String|String[]): Modified to accept multiple post types. Post types are limited to posts the connected account can edit, are public post types and visible in the WordPress REST API's standard endpoints. Default `post`.
+* `post_status` (String|String[]): Modified to accept multiple post statuses. Statuses are limited to public statuses only. Default `publish`.
