@@ -44,3 +44,9 @@ The fields returned by the endpoint have been modified to match the names used b
 
 * `post_type` (String|String[]): Modified to accept multiple post types. Post types are limited to posts the connected account can edit, are public post types and visible in the WordPress REST API's standard endpoints. Default `post`.
 * `post_status` (String|String[]): Modified to accept multiple post statuses. Statuses are limited to public statuses only. Default `publish`.
+
+### `dt_push_post` action deprecated
+
+The <a href="./dt_push_post.html">`dt_push_post`</a> action has been deprecated in favor of two actions: <a href="./dt_push_external_post.html">`dt_push_external_post`</a> and <a href="./dt_push_network_post.html">`dt_push_network_post`</a>.
+
+Extenders using the old action are advised to switch to the new actions as a matter of priority. The deprecated action had conflicting arguments so can not be relied upon to pass data consistently.
