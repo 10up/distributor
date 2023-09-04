@@ -12,7 +12,7 @@
   ],
   "require": {
     "php": ">=7.4",
-    "yahnis-elsts/plugin-update-checker": "4.13",
+    "yahnis-elsts/plugin-update-checker": "5.1",
     "ext-json": "*"
   },
   "autoload": {
