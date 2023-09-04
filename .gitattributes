@@ -2,3 +2,11 @@
 /.gitattributes export-ignore
 /.gitignore export-ignore
 /.wordpress-version-checker.json export-ignore
+
+# Text files should have LF line endings.
+* text eol=lf
+
+# Binary files should not be modified.
+*.mo binary
+*.png binary
+*.jpg binary
