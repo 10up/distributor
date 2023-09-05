@@ -33,10 +33,10 @@
 </header>
 
 <article>
-    <p>Version 2 of Distributor includes a number of breaking changes that will require updates to custom code you may have written for distributor.</p>
-<h2 id="external-connections-require-a-minimum-of-version-2.0">External connections require a minimum of version 2.0</h2>
+    <p>Version 2.0.0 of Distributor includes a number of breaking changes that will require updates to custom code you may have written for distributor.</p>
+<h2 id="external-connections-require-a-minimum-of-version-2.0.0">External connections require a minimum of version 2.0.0</h2>
 <p>It is recommended that both ends of an external connection run the same version of Distributor.</p>
-<p>Version 2.0 of Distributor will prevent the pulling of posts from sites running Version 1.9.x or lower of Distributor.</p>
+<p>Version 2.0.0 of Distributor will prevent the pulling of posts from sites running Version 1.9.x or lower of Distributor.</p>
 <h3 id="remove-canonical-links-for-both-internal-and-external-connections">Remove canonical links for both Internal and External Connections</h3>
 <p>The code snippet required to prevent sites from displaying the source post as canonical URLs for distributed posts has changed.</p>
 <p>If you have implemented this using the code snippet from our tutorial file, please update your code to the following:</p>
@@ -54,6 +54,26 @@ add_action( 'plugins_loaded', function() {
 	remove_filter( 'wpseo_canonical', '\\Distributor\\Hooks\\wpseo_canonical', 10, 2 );
 } );
 </code></pre>
+<h3 id="rest-api-changes">REST API Changes</h3>
+<p>The distributor REST API endpoint at <code>/wp/v2/distributor/list-pull-content</code> has been modified substantially and will now reject connections from 1.x versions of Distributor.</p>
+<p>The fields returned by the endpoint have been modified to match the names used by <code>wp_insert_post</code> and <code>wp_update_post</code>.</p>
+<h4 id="additional-parameters">Additional parameters</h4>
+<ul>
+<li><code>include</code> (Array|Int): Ensure result set includes specific Post IDs. Default empty.</li>
+<li><code>order</code> (<code>asc</code>|<code>desc</code>): Specify order of returned data. Default <code>desc</code>.</li>
+<li><code>orderby</code> (<code>author</code>|<code>date</code>|<code>id</code>|<code>include</code>|<code>modified</code>|<code>parent</code>|<code>relevance</code>|<code>slug</code>|<code>title</code>): Field to order results by. Default <code>date</code>, <code>relevance</code> for search queries.</li>
+</ul>
+<h4 id="modified-parameters">Modified parameters</h4>
+<ul>
+<li><code>post_type</code> (String|String[]): Modified to accept multiple post types. Post types are limited to posts the connected account can edit, are public post types and visible in the WordPress REST API's standard endpoints. Default <code>post</code>.</li>
+<li><code>post_status</code> (String|String[]): Modified to accept multiple post statuses. Statuses are limited to public statuses only. Default <code>publish</code>.</li>
+</ul>
+<h3 id="dt_push_post-action-deprecated"><code>dt_push_post</code> action deprecated</h3>
+<p>The <a href="./dt_push_post.html"><code>dt_push_post</code></a> action has been deprecated in favor of two actions: <a href="./dt_push_external_post.html"><code>dt_push_external_post</code></a> and <a href="./dt_push_network_post.html"><code>dt_push_network_post</code></a>.</p>
+<p>Extenders using the old action are advised to switch to the new actions as a matter of priority. The deprecated action had conflicting arguments so can not be relied upon to pass data consistently.</p>
+<h3 id="internationalization-improvements">Internationalization improvements</h3>
+<p>The generation of translation files has been updated to include strings included in JavaScript files.</p>
+<p>Version 2.0.0 of Distributor has also improved pluralization of strings and combined similar strings to reduce the burden on translators.</p>
 </article>
 
 </section>
