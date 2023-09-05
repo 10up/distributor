@@ -276,7 +276,7 @@ class WordPressExternalConnection extends ExternalConnection {
 			&& isset( $response_headers['x-distributor'] )
 			&& (
 				! isset( $response_headers['x-distributor-version'] )
-				|| version_compare( $response_headers['x-distributor-version'], '2.0.0-alpha', '<' )
+				|| version_compare( $response_headers['x-distributor-version'], '2.0.0', '<' )
 			)
 		) {
 			$version_error = new \WP_Error();
