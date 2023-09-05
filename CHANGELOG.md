@@ -36,6 +36,7 @@ Please see the [migration guide](https://10up.github.io/distributor/tutorial-mig
 - Migrated E2E tests to Cypress (props [@peterwilsoncc](https://github.com/peterwilsoncc), [@jeffpaul](https://github.com/jeffpaul), [@iamdharmesh](https://github.com/iamdharmesh) via [#1070](https://github.com/10up/distributor/pull/1070)).
 - Update `dependency-review.yml` (props [@jeffpaul](https://github.com/jeffpaul), [@peterwilsoncc](https://github.com/peterwilsoncc) via [#1054](https://github.com/10up/distributor/pull/1054)).
 - Order of operations setting meta, media and terms in the network push and pull functions (props [@sethrubenstein](https://github.com/sethrubenstein), [@jeffpaul](https://github.com/jeffpaul), [@peterwilsoncc](https://github.com/peterwilsoncc) via [#1095](https://github.com/10up/distributor/pull/1095)).
+- Upgrade the Plugin Update Checker library from 4.13 to 5.1 (props [@dkotter](https://github.com/dkotter) via [#1124](https://github.com/10up/distributor/pull/1124)).
 
 ### Deprecated
 - `dt_push_post` action hook (props [@dkotter](https://github.com/dkotter), [@peterwilsoncc](https://github.com/peterwilsoncc), [@dhanendran](https://github.com/dhanendran), [@ravinderk](https://github.com/ravinderk), [@jeffpaul](https://github.com/jeffpaul) via [#1024](https://github.com/10up/distributor/pull/1024)).
