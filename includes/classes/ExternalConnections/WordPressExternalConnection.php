@@ -381,6 +381,7 @@ class WordPressExternalConnection extends ExternalConnection {
 			unset( $post_array['post_date_gmt'] );
 			unset( $post_array['post_modified'] );
 			unset( $post_array['post_modified_gmt'] );
+			unset( $post_array['post_author'] );
 
 			if ( ! empty( $item_array['post_id'] ) ) {
 				$update           = true;
