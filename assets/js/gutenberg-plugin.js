@@ -6,7 +6,7 @@ import { PluginDocumentSettingPanel } from '@wordpress/edit-post';
 import { __, _n, _x, sprintf } from '@wordpress/i18n';
 import { registerPlugin } from '@wordpress/plugins';
 
-const { document, dtGutenberg, MouseEvent } = window;
+const { document, dt, dtGutenberg, MouseEvent } = window;
 
 /**
  * Add ability to show the admin bar, if needed
@@ -64,7 +64,7 @@ const RenderShowAdminBar = () => {
 				{ sprintf(
 					/* translators: 1: Post type or generic term content. */
 					__( 'Distribute %1$s', 'distributor' ),
-					dtGutenberg.postTypeSingular ||
+					dtGutenberg.postTypeSingular.toLowerCase() ||
 						_x(
 							'content',
 							'generic term for post content',
@@ -179,11 +179,24 @@ const DistributorPlugin = () => {
 		return null;
 	}
 
+	const distributorTopMenu = document.querySelector(
+		'#wp-admin-bar-distributor'
+	);
+
+	// eslint-disable-next-line no-shadow, react-hooks/rules-of-hooks -- permission checks are needed.
+	const post = useSelect( ( select ) =>
+		select( 'core/editor' ).getCurrentPost()
+	);
+	// Make the post title and status available to the top menu.
+	dt.postTitle = post.title;
+	dt.postStatus = post.status;
+
 	// If we are on a non-supported post status, change what we show
 	if (
 		dtGutenberg.supportedPostStati &&
 		! dtGutenberg.supportedPostStati.includes( postStatus )
 	) {
+		distributorTopMenu?.classList.add( 'hide' );
 		return (
 			<PluginDocumentSettingPanel
 				title={ __( 'Distributor', 'distributor' ) }
@@ -196,6 +209,7 @@ const DistributorPlugin = () => {
 		);
 	}
 
+	distributorTopMenu?.classList.remove( 'hide' );
 	return (
 		<PluginDocumentSettingPanel
 			title={ __( 'Distributor', 'distributor' ) }

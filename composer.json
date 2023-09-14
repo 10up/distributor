@@ -12,7 +12,7 @@
   ],
   "require": {
     "php": ">=7.4",
-    "yahnis-elsts/plugin-update-checker": "4.13",
+    "yahnis-elsts/plugin-update-checker": "5.1",
     "ext-json": "*"
   },
   "autoload": {
@@ -28,7 +28,7 @@
     "automattic/vipwpcs": "^2.3"
   },
   "scripts": {
-    "lint": "phpcs . --runtime-set testVersion 7.4-",
+    "lint": "@php phpcs . --runtime-set testVersion 7.4-",
     "lint-fix": "phpcbf .",
     "test": "@php phpunit"
   },

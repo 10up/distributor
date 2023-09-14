@@ -8,6 +8,7 @@
 namespace Distributor\PullUI;
 
 //phpcs:ignoreFile WordPressVIPMinimum.Functions.RestrictedFunctions.cookies_setcookie -- Admin file, no full page caching.
+use Distributor\EnqueueScript;
 
 /**
  * Setup actions and filters
@@ -120,26 +121,16 @@ function admin_enqueue_scripts( $hook ) {
 		return;
 	}
 
-	$asset_file = DT_PLUGIN_PATH . '/dist/js/admin-pull.min.asset.php';
-	// Fallback asset data.
-	$asset_data = array(
-		'version'      => DT_VERSION,
-		'dependencies' => array(),
-	);
-	if ( file_exists( $asset_file ) ) {
-		$asset_data = require $asset_file;
-	}
+	$admin_pull_script = new EnqueueScript( 'admin-pull', 'admin-pull.min' );
+	$admin_pull_script->load_in_footer()
+		->register_translations()
+		->enqueue();
 
-	wp_enqueue_script( 'dt-admin-pull', plugins_url( '/dist/js/admin-pull.min.js', __DIR__ ), $asset_data['dependencies'], $asset_data['version'], true );
-	wp_enqueue_style( 'dt-admin-pull', plugins_url( '/dist/css/admin-pull-table.min.css', __DIR__ ), array(), $asset_data['version'] );
-
-	wp_localize_script(
+	wp_enqueue_style(
 		'dt-admin-pull',
-		'dt',
-		[
-			'pull'     => __( 'Pull', 'distributor' ),
-			'as_draft' => __( 'Pull as draft', 'distributor' ),
-		]
+		plugins_url( '/dist/css/admin-pull-table.min.css', __DIR__ ),
+		array(),
+		$admin_pull_script->get_version()
 	);
 }
 
@@ -533,16 +524,18 @@ function dashboard() {
 		<?php $connection_list_table->prepare_items(); ?>
 
 		<?php if ( ! empty( $connection_list_table->pull_error ) ) : ?>
-			<p><?php esc_html_e( 'Could not pull content from connection due to error.', 'distributor' ); ?></p>
-			<ul>
-				<?php foreach ( $connection_list_table->pull_error as $error ) : ?>
-				<li>
-					<ul>
-						<li><?php echo esc_html( $error ); ?></li>
-					</ul>
-				</li>
-				<?php endforeach; ?>
-			</ul>
+			<div class="notice notice-error">
+				<p><?php esc_html_e( 'Could not pull content from connection due to error.', 'distributor' ); ?></p>
+				<ul>
+					<?php foreach ( $connection_list_table->pull_error as $error ) : ?>
+					<li>
+						<ul>
+							<li><?php echo esc_html( $error ); ?></li>
+						</ul>
+					</li>
+					<?php endforeach; ?>
+				</ul>
+			</div>
 		<?php else : ?>
 			<?php $connection_list_table->views(); ?>
 

@@ -7,6 +7,7 @@
 
 namespace Distributor\ExternalConnectionCPT;
 
+use Distributor\EnqueueScript;
 use Distributor\Utils;
 
 /**
@@ -271,68 +272,51 @@ function ajax_verify_external_connection() {
  */
 function admin_enqueue_scripts( $hook ) {
 	if ( ( 'post.php' === $hook && 'dt_ext_connection' === get_post_type() ) || ( 'post-new.php' === $hook && ! empty( $_GET['post_type'] ) && 'dt_ext_connection' === $_GET['post_type'] ) ) { // @codingStandardsIgnoreLine Nonce not required.
-
-		$asset_file = DT_PLUGIN_PATH . '/dist/js/admin-external-connection.min.asset.php';
-		// Fallback asset data.
-		$asset_data = array(
-			'version'      => DT_VERSION,
-			'dependencies' => array(),
+		$admin_external_connect_script = new EnqueueScript(
+			'dt-admin-external-connection',
+			'admin-external-connection.min'
 		);
-		if ( file_exists( $asset_file ) ) {
-			$asset_data = require $asset_file;
-		}
 
-		wp_enqueue_style( 'dt-admin-external-connection', plugins_url( '/dist/css/admin-external-connection.min.css', __DIR__ ), array(), $asset_data['version'] );
-		wp_enqueue_script( 'dt-admin-external-connection', plugins_url( '/dist/js/admin-external-connection.min.js', __DIR__ ), $asset_data['dependencies'], $asset_data['version'], true );
+		wp_enqueue_style(
+			'dt-admin-external-connection',
+			plugins_url( '/dist/css/admin-external-connection.min.css', __DIR__ ),
+			array(),
+			$admin_external_connect_script->get_version()
+		);
 
 		$blog_name     = get_bloginfo( 'name ' );
 		$wizard_return = get_wizard_return_data();
 
-		wp_localize_script(
-			'dt-admin-external-connection',
+		$admin_external_connect_script->register_localize_data(
 			'dt',
 			array(
-				'nonce'                               => wp_create_nonce( 'dt-verify-ext-conn' ),
-				'bad_connection'                      => esc_html__( 'No connection found.', 'distributor' ),
-				'good_connection'                     => esc_html__( 'Connection established.', 'distributor' ),
-				'limited_connection'                  => esc_html__( 'Limited connection established.', 'distributor' ),
-				'no_push'                             => esc_html__( 'Push distribution unavailable.', 'distributor' ),
-				'no_permissions'                      => esc_html__( 'Authentication succeeded but your account does not have permissions to create posts on the external site.', 'distributor' ),
-				'pull_limited'                        => esc_html__( 'Pull distribution limited to basic content, i.e. title and content body.', 'distributor' ),
-				'endpoint_suggestion'                 => esc_html__( 'Did you mean: ', 'distributor' ),
-				'endpoint_checking_message'           => esc_html__( 'Checking endpoint...', 'distributor' ),
-				'bad_auth'                            => esc_html__( 'Authentication failed due to invalid credentials.', 'distributor' ),
-				'change'                              => esc_html__( 'Change', 'distributor' ),
-				'cancel'                              => esc_html__( 'Cancel', 'distributor' ),
-				'invalid_url'                         => esc_html__( 'Please enter a valid URL, including the HTTP(S).', 'distributor' ),
-				'norest'                              => esc_html__( 'No REST API endpoint was located for this site.', 'distributor' ),
-				'noconnection'                        => esc_html__( 'Unable to connect to site.', 'distributor' ),
-				'minversion'                          => esc_html__( 'Remote site requires Distributor version 1.6.0 or greater. Upgrade Distributor on the remote site to use the Authentication Wizard.', 'distributor' ),
-				'no_distributor'                      => esc_html__( 'Distributor not installed on remote site.', 'distributor' ),
-				'roles_warning'                       => esc_html__( 'Be careful assigning less trusted roles push privileges as they will inherit the capabilities of the user on the remote site.', 'distributor' ),
-				'admin_url'                           => admin_url(),
-				/* translators: %1$s: site name, %2$s: site URL */
-				'distributor_from'                    => sprintf( esc_html__( 'Distributor on %1$s (%2$s)', 'distributor' ), $blog_name, esc_url( home_url() ) ),
-				'wizard_return'                       => $wizard_return,
-				'application_passwords_not_available' => __( 'Application Passwords is not available on the remote site. Please set up connection manually!', 'distributor' ),
+				'nonce'         => wp_create_nonce( 'dt-verify-ext-conn' ),
+				'blog_name'     => $blog_name,
+				'home_url'      => esc_url( home_url() ),
+				'admin_url'     => admin_url(),
+				'wizard_return' => $wizard_return,
 			)
 		);
+
+		$admin_external_connect_script->load_in_footer()
+			->register_translations()
+			->enqueue();
 
 		wp_dequeue_script( 'autosave' );
 	}
 
 	if ( ! empty( $_GET['page'] ) && 'distributor' === $_GET['page'] ) { // @codingStandardsIgnoreLine Nonce not required
-		$asset_file = DT_PLUGIN_PATH . '/dist/js/admin-external-connections-css.min.asset.php';
-		// Fallback asset data.
-		$asset_data = array(
-			'version'      => DT_VERSION,
-			'dependencies' => array(),
+		$admin_external_connect_script = new EnqueueScript(
+			'dt-admin-external-connection',
+			'admin-external-connection.min'
 		);
-		if ( file_exists( $asset_file ) ) {
-			$asset_data = require $asset_file;
-		}
 
-		wp_enqueue_style( 'dt-admin-external-connections', plugins_url( '/dist/css/admin-external-connections.min.css', __DIR__ ), array(), $asset_data['version'] );
+		wp_enqueue_style(
+			'dt-admin-external-connections',
+			plugins_url( '/dist/css/admin-external-connections.min.css', __DIR__ ),
+			array(),
+			$admin_external_connect_script->get_version()
+		);
 	}
 }
 
@@ -678,7 +662,7 @@ function add_menu_item() {
 		apply_filters( 'dt_capabilities', 'manage_options' ),
 		'distributor',
 		__NAMESPACE__ . '\dashboard',
-		'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzYiIGhlaWdodD0iMzkiIHZpZXdCb3g9IjAgMCAzNiAzOSIgdmVyc2lvbj0iMS4xIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIj48dGl0bGU+ZGlzdHJpYnV0b3ItaWNvbjwvdGl0bGU+PGRlc2M+Q3JlYXRlZCB1c2luZyBGaWdtYTwvZGVzYz48ZyBpZD0iQ2FudmFzIiB0cmFuc2Zvcm09InRyYW5zbGF0ZSgtNDAyNCAzNjUpIj48ZyBpZD0iZGlzdHJpYnV0b3ItaWNvbiI+PHVzZSB4bGluazpocmVmPSIjcGF0aDBfZmlsbCIgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoNDAyNC43MSAtMzY1KSIgZmlsbD0iI0EwQTVBQSIvPjx1c2UgeGxpbms6aHJlZj0iI3BhdGgxX2ZpbGwiIHRyYW5zZm9ybT0idHJhbnNsYXRlKDQwMjQuNzEgLTM2NSkiIGZpbGw9IiNBMEE1QUEiLz48dXNlIHhsaW5rOmhyZWY9IiNwYXRoMl9maWxsIiB0cmFuc2Zvcm09InRyYW5zbGF0ZSg0MDI0LjcxIC0zNjUpIiBmaWxsPSIjQTBBNUFBIi8+PHVzZSB4bGluazpocmVmPSIjcGF0aDNfZmlsbCIgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoNDAyNC43MSAtMzY1KSIgZmlsbD0iI0EwQTVBQSIvPjx1c2UgeGxpbms6aHJlZj0iI3BhdGg0X2ZpbGwiIHRyYW5zZm9ybT0idHJhbnNsYXRlKDQwMjQuNzEgLTM2NSkiIGZpbGw9IiNBMEE1QUEiLz48dXNlIHhsaW5rOmhyZWY9IiNwYXRoNV9maWxsIiB0cmFuc2Zvcm09InRyYW5zbGF0ZSg0MDI0LjcxIC0zNjUpIiBmaWxsPSIjQTBBNUFBIi8+PHVzZSB4bGluazpocmVmPSIjcGF0aDZfZmlsbCIgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoNDAyNC43MSAtMzY1KSIgZmlsbD0iI0EwQTVBQSIvPjwvZz48L2c+PGRlZnM+PHBhdGggaWQ9InBhdGgwX2ZpbGwiIGQ9Ik0gNy45MzgxNCAyMy4xMTA4QyA3LjAwNzQzIDIzLjExMDggNi4yOTE1IDIzLjkwNDUgNi4yOTE1IDI0LjkzNjJDIDYuMjkxNSAyNS44ODg3IDcuMDA3NDMgMjYuNzYxNyA3Ljg2NjU0IDI2Ljc2MTdDIDguOTQwNDMgMjguNDI4NCAxMC4zNzIzIDI5Ljc3NzcgMTIuMDE4OSAzMC43MzAxQyAxMy41OTQgMzEuNjAzMiAxNS4zMTIyIDMyIDE2Ljk1ODggMzJDIDIxLjExMTIgMzIgMjUuMTIwNCAyOS40NjAyIDI3LjEyNSAyNS4wMTU2QyAyOC40ODUyIDIxLjk5OTYgMjguNjI4NCAxOC42NjYyIDI3LjY5NzcgMTUuNDkxNUMgMjYuNjk1NCAxMi4zMTY3IDI0LjY5MDggOS43NzY5NiAyMS45NzAzIDguMjY4OTZDIDE2LjM4NjEgNS4yNTI5OCA5LjY1NjM2IDcuNzkyNzYgNi44NjQyNSAxMy45ODM1TCA2LjY0OTQ3IDE0LjM4MDNMIDYuNzIxMDYgMTQuMzgwM0MgNi40MzQ2OSAxNS4wMTUyIDYuMjE5OTEgMTUuODg4MyA2Ljc5MjY1IDE2LjIwNThMIDEyLjczNDggMTguNzQ1NUMgMTIuNzM0OCAxOC45ODM2IDEyLjY2MzMgMTkuMjIxOCAxMi42NjMzIDE5LjQ1OTlDIDEyLjY2MzMgMjIuMDc5IDE0LjU5NjMgMjQuMjIxOSAxNi45NTg4IDI0LjIyMTlDIDE5LjMyMTQgMjQuMjIxOSAyMS4yNTQ0IDIyLjA3OSAyMS4yNTQ0IDE5LjQ1OTlDIDIxLjI1NDQgMTYuODQwNyAxOS4zMjE0IDE0LjY5NzggMTYuOTU4OCAxNC42OTc4QyAxNS41MjcgMTQuNjk3OCAxNC4yMzgzIDE1LjQ5MTUgMTMuNDUwOCAxNi42ODJMIDguNTgyNDcgMTQuNjE4NEMgOS43Mjc5NSAxMi4yMzc0IDExLjU4OTQgMTAuNDExOSAxMy44ODAzIDkuNTM4ODVDIDE2LjI0MjkgOC42NjU4IDE4LjgyMDIgOC44MjQ1NCAyMS4xMTEyIDEwLjAxNTFDIDI1Ljc2NDcgMTIuNTU0OCAyNy42OTc3IDE4LjgyNDkgMjUuNDA2OCAyMy45ODM4QyAyNC4zMzI5IDI2LjUyMzYgMjIuMzk5OSAyOC4zNDkxIDE5Ljk2NTcgMjkuMzAxNUMgMTcuNjAzMSAzMC4xNzQ1IDE1LjAyNTggMzAuMDE1OCAxMi43MzQ4IDI4LjgyNTNDIDExLjM3NDYgMjguMTExIDEwLjIyOTEgMjYuOTk5OCA5LjI5ODQgMjUuNjUwNkMgOS4zNjk5OSAyNS40MTI1IDkuNDQxNTggMjUuMTc0NCA5LjQ0MTU4IDI0LjkzNjJDIDkuNTg0NzcgMjMuOTgzOCA4Ljc5NzI1IDIzLjExMDggNy45MzgxNCAyMy4xMTA4WiIvPjxwYXRoIGlkPSJwYXRoMV9maWxsIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiIGQ9Ik0gMTIuMDE4OSAzMC43MzAxQyAxMC4zNzIzIDI5Ljc3NzcgOC45NDA0MyAyOC40Mjg0IDcuODY2NTQgMjYuNzYxN0MgNy4wMDc0MyAyNi43NjE3IDYuMjkxNSAyNS44ODg3IDYuMjkxNSAyNC45MzYyQyA2LjI5MTUgMjMuOTA0NSA3LjAwNzQzIDIzLjExMDggNy45MzgxNCAyMy4xMTA4QyA4Ljc5NzI1IDIzLjExMDggOS41ODQ3NyAyMy45ODM4IDkuNDQxNTggMjQuOTM2MkMgOS40NDE1OCAyNS4xNzQ0IDkuMzY5OTkgMjUuNDEyNSA5LjI5ODQgMjUuNjUwNkMgMTAuMjI5MSAyNi45OTk4IDExLjM3NDYgMjguMTExIDEyLjczNDggMjguODI1M0MgMTUuMDI1OCAzMC4wMTU4IDE3LjYwMzEgMzAuMTc0NSAxOS45NjU3IDI5LjMwMTVDIDIyLjM5OTkgMjguMzQ5MSAyNC4zMzI5IDI2LjUyMzYgMjUuNDA2OCAyMy45ODM4QyAyNy42OTc3IDE4LjgyNDkgMjUuNzY0NyAxMi41NTQ4IDIxLjExMTIgMTAuMDE1MUMgMTguODIwMiA4LjgyNDU0IDE2LjI0MjkgOC42NjU4IDEzLjg4MDMgOS41Mzg4NUMgMTEuNjc2NSAxMC4zNzg3IDkuODcwMDcgMTIuMDk5OSA4LjcxNjE2IDE0LjM0OTNDIDguNjcwNTYgMTQuNDM4MiA4LjYyNjAyIDE0LjUyNzkgOC41ODI0NyAxNC42MTg0TCAxMy40NTA4IDE2LjY4MkMgMTQuMjM4MyAxNS40OTE1IDE1LjUyNyAxNC42OTc4IDE2Ljk1ODggMTQuNjk3OEMgMTkuMzIxNCAxNC42OTc4IDIxLjI1NDQgMTYuODQwNyAyMS4yNTQ0IDE5LjQ1OTlDIDIxLjI1NDQgMjIuMDc5IDE5LjMyMTQgMjQuMjIxOSAxNi45NTg4IDI0LjIyMTlDIDE0LjU5NjMgMjQuMjIxOSAxMi42NjMzIDIyLjA3OSAxMi42NjMzIDE5LjQ1OTlDIDEyLjY2MzMgMTkuMzQwOCAxMi42ODExIDE5LjIyMTggMTIuNjk5IDE5LjEwMjdDIDEyLjcxNjkgMTguOTgzNyAxMi43MzQ4IDE4Ljg2NDYgMTIuNzM0OCAxOC43NDU1TCA2Ljc5MjY1IDE2LjIwNThDIDYuMzA2MDcgMTUuOTM2IDYuMzg3ODQgMTUuMjY1MyA2LjU5OTA3IDE0LjY4MDNDIDYuNjE1MTcgMTQuNjM1NyA2LjYzMjAyIDE0LjU5MTcgNi42NDk0MiAxNC41NDgzQyA2LjY2ODA4IDE0LjUwMTggNi42ODczOCAxNC40NTYxIDYuNzA3MDggMTQuNDExNUMgNi43MTE3IDE0LjQwMTEgNi43MTY0IDE0LjM5MDYgNi43MjEwNiAxNC4zODAzTCA2LjY0OTQ3IDE0LjM4MDNMIDYuODY0MjUgMTMuOTgzNUMgOS42NTYzNiA3Ljc5Mjc2IDE2LjM4NjEgNS4yNTI5OCAyMS45NzAzIDguMjY4OTZDIDI0LjY5MDggOS43NzY5NiAyNi42OTU0IDEyLjMxNjcgMjcuNjk3NyAxNS40OTE1QyAyOC42Mjg0IDE4LjY2NjIgMjguNDg1MiAyMS45OTk2IDI3LjEyNSAyNS4wMTU2QyAyNS4xMjA0IDI5LjQ2MDIgMjEuMTExMiAzMiAxNi45NTg4IDMyQyAxNS4zMTIyIDMyIDEzLjU5NCAzMS42MDMyIDEyLjAxODkgMzAuNzMwMVpNIDYuNTk1MjIgMTMuODUwMkMgOS40NTI5OCA3LjUyNzIzIDE2LjM2MDQgNC44OTgxOSAyMi4xMTI4IDguMDA1MDJMIDIyLjExNTcgOC4wMDY1OEMgMjQuOTA5MSA5LjU1NDk1IDI2Ljk2MDQgMTIuMTU5NiAyNy45ODM4IDE1LjQwMTFMIDI3Ljk4NTYgMTUuNDA3MUMgMjguOTI2MiAxOC42Mjk5IDI4Ljc3NzEgMjIuMDY5IDI3LjM5ODQgMjUuMTM5QyAyNS4zNDg5IDI5LjY4MzIgMjEuMjM3NiAzMi4zIDE2Ljk1ODggMzIuM0MgMTUuMjc4MiAzMi4yOTgxIDEzLjQ4NjQgMzEuODgzMiAxMS44NzM0IDMwLjk5MjVMIDExLjg2ODYgMzAuOTg5OUMgMTAuMjM1NiAzMC4wNDMxIDguNzg1MjYgMjguNjkxMSA3LjY5ODU5IDI3LjA1M0MgNi43MTQyMyAyNi45NDk3IDUuOTkxNDYgMjUuOTQ5NiA1Ljk5MTQ2IDI0LjkzNjNDIDUuOTkxNDYgMjMuNzY4NiA2LjgxMzM1IDIyLjgxMDggNy45MzgwOSAyMi44MTA4QyA4Ljk3ODc4IDIyLjgxMDggOS44OTcyOSAyMy44MzkyIDkuNzQxMDUgMjQuOTYxMkMgOS43MzUwMyAyNS4xODExIDkuNjgzMDYgMjUuMzk5OCA5LjYyNjc5IDI1LjU5NzJDIDEwLjUyMjcgMjYuODY4MiAxMS41ODkxIDI3Ljg4NzkgMTIuODczMiAyOC41NTkxQyAxNS4wODkgMjkuNzEwNiAxNy41NzczIDI5Ljg2MzQgMTkuODU5IDI5LjAyMTFDIDIyLjIxNzYgMjguMDk3NSAyNC4wODg4IDI2LjMzMDQgMjUuMTMwNCAyMy44NjdMIDI1LjEzMjUgMjMuODYyMUMgMjcuMzY1OSAxOC44MzI3IDI1LjQ3MTQgMTIuNzM4NiAyMC45NzAxIDEwLjI3OTlDIDE4Ljc1NDUgOS4xMjk0NiAxNi4yNjY4IDguOTc3MjQgMTMuOTg1NyA5LjgxOTc0QyAxMS44NjY4IDEwLjYyNzcgMTAuMTE3OCAxMi4yODQ3IDguOTkzMTMgMTQuNDY2N0wgMTMuMzQzOSAxNi4zMTA5QyAxNC4xODgyIDE1LjE2MjIgMTUuNDk3OCAxNC4zOTc4IDE2Ljk1ODggMTQuMzk3OEMgMTkuNTE1NCAxNC4zOTc4IDIxLjU1NDMgMTYuNzA0OSAyMS41NTQzIDE5LjQ1OTlDIDIxLjU1NDMgMjIuMjE0OSAxOS41MTU0IDI0LjUyMTkgMTYuOTU4OCAyNC41MjE5QyAxNC40MDIyIDI0LjUyMTkgMTIuMzYzMiAyMi4yMTQ5IDEyLjM2MzIgMTkuNDU5OUMgMTIuMzY0IDE5LjMxODUgMTIuMzg0NCAxOS4xNzcyIDEyLjQwMjMgMTkuMDU4MUwgMTIuNDA1IDE5LjA0MDVDIDEyLjQxMDQgMTkuMDA0MyAxMi40MTU2IDE4Ljk3MDEgMTIuNDIgMTguOTM3M0wgNi42NjA1OSAxNi40NzU2TCA2LjY0NzE2IDE2LjQ2ODJDIDYuMjE2ODUgMTYuMjI5NiA2LjExNDI3IDE1Ljc4ODEgNi4xMzUwNiAxNS4zOTYyQyA2LjE0ODkzIDE1LjE2NTkgNi4yMDY3NiAxNC45MTU3IDYuMjgzNjUgMTQuNjgwM0wgNi4xNDU5MyAxNC42ODAzTCA2LjU5NTIyIDEzLjg1MDJaIi8+PHBhdGggaWQ9InBhdGgyX2ZpbGwiIGQ9Ik0gMzIuMTI4MSAxMC4wMTY4QyAzMi4xMjgxIDkuMDA2MyAzMS4zOTU1IDguMjI4OTkgMzAuNDQzMiA4LjIyODk5QyAyOS40OTA4IDguMjI4OTkgMjguNzU4MiA5LjAwNjMgMjguNzU4MiAxMC4wMTY4QyAyOC43NTgyIDEwLjk0OTYgMjkuNDkwOCAxMS43MjY5IDMwLjM2OTkgMTEuODA0NkMgMzIuODYwNyAxNi4zOTA4IDMzLjA4MDUgMjIuMDY1MSAzMC44ODI3IDI2Ljg4NDVDIDI5LjA1MTIgMzAuNzcxIDI1Ljk3NDMgMzMuNjQ3MSAyMi4xNjQ4IDM0Ljk2ODVDIDE4LjM1NTMgMzYuMzY3NyAxNC4yNTI4IDM2LjA1NjcgMTAuNjYzMSAzNC4xOTEyQyAzLjE5MDYyIDMwLjMwNDYgMC4xMTM3MjQgMjAuNjY2IDMuNzc2NyAxMi43Mzc0QyA1Ljk3NDQ4IDcuOTk1OCAxMC4yOTY4IDQuNzMxMDkgMTUuMTMxOSAzLjk1Mzc4QyAxNS40MjUgNC4zNDI0NCAxNS44NjQ1IDQuNTc1NjMgMTYuMzc3MyA0LjU3NTYzQyAxNy4zMjk3IDQuNTc1NjMgMTguMDYyMyAzLjc5ODMyIDE4LjA2MjMgMi43ODc4MkMgMTguMDYyMyAxLjc3NzMxIDE3LjMyOTcgMSAxNi4zNzczIDFDIDE1LjcxOCAxIDE1LjIwNTIgMS4zODg2NiAxNC45MTIxIDEuOTMyNzdDIDkuNDE3NjggMi43ODc4MiA0LjUwOTMgNi41MTg5MSAyLjAxODQ3IDExLjg4MjRDIDAuMDQwNDY1NiAxNi4yMzUzIC0wLjI1MjU3MyAyMS4xMzI0IDEuMjEyNjIgMjUuNzE4NUMgMi42Nzc4MSAzMC4zMDQ2IDUuNzU0NzEgMzMuOTU4IDkuNzgzOTggMzYuMTM0NUMgMTIuMjAxNSAzNy4zNzgyIDE0Ljc2NTYgMzggMTcuMjU2NCAzOEMgMjMuNTU2OCAzOCAyOS42MzczIDM0LjI2ODkgMzIuNTY3NyAyNy44OTVDIDM1LjA1ODUgMjIuNDUzOCAzNC44Mzg3IDE2LjAwMjEgMzEuOTgxNiAxMC43OTQxQyAzMi4wNTQ5IDEwLjU2MDkgMzIuMTI4MSAxMC4zMjc3IDMyLjEyODEgMTAuMDE2OFoiLz48cGF0aCBpZD0icGF0aDNfZmlsbCIgZmlsbC1ydWxlPSJldmVub2RkIiBkPSJNIDIuMDE4NDcgMTEuODgyNEMgNC41MDkzIDYuNTE4OTEgOS40MTc2OCAyLjc4NzgyIDE0LjkxMjEgMS45MzI3N0MgMTUuMjA1MiAxLjM4ODY2IDE1LjcxOCAxIDE2LjM3NzMgMUMgMTcuMzI5NyAxIDE4LjA2MjMgMS43NzczMSAxOC4wNjIzIDIuNzg3ODJDIDE4LjA2MjMgMy43OTgzMiAxNy4zMjk3IDQuNTc1NjMgMTYuMzc3MyA0LjU3NTYzQyAxNS44NjQ1IDQuNTc1NjMgMTUuNDI1IDQuMzQyNDQgMTUuMTMxOSAzLjk1Mzc4QyAxMC4yOTY4IDQuNzMxMDkgNS45NzQ0OCA3Ljk5NTggMy43NzY3IDEyLjczNzRDIDAuMTEzNzI0IDIwLjY2NiAzLjE5MDYyIDMwLjMwNDYgMTAuNjYzMSAzNC4xOTEyQyAxNC4yNTI4IDM2LjA1NjcgMTguMzU1MyAzNi4zNjc3IDIyLjE2NDggMzQuOTY4NUMgMjUuOTc0MyAzMy42NDcxIDI5LjA1MTIgMzAuNzcxIDMwLjg4MjcgMjYuODg0NUMgMzMuMDgwNSAyMi4wNjUxIDMyLjg2MDcgMTYuMzkwOCAzMC4zNjk5IDExLjgwNDZDIDI5LjQ5MDggMTEuNzI2OSAyOC43NTgyIDEwLjk0OTYgMjguNzU4MiAxMC4wMTY4QyAyOC43NTgyIDkuMDA2MyAyOS40OTA4IDguMjI4OTkgMzAuNDQzMiA4LjIyODk5QyAzMS4zOTU1IDguMjI4OTkgMzIuMTI4MSA5LjAwNjMgMzIuMTI4MSAxMC4wMTY4QyAzMi4xMjgxIDEwLjMyNzcgMzIuMDU0OSAxMC41NjA5IDMxLjk4MTYgMTAuNzk0MUMgMzQuODM4NyAxNi4wMDIxIDM1LjA1ODUgMjIuNDUzOCAzMi41Njc3IDI3Ljg5NUMgMjkuNjM3MyAzNC4yNjg5IDIzLjU1NjggMzggMTcuMjU2NCAzOEMgMTQuNzY1NiAzOCAxMi4yMDE1IDM3LjM3ODIgOS43ODM5OCAzNi4xMzQ1QyA1Ljc1NDcxIDMzLjk1OCAyLjY3NzgxIDMwLjMwNDYgMS4yMTI2MiAyNS43MTg1QyAtMC4yNTI1NzMgMjEuMTMyNCAwLjA0MDQ2NTYgMTYuMjM1MyAyLjAxODQ3IDExLjg4MjRaTSAzMi4zMDU1IDEwLjc2MTZDIDMyLjM2NzEgMTAuNTU0NiAzMi40MjUzIDEwLjMxMjkgMzIuNDI4MiAxMC4wMTY4QyAzMi40MjgyIDguODU3NjIgMzEuNTc3NyA3LjkyOSAzMC40NDMyIDcuOTI5QyAyOS4zMDg2IDcuOTI5IDI4LjQ1ODIgOC44NTc2MiAyOC40NTgyIDEwLjAxNjhDIDI4LjQ1ODIgMTEuMDQ2IDI5LjIyIDExLjkxMzggMzAuMTc4MiAxMi4wODE3QyAzMi41NTYgMTYuNTYwOSAzMi43NDcgMjIuMDcyIDMwLjYxMDYgMjYuNzU4MkMgMjguODEwMyAzMC41Nzc2IDI1Ljc5MjYgMzMuMzkyNiAyMi4wNjY1IDM0LjY4NTFMIDIyLjA2MTQgMzQuNjg2OUMgMTguMzMzNiAzNi4wNTYxIDE0LjMxODcgMzUuNzUyOSAxMC44MDE2IDMzLjkyNUMgMy40ODA1NiAzMC4xMTczIDAuNDQ4ODY2IDIwLjY1NjIgNC4wNDkgMTIuODYzNEMgNi4xODA3MiA4LjI2NDQ2IDEwLjM0NjEgNS4wODY4MiAxNS4wMTE4IDQuMjc4MDFDIDE1LjM1NTUgNC42NTMxMSAxNS44MzM0IDQuODc1NjQgMTYuMzc3NCA0Ljg3NTY0QyAxNy41MTE5IDQuODc1NjQgMTguMzYyMyAzLjk0NzAyIDE4LjM2MjMgMi43ODc4M0MgMTguMzYyMyAxLjYyODYzIDE3LjUxMTkgMC43MDAwMTIgMTYuMzc3NCAwLjcwMDAxMkMgMTUuNjQyMiAwLjcwMDAxMiAxNS4wNjk3IDEuMTA1NDggMTQuNzI0MyAxLjY1OTA1QyA5LjE4NDAxIDIuNTcxNzcgNC4yNTYxMiA2LjM1MTg5IDEuNzQ2NDEgMTEuNzU2TCAxLjc0NTM4IDExLjc1ODNDIC0wLjI1MDY3OCAxNi4xNjMxIC0wLjU1MDIxIDIxLjE2OTcgMC45MjY4NzkgMjUuODA5OEMgMi40MTU1NyAzMC40Njk1IDUuNTQzNTggMzQuMTg0OSA5LjY0MTQzIDM2LjM5ODRMIDkuNjQ2NzcgMzYuNDAxMkMgMTIuMDk2OSAzNy42NTkzIDE0LjczMDEgMzguMjk3OSAxNy4yNTY1IDM4LjNDIDIzLjY3NiAzOC4zIDI5Ljg2MTggMzQuNDk4OSAzMi44NDAzIDI4LjAyMDNDIDM1LjM1MjQgMjIuNTMyNiAzNS4xNTA4IDE2LjAzMzggMzIuMzA1NSAxMC43NjE2WiIvPjxwYXRoIGlkPSJwYXRoNF9maWxsIiBkPSJNIDE5LjI5MTUgMi41QyAxOS4yOTE1IDMuODgwNzEgMTguMTcyMiA1IDE2Ljc5MTUgNUMgMTUuNDEwOCA1IDE0LjI5MTUgMy44ODA3MSAxNC4yOTE1IDIuNUMgMTQuMjkxNSAxLjExOTI5IDE1LjQxMDggMCAxNi43OTE1IDBDIDE4LjE3MjIgMCAxOS4yOTE1IDEuMTE5MjkgMTkuMjkxNSAyLjVaIi8+PHBhdGggaWQ9InBhdGg1X2ZpbGwiIGQ9Ik0gMzMuMjkxNSAxMC41QyAzMy4yOTE1IDExLjg4MDcgMzIuMTcyMiAxMyAzMC43OTE1IDEzQyAyOS40MTA4IDEzIDI4LjI5MTUgMTEuODgwNyAyOC4yOTE1IDEwLjVDIDI4LjI5MTUgOS4xMTkyOSAyOS40MTA4IDggMzAuNzkxNSA4QyAzMi4xNzIyIDggMzMuMjkxNSA5LjExOTI5IDMzLjI5MTUgMTAuNVoiLz48cGF0aCBpZD0icGF0aDZfZmlsbCIgZD0iTSAxMC4yOTE1IDI1LjVDIDEwLjI5MTUgMjYuODgwNyA5LjE3MjIyIDI4IDcuNzkxNSAyOEMgNi40MTA3OSAyOCA1LjI5MTUgMjYuODgwNyA1LjI5MTUgMjUuNUMgNS4yOTE1IDI0LjExOTMgNi40MTA3OSAyMyA3Ljc5MTUgMjNDIDkuMTcyMjIgMjMgMTAuMjkxNSAyNC4xMTkzIDEwLjI5MTUgMjUuNVoiLz48L2RlZnM+PC9zdmc+'
+		Utils\get_admin_icon(),
 	);
 
 	add_action( "load-$hook", __NAMESPACE__ . '\screen_option' );

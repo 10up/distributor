@@ -11,7 +11,7 @@
 	<div class="inner">
 	{{#foundConnections}}
 		<?php /* translators: %s the post title */ ?>
-		<p><?php echo sprintf( esc_html__( 'Distribute &quot;%s&quot; to other connections.', 'distributor' ), esc_html( get_the_title( $post->ID ) ) ); ?></p>
+		<p><?php echo sprintf( esc_html__( 'Distribute &quot;%s&quot; to other connections.', 'distributor' ), '{{ postTitle }}' ); ?></p>
 
 		<div class="connections-selector">
 			<div>
@@ -55,7 +55,6 @@
 			<div class="selected-connections-list"></div>
 
 			<div class="action-wrapper">
-				<input type="hidden" id="dt-post-status" value="<?php echo esc_attr( $post->post_status ); ?>">
 				<?php
 				$as_draft = ( 'draft' !== $post->post_status ) ? true : false;
 				/**
