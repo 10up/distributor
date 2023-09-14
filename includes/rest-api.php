@@ -253,7 +253,8 @@ function get_pull_content_list_args() {
 				 */
 				$allowed_post_types = array_filter( $allowed_post_types, 'is_post_type_viewable' );
 
-				if ( in_array( 'any', $param, true ) ) {
+				// WP_Query supports both all and any so Distributor does too...
+				if ( in_array( 'any', $param, true ) || in_array( 'all', $param, true ) ) {
 					$param = $allowed_post_types;
 				} else {
 					$param = array_intersect( $param, $allowed_post_types );
