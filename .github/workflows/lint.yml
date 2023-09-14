@@ -8,12 +8,10 @@ on:
   push:
     branches:
       - develop
-      - develop-v1
       - trunk
   pull_request:
     branches:
       - develop
-      - develop-v1
 
 jobs:
   eslint:

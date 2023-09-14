@@ -4,12 +4,11 @@ on:
   push:
     branches:
       - develop
-      - develop-v1
       - trunk
   pull_request:
     branches:
       - develop
-      - develop-v1
+
 jobs:
   build:
     name: NPM Install
@@ -101,7 +100,7 @@ jobs:
       run: npm run copy-htaccess
 
     - name: Test
-      run: npm run cypress:run --config-file tests/cypress/config.js
+      run: npm run cypress:run
 
     - name: Update summary
       if: always()

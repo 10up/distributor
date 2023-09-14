@@ -847,7 +847,7 @@ class DistributorPost {
 		}
 
 		// Additional data required for wp_insert_post().
-		$insert['post_author'] = isset( $this->post->post_author ) ? $this->post->post_author : get_current_user_id();
+		$insert['post_author'] = ! empty( $this->post->post_author ) ? $this->post->post_author : get_current_user_id();
 
 		// If the post has blocks, use the raw content.
 		if ( $this->has_blocks() ) {
