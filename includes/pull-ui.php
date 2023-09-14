@@ -476,7 +476,7 @@ function dashboard() {
 
 				// Ensure we have at least one post type to pull.
 				$connection_now->pull_post_type = '';
-				if ( empty( $connection_now->pull_post_types ) ) {
+				if ( ! empty( $connection_now->pull_post_types ) ) {
 					$connection_now->pull_post_type = 'all';
 				}
 
