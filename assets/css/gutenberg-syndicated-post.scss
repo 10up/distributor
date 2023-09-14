@@ -19,6 +19,13 @@ body.dt-linked-post {
 		cursor: default;
 	}
 
+	/* Allow clicks on confirmation dialog buttons */
+	.components-confirm-dialog button {
+		opacity: 1;
+		pointer-events: auto;
+		cursor: pointer;
+	}
+
 	.edit-post-welcome-guide,
 	.edit-post-header__settings,
 	.components-time-picker,
@@ -40,6 +47,7 @@ body.dt-linked-post {
 
 	.components-panel__body-toggle,
 	.edit-post-post-visibility__toggle,
+	.editor-post-switch-to-draft,
 	.editor-post-trash,
 	.editor-post-publish-button,
 	.edit-post-post-schedule__toggle,
