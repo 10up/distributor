@@ -276,10 +276,13 @@ Cypress.Commands.add( 'createTweetOEmbedPost', ( tweetUrl ) => {
 		title: postTitle,
 		beforeSave: () => {
 			cy.insertBlock( 'core/embed/twitter', 'Twitter' ).then( ( id ) => {
-				cy.get( `#${ id } input[aria-label="Twitter URL"]` )
+				cy.getBlockEditor()
+					.find( `#${ id } input[aria-label="Twitter URL"]` )
 					.click()
 					.type( tweetUrl );
-				cy.get( `#${ id } button[type="submit"]` ).click();
+				cy.getBlockEditor()
+					.find( `#${ id } button[type="submit"]` )
+					.click();
 			} );
 		},
 	} ).then( ( post ) => {

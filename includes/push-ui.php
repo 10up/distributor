@@ -49,6 +49,7 @@ function syndicatable() {
 	 * Filter Distributor capabilities allowed to syndicate content.
 	 *
 	 * @hook dt_syndicatable_capabilities
+	 * @tutorial snippets
 	 *
 	 * @param {string} edit_posts The capability allowed to syndicate content.
 	 *
@@ -413,6 +414,7 @@ function enqueue_scripts( $hook ) {
 		'loadConnectionsNonce' => wp_create_nonce( 'dt-load-connections' ),
 		'postId'               => (int) get_the_ID(),
 		'postTitle'            => get_the_title(),
+		'postStatus'           => get_post_status(),
 		'ajaxurl'              => esc_url( admin_url( 'admin-ajax.php' ) ),
 
 		/**

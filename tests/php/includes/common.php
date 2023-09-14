@@ -272,7 +272,7 @@ function get_allowed_mime_types() {
 /**
  * Mock wp_json_encode() function.
  *
- * @since x.x.x
+ * @since 2.0.0
  *
  * @param mixed $data Data to encode.
  * @param int   $options Optional. Options to be passed to json_encode(). Default 0.
@@ -286,7 +286,7 @@ function wp_json_encode( $data, $options = 0, $depth = 512 ) {
 /**
  * Mock wp_parse_args() function.
  *
- * @since x.x.x
+ * @since 2.0.0
  *
  * @param array $settings Array of arguments.
  * @param array $defaults Array of default arguments.
