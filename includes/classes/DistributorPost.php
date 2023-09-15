@@ -27,7 +27,6 @@ use WP_Post;
  * shown in IDEs.
  *
  * @since 2.0.0
- *
  */
 class DistributorPost {
 	/**
