@@ -54,7 +54,7 @@ jobs:
         run: composer update -W
 
       - name: Setup WP Tests
-        run: bash bin/install-wp-tests.sh wordpress_test root '' 127.0.0.1
+        run: bash tests/bin/install-wp-tests.sh wordpress_test root '' 127.0.0.1
 
       - name: PHPUnit
         run: composer run test
