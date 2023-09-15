@@ -5,7 +5,7 @@ namespace Distributor\Tests;
 use Distributor\EnqueueScript;
 
 /**
- * @since x.x.x
+ * @since 2.0.0
  */
 class EnqueueScriptTest extends Utils\TestCase {
 	public function test_script_registration(): void {

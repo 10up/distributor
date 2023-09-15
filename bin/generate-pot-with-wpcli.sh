@@ -5,7 +5,7 @@
 # https://developer.wordpress.org/block-editor/packages/packages-scripts/#files
 # This script will run with npm run makepot command.
 #
-# @since x.x.x
+# @since 2.0.0
 
 if ! command -v wp &>/dev/null; then
 	echo "Error: wp cli could not be found. Please install wp cli and try again."

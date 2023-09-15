@@ -20,4 +20,25 @@
 			</property>
 		</properties>
 	</rule>
+
+	<!-- Show progress, show the error codes for each message (source). -->
+	<arg value="ps"/>
+
+	<!-- Check up to 8 files simultaneously. -->
+	<arg name="parallel" value="8"/>
+
+	<!-- Configs -->
+	<config name="minimum_supported_wp_version" value="5.7"/>
+
+	<!-- Exclude directory -->
+	<exclude-pattern>/vendor/*</exclude-pattern>
+	<exclude-pattern>/lang/*</exclude-pattern>
+	<exclude-pattern>/asset/*</exclude-pattern>
+	<exclude-pattern>/tests/*</exclude-pattern>
+	<exclude-pattern>/node_modules/*</exclude-pattern>
+	<exclude-pattern>/bin/*</exclude-pattern>
+
+	<!--Sniff only php files-->
+	<arg name="extensions" value="php"/>
+
 </ruleset>

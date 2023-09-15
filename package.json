@@ -1,6 +1,6 @@
 {
 	"name": "distributor",
-	"version": "1.9.1",
+	"version": "2.0.0",
 	"description": "Distributor is a WordPress plugin that makes it easy to distribute and reuse content across your websites — whether in a single multisite or across the web.",
 	"author": {
 		"name": "10up",
@@ -25,11 +25,12 @@
 		"mustache": "^4.2.0"
 	},
 	"devDependencies": {
-		"@10up/cypress-wp-utils": "github:10up/cypress-wp-utils#build",
-		"@wordpress/env": "^5.0.0",
-		"@wordpress/scripts": "^23.5.0",
+		"@10up/cypress-wp-utils": "^0.2.0",
+		"@wordpress/env": "^5.16.0",
+		"@wordpress/scripts": "^26.6.0",
 		"compare-versions": "^4.1.3",
-		"cypress": "^10.8.0",
+		"cypress": "^13.1.0",
+		"cypress-mochawesome-reporter": "^3.5.1",
 		"eslint-plugin-cypress": "^2.12.1",
 		"jsdoc": "^3.6.11",
 		"node-wp-i18n": "^1.2.6",
@@ -57,6 +58,7 @@
 		"env": "wp-env",
 		"env:start": "wp-env start",
 		"env:stop": "wp-env stop",
+		"env:destroy": "wp-env destroy",
 		"to-multisite": "wp-env run tests-cli \"wp core multisite-convert --title='Distributor Multisite'\"",
 		"copy-htaccess": "wp-env run tests-cli \"cp wp-content/plugins/distributor/tests/cypress/.htaccess .htaccess\"",
 		"postenv:start": "./tests/bin/initialize.sh"
@@ -74,7 +76,6 @@
 		"includes/**/*",
 		"lang/**/*",
 		"templates/**/*",
-		"vendor/georgestephanis/application-passwords/**/*",
 		"vendor/yahnis-elsts/plugin-update-checker/**/*"
 	]
 }

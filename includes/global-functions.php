@@ -56,7 +56,7 @@ if ( ! function_exists( 'str_contains' ) ) {
 	 * Performs a case-sensitive check indicating if needle is
 	 * contained in haystack.
 	 *
-	 * @since x.x.x
+	 * @since 2.0.0
 	 *
 	 * @param string $haystack The string to search in.
 	 * @param string $needle   The substring to search for in the haystack.
@@ -74,7 +74,7 @@ if ( ! function_exists( 'str_starts_with' ) ) {
 	 * Performs a case-sensitive check indicating if
 	 * the haystack begins with needle.
 	 *
-	 * @since x.x.x
+	 * @since 2.0.0
 	 *
 	 * @param string $haystack The string to search in.
 	 * @param string $needle   The substring to search for in the `$haystack`.
@@ -96,7 +96,7 @@ if ( ! function_exists( 'str_ends_with' ) ) {
 	 * Performs a case-sensitive check indicating if
 	 * the haystack ends with needle.
 	 *
-	 * @since x.x.x
+	 * @since 2.0.0
 	 *
 	 * @param string $haystack The string to search in.
 	 * @param string $needle   The substring to search for in the `$haystack`.

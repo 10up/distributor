@@ -13,5 +13,7 @@ docs-built
 
 tests/cypress/videos
 tests/cypress/screenshots
+tests/cypress/reports
+tests/cypress/downloads
 
 distributor.zip

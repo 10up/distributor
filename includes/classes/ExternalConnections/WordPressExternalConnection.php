@@ -381,6 +381,7 @@ class WordPressExternalConnection extends ExternalConnection {
 			unset( $post_array['post_date_gmt'] );
 			unset( $post_array['post_modified'] );
 			unset( $post_array['post_modified_gmt'] );
+			unset( $post_array['post_author'] );
 
 			if ( ! empty( $item_array['post_id'] ) ) {
 				$update           = true;
@@ -558,6 +559,7 @@ class WordPressExternalConnection extends ExternalConnection {
 					 *
 					 * @since 1.0
 					 * @hook dt_push_post_args
+					 * @tutorial snippets
 					 *
 					 * @param  {array}              $post_body  The request body to send.
 					 * @param  {object}             $post       The WP_Post that is being pushed.
