@@ -80,7 +80,7 @@ function enqueue_scripts( $hook ) {
 function add_debug_info( $info ) {
 	$text_domain = 'distributor';
 
-	$defaults    = [
+	$defaults = [
 		'email'                  => '',
 		'valid_license'          => false,
 		'license_key'            => '',
