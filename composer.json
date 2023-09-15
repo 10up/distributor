@@ -28,7 +28,7 @@
   "require-dev": {
     "10up/phpcs-composer": "dev-master",
     "automattic/vipwpcs": "^2.3",
-    "php-stubs/wordpress-tests-stubs": "^6.2",
+    "php-stubs/wordpress-tests-stubs": "^6.3",
     "yoast/phpunit-polyfills": "dev-main"
   },
   "scripts": {

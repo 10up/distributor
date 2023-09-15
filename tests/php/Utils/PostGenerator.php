@@ -6,10 +6,13 @@ namespace Distributor\Tests\Utils;
  * Class PostGenerator
  */
 class PostGenerator {
+	/* @var \WP_Post $post */
+	private $post;
+
 	/**
-	 * @return int|\WP_Error
+	 * This function should create a "post" post type post.
 	 */
-	public static function create() {
+	public function create(): self {
 		$postData = array(
 			'post_title'            => 'Test Post',
 			'post_content'          => 'Test Content',
@@ -30,22 +33,29 @@ class PostGenerator {
 			'pinged'                => '',
 			'to_ping'               => '',
 			'post_password'         => '',
-			'post_name'             => 'test-post',
 			'post_content_filtered' => '',
 		);
 
-		return wp_insert_post( $postData );
+		$this->post = get_post( wp_insert_post( $postData ) );
+
+		return $this;
 	}
 
 	/**
-	 * @param int   $postId
-	 * @param array $metaData
-	 *
-	 * @return void
+	 * This function should save meta to post.
 	 */
-	public static function saveMeta( int $postId, array $metaData ): void {
+	public function withMeta( array $metaData ): self {
 		foreach ( $metaData as $metaKey => $metaValue ) {
-			update_post_meta( $postId, $metaKey, $metaValue );
+			update_post_meta( $this->post->ID, $metaKey, $metaValue );
 		}
+
+		return $this;
+	}
+
+	/**
+	 * This function should return post.
+	 */
+	public function getPost(): \WP_Post {
+		return $this->post;
 	}
 }
