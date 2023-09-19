@@ -2,14 +2,14 @@
 # This file is distributed under the GPLv2 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: Distributor 2.0.0\n"
+"Project-Id-Version: Distributor 2.0.1\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/distributor\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2023-09-05T23:46:21+00:00\n"
+"POT-Creation-Date: 2023-09-19T05:46:47+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.8.1\n"
 "X-Domain: distributor\n"
@@ -129,23 +129,23 @@ msgstr ""
 msgid "No post data for update."
 msgstr ""
 
-#: includes/classes/API/SubscriptionsController.php:336
+#: includes/classes/API/SubscriptionsController.php:339
 #: release/includes/classes/API/SubscriptionsController.php:336
 msgid "Sorry, you are not allowed to create subscriptions."
 msgstr ""
 
-#: includes/classes/API/SubscriptionsController.php:351
+#: includes/classes/API/SubscriptionsController.php:354
 #: release/includes/classes/API/SubscriptionsController.php:351
 msgid "Cannot create existing subscription."
 msgstr ""
 
-#: includes/classes/API/SubscriptionsController.php:355
+#: includes/classes/API/SubscriptionsController.php:358
 #: release/includes/classes/API/SubscriptionsController.php:355
 msgid "Subscription post does not exist."
 msgstr ""
 
-#: includes/classes/API/SubscriptionsController.php:407
-#: includes/classes/API/SubscriptionsController.php:430
+#: includes/classes/API/SubscriptionsController.php:410
+#: includes/classes/API/SubscriptionsController.php:433
 #: release/includes/classes/API/SubscriptionsController.php:407
 #: release/includes/classes/API/SubscriptionsController.php:430
 msgid "Invalid post ID."
@@ -348,7 +348,7 @@ msgid "Endpoint URL must be set."
 msgstr ""
 
 #: includes/classes/ExternalConnections/WordPressExternalConnection.php:256
-#: includes/classes/ExternalConnections/WordPressExternalConnection.php:653
+#: includes/classes/ExternalConnections/WordPressExternalConnection.php:654
 #: release/includes/classes/ExternalConnections/WordPressExternalConnection.php:256
 #: release/includes/classes/ExternalConnections/WordPressExternalConnection.php:653
 msgid "Could not connect to API endpoint."
@@ -360,9 +360,9 @@ msgid "API endpoint error."
 msgstr ""
 
 #: includes/classes/ExternalConnections/WordPressExternalConnection.php:271
-#: includes/classes/ExternalConnections/WordPressExternalConnection.php:502
-#: includes/classes/ExternalConnections/WordPressExternalConnection.php:605
-#: includes/classes/ExternalConnections/WordPressExternalConnection.php:659
+#: includes/classes/ExternalConnections/WordPressExternalConnection.php:503
+#: includes/classes/ExternalConnections/WordPressExternalConnection.php:606
+#: includes/classes/ExternalConnections/WordPressExternalConnection.php:660
 #: release/includes/classes/ExternalConnections/WordPressExternalConnection.php:271
 #: release/includes/classes/ExternalConnections/WordPressExternalConnection.php:502
 #: release/includes/classes/ExternalConnections/WordPressExternalConnection.php:605
@@ -385,26 +385,26 @@ msgstr ""
 msgid "No post found."
 msgstr ""
 
-#: includes/classes/ExternalConnections/WordPressExternalConnection.php:472
+#: includes/classes/ExternalConnections/WordPressExternalConnection.php:473
 #: includes/classes/InternalConnections/NetworkSiteConnection.php:75
 #: release/includes/classes/ExternalConnections/WordPressExternalConnection.php:472
 #: release/includes/classes/InternalConnections/NetworkSiteConnection.php:75
 msgid "Post ID required to push."
 msgstr ""
 
-#: includes/classes/ExternalConnections/WordPressExternalConnection.php:476
+#: includes/classes/ExternalConnections/WordPressExternalConnection.php:477
 #: includes/classes/InternalConnections/NetworkSiteConnection.php:79
 #: release/includes/classes/ExternalConnections/WordPressExternalConnection.php:476
 #: release/includes/classes/InternalConnections/NetworkSiteConnection.php:79
 msgid "Post does not exist."
 msgstr ""
 
-#: includes/classes/ExternalConnections/WordPressExternalConnection.php:510
+#: includes/classes/ExternalConnections/WordPressExternalConnection.php:511
 #: release/includes/classes/ExternalConnections/WordPressExternalConnection.php:510
 msgid "Could not determine remote post type endpoint."
 msgstr ""
 
-#: includes/classes/ExternalConnections/WordPressExternalConnection.php:611
+#: includes/classes/ExternalConnections/WordPressExternalConnection.php:612
 #: release/includes/classes/ExternalConnections/WordPressExternalConnection.php:611
 msgid "Could not determine remote post ID."
 msgstr ""
