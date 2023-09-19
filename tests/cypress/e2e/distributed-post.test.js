@@ -23,10 +23,7 @@ describe( 'Distributed Post Tests', () => {
 			// Return the the post edit screen.
 			cy.visit( '/wp-admin/post.php?post=' + post.id + '&action=edit' );
 			// Ensure the settings panel is open.
-			cy.get( 'button[aria-label="Settings"]' ).then( ( $settings ) => {
-				if ( $settings.attr( 'aria-expanded' ) === 'false' ) {
-					$settings.trigger( 'click' );
-				}
+			cy.get( 'button[aria-label="Settings"]' ).then( () => {
 				cy.openDocumentSettingsSidebar( 'Post' );
 				cy.openDocumentSettingsPanel( 'Distributor' );
 				cy.get( '#distributed-to' ).should(
