@@ -232,8 +232,11 @@ add_action(
 			'admin_footer',
 			static function () {
 				printf(
-					'<div id="my-modal" style="display:none;">%s</div>',
-					esc_html__( 'This is a demo modal', 'distributor' )
+					'<div id="my-modal" style="display:none;"><p>%1$s</p><p>%2$s</p><p><code>%3$s</code></p><p>%4$s</p></div>',
+					esc_html__( 'Would you like to delete all Distributor data?', 'distributor'),
+					esc_html__( 'By default the database entries are not deleted when you deactivate Distributor. If you are deleting Distributor completely from your website and want those items removed as well check, add below code to wp-config.php .', 'distributor' ),
+					'define(\'DT_REMOVE_ALL_DATA\', true)',
+					esc_html__( 'Note: This will permanently delete all Distributor data from your database. After deleting Distributor, you can remove code.', 'distributor' )
 				);
 			}
 		);
@@ -248,6 +251,7 @@ add_action(
 					$("#my-modal").dialog({
 						modal: true,
 						title: "$modal_title",
+						width: 550,
 						buttons: [
 							{
 								text: "$modal_button_title_cancel",
