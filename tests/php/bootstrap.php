@@ -10,7 +10,7 @@ WP_Mock::setUsePatchwork( true );
 WP_Mock::bootstrap();
 
 define( 'DT_PLUGIN_PATH', dirname( __DIR__, 2 ) );
-define( 'DT_VERSION', '2.0.0' );
+define( 'DT_VERSION', '2.0.1' );
 
 require_once __DIR__ . '/includes/common.php';
 require_once __DIR__ . '/includes/TestCase.php';

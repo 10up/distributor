@@ -4,6 +4,21 @@ All notable changes to this project will be documented in this file, per [the Ke
 
 ## [Unreleased] - TBD
 
+## [2.0.1] - 2023-09-18
+### Changed
+- Update from Cypress v10 to v13 (props [@dkotter](https://github.com/dkotter), [@iamdharmesh](https://github.com/iamdharmesh), [@peterwilsoncc](https://github.com/peterwilsoncc) via [#1128](https://github.com/10up/distributor/pull/1128)).
+- Documentation updates (props [@jeffpaul](https://github.com/jeffpaul), [@peterwilsoncc](https://github.com/peterwilsoncc) via [#1131](https://github.com/10up/distributor/pull/1131)).
+
+### Removed
+- GitHub Actions for version 1.x releases (props [@peterwilsoncc](https://github.com/peterwilsoncc), [@jeffpaul](https://github.com/jeffpaul) via [#1135](https://github.com/10up/distributor/pull/1135)).
+
+### Fixed
+- Invalid author IDs being set when pushing and pulling posts (props [@peterwilsoncc](https://github.com/peterwilsoncc), [@faisal-alvi](https://github.com/faisal-alvi), [@joemcgill](https://github.com/joemcgill), [@margaretschneider](https://github.com/margaretschneider) via [#1133](https://github.com/10up/distributor/pull/1133)).
+- Featured image delete push issue (props [@ravichdev](https://github.com/ravichdev), [@helen](https://github.com/helen), [@dkotter](https://github.com/dkotter), [@adamsilverstein](https://github.com/adamsilverstein), [@jeffpaul](https://github.com/jeffpaul), [@arsendovlatyan](https://github.com/arsendovlatyan), [@ravinderk](https://github.com/ravinderk), [@peterwilsoncc](https://github.com/peterwilsoncc) via [#310](https://github.com/10up/distributor/pull/310)).
+- Allow clicking on the `Save to draft` confirmation modal buttons (props [@av3nger](https://github.com/av3nger), [@peterwilsoncc](https://github.com/peterwilsoncc), [@ravinderk](https://github.com/ravinderk), [@pdewouters](https://github.com/pdewouters) via [#1042](https://github.com/10up/distributor/pull/1042)).
+- Admin icon has been updated so it has the same width and height (props [@zach-adams](https://github.com/zach-adams), [@ravinderk](https://github.com/ravinderk), [@peterwilsoncc](https://github.com/peterwilsoncc) via [#1132](https://github.com/10up/distributor/pull/1132)).
+- Ensure our E2E tests pass on WordPress 6.3 (props [@dkotter](https://github.com/dkotter), [@iamdharmesh](https://github.com/iamdharmesh), [@peterwilsoncc](https://github.com/peterwilsoncc) via [#1128](https://github.com/10up/distributor/pull/1128)).
+
 ## [2.0.0] - 2023-09-05
 **Note that Distributor now requires PHP 7.4 or later and WordPress 5.7 or later.**
 
@@ -471,6 +486,7 @@ This adds a post type selector when viewing the Pull Content list for both exter
 - Initial closed release.
 
 [Unreleased]: https://github.com/10up/distributor/compare/trunk...develop
+[2.0.1]: https://github.com/10up/distributor/compare/2.0.0...2.0.1
 [2.0.0]: https://github.com/10up/distributor/compare/1.9.1...2.0.0
 [1.9.1]: https://github.com/10up/distributor/compare/1.9.0...1.9.1
 [1.9.0]: https://github.com/10up/distributor/compare/1.8.0...1.9.0
