@@ -216,6 +216,67 @@ add_action(
 	1
 );
 
+
+/**
+ * Add a deactivation modal when deactivating the plugin.
+ *
+ * @since x.x.x
+ */
+add_action(
+	'load-plugins.php',
+	static function(){
+		wp_enqueue_script('jquery-ui-dialog');
+		wp_enqueue_style('wp-jquery-ui-dialog');
+
+		add_action(
+			'admin_footer',
+			static function () {
+				printf(
+					'<div id="my-modal" style="display:none;">%s</div>',
+					esc_html__( 'This is a demo modal', 'distributor' )
+				);
+			}
+		);
+
+		$modal_title = esc_html__( 'Distributor Deactivation', 'distributor' );
+		$modal_button_title_deactivate = esc_html__( 'Deactivate', 'distributor' );
+		$modal_button_title_cancel = esc_html__( 'Cancel', 'distributor' );
+		$script = <<<EOD
+			jQuery(document).ready(function($) {
+				const deactivateButton = jQuery('#deactivate-distributor');
+				deactivateButton.on( 'click', function() {
+					$("#my-modal").dialog({
+						modal: true,
+						title: "$modal_title",
+						buttons: [
+							{
+								text: "$modal_button_title_cancel",
+								class: "button-secondary",
+								click: function() {
+									$(this).dialog("close");
+								}
+							},
+							{
+								text:"$modal_button_title_deactivate",
+								class: 'button-primary',
+								click: function() {
+									$(this).dialog("close");
+									window.location.assign(deactivateButton.attr('href'));
+								},
+								style: 'margin-left: 10px;'
+							}
+						]
+					});
+
+					return false;
+				});
+			});
+EOD;
+
+		wp_add_inline_script( 'jquery-ui-dialog', $script );
+	}
+);
+
 /**
  * We use setup functions to avoid unit testing WP_Mock strict mode errors.
  */
