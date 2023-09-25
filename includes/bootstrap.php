@@ -12,6 +12,7 @@
 
 namespace Distributor;
 
+use WP_Screen;
 use YahnisElsts\PluginUpdateChecker\v5\PucFactory;
 
 /**
@@ -225,6 +226,13 @@ add_action(
 add_action(
 	'load-plugins.php',
 	static function(){
+		// Exit if deactivating plugin from sub site.
+		/* @var WP_Screen $screen */
+		$screen = get_current_screen();
+		if ( ! ( ! is_multisite() || $screen->in_admin( 'network' ) ) ) {
+			return;
+		}
+
 		wp_enqueue_script('jquery-ui-dialog');
 		wp_enqueue_style('wp-jquery-ui-dialog');
 
