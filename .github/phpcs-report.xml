@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<checkstyle version="3.7.1">
-<file name="/Users/ravinderkumar/Local-Sites/10osp/app/public/wp-content/plugins/distributor/includes/classes/DistributorPost.php">
- <error line="31" column="2" severity="error" message="Additional blank lines found at end of doc comment" source="Generic.Commenting.DocComment.SpacingAfter"/>
-</file>
-</checkstyle>
-
