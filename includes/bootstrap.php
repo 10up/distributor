@@ -244,8 +244,7 @@ add_action(
 					esc_html__( 'Would you like to delete all Distributor data?', 'distributor'),
 					esc_html__( 'By default the database entries are not deleted when you deactivate Distributor. If you are deleting Distributor completely from your website and want those items removed as well check, add below code to wp-config.php .', 'distributor' ),
 					'define(\'DT_REMOVE_ALL_DATA\', true)',
-					esc_html__( 'After adding this code, the Distributor plugin data will be removed from the main website database when deleting the plugin. You can review uninstall.php (in the plugin root directory) to learn more about deleted data. After deleting the Distributor plugin, you can remove the code.
-', 'distributor' )
+					esc_html__( 'After adding this code, the Distributor plugin data will be removed from the main website database when deleting the plugin. You can review uninstall.php (in the plugin root directory) to learn more about deleted data. After deleting the Distributor plugin, you can remove the code.', 'distributor' )
 				);
 			}
 		);
