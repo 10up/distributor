@@ -348,6 +348,18 @@ function checkConnections() {
 						'polite'
 					);
 				}
+			} else if ( 'no' === response.data.is_authenticated ) {
+				endpointResult.setAttribute( 'data-endpoint-state', 'error' );
+
+				endpointResult.innerText = __(
+					'No connection found.',
+					'distributor'
+				);
+
+				speak(
+					__( 'No connection found.', 'distributor' ),
+					'polite'
+				);
 			} else if (
 				response.data.errors.no_distributor ||
 				! response.data.can_post.length
@@ -382,15 +394,6 @@ function checkConnections() {
 							'distributor'
 						) }`,
 						'polite'
-					);
-				}
-
-				if ( 'no' === response.data.is_authenticated ) {
-					warnings.push(
-						__(
-							'Authentication failed due to invalid credentials.',
-							'distributor'
-						)
 					);
 				}
 
