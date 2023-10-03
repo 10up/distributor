@@ -96,7 +96,7 @@ describe( 'Admin can add a new external connection', () => {
 			.should( 'have.class', 'error' );
 	} );
 
-	it( 'Should display limited connection warning', () => {
+	it( 'Should display error when credentials are invalid', () => {
 		cy.visit( '/wp-admin/admin.php?page=distributor' );
 		cy.get( '.page-title-action' ).contains( 'Add New' ).click();
 
@@ -109,9 +109,9 @@ describe( 'Admin can add a new external connection', () => {
 		cy.get( '#dt_external_connection_url' ).type(
 			'http://localhost/second/wp-json'
 		);
-		cy.get( '.description.endpoint-result' ).should(
+		cy.get( '.endpoint-result' ).should(
 			'contain.text',
-			'Limited connection established.'
+			'No connection found'
 		);
 	} );
 } );
