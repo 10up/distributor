@@ -603,7 +603,7 @@ function check_post_types_permissions() {
 		$caps = $type->cap;
 
 		if ( current_user_can( $caps->edit_posts ) ) {
-			$response['can_post'][] = $type->name;
+			$response['can_get'][] = $type->name;
 		}
 
 		if ( current_user_can( $caps->edit_posts ) && current_user_can( $caps->create_posts ) && current_user_can( $caps->publish_posts ) ) {
