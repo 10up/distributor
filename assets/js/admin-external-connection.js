@@ -317,7 +317,8 @@ function checkConnections() {
 			} else if (
 				response.data.errors.no_external_connection ||
 				'no' === response.data.is_authenticated ||
-				response.data.errors.no_distributor
+				response.data.errors.no_distributor ||
+				! response.data.can_post.length
 			) {
 				endpointResult.setAttribute( 'data-endpoint-state', 'error' );
 
@@ -349,6 +350,21 @@ function checkConnections() {
 					speak(
 						__(
 							'Distributor not installed on remote site.',
+							'distributor'
+						),
+						'polite'
+					);
+				} else if (
+					'no' === response.data.is_authenticated ||
+					response.data.errors.no_types
+				) {
+					endpointResult.innerText = __(
+						'Authentication failed due to insufficient or invalid credentials.',
+						'distributor'
+					);
+					speak(
+						__(
+							'Authentication failed due to insufficient or invalid credentials.',
 							'distributor'
 						),
 						'polite'

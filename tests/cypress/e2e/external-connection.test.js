@@ -111,7 +111,7 @@ describe( 'Admin can add a new external connection', () => {
 		);
 		cy.get( '.endpoint-result' ).should(
 			'contain.text',
-			'No connection found'
+			'Authentication failed due to insufficient or invalid credentials.'
 		);
 	} );
 } );
