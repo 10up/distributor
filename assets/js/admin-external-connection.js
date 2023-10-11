@@ -380,51 +380,6 @@ function checkConnections() {
 						'polite'
 					);
 				}
-			} else if (
-				response.data.errors.no_distributor ||
-				! response.data.can_post.length
-			) {
-				endpointResult.setAttribute( 'data-endpoint-state', 'warning' );
-				endpointResult.innerText = __(
-					'Limited connection established.',
-					'distributor'
-				);
-
-				const warnings = [];
-
-				speak(
-					`${ __(
-						'Limited connection established.',
-						'distributor'
-					) }`,
-					'polite'
-				);
-
-				if ( 'yes' === response.data.is_authenticated ) {
-					warnings.push(
-						__(
-							'Authentication succeeded but your account does not have permissions to create posts on the external site.',
-							'distributor'
-						)
-					);
-				}
-
-				warnings.push(
-					__( 'Push distribution unavailable.', 'distributor' )
-				);
-				warnings.push(
-					__(
-						'Pull distribution limited to basic content, i.e. title and content body.',
-						'distributor'
-					)
-				);
-
-				warnings.forEach( ( warning ) => {
-					const warningNode = document.createElement( 'li' );
-					warningNode.innerText = warning;
-
-					endpointErrors.append( warningNode );
-				} );
 			} else {
 				endpointResult.setAttribute( 'data-endpoint-state', 'valid' );
 				endpointResult.innerText = __(
