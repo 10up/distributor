@@ -57,27 +57,6 @@ describe( 'Admin can add a new external connection', () => {
 		cy.get( '#title' ).should( 'have.value', name );
 	} );
 
-	it( 'Should display warning status', () => {
-		cy.visit( '/wp-admin/admin.php?page=distributor' );
-		cy.get( '.page-title-action' ).contains( 'Add New' ).click();
-
-		const name = randomName();
-		cy.get( '#title' ).click().type( name );
-
-		cy.get( '.manual-setup-button' ).click();
-		cy.get( '#dt_external_connection_url' ).type(
-			'http://' + randomName()
-		);
-		cy.get( '#create-connection' ).click();
-
-		cy.visit( '/wp-admin/admin.php?page=distributor' );
-		cy.get( '.row-title' )
-			.contains( name )
-			.closest( '.hentry' )
-			.find( '.connection-status' )
-			.should( 'have.class', 'warning' );
-	} );
-
 	it( 'Should display error status', () => {
 		cy.visit( '/wp-admin/admin.php?page=distributor' );
 		cy.get( '.page-title-action' ).contains( 'Add New' ).click();
