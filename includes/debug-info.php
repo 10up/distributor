@@ -267,7 +267,7 @@ function get_external_connection_status( $external_connection_status ) {
 		}
 
 		if ( empty( $external_connection_status['can_post'] ) ) {
-			$status = __( 'warning', 'distributor' );
+			$status = __( 'error', 'distributor' );
 		}
 	}
 

@@ -78,7 +78,7 @@ function output_status_column( $column_name, $post_id ) {
 			}
 
 			if ( empty( $external_connection_status['can_post'] ) ) {
-				$status = 'warning';
+				$status = 'error';
 			}
 		}
 
