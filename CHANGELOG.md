@@ -4,10 +4,25 @@ All notable changes to this project will be documented in this file, per [the Ke
 
 ## [Unreleased] - TBD
 
-## [2.0.0] - TBD
+## [2.0.1] - 2023-09-18
+### Changed
+- Update from Cypress v10 to v13 (props [@dkotter](https://github.com/dkotter), [@iamdharmesh](https://github.com/iamdharmesh), [@peterwilsoncc](https://github.com/peterwilsoncc) via [#1128](https://github.com/10up/distributor/pull/1128)).
+- Documentation updates (props [@jeffpaul](https://github.com/jeffpaul), [@peterwilsoncc](https://github.com/peterwilsoncc) via [#1131](https://github.com/10up/distributor/pull/1131)).
+
+### Removed
+- GitHub Actions for version 1.x releases (props [@peterwilsoncc](https://github.com/peterwilsoncc), [@jeffpaul](https://github.com/jeffpaul) via [#1135](https://github.com/10up/distributor/pull/1135)).
+
+### Fixed
+- Invalid author IDs being set when pushing and pulling posts (props [@peterwilsoncc](https://github.com/peterwilsoncc), [@faisal-alvi](https://github.com/faisal-alvi), [@joemcgill](https://github.com/joemcgill), [@margaretschneider](https://github.com/margaretschneider) via [#1133](https://github.com/10up/distributor/pull/1133)).
+- Featured image delete push issue (props [@ravichdev](https://github.com/ravichdev), [@helen](https://github.com/helen), [@dkotter](https://github.com/dkotter), [@adamsilverstein](https://github.com/adamsilverstein), [@jeffpaul](https://github.com/jeffpaul), [@arsendovlatyan](https://github.com/arsendovlatyan), [@ravinderk](https://github.com/ravinderk), [@peterwilsoncc](https://github.com/peterwilsoncc) via [#310](https://github.com/10up/distributor/pull/310)).
+- Allow clicking on the `Save to draft` confirmation modal buttons (props [@av3nger](https://github.com/av3nger), [@peterwilsoncc](https://github.com/peterwilsoncc), [@ravinderk](https://github.com/ravinderk), [@pdewouters](https://github.com/pdewouters) via [#1042](https://github.com/10up/distributor/pull/1042)).
+- Admin icon has been updated so it has the same width and height (props [@zach-adams](https://github.com/zach-adams), [@ravinderk](https://github.com/ravinderk), [@peterwilsoncc](https://github.com/peterwilsoncc) via [#1132](https://github.com/10up/distributor/pull/1132)).
+- Ensure our E2E tests pass on WordPress 6.3 (props [@dkotter](https://github.com/dkotter), [@iamdharmesh](https://github.com/iamdharmesh), [@peterwilsoncc](https://github.com/peterwilsoncc) via [#1128](https://github.com/10up/distributor/pull/1128)).
+
+## [2.0.0] - 2023-09-05
 **Note that Distributor now requires PHP 7.4 or later and WordPress 5.7 or later.**
 
-_This entry was generated for the 2.0.0-rc1 release and will be updated during the Beta and Release Candidate processes._
+Please see the [migration guide](https://10up.github.io/distributor/tutorial-migration-guide-version-1-to-version-2.html) for important changes between version 1 and version 2 that may require your action.
 
 ### Added
 - Migration guide for version 1 to version 2 (props [@peterwilsoncc](https://github.com/peterwilsoncc), [@faisal-alvi](https://github.com/faisal-alvi), [@jeffpaul](https://github.com/jeffpaul) via [#996](https://github.com/10up/distributor/pull/996)).
@@ -30,12 +45,13 @@ _This entry was generated for the 2.0.0-rc1 release and will be updated during t
 - Toggles the Distributor admin bar element in Gutenberg based on the post status (props [@ggutenberg](https://github.com/ggutenberg), [@jeffpaul](https://github.com/jeffpaul), [@peterwilsoncc](https://github.com/peterwilsoncc) via [#1022](https://github.com/10up/distributor/pull/1022), [#1114](https://github.com/10up/distributor/pull/1114)).
 - Reduced duplicate code pushing posts to connections (props [@peterwilsoncc](https://github.com/peterwilsoncc), [@cadic](https://github.com/cadic), [@jeffpaul](https://github.com/jeffpaul), [@faisal-alvi](https://github.com/faisal-alvi), [@aaronware](https://github.com/aaronware) via [#999](https://github.com/10up/distributor/pull/999)).
 - Unified translator comments (props [@peterwilsoncc](https://github.com/peterwilsoncc), [@cadic](https://github.com/cadic) via [#949](https://github.com/10up/distributor/pull/949)).
-- WordPress "tested up to" version 6.2 (props [@jayedul](https://github.com/jayedul), [@faisal-alvi](https://github.com/faisal-alvi), [@jeffpaul](https://github.com/jeffpaul) via [#1047](https://github.com/10up/distributor/pull/1047)).
+- WordPress "tested up to" version 6.3 (props [@jayedul](https://github.com/jayedul), [@faisal-alvi](https://github.com/faisal-alvi), [@jeffpaul](https://github.com/jeffpaul), [@QAharshalkadu](https://github.com/QAharshalkadu), [@dkotter](https://github.com/dkotter) via [#1047](https://github.com/10up/distributor/pull/1047), [#1118](https://github.com/10up/distributor/issues/1118), [#1123](https://github.com/10up/distributor/pull/1123)).
 - Browserlist database updated to version 1.0.30001489 (props [@peterwilsoncc](https://github.com/peterwilsoncc), [@dkotter](https://github.com/dkotter) via [#1059](https://github.com/10up/distributor/pull/1059)).
 - Build process now uses `@wordpress/scripts` in place of Gulp (props [@peterwilsoncc](https://github.com/peterwilsoncc), [@dinhtungdu](https://github.com/dinhtungdu), [@dkotter](https://github.com/dkotter) via [#916](https://github.com/10up/distributor/pull/916)).
 - Migrated E2E tests to Cypress (props [@peterwilsoncc](https://github.com/peterwilsoncc), [@jeffpaul](https://github.com/jeffpaul), [@iamdharmesh](https://github.com/iamdharmesh) via [#1070](https://github.com/10up/distributor/pull/1070)).
 - Update `dependency-review.yml` (props [@jeffpaul](https://github.com/jeffpaul), [@peterwilsoncc](https://github.com/peterwilsoncc) via [#1054](https://github.com/10up/distributor/pull/1054)).
 - Order of operations setting meta, media and terms in the network push and pull functions (props [@sethrubenstein](https://github.com/sethrubenstein), [@jeffpaul](https://github.com/jeffpaul), [@peterwilsoncc](https://github.com/peterwilsoncc) via [#1095](https://github.com/10up/distributor/pull/1095)).
+- Upgrade the Plugin Update Checker library from 4.13 to 5.1 (props [@dkotter](https://github.com/dkotter) via [#1124](https://github.com/10up/distributor/pull/1124)).
 
 ### Deprecated
 - `dt_push_post` action hook (props [@dkotter](https://github.com/dkotter), [@peterwilsoncc](https://github.com/peterwilsoncc), [@dhanendran](https://github.com/dhanendran), [@ravinderk](https://github.com/ravinderk), [@jeffpaul](https://github.com/jeffpaul) via [#1024](https://github.com/10up/distributor/pull/1024)).
@@ -470,7 +486,8 @@ This adds a post type selector when viewing the Pull Content list for both exter
 - Initial closed release.
 
 [Unreleased]: https://github.com/10up/distributor/compare/trunk...develop
-[2.0.0]: https://github.com/10up/distributor/compare/1.9.1...develop
+[2.0.1]: https://github.com/10up/distributor/compare/2.0.0...2.0.1
+[2.0.0]: https://github.com/10up/distributor/compare/1.9.1...2.0.0
 [1.9.1]: https://github.com/10up/distributor/compare/1.9.0...1.9.1
 [1.9.0]: https://github.com/10up/distributor/compare/1.8.0...1.9.0
 [1.8.0]: https://github.com/10up/distributor/compare/1.7.1...1.8.0

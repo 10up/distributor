@@ -161,3 +161,26 @@ add_filter( 'dt_excluded_meta', function( $meta_keys ) {
 	return $meta_keys;
 } );
 ```
+
+### Turn off automatic updates for distributed content
+
+```php
+/**
+ * Prevent auto-updates from happening for network connections.
+ */
+add_action(
+  'init',
+  function() {
+    remove_action( 'wp_after_insert_post', [ '\Distributor\InternalConnections\NetworkSiteConnection', 'update_syndicated' ], 99 );
+  }
+);
+
+/**
+ * Prevent auto-updates from happening for external connections.
+ */
+add_action(
+  'init',
+  function() {
+    remove_action( 'wp_after_insert_post', 'Distributor\Subscriptions\send_notifications', 99 );
+  }
+);

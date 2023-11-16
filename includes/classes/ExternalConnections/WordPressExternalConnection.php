@@ -276,7 +276,7 @@ class WordPressExternalConnection extends ExternalConnection {
 			&& isset( $response_headers['x-distributor'] )
 			&& (
 				! isset( $response_headers['x-distributor-version'] )
-				|| version_compare( $response_headers['x-distributor-version'], '2.0.0-alpha', '<' )
+				|| version_compare( $response_headers['x-distributor-version'], '2.0.0', '<' )
 			)
 		) {
 			$version_error = new \WP_Error();
@@ -381,6 +381,7 @@ class WordPressExternalConnection extends ExternalConnection {
 			unset( $post_array['post_date_gmt'] );
 			unset( $post_array['post_modified'] );
 			unset( $post_array['post_modified_gmt'] );
+			unset( $post_array['post_author'] );
 
 			if ( ! empty( $item_array['post_id'] ) ) {
 				$update           = true;
