@@ -930,6 +930,15 @@ class DistributorPost {
 	protected function to_rest( $rest_args = array() ) {
 		$post_data = $this->post_data();
 
+		/*
+		 * Unset dates.
+		 *
+		 * External connections do not allow for the pulling or pushing of
+		 * scheduled posts so these can be ignored.
+		 */
+		unset( $post_data['date'] );
+		unset( $post_data['date_gmt'] );
+
 		if ( ! empty( $post_data['parent'] ) ) {
 			$post_data['distributor_original_post_parent'] = (int) $post_data['parent'];
 		}
