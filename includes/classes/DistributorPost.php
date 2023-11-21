@@ -782,6 +782,9 @@ class DistributorPost {
 			'excerpt'                        => $this->post->post_excerpt,
 			'parent'                         => ! empty( $this->post->post_parent ) ? (int) $this->post->post_parent : 0,
 			'status'                         => $this->post->post_status,
+			'date'                           => $this->post->post_date,
+			'date_gmt'                       => $this->post->post_date_gmt,
+
 			'distributor_media'              => $this->get_media(),
 			'distributor_terms'              => $this->get_terms(),
 			'distributor_meta'               => $this->get_meta(),
@@ -862,6 +865,12 @@ class DistributorPost {
 
 		if ( ! empty( $args['post_status'] ) ) {
 			$insert['post_status'] = $args['post_status'];
+		}
+
+		if ( 'future' === $insert['post_status'] ) {
+			// Set the post date to the future date.
+			$insert['post_date']     = $post_data['date'];
+			$insert['post_date_gmt'] = $post_data['date_gmt'];
 		}
 
 		// Post meta used by wp_insert_post, wp_update_post.
