@@ -1480,7 +1480,7 @@ class DistributorPostTest extends TestCase {
 			'distributor_original_post_id'   => 1,
 		);
 
-		$this->assertSame( $post_data_expected, $post_data_actual );
+		$this->assertSame( $post_data_expected, $post_data_actual, 'Post data is not in an expected form' );
 
 		// Make sure it looks good to insert.
 		$to_insert_actual = $dt_post->to_insert();
@@ -1504,7 +1504,7 @@ class DistributorPostTest extends TestCase {
 			),
 		);
 
-		$this->assertSame( $to_insert_expected, $to_insert_actual );
+		$this->assertSame( $to_insert_expected, $to_insert_actual, 'Insert post data is not in an expected form' );
 
 		// Make sure it looks correct for a REST request.
 		$to_rest_actual = $dt_post->to_rest();
@@ -1528,7 +1528,7 @@ class DistributorPostTest extends TestCase {
 
 		);
 
-		$this->assertSame( $to_rest_expected, $to_rest_actual );
+		$this->assertSame( $to_rest_expected, $to_rest_actual, 'REST API data is not in an expected form' );
 	}
 
 	/**
@@ -1658,7 +1658,7 @@ class DistributorPostTest extends TestCase {
 			'distributor_original_post_id'   => 1,
 		);
 
-		$this->assertSame( $post_data_expected, $post_data_actual );
+		$this->assertSame( $post_data_expected, $post_data_actual, 'Post data is not in an expected form' );
 
 		// Make sure it looks good to insert.
 		$to_insert_actual = $dt_post->to_insert();
@@ -1682,7 +1682,7 @@ class DistributorPostTest extends TestCase {
 			),
 		);
 
-		$this->assertSame( $to_insert_expected, $to_insert_actual );
+		$this->assertSame( $to_insert_expected, $to_insert_actual, 'Insert post data is not in an expected form' );
 
 		// Make sure it looks correct for a REST request.
 		$to_rest_actual = $dt_post->to_rest();
@@ -1706,7 +1706,7 @@ class DistributorPostTest extends TestCase {
 			'distributor_raw_content'        => '<!-- wp:paragraph --><p>Test Content</p><!-- /wp:paragraph -->',
 		);
 
-		$this->assertSame( $to_rest_expected, $to_rest_actual );
+		$this->assertSame( $to_rest_expected, $to_rest_actual, 'REST API data is not in an expected form' );
 	}
 
 	/**
