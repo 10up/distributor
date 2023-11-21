@@ -1384,6 +1384,173 @@ class DistributorPostTest extends TestCase {
 	 * @covers ::to_json()
 	 * @runInSeparateProcess
 	 */
+	public function test_scheduled_post_data_without_blocks() {
+		$this->setup_post_mock(
+			array(
+				'post_status' => 'future',
+				'post_date' => '2120-01-01 00:00:00',
+				'post_date_gmt' => '2120-01-01 00:00:00',
+				'post_modified' => '2120-01-01 00:00:00',
+				'post_modified_gmt' => '2120-01-01 00:00:00',
+			)
+		);
+		$this->setup_post_meta_mock(
+			array (
+				'dt_original_post_id'  => array( '10' ),
+				'dt_original_blog_id'  => array( '2' ),
+				'dt_syndicate_time'    => array ( '1670383190' ),
+				'dt_original_post_url' => array ( 'http://origin.example.org/?p=10' ),
+			)
+		);
+
+		\WP_Mock::userFunction(
+			'get_the_title',
+			array(
+				'return' => 'Test Post',
+			)
+		);
+		\WP_Mock::userFunction(
+			'get_bloginfo',
+			array(
+				'return' => function( $info ) {
+					switch ( $info ) {
+						case 'charset':
+							return 'UTF-8';
+						case 'name':
+							return 'Test Internal Origin';
+						default:
+							return '';
+					}
+				},
+			)
+		);
+		\WP_Mock::userFunction(
+			'get_permalink',
+			array(
+				'return' => 'http://example.org/?p=1',
+			)
+		);
+
+		// Get Media: mock empty set as method is tested above.
+		\WP_Mock::userFunction(
+			'has_blocks',
+			array(
+				'return' => false,
+			)
+		);
+		\WP_Mock::userFunction(
+			'get_attached_media',
+			array(
+				'return' => array(),
+			)
+		);
+		\WP_Mock::userFunction(
+			'get_post_thumbnail_id',
+			array(
+				'return' => false,
+			)
+		);
+
+		// Get Terms: mock empty set as method is tested above.
+		\WP_Mock::userFunction(
+			'get_taxonomies',
+			array(
+				'return' => array( 'category', 'post_tag' ),
+			)
+		);
+		\WP_Mock::userFunction(
+			'wp_get_object_terms',
+			array(
+				'return' => array(),
+			)
+		);
+
+		$dt_post = new DistributorPost( 1 );
+		$post_data_actual = $dt_post->post_data();
+
+		$post_data_expected = array(
+			'title'                          => 'Test Post',
+			'slug'                           => 'test-post',
+			'type'                           => 'post',
+			'content'                        => 'Test Content',
+			'excerpt'                        => 'Test Excerpt',
+			'parent'                         => 0,
+			'status'                         => 'future',
+			'date'                           => '2120-01-01 00:00:00',
+			'date_gmt'                       => '2120-01-01 00:00:00',
+			'distributor_media'              => array(),
+			'distributor_terms'              => array(
+				'category' => array(),
+				'post_tag' => array(),
+			),
+			'distributor_meta'  => array(),
+			'distributor_original_site_name' => 'Test Internal Origin',
+			'distributor_original_site_url'  => 'http://test.com',
+			'distributor_original_post_url'  => 'http://example.org/?p=1',
+			'distributor_original_post_id'   => 1,
+		);
+
+		$this->assertSame( $post_data_expected, $post_data_actual, 'Post data is not in an expected form' );
+
+		// Make sure it looks good to insert.
+		$to_insert_actual = $dt_post->to_insert();
+		$to_insert_expected = array(
+			'post_title'    => 'Test Post',
+			'post_name'     => 'test-post',
+			'post_type'     => 'post',
+			'post_content'  => 'Test Content',
+			'post_excerpt'  => 'Test Excerpt',
+			'post_status'   => 'future',
+			'terms'             => array(
+				'category'      => array(),
+				'post_tag'      => array(),
+			),
+			'meta'          => array(),
+			'media'         => array(),
+			'post_author'   => 1,
+			'post_date'     => '2120-01-01 00:00:00',
+			'post_date_gmt' => '2120-01-01 00:00:00',
+			'meta_input'    => array(
+				'dt_original_post_id'  => 1,
+				'dt_original_post_url' => 'http://example.org/?p=1',
+			),
+		);
+
+		$this->assertSame( $to_insert_expected, $to_insert_actual, 'Insert post data is not in an expected form' );
+
+		// Make sure it looks correct for a REST request.
+		$to_rest_actual = $dt_post->to_rest();
+		$to_rest_expected = array(
+			'title'                          => 'Test Post',
+			'slug'                           => 'test-post',
+			'type'                           => 'post',
+			'content'                        => 'Test Content',
+			'excerpt'                        => 'Test Excerpt',
+			'status'                         => 'future',
+			'distributor_media'              => array(),
+			'distributor_terms'              => array(
+				'category' => array(),
+				'post_tag' => array(),
+			),
+			'distributor_meta'  => array(),
+			'distributor_original_site_name' => 'Test Internal Origin',
+			'distributor_original_site_url'  => 'http://test.com',
+			'distributor_original_post_url'  => 'http://example.org/?p=1',
+			'distributor_remote_post_id'     => 1,
+
+		);
+
+		$this->assertSame( $to_rest_expected, $to_rest_actual, 'REST API data is not in an expected form' );
+	}
+
+	/**
+	 * Test methods for formatting the post data without blocks.
+	 *
+	 * @covers ::post_data()
+	 * @covers ::to_insert()
+	 * @covers ::to_json()
+	 * @runInSeparateProcess
+	 */
 	public function test_post_data_without_blocks() {
 		$this->setup_post_mock();
 		$this->setup_post_meta_mock(
