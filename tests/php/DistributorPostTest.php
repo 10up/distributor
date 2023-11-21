@@ -1468,6 +1468,8 @@ class DistributorPostTest extends TestCase {
 			'excerpt'                        => 'Test Excerpt',
 			'parent'                         => 0,
 			'status'                         => 'publish',
+			'date'                           => '2020-01-01 00:00:00',
+			'date_gmt'                       => '2020-01-01 00:00:00',
 			'distributor_media'              => array(),
 			'distributor_terms'              => array(
 				'category' => array(),
@@ -1644,8 +1646,10 @@ class DistributorPostTest extends TestCase {
 			'type'                           => 'post',
 			'content'                        => '<!-- wp:paragraph --><p>Test Content</p><!-- /wp:paragraph -->',
 			'excerpt'                        => 'Test Excerpt',
-			'parent'			             => 0,
+			'parent'                         => 0,
 			'status'                         => 'publish',
+			'date'                           => '2020-01-01 00:00:00',
+			'date_gmt'                       => '2020-01-01 00:00:00',
 			'distributor_media'              => array(),
 			'distributor_terms'              => array(
 				'category' => array(),
