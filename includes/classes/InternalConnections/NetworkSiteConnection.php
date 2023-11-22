@@ -279,10 +279,10 @@ class NetworkSiteConnection extends Connection {
 			$current_blog_id = get_current_blog_id();
 
 			if ( ! empty( $post_props['meta']['dt_connection_map'] ) ) {
-				foreach ( $post_props['meta']['dt_connection_map'] as $distributed ) {
+				foreach ( $post_props['meta']['dt_connection_map'] as $connection_type => $distributed ) {
 					$distributed = maybe_unserialize( $distributed );
 
-					if ( array_key_exists( $current_blog_id, $distributed['internal'] ) ) {
+					if ( 'internal' === $connection_type && array_key_exists( $current_blog_id, $distributed ) ) {
 						$dt_pull_messages['duplicated'] = 1;
 						continue 2;
 					}

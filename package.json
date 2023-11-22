@@ -33,6 +33,7 @@
 		"cypress-mochawesome-reporter": "^3.5.1",
 		"eslint-plugin-cypress": "^2.12.1",
 		"jsdoc": "^3.6.11",
+		"mochawesome-json-to-md": "^0.7.2",
 		"node-wp-i18n": "^1.2.6",
 		"wp-hookdoc": "^0.2.0"
 	},
