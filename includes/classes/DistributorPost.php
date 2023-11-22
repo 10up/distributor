@@ -860,14 +860,16 @@ class DistributorPost {
 		if ( ! empty( $args['remote_post_id'] ) ) {
 			// Updating an existing post.
 			$insert['ID'] = (int) $args['remote_post_id'];
+			// Never update the post status when updating a post.
 			unset( $insert['post_status'] );
-		}
-
-		if ( ! empty( $args['post_status'] ) ) {
+		} elseif ( ! empty( $args['post_status'] ) ) {
 			$insert['post_status'] = $args['post_status'];
 		}
 
-		if ( 'future' === $insert['post_status'] ) {
+		if (
+			isset( $insert['post_status'] )
+			&& 'future' === $insert['post_status']
+		) {
 			// Set the post date to the future date.
 			$insert['post_date']     = $post_data['date'];
 			$insert['post_date_gmt'] = $post_data['date_gmt'];
