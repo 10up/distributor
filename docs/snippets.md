@@ -100,6 +100,16 @@ add_filter( 'dt_push_post_args', function( $post_body, $post ) {
 
     return $post_body;
 }, 10, 2 );
+
+/**
+ * This filters the the arguments passed into wp_insert_post during a pull
+ */
+add_filter( 'dt_pull_post_args', function( $post_array, $remote_id, $post ) {
+    $post_array['post_date'] = $post->post_date;
+    $post_array['post_date_gmt'] = $post->post_date_gmt;
+
+    return $post_array;
+}, 10, 3 );
 ```
 
 ### Automatically unlink posts
