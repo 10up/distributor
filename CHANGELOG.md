@@ -4,6 +4,24 @@ All notable changes to this project will be documented in this file, per [the Ke
 
 ## [Unreleased] - TBD
 
+## [2.0.2] - 2023-11-29
+### Added
+- New snippet detailing how to disable automatic content updates (props [@dkotter](https://github.com/dkotter), [@peterwilsoncc](https://github.com/peterwilsoncc) via [#1145](https://github.com/10up/distributor/pull/1145)).
+
+### Changed
+- Show proper external connection status error messages when the status is checked (props [@theskinnyghost](https://github.com/theskinnyghost), [@peterwilsoncc](https://github.com/peterwilsoncc) via [#1140](https://github.com/10up/distributor/pull/1140)).
+- Updated our docs around how to connect two pieces of existing content (props [@dkotter](https://github.com/dkotter), [@peterwilsoncc](https://github.com/peterwilsoncc) via [#1145](https://github.com/10up/distributor/pull/1145)).
+- Bump WordPress "tested up to" version 6.4 (props [@severine-pozzo](https://github.com/severine-pozzo), [@QAharshalkadu](https://github.com/QAharshalkadu), [@jeffpaul](https://github.com/jeffpaul), [@dkotter](https://github.com/dkotter) via [#1151](https://github.com/10up/distributor/pull/1151)).
+
+### Fixed
+- Copy the htaccess file when initilizing the E2E test environment (props [@peterwilsoncc](https://github.com/peterwilsoncc), [@theskinnyghost](https://github.com/theskinnyghost), [@dkotter](https://github.com/dkotter) via [#1143](https://github.com/10up/distributor/pull/1143)).
+- Prevent early publishing of scheduled posts when pulled internally (props [@peterwilsoncc](https://github.com/peterwilsoncc), [@jeffpaul](https://github.com/jeffpaul), [@dkotter](https://github.com/dkotter), [@maxledoux](https://github.com/maxledoux), [@pcrumm](https://github.com/pcrumm) via [#1156](https://github.com/10up/distributor/pull/1156)).
+- Avoid a PHP fatal error when pulling content that has previously been pulled into a different network site (props [@dkotter](https://github.com/dkotter), [@jeffpaul](https://github.com/jeffpaul), [@peterwilsoncc](https://github.com/peterwilsoncc) via [#1159](https://github.com/10up/distributor/pull/1159)).
+
+### Security
+- Bump `postcss` from 8.4.24 to 8.4.31 (props [@dependabot[bot]](https://github.com/apps/dependabot), [@ravinderk](https://github.com/ravinderk) via [#1141](https://github.com/10up/distributor/pull/1141)).
+- Bump `@babel/traverse` from 7.22.5 to 7.23.2 (props [@dependabot[bot]](https://github.com/apps/dependabot), [@peterwilsoncc](https://github.com/peterwilsoncc) via [#1147](https://github.com/10up/distributor/pull/1147)).
+
 ## [2.0.1] - 2023-09-18
 ### Changed
 - Update from Cypress v10 to v13 (props [@dkotter](https://github.com/dkotter), [@iamdharmesh](https://github.com/iamdharmesh), [@peterwilsoncc](https://github.com/peterwilsoncc) via [#1128](https://github.com/10up/distributor/pull/1128)).
@@ -486,6 +504,7 @@ This adds a post type selector when viewing the Pull Content list for both exter
 - Initial closed release.
 
 [Unreleased]: https://github.com/10up/distributor/compare/trunk...develop
+[2.0.2]: https://github.com/10up/distributor/compare/2.0.1...2.0.2
 [2.0.1]: https://github.com/10up/distributor/compare/2.0.0...2.0.1
 [2.0.0]: https://github.com/10up/distributor/compare/1.9.1...2.0.0
 [1.9.1]: https://github.com/10up/distributor/compare/1.9.0...1.9.1
