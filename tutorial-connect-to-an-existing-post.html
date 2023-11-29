@@ -33,11 +33,90 @@
 </header>
 
 <article>
-    <ol>
-<li>Connect the two sites</li>
-<li>On Site A (source) add the meta data items <code>dt_subscriptions</code> and <code>dt_connection_map</code></li>
-<li>On Site B (distributed) add the meta data items <code>dt_original_post_url</code>, <code>dt_original_site_name</code>, <code>dt_original_site_url</code>, <code>dt_subscription_signature</code>, <code>dt_original_post_id</code>, <code>dt_original_source_id</code></li>
-</ol>
+    <p>In a scenario where you have existing sites that share content and that content was in place prior to the addition of Distributor, it is useful to be able to connect that content together without having to delete one and push/pull the other one. Behind the scenes, Distributor stores a handful of details in post meta, so these details will need to be manually added for the links to work.</p>
+<p>At it's simplest, you'll need to connect the two sites together and then add the proper meta (as detailed below) for the items that should be linked together, both on the source site and the receiving site.</p>
+<h2 id="network-connections">Network Connections</h2>
+<p>There are different pieces of data that will need to be set on each side of a connection, what we'll call as the source site and the receiving site.</p>
+<p>The only piece of data needed on the source site to connect two items in Network Connections is the <code>dt_connection_map</code>. This is a serialized array of data that contains the mapping from the site ID to the post ID, along with a timestamp of when the item was linked. Note that the site ID and post ID should correspond to the data on the receiving site, not source site.</p>
+<p>This data structure will look like the following:</p>
+<pre class="prettyprint source lang-php"><code>$data = [
+  [
+    'external' => [],
+    'internal' => [
+      2 => [
+        'post_id' => 674,
+        'time'    => 1693494494,
+      ],
+    ],
+  ],
+];
+</code></pre>
+<p>In the above example, the <code>external</code> array will always be empty, unless an item is also linked to an external site. For the <code>internal</code> array, each item in the array will have a key that corresponds to the site ID (2 in the example above) and then the <code>post_id</code> should be the destination post ID.</p>
+<p>As a further example, if I have a post with an ID of 100 that lives on a site with an ID of 1 and I want that post to be linked to an existing post with an ID of 50 on the site with an ID of 2, the <code>dt_connection_map</code> data that is stored with the original item (ID of 100, site ID 1) would look like the following:</p>
+<pre class="prettyprint source lang-php"><code>$data = [
+  [
+    'external' => [],
+    'internal' => [
+      2 => [
+        'post_id' => 50,
+        'time'    => 1693494494,
+      ],
+    ],
+  ],
+];
+update_post_meta( 100, 'dt_connection_map', $data );
+</code></pre>
+<p>And then on the receiving site, the following data is needed: <code>dt_original_post_id</code>, <code>dt_original_post_url</code>, <code>dt_original_blog_id</code> and <code>dt_syndicate_time</code>. These should all be fairly self explanatory but to use the same example from above:</p>
+<ul>
+<li><code>dt_original_post_id</code> would be set to 100</li>
+<li><code>dt_original_post_url</code> would be the full URL of that post with an ID of 100</li>
+<li><code>dt_original_blog_id</code> would be set to 1</li>
+<li><code>dt_syndicate_time</code> should match the same timestamp set in the connection map, in this case 1693494494</li>
+</ul>
+<h2 id="external-connections">External Connections</h2>
+<p>External Connections share a similar data structure as detailed above but they also contain a Subscriptions piece, which is more complicated to manually replicate (as such, full details on how to replicate the Subscription is not outlined here).</p>
+<p>Similar to the above, there's a data mapping that is needed on the source site: <code>dt_connection_map</code>. This is a serialized array of data that contains the mapping from the external connection ID to the post ID, along with a timestamp of when the item was linked. Note that the post ID should correspond to the data on the receiving site, not source site.</p>
+<p>This data structure will look like the following:</p>
+<pre class="prettyprint source lang-php"><code>$data = [
+  [
+    'external' => [
+      2 => [
+        'post_id' => 50,
+        'time'    => 1693494494,
+      ],
+    ],
+    'internal' => [],
+  ],
+];
+</code></pre>
+<p>In the above example, the <code>internal</code> array will always be empty, unless an item is also linked to an interal site. For the <code>external</code> array, each item in the array will have a key that corresponds to the connection ID (2 in the example above) and then the <code>post_id</code> should be the destination post ID.</p>
+<p>As a further example, if I have a post with an ID of 100 that lives on a site with an ID of 1 and I want that post to be linked to an existing post with an ID of 50 on the site with a connection ID of 2, the <code>dt_connection_map</code> data that is stored with the original item (ID of 100, site ID 1) would look like the following:</p>
+<pre class="prettyprint source lang-php"><code>$data = [
+  [
+    'external' => [
+      2 => [
+        'post_id' => 50,
+        'time'    => 1693494494,
+      ],
+    ],
+    'internal' => [],
+  ],
+];
+update_post_meta( 100, 'dt_connection_map', $data );
+</code></pre>
+<p>In addition, there needs to be a piece of data on the source site that contains the subscription information: <code>dt_subscriptions</code>. This contains a serialized array of data that links a hashed signature to the subscription post ID. This isn't something that is easily manually reproduced. Suggestion is to look at using the existing <code>Distributor\Subscriptions\create_subscription</code> function to replicate this data.</p>
+<p>And then on the receiving site, the following data is needed: <code>dt_original_post_id</code>, <code>dt_original_post_url</code>, <code>dt_original_source_id</code>, <code>dt_original_site_name</code>, <code>dt_original_site_url</code>, <code>dt_subscription_signature</code>, <code>dt_full_connection</code> and <code>dt_syndicate_time</code>.</p>
+<p>From the example above:</p>
+<ul>
+<li><code>dt_original_post_id</code> would be set to 100</li>
+<li><code>dt_original_post_url</code> would be the full URL of that post with an ID of 100</li>
+<li><code>dt_original_source_id</code> would be set to 2 (the source connection ID)</li>
+<li><code>dt_original_site_name</code> would be the name of the source site</li>
+<li><code>dt_original_site_url</code> would be the URL of the source site</li>
+<li><code>dt_subscription_signature</code> would be the signature of the subscription mentioned above</li>
+<li><code>dt_full_connection</code> would be set to <code>true</code></li>
+<li><code>dt_syndicate_time</code> should match the same timestamp set in the connection map, in this case 1693494494</li>
+</ul>
 </article>
 
 </section>
