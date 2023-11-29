@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file, per [the Ke
 
 ## [Unreleased] - TBD
 
-## [2.0.2] - 2023-11-20
+## [2.0.2] - 2023-11-29
 ### Added
 - New snippet detailing how to disable automatic content updates (props [@dkotter](https://github.com/dkotter), [@peterwilsoncc](https://github.com/peterwilsoncc) via [#1145](https://github.com/10up/distributor/pull/1145)).
 
