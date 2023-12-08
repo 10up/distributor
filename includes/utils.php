@@ -435,6 +435,7 @@ function excluded_meta() {
 function prepare_meta( $post_id ) {
 	update_postmeta_cache( array( $post_id ) );
 	$meta          = get_post_meta( $post_id );
+	$meta          = is_array( $meta ) ? $meta : array();
 	$prepared_meta = array();
 	$excluded_meta = excluded_meta();
 
