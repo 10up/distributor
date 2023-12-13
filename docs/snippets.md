@@ -98,7 +98,7 @@ add_filter( 'dt_push_post_args', function( $post_body, $post, $args, $connection
 
     // When pushing to an external connection, we use the REST API, so the name of the field is `date`.
     // But when pushing to an internal connection, the attributes are sent to wp_insert_post, which expects `post_date`.
-    $field_prefix = is_a( $connection, 'Distributor\ExternalConnections\WordPressExternalConnection' ) ? '' : 'post_';
+    $field_prefix =( $connection instanceof \Distributor\ExternalConnections\WordPressExternalConnection ) ? '' : 'post_';
 
     $post_body[ $field_prefix . 'date'] = $post->post_date;
     $post_body[ $field_prefix . 'date_gmt'] = $post->post_date_gmt;
