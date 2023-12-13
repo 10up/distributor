@@ -94,12 +94,17 @@ add_action( 'plugins_loaded', function() {
  *
  * This filter is used to filter the arguments sent to the remote server during a push. The below code snippet passes the original published date to the new pushed post and sets the same published date instead of setting it as per the current time.
  */
-add_filter( 'dt_push_post_args', function( $post_body, $post ) {
-    $post_body['date'] = $post->post_date;
-    $post_body['date_gmt'] = $post->post_date_gmt;
+add_filter( 'dt_push_post_args', function( $post_body, $post, $args, $connection ) {
+
+    // When pushing to an external connection, we use the REST API, so the name of the field is `date`.
+    // But when pushing to an internal connection, the attributes are sent to wp_insert_post, which expects `post_date`.
+    $field_prefix = is_a( $connection, 'Distributor\ExternalConnections\WordPressExternalConnection' ) ? '' : 'post_';
+
+    $post_body[ $field_prefix . 'date'] = $post->post_date;
+    $post_body[ $field_prefix . 'date_gmt'] = $post->post_date_gmt;
 
     return $post_body;
-}, 10, 2 );
+}, 10, 4 );
 
 /**
  * This filters the the arguments passed into wp_insert_post during a pull
