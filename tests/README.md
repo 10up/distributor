@@ -15,14 +15,14 @@ This document discusses unit tests.
 
 2. Install WordPress and the WP Unit Test lib using the `install.sh` script:
     ```
-    $ tests/bin/install.sh <db-name> <db-user> <db-password> [db-host]
+    $ tests/bin/install-wp-tests.sh <db-name> <db-user> <db-password> [db-host]
     ```
 
 You may need to quote strings with backslashes to prevent them from being processed by the shell or other programs.
 
 Example:
 
-    $ tests/bin/install.sh distributor_tests root root
+    $ tests/bin/install-wp-tests.sh distributor_tests root root
 
     #  ditributor_tests is the database name and root is both the MySQL user and its password.
 
