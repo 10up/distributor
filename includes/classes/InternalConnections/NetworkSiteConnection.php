@@ -866,12 +866,37 @@ class NetworkSiteConnection extends Connection {
 
 		if ( $force || false === $authorized_sites ) {
 			$authorized_sites = array();
-			$sites            = get_sites(
-				array(
-					'number' => 1000,
-				)
-			);
-			$current_blog_id  = (int) get_current_blog_id();
+
+			if ( is_super_admin() ) {
+				$sites = get_sites(
+					array(
+						'number' => 1000,
+					)
+				);
+			} else {
+				$user_sites    = get_blogs_of_user( $user_id );
+				$user_site_ids = wp_list_pluck( $user_sites, 'userblog_id' );
+				$sites         = array();
+
+				/*
+				 * get_blogs_of_user() returns sites in a different shape to get_sites().
+				 *
+				 * This gets each of the sites in the correct shape, get_site() is called for each
+				 * site individually as the sites will each be cached so this is more performant
+				 * than using get_sites().
+				 */
+				foreach ( $user_site_ids as $user_site_id ) {
+					$user_site = get_site( $user_site_id );
+
+					if ( ! $user_site ) {
+						continue;
+					}
+
+					$sites[] = $user_site;
+				}
+			}
+
+			$current_blog_id = (int) get_current_blog_id();
 
 			foreach ( $sites as $site ) {
 				$blog_id = (int) $site->blog_id;
