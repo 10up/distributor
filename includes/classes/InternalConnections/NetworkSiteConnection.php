@@ -881,10 +881,11 @@ class NetworkSiteConnection extends Connection {
 				/*
 				 * get_blogs_of_user() returns sites in a different shape to get_sites().
 				 *
-				 * This gets each of the sites in the correct shape, get_site() is called for each
-				 * site individually as the sites will each be cached so this is more performant
-				 * than using get_sites().
+				 * To avoid an additional query, the cache for the site IDs is primed and then
+				 * get_site() is used to retrieve the site object. This prevents an unnecessary
+				 * query in get_sites().
 				 */
+				_prime_site_caches( $user_site_ids );
 				foreach ( $user_site_ids as $user_site_id ) {
 					$user_site = get_site( $user_site_id );
 
