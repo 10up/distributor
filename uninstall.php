@@ -31,9 +31,12 @@ if ( defined( 'DT_REMOVE_ALL_DATA' ) && true === DT_REMOVE_ALL_DATA ) {
 	$wpdb->query( "DELETE meta FROM $wpdb->postmeta meta LEFT JOIN $wpdb->posts posts ON posts.ID = meta.post_id WHERE posts.ID IS NULL OR meta.meta_key LIKE 'dt\_%';" );
 
 	// Clear cache.
-	if ( wp_cache_flush() ) {
-		wp_cache_set_posts_last_changed();
-	}
+	wp_cache_set_posts_last_changed();
+	wp_cache_delete( 'alloptions', 'options' );
+	
+	// The cache for individual posts will need to be removed (it doesn't use last changed)
+	// The cache for individual options will need to be removed
+	// On sites will a persistent cache, the transients will need to be removed too
 }
 
 // phpcs:enable
