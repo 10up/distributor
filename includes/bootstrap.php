@@ -248,9 +248,9 @@ add_action(
 			}
 		);
 
-		$modal_title                   = esc_html__( 'Distributor Deactivation', 'distributor' );
-		$modal_button_title_deactivate = esc_html__( 'Deactivate', 'distributor' );
-		$modal_button_title_cancel     = esc_html__( 'Cancel', 'distributor' );
+		$modal_title                   = esc_js( esc_html__( 'Distributor Deactivation', 'distributor' ) );
+		$modal_button_title_deactivate = esc_js( esc_html__( 'Deactivate', 'distributor' ) );
+		$modal_button_title_cancel     = esc_js( esc_html__( 'Cancel', 'distributor' ) );
 		$script                        = <<<EOD
 			jQuery(document).ready(function($) {
 				const deactivateButton = jQuery('#deactivate-distributor');
