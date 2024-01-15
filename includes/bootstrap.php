@@ -223,35 +223,33 @@ add_action(
  *
  * @since x.x.x
  */
-add_action(
-	'load-plugins.php',
-	static function() {
-		// Exit if deactivating plugin from sub site.
-		$screen = get_current_screen();
-		if ( ! ( ! is_multisite() || $screen->in_admin( 'network' ) ) ) {
-			return;
+function register_deactivation_modal() {
+	// Exit if deactivating plugin from sub site.
+	$screen = get_current_screen();
+	if ( ! ( ! is_multisite() || $screen->in_admin( 'network' ) ) ) {
+		return;
+	}
+
+	wp_enqueue_script( 'jquery-ui-dialog' );
+	wp_enqueue_style( 'wp-jquery-ui-dialog' );
+
+	add_action(
+		'admin_footer',
+		static function () {
+			printf(
+				'<div id="my-modal" style="display:none;"><p>%1$s</p><p>%2$s</p><p><code>%3$s</code></p><p>%4$s</p></div>',
+				esc_html__( 'Would you like to delete all Distributor data?', 'distributor' ),
+				esc_html__( 'By default the database entries are not deleted when you deactivate Distributor. If you are deleting Distributor completely from your website and want those items removed as well check, add below code to wp-config.php .', 'distributor' ),
+				'define(\'DT_REMOVE_ALL_DATA\', true)',
+				esc_html__( 'After adding this code, the Distributor plugin data will be removed from the main website database when deleting the plugin. You can review uninstall.php (in the plugin root directory) to learn more about deleted data. After deleting the Distributor plugin, you can remove the code.', 'distributor' )
+			);
 		}
+	);
 
-		wp_enqueue_script( 'jquery-ui-dialog' );
-		wp_enqueue_style( 'wp-jquery-ui-dialog' );
-
-		add_action(
-			'admin_footer',
-			static function () {
-				printf(
-					'<div id="my-modal" style="display:none;"><p>%1$s</p><p>%2$s</p><p><code>%3$s</code></p><p>%4$s</p></div>',
-					esc_html__( 'Would you like to delete all Distributor data?', 'distributor' ),
-					esc_html__( 'By default the database entries are not deleted when you deactivate Distributor. If you are deleting Distributor completely from your website and want those items removed as well check, add below code to wp-config.php .', 'distributor' ),
-					'define(\'DT_REMOVE_ALL_DATA\', true)',
-					esc_html__( 'After adding this code, the Distributor plugin data will be removed from the main website database when deleting the plugin. You can review uninstall.php (in the plugin root directory) to learn more about deleted data. After deleting the Distributor plugin, you can remove the code.', 'distributor' )
-				);
-			}
-		);
-
-		$modal_title                   = esc_js( esc_html__( 'Distributor Deactivation', 'distributor' ) );
-		$modal_button_title_deactivate = esc_js( esc_html__( 'Deactivate', 'distributor' ) );
-		$modal_button_title_cancel     = esc_js( esc_html__( 'Cancel', 'distributor' ) );
-		$script                        = <<<EOD
+	$modal_title                   = esc_js( esc_html__( 'Distributor Deactivation', 'distributor' ) );
+	$modal_button_title_deactivate = esc_js( esc_html__( 'Deactivate', 'distributor' ) );
+	$modal_button_title_cancel     = esc_js( esc_html__( 'Cancel', 'distributor' ) );
+	$script                        = <<<EOD
 			jQuery(document).ready(function($) {
 				const deactivateButton = jQuery('#deactivate-distributor');
 				deactivateButton.on( 'click', function() {
@@ -284,9 +282,9 @@ add_action(
 			});
 EOD;
 
-		wp_add_inline_script( 'jquery-ui-dialog', $script );
-	}
-);
+	wp_add_inline_script( 'jquery-ui-dialog', $script );
+}
+add_action( 'load-plugins.php', __NAMESPACE__ . '\register_deactivation_modal' );
 
 /**
  * We use setup functions to avoid unit testing WP_Mock strict mode errors.
