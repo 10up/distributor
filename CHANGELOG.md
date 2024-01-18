@@ -4,6 +4,17 @@ All notable changes to this project will be documented in this file, per [the Ke
 
 ## [Unreleased] - TBD
 
+## [2.0.3] - 2024-01-18
+### Added
+- New filter, `dt_post_to_pull`, that allows modifying the post to be pulled (props [@leogermani](https://github.com/leogermani), [@peterwilsoncc](https://github.com/peterwilsoncc), [@dkotter](https://github.com/dkotter) via [#1181](https://github.com/10up/distributor/pull/1181)).
+
+### Fixed
+- Ensure the code snippet for keeping the original post date is correct (props [@leogermani](https://github.com/leogermani), [@peterwilsoncc](https://github.com/peterwilsoncc) via [#1160](https://github.com/10up/distributor/pull/1160)).
+
+### Security
+- Bump `tj-actions/changed-files` from 36 to 41 (props [@dependabot[bot]](https://github.com/apps/dependabot), [@peterwilsoncc](https://github.com/peterwilsoncc) via [#1172](https://github.com/10up/distributor/pull/1172)).
+- Bump `@wordpress/scripts` from 26.6.0 to 26.19.0 (props [@dependabot[bot]](https://github.com/apps/dependabot), [@iamdharmesh](https://github.com/iamdharmesh) via [#1174](https://github.com/10up/distributor/pull/1174)).
+
 ## [2.0.2] - 2023-11-29
 ### Added
 - New snippet detailing how to disable automatic content updates (props [@dkotter](https://github.com/dkotter), [@peterwilsoncc](https://github.com/peterwilsoncc) via [#1145](https://github.com/10up/distributor/pull/1145)).
@@ -504,6 +515,7 @@ This adds a post type selector when viewing the Pull Content list for both exter
 - Initial closed release.
 
 [Unreleased]: https://github.com/10up/distributor/compare/trunk...develop
+[2.0.3]: https://github.com/10up/distributor/compare/2.0.2...2.0.3
 [2.0.2]: https://github.com/10up/distributor/compare/2.0.1...2.0.2
 [2.0.1]: https://github.com/10up/distributor/compare/2.0.0...2.0.1
 [2.0.0]: https://github.com/10up/distributor/compare/1.9.1...2.0.0

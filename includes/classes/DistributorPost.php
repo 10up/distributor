@@ -918,7 +918,17 @@ class DistributorPost {
 		$display_data['distributor_original_site_name'] = $this->source_site['name'];
 		$display_data['distributor_original_site_url']  = $this->source_site['home_url'];
 
-		return $display_data;
+		/**
+		 * Filters the post data for when they are being formated for a pull
+		 *
+		 * @since 2.0.3
+		 * @hook dt_post_to_pull
+		 *
+		 * @param {array} $display_data The post data.
+		 *
+		 * @return {array} Modified post data.
+		 */
+		return apply_filters( 'dt_post_to_pull', $display_data );
 	}
 
 	/**
