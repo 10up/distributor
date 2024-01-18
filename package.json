@@ -1,6 +1,6 @@
 {
 	"name": "distributor",
-	"version": "2.0.2",
+	"version": "2.0.3",
 	"description": "Distributor is a WordPress plugin that makes it easy to distribute and reuse content across your websites — whether in a single multisite or across the web.",
 	"author": {
 		"name": "10up",
@@ -27,7 +27,7 @@
 	"devDependencies": {
 		"@10up/cypress-wp-utils": "^0.2.0",
 		"@wordpress/env": "^5.16.0",
-		"@wordpress/scripts": "^26.6.0",
+		"@wordpress/scripts": "^26.19.0",
 		"compare-versions": "^4.1.3",
 		"cypress": "^13.1.0",
 		"cypress-mochawesome-reporter": "^3.5.1",
