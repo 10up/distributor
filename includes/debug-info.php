@@ -124,11 +124,11 @@ function add_debug_info( $info ) {
 			],
 			[
 				'label' => __( 'Internal Connections', 'distributor' ),
-				'value' => get_formatted_internal_connnections(),
+				'value' => get_formatted_internal_connections(),
 			],
 			[
 				'label' => __( 'External Connections', 'distributor' ),
-				'value' => get_formatted_external_connnections(),
+				'value' => get_formatted_external_connections(),
 			],
 		]
 	);
@@ -146,7 +146,7 @@ function add_debug_info( $info ) {
  *
  * @return array
  */
-function get_formatted_internal_connnections() {
+function get_formatted_internal_connections() {
 	if ( empty( Connections::factory()->get_registered()['networkblog'] ) ) {
 		return __( 'N/A', 'distributor' );
 	}
@@ -178,7 +178,7 @@ function get_formatted_internal_connnections() {
  *
  * @return array
  */
-function get_formatted_external_connnections() {
+function get_formatted_external_connections() {
 
 	$output = [];
 

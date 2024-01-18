@@ -246,7 +246,7 @@ function get_connections() {
  */
 function ajax_push() {
 	if ( ! check_ajax_referer( 'dt-push', 'nonce', false ) ) {
-		wp_send_json_error( new \WP_Error( 'invalid-referal', __( 'Invalid Ajax referer.', 'distributor' ) ) );
+		wp_send_json_error( new \WP_Error( 'invalid-referral', __( 'Invalid Ajax referer.', 'distributor' ) ) );
 		exit;
 	}
 

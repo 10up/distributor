@@ -25,7 +25,7 @@ All notable changes to this project will be documented in this file, per [the Ke
 - Bump WordPress "tested up to" version 6.4 (props [@severine-pozzo](https://github.com/severine-pozzo), [@QAharshalkadu](https://github.com/QAharshalkadu), [@jeffpaul](https://github.com/jeffpaul), [@dkotter](https://github.com/dkotter) via [#1151](https://github.com/10up/distributor/pull/1151)).
 
 ### Fixed
-- Copy the htaccess file when initilizing the E2E test environment (props [@peterwilsoncc](https://github.com/peterwilsoncc), [@theskinnyghost](https://github.com/theskinnyghost), [@dkotter](https://github.com/dkotter) via [#1143](https://github.com/10up/distributor/pull/1143)).
+- Copy the htaccess file when initializing the E2E test environment (props [@peterwilsoncc](https://github.com/peterwilsoncc), [@theskinnyghost](https://github.com/theskinnyghost), [@dkotter](https://github.com/dkotter) via [#1143](https://github.com/10up/distributor/pull/1143)).
 - Prevent early publishing of scheduled posts when pulled internally (props [@peterwilsoncc](https://github.com/peterwilsoncc), [@jeffpaul](https://github.com/jeffpaul), [@dkotter](https://github.com/dkotter), [@maxledoux](https://github.com/maxledoux), [@pcrumm](https://github.com/pcrumm) via [#1156](https://github.com/10up/distributor/pull/1156)).
 - Avoid a PHP fatal error when pulling content that has previously been pulled into a different network site (props [@dkotter](https://github.com/dkotter), [@jeffpaul](https://github.com/jeffpaul), [@peterwilsoncc](https://github.com/peterwilsoncc) via [#1159](https://github.com/10up/distributor/pull/1159)).
 

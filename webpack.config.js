@@ -10,7 +10,7 @@ const { resolve } = require( 'path' );
  * suffix is removed from the file name to avoid the tortologist `-css.css`.
  *
  * In some cases the CSS file name differs from the JavaScript filename. In a
- * possibly foolhardy attemt to maintain backward compatibility, these values are
+ * possibly foolhardy attempt to maintain backward compatibility, these values are
  * hard coded here.
  *
  * @param {Object} pathData Entry point path data.

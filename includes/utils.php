@@ -642,9 +642,9 @@ function set_taxonomy_terms( $post_id, $taxonomy_terms ) {
 		 *
 		 * @return {bool} Whether term hierarchy should be updated.
 		 */
-		$update_term_hierachy = apply_filters( 'dt_update_term_hierarchy', true, $taxonomy );
+		$update_term_hierarchy = apply_filters( 'dt_update_term_hierarchy', true, $taxonomy );
 
-		if ( ! empty( $update_term_hierachy ) ) {
+		if ( ! empty( $update_term_hierarchy ) ) {
 			foreach ( $terms as $term_array ) {
 				if ( ! is_array( $term_array ) ) {
 					$term_array = (array) $term_array;
