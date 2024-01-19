@@ -142,6 +142,14 @@ function add_debug_info( $info ) {
 }
 
 /**
+ * @deprecated 2.0.4 Use get_formatted_internal_connections
+ */
+function get_formatted_internal_connnections() {
+    _deprecated_function( __FUNCTION__, '2.0.4', __NAMESPACE__ . '\\get_formatted_internal_connections' );
+    return get_formatted_internal_connections();
+}
+
+/**
  * Get and format internal connections.
  *
  * @return array
@@ -171,6 +179,14 @@ function get_formatted_internal_connections() {
 	}
 
 	return $output;
+}
+
+/**
+ * @deprecated 2.0.4 Use get_formatted_external_connections
+ */
+function get_formatted_external_connnections() {
+    _deprecated_function( __FUNCTION__, '2.0.4', __NAMESPACE__ . '\\get_formatted_external_connections' );
+    return get_formatted_external_connections();
 }
 
 /**
