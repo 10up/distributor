@@ -9,7 +9,7 @@ describe( 'Admin can add a new external connection', () => {
 
 	it( 'Should create external connection', () => {
 		const connectionName = 'Connection ' + randomName();
-		// The command includes the workaround to sucessfully create new connection.
+		// The command includes the workaround to successfully create new connection.
 		cy.createExternalConnection(
 			connectionName,
 			'http://localhost/second/wp-json'
