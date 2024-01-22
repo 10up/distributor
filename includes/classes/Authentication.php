@@ -112,7 +112,7 @@ abstract class Authentication {
 	 * Store pre-sanizited auth credentials in DB
 	 *
 	 * @param int   $external_connection_id External connection ID.
-	 * @param array $args Array of creds to store. Should be pre-sanitized.
+	 * @param array $args Array of credentials to store. Should be pre-sanitized.
 	 * @since 0.8
 	 */
 	public static function store_credentials( $external_connection_id, $args ) {

@@ -1377,6 +1377,251 @@ class DistributorPostTest extends TestCase {
 	}
 
 	/**
+	 * Test that the cache gets set when parse_media_blocks is called.
+	 *
+	 * @covers ::get_media
+	 * @covers ::parse_media_blocks
+	 * @covers ::parse_blocks_for_attachment_id
+	 * @runInSeparateProcess
+	 * @doesNotPerformAssertions
+	 */
+	public function test_get_media_sets_cache() {
+		$post_content = '<!-- wp:image {"id":21,"sizeSlug":"large","linkDestination":"none"} -->
+		<figure class="wp-block-image size-large"><img src="//xu-distributor.local/wp-content/uploads/2022/12/deh-platt-1024x683.jpg" alt="" class="wp-image-21"/></figure>
+		<!-- /wp:image -->
+		<!-- wp:image {"id":22,"sizeSlug":"large","linkDestination":"none"} -->
+		<figure class="wp-block-image size-large"><img src="//xu-distributor.local/wp-content/uploads/2022/12/dah-platt-1024x683.jpg" alt="" class="wp-image-22"/></figure>
+		<!-- /wp:image -->
+		';
+
+		$this->setup_post_meta_mock( array() );
+
+		\WP_Mock::userFunction(
+			'get_post',
+			array(
+				'return_in_order' => array(
+					(object) array(
+						'ID'           => 33,
+						'post_title'   => 'Block post with media',
+						'post_content' => $post_content,
+						'post_excerpt' => '',
+						'guid'         => 'http://example.org/?p=1',
+						'post_name'    => 'test-post',
+					),
+					(object) array(
+						'ID'             => 21,
+						'post_title'     => 'deh-platt',
+						'post_content'   => '',
+						'post_excerpt'   => '',
+						'guid'           => 'http://example.org/?p=11',
+						'post_name'      => 'deh-platt',
+						'post_parent'    => 0,
+						'post_mime_type' => 'image/jpeg',
+					),
+					(object) array(
+						'ID'             => 22,
+						'post_title'     => 'dah-platt',
+						'post_content'   => '',
+						'post_excerpt'   => '',
+						'guid'           => 'http://example.org/?p=22',
+						'post_name'      => 'dah-platt',
+						'post_parent'    => 0,
+						'post_mime_type' => 'image/jpeg',
+					),
+				),
+			)
+		);
+
+		\WP_Mock::userFunction(
+			'wp_attachment_is_image',
+			array(
+				'return_in_order' => array(
+					true,
+					true,
+				),
+			)
+		);
+
+		\WP_Mock::userFunction(
+			'wp_get_attachment_metadata',
+			array(
+				'return_in_order' => array(
+					array(
+						'file'     => '2022/12/deh-platt.jpg',
+						'width'    => 1024,
+						'height'   => 683,
+						'filesize' => 404298,
+						'sizes'    => array(
+							'thumbnail'    => array(
+								'file'      => 'deh-platt-150x150.jpg',
+								'width'     => 150,
+								'height'    => 150,
+								'mime-type' => 'image/jpeg',
+							),
+							'medium'       => array(
+								'file'      => 'deh-platt-300x200.jpg',
+								'width'     => 300,
+								'height'    => 200,
+								'mime-type' => 'image/jpeg',
+							),
+							'medium_large' => array(
+								'file'      => 'deh-platt-768x512.jpg',
+								'width'     => 768,
+								'height'    => 512,
+								'mime-type' => 'image/jpeg',
+							),
+							'large'        => array(
+								'file'      => 'deh-platt-1024x683.jpg',
+								'width'     => 1024,
+								'height'    => 683,
+								'mime-type' => 'image/jpeg',
+							),
+						),
+					),
+					array(
+						'file'     => '2022/12/dah-platt.jpg',
+						'width'    => 1024,
+						'height'   => 683,
+						'filesize' => 404298,
+						'sizes'    => array(
+							'thumbnail'    => array(
+								'file'      => 'dah-platt-150x150.jpg',
+								'width'     => 150,
+								'height'    => 150,
+								'mime-type' => 'image/jpeg',
+							),
+							'medium'       => array(
+								'file'      => 'dah-platt-300x200.jpg',
+								'width'     => 300,
+								'height'    => 200,
+								'mime-type' => 'image/jpeg',
+							),
+							'medium_large' => array(
+								'file'      => 'dah-platt-768x512.jpg',
+								'width'     => 768,
+								'height'    => 512,
+								'mime-type' => 'image/jpeg',
+							),
+							'large'        => array(
+								'file'      => 'dah-platt-1024x683.jpg',
+								'width'     => 1024,
+								'height'    => 683,
+								'mime-type' => 'image/jpeg',
+							),
+						),
+					),
+				),
+			)
+		);
+
+		\WP_Mock::userFunction(
+			'wp_get_attachment_url',
+			array(
+				'return_in_order' => array(
+					'http://xu-distributor.local/wp-content/uploads/2022/12/deh-platt.jpg',
+					'http://xu-distributor.local/wp-content/uploads/2022/12/dah-platt.jpg',
+				),
+			)
+		);
+
+		\WP_Mock::userFunction(
+			'get_attached_file',
+			array(
+				'return_in_order' => array(
+					'/var/www/html/wp-content/uploads/2022/12/deh-platt.jpg',
+					'/var/www/html/wp-content/uploads/2022/12/dah-platt.jpg',
+				),
+			)
+		);
+
+		\WP_Mock::userFunction(
+			'has_blocks',
+			array(
+				'return' => true,
+			)
+		);
+
+		\WP_Mock::userFunction(
+			'get_permalink',
+			array(
+				'return_in_order' => array(
+					'http://xu-distributor.local/?p=2',
+					'http://xu-distributor.local/?p=21',
+					'http://xu-distributor.local/?p=22',
+				),
+			),
+		);
+
+		\WP_Mock::userFunction(
+			'get_post_thumbnail_id',
+			array(
+				'return' => false,
+			)
+		);
+
+		\WP_Mock::userFunction(
+			'wp_cache_get',
+			array(
+				'return' => false,
+			)
+		);
+
+		$blocks = array(
+			array(
+				'blockName'    => 'core/image',
+				'attrs'        => array(
+					'id'              => 21,
+					'sizeSlug'        => 'large',
+					'linkDestination' => 'none',
+				),
+				'innerBlocks'  => array(),
+				'innerHTML'    => '<figure class="wp-block-image size-large"><img src="//xu-distributor.local/wp-content/uploads/2022/12/deh-platt-1024x683.jpg" alt="" class="wp-image-11"/></figure>',
+				'innerContent' => array(
+					'<figure class="wp-block-image size-large"><img src="//xu-distributor.local/wp-content/uploads/2022/12/deh-platt-1024x683.jpg" alt="" class="wp-image-11"/></figure>',
+				),
+			),
+			array(
+				'blockName'    => 'core/image',
+				'attrs'        => array(
+					'id'              => 22,
+					'sizeSlug'        => 'large',
+					'linkDestination' => 'none',
+				),
+				'innerBlocks'  => array(),
+				'innerHTML'    => '<figure class="wp-block-image size-large"><img src="//xu-distributor.local/wp-content/uploads/2022/12/dah-platt-1024x683.jpg" alt="" class="wp-image-11"/></figure>',
+				'innerContent' => array(
+					'<figure class="wp-block-image size-large"><img src="//xu-distributor.local/wp-content/uploads/2022/12/dah-platt-1024x683.jpg" alt="" class="wp-image-11"/></figure>',
+				),
+			),
+		);
+
+		\WP_Mock::userFunction(
+			'parse_blocks',
+			array(
+				'return' => $blocks,
+			)
+		);
+
+		// Add assertions to wp_cache_set mock.
+		\WP_Mock::userFunction(
+			'wp_cache_set',
+			array(
+				'return' => true,
+				'times' => 1,
+				'args' => array(
+					'dt_media::33',
+					array( 21, 22 ),
+					'dt::post'
+				),
+			)
+		);
+
+		$dt_post = new DistributorPost( 33 );
+		$dt_post->get_media();
+
+	}
+
+	/**
 	 * Test methods for formatting the post data without blocks.
 	 *
 	 * @covers ::post_data()
