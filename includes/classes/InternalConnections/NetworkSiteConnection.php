@@ -774,7 +774,7 @@ class NetworkSiteConnection extends Connection {
 
 	/**
 	 * Maybe set post modified date
-	 * On wp_insert_post, modified date is overriden by post date
+	 * On wp_insert_post, modified date is overridden by post date
 	 *
 	 * https://core.trac.wordpress.org/browser/tags/4.7.2/src/wp-includes/post.php#L3151
 	 *

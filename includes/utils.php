@@ -573,7 +573,7 @@ function prepare_taxonomy_terms( $post_id, $args = array() ) {
 function set_taxonomy_terms( $post_id, $taxonomy_terms ) {
 	// Now let's add the taxonomy/terms to syndicated post
 	foreach ( $taxonomy_terms as $taxonomy => $terms ) {
-		// Continue if taxonomy doesnt exist
+		// Continue if taxonomy doesn't exist
 		if ( ! taxonomy_exists( $taxonomy ) ) {
 			continue;
 		}
@@ -642,9 +642,9 @@ function set_taxonomy_terms( $post_id, $taxonomy_terms ) {
 		 *
 		 * @return {bool} Whether term hierarchy should be updated.
 		 */
-		$update_term_hierachy = apply_filters( 'dt_update_term_hierarchy', true, $taxonomy );
+		$update_term_hierarchy = apply_filters( 'dt_update_term_hierarchy', true, $taxonomy );
 
-		if ( ! empty( $update_term_hierachy ) ) {
+		if ( ! empty( $update_term_hierarchy ) ) {
 			foreach ( $terms as $term_array ) {
 				if ( ! is_array( $term_array ) ) {
 					$term_array = (array) $term_array;
@@ -940,8 +940,8 @@ function process_media( $url, $post_id, $args = [] ) {
 		$source_file = $args['source_file'];
 
 		if ( ! is_a( $wp_filesystem, 'WP_Filesystem_Base' ) ) {
-			$creds = request_filesystem_credentials( site_url() );
-			wp_filesystem( $creds );
+			$credentials = request_filesystem_credentials( site_url() );
+			wp_filesystem( $credentials );
 		}
 
 		// Copy the source file so we don't mess with the original file.

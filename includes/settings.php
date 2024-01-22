@@ -195,7 +195,7 @@ function setup_fields_sections() {
 	add_settings_field( 'media_handling', esc_html__( 'Media Handling', 'distributor' ), __NAMESPACE__ . '\media_handling_callback', 'distributor', 'dt-section-1' );
 
 	if ( false === DT_IS_NETWORK ) {
-		add_settings_field( 'registation_key', esc_html__( 'Registration Key', 'distributor' ), __NAMESPACE__ . '\license_key_callback', 'distributor', 'dt-section-1' );
+		add_settings_field( 'registration_key', esc_html__( 'Registration Key', 'distributor' ), __NAMESPACE__ . '\license_key_callback', 'distributor', 'dt-section-1' );
 	}
 }
 
