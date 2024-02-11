@@ -1,13 +1,13 @@
 <?php
 
-namespace Distributor;
+namespace Distributor\Tests;
 
-use WP_Mock\Tools\TestCase;
+use Distributor\EnqueueScript;
 
 /**
  * @since 2.0.0
  */
-class EnqueueScriptTest extends TestCase {
+class EnqueueScriptTest extends Utils\TestCase {
 	public function test_script_registration(): void {
 		$this->markTestIncomplete();
 	}

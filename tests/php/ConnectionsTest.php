@@ -1,24 +1,30 @@
 <?php
 
-namespace Distributor;
+namespace Distributor\Tests;
 
-use WP_Mock\Tools\TestCase;
+use Distributor\Connections;
+use Distributor\Tests\Mocks\TestExternalConnection;
+use Distributor\Tests\Mocks\TestInternalConnection;
+use Distributor\Tests\Utils\TestCase;
 
 class ConnectionsTest extends TestCase {
 	/**
 	 * Test connection registration
 	 *
-	 * @since 0.8
-	 * @group Connections
-	 * @runInSeparateProcess
+	 * @covers \Distributor\Connections::register
+	 *
+	 * @since  0.8
+	 * @group  Connections
 	 */
-	public function test_register() {
-		Connections::factory()->register( '\TestExternalConnection' );
+	public function test_register(): void {
+		Connections::factory()->register( TestExternalConnection::class );
 
-		$this->assertEquals( '\TestExternalConnection', Connections::factory()->get_registered()['test-external-connection'] );
+		$this->assertEquals( TestExternalConnection::class,
+			Connections::factory()->get_registered()['test-external-connection'] );
 
-		Connections::factory()->register( '\TestInternalConnection', 'internal' );
+		Connections::factory()->register( TestInternalConnection::class, 'internal' );
 
-		$this->assertEquals( '\TestInternalConnection', Connections::factory()->get_registered()['test-internal-connection'] );
+		$this->assertEquals( TestInternalConnection::class,
+			Connections::factory()->get_registered()['test-internal-connection'] );
 	}
 }
