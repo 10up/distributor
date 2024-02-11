@@ -20,7 +20,3 @@
 .connection-status.valid {
 	background-color: #62ff00;
 }
-
-.connection-status.warning {
-	background-color: #ffe000;
-}

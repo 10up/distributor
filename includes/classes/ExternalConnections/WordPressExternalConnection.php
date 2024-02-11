@@ -786,7 +786,7 @@ class WordPressExternalConnection extends ExternalConnection {
 
 
 	/**
-	 * Whether if the post type is not distibutor internal post type.
+	 * Whether if the post type is not distributor internal post type.
 	 *
 	 * @param string $post_type Post type
 	 *

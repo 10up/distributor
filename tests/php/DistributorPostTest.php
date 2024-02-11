@@ -354,6 +354,31 @@ class DistributorPostTest extends \WP_UnitTestCase {
 	}
 
 	/**
+	 * Test that the cache gets set when parse_media_blocks is called.
+	 *
+	 * @covers ::get_media
+	 * @covers ::parse_media_blocks
+	 * @covers ::parse_blocks_for_attachment_id
+	 * @runInSeparateProcess
+	 * @doesNotPerformAssertions
+	 */
+	public function test_get_media_sets_cache() {
+		$this->markTestIncomplete();
+	}
+
+	/**
+	 * Test methods for formatting the post data without blocks.
+	 *
+	 * @covers ::post_data()
+	 * @covers ::to_insert()
+	 * @covers ::to_json()
+	 * @runInSeparateProcess
+	 */
+	public function test_scheduled_post_data_without_blocks() {
+		$this->markTestIncomplete();
+	}
+
+	/**
 	 * Test methods for formatting the post data without blocks.
 	 *
 	 * @covers ::post_data()
