@@ -72,7 +72,7 @@ $data = [
 ];
 ```
 
-In the above example, the `internal` array will always be empty, unless an item is also linked to an interal site. For the `external` array, each item in the array will have a key that corresponds to the connection ID (2 in the example above) and then the `post_id` should be the destination post ID.
+In the above example, the `internal` array will always be empty, unless an item is also linked to an internal site. For the `external` array, each item in the array will have a key that corresponds to the connection ID (2 in the example above) and then the `post_id` should be the destination post ID.
 
 As a further example, if I have a post with an ID of 100 that lives on a site with an ID of 1 and I want that post to be linked to an existing post with an ID of 50 on the site with a connection ID of 2, the `dt_connection_map` data that is stored with the original item (ID of 100, site ID 1) would look like the following:
 
