@@ -666,7 +666,9 @@ class DistributorPost {
 		$found = false;
 
 		// Note: changes to the cache key or group should be reflected in `includes/settings.php`
-		$media = wp_cache_get( 'dt_media::{$post_id}', 'dt::post', false, $found );
+		$cache_key   = "dt_media::{$this->post->ID}";
+		$cache_group = 'dt::post';
+		$media       = wp_cache_get( $cache_key, $cache_group, false, $found );
 
 		if ( ! $found ) {
 			// Parse blocks to determine attached media.
@@ -679,7 +681,7 @@ class DistributorPost {
 			}
 
 			// Only the IDs are cached to keep the cache size down.
-			wp_cache_set( 'dt_media::{$post_id}', $media, 'dt::post' );
+			wp_cache_set( $cache_key, $media, $cache_group );
 		}
 
 		/*
@@ -919,7 +921,7 @@ class DistributorPost {
 		$display_data['distributor_original_site_url']  = $this->source_site['home_url'];
 
 		/**
-		 * Filters the post data for when they are being formated for a pull
+		 * Filters the post data for when they are being formatted for a pull
 		 *
 		 * @since 2.0.3
 		 * @hook dt_post_to_pull

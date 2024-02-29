@@ -4,6 +4,16 @@ All notable changes to this project will be documented in this file, per [the Ke
 
 ## [Unreleased] - TBD
 
+## [2.0.4] - 2024-02-29
+### Added
+- Repo Automator GitHub Action to automate repo operations (props [@iamdharmesh](https://github.com/iamdharmesh), [@jeffpaul](https://github.com/jeffpaul) via [#1191](https://github.com/10up/distributor/pull/1191)).
+
+### Changed
+- Address typos across the codebase (props [@szepeviktor](https://github.com/szepeviktor), [@peterwilsoncc](https://github.com/peterwilsoncc) via [#1184](https://github.com/10up/distributor/pull/1184)).
+
+### Fixed
+- Address an issue with data being cached incorrectly (props [@leogermani](https://github.com/leogermani), [@peterwilsoncc](https://github.com/peterwilsoncc) via [#1185](https://github.com/10up/distributor/pull/1185)).
+
 ## [2.0.3] - 2024-01-18
 ### Added
 - New filter, `dt_post_to_pull`, that allows modifying the post to be pulled (props [@leogermani](https://github.com/leogermani), [@peterwilsoncc](https://github.com/peterwilsoncc), [@dkotter](https://github.com/dkotter) via [#1181](https://github.com/10up/distributor/pull/1181)).
@@ -25,7 +35,7 @@ All notable changes to this project will be documented in this file, per [the Ke
 - Bump WordPress "tested up to" version 6.4 (props [@severine-pozzo](https://github.com/severine-pozzo), [@QAharshalkadu](https://github.com/QAharshalkadu), [@jeffpaul](https://github.com/jeffpaul), [@dkotter](https://github.com/dkotter) via [#1151](https://github.com/10up/distributor/pull/1151)).
 
 ### Fixed
-- Copy the htaccess file when initilizing the E2E test environment (props [@peterwilsoncc](https://github.com/peterwilsoncc), [@theskinnyghost](https://github.com/theskinnyghost), [@dkotter](https://github.com/dkotter) via [#1143](https://github.com/10up/distributor/pull/1143)).
+- Copy the htaccess file when initializing the E2E test environment (props [@peterwilsoncc](https://github.com/peterwilsoncc), [@theskinnyghost](https://github.com/theskinnyghost), [@dkotter](https://github.com/dkotter) via [#1143](https://github.com/10up/distributor/pull/1143)).
 - Prevent early publishing of scheduled posts when pulled internally (props [@peterwilsoncc](https://github.com/peterwilsoncc), [@jeffpaul](https://github.com/jeffpaul), [@dkotter](https://github.com/dkotter), [@maxledoux](https://github.com/maxledoux), [@pcrumm](https://github.com/pcrumm) via [#1156](https://github.com/10up/distributor/pull/1156)).
 - Avoid a PHP fatal error when pulling content that has previously been pulled into a different network site (props [@dkotter](https://github.com/dkotter), [@jeffpaul](https://github.com/jeffpaul), [@peterwilsoncc](https://github.com/peterwilsoncc) via [#1159](https://github.com/10up/distributor/pull/1159)).
 
@@ -515,6 +525,7 @@ This adds a post type selector when viewing the Pull Content list for both exter
 - Initial closed release.
 
 [Unreleased]: https://github.com/10up/distributor/compare/trunk...develop
+[2.0.4]: https://github.com/10up/distributor/compare/2.0.3...2.0.4
 [2.0.3]: https://github.com/10up/distributor/compare/2.0.2...2.0.3
 [2.0.2]: https://github.com/10up/distributor/compare/2.0.1...2.0.2
 [2.0.1]: https://github.com/10up/distributor/compare/2.0.0...2.0.1

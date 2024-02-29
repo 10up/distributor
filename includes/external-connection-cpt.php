@@ -420,9 +420,9 @@ function save_post( $post_id ) {
 		$connection_class         = \Distributor\Connections::factory()->get_registered()[ sanitize_key( $_POST['dt_external_connection_type'] ) ];
 		$auth_handler_class_again = $connection_class::$auth_handler_class;
 
-		$auth_creds = $auth_handler_class_again::prepare_credentials( array_merge( (array) $current_auth, array_map( 'sanitize_text_field', (array) wp_unslash( $_POST['dt_external_connection_auth'] ) ) ) );
+		$auth_credentials = $auth_handler_class_again::prepare_credentials( array_merge( (array) $current_auth, array_map( 'sanitize_text_field', (array) wp_unslash( $_POST['dt_external_connection_auth'] ) ) ) );
 
-		$auth_handler_class_again::store_credentials( $post_id, $auth_creds );
+		$auth_handler_class_again::store_credentials( $post_id, $auth_credentials );
 	}
 }
 
@@ -597,7 +597,7 @@ function dashboard() {
 	global $connection_list_table;
 
 	$_GET['post_type']     = 'dt_ext_connection';
-	$_REQUEST['all_posts'] = true; // Default to replacite "All" tab
+	$_REQUEST['all_posts'] = true; // Default to replicate "All" tab
 
 	$connection_list_table->prepare_items();
 	?>
