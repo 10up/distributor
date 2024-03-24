@@ -1,10 +1,11 @@
 import { pluginIcon } from './components/plugin-icon';
 
-import { Icon } from '@wordpress/components';
+import { Icon, Modal } from '@wordpress/components';
 import { select, useSelect } from '@wordpress/data';
 import { PluginDocumentSettingPanel } from '@wordpress/edit-post';
 import { __, _n, _x, sprintf } from '@wordpress/i18n';
 import { registerPlugin } from '@wordpress/plugins';
+import { useState } from '@wordpress/element';
 
 const { document, dt, dtGutenberg, MouseEvent } = window;
 
@@ -131,14 +132,120 @@ const RenderDistributedTo = () => {
  * Render the distributed from component
  */
 const RenderDistributedFrom = () => {
+	const [ isOpen, setOpen ] = useState( false );
+	const openModal = () => setOpen( true );
+	const closeModal = () => setOpen( false );
+
+	if ( ! parseInt( dtGutenberg.unlinked ) ) {
+		return (
+			<div>
+				<span id="distributed-from">
+					{ sprintf(
+						/* translators: 1: Syndication date and time. */
+						__(
+							'Pulled & linked on %1$s from %2$s',
+							'distributor'
+						),
+						dtGutenberg.syndicationTime,
+						dtGutenberg.originalLocationName
+					) }
+				</span>
+				<span id="distributed-data">
+					{ __( 'Updating the ', 'distributor' ) }
+					<a href={ dtGutenberg.postUrl }>
+						{ __( 'Original Content', 'distributor' ) },
+					</a>
+					{ __(
+						'will update this post automatically.',
+						'distributor'
+					) }
+					,
+				</span>
+				<span id="distributed-unlink" onClick={ openModal }>
+					<span className="dashicons dashicons-editor-unlink"></span>
+					{ __( 'Unlink from Original', 'distributor' ) }
+				</span>
+				{ isOpen && (
+					<Modal
+						title="Unlink from Original"
+						icon={ pluginIcon }
+						size={ 50 }
+						onRequestClose={ closeModal }
+					>
+						<span id="distributed-data">
+							{ __( 'Unlinking from the ', 'distributor' ) }
+							<a href={ dtGutenberg.postUrl }>
+								{ __( 'Original Content ', 'distributor' ) }
+							</a>
+							{ __(
+								'will stop updating this post automatically.',
+								'distributor'
+							) }
+						</span>
+						<br />
+						<div className="actions">
+							<a href={ dtGutenberg.unlinkNonceUrl }>
+								<span className="dashicons dashicons-editor-unlink"></span>
+								{ __( 'Unlink', 'distributor' ) }
+							</a>
+							<span id="close" onClick={ closeModal }>
+								{ __( 'Cancel', 'distributor' ) }
+							</span>
+						</div>
+					</Modal>
+				) }
+			</div>
+		);
+	}
 	return (
-		<span id="distributed-from">
-			{ sprintf(
-				/* translators: 1: Syndication date and time. */
-				__( 'Distributed on: %1$s', 'distributor' ),
-				dtGutenberg.syndicationTime
+		<div>
+			<span id="distributed-from">
+				{ sprintf(
+					/* translators: 1: Syndication date and time. */
+					__( 'Pulled on %1$s from %2$s', 'distributor' ),
+					dtGutenberg.syndicationTime,
+					dtGutenberg.originalLocationName
+				) }
+			</span>
+			<span id="distributed-data">
+				{ __( 'This post has been unlinked from the ', 'distributor' ) }
+				<a href={ dtGutenberg.postUrl }>
+					{ __( 'Original Content', 'distributor' ) }
+				</a>
+			</span>
+			<span id="distributed-restorelink" onClick={ openModal }>
+				<span className="dashicons dashicons-editor-unlink"></span>
+				{ __( 'Restore link to Original', 'distributor' ) }
+			</span>
+			{ isOpen && (
+				<Modal
+					title="Restore link to Original"
+					icon={ pluginIcon }
+					size={ 50 }
+					onRequestClose={ closeModal }
+				>
+					<span id="distributed-data">
+						{ __( 'Restoring the link to the ', 'distributor' ) }
+						<a href={ dtGutenberg.postUrl }>
+							{ __( 'Original Content. ', 'distributor' ) }
+						</a>
+						{ __(
+							'will start updating this post automatically from the Original, overwriting current content.',
+							'distributor'
+						) }
+					</span>
+					<div className="actions">
+						<a href={ dtGutenberg.linkNonceUrl }>
+							<span className="dashicons dashicons-editor-unlink"></span>
+							{ __( 'Restore link', 'distributor' ) }
+						</a>
+						<span id="close" onClick={ closeModal }>
+							{ __( 'Cancel', 'distributor' ) }
+						</span>
+					</div>
+				</Modal>
 			) }
-		</span>
+		</div>
 	);
 };
 
@@ -148,6 +255,17 @@ const RenderDistributedFrom = () => {
 const DistributorIcon = () => (
 	<Icon className="components-panel__icon" icon={ pluginIcon } size={ 20 } />
 );
+
+/**
+ * Create the Distributor title
+ */
+const isUnlinkedContent = parseInt( dtGutenberg.unlinked ) !== 0;
+
+const DistributorTitle = () => {
+	return isUnlinkedContent
+		? __( 'Unlinked Content', 'distributor' )
+		: __( 'Pulled Content', 'distributor' );
+};
 
 /**
  * Add the Distributor panel to Gutenberg
@@ -199,7 +317,7 @@ const DistributorPlugin = () => {
 		distributorTopMenu?.classList.add( 'hide' );
 		return (
 			<PluginDocumentSettingPanel
-				title={ __( 'Distributor', 'distributor' ) }
+				title={ <DistributorTitle /> }
 				icon={ DistributorIcon }
 				className="distributor-panel"
 			>
@@ -212,7 +330,7 @@ const DistributorPlugin = () => {
 	distributorTopMenu?.classList.remove( 'hide' );
 	return (
 		<PluginDocumentSettingPanel
-			title={ __( 'Distributor', 'distributor' ) }
+			title={ <DistributorTitle /> }
 			icon={ DistributorIcon }
 			className="distributor-panel"
 		>
