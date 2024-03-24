@@ -861,7 +861,7 @@ class NetworkSiteConnection extends Connection {
 			$last_changed = self::set_sites_last_changed_time();
 		}
 
-		$cache_key        = "authorized_sites:$user_id:$context:$last_changed";
+		$cache_key        = "dt_authorized_sites:$user_id:$context:$last_changed";
 		$authorized_sites = get_transient( $cache_key );
 
 		if ( $force || false === $authorized_sites ) {
