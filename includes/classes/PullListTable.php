@@ -441,15 +441,11 @@ class PullListTable extends \WP_List_Table {
 
 		$current_page = $this->get_pagenum();
 
-		// Support 'View all' filtering for internal connections.
-		if ( is_a( $connection_now, '\Distributor\InternalConnections\NetworkSiteConnection' ) ) {
-			if ( empty( $connection_now->pull_post_type ) || 'all' === $connection_now->pull_post_type ) {
-				$post_type = wp_list_pluck( $connection_now->pull_post_types, 'slug' );
-			} else {
-				$post_type = $connection_now->pull_post_type;
-			}
+		// Support 'View all' filtering connections.
+		if ( empty( $connection_now->pull_post_type ) || ( ! post_type_exists( $connection_now->pull_post_type ) && ( 'all' !== $connection_now->pull_post_type ) ) ) {
+			$post_type = 'all';
 		} else {
-			$post_type = $connection_now->pull_post_type ? $connection_now->pull_post_type : 'post';
+			$post_type = $connection_now->pull_post_type;
 		}
 
 		$remote_get_args = [
@@ -618,11 +614,9 @@ class PullListTable extends \WP_List_Table {
 			<div class="alignleft actions dt-pull-post-type">
 				<label for="pull_post_type" class="screen-reader-text">Content to Pull</label>
 				<select id="pull_post_type" name="pull_post_type">
-					<?php if ( 'internal' === $connection_type ) : ?>
-						<option <?php selected( $connection_now->pull_post_type, 'all' ); ?> value="all">
-							<?php esc_html_e( 'View all', 'distributor' ); ?>
-						</option>
-					<?php endif; ?>
+					<option <?php selected( $connection_now->pull_post_type, 'all' ); ?> value="all">
+						<?php esc_html_e( 'View all', 'distributor' ); ?>
+					</option>
 					<?php foreach ( $connection_now->pull_post_types as $post_type ) : ?>
 						<option <?php selected( $connection_now->pull_post_type, $post_type['slug'] ); ?> value="<?php echo esc_attr( $post_type['slug'] ); ?>">
 							<?php echo esc_html( $post_type['name'] ); ?>

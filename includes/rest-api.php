@@ -256,7 +256,8 @@ function get_pull_content_list_args() {
 				 */
 				$allowed_post_types = array_filter( $allowed_post_types, 'is_post_type_viewable' );
 
-				if ( in_array( 'any', $param, true ) ) {
+				// WP_Query supports both all and any so Distributor does too...
+				if ( in_array( 'any', $param, true ) || in_array( 'all', $param, true ) ) {
 					$param = $allowed_post_types;
 				} else {
 					$param = array_intersect( $param, $allowed_post_types );
@@ -626,7 +627,7 @@ function get_pull_content_list( $request ) {
 	$args = [
 		'posts_per_page' => isset( $request['posts_per_page'] ) ? $request['posts_per_page'] : 20,
 		'paged'          => isset( $request['page'] ) ? $request['page'] : 1,
-		'post_type'      => isset( $request['post_type'] ) ? $request['post_type'] : 'post',
+		'post_type'      => isset( $request['post_type'] ) ? $request['post_type'] : array( 'post' ),
 		'post_status'    => isset( $request['post_status'] ) ? $request['post_status'] : array( 'any' ),
 		'order'          => ! empty( $request['order'] ) ? strtoupper( $request['order'] ) : 'DESC',
 	];
