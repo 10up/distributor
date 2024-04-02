@@ -1,0 +1,32 @@
+name: 'Repo Automator'
+on:
+  issues:
+    types:
+      - opened
+  push:
+    branches:
+      - develop
+  pull_request:
+    types:
+      - opened
+      - edited
+      - synchronize
+      - converted_to_draft
+      - ready_for_review
+    branches:
+      - develop
+
+jobs:
+  Validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: 10up/action-repo-automator@trunk
+        with:
+          fail-label: needs:feedback
+          pass-label: needs:code-review
+          conflict-label: needs:refresh
+          reviewers: |
+            dkotter
+            team:open-source-practice
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

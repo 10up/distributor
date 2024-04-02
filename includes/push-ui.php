@@ -246,7 +246,7 @@ function get_connections() {
  */
 function ajax_push() {
 	if ( ! check_ajax_referer( 'dt-push', 'nonce', false ) ) {
-		wp_send_json_error( new \WP_Error( 'invalid-referal', __( 'Invalid Ajax referer.', 'distributor' ) ) );
+		wp_send_json_error( new \WP_Error( 'invalid-referral', __( 'Invalid Ajax referer.', 'distributor' ) ) );
 		exit;
 	}
 
@@ -414,6 +414,7 @@ function enqueue_scripts( $hook ) {
 		'loadConnectionsNonce' => wp_create_nonce( 'dt-load-connections' ),
 		'postId'               => (int) get_the_ID(),
 		'postTitle'            => get_the_title(),
+		'postStatus'           => get_post_status(),
 		'ajaxurl'              => esc_url( admin_url( 'admin-ajax.php' ) ),
 
 		/**

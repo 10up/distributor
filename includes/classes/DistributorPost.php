@@ -666,7 +666,9 @@ class DistributorPost {
 		$found = false;
 
 		// Note: changes to the cache key or group should be reflected in `includes/settings.php`
-		$media = wp_cache_get( 'dt_media::{$post_id}', 'dt::post', false, $found );
+		$cache_key   = "dt_media::{$this->post->ID}";
+		$cache_group = 'dt::post';
+		$media       = wp_cache_get( $cache_key, $cache_group, false, $found );
 
 		if ( ! $found ) {
 			// Parse blocks to determine attached media.
@@ -679,7 +681,7 @@ class DistributorPost {
 			}
 
 			// Only the IDs are cached to keep the cache size down.
-			wp_cache_set( 'dt_media::{$post_id}', $media, 'dt::post' );
+			wp_cache_set( $cache_key, $media, $cache_group );
 		}
 
 		/*
@@ -782,6 +784,9 @@ class DistributorPost {
 			'excerpt'                        => $this->post->post_excerpt,
 			'parent'                         => ! empty( $this->post->post_parent ) ? (int) $this->post->post_parent : 0,
 			'status'                         => $this->post->post_status,
+			'date'                           => $this->post->post_date,
+			'date_gmt'                       => $this->post->post_date_gmt,
+
 			'distributor_media'              => $this->get_media(),
 			'distributor_terms'              => $this->get_terms(),
 			'distributor_meta'               => $this->get_meta(),
@@ -847,7 +852,7 @@ class DistributorPost {
 		}
 
 		// Additional data required for wp_insert_post().
-		$insert['post_author'] = isset( $this->post->post_author ) ? $this->post->post_author : get_current_user_id();
+		$insert['post_author'] = ! empty( $this->post->post_author ) ? $this->post->post_author : get_current_user_id();
 
 		// If the post has blocks, use the raw content.
 		if ( $this->has_blocks() ) {
@@ -857,11 +862,19 @@ class DistributorPost {
 		if ( ! empty( $args['remote_post_id'] ) ) {
 			// Updating an existing post.
 			$insert['ID'] = (int) $args['remote_post_id'];
+			// Never update the post status when updating a post.
 			unset( $insert['post_status'] );
+		} elseif ( ! empty( $args['post_status'] ) ) {
+			$insert['post_status'] = $args['post_status'];
 		}
 
-		if ( ! empty( $args['post_status'] ) ) {
-			$insert['post_status'] = $args['post_status'];
+		if (
+			isset( $insert['post_status'] )
+			&& 'future' === $insert['post_status']
+		) {
+			// Set the post date to the future date.
+			$insert['post_date']     = $post_data['date'];
+			$insert['post_date_gmt'] = $post_data['date_gmt'];
 		}
 
 		// Post meta used by wp_insert_post, wp_update_post.
@@ -907,7 +920,17 @@ class DistributorPost {
 		$display_data['distributor_original_site_name'] = $this->source_site['name'];
 		$display_data['distributor_original_site_url']  = $this->source_site['home_url'];
 
-		return $display_data;
+		/**
+		 * Filters the post data for when they are being formatted for a pull
+		 *
+		 * @since 2.0.3
+		 * @hook dt_post_to_pull
+		 *
+		 * @param {array} $display_data The post data.
+		 *
+		 * @return {array} Modified post data.
+		 */
+		return apply_filters( 'dt_post_to_pull', $display_data );
 	}
 
 	/**
@@ -920,6 +943,15 @@ class DistributorPost {
 	 */
 	protected function to_rest( $rest_args = array() ) {
 		$post_data = $this->post_data();
+
+		/*
+		 * Unset dates.
+		 *
+		 * External connections do not allow for the pulling or pushing of
+		 * scheduled posts so these can be ignored.
+		 */
+		unset( $post_data['date'] );
+		unset( $post_data['date_gmt'] );
 
 		if ( ! empty( $post_data['parent'] ) ) {
 			$post_data['distributor_original_post_parent'] = (int) $post_data['parent'];
