@@ -125,12 +125,14 @@ class WordPressExternalConnectionTest extends TestCase {
 		);
 
 		$post = (object) [
-			'post_content' => 'my post content',
-			'post_type'    => $post_type,
-			'post_excerpt' => 'post excerpt',
-			'post_name'    => 'slug',
-			'post_status'  => 'publish',
-			'ID'           => 1,
+			'post_content'  => 'my post content',
+			'post_type'     => $post_type,
+			'post_excerpt'  => 'post excerpt',
+			'post_name'     => 'slug',
+			'post_status'   => 'publish',
+			'ID'            => 1,
+			'post_date'     => '2020-01-01 00:00:00',
+			'post_date_gmt' => '2020-01-01 00:00:00',
 		];
 
 		\WP_Mock::userFunction(

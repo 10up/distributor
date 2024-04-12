@@ -124,11 +124,11 @@ function add_debug_info( $info ) {
 			],
 			[
 				'label' => __( 'Internal Connections', 'distributor' ),
-				'value' => get_formatted_internal_connnections(),
+				'value' => get_formatted_internal_connections(),
 			],
 			[
 				'label' => __( 'External Connections', 'distributor' ),
-				'value' => get_formatted_external_connnections(),
+				'value' => get_formatted_external_connections(),
 			],
 		]
 	);
@@ -144,9 +144,19 @@ function add_debug_info( $info ) {
 /**
  * Get and format internal connections.
  *
- * @return array
+ * @deprecated x.x.x Use get_formatted_internal_connections
  */
 function get_formatted_internal_connnections() {
+	_deprecated_function( __FUNCTION__, 'x.x.x.', __NAMESPACE__ . '\\get_formatted_internal_connections' );
+	return get_formatted_internal_connections();
+}
+
+/**
+ * Get and format internal connections.
+ *
+ * @return array
+ */
+function get_formatted_internal_connections() {
 	if ( empty( Connections::factory()->get_registered()['networkblog'] ) ) {
 		return __( 'N/A', 'distributor' );
 	}
@@ -176,9 +186,19 @@ function get_formatted_internal_connnections() {
 /**
  * Get and format external connections.
  *
- * @return array
+ * @deprecated x.x.x Use get_formatted_external_connections
  */
 function get_formatted_external_connnections() {
+	_deprecated_function( __FUNCTION__, 'x.x.x', __NAMESPACE__ . '\\get_formatted_external_connections' );
+	return get_formatted_external_connections();
+}
+
+/**
+ * Get and format external connections.
+ *
+ * @return array
+ */
+function get_formatted_external_connections() {
 
 	$output = [];
 
