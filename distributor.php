@@ -5,7 +5,7 @@
  * Update URI:        https://distributorplugin.com
  * Description:       Makes it easy to distribute and reuse content across your websites, whether inside of a multisite or across the web.
  * Version:           2.0.4
- * Requires at least: 5.7
+ * Requires at least: 6.3
  * Requires PHP:      7.4
  * Author:            10up Inc.
  * Author URI:        https://distributorplugin.com
