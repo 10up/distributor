@@ -4,6 +4,60 @@ All notable changes to this project will be documented in this file, per [the Ke
 
 ## [Unreleased] - TBD
 
+## [2.0.4] - 2024-02-29
+### Added
+- Repo Automator GitHub Action to automate repo operations (props [@iamdharmesh](https://github.com/iamdharmesh), [@jeffpaul](https://github.com/jeffpaul) via [#1191](https://github.com/10up/distributor/pull/1191)).
+
+### Changed
+- Address typos across the codebase (props [@szepeviktor](https://github.com/szepeviktor), [@peterwilsoncc](https://github.com/peterwilsoncc) via [#1184](https://github.com/10up/distributor/pull/1184)).
+
+### Fixed
+- Address an issue with data being cached incorrectly (props [@leogermani](https://github.com/leogermani), [@peterwilsoncc](https://github.com/peterwilsoncc) via [#1185](https://github.com/10up/distributor/pull/1185)).
+
+## [2.0.3] - 2024-01-18
+### Added
+- New filter, `dt_post_to_pull`, that allows modifying the post to be pulled (props [@leogermani](https://github.com/leogermani), [@peterwilsoncc](https://github.com/peterwilsoncc), [@dkotter](https://github.com/dkotter) via [#1181](https://github.com/10up/distributor/pull/1181)).
+
+### Fixed
+- Ensure the code snippet for keeping the original post date is correct (props [@leogermani](https://github.com/leogermani), [@peterwilsoncc](https://github.com/peterwilsoncc) via [#1160](https://github.com/10up/distributor/pull/1160)).
+
+### Security
+- Bump `tj-actions/changed-files` from 36 to 41 (props [@dependabot[bot]](https://github.com/apps/dependabot), [@peterwilsoncc](https://github.com/peterwilsoncc) via [#1172](https://github.com/10up/distributor/pull/1172)).
+- Bump `@wordpress/scripts` from 26.6.0 to 26.19.0 (props [@dependabot[bot]](https://github.com/apps/dependabot), [@iamdharmesh](https://github.com/iamdharmesh) via [#1174](https://github.com/10up/distributor/pull/1174)).
+
+## [2.0.2] - 2023-11-29
+### Added
+- New snippet detailing how to disable automatic content updates (props [@dkotter](https://github.com/dkotter), [@peterwilsoncc](https://github.com/peterwilsoncc) via [#1145](https://github.com/10up/distributor/pull/1145)).
+
+### Changed
+- Show proper external connection status error messages when the status is checked (props [@theskinnyghost](https://github.com/theskinnyghost), [@peterwilsoncc](https://github.com/peterwilsoncc) via [#1140](https://github.com/10up/distributor/pull/1140)).
+- Updated our docs around how to connect two pieces of existing content (props [@dkotter](https://github.com/dkotter), [@peterwilsoncc](https://github.com/peterwilsoncc) via [#1145](https://github.com/10up/distributor/pull/1145)).
+- Bump WordPress "tested up to" version 6.4 (props [@severine-pozzo](https://github.com/severine-pozzo), [@QAharshalkadu](https://github.com/QAharshalkadu), [@jeffpaul](https://github.com/jeffpaul), [@dkotter](https://github.com/dkotter) via [#1151](https://github.com/10up/distributor/pull/1151)).
+
+### Fixed
+- Copy the htaccess file when initializing the E2E test environment (props [@peterwilsoncc](https://github.com/peterwilsoncc), [@theskinnyghost](https://github.com/theskinnyghost), [@dkotter](https://github.com/dkotter) via [#1143](https://github.com/10up/distributor/pull/1143)).
+- Prevent early publishing of scheduled posts when pulled internally (props [@peterwilsoncc](https://github.com/peterwilsoncc), [@jeffpaul](https://github.com/jeffpaul), [@dkotter](https://github.com/dkotter), [@maxledoux](https://github.com/maxledoux), [@pcrumm](https://github.com/pcrumm) via [#1156](https://github.com/10up/distributor/pull/1156)).
+- Avoid a PHP fatal error when pulling content that has previously been pulled into a different network site (props [@dkotter](https://github.com/dkotter), [@jeffpaul](https://github.com/jeffpaul), [@peterwilsoncc](https://github.com/peterwilsoncc) via [#1159](https://github.com/10up/distributor/pull/1159)).
+
+### Security
+- Bump `postcss` from 8.4.24 to 8.4.31 (props [@dependabot[bot]](https://github.com/apps/dependabot), [@ravinderk](https://github.com/ravinderk) via [#1141](https://github.com/10up/distributor/pull/1141)).
+- Bump `@babel/traverse` from 7.22.5 to 7.23.2 (props [@dependabot[bot]](https://github.com/apps/dependabot), [@peterwilsoncc](https://github.com/peterwilsoncc) via [#1147](https://github.com/10up/distributor/pull/1147)).
+
+## [2.0.1] - 2023-09-18
+### Changed
+- Update from Cypress v10 to v13 (props [@dkotter](https://github.com/dkotter), [@iamdharmesh](https://github.com/iamdharmesh), [@peterwilsoncc](https://github.com/peterwilsoncc) via [#1128](https://github.com/10up/distributor/pull/1128)).
+- Documentation updates (props [@jeffpaul](https://github.com/jeffpaul), [@peterwilsoncc](https://github.com/peterwilsoncc) via [#1131](https://github.com/10up/distributor/pull/1131)).
+
+### Removed
+- GitHub Actions for version 1.x releases (props [@peterwilsoncc](https://github.com/peterwilsoncc), [@jeffpaul](https://github.com/jeffpaul) via [#1135](https://github.com/10up/distributor/pull/1135)).
+
+### Fixed
+- Invalid author IDs being set when pushing and pulling posts (props [@peterwilsoncc](https://github.com/peterwilsoncc), [@faisal-alvi](https://github.com/faisal-alvi), [@joemcgill](https://github.com/joemcgill), [@margaretschneider](https://github.com/margaretschneider) via [#1133](https://github.com/10up/distributor/pull/1133)).
+- Featured image delete push issue (props [@ravichdev](https://github.com/ravichdev), [@helen](https://github.com/helen), [@dkotter](https://github.com/dkotter), [@adamsilverstein](https://github.com/adamsilverstein), [@jeffpaul](https://github.com/jeffpaul), [@arsendovlatyan](https://github.com/arsendovlatyan), [@ravinderk](https://github.com/ravinderk), [@peterwilsoncc](https://github.com/peterwilsoncc) via [#310](https://github.com/10up/distributor/pull/310)).
+- Allow clicking on the `Save to draft` confirmation modal buttons (props [@av3nger](https://github.com/av3nger), [@peterwilsoncc](https://github.com/peterwilsoncc), [@ravinderk](https://github.com/ravinderk), [@pdewouters](https://github.com/pdewouters) via [#1042](https://github.com/10up/distributor/pull/1042)).
+- Admin icon has been updated so it has the same width and height (props [@zach-adams](https://github.com/zach-adams), [@ravinderk](https://github.com/ravinderk), [@peterwilsoncc](https://github.com/peterwilsoncc) via [#1132](https://github.com/10up/distributor/pull/1132)).
+- Ensure our E2E tests pass on WordPress 6.3 (props [@dkotter](https://github.com/dkotter), [@iamdharmesh](https://github.com/iamdharmesh), [@peterwilsoncc](https://github.com/peterwilsoncc) via [#1128](https://github.com/10up/distributor/pull/1128)).
+
 ## [2.0.0] - 2023-09-05
 **Note that Distributor now requires PHP 7.4 or later and WordPress 5.7 or later.**
 
@@ -471,6 +525,10 @@ This adds a post type selector when viewing the Pull Content list for both exter
 - Initial closed release.
 
 [Unreleased]: https://github.com/10up/distributor/compare/trunk...develop
+[2.0.4]: https://github.com/10up/distributor/compare/2.0.3...2.0.4
+[2.0.3]: https://github.com/10up/distributor/compare/2.0.2...2.0.3
+[2.0.2]: https://github.com/10up/distributor/compare/2.0.1...2.0.2
+[2.0.1]: https://github.com/10up/distributor/compare/2.0.0...2.0.1
 [2.0.0]: https://github.com/10up/distributor/compare/1.9.1...2.0.0
 [1.9.1]: https://github.com/10up/distributor/compare/1.9.0...1.9.1
 [1.9.0]: https://github.com/10up/distributor/compare/1.8.0...1.9.0
