@@ -72,11 +72,13 @@ class NetworkSiteConnectionsTest extends TestCase {
 			'get_post', [
 				'return' => (object) [
 					'ID'           => 111,
-					'post_content' => '',
-					'post_excerpt' => '',
-					'post_type'    => '',
-					'post_name'    => '',
-					'post_status'  => 'publish',
+					'post_content'  => '',
+					'post_excerpt'  => '',
+					'post_type'     => '',
+					'post_name'     => '',
+					'post_status'   => 'publish',
+					'post_date'     => '2020-01-01 00:00:00',
+					'post_date_gmt' => '2020-01-01 00:00:00',
 				],
 			]
 		);
@@ -277,6 +279,8 @@ class NetworkSiteConnectionsTest extends TestCase {
 					'post_status' => 'publish',
 					'post_content' => 'My post content',
 					'post_excerpt' => 'My post excerpt',
+					'post_date' => '2020-01-01 00:00:00',
+					'post_date_gmt' => '2020-01-01 00:00:00',
 					'meta'      => [],
 				],
 			]
@@ -429,6 +433,8 @@ class NetworkSiteConnectionsTest extends TestCase {
 					'post_status' => 'publish',
 					'post_content' => 'My post content',
 					'post_excerpt' => 'My post excerpt',
+					'post_date' => '2020-01-01 00:00:00',
+					'post_date_gmt' => '2020-01-01 00:00:00',
 				],
 			]
 		);

@@ -95,7 +95,7 @@ function create_remote_subscription( ExternalConnection $connection, $remote_pos
 	 * For a post that is distributed, for each distributed post, we create a subscription (CPT) to keep track
 	 * of the copy. Attached to each subscription is a unique signature. When a post is updated, we check for subscriptions.
 	 * If subscriptions exist, we grab the signature for each subscription and send the update to the remote copy along
-	 * with the signature. The signature is a passcode of sorts. The subscription signature must match the copied post's
+	 * with the signature. The signature is a pass code of sorts. The subscription signature must match the copied post's
 	 * signature otherwise the update is not authorized.
 	 *
 	 * You might be wondering why we don't just use HTTP Basic Auth or OAuth since we've already set that up.
