@@ -125,7 +125,8 @@ function update_notice( $plugin_file, $plugin_data, $status ) {
  * @since 1.2
  */
 function maybe_notice() {
-	if ( 0 === strpos( get_current_screen()->parent_base, 'distributor' ) ) {
+	$parent_base = get_current_screen()->parent_base ?? '';
+	if ( 0 === strpos( $parent_base, 'distributor' ) ) {
 		if ( Utils\is_development_version() ) {
 			?>
 			<div class="notice notice-warning">
