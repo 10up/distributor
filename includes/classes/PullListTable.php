@@ -7,6 +7,8 @@
 
 namespace Distributor;
 
+use function Distributor\Utils\generate_taxonomy_links;
+
 /**
  * List table class for pull screen
  */
@@ -54,10 +56,11 @@ class PullListTable extends \WP_List_Table {
 	 */
 	public function get_columns() {
 		$columns = [
-			'cb'        => '<input type="checkbox" />',
-			'name'      => esc_html__( 'Name', 'distributor' ),
-			'post_type' => esc_html__( 'Post Type', 'distributor' ),
-			'date'      => esc_html__( 'Date', 'distributor' ),
+			'cb'         => '<input type="checkbox" />',
+			'name'       => esc_html__( 'Name', 'distributor' ),
+			'post_type'  => esc_html__( 'Post Type', 'distributor' ),
+			'categories' => esc_html__( 'Categories', 'distributor' ),
+			'date'       => esc_html__( 'Date', 'distributor' ),
 		];
 
 		/**
@@ -245,6 +248,17 @@ class PullListTable extends \WP_List_Table {
 				echo '<abbr title="' . esc_attr( $t_time ) . '">' . esc_html( apply_filters( 'post_date_column_time', $h_time, $post, 'date', $mode ) ) . '</abbr>';
 			}
 		}
+	}
+
+	/**
+	 * Output categories column
+	 *
+	 * @param  \WP_Post $post Post object.
+	 * @since  0.8
+	 */
+	public function column_categories( $post ) {
+		$categories = $post->terms['category'] ?? [];
+		echo wp_kses_post( generate_taxonomy_links( 'category', $post, $categories ) );
 	}
 
 	/**

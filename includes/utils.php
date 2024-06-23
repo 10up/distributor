@@ -484,6 +484,182 @@ function prepare_meta( $post_id ) {
 }
 
 /**
+ * Generates taxonomy term links for a given post.
+ *
+ * The code is taken from WP_Posts_List_Table::column_default and modified
+ * lightly to work in our context.
+ *
+ * @param string $taxonomy The taxonomy name.
+ * @param object $post     The post object.
+ * @param array  $terms    Optional. Array of terms.
+ * @return string The generated HTML for the taxonomy links.
+ */
+function generate_taxonomy_links( $taxonomy, $post, $terms = [] ) {
+	$taxonomy_object = get_taxonomy( $taxonomy );
+
+	if ( ! $terms ) {
+		$terms = get_the_terms( $post, $taxonomy );
+	}
+
+	/**
+	 * Filter the taxonomy terms that should be synced.
+	 *
+	 * @since x.x.x
+	 * @hook dt_syncable_taxonomy_terms
+	 *
+	 * @param {array}  $terms    Array of terms.
+	 * @param {string} $taxonomy Taxonomy name.
+	 * @param {object} $post     Post Object.
+	 *
+	 * @return {array} Array of terms.
+	 */
+	$terms = apply_filters( "dt_syncable_{$taxonomy}_terms", $terms, $taxonomy, $post );
+
+
+	/**
+	 * Filter the terms that should be synced.
+	 *
+	 * @since x.x.x
+	 * @hook dt_syncable_terms
+	 *
+	 * @param {array}  $terms    Array of categories.
+	 * @param {string} $taxonomy Taxonomy name.
+	 * @param {object} $post     Post Object.
+	 *
+	 * @return {array} Array of categories.
+	 */
+	$terms = apply_filters( 'dt_syncable_terms', $terms, $taxonomy, $post );
+
+	if ( is_array( $terms ) ) {
+		$term_links = array();
+
+		foreach ( $terms as $t ) {
+			if ( is_array( $t ) ) {
+				$t = (object) $t;
+			}
+			$posts_in_term_qv = array();
+
+			if ( 'post' !== $post->post_type ) {
+				$posts_in_term_qv['post_type'] = $post->post_type;
+			}
+
+			if ( $taxonomy_object->query_var ) {
+				$posts_in_term_qv[ $taxonomy_object->query_var ] = $t->slug;
+			} else {
+				$posts_in_term_qv['taxonomy'] = $taxonomy;
+				$posts_in_term_qv['term']     = $t->slug;
+			}
+
+			$label = esc_html( sanitize_term_field( 'name', $t->name, $t->term_id, $taxonomy, 'display' ) );
+
+			$term_links[] = get_edit_link( $posts_in_term_qv, $label );
+		}
+
+		/**
+		 * Filters the links in `$taxonomy` column of edit.php.
+		 *
+		 * @since x.x.x
+		 * @hook dt_taxonomy_links
+		 *
+		 * @param string[]  $term_links Array of term editing links.
+		 * @param string    $taxonomy   Taxonomy name.
+		 * @param WP_Term[] $terms      Array of term objects appearing in the post row.
+		 */
+		$term_links = apply_filters( 'dt_taxonomy_links', $term_links, $taxonomy, $terms );
+
+		return implode( wp_get_list_item_separator(), $term_links );
+	} else {
+		return '<span aria-hidden="true">&#8212;</span><span class="screen-reader-text">' . $taxonomy_object->labels->no_terms . '</span>';
+	}
+}
+
+/**
+ * Creates a link to edit.php with params.
+ *
+ * The edit link is created in such a way that it will link to source site.
+ *
+ * @since x.x.x
+ *
+ * @param string[] $args      Associative array of URL parameters for the link.
+ * @param string   $link_text Link text.
+ * @param string   $css_class Optional. Class attribute. Default empty string.
+ * @return string The formatted link string.
+ */
+function get_edit_link( $args, $link_text, $css_class = '' ) {
+	$url = '';
+	if ( is_internal_connection() ) {
+		$url = add_query_arg( $args, get_admin_url( null, 'edit.php' ) );
+	} else {
+		$url = add_query_arg( $args, get_root_url() . 'wp-admin/edit.php' );
+	}
+
+	$class_html   = '';
+	$aria_current = '';
+
+	if ( ! empty( $css_class ) ) {
+		$class_html = sprintf(
+			' class="%s"',
+			esc_attr( $css_class )
+		);
+
+		if ( 'current' === $css_class ) {
+			$aria_current = ' aria-current="page"';
+		}
+	}
+
+	return sprintf(
+		'<a href="%s"%s%s>%s</a>',
+		esc_url( $url ),
+		$class_html,
+		$aria_current,
+		$link_text
+	);
+}
+
+/**
+ * Is current connection an external connection?
+ *
+ * @return boolean
+ */
+function is_external_connection() {
+	global $connection_now;
+	return is_a( $connection_now, '\Distributor\ExternalConnection' );
+}
+
+/**
+ * Is current connection an internal connection?
+ *
+ * @return boolean
+ */
+function is_internal_connection() {
+	global $connection_now;
+	return is_a( $connection_now, '\Distributor\InternalConnections\NetworkSiteConnection' );
+}
+
+/**
+ * Get the root URL of the current connection
+ *
+ * @return string
+ */
+function get_root_url() {
+	$base_url = get_conn_base_url();
+	return str_replace( '/wp-json', '', $base_url );
+}
+
+/**
+ * Get the base URL of the current connection
+ *
+ * @return string
+ */
+function get_conn_base_url() {
+	if ( ! is_external_connection() ) {
+		return get_site_url();
+	}
+	global $connection_now;
+	return $connection_now->base_url;
+}
+
+/**
  * Format media items for consumption
  *
  * @param  int $post_id Post ID.
