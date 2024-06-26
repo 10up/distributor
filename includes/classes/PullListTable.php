@@ -29,9 +29,9 @@ class PullListTable extends \WP_List_Table {
 	/**
 	 * Save error to determine if we can show the pull table
 	 *
-	 * @var bool
+	 * @var array
 	 */
-	public $pull_error;
+	public $pull_error = [];
 
 	/**
 	 * Initialize pull table
@@ -535,7 +535,7 @@ class PullListTable extends \WP_List_Table {
 			$remote_get                   = $connection_now->remote_get( $remote_get_args );
 
 			if ( is_wp_error( $remote_get ) ) {
-				$this->pull_error = $remote_get->get_error_messages();
+				$this->pull_error[] = $remote_get->get_error_messages();
 				continue;
 			}
 
