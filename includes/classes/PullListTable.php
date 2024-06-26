@@ -527,7 +527,7 @@ class PullListTable extends \WP_List_Table {
 			$remote_get_args['post_type'] = [ $remote_get_args['post_type'] ];
 		}
 
-		$total_items   = '';
+		$total_items   = 0;
 		$response_data = [];
 
 		foreach ( $remote_get_args['post_type'] as $type ) {
