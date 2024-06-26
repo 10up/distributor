@@ -28,7 +28,7 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 	public static $requires_credentials = true;
 
 	/**
-	 * Auth hanlder pretty label
+	 * Auth handler pretty label
 	 *
 	 * @var string
 	 */

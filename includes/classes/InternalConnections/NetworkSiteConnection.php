@@ -124,14 +124,34 @@ class NetworkSiteConnection extends Connection {
 			/**
 			 * Fires after a post is pushed via Distributor before `restore_current_blog()`.
 			 *
-			 * @hook dt_push_post
+			 * @since 1.2.2
+			 * @deprecated 2.0.0 The dt_push_post action has been deprecated. Please use dt_push_network_post or dt_push_external_post instead.
+			 * @hook  dt_push_post
 			 *
-			 * @param {int}        $new_post_id   The newly created post ID.
-			 * @param {int}        $post_id       The original post ID.
-			 * @param {array}      $args          The arguments passed into wp_insert_post.
-			 * @param {Connection} $this          The Distributor connection being pushed to.
+			 * @param {int}        $new_post_id The newly created post.
+			 * @param {int}        $post_id     The original post.
+			 * @param {array}      $args        The arguments passed into wp_insert_post.
+			 * @param {Connection} $this        The Distributor connection being pushed to.
 			 */
-			do_action( 'dt_push_post', $new_post_id, $post_id, $args, $this );
+			do_action_deprecated(
+				'dt_push_post',
+				array( $new_post_id, $post_id, $args, $this ),
+				'2.0.0',
+				'dt_push_network_post|dt_push_external_post'
+			);
+
+			/**
+			 * Fires the action after a post is pushed via Distributor before `restore_current_blog()`.
+			 *
+			 * @since 2.0.0
+			 * @hook  dt_push_network_post
+			 *
+			 * @param {int}                   $new_post_id The newly created post.
+			 * @param {int}                   $post_id     The original post.
+			 * @param {array}                 $args        The arguments passed into wp_insert_post.
+			 * @param {NetworkSiteConnection} $this        The Distributor connection being pushed to.
+			 */
+			do_action( 'dt_push_network_post', $new_post_id, $post_id, $args, $this );
 
 			restore_current_blog();
 
@@ -141,44 +161,8 @@ class NetworkSiteConnection extends Connection {
 
 		$output['id'] = $new_post_id;
 
-		update_post_meta( $new_post_id, 'dt_original_blog_id', (int) $original_blog_id );
-		update_post_meta( $new_post_id, 'dt_syndicate_time', time() );
-
-		/**
-		 * Allow bypassing of all meta processing.
-		 *
-		 * @hook dt_push_post_meta
-		 *
-		 * @param {bool}       true           If Distributor should push the post meta.
-		 * @param {int}        $new_post_id   The newly created post ID.
-		 * @param {array}      $post_meta     Meta attached to the post, formatted by {@link \Distributor\Utils\prepare_meta()}.
-		 * @param {int}        $post_id       The original post ID.
-		 * @param {array}      $args          The arguments passed into wp_insert_post.
-		 * @param {Connection} $this          The distributor connection being pushed to.
-		 *
-		 * @return {bool} If Distributor should push the post meta.
-		 */
-		if ( apply_filters( 'dt_push_post_meta', true, $new_post_id, $post_meta, $post_id, $args, $this ) ) {
-			Utils\set_meta( $new_post_id, $post_meta );
-		}
-
-		/**
-		 * Allow bypassing of all term processing.
-		 *
-		 * @hook dt_push_post_terms
-		 *
-		 * @param {bool}       true           If Distributor should push the post terms.
-		 * @param {int}        $new_post_id   The newly created post ID.
-		 * @param {array}      $post_terms    Terms attached to the post, formatted by {@link \Distributor\Utils\prepare_taxonomy_terms()}.
-		 * @param {int}        $post_id       The original post ID.
-		 * @param {array}      $args          The arguments passed into wp_insert_post.
-		 * @param {Connection} $this          The distributor connection being pushed to.
-		 *
-		 * @return {bool} If Distributor should push the post terms.
-		 */
-		if ( apply_filters( 'dt_push_post_terms', true, $new_post_id, $post_terms, $post_id, $args, $this ) ) {
-			Utils\set_taxonomy_terms( $new_post_id, $post_terms );
-		}
+		update_post_meta( $new_post_id, 'dt_original_blog_id', absint( $original_blog_id ) );
+		update_post_meta( $new_post_id, 'dt_syndicate_time', absint( time() ) );
 
 		/**
 		 * Allow bypassing of all media processing.
@@ -205,8 +189,54 @@ class NetworkSiteConnection extends Connection {
 			delete_transient( 'dt_media_errors_' . $new_post_id );
 		}
 
+		/**
+		 * Allow bypassing of all term processing.
+		 *
+		 * @hook dt_push_post_terms
+		 *
+		 * @param {bool}       true           If Distributor should push the post terms.
+		 * @param {int}        $new_post_id   The newly created post ID.
+		 * @param {array}      $post_terms    Terms attached to the post, formatted by {@link \Distributor\Utils\prepare_taxonomy_terms()}.
+		 * @param {int}        $post_id       The original post ID.
+		 * @param {array}      $args          The arguments passed into wp_insert_post.
+		 * @param {Connection} $this          The distributor connection being pushed to.
+		 *
+		 * @return {bool} If Distributor should push the post terms.
+		 */
+		if ( apply_filters( 'dt_push_post_terms', true, $new_post_id, $post_terms, $post_id, $args, $this ) ) {
+			Utils\set_taxonomy_terms( $new_post_id, $post_terms );
+		}
+
+		/**
+		 * Allow bypassing of all meta processing.
+		 *
+		 * @hook dt_push_post_meta
+		 *
+		 * @param {bool}       true           If Distributor should push the post meta.
+		 * @param {int}        $new_post_id   The newly created post ID.
+		 * @param {array}      $post_meta     Meta attached to the post, formatted by {@link \Distributor\Utils\prepare_meta()}.
+		 * @param {int}        $post_id       The original post ID.
+		 * @param {array}      $args          The arguments passed into wp_insert_post.
+		 * @param {Connection} $this          The distributor connection being pushed to.
+		 *
+		 * @return {bool} If Distributor should push the post meta.
+		 */
+		if ( apply_filters( 'dt_push_post_meta', true, $new_post_id, $post_meta, $post_id, $args, $this ) ) {
+			$post_meta = $this->exclude_additional_meta_data( $post_meta );
+			Utils\set_meta( $new_post_id, $post_meta );
+		}
+
 		/** This filter is documented in includes/classes/InternalConnections/NetworkSiteConnection.php */
-		do_action( 'dt_push_post', $new_post_id, $post_id, $args, $this );
+		do_action_deprecated(
+			'dt_push_post',
+			array( $new_post_id, $post_id, $args, $this ),
+			'2.0.0',
+			'dt_push_network_post|dt_push_external_post',
+			esc_html__( 'The dt_push_post action has been deprecated. Please use dt_push_network_post or dt_push_external_post instead.', 'distributor' )
+		);
+
+		/** This filter is documented in includes/classes/InternalConnections/NetworkSiteConnection.php */
+		do_action( 'dt_push_network_post', $new_post_id, $post_id, $args, $this );
 
 		restore_current_blog();
 
@@ -227,62 +257,89 @@ class NetworkSiteConnection extends Connection {
 		$created_posts = array();
 
 		foreach ( $items as $item_array ) {
-			$post = $this->remote_get( [ 'id' => $item_array['remote_post_id'] ] );
+			$update      = false;
+			$insert_args = array();
+			if ( ! empty( $item_array['post_status'] ) ) {
+				$insert_args['post_status'] = $item_array['post_status'];
+			}
+			if ( ! empty( $item_array['post_id'] ) ) {
+				$insert_args['remote_post_id'] = $item_array['post_id'];
+				$update                        = true;
+			}
+
+			$post = $this->remote_get( [ 'id' => $item_array['remote_post_id'] ], $insert_args );
 
 			if ( is_wp_error( $post ) ) {
 				$created_posts[] = $post;
 				continue;
 			}
 
-			$post_props      = get_object_vars( $post );
-			$post_array      = array();
+			$post_props      = $post;
+			$post_array      = $post_props;
 			$current_blog_id = get_current_blog_id();
 
 			if ( ! empty( $post_props['meta']['dt_connection_map'] ) ) {
-				foreach ( $post_props['meta']['dt_connection_map'] as $distributed ) {
+				foreach ( $post_props['meta']['dt_connection_map'] as $connection_type => $distributed ) {
 					$distributed = maybe_unserialize( $distributed );
 
-					if ( array_key_exists( $current_blog_id, $distributed['internal'] ) ) {
+					if ( 'internal' === $connection_type && array_key_exists( $current_blog_id, $distributed ) ) {
 						$dt_pull_messages['duplicated'] = 1;
 						continue 2;
 					}
 				}
 			}
 
-			foreach ( $post_props as $key => $value ) {
-				$post_array[ $key ] = $value;
-			}
-
-			if ( ! empty( $item_array['post_id'] ) ) {
-				$post_array['ID'] = $item_array['post_id'];
-			} else {
-				unset( $post_array['ID'] );
-			}
-
-			if ( isset( $post_array['post_parent'] ) ) {
-				unset( $post_array['post_parent'] );
-			}
-
-			if ( ! empty( $item_array['post_status'] ) ) {
-				$post_array['post_status'] = $item_array['post_status'];
-			}
-
 			add_filter( 'wp_insert_post_data', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'maybe_set_modified_date' ), 10, 2 );
 
 			// Filter documented in includes/classes/ExternalConnections/WordPressExternalConnection.php
 			$new_post_args = Utils\post_args_allow_list( apply_filters( 'dt_pull_post_args', $post_array, $item_array['remote_post_id'], $post, $this ) );
-			$new_post_id   = wp_insert_post( wp_slash( $new_post_args ) );
-
+			if ( $update ) {
+				$new_post_id = wp_update_post( wp_slash( $new_post_args ) );
+			} else {
+				$new_post_id = wp_insert_post( wp_slash( $new_post_args ) );
+			}
 			remove_filter( 'wp_insert_post_data', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'maybe_set_modified_date' ), 10, 2 );
 
 			if ( ! is_wp_error( $new_post_id ) ) {
-				update_post_meta( $new_post_id, 'dt_original_post_id', (int) $item_array['remote_post_id'] );
-				update_post_meta( $new_post_id, 'dt_original_blog_id', (int) $this->site->blog_id );
-				update_post_meta( $new_post_id, 'dt_syndicate_time', time() );
-				update_post_meta( $new_post_id, 'dt_original_post_url', esc_url_raw( $post->link ) );
+				update_post_meta( $new_post_id, 'dt_original_blog_id', absint( $this->site->blog_id ) );
+				update_post_meta( $new_post_id, 'dt_syndicate_time', absint( time() ) );
+				update_post_meta( $new_post_id, 'dt_original_post_id', absint( $new_post_args['meta_input']['dt_original_post_id'] ) );
+				update_post_meta( $new_post_id, 'dt_original_post_url', wp_slash( sanitize_url( $new_post_args['meta_input']['dt_original_post_url'] ) ) );
 
-				if ( ! empty( $post->post_parent ) ) {
-					update_post_meta( $new_post_id, 'dt_original_post_parent', (int) $post->post_parent );
+				/**
+				 * Allow bypassing of all media processing.
+				 *
+				 * @hook dt_pull_post_media
+				 *
+				 * @param {bool}                  true            If Distributor should set the post media.
+				 * @param {int}                   $new_post_id    The newly created post ID.
+				 * @param {array}                 $post_media     List of media items attached to the post, formatted by {@link \Distributor\Utils\prepare_media()}.
+				 * @param {int}                   $remote_post_id The original post ID.
+				 * @param {array}                 $post_array     The arguments passed into wp_insert_post.
+				 * @param {NetworkSiteConnection} $this           The Distributor connection being pulled from.
+				 *
+				 * @return {bool} If Distributor should set the post media.
+				 */
+				if ( apply_filters( 'dt_pull_post_media', true, $new_post_id, $post['media'], $item_array['remote_post_id'], $post_array, $this ) ) {
+					\Distributor\Utils\set_media( $new_post_id, $post['media'], [ 'use_filesystem' => true ] );
+				};
+
+				/**
+				 * Allow bypassing of all terms processing.
+				 *
+				 * @hook dt_pull_post_terms
+				 *
+				 * @param {bool}                  true            If Distributor should set the post terms.
+				 * @param {int}                   $new_post_id    The newly created post ID.
+				 * @param {array}                 $post_terms     List of terms items attached to the post, formatted by {@link \Distributor\Utils\prepare_taxonomy_terms()}.
+				 * @param {int}                   $remote_post_id The original post ID.
+				 * @param {array}                 $post_array     The arguments passed into wp_insert_post.
+				 * @param {NetworkSiteConnection} $this           The Distributor connection being pulled from.
+				 *
+				 * @return {bool} If Distributor should set the post terms.
+				 */
+				if ( apply_filters( 'dt_pull_post_terms', true, $new_post_id, $post['terms'], $item_array['remote_post_id'], $post_array, $this ) ) {
+					\Distributor\Utils\set_taxonomy_terms( $new_post_id, $post['terms'] );
 				}
 
 				/**
@@ -292,52 +349,17 @@ class NetworkSiteConnection extends Connection {
 				 *
 				 * @param {bool}                  true            If Distributor should set the post meta.
 				 * @param {int}                   $new_post_id    The newly created post ID.
-				 * @param {array}                 $post->meta     List of meta items attached to the post, formatted by {@link \Distributor\Utils\prepare_meta()}.
+				 * @param {array}                 $post_meta      List of meta items attached to the post, formatted by {@link \Distributor\Utils\prepare_meta()}.
 				 * @param {int}                   $remote_post_id The original post ID.
 				 * @param {array}                 $post_array     The arguments passed into wp_insert_post.
 				 * @param {NetworkSiteConnection} $this           The Distributor connection being pulled from.
 				 *
 				 * @return {bool} If Distributor should set the post meta.
 				 */
-				if ( apply_filters( 'dt_pull_post_meta', true, $new_post_id, $post->meta, $item_array['remote_post_id'], $post_array, $this ) ) {
-					\Distributor\Utils\set_meta( $new_post_id, $post->meta );
+				if ( apply_filters( 'dt_pull_post_meta', true, $new_post_id, $post['meta'], $item_array['remote_post_id'], $post_array, $this ) ) {
+					$post_meta = $this->exclude_additional_meta_data( $post['meta'] );
+					\Distributor\Utils\set_meta( $new_post_id, $post_meta );
 				}
-
-				/**
-				 * Allow bypassing of all terms processing.
-				 *
-				 * @hook dt_pull_post_terms
-				 *
-				 * @param {bool}                  true            If Distributor should set the post terms.
-				 * @param {int}                   $new_post_id    The newly created post ID.
-				 * @param {array}                 $post->terms    List of terms items attached to the post, formatted by {@link \Distributor\Utils\prepare_taxonomy_terms()}.
-				 * @param {int}                   $remote_post_id The original post ID.
-				 * @param {array}                 $post_array     The arguments passed into wp_insert_post.
-				 * @param {NetworkSiteConnection} $this           The Distributor connection being pulled from.
-				 *
-				 * @return {bool} If Distributor should set the post terms.
-				 */
-				if ( apply_filters( 'dt_pull_post_terms', true, $new_post_id, $post->terms, $item_array['remote_post_id'], $post_array, $this ) ) {
-					\Distributor\Utils\set_taxonomy_terms( $new_post_id, $post->terms );
-				}
-
-				/**
-				 * Allow bypassing of all media processing.
-				 *
-				 * @hook dt_pull_post_media
-				 *
-				 * @param {bool}                  true            If Distributor should set the post media.
-				 * @param {int}                   $new_post_id    The newly created post ID.
-				 * @param {array}                 $post->media    List of media items attached to the post, formatted by {@link \Distributor\Utils\prepare_media()}.
-				 * @param {int}                   $remote_post_id The original post ID.
-				 * @param {array}                 $post_array     The arguments passed into wp_insert_post.
-				 * @param {NetworkSiteConnection} $this           The Distributor connection being pulled from.
-				 *
-				 * @return {bool} If Distributor should set the post media.
-				 */
-				if ( apply_filters( 'dt_pull_post_media', true, $new_post_id, $post->media, $item_array['remote_post_id'], $post_array, $this ) ) {
-					\Distributor\Utils\set_media( $new_post_id, $post->media, [ 'use_filesystem' => true ] );
-				};
 			}
 
 			switch_to_blog( $this->site->blog_id );
@@ -475,11 +497,18 @@ class NetworkSiteConnection extends Connection {
 	/**
 	 * Remotely get posts so we can list them for pulling
 	 *
-	 * @param  array $args Array of args for getting.
 	 * @since  0.8
+	 * @since 2.0.0 Added $new_post_args parameter.
+	 *
+	 * @param  array $args Array of args for getting.
+	 * @param  array $new_post_args {
+	 *    Array of args for creating new post.
+	 *
+	 *    @type string $post_status Post status for new post.
+	 * }
 	 * @return array|WP_Post|bool
 	 */
-	public function remote_get( $args = array() ) {
+	public function remote_get( $args = array(), $new_post_args = array() ) {
 
 		$id = ( empty( $args['id'] ) ) ? false : $args['id'];
 
@@ -564,7 +593,10 @@ class NetworkSiteConnection extends Connection {
 			if ( empty( $post ) ) {
 				$formatted_post = false;
 			} else {
-				$formatted_post = Utils\prepare_post( $post );
+				$dt_post        = new DistributorPost( $post );
+				$formatted_post = $dt_post->to_insert( $new_post_args );
+				// The pull method requires the connection map despite it being on the deny list.
+				$formatted_post['meta']['dt_connection_map'] = get_post_meta( $id, 'dt_connection_map', true );
 			}
 
 			restore_current_blog();
@@ -742,7 +774,7 @@ class NetworkSiteConnection extends Connection {
 
 	/**
 	 * Maybe set post modified date
-	 * On wp_insert_post, modified date is overriden by post date
+	 * On wp_insert_post, modified date is overridden by post date
 	 *
 	 * https://core.trac.wordpress.org/browser/tags/4.7.2/src/wp-includes/post.php#L3151
 	 *
@@ -802,6 +834,7 @@ class NetworkSiteConnection extends Connection {
 		 * @since 1.2
 		 * @since 1.3.7 Added the `$context` parameter.
 		 * @hook dt_authorized_sites
+		 * @tutorial snippets
 		 *
 		 * @param {array}  $authorized_sites An array of `WP_Site` objects and the post type objects the user can edit.
 		 * @param {string} $context          The context of the authorization.
@@ -832,12 +865,13 @@ class NetworkSiteConnection extends Connection {
 		$authorized_sites = get_transient( $cache_key );
 
 		if ( $force || false === $authorized_sites ) {
-			$sites           = get_sites(
+			$authorized_sites = array();
+			$sites            = get_sites(
 				array(
 					'number' => 1000,
 				)
 			);
-			$current_blog_id = (int) get_current_blog_id();
+			$current_blog_id  = (int) get_current_blog_id();
 
 			foreach ( $sites as $site ) {
 				$blog_id = (int) $site->blog_id;
@@ -1073,5 +1107,22 @@ class NetworkSiteConnection extends Connection {
 				]
 			);
 		}
+	}
+
+	/**
+	 * Exclude additional meta data for network distributions
+	 *
+	 * In network connections the featured image is set prior to the meta data.
+	 * Excluding the `_thumbnail_id` meta from distribution prevents the meta
+	 * data from referring to the attachment ID of the original site.
+	 *
+	 * @since 2.0.0
+	 *
+	 * @param string[] $post_meta Array of meta to include in the distribution.
+	 * @return string[] Array of meta to include in the distribution after filtering out excluded meta.
+	 */
+	public static function exclude_additional_meta_data( $post_meta ) {
+		unset( $post_meta['_thumbnail_id'] );
+		return $post_meta;
 	}
 }

@@ -2,17 +2,27 @@ const { defineConfig } = require( 'cypress' );
 const { readConfig } = require( '@wordpress/env/lib/config' );
 
 module.exports = defineConfig( {
+	chromeWebSecurity: false,
 	fixturesFolder: 'tests/cypress/fixtures',
 	screenshotsFolder: 'tests/cypress/screenshots',
 	videosFolder: 'tests/cypress/videos',
 	downloadsFolder: 'tests/cypress/downloads',
 	video: true,
+	reporter: 'mochawesome',
+	reporterOptions: {
+		mochaFile: 'mochawesome-[name]',
+		reportDir: __dirname + '/reports',
+		overwrite: false,
+		html: false,
+		json: true,
+	},
 	e2e: {
 		setupNodeEvents( on, config ) {
 			return setBaseUrl( on, config );
 		},
 		specPattern: 'tests/cypress/e2e/**/*.test.{js,jsx,ts,tsx}',
 		supportFile: 'tests/cypress/support/e2e.js',
+		defaultCommandTimeout: 20000,
 	},
 } );
 

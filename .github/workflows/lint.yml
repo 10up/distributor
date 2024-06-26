@@ -8,12 +8,10 @@ on:
   push:
     branches:
       - develop
-      - develop-v1
       - trunk
   pull_request:
     branches:
       - develop
-      - develop-v1
 
 jobs:
   eslint:
@@ -25,6 +23,14 @@ jobs:
       uses: actions/setup-node@v3
       with:
           node-version-file: '.nvmrc'
+    - name: Cache Node
+      uses: actions/cache@v3
+      with:
+        path: |
+          node_modules
+          ~/.cache
+          ~/.npm
+        key: ${{ hashFiles('package-lock.json') }}
     - name: Check versions
       run: npm -v; node -v
     - name: npm install
@@ -42,46 +48,36 @@ jobs:
         npm_config_yes=true npx github:10up/eslint-json-to-md --path ./eslint-report.json --output ./eslint-report.md
         cat eslint-report.md >> $GITHUB_STEP_SUMMARY
       if: ${{ failure() }}
+
   phpcs:
-    name: phpcs
     runs-on: ubuntu-latest
-
     steps:
-    - name: Checkout
-      uses: actions/checkout@v3
+      - name: Checkout
+        uses: actions/checkout@v2
+      - id: changed-files
+        uses: tj-actions/changed-files@v41
+        with:
+          files: |
+            **/*.php
 
-    - name: Set standard 10up cache directories
-      run: |
-        composer config -g cache-dir "${{ env.COMPOSER_CACHE }}"
+      - name: Set PHP version
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: 7.4
+          tools: composer:v2, cs2pr
+          coverage: none
 
-    - name: Prepare composer cache
-      uses: actions/cache@v2
-      with:
-        path: ${{ env.COMPOSER_CACHE }}
-        key: composer-${{ env.COMPOSER_VERSION }}-${{ hashFiles('**/composer.lock') }}
-        restore-keys: |
-          composer-${{ env.COMPOSER_VERSION }}-
+      - name: Install dependencies
+        run: composer install
 
-    - name: Set PHP version
-      uses: shivammathur/setup-php@v2
-      with:
-        php-version: '7.4'
-        coverage: none
-        tools: composer:v2, cs2pr
+      - name: Test all files
+        if: ${{ github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/trunk' }}
+        run: ./vendor/bin/phpcs . --report-full --report-checkstyle=./.github/phpcs-report.xml
 
-    - name: Install dependencies
-      run: composer install --ignore-platform-reqs
+      - name: Test changed files
+        if: ${{ steps.changed-files.outputs.any_changed == 'true' && github.ref != 'refs/heads/develop' && github.ref != 'refs/heads/trunk' }}
+        run: ./vendor/bin/phpcs ${{ steps.changed-files.outputs.all_changed_files }} --report-full --report-checkstyle=./.github/phpcs-report.xml --runtime-set testVersion 7.4-
 
-    - name: Check PHPCS standard
-      run: ./vendor/bin/phpcs -i
-
-    - name: Check Compatibility of main plugin file.
-      run: ./vendor/bin/phpcs ./distributor.php --runtime-set testVersion 5.6- --standard=PHPCompatibilityWP
-
-    - name: PHPCS check
-      id: phpcs-sniffs
-      run: ./vendor/bin/phpcs . --report-full --report-checkstyle=./.github/phpcs-report.xml
-
-    - name: Show PHPCS results in PR
-      if: ${{ always() }}
-      run: cs2pr ./.github/phpcs-report.xml
+      - name: Show PHPCS results in PR
+        if: ${{ always() }}
+        run: cs2pr ./.github/phpcs-report.xml

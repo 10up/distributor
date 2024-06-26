@@ -525,16 +525,18 @@ function dashboard() {
 		<?php $connection_list_table->prepare_items(); ?>
 
 		<?php if ( ! empty( $connection_list_table->pull_error ) ) : ?>
-			<p><?php esc_html_e( 'Could not pull content from connection due to error.', 'distributor' ); ?></p>
-			<ul>
-				<?php foreach ( $connection_list_table->pull_error as $error ) : ?>
-				<li>
-					<ul>
-						<li><?php echo esc_html( $error ); ?></li>
-					</ul>
-				</li>
-				<?php endforeach; ?>
-			</ul>
+			<div class="notice notice-error">
+				<p><?php esc_html_e( 'Could not pull content from connection due to error.', 'distributor' ); ?></p>
+				<ul>
+					<?php foreach ( $connection_list_table->pull_error as $error ) : ?>
+					<li>
+						<ul>
+							<li><?php echo esc_html( $error ); ?></li>
+						</ul>
+					</li>
+					<?php endforeach; ?>
+				</ul>
+			</div>
 		<?php else : ?>
 			<?php $connection_list_table->views(); ?>
 
@@ -570,8 +572,10 @@ function output_pull_errors() {
 
 	if ( is_a( $connection_now, '\Distributor\ExternalConnection' ) ) {
 		$error_key = "external_{$connection_now->id}";
-	} else {
+	} elseif ( is_a( $connection_now, '\Distributor\InternalConnections\NetworkSiteConnection' ) ) {
 		$error_key = "internal_{$connection_now->site->blog_id}";
+	} else {
+		return;
 	}
 
 	$pull_errors = get_transient( 'dt_connection_pull_errors_' . $error_key );

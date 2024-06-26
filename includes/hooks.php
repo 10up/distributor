@@ -19,8 +19,8 @@ function setup() {
 		return __NAMESPACE__ . "\\$function";
 	};
 
-	add_action( 'get_canonical_url', $n( 'get_canonical_url' ), 10, 2 );
-	add_action( 'wpseo_canonical', $n( 'wpseo_canonical' ), 10, 2 );
+	add_filter( 'get_canonical_url', $n( 'get_canonical_url' ), 10, 2 );
+	add_filter( 'wpseo_canonical', $n( 'wpseo_canonical' ), 10, 2 );
 	add_filter( 'wpseo_opengraph_url', $n( 'wpseo_opengraph_url' ), 10, 2 );
 	add_filter( 'the_author', $n( 'filter_the_author' ) );
 	add_filter( 'get_the_author_display_name', $n( 'get_the_author_display_name' ), 10, 3 );
@@ -32,7 +32,7 @@ function setup() {
 /**
  * Filter the canonical URL for a distributed post.
  *
- * @since x.x.x
+ * @since 2.0.0
  *
  * @param string  $canonical_url Canonical URL.
  * @param WP_Post $post          Post object.
@@ -47,7 +47,7 @@ function get_canonical_url( $canonical_url, $post ) {
 /**
  * Filter the Yoast SEO canonical URL for a distributed post.
  *
- * @since x.x.x
+ * @since 2.0.0
  *
  * @param string                                                  $canonical_url Canonical URL.
  * @param Yoast\WP\SEO\Presentations\Indexable_Presentation|false $presentation  Yoast SEO meta tag presenter. False: filter applied in legacy format.
@@ -73,7 +73,7 @@ function wpseo_canonical( $canonical_url, $presentation = false ) {
 /**
  * Filter the Yoast SEO OpenGraph URL for a distributed post.
  *
- * @since x.x.x
+ * @since 2.0.0
  *
  * @param string                                                  $og_url        OpenGraph URL.
  * @param Yoast\WP\SEO\Presentations\Indexable_Presentation|false $presentation  Yoast SEO meta tag presenter. False: filter applied in legacy format.
@@ -101,7 +101,7 @@ function wpseo_opengraph_url( $og_url, $presentation = false ) {
 /**
  * Filter the author name via the_author() for a distributed post.
  *
- * @since x.x.x
+ * @since 2.0.0
  *
  * @param string $display_name Author display name.
  * @return string Modified author display name.
@@ -119,7 +119,7 @@ function filter_the_author( $display_name ) {
 /**
  * Filter the author display name via get_the_author() for a distributed post.
  *
- * @since x.x.x
+ * @since 2.0.0
  *
  * @param string $display_name     Author display name.
  * @param int    $user_id          User ID.
@@ -128,7 +128,10 @@ function filter_the_author( $display_name ) {
  * @return string Modified author display name.
  */
 function get_the_author_display_name( $display_name, $user_id, $original_user_id ) {
-	if ( false !== $original_user_id ) {
+	$current_post   = get_post();
+	$is_distributed = empty( $current_post ) ? false : Utils\is_distributed_post( $current_post );
+
+	if ( ! $is_distributed && false !== $original_user_id ) {
 		// get_the_author() was called for a specific user.
 		return $display_name;
 	}
@@ -139,7 +142,7 @@ function get_the_author_display_name( $display_name, $user_id, $original_user_id
 /**
  * Filter the author link for a distributed post.
  *
- * @since x.x.x
+ * @since 2.0.0
  *
  * @param string $link Author link.
  * @return string Modified author link.
@@ -157,7 +160,7 @@ function filter_author_link( $link ) {
 /**
  * Filter the author page URL via get_the_author() for a distributed post.
  *
- * @since x.x.x
+ * @since 2.0.0
  *
  * @param string $author_url       Author page URL.
  * @param int    $user_id          User ID.
@@ -166,7 +169,10 @@ function filter_author_link( $link ) {
  * @return string Modified author page URL.
  */
 function get_the_author_user_url( $author_url, $user_id, $original_user_id ) {
-	if ( false !== $original_user_id ) {
+	$current_post   = get_post();
+	$is_distributed = empty( $current_post ) ? false : Utils\is_distributed_post( $current_post );
+
+	if ( ! $is_distributed && false !== $original_user_id ) {
 		// get_the_author() was called for a specific user.
 		return $author_url;
 	}

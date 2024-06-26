@@ -80,6 +80,7 @@ class WordPressExternalConnectionTest extends TestCase {
 	 */
 	public function test_push() {
 		$this->setup_post_meta_mock( array() );
+		\WP_Mock::userFunction( 'do_action_deprecated' );
 		\WP_Mock::userFunction( 'untrailingslashit' );
 		\WP_Mock::userFunction( 'get_the_title' );
 		\WP_Mock::userFunction( 'wp_remote_post' );
@@ -124,13 +125,14 @@ class WordPressExternalConnectionTest extends TestCase {
 		);
 
 		$post = (object) [
-			'post_content' => 'my post content',
-			'post_type'    => $post_type,
-			'post_excerpt' => 'post excerpt',
-			'post_name'    => 'slug',
-			'post_status'  => 'publish',
-			'post_type'    => $post_type,
-			'ID'           => 1,
+			'post_content'  => 'my post content',
+			'post_type'     => $post_type,
+			'post_excerpt'  => 'post excerpt',
+			'post_name'     => 'slug',
+			'post_status'   => 'publish',
+			'ID'            => 1,
+			'post_date'     => '2020-01-01 00:00:00',
+			'post_date_gmt' => '2020-01-01 00:00:00',
 		];
 
 		\WP_Mock::userFunction(
@@ -254,16 +256,35 @@ class WordPressExternalConnectionTest extends TestCase {
 	 * @runInSeparateProcess
 	 */
 	public function test_pull() {
+		$this->setup_post_meta_mock( array() );
 		$post_id = 123;
 
-		\WP_Mock::userFunction( 'wp_remote_retrieve_response_code' );
 		\WP_Mock::userFunction( 'untrailingslashit' );
 		\WP_Mock::userFunction( 'sanitize_text_field' );
 
 		remote_get_setup();
 
+		\WP_Mock::passthruFunction( 'wp_slash' );
+		\WP_Mock::passthruFunction( 'update_post_meta' );
 		\WP_Mock::userFunction( 'get_current_user_id' );
 		\WP_Mock::userFunction( 'delete_post_meta' );
+
+		\WP_Mock::userFunction(
+			'apply_filters_deprecated',
+			[
+				'return' => function( $name, $args ) {
+					return $args[0];
+				},
+			]
+		);
+
+		\WP_Mock::userFunction(
+			'wp_remote_retrieve_headers', [
+				'return' => [
+					'X-Distributor' => 'yes',
+				],
+			]
+		);
 
 		\WP_Mock::userFunction(
 			'wp_insert_post', [
@@ -283,24 +304,16 @@ class WordPressExternalConnectionTest extends TestCase {
 			]
 		);
 
-		\WP_Mock::userFunction(
-			'add_query_arg', [
-				'times' => 1,
+		$pull_actual = $this->connection->pull(
+			[
+				[
+					'remote_post_id' => $post_id,
+					'post_type'      => 'post',
+				],
 			]
 		);
 
-		$this->assertTrue(
-			is_array(
-				$this->connection->pull(
-					[
-						[
-							'remote_post_id' => $post_id,
-							'post_type'      => 'post',
-						],
-					]
-				)
-			)
-		);
+		$this->assertIsArray( $pull_actual );
 	}
 
 	/**
@@ -319,7 +332,6 @@ class WordPressExternalConnectionTest extends TestCase {
 
 		\WP_Mock::userFunction(
 			'wp_remote_retrieve_response_code', [
-				'times'  => 2,
 				'return' => 200,
 			]
 		);
@@ -330,12 +342,6 @@ class WordPressExternalConnectionTest extends TestCase {
 				'return' => [
 					'X-Distributor' => true,
 				],
-			]
-		);
-
-		\WP_Mock::userFunction(
-			'add_query_arg', [
-				'times' => 1,
 			]
 		);
 
@@ -360,15 +366,14 @@ class WordPressExternalConnectionTest extends TestCase {
 			]
 		);
 
-		$this->assertInstanceOf(
-			\WP_Post::class, $this->connection->remote_get(
-				[
-					'id'        => 111,
-					'post_type' => 'post',
-				]
-			)
+		$actual = $this->connection->remote_get(
+			[
+				'id'        => 111,
+				'post_type' => 'post',
+			]
 		);
 
+		$this->assertInstanceOf( \WP_Post::class, $actual );
 	}
 
 	/**
