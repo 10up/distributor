@@ -437,16 +437,9 @@ class PullListTable extends \WP_List_Table {
 		/** Process bulk action */
 		$this->process_bulk_action();
 
-		$per_page = $this->get_items_per_page( 'pull_posts_per_page', get_option( 'posts_per_page' ) );
-
+		$per_page     = $this->get_items_per_page( 'pull_posts_per_page', get_option( 'posts_per_page' ) );
 		$current_page = $this->get_pagenum();
-
-		// Support 'View all' filtering for all type of connections.
-		if ( empty( $connection_now->pull_post_type ) || 'all' === $connection_now->pull_post_type ) {
-			$post_type = wp_list_pluck( $connection_now->pull_post_types, 'slug' );
-		} else {
-			$post_type = $connection_now->pull_post_type;
-		}
+		$post_type    = ! empty( $connection_now->pull_post_type ) ? $connection_now->pull_post_type : array( 'post', 'page' );
 
 		$remote_get_args = [
 			'posts_per_page' => $per_page,
@@ -527,21 +520,18 @@ class PullListTable extends \WP_List_Table {
 			$remote_get_args['post_type'] = [ $remote_get_args['post_type'] ];
 		}
 
-		$total_items   = 0;
-		$response_data = [];
+		$total_items = 0;
 
-		foreach ( $remote_get_args['post_type'] as $type ) {
-			$remote_get_args['post_type'] = $type;
-			$remote_get                   = $connection_now->remote_get( $remote_get_args );
+		// Setup remote connection from the connection object.
+		$remote_get = $connection_now->remote_get( $remote_get_args );
 
-			if ( is_wp_error( $remote_get ) ) {
-				$this->pull_error[] = $remote_get->get_error_messages();
-				continue;
-			}
-
-			$total_items  += $remote_get['total_items'];
-			$response_data = array_merge( $response_data, array_values( $remote_get['items'] ) );
+		// Check and throw error if there is one.
+		if ( is_wp_error( $remote_get ) ) {
+			$this->pull_error[] = $remote_get->get_error_messages();
 		}
+
+		$total_items   = $remote_get['total_items'];
+		$response_data = array_merge( $response_data, array_values( $remote_get['items'] ) );
 
 		$this->set_pagination_args(
 			[
