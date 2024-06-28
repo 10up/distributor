@@ -520,7 +520,8 @@ class PullListTable extends \WP_List_Table {
 			$remote_get_args['post_type'] = [ $remote_get_args['post_type'] ];
 		}
 
-		$total_items = 0;
+		$total_items   = 0;
+		$response_data = array();
 
 		// Setup remote connection from the connection object.
 		$remote_get = $connection_now->remote_get( $remote_get_args );
