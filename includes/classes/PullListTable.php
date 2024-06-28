@@ -439,7 +439,17 @@ class PullListTable extends \WP_List_Table {
 
 		$per_page     = $this->get_items_per_page( 'pull_posts_per_page', get_option( 'posts_per_page' ) );
 		$current_page = $this->get_pagenum();
-		$post_type    = ! empty( $connection_now->pull_post_type ) ? $connection_now->pull_post_type : array( 'post', 'page' );
+
+		// Support 'View all' filtering for internal connections.
+		if ( is_a( $connection_now, '\Distributor\InternalConnections\NetworkSiteConnection' ) ) {
+			if ( empty( $connection_now->pull_post_type ) || 'all' === $connection_now->pull_post_type ) {
+				$post_type = wp_list_pluck( $connection_now->pull_post_types, 'slug' );
+			} else {
+				$post_type = $connection_now->pull_post_type;
+			}
+		} else {
+			$post_type = ! empty( $connection_now->pull_post_type ) ? $connection_now->pull_post_type : array( 'post', 'page' );
+		}
 
 		$remote_get_args = [
 			'posts_per_page' => $per_page,
