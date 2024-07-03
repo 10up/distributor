@@ -177,8 +177,7 @@ function admin_enqueue_scripts( $hook ) {
 		if ( file_exists( $asset_file ) ) {
 			$asset_data = require $asset_file;
 		}
-
-		wp_enqueue_style( 'dt-admin-settings', plugins_url( '/dist/css/admin-settings.min.css', __DIR__ ), array(), $asset_data['version'] );
+		wp_enqueue_style( 'dt-admin-settings-screen', plugins_url( '/dist/css/admin-settings.min.css', __DIR__ ), array(), $asset_data['version'] );
 	}
 }
 
@@ -195,7 +194,7 @@ function setup_fields_sections() {
 	add_settings_field( 'media_handling', esc_html__( 'Media Handling', 'distributor' ), __NAMESPACE__ . '\media_handling_callback', 'distributor', 'dt-section-1' );
 
 	if ( false === DT_IS_NETWORK ) {
-		add_settings_field( 'registation_key', esc_html__( 'Registration Key', 'distributor' ), __NAMESPACE__ . '\license_key_callback', 'distributor', 'dt-section-1' );
+		add_settings_field( 'registration_key', esc_html__( 'Registration Key', 'distributor' ), __NAMESPACE__ . '\license_key_callback', 'distributor', 'dt-section-1' );
 	}
 }
 

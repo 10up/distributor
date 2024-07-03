@@ -22,6 +22,10 @@ Pull requests represent a proposed solution to a specified problem. They should 
 
 For more on how 10up writes and manages code, check out our [10up Engineering Best Practices](https://10up.github.io/Engineering-Best-Practices/).
 
+### Testing
+
+Helping to test an open source project and provide feedback on success or failure of those tests is also a helpful contribution.  You can find details on the Critical Flows and Test Cases in [this project's GitHub Wiki](https://github.com/10up/distributor/wiki/Critical-Flows) as well as details on our overall approach to [Critical Flows and Test Cases in our Open Source Best Practices](https://10up.github.io/Open-Source-Best-Practices/testing/#critial-flows).  Submitting the results of testing via our Critical Flows as a comment on a Pull Request of a specific feature or as an Issue when testing the entire project is the best approach for providing testing results.
+
 ## Workflow
 
 The `develop` branch is the development branch which means it contains the next version to be released. `stable` contains the current latest release and `trunk` contains the corresponding stable development version. Always work on the `develop` branch and open up PRs against `develop`.
@@ -29,6 +33,6 @@ The `develop` branch is the development branch which means it contains the next 
 ## Release instructions
 
 1. Branch: Starting from `develop`, create a release branch named `release/X.Y.Z` for your changes.
-2. Follow pull request checklist: A draft release pull request will be created once you push your branch to Github. Follow the steps in the pull request.
+2. Follow pull request checklist: A draft release pull request will be created once you push your branch to GitHub. Follow the steps in the pull request.
 
 Should the pull request fail to be created, a pull request can be manually created using the [template file](https://github.com/10up/distributor/blob/develop/.github/release-pull-request-template.md) containing each of the steps.
