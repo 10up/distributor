@@ -125,7 +125,10 @@ function update_notice( $plugin_file, $plugin_data, $status ) {
  * @since 1.2
  */
 function maybe_notice() {
-	$parent_base = get_current_screen()->parent_base ?? '';
+	$parent_base = get_current_screen()->parent_base;
+	if ( ! $parent_base ) {
+		return;
+	}
 	if ( 0 === strpos( $parent_base, 'distributor' ) ) {
 		if ( Utils\is_development_version() ) {
 			?>
