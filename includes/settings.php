@@ -181,8 +181,7 @@ function admin_enqueue_scripts( $hook ) {
 		if ( file_exists( $asset_file ) ) {
 			$asset_data = require $asset_file;
 		}
-
-		wp_enqueue_style( 'dt-admin-settings', plugins_url( '/dist/css/admin-settings.min.css', __DIR__ ), array(), $asset_data['version'] );
+		wp_enqueue_style( 'dt-admin-settings-screen', plugins_url( '/dist/css/admin-settings.min.css', __DIR__ ), array(), $asset_data['version'] );
 	}
 }
 
