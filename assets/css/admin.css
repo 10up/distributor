@@ -30,6 +30,67 @@
 	width: 20px;
 }
 
+.distributor-panel span {
+	display: inline-block;
+	margin-bottom: 15px;
+}
+
+#distributed-unlink {
+    margin: 0;
+}
+
+#distributed-unlink .dashicons-editor-unlink {
+    color: #b50909;
+    margin-right: 7px;
+	text-decoration: none;
+}
+
+.distributed-modal-popup .components-modal__icon-container svg {
+    width: 25px;
+}
+
+.distributed-modal-popup h1 {
+    margin-left: 8px;
+    margin-top: -3px;
+}
+
+.distributed-modal-popup span {display: inline-block;}
+
+.distributed-modal-popup .actions {
+    margin-top: 20px;
+}
+
+body .distributed-modal-popup button,
+body .distributed-modal-popup .button {
+	opacity: 1;
+    pointer-events: initial;
+    cursor: pointer;
+}
+
+.distributed-modal-popup .actions a.button {
+    display: inline-block;
+    margin-right: 20px;
+}
+
+.distributed-modal-popup .actions a span {
+    display: inline-block;
+    margin-top: 5px;
+    margin-right: 5px;
+    color: #b50909;
+}
+
+.distributed-modal-popup .actions a span.dashicons-admin-links {
+	color: #046e04;
+}
+
+.distributed-modal-popup .actions #close {
+    margin-top: 5px;
+}
+
+.distributed-modal-popup {
+    max-width: 380px;
+}
+
 .distributor-toggle {
 	margin-bottom: 8px;
 }

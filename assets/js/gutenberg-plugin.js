@@ -162,8 +162,10 @@ const RenderDistributedFrom = () => {
 					,
 				</span>
 				<span id="distributed-unlink" onClick={ openModal }>
-					<span className="dashicons dashicons-editor-unlink"></span>
-					{ __( 'Unlink from Original', 'distributor' ) }
+					<a href='javascript:void(0);'> {/* eslint-disable-line */}
+						<span className="dashicons dashicons-editor-unlink"></span>
+						{ __( 'Unlink from Original', 'distributor' ) }
+					</a>
 				</span>
 				{ isOpen && (
 					<Modal
@@ -171,25 +173,29 @@ const RenderDistributedFrom = () => {
 						icon={ pluginIcon }
 						size={ 50 }
 						onRequestClose={ closeModal }
+						className="distributed-modal-popup"
+						overlayClassName="distributed-modal-overlay"
 					>
 						<span id="distributed-data">
 							{ __( 'Unlinking from the ', 'distributor' ) }
 							<a href={ dtGutenberg.postUrl }>
-								{ __( 'Original Content ', 'distributor' ) }
+								{ __( 'Original Content', 'distributor' ) }
 							</a>
 							{ __(
-								'will stop updating this post automatically.',
+								' will stop updating this post automatically.',
 								'distributor'
 							) }
 						</span>
 						<br />
 						<div className="actions">
-							<a href={ dtGutenberg.unlinkNonceUrl }>
+							<a href={ dtGutenberg.unlinkNonceUrl } className='button'>
 								<span className="dashicons dashicons-editor-unlink"></span>
 								{ __( 'Unlink', 'distributor' ) }
 							</a>
 							<span id="close" onClick={ closeModal }>
-								{ __( 'Cancel', 'distributor' ) }
+								<a href='javascript:void(0);'> {/* eslint-disable-line */}
+									{ __( 'Cancel', 'distributor' ) }
+								</a>
 							</span>
 						</div>
 					</Modal>
@@ -212,10 +218,13 @@ const RenderDistributedFrom = () => {
 				<a href={ dtGutenberg.postUrl }>
 					{ __( 'Original Content', 'distributor' ) }
 				</a>
+				{ '.' }
 			</span>
 			<span id="distributed-restorelink" onClick={ openModal }>
-				<span className="dashicons dashicons-editor-unlink"></span>
-				{ __( 'Restore link to Original', 'distributor' ) }
+				<span className="dashicons dashicons-admin-links"></span>
+				<a href='javascript:void(0);'> {/* eslint-disable-line */}
+					{ __( 'Restore link to Original', 'distributor' ) }
+				</a>
 			</span>
 			{ isOpen && (
 				<Modal
@@ -223,24 +232,28 @@ const RenderDistributedFrom = () => {
 					icon={ pluginIcon }
 					size={ 50 }
 					onRequestClose={ closeModal }
+					className="distributed-modal-popup"
+					overlayClassName="distributed-modal-overlay"
 				>
 					<span id="distributed-data">
 						{ __( 'Restoring the link to the ', 'distributor' ) }
 						<a href={ dtGutenberg.postUrl }>
-							{ __( 'Original Content. ', 'distributor' ) }
+							{ __( 'Original Content', 'distributor' ) }
 						</a>
 						{ __(
-							'will start updating this post automatically from the Original, overwriting current content.',
+							' will start updating this post automatically from the Original, overwriting current content.',
 							'distributor'
 						) }
 					</span>
 					<div className="actions">
-						<a href={ dtGutenberg.linkNonceUrl }>
-							<span className="dashicons dashicons-editor-unlink"></span>
+						<a href={ dtGutenberg.linkNonceUrl } className='button'>
+							<span className="dashicons dashicons-admin-links"></span>
 							{ __( 'Restore link', 'distributor' ) }
 						</a>
 						<span id="close" onClick={ closeModal }>
-							{ __( 'Cancel', 'distributor' ) }
+							<a href='javascript:void(0);'> {/* eslint-disable-line */}
+								{ __( 'Cancel', 'distributor' ) }
+							</a>
 						</span>
 					</div>
 				</Modal>
