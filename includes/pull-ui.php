@@ -475,19 +475,25 @@ function dashboard() {
 				$connection_now->pull_post_type  = '';
 				$connection_now->pull_post_types = \Distributor\Utils\available_pull_post_types( $connection_now, $connection_type );
 
+				// Ensure we have at least one post type to pull.
+				$connection_now->pull_post_type = '';
+				if ( ! empty( $connection_now->pull_post_types ) ) {
+					$connection_now->pull_post_type = 'all';
+				}
+
 				// Set the post type we want to pull (if any)
 				// This is either from a query param, "post" post type, or the first in the list
 				foreach ( $connection_now->pull_post_types as $post_type ) {
-					if ( ! empty( $_GET['pull_post_type'] ) ) { // @codingStandardsIgnoreLine No nonce needed here.
+					if ( ! empty( $_GET['pull_post_type'] ) ) {
 						if ( 'all' === $_GET['pull_post_type'] ) {
-							$connection_now->pull_post_type = wp_list_pluck( $connection_now->pull_post_types, 'slug' );
+							$connection_now->pull_post_type = 'all';
 							break;
-						} elseif ( $_GET['pull_post_type'] === $post_type['slug'] ) { // @codingStandardsIgnoreLine Comparing values, no nonce needed.
+						} elseif ( $_GET['pull_post_type'] === $post_type['slug'] ) {
 							$connection_now->pull_post_type = $post_type['slug'];
 							break;
 						}
 					} else {
-						$connection_now->pull_post_type = ! empty( $post_type['slug'] ) ? $post_type['slug'] : 'post';
+						$connection_now->pull_post_type = ! empty( $post_type['slug'] ) ? $post_type['slug'] : 'all';
 						break;
 					}
 				}
