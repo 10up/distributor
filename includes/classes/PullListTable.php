@@ -251,7 +251,7 @@ class PullListTable extends \WP_List_Table {
 	}
 
 	/**
-	 * Output categories column
+	 * Output categories column.
 	 *
 	 * @param  \WP_Post $post Post object.
 	 * @since  0.8
