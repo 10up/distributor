@@ -590,7 +590,7 @@ function get_edit_link( $args, $link_text, $css_class = '' ) {
 	if ( is_internal_connection() ) {
 		$url = add_query_arg( $args, get_admin_url( null, 'edit.php' ) );
 	} else {
-		$url = add_query_arg( $args, get_root_url() . 'wp-admin/edit.php' );
+		$url = add_query_arg( $args, trailingslashit( get_root_url() ) . 'wp-admin/edit.php' );
 	}
 
 	$class_html   = '';
