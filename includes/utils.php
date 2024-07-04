@@ -492,10 +492,15 @@ function prepare_meta( $post_id ) {
  * @param string $taxonomy The taxonomy name.
  * @param object $post     The post object.
  * @param array  $terms    Optional. Array of terms.
+ *
  * @return string The generated HTML for the taxonomy links.
  */
 function generate_taxonomy_links( $taxonomy, $post, $terms = [] ) {
 	$taxonomy_object = get_taxonomy( $taxonomy );
+
+	if ( ! $taxonomy_object ) {
+		return '';
+	}
 
 	if ( ! $terms ) {
 		$terms = get_the_terms( $post, $taxonomy );
@@ -514,7 +519,6 @@ function generate_taxonomy_links( $taxonomy, $post, $terms = [] ) {
 	 * @return {array} Array of terms.
 	 */
 	$terms = apply_filters( "dt_syncable_{$taxonomy}_terms", $terms, $taxonomy, $post );
-
 
 	/**
 	 * Filter the terms that should be synced.
@@ -583,6 +587,7 @@ function generate_taxonomy_links( $taxonomy, $post, $terms = [] ) {
  * @param string[] $args      Associative array of URL parameters for the link.
  * @param string   $link_text Link text.
  * @param string   $css_class Optional. Class attribute. Default empty string.
+ *
  * @return string The formatted link string.
  */
 function get_edit_link( $args, $link_text, $css_class = '' ) {
@@ -619,35 +624,46 @@ function get_edit_link( $args, $link_text, $css_class = '' ) {
 /**
  * Is current connection an external connection?
  *
+ * @since 2.0.5
+ *
  * @return boolean
  */
 function is_external_connection() {
 	global $connection_now;
+
 	return is_a( $connection_now, '\Distributor\ExternalConnection' );
 }
 
 /**
  * Is current connection an internal connection?
  *
+ * @since 2.0.5
+ *
  * @return boolean
  */
 function is_internal_connection() {
 	global $connection_now;
+
 	return is_a( $connection_now, '\Distributor\InternalConnections\NetworkSiteConnection' );
 }
 
 /**
  * Get the root URL of the current connection
  *
+ * @since 2.0.5
+ *
  * @return string
  */
 function get_root_url() {
 	$base_url = get_conn_base_url();
+
 	return str_replace( '/wp-json', '', $base_url );
 }
 
 /**
  * Get the base URL of the current connection
+ *
+ * @since 2.0.5
  *
  * @return string
  */
@@ -656,7 +672,8 @@ function get_conn_base_url() {
 		return get_site_url();
 	}
 	global $connection_now;
-	return $connection_now->base_url;
+
+	return $connection_now?->base_url;
 }
 
 /**
