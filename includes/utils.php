@@ -673,7 +673,11 @@ function get_conn_base_url() {
 	}
 	global $connection_now;
 
-	return $connection_now?->base_url;
+	if ( ! $connection_now || ! property_exists( $connection_now, 'base_url' ) ) {
+		return '';
+	}
+
+	return $connection_now->base_url;
 }
 
 /**
