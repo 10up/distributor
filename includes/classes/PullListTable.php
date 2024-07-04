@@ -254,7 +254,7 @@ class PullListTable extends \WP_List_Table {
 	 * Output categories column.
 	 *
 	 * @param  \WP_Post $post Post object.
-	 * @since  0.8
+	 * @since  2.0.5
 	 */
 	public function column_categories( $post ) {
 		$categories = $post->terms['category'] ?? [];
