@@ -161,7 +161,7 @@ const RenderDistributedFrom = () => {
 					) }
 					,
 				</span>
-				<span id="distributed-unlink" onClick={ openModal }>
+				<span id="distributed-unlink" onClick={ openModal }> {/* eslint-disable-line */}
 					<a href='javascript:void(0);'> {/* eslint-disable-line */}
 						<span className="dashicons dashicons-editor-unlink"></span>
 						{ __( 'Unlink from Original', 'distributor' ) }
@@ -195,7 +195,7 @@ const RenderDistributedFrom = () => {
 								<span className="dashicons dashicons-editor-unlink"></span>
 								{ __( 'Unlink', 'distributor' ) }
 							</a>
-							<span id="close" onClick={ closeModal }>
+							<span id="close" onClick={ closeModal }> {/* eslint-disable-line */}
 								<a href='javascript:void(0);'> {/* eslint-disable-line */}
 									{ __( 'Cancel', 'distributor' ) }
 								</a>
@@ -223,7 +223,7 @@ const RenderDistributedFrom = () => {
 				</a>
 				{ '.' }
 			</span>
-			<span id="distributed-restorelink" onClick={ openModal }>
+			<span id="distributed-restorelink" onClick={ openModal }> {/* eslint-disable-line */}
 				<span className="dashicons dashicons-admin-links"></span>
 				<a href='javascript:void(0);'> {/* eslint-disable-line */}
 					{ __( 'Restore link to Original', 'distributor' ) }
