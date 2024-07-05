@@ -9,7 +9,7 @@ describe( 'Admin can add a new external connection', () => {
 
 	it( 'Should create external connection', () => {
 		const connectionName = 'Connection ' + randomName();
-		// The command includes the workaround to sucessfully create new connection.
+		// The command includes the workaround to successfully create new connection.
 		cy.createExternalConnection(
 			connectionName,
 			'http://localhost/second/wp-json'
@@ -57,27 +57,6 @@ describe( 'Admin can add a new external connection', () => {
 		cy.get( '#title' ).should( 'have.value', name );
 	} );
 
-	it( 'Should display warning status', () => {
-		cy.visit( '/wp-admin/admin.php?page=distributor' );
-		cy.get( '.page-title-action' ).contains( 'Add New' ).click();
-
-		const name = randomName();
-		cy.get( '#title' ).click().type( name );
-
-		cy.get( '.manual-setup-button' ).click();
-		cy.get( '#dt_external_connection_url' ).type(
-			'http://' + randomName()
-		);
-		cy.get( '#create-connection' ).click();
-
-		cy.visit( '/wp-admin/admin.php?page=distributor' );
-		cy.get( '.row-title' )
-			.contains( name )
-			.closest( '.hentry' )
-			.find( '.connection-status' )
-			.should( 'have.class', 'warning' );
-	} );
-
 	it( 'Should display error status', () => {
 		cy.visit( '/wp-admin/admin.php?page=distributor' );
 		cy.get( '.page-title-action' ).contains( 'Add New' ).click();
@@ -94,5 +73,24 @@ describe( 'Admin can add a new external connection', () => {
 			.closest( '.hentry' )
 			.find( '.connection-status' )
 			.should( 'have.class', 'error' );
+	} );
+
+	it( 'Should display error when credentials are invalid', () => {
+		cy.visit( '/wp-admin/admin.php?page=distributor' );
+		cy.get( '.page-title-action' ).contains( 'Add New' ).click();
+
+		const name = randomName();
+		cy.get( '#title' ).click().type( name );
+
+		cy.get( '.manual-setup-button' ).click();
+		cy.get( '#dt_username' ).type( 'invalid_username' );
+		cy.get( '#dt_password' ).type( 'invalid_password' );
+		cy.get( '#dt_external_connection_url' ).type(
+			'http://localhost/second/wp-json'
+		);
+		cy.get( '.endpoint-result' ).should(
+			'contain.text',
+			'Authentication failed due to insufficient or invalid credentials.'
+		);
 	} );
 } );

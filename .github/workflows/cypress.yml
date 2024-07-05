@@ -4,12 +4,11 @@ on:
   push:
     branches:
       - develop
-      - develop-v1
       - trunk
   pull_request:
     branches:
       - develop
-      - develop-v1
+
 jobs:
   build:
     name: NPM Install
@@ -48,11 +47,11 @@ jobs:
           - {name: 'PHP Default', version: null}
         core:
           - {name: 'WP stable', version: 'latest'}
-          - {name: 'WP 5.7', version: 'WordPress/WordPress#5.7'}
+          - {name: 'WP 6.3', version: 'WordPress/WordPress#6.3'}
           - {name: 'WP trunk', version: 'WordPress/WordPress#master'}
         include:
           - php: {name: 'PHP 7.4', version: '7.4'}
-            core: {name: 'WP 5.7', version: 'WordPress/WordPress#5.7'}
+            core: {name: 'WP 6.3', version: 'WordPress/WordPress#6.3'}
           - php: {name: 'PHP 8.1', version: '8.1'}
             core: {name: 'WP stable', version: 'latest'}
     steps:
@@ -97,18 +96,25 @@ jobs:
         npx wp-env run cli "wp core version"
         npx wp-env run cli "php --version"
 
-    - name: Copy .htaccess
-      run: npm run copy-htaccess
-
     - name: Test
       run: npm run cypress:run
 
-    - name: Upload artifacts
-      uses: actions/upload-artifact@v2
+    - name: Update summary
+      if: always()
+      run: |
+          npx mochawesome-merge ./tests/cypress/reports/*.json -o tests/cypress/reports/mochawesome.json
+          rm -rf ./tests/cypress/reports/mochawesome-*.json
+          npx mochawesome-json-to-md -p ./tests/cypress/reports/mochawesome.json -o ./tests/cypress/reports/mochawesome.md
+          npx mochawesome-report-generator tests/cypress/reports/mochawesome.json -o tests/cypress/reports/
+          cat ./tests/cypress/reports/mochawesome.md >> $GITHUB_STEP_SUMMARY
+    - name: Make artifacts available
+      uses: actions/upload-artifact@v4
       if: failure()
       with:
         name: cypress-artifact
         retention-days: 2
         path: |
-          ${{ github.workspace }}/tests/cypress/screenshots/
-          ${{ github.workspace }}/tests/cypress/videos/
+            ${{ github.workspace }}/tests/cypress/screenshots/
+            ${{ github.workspace }}/tests/cypress/videos/
+            ${{ github.workspace }}/tests/cypress/logs/
+            ${{ github.workspace }}/tests/cypress/reports/

@@ -110,7 +110,6 @@
 }
 
 .endpoint-result[data-endpoint-state="error"]::before,
-.endpoint-result[data-endpoint-state="warning"]::before,
 .endpoint-result[data-endpoint-state="valid"]::before {
 	content: " ";
 	display: inline-block;
@@ -127,10 +126,6 @@
 
 .endpoint-result[data-endpoint-state="valid"]::before {
 	background-color: #62ff00;
-}
-
-.endpoint-result[data-endpoint-state="warning"]::before {
-	background-color: #ffe000;
 }
 
 .endpoint-result .dashicons-yes {

@@ -3,7 +3,7 @@
  * Bootstrap the main plugin.
  *
  * This file is included by the main plugin file and is responsible for
- * bootstraping the plugin. This allows the main file to be used for version
+ * bootstrapping the plugin. This allows the main file to be used for version
  * support and therefore support earlier versions of PHP and WP than the
  * minimum requirements.
  *
@@ -11,6 +11,8 @@
  */
 
 namespace Distributor;
+
+use YahnisElsts\PluginUpdateChecker\v5\PucFactory;
 
 /**
  * PSR-4 autoloading
@@ -130,7 +132,7 @@ add_action(
 	}
 );
 
-if ( class_exists( '\\Puc_v4_Factory' ) ) {
+if ( class_exists( '\\YahnisElsts\PluginUpdateChecker\v5\PucFactory' ) ) {
 	/**
 	 * Enable updates if we have a valid license
 	 */
@@ -144,7 +146,7 @@ if ( class_exists( '\\Puc_v4_Factory' ) ) {
 
 	if ( $valid_license ) {
 		// @codingStandardsIgnoreStart
-		$updateChecker = \Puc_v4_Factory::buildUpdateChecker(
+		$updateChecker = PucFactory::buildUpdateChecker(
 			'https://github.com/10up/distributor/',
 			DT_PLUGIN_FULL_FILE,
 			'distributor'
@@ -174,7 +176,9 @@ if ( class_exists( '\\Puc_v4_Factory' ) ) {
 					$update = $updateChecker->getUpdateState()->getUpdate();
 					// Adding the plugin info to the `no_update` property is required
 					// for the enable/disable auto-updates links to correctly appear in UI.
-					$transient->no_update[ $update->filename ] = $update;
+					if ( $update ) {
+						$transient->no_update[ $update->filename ] = $update;
+					}
 				}
 
 				return $transient;

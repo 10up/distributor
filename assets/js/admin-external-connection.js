@@ -314,7 +314,12 @@ function checkConnections() {
 		.done( ( response ) => {
 			if ( ! response.success ) {
 				endpointResult.setAttribute( 'data-endpoint-state', 'error' );
-			} else if ( response.data.errors.no_external_connection ) {
+			} else if (
+				response.data.errors.no_external_connection ||
+				'no' === response.data.is_authenticated ||
+				response.data.errors.no_distributor ||
+				! response.data.can_post.length
+			) {
 				endpointResult.setAttribute( 'data-endpoint-state', 'error' );
 
 				if ( response.data.endpoint_suggestion ) {
@@ -337,6 +342,33 @@ function checkConnections() {
 						}`,
 						'polite'
 					);
+				} else if ( response.data.errors.no_distributor ) {
+					endpointResult.innerText = __(
+						'Distributor not installed on remote site.',
+						'distributor'
+					);
+					speak(
+						__(
+							'Distributor not installed on remote site.',
+							'distributor'
+						),
+						'polite'
+					);
+				} else if (
+					'no' === response.data.is_authenticated ||
+					response.data.errors.no_types
+				) {
+					endpointResult.innerText = __(
+						'Authentication failed due to insufficient or invalid credentials.',
+						'distributor'
+					);
+					speak(
+						__(
+							'Authentication failed due to insufficient or invalid credentials.',
+							'distributor'
+						),
+						'polite'
+					);
 				} else {
 					endpointResult.innerText = __(
 						'No connection found.',
@@ -348,77 +380,6 @@ function checkConnections() {
 						'polite'
 					);
 				}
-			} else if (
-				response.data.errors.no_distributor ||
-				! response.data.can_post.length
-			) {
-				endpointResult.setAttribute( 'data-endpoint-state', 'warning' );
-				endpointResult.innerText = __(
-					'Limited connection established.',
-					'distributor'
-				);
-
-				const warnings = [];
-
-				if ( response.data.errors.no_distributor ) {
-					endpointResult.innerText += ` ${ __(
-						'Distributor not installed on remote site.',
-						'distributor'
-					) }`;
-					speak(
-						`${ __(
-							'Limited connection established.',
-							'distributor'
-						) } ${ __(
-							'Distributor not installed on remote site.',
-							'distributor'
-						) }`,
-						'polite'
-					);
-				} else {
-					speak(
-						`${ __(
-							'Limited connection established.',
-							'distributor'
-						) }`,
-						'polite'
-					);
-				}
-
-				if ( 'no' === response.data.is_authenticated ) {
-					warnings.push(
-						__(
-							'Authentication failed due to invalid credentials.',
-							'distributor'
-						)
-					);
-				}
-
-				if ( 'yes' === response.data.is_authenticated ) {
-					warnings.push(
-						__(
-							'Authentication succeeded but your account does not have permissions to create posts on the external site.',
-							'distributor'
-						)
-					);
-				}
-
-				warnings.push(
-					__( 'Push distribution unavailable.', 'distributor' )
-				);
-				warnings.push(
-					__(
-						'Pull distribution limited to basic content, i.e. title and content body.',
-						'distributor'
-					)
-				);
-
-				warnings.forEach( ( warning ) => {
-					const warningNode = document.createElement( 'li' );
-					warningNode.innerText = warning;
-
-					endpointErrors.append( warningNode );
-				} );
 			} else {
 				endpointResult.setAttribute( 'data-endpoint-state', 'valid' );
 				endpointResult.innerText = __(

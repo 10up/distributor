@@ -117,6 +117,9 @@ function process_distributor_attributes( $post, $request, $update ) {
 
 	if ( isset( $request['distributor_media'] ) ) {
 		\Distributor\Utils\set_media( $post->ID, $request['distributor_media'] );
+	} else {
+		// Remove any previously set featured image.
+		delete_post_meta( $post->ID, '_thumbnail_id' );
 	}
 
 	/**
@@ -597,8 +600,11 @@ function check_post_types_permissions() {
 	);
 
 	foreach ( $types as $type ) {
-		$caps                  = $type->cap;
-		$response['can_get'][] = $type->name;
+		$caps = $type->cap;
+
+		if ( current_user_can( $caps->edit_posts ) ) {
+			$response['can_get'][] = $type->name;
+		}
 
 		if ( current_user_can( $caps->edit_posts ) && current_user_can( $caps->create_posts ) && current_user_can( $caps->publish_posts ) ) {
 			$response['can_post'][] = $type->name;

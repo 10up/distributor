@@ -215,8 +215,8 @@ function distributor_get_the_connection_source( $post_id = null ) {
 /**
  * Display information about where a post was distributed from.
  *
- * @param int|null|mixed     $post_id Post ID.
- * @param string |null|mixed $preface The string that will preceed the link.
+ * @param int|null|mixed    $post_id Post ID.
+ * @param string|null|mixed $preface The string that will precede the link.
  */
 function distributor_the_connection_source( $post_id = null, $preface = null ) {
 	if ( ! $post_id ) {

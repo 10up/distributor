@@ -17,4 +17,5 @@ else
 	npm run env run tests-cli "wp site create --slug=second --title='Second Site' --email='second@admin.local'"
 	npm run env run tests-cli "wp theme enable twentytwentyone --activate"
 	npm run env run tests-cli "wp theme enable twentytwentyone --url=localhost/second --activate"
+	npm run env run tests-cli "cp wp-content/plugins/distributor/tests/cypress/.htaccess .htaccess"
 fi
