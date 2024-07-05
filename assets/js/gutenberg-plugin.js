@@ -188,7 +188,10 @@ const RenderDistributedFrom = () => {
 						</span>
 						<br />
 						<div className="actions">
-							<a href={ dtGutenberg.unlinkNonceUrl } className='button'>
+							<a
+								href={ dtGutenberg.unlinkNonceUrl }
+								className="button"
+							>
 								<span className="dashicons dashicons-editor-unlink"></span>
 								{ __( 'Unlink', 'distributor' ) }
 							</a>
@@ -246,11 +249,11 @@ const RenderDistributedFrom = () => {
 						) }
 					</span>
 					<div className="actions">
-						<a href={ dtGutenberg.linkNonceUrl } className='button'>
+						<a href={ dtGutenberg.linkNonceUrl } className="button">
 							<span className="dashicons dashicons-admin-links"></span>
 							{ __( 'Restore link', 'distributor' ) }
 						</a>
-						<span id="close" onClick={ closeModal }>
+						<span id="close" onClick={ closeModal } aria-label="Cancel"> {/* eslint-disable-line */}
 							<a href='javascript:void(0);'> {/* eslint-disable-line */}
 								{ __( 'Cancel', 'distributor' ) }
 							</a>
