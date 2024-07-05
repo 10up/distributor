@@ -79,18 +79,23 @@ function output_distributor_column( $column_name, $post_id ) {
 		$original_blog_id   = get_post_meta( $post_id, 'dt_original_blog_id', true );
 		$original_source_id = get_post_meta( $post_id, 'dt_original_source_id', true );
 		$original_deleted   = (bool) get_post_meta( $post_id, 'dt_original_post_deleted', true );
+		$connection_map     = get_post_meta( $post_id, 'dt_connection_map', true );
 
-		if ( ( empty( $original_blog_id ) && empty( $original_source_id ) ) || $original_deleted ) {
+		if ( ( ( empty( $original_blog_id ) && empty( $original_source_id ) ) || $original_deleted ) && ! $connection_map ) {
 			echo '';
 		} else {
-			$unlinked         = (bool) get_post_meta( $post_id, 'dt_unlinked', true );
-			$post_type_object = get_post_type_object( get_post_type( $post_id ) );
-			$post_url         = get_post_meta( $post_id, 'dt_original_post_url', true );
-
-			if ( $unlinked ) {
-				echo '<a href="' . esc_url( $post_url ) . '"><span title="' . esc_attr__( 'Unlinked', 'distributor' ) . '" class="dashicons dashicons-editor-unlink"></span></span></a>';
+			if ( $connection_map ) {
+				// When a post is pushed from current site or pulled by other sites.
+				echo '<span title="' . esc_attr__( 'Pushed', 'distributor' ) . '" class="dashicons dashicons-admin-page"></span>';
 			} else {
-				echo '<a target="_blank" href="' . esc_url( $post_url ) . '"><span title="' . esc_attr__( 'Linked', 'distributor' ) . '" class="dashicons dashicons-admin-links"></span></a>';
+				$unlinked = (bool) get_post_meta( $post_id, 'dt_unlinked', true );
+				$post_url = get_post_meta( $post_id, 'dt_original_post_url', true );
+	
+				if ( $unlinked ) {
+					echo '<a href="' . esc_url( $post_url ) . '"><span title="' . esc_attr__( 'Unlinked', 'distributor' ) . '" class="dashicons dashicons-editor-unlink"></span></span></a>';
+				} else {
+					echo '<a target="_blank" href="' . esc_url( $post_url ) . '"><span title="' . esc_attr__( 'Linked', 'distributor' ) . '" class="dashicons dashicons-admin-links"></span></a>';
+				}				
 			}
 		}
 	}
