@@ -623,7 +623,7 @@ function check_post_types_permissions() {
  * @return \WP_REST_Response|\WP_Error
  */
 function get_pull_content_list( $request ) {
-	$post_type = ! empty( $request['post_type'] ) ? $request['post_type'] : array( 'post', 'page' );
+	$post_type = ! empty( $request['post_type'] ) ? $request['post_type'] : array( 'post' );
 	$args      = [
 		'posts_per_page' => isset( $request['posts_per_page'] ) ? $request['posts_per_page'] : 20,
 		'paged'          => isset( $request['page'] ) ? $request['page'] : 1,
