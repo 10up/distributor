@@ -14,7 +14,7 @@ jobs:
           BRANCH=${GITHUB_REF##*/}
           echo $BRANCH
           VERSION=${BRANCH#'release/'}
-          echo ::set-output name=result::"Release: ${VERSION}"
+          echo "result="Release: ${VERSION}"" >> $GITHUB_OUTPUT
         id: title
       - name: Create Pull Request
         run: gh pr create --draft --title "${{ steps.title.outputs.result }}" --body-file ./.github/release-pull-request-template.md
