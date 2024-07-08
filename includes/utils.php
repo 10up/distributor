@@ -509,7 +509,7 @@ function generate_taxonomy_links( $taxonomy, $post, $terms = [] ) {
 	/**
 	 * Filter the taxonomy terms that should be synced.
 	 *
-	 * @since x.x.x
+	 * @since 2.0.5
 	 * @hook dt_syncable_taxonomy_terms
 	 *
 	 * @param {array}  $terms    Array of terms.
@@ -523,7 +523,7 @@ function generate_taxonomy_links( $taxonomy, $post, $terms = [] ) {
 	/**
 	 * Filter the terms that should be synced.
 	 *
-	 * @since x.x.x
+	 * @since 2.0.5
 	 * @hook dt_syncable_terms
 	 *
 	 * @param {array}  $terms    Array of categories.
@@ -562,7 +562,7 @@ function generate_taxonomy_links( $taxonomy, $post, $terms = [] ) {
 		/**
 		 * Filters the links in `$taxonomy` column of edit.php.
 		 *
-		 * @since x.x.x
+		 * @since 2.0.5
 		 * @hook dt_taxonomy_links
 		 *
 		 * @param string[]  $term_links Array of term editing links.
@@ -582,7 +582,7 @@ function generate_taxonomy_links( $taxonomy, $post, $terms = [] ) {
  *
  * The edit link is created in such a way that it will link to source site.
  *
- * @since x.x.x
+ * @since 2.0.5
  *
  * @param string[] $args      Associative array of URL parameters for the link.
  * @param string   $link_text Link text.
