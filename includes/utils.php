@@ -565,9 +565,11 @@ function generate_taxonomy_links( $taxonomy, $post, $terms = [] ) {
 		 * @since 2.0.5
 		 * @hook dt_taxonomy_links
 		 *
-		 * @param string[]  $term_links Array of term editing links.
-		 * @param string    $taxonomy   Taxonomy name.
-		 * @param WP_Term[] $terms      Array of term objects appearing in the post row.
+		 * @param {string[]}  $term_links Array of term editing links.
+		 * @param {string}    $taxonomy   Taxonomy name.
+		 * @param {WP_Term[]} $terms      Array of term objects appearing in the post row.
+		 *
+		 * @return {string[]} Array of term editing links.
 		 */
 		$term_links = apply_filters( 'dt_taxonomy_links', $term_links, $taxonomy, $terms );
 
