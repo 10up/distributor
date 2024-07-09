@@ -636,6 +636,10 @@ function get_pull_content_list( $request ) {
 		$args['orderby'] = 'relevance';
 	}
 
+	if ( isset( $request['tax_query'] ) ) {
+		$args['tax_query'] = $request['tax_query'];
+	}
+
 	if ( ! empty( $request['exclude'] ) && ! empty( $request['include'] ) ) {
 		/*
 		 * Use only `post__in` if both `include` and `exclude` are populated.

@@ -72,6 +72,20 @@ class WordPressExternalConnection extends ExternalConnection {
 	public $pull_post_types;
 
 	/**
+	 * Default posts category to pull.
+	 *
+	 * @var string
+	 */
+	public $category;
+
+	/**
+	 * Default posts categories to show in filter.
+	 *
+	 * @var string
+	 */
+	public $categories;
+
+	/**
 	 * This is a utility function for parsing annoying API link headers returned by the types endpoint
 	 *
 	 * @param  array $type Types array.
@@ -165,6 +179,10 @@ class WordPressExternalConnection extends ExternalConnection {
 			if ( ! empty( $args['order'] ) ) {
 				$query_args['order'] = strtolower( $args['order'] );
 			}
+		}
+
+		if ( isset( $args['tax_query'] ) ) {
+			$query_args['tax_query'] = $args['tax_query'];
 		}
 
 		// When running a query for the Pull screen, make a POST request instead

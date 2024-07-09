@@ -462,8 +462,15 @@ class PullListTable extends \WP_List_Table {
 			} else {
 				$post_type = $connection_now->pull_post_type;
 			}
+
+			if ( empty( $connection_now->pull_post_category ) || 'all' === $connection_now->pull_post_category ) {
+				$post_category = wp_list_pluck( $connection_now->pull_post_post_categories, 'slug' );
+			} else {
+				$post_category = $connection_now->pull_post_category;
+			}
 		} else {
 			$post_type = $connection_now->pull_post_type ? $connection_now->pull_post_type : 'post';
+			$post_category = $connection_now->pull_post_category ? $connection_now->pull_post_category : '';
 		}
 
 		$remote_get_args = [
@@ -475,6 +482,16 @@ class PullListTable extends \WP_List_Table {
 
 		if ( ! empty( $_GET['s'] ) ) { // @codingStandardsIgnoreLine Nonce isn't required.
 			$remote_get_args['s'] = rawurlencode( $_GET['s'] ); // @codingStandardsIgnoreLine Nonce isn't required.
+		}
+
+		if ( ! empty( $post_category ) && 'all' !== $post_category ) {
+			$remote_get_args['tax_query'] = [
+				[
+					'taxonomy' => 'category',
+					'field'    => 'slug',
+					'terms'    => $post_category,
+				],
+			];
 		}
 
 		if ( is_a( $connection_now, '\Distributor\ExternalConnection' ) ) {
@@ -626,20 +643,31 @@ class PullListTable extends \WP_List_Table {
 			$connection_type = 'external';
 		}
 
-		if ( $connection_now && $connection_now->pull_post_types && $connection_now->pull_post_type ) :
+		if ( $connection_now && $connection_now->pull_post_types && $connection_now->pull_post_type && $connection_now->pull_post_categories ) :
 			?>
 
 			<div class="alignleft actions dt-pull-post-type">
-				<label for="pull_post_type" class="screen-reader-text">Content to Pull</label>
+				<label for="pull_post_type" class="screen-reader-text">Post Type to Pull</label>
 				<select id="pull_post_type" name="pull_post_type">
 					<?php if ( 'internal' === $connection_type ) : ?>
 						<option <?php selected( $connection_now->pull_post_type, 'all' ); ?> value="all">
-							<?php esc_html_e( 'View all', 'distributor' ); ?>
+							<?php esc_html_e( 'All post types', 'distributor' ); ?>
 						</option>
 					<?php endif; ?>
 					<?php foreach ( $connection_now->pull_post_types as $post_type ) : ?>
 						<option <?php selected( $connection_now->pull_post_type, $post_type['slug'] ); ?> value="<?php echo esc_attr( $post_type['slug'] ); ?>">
 							<?php echo esc_html( $post_type['name'] ); ?>
+						</option>
+					<?php endforeach; ?>
+				</select>
+				<label for="pull_post_category" class="screen-reader-text">Post Categories to Pull</label>
+				<select id="pull_post_category" name="pull_post_category">
+					<option <?php selected( $connection_now->pull_post_category, 'all' ); ?> value="all">
+						<?php esc_html_e( 'All categories', 'distributor' ); ?>
+					</option>
+					<?php foreach ( $connection_now->pull_post_categories as $post_category ) : ?>
+						<option <?php selected( $connection_now->pull_post_category, $post_category['slug'] ); ?> value="<?php echo esc_attr( $post_category['slug'] ); ?>">
+							<?php echo esc_html( $post_category['name'] ); ?>
 						</option>
 					<?php endforeach; ?>
 				</select>

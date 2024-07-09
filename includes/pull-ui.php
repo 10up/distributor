@@ -217,20 +217,22 @@ function process_actions() {
 				);
 			}
 
-			if ( empty( $_GET['pull_post_type'] ) || empty( $_GET['connection_type'] ) || empty( $_GET['connection_id'] ) || empty( $_GET['post'] ) ) {
+			if ( empty( $_GET['pull_post_type'] ) || empty( $_GET['pull_post_category'] ) || empty( $_GET['connection_type'] ) || empty( $_GET['connection_id'] ) || empty( $_GET['post'] ) ) {
 				break;
 			}
 
-			$posts       = array_map( 'intval', (array) wp_unslash( $_GET['post'] ) );
-			$post_type   = sanitize_text_field( $_GET['pull_post_type'] );
-			$post_status = ! empty( $_GET['dt_as_draft'] ) && 'draft' === $_GET['dt_as_draft'] ? 'draft' : '';
+			$posts         = array_map( 'intval', (array) wp_unslash( $_GET['post'] ) );
+			$post_type     = sanitize_text_field( $_GET['pull_post_type'] );
+			$post_category = sanitize_text_field( $_GET['pull_post_category'] );
+			$post_status   = ! empty( $_GET['dt_as_draft'] ) && 'draft' === $_GET['dt_as_draft'] ? 'draft' : '';
 
 			$posts = array_map(
-				function( $remote_post_id ) use ( $post_type, $post_status ) {
+				function( $remote_post_id ) use ( $post_type, $post_status, $post_category ) {
 						return [
 							'remote_post_id' => $remote_post_id,
 							'post_type'      => $post_type,
 							'post_status'    => $post_status,
+							'post_category'  => 'all' === $post_category ? '' : $post_category,
 						];
 				},
 				$posts
@@ -473,11 +475,16 @@ function dashboard() {
 
 				<?php
 				$connection_now->pull_post_types = \Distributor\Utils\available_pull_post_types( $connection_now, $connection_type );
+				$connection_now->pull_post_categories = \Distributor\Utils\available_pull_post_categories( $connection_now, $connection_type );
 
 				// Ensure we have at least one post type to pull.
 				$connection_now->pull_post_type = '';
+				$connection_now->pull_post_category = '';
 				if ( ! empty( $connection_now->pull_post_types ) ) {
 					$connection_now->pull_post_type = ( 'internal' === $connection_type ) ? 'all' : $connection_now->pull_post_types[0]['slug'];
+				}
+				if ( ! empty( $connection_now->pull_post_categories ) ) {
+					$connection_now->pull_post_category = 'all';
 				}
 
 				// Set the post type we want to pull (if any)
@@ -493,6 +500,17 @@ function dashboard() {
 							$connection_now->pull_post_type = $post_type['slug'];
 							break;
 						}
+					}
+				}
+
+				foreach ( $connection_now->pull_post_categories as $post_category ) {
+					if ( isset( $_GET['pull_post_category'] ) ) { // @codingStandardsIgnoreLine No nonce needed here.
+						if ( $_GET['pull_post_category'] === $post_category['slug'] ) { // @codingStandardsIgnoreLine Comparing values, no nonce needed.
+							$connection_now->pull_post_category = $post_category['slug'];
+							break;
+						}
+					} else {
+						$connection_now->pull_post_category = $post_category['slug'];
 					}
 				}
 				?>

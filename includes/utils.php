@@ -286,6 +286,64 @@ function available_pull_post_types( $connection, $type ) {
 }
 
 /**
+ * Get post categories available for pulling.
+ *
+ * This will compare the public post categories from a remote site
+ * against the public post categories from the origin site and return
+ * an array of categories supported on both.
+ *
+ * @param \Distributor\Connection $connection Connection object
+ * @param string                  $type Connection type
+ * @return array
+ */
+function available_pull_post_categories( $connection, $type ) {
+	$categories               = array();
+	$local_categories         = array();
+	$remote_categories        = $connection->get_post_categories();
+	$distributable_categories = distributable_categories( $remote_categories );
+
+	// Return empty array if the source site is not distributing any categories
+	if ( empty( $remote_categories ) || is_wp_error( $remote_categories ) ) {
+		return [];
+	}
+
+	$local_categories     = get_categories( [ 'hide_empty' => false ] );
+
+	if ( ! empty( $remote_categories ) ) {
+		foreach ( $remote_categories as $category ) {
+			$categories[] = array(
+				'name' => 'external' === $type ? $category['name'] : $category->name,
+				'slug' => 'external' === $type ? $category['slug'] : $category->slug,
+			);
+		}
+	}
+
+	/**
+	 * Filter the categories that should be available for pull.
+	 *
+	 * @param array      $categories        Categories available for pull with name and slug.
+	 * @param array      $remote_categories Categories available from the remote connection.
+	 * @param array      $local_categories  Categories registered on the local site.
+	 * @param Connection $connection        Distributor connection object.
+	 * @param string     $type              Distributor connection type.
+	 *
+	 * @return array Categories available for pull with name and slug.
+	 */
+	$pull_categories = apply_filters( 'dt_available_pull_categories', $categories, $remote_categories, $local_categories, $connection, $type );
+
+	if ( ! empty( $pull_categories ) ) {
+		$categories = array();
+		foreach ( $pull_categories as $category ) {
+			if ( in_array( $category['slug'], $distributable_categories, true ) ) {
+				$categories[] = $category;
+			}
+		}
+	}
+
+	return $categories;
+}
+
+/**
  * Return post types that are allowed to be distributed
  *
  * @param string $output Optional. The type of output to return.
@@ -330,6 +388,35 @@ function distributable_post_types( $output = 'names' ) {
 	}
 
 	return $post_types;
+}
+
+/**
+ * Return categories that are allowed to be distributed
+ *
+ * @param string $output Optional. The type of output to return.
+ *                       Accepts category 'names' or 'objects'. Default 'names'.
+ *
+ * @return array
+ */
+function distributable_categories( $categories = [] ) {
+	if ( empty( $categories ) ) {
+		$categories = get_categories( [ 'hide_empty' => false ] );
+	} else {
+		$categories = wp_list_pluck( $categories, 'slug' );
+	}
+
+	/**
+	 * Filter categories that are distributable.
+	 *
+	 * @hook distributable_categories
+	 *
+	 * @param {array} $categories Categories that are distributable.
+	 *
+	 * @return {array} Categories that are distributable.
+	 */
+	$categories = apply_filters( 'distributable_categories', $categories );
+
+	return $categories;
 }
 
 /**
