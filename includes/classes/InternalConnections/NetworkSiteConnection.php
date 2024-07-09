@@ -495,6 +495,20 @@ class NetworkSiteConnection extends Connection {
 	}
 
 	/**
+	 * Get the available post categories.
+	 *
+	 * @since 1.3
+	 * @return array
+	 */
+	public function get_post_categories() {
+		switch_to_blog( $this->site->blog_id );
+		$post_categories = Utils\distributable_categories();
+		restore_current_blog();
+
+		return $post_categories;
+	}
+
+	/**
 	 * Remotely get posts so we can list them for pulling
 	 *
 	 * @since  0.8

@@ -666,6 +666,41 @@ class WordPressExternalConnection extends ExternalConnection {
 	}
 
 	/**
+	 * Get the available post categories.
+	 *
+	 * @since 1.3
+	 * @return array|\WP_Error
+	 */
+	public function get_post_categories() {
+		$path = self::$namespace;
+
+		$categories_path = untrailingslashit( $this->base_url ) . '/' . $path . '/categories';
+
+		$categories_response = Utils\remote_http_request(
+			$categories_path,
+			$this->auth_handler->format_get_args( array( 'timeout' => self::$timeout ) )
+		);
+
+		if ( is_wp_error( $categories_response ) ) {
+			return $categories_response;
+		}
+
+		if ( 404 === wp_remote_retrieve_response_code( $categories_response ) ) {
+			return new \WP_Error( 'bad-endpoint', esc_html__( 'Could not connect to API endpoint.', 'distributor' ) );
+		}
+
+		$categories_body = wp_remote_retrieve_body( $categories_response );
+
+		if ( empty( $categories_body ) ) {
+			return new \WP_Error( 'no-response-body', esc_html__( 'Response body is empty.', 'distributor' ) );
+		}
+
+		$categories_body_array = json_decode( $categories_body, true );
+
+		return $categories_body_array;
+	}
+
+	/**
 	 * Check what we can do with a given external connection (push or pull)
 	 *
 	 * @since  0.8

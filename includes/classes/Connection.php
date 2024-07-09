@@ -66,6 +66,14 @@ abstract class Connection {
 	abstract public function get_post_types();
 
 	/**
+	 * Get available post types from a connection
+	 *
+	 * @since 1.3
+	 * @return array|\WP_Error
+	 */
+	abstract public function get_post_categories();
+
+	/**
 	 * This method is called on every page load. It's helpful for canonicalization
 	 *
 	 * @since  0.8
