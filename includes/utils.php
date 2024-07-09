@@ -440,7 +440,7 @@ function prepare_meta( $post_id ) {
 		return array();
 	}
 
-	$meta = is_array( $meta ) ? $meta : array();
+	$meta          = is_array( $meta ) ? $meta : array();
 	$prepared_meta = array();
 	$excluded_meta = excluded_meta();
 
