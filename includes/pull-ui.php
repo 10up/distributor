@@ -594,8 +594,10 @@ function output_pull_errors() {
 
 	if ( is_a( $connection_now, '\Distributor\ExternalConnection' ) ) {
 		$error_key = "external_{$connection_now->id}";
-	} else {
+	} elseif ( is_a( $connection_now, '\Distributor\InternalConnections\NetworkSiteConnection' ) ) {
 		$error_key = "internal_{$connection_now->site->blog_id}";
+	} else {
+		return;
 	}
 
 	$pull_errors = get_transient( 'dt_connection_pull_errors_' . $error_key );

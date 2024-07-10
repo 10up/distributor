@@ -579,10 +579,15 @@ function prepare_meta( $post_id ) {
  * @param string $taxonomy The taxonomy name.
  * @param object $post     The post object.
  * @param array  $terms    Optional. Array of terms.
+ *
  * @return string The generated HTML for the taxonomy links.
  */
 function generate_taxonomy_links( $taxonomy, $post, $terms = [] ) {
 	$taxonomy_object = get_taxonomy( $taxonomy );
+
+	if ( ! $taxonomy_object ) {
+		return '';
+	}
 
 	if ( ! $terms ) {
 		$terms = get_the_terms( $post, $taxonomy );
@@ -591,7 +596,7 @@ function generate_taxonomy_links( $taxonomy, $post, $terms = [] ) {
 	/**
 	 * Filter the taxonomy terms that should be synced.
 	 *
-	 * @since x.x.x
+	 * @since 2.0.5
 	 * @hook dt_syncable_taxonomy_terms
 	 *
 	 * @param {array}  $terms    Array of terms.
@@ -602,11 +607,10 @@ function generate_taxonomy_links( $taxonomy, $post, $terms = [] ) {
 	 */
 	$terms = apply_filters( "dt_syncable_{$taxonomy}_terms", $terms, $taxonomy, $post );
 
-
 	/**
 	 * Filter the terms that should be synced.
 	 *
-	 * @since x.x.x
+	 * @since 2.0.5
 	 * @hook dt_syncable_terms
 	 *
 	 * @param {array}  $terms    Array of categories.
@@ -645,12 +649,14 @@ function generate_taxonomy_links( $taxonomy, $post, $terms = [] ) {
 		/**
 		 * Filters the links in `$taxonomy` column of edit.php.
 		 *
-		 * @since x.x.x
+		 * @since 2.0.5
 		 * @hook dt_taxonomy_links
 		 *
-		 * @param string[]  $term_links Array of term editing links.
-		 * @param string    $taxonomy   Taxonomy name.
-		 * @param WP_Term[] $terms      Array of term objects appearing in the post row.
+		 * @param {string[]}  $term_links Array of term editing links.
+		 * @param {string}    $taxonomy   Taxonomy name.
+		 * @param {WP_Term[]} $terms      Array of term objects appearing in the post row.
+		 *
+		 * @return {string[]} Array of term editing links.
 		 */
 		$term_links = apply_filters( 'dt_taxonomy_links', $term_links, $taxonomy, $terms );
 
@@ -665,11 +671,12 @@ function generate_taxonomy_links( $taxonomy, $post, $terms = [] ) {
  *
  * The edit link is created in such a way that it will link to source site.
  *
- * @since x.x.x
+ * @since 2.0.5
  *
  * @param string[] $args      Associative array of URL parameters for the link.
  * @param string   $link_text Link text.
  * @param string   $css_class Optional. Class attribute. Default empty string.
+ *
  * @return string The formatted link string.
  */
 function get_edit_link( $args, $link_text, $css_class = '' ) {
@@ -677,7 +684,7 @@ function get_edit_link( $args, $link_text, $css_class = '' ) {
 	if ( is_internal_connection() ) {
 		$url = add_query_arg( $args, get_admin_url( null, 'edit.php' ) );
 	} else {
-		$url = add_query_arg( $args, get_root_url() . 'wp-admin/edit.php' );
+		$url = add_query_arg( $args, trailingslashit( get_root_url() ) . 'wp-admin/edit.php' );
 	}
 
 	$class_html   = '';
@@ -706,35 +713,46 @@ function get_edit_link( $args, $link_text, $css_class = '' ) {
 /**
  * Is current connection an external connection?
  *
+ * @since 2.0.5
+ *
  * @return boolean
  */
 function is_external_connection() {
 	global $connection_now;
+
 	return is_a( $connection_now, '\Distributor\ExternalConnection' );
 }
 
 /**
  * Is current connection an internal connection?
  *
+ * @since 2.0.5
+ *
  * @return boolean
  */
 function is_internal_connection() {
 	global $connection_now;
+
 	return is_a( $connection_now, '\Distributor\InternalConnections\NetworkSiteConnection' );
 }
 
 /**
  * Get the root URL of the current connection
  *
+ * @since 2.0.5
+ *
  * @return string
  */
 function get_root_url() {
 	$base_url = get_conn_base_url();
+
 	return str_replace( '/wp-json', '', $base_url );
 }
 
 /**
  * Get the base URL of the current connection
+ *
+ * @since 2.0.5
  *
  * @return string
  */
@@ -743,6 +761,11 @@ function get_conn_base_url() {
 		return get_site_url();
 	}
 	global $connection_now;
+
+	if ( ! $connection_now || ! property_exists( $connection_now, 'base_url' ) ) {
+		return '';
+	}
+
 	return $connection_now->base_url;
 }
 

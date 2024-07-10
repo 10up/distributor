@@ -125,7 +125,11 @@ function update_notice( $plugin_file, $plugin_data, $status ) {
  * @since 1.2
  */
 function maybe_notice() {
-	if ( 0 === strpos( get_current_screen()->parent_base, 'distributor' ) ) {
+	$parent_base = get_current_screen()->parent_base;
+	if ( ! $parent_base ) {
+		return;
+	}
+	if ( 0 === strpos( $parent_base, 'distributor' ) ) {
 		if ( Utils\is_development_version() ) {
 			?>
 			<div class="notice notice-warning">
@@ -177,8 +181,7 @@ function admin_enqueue_scripts( $hook ) {
 		if ( file_exists( $asset_file ) ) {
 			$asset_data = require $asset_file;
 		}
-
-		wp_enqueue_style( 'dt-admin-settings', plugins_url( '/dist/css/admin-settings.min.css', __DIR__ ), array(), $asset_data['version'] );
+		wp_enqueue_style( 'dt-admin-settings-screen', plugins_url( '/dist/css/admin-settings.min.css', __DIR__ ), array(), $asset_data['version'] );
 	}
 }
 

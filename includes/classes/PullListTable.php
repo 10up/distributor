@@ -251,13 +251,18 @@ class PullListTable extends \WP_List_Table {
 	}
 
 	/**
-	 * Output categories column
+	 * Output categories column.
 	 *
 	 * @param  \WP_Post $post Post object.
-	 * @since  0.8
+	 * @since  2.0.5
 	 */
 	public function column_categories( $post ) {
 		$categories = $post->terms['category'] ?? [];
+
+		if ( empty( $categories ) ) {
+			return;
+		}
+
 		echo wp_kses_post( generate_taxonomy_links( 'category', $post, $categories ) );
 	}
 
@@ -268,7 +273,7 @@ class PullListTable extends \WP_List_Table {
 	 * @param  string         $column_name Column name.
 	 *
 	 * @return string.
-	 * @since  0.8
+	 * @since  2.0.5
 	 */
 	public function column_default( $item, $column_name ) {
 		if ( 'post_type' === $column_name ) {
