@@ -1,6 +1,6 @@
 import { pluginIcon } from './components/plugin-icon';
 
-import { Icon, Modal } from '@wordpress/components';
+import { Icon, Modal, Button, Flex } from '@wordpress/components';
 import { select, useSelect } from '@wordpress/data';
 import { PluginDocumentSettingPanel } from '@wordpress/edit-post';
 import { __, _n, _x, sprintf } from '@wordpress/i18n';
@@ -176,31 +176,28 @@ const RenderDistributedFrom = () => {
 						className="distributed-modal-popup"
 						overlayClassName="distributed-modal-overlay"
 					>
-						<span id="distributed-data">
-							{ __( 'Unlinking from the ', 'distributor' ) }
-							<a href={ dtGutenberg.postUrl }>
-								{ __( 'Original Content', 'distributor' ) }
-							</a>
-							{ __(
-								' will stop updating this post automatically.',
-								'distributor'
-							) }
-						</span>
-						<br />
-						<div className="actions">
-							<a
+						<p dangerouslySetInnerHTML={ {
+							__html: sprintf(
+								__( 'Unlinking from the %1$sOriginal Content%2$s will stop updating this post automatically.', 'distributor' ),
+								'<a href="' + dtGutenberg.postUrl + '">',
+								'</a>'
+							)
+						} } />
+						<Flex justify='flex-end'>
+							<Button
+								icon={ <Icon icon="editor-unlink" /> }
+								variant='secondary'
 								href={ dtGutenberg.unlinkNonceUrl }
-								className="button"
 							>
-								<span className="dashicons dashicons-editor-unlink"></span>
 								{ __( 'Unlink', 'distributor' ) }
-							</a>
-							<span id="close" onClick={ closeModal }> {/* eslint-disable-line */}
-								<a href='javascript:void(0);'> {/* eslint-disable-line */}
-									{ __( 'Cancel', 'distributor' ) }
-								</a>
-							</span>
-						</div>
+							</Button>
+							<Button
+								variant='link'
+								onClick={ closeModal }
+							>
+								{ __( 'Cancel', 'distributor' ) }
+							</Button>
+						</Flex>
 					</Modal>
 				) }
 			</div>
