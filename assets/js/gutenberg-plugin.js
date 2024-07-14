@@ -153,12 +153,12 @@ const DistributorIcon = () => (
  * Add the Distributor panel to Gutenberg
  */
 const DistributorPlugin = () => {
-	// eslint-disable-next-line no-shadow, react-hooks/rules-of-hooks -- permission checks are needed.
+	// eslint-disable-next-line no-shadow
 	const postType = useSelect( ( select ) =>
 		select( 'core/editor' ).getCurrentPostType()
 	);
 
-	// eslint-disable-next-line no-shadow -- permission checks are needed.
+	// eslint-disable-next-line no-shadow
 	const postStatus = useSelect( ( select ) =>
 		select( 'core/editor' ).getCurrentPostAttribute( 'status' )
 	);
@@ -168,12 +168,12 @@ const DistributorPlugin = () => {
 		'#wp-admin-bar-distributor'
 	);
 
-	// eslint-disable-next-line no-shadow -- permission checks are needed.
+	// eslint-disable-next-line no-shadow
 	const post = useSelect( ( select ) =>
 		select( 'core/editor' ).getCurrentPost()
 	);
 
-	// Ensure the user has proper permissions
+	// Ensure the user has proper permissions.
 	if (
 		dtGutenberg.noPermissions &&
 		1 === parseInt( dtGutenberg.noPermissions )
@@ -181,7 +181,7 @@ const DistributorPlugin = () => {
 		return null;
 	}
 
-	// Ensure we are on a supported post type
+	// Ensure we are on a supported post type.
 	if (
 		dtGutenberg.supportedPostTypes &&
 		dtGutenberg.supportedPostTypes[ postType ] === undefined
@@ -193,7 +193,7 @@ const DistributorPlugin = () => {
 	dt.postTitle = post.title;
 	dt.postStatus = post.status;
 
-	// If we are on a non-supported post status, change what we show
+	// If we are on a non-supported post status, change what we show.
 	if (
 		dtGutenberg.supportedPostStati &&
 		! dtGutenberg.supportedPostStati.includes( postStatus )
