@@ -1,0 +1,31 @@
+name: Sid Tests
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    name: NPM Install
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+
+    - name: Use desired version of NodeJS
+      uses: actions/setup-node@v3
+      with:
+          node-version-file: '.nvmrc'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Start env
+      run: npm run env:start
+
+    - name: ping localhost
+      run: curl -I http://localhost
+
+    - name: ping subdir
+      run: curl -I http://localhost/second

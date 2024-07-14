@@ -4,12 +4,5 @@
     ".",
     "./tests/Basic-Auth-master"
   ],
-  "env": {
-    "tests": {
-      "port": 80,
-      "mappings": {
-        "wp-cli.yml": "./tests/bin/wp-cli.yml"
-      }
-    }
-  }
+  "port": 80
 }
