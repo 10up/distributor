@@ -3,7 +3,7 @@ name: Sid Tests
 on:
   push:
     branches:
-      - main
+      - fix/e2e-tests-sid
 
 jobs:
   build:
