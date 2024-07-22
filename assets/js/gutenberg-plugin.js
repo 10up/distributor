@@ -153,8 +153,9 @@ const RenderDistributedFrom = () => {
 				<span id="distributed-data">
 					{ __( 'Updating the ', 'distributor' ) }
 					<a href={ dtGutenberg.postUrl }>
-						{ __( 'Original Content', 'distributor' ) },
+						{ __( 'Original Content', 'distributor' ) }
 					</a>
+					{ ', ' }
 					{ __(
 						'will update this post automatically.',
 						'distributor'
