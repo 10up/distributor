@@ -179,6 +179,7 @@ const RenderDistributedFrom = () => {
 						<p
 							dangerouslySetInnerHTML={ {
 								__html: sprintf(
+									/* translators: %1$s: Original Content URL Opening Tag, %2$s: Original Content URL Closing Tag */
 									__(
 										'Unlinking from the %1$sOriginal Content%2$s will stop updating this post automatically.',
 										'distributor'
