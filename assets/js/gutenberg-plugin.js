@@ -176,25 +176,27 @@ const RenderDistributedFrom = () => {
 						className="distributed-modal-popup"
 						overlayClassName="distributed-modal-overlay"
 					>
-						<p dangerouslySetInnerHTML={ {
-							__html: sprintf(
-								__( 'Unlinking from the %1$sOriginal Content%2$s will stop updating this post automatically.', 'distributor' ),
-								'<a href="' + dtGutenberg.postUrl + '">',
-								'</a>'
-							)
-						} } />
-						<Flex justify='flex-end'>
+						<p
+							dangerouslySetInnerHTML={ {
+								__html: sprintf(
+									__(
+										'Unlinking from the %1$sOriginal Content%2$s will stop updating this post automatically.',
+										'distributor'
+									),
+									'<a href="' + dtGutenberg.postUrl + '">',
+									'</a>'
+								),
+							} }
+						/>
+						<Flex justify="flex-end">
 							<Button
 								icon={ <Icon icon="editor-unlink" /> }
-								variant='secondary'
+								variant="secondary"
 								href={ dtGutenberg.unlinkNonceUrl }
 							>
 								{ __( 'Unlink', 'distributor' ) }
 							</Button>
-							<Button
-								variant='link'
-								onClick={ closeModal }
-							>
+							<Button variant="link" onClick={ closeModal }>
 								{ __( 'Cancel', 'distributor' ) }
 							</Button>
 						</Flex>
