@@ -159,7 +159,6 @@ const RenderDistributedFrom = () => {
 						'will update this post automatically.',
 						'distributor'
 					) }
-					,
 				</span>
 				<span id="distributed-unlink" onClick={ openModal }> {/* eslint-disable-line */}
 					<a href='javascript:void(0);'> {/* eslint-disable-line */}
