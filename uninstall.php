@@ -20,23 +20,37 @@ if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
 if ( defined( 'DT_REMOVE_ALL_DATA' ) && true === DT_REMOVE_ALL_DATA ) {
 	global $wpdb;
 
-	// Delete options.
-	$wpdb->query( "DELETE FROM $wpdb->options WHERE option_name LIKE 'dt\_%';" );
+	// Function to delete data on a specific site
+	function dt_delete_data() {
+		global $wpdb;
 
-	// Remove transients.
-	$wpdb->query( "DELETE FROM $wpdb->options WHERE option_name LIKE '_transients\_dt\_%';" );
+		// Delete options.
+		$wpdb->query( "DELETE FROM $wpdb->options WHERE option_name LIKE 'dt\_%';" );
 
-	// Delete our data from the post and post meta tables.
-	$wpdb->query( "DELETE FROM $wpdb->posts WHERE post_type IN ( 'dt_subscription', 'dt_ext_connection' );" );
-	$wpdb->query( "DELETE meta FROM $wpdb->postmeta meta LEFT JOIN $wpdb->posts posts ON posts.ID = meta.post_id WHERE posts.ID IS NULL OR meta.meta_key LIKE 'dt\_%';" );
+		// Remove transients.
+		$wpdb->query( "DELETE FROM $wpdb->options WHERE option_name LIKE '_transients\_dt\_%';" );
 
-	// Clear cache.
-	wp_cache_set_posts_last_changed();
-	wp_cache_delete( 'alloptions', 'options' );
-	
-	// The cache for individual posts will need to be removed (it doesn't use last changed)
-	// The cache for individual options will need to be removed
-	// On sites will a persistent cache, the transients will need to be removed too
+		// Delete our data from the post and post meta tables.
+		$wpdb->query( "DELETE FROM $wpdb->posts WHERE post_type IN ( 'dt_subscription', 'dt_ext_connection' );" );
+		$wpdb->query( "DELETE meta FROM $wpdb->postmeta meta LEFT JOIN $wpdb->posts posts ON posts.ID = meta.post_id WHERE posts.ID IS NULL OR meta.meta_key LIKE 'dt\_%';" );
+
+		// Clear cache.
+		wp_cache_set_posts_last_changed();
+		wp_cache_delete( 'alloptions', 'options' );
+	}
+
+	if ( is_multisite() ) {
+		// Loop through each site in the network
+		$sites = get_sites();
+		foreach ( $sites as $site ) {
+			switch_to_blog( $site->blog_id );
+			dt_delete_data();
+			restore_current_blog();
+		}
+	} else {
+		// Single site
+		dt_delete_data();
+	}
 }
 
 // phpcs:enable
