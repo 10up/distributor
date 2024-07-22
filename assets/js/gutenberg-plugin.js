@@ -188,7 +188,7 @@ const RenderDistributedFrom = () => {
 								),
 							} }
 						/>
-						<Flex justify="flex-end">
+						<Flex justify="flex-start" className={ 'actions' }>
 							<Button
 								icon={ <Icon icon="editor-unlink" /> }
 								variant="secondary"

@@ -67,9 +67,8 @@ body .distributed-modal-popup .button {
     cursor: pointer;
 }
 
-.distributed-modal-popup .actions a.button {
-    display: inline-block;
-    margin-right: 20px;
+.distributed-modal-popup .actions a {
+    margin-right: 10px;
 }
 
 .distributed-modal-popup .actions a span {
