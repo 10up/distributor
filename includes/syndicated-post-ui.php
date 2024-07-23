@@ -92,7 +92,7 @@ function output_distributor_column( $column_name, $post_id ) {
 				$post_url = get_post_meta( $post_id, 'dt_original_post_url', true );
 	
 				if ( $unlinked ) {
-					echo '<a href="' . esc_url( $post_url ) . '"><span title="' . esc_attr__( 'Unlinked', 'distributor' ) . '" class="dashicons dashicons-editor-unlink"></span></span></a>';
+					echo '<a target="_blank" href="' . esc_url( $post_url ) . '"><span title="' . esc_attr__( 'Unlinked', 'distributor' ) . '" class="dashicons dashicons-editor-unlink"></span></span></a>';
 				} else {
 					echo '<a target="_blank" href="' . esc_url( $post_url ) . '"><span title="' . esc_attr__( 'Linked', 'distributor' ) . '" class="dashicons dashicons-admin-links"></span></a>';
 				}               
