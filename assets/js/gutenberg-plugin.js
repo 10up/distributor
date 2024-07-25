@@ -153,7 +153,27 @@ const DistributorIcon = () => (
  * Add the Distributor panel to Gutenberg
  */
 const DistributorPlugin = () => {
-	// Ensure the user has proper permissions
+	// eslint-disable-next-line no-shadow
+	const postType = useSelect( ( select ) =>
+		select( 'core/editor' ).getCurrentPostType()
+	);
+
+	// eslint-disable-next-line no-shadow
+	const postStatus = useSelect( ( select ) =>
+		select( 'core/editor' ).getCurrentPostAttribute( 'status' )
+	);
+
+	// eslint-disable-next-line @wordpress/no-unused-vars-before-return
+	const distributorTopMenu = document.querySelector(
+		'#wp-admin-bar-distributor'
+	);
+
+	// eslint-disable-next-line no-shadow
+	const post = useSelect( ( select ) =>
+		select( 'core/editor' ).getCurrentPost()
+	);
+
+	// Ensure the user has proper permissions.
 	if (
 		dtGutenberg.noPermissions &&
 		1 === parseInt( dtGutenberg.noPermissions )
@@ -161,17 +181,7 @@ const DistributorPlugin = () => {
 		return null;
 	}
 
-	// eslint-disable-next-line no-shadow, react-hooks/rules-of-hooks -- permission checks are needed.
-	const postType = useSelect( ( select ) =>
-		select( 'core/editor' ).getCurrentPostType()
-	);
-
-	// eslint-disable-next-line no-shadow, react-hooks/rules-of-hooks -- permission checks are needed.
-	const postStatus = useSelect( ( select ) =>
-		select( 'core/editor' ).getCurrentPostAttribute( 'status' )
-	);
-
-	// Ensure we are on a supported post type
+	// Ensure we are on a supported post type.
 	if (
 		dtGutenberg.supportedPostTypes &&
 		dtGutenberg.supportedPostTypes[ postType ] === undefined
@@ -179,19 +189,11 @@ const DistributorPlugin = () => {
 		return null;
 	}
 
-	const distributorTopMenu = document.querySelector(
-		'#wp-admin-bar-distributor'
-	);
-
-	// eslint-disable-next-line no-shadow, react-hooks/rules-of-hooks -- permission checks are needed.
-	const post = useSelect( ( select ) =>
-		select( 'core/editor' ).getCurrentPost()
-	);
 	// Make the post title and status available to the top menu.
 	dt.postTitle = post.title;
 	dt.postStatus = post.status;
 
-	// If we are on a non-supported post status, change what we show
+	// If we are on a non-supported post status, change what we show.
 	if (
 		dtGutenberg.supportedPostStati &&
 		! dtGutenberg.supportedPostStati.includes( postStatus )

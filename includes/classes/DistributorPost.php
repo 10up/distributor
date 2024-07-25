@@ -729,7 +729,11 @@ class DistributorPost {
 		}
 
 		if ( in_array( $block['blockName'], $block_names, true ) ) {
-			$media[] = $block['attrs'][ $media_blocks[ $block['blockName'] ] ];
+			$attribute_key = $media_blocks[ $block['blockName'] ];
+
+			if ( isset( $block['attrs'][ $attribute_key ] ) ) {
+				$media[] = $block['attrs'][ $attribute_key ];
+			}
 		}
 
 		return $media;
