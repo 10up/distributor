@@ -239,9 +239,9 @@ function register_deactivation_modal() {
 			printf(
 				'<div id="my-modal" style="display:none;"><p>%1$s</p><p>%2$s</p><p><code>%3$s</code></p><p>%4$s</p></div>',
 				esc_html__( 'Would you like to delete all Distributor data?', 'distributor' ),
-				esc_html__( 'By default the database entries are not deleted when you deactivate Distributor. If you are deleting Distributor completely from your website and want those items removed as well check, add below code to wp-config.php .', 'distributor' ),
-				'define(\'DT_REMOVE_ALL_DATA\', true)',
-				esc_html__( 'After adding this code, the Distributor plugin data will be removed from the main website database when deleting the plugin. You can review uninstall.php (in the plugin root directory) to learn more about deleted data. After deleting the Distributor plugin, you can remove the code.', 'distributor' )
+				esc_html__( 'By default, the database entries are not deleted when you deactivate Distributor. If you are deleting Distributor completely from your website and want those items removed as well, add the code below to wp-config.php:', 'distributor' ),
+				'define( \'DT_REMOVE_ALL_DATA\', true )',
+				esc_html__( 'After adding this code, the Distributor plugin data will be removed from the website database when deleting the plugin. This will not delete the posts with their metadata other than the subscription. You can review uninstall.php (in the plugin root directory) to learn more about the deleted data. After deleting the Distributor plugin, you can remove the code from the wp-config.php file. Please make sure that this action cannot be undone; take a backup before proceeding.', 'distributor' )
 			);
 		}
 	);
