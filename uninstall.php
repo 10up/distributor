@@ -30,9 +30,11 @@ if ( defined( 'DT_REMOVE_ALL_DATA' ) && true === DT_REMOVE_ALL_DATA ) {
 		// Remove transients.
 		$wpdb->query( "DELETE FROM $wpdb->options WHERE option_name LIKE '_transient\_dt\_%';" );
 
-		// Delete subscription data from the post and post meta tables.
+		// Delete post meta entries where the post type is 'dt_subscription'
+		$wpdb->query( "DELETE meta FROM $wpdb->postmeta meta LEFT JOIN $wpdb->posts posts ON posts.ID = meta.post_id WHERE posts.post_type IN ( 'dt_subscription' );" );
+
+		// Delete posts of type 'dt_subscription'
 		$wpdb->query( "DELETE FROM $wpdb->posts WHERE post_type IN ( 'dt_subscription' );" );
-		$wpdb->query( "DELETE meta FROM $wpdb->postmeta meta LEFT JOIN $wpdb->posts posts ON posts.ID = meta.post_id WHERE posts.ID IS NULL;" );
 
 		// Clear cache.
 		wp_cache_set_posts_last_changed();
