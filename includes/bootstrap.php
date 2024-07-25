@@ -3,7 +3,7 @@
  * Bootstrap the main plugin.
  *
  * This file is included by the main plugin file and is responsible for
- * bootstraping the plugin. This allows the main file to be used for version
+ * bootstrapping the plugin. This allows the main file to be used for version
  * support and therefore support earlier versions of PHP and WP than the
  * minimum requirements.
  *

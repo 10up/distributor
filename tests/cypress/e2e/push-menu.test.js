@@ -110,7 +110,7 @@ describe( 'Push menu test', () => {
 				.contains( externalConnectionName )
 				.should( 'be.visible' );
 
-			// Deselct the external connection.
+			// Deselect the external connection.
 			cy.get( '#distributor-push-wrapper .selected-connections-list' )
 				.contains( externalConnectionName )
 				.find( '.remove-connection' )
