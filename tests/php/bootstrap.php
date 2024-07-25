@@ -10,8 +10,6 @@ $_tests_dir = getenv( 'WP_TESTS_DIR' );
 define( 'FS_METHOD', 'direct' );
 define( 'TEST_DIR', __DIR__ );
 define( 'PHPUNIT_RUNNER', true );
-define( 'DT_PLUGIN_PATH', dirname( __DIR__, 2 ) );
-define( 'DT_VERSION', '2.0.4' );
 
 if ( ! $_tests_dir ) {
 	$_tests_dir = rtrim( sys_get_temp_dir(), '/\\' ) . '/wordpress-tests-lib';
