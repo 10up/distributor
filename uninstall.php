@@ -1,4 +1,4 @@
-<?php
+f<?php
 /**
  * Distributor uninstall script.
  *
@@ -28,11 +28,11 @@ if ( defined( 'DT_REMOVE_ALL_DATA' ) && true === DT_REMOVE_ALL_DATA ) {
 		$wpdb->query( "DELETE FROM $wpdb->options WHERE option_name LIKE 'dt\_%';" );
 
 		// Remove transients.
-		$wpdb->query( "DELETE FROM $wpdb->options WHERE option_name LIKE '_transients\_dt\_%';" );
+		$wpdb->query( "DELETE FROM $wpdb->options WHERE option_name LIKE '_transient\_dt\_%';" );
 
-		// Delete our data from the post and post meta tables.
-		$wpdb->query( "DELETE FROM $wpdb->posts WHERE post_type IN ( 'dt_subscription', 'dt_ext_connection' );" );
-		$wpdb->query( "DELETE meta FROM $wpdb->postmeta meta LEFT JOIN $wpdb->posts posts ON posts.ID = meta.post_id WHERE posts.ID IS NULL OR meta.meta_key LIKE 'dt\_%';" );
+		// Delete subscription data from the post and post meta tables.
+		$wpdb->query( "DELETE FROM $wpdb->posts WHERE post_type IN ( 'dt_subscription' );" );
+		$wpdb->query( "DELETE meta FROM $wpdb->postmeta meta LEFT JOIN $wpdb->posts posts ON posts.ID = meta.post_id WHERE posts.ID IS NULL;" );
 
 		// Clear cache.
 		wp_cache_set_posts_last_changed();
