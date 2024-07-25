@@ -359,7 +359,6 @@ class DistributorPostTest extends \WP_UnitTestCase {
 	 * @covers ::get_media
 	 * @covers ::parse_media_blocks
 	 * @covers ::parse_blocks_for_attachment_id
-	 * @runInSeparateProcess
 	 * @doesNotPerformAssertions
 	 */
 	public function test_get_media_sets_cache() {
@@ -372,7 +371,6 @@ class DistributorPostTest extends \WP_UnitTestCase {
 	 * @covers ::post_data()
 	 * @covers ::to_insert()
 	 * @covers ::to_json()
-	 * @runInSeparateProcess
 	 */
 	public function test_scheduled_post_data_without_blocks() {
 		$this->markTestIncomplete();
