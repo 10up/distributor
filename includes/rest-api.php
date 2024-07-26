@@ -463,6 +463,10 @@ function register_endpoints() {
 		'distributor_meta',
 		array(
 			'get_callback'    => function( $post_array ) {
+				if ( ! isset( $post_array['id'] ) ) {
+					return false;
+				}
+
 				if ( ! current_user_can( 'edit_post', $post_array['id'] ) ) {
 					return false;
 				}
@@ -482,6 +486,10 @@ function register_endpoints() {
 		'distributor_terms',
 		array(
 			'get_callback'    => function( $post_array ) {
+				if ( ! isset( $post_array['id'] ) ) {
+					return false;
+				}
+
 				if ( ! current_user_can( 'edit_post', $post_array['id'] ) ) {
 					return false;
 				}
@@ -501,6 +509,10 @@ function register_endpoints() {
 		'distributor_media',
 		array(
 			'get_callback'    => function( $post_array ) {
+				if ( ! isset( $post_array['id'] ) ) {
+					return false;
+				}
+
 				if ( ! current_user_can( 'edit_post', $post_array['id'] ) ) {
 					return false;
 				}
@@ -520,7 +532,7 @@ function register_endpoints() {
 		'distributor_original_site_name',
 		array(
 			'get_callback'    => function( $post_array ) {
-				$site_name = get_post_meta( $post_array['id'], 'dt_original_site_name', true );
+				$site_name = isset( $post_array['id'] ) ? get_post_meta( $post_array['id'], 'dt_original_site_name', true ) : '';
 
 				if ( ! $site_name ) {
 					$site_name = get_bloginfo( 'name' );
@@ -541,7 +553,7 @@ function register_endpoints() {
 		'distributor_original_site_url',
 		array(
 			'get_callback'    => function( $post_array ) {
-				$site_url = get_post_meta( $post_array['id'], 'dt_original_site_url', true );
+				$site_url = isset( $post_array['id'] ) ? get_post_meta( $post_array['id'], 'dt_original_site_url', true ) : '';
 
 				if ( ! $site_url ) {
 					$site_url = home_url();
@@ -802,7 +814,7 @@ function register_push_errors_field() {
 			'push-errors',
 			array(
 				'get_callback' => function( $params ) {
-					$media_errors = get_transient( 'dt_media_errors_' . $params['id'] );
+					$media_errors = isset( $params['id'] ) ? get_transient( 'dt_media_errors_' . $params['id'] ) : '';
 
 					if ( ! empty( $media_errors ) ) {
 						delete_transient( 'dt_media_errors_' . $params['id'] );
