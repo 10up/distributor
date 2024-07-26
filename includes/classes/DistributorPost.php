@@ -633,7 +633,7 @@ class DistributorPost {
 		$media_array       = array();
 
 		foreach ( $raw_media as $media_post ) {
-			$media_item = Utils\format_media_post( $media_post );
+			$media_item = Utils\format_media_post( $media_post, $post_id );
 
 			if ( $media_item['featured'] ) {
 				$found_featured = true;
