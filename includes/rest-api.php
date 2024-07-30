@@ -586,12 +586,7 @@ function distributor_meta() {
  * Check user permissions for available post types
  */
 function check_post_types_permissions() {
-	$types = get_post_types(
-		array(
-			'show_in_rest' => true,
-		),
-		'objects'
-	);
+	$types = Utils\distributable_post_types( 'objects' );
 
 	$response = array(
 		'can_get'          => array(),
