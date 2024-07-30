@@ -48,7 +48,9 @@ describe( 'Internal Push', () => {
 
 		cy.createPost( { title: postTitle, content } ).then( ( post ) => {
 			// Set category and tag
-			cy.wpCli( `wp post term set ${ post.id } category ${ categoryName }` );
+			cy.wpCli(
+				`wp post term set ${ post.id } category ${ categoryName }`
+			);
 			cy.wpCli( `wp post term set ${ post.id } post_tag ${ tagName }` );
 
 			// Set post meta.
