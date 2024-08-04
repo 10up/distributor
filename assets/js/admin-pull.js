@@ -3,7 +3,6 @@ import '../css/admin-pull-table.scss';
 import jQuery from 'jquery';
 import { addQueryArgs } from '@wordpress/url';
 import { __ } from '@wordpress/i18n';
-import _ from 'underscore';
 
 const { document } = window;
 
@@ -114,7 +113,7 @@ document.addEventListener( 'DOMContentLoaded', async function () {
 		} );
 
 	function htmlDecode( inputText ) {
-		const doc = new DOMParser().parseFromString( inputText, 'text/html' );
+		const doc = new DOMParser().parseFromString( inputText, 'text/html' ); // eslint-disable-line no-undef
 		return doc.documentElement.textContent;
 	}
 
