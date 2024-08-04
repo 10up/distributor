@@ -124,7 +124,8 @@ document.addEventListener( 'DOMContentLoaded', async function () {
 
 		if ( connection_id ) {
 			const connection = itemss.find(
-				( item ) => item.id == connection_id );
+				( item ) => item.id === connection_id
+			);
 
 			if ( connection ) {
 				input.value = connection.name;
