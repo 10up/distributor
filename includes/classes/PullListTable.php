@@ -456,19 +456,14 @@ class PullListTable extends \WP_List_Table {
 		/** Process bulk action */
 		$this->process_bulk_action();
 
-		$per_page = $this->get_items_per_page( 'pull_posts_per_page', get_option( 'posts_per_page' ) );
-
+		$per_page     = $this->get_items_per_page( 'pull_posts_per_page', get_option( 'posts_per_page' ) );
 		$current_page = $this->get_pagenum();
 
 		// Support 'View all' filtering for internal connections.
-		if ( is_a( $connection_now, '\Distributor\InternalConnections\NetworkSiteConnection' ) ) {
-			if ( empty( $connection_now->pull_post_type ) || 'all' === $connection_now->pull_post_type ) {
-				$post_type = wp_list_pluck( $connection_now->pull_post_types, 'slug' );
-			} else {
-				$post_type = $connection_now->pull_post_type;
-			}
+		if ( empty( $connection_now->pull_post_type ) || 'all' === $connection_now->pull_post_type ) {
+			$post_type = wp_list_pluck( $connection_now->pull_post_types, 'slug' );
 		} else {
-			$post_type = $connection_now->pull_post_type ? $connection_now->pull_post_type : 'post';
+			$post_type = $connection_now->pull_post_type;
 		}
 
 		$remote_get_args = [
@@ -546,18 +541,23 @@ class PullListTable extends \WP_List_Table {
 			$remote_get_args['paged']    = 1;
 		}
 
+		if ( ! is_array( $remote_get_args['post_type'] ) ) {
+			$remote_get_args['post_type'] = [ $remote_get_args['post_type'] ];
+		}
+
+		$total_items   = 0;
+		$response_data = array();
+
+		// Setup remote connection from the connection object.
 		$remote_get = $connection_now->remote_get( $remote_get_args );
 
+		// Check and throw error if there is one.
 		if ( is_wp_error( $remote_get ) ) {
 			$this->pull_error = $remote_get->get_error_messages();
-
-			return;
 		}
 
-		// Get total items retrieved from the remote request if not already set.
-		if ( false === $total_items ) {
-			$total_items = $remote_get['total_items'];
-		}
+		$total_items   = $remote_get['total_items'];
+		$response_data = array_merge( $response_data, array_values( $remote_get['items'] ) );
 
 		$this->set_pagination_args(
 			[
@@ -566,7 +566,7 @@ class PullListTable extends \WP_List_Table {
 			]
 		);
 
-		foreach ( $remote_get['items'] as $item ) {
+		foreach ( $response_data as $item ) {
 			$this->items[] = $item;
 		}
 	}
@@ -631,17 +631,15 @@ class PullListTable extends \WP_List_Table {
 			$connection_type = 'external';
 		}
 
-		if ( $connection_now && $connection_now->pull_post_types && $connection_now->pull_post_type ) :
+		if ( $connection_now && $connection_now->pull_post_types ) :
 			?>
 
 			<div class="alignleft actions dt-pull-post-type">
 				<label for="pull_post_type" class="screen-reader-text">Content to Pull</label>
 				<select id="pull_post_type" name="pull_post_type">
-					<?php if ( 'internal' === $connection_type ) : ?>
-						<option <?php selected( $connection_now->pull_post_type, 'all' ); ?> value="all">
-							<?php esc_html_e( 'View all', 'distributor' ); ?>
-						</option>
-					<?php endif; ?>
+					<option <?php selected( $connection_now->pull_post_type, 'all' ); ?> value="all">
+						<?php esc_html_e( 'View all', 'distributor' ); ?>
+					</option>
 					<?php foreach ( $connection_now->pull_post_types as $post_type ) : ?>
 						<option <?php selected( $connection_now->pull_post_type, $post_type['slug'] ); ?> value="<?php echo esc_attr( $post_type['slug'] ); ?>">
 							<?php echo esc_html( $post_type['name'] ); ?>

@@ -25,7 +25,7 @@
 		"mustache": "^4.2.0"
 	},
 	"devDependencies": {
-		"@10up/cypress-wp-utils": "^0.2.0",
+		"@10up/cypress-wp-utils": "^0.4.0",
 		"@wordpress/env": "^10.1.0",
 		"@wordpress/scripts": "^26.19.0",
 		"compare-versions": "^4.1.3",
