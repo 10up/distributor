@@ -456,8 +456,7 @@ class PullListTable extends \WP_List_Table {
 		/** Process bulk action */
 		$this->process_bulk_action();
 
-		$per_page = $this->get_items_per_page( 'pull_posts_per_page', get_option( 'posts_per_page' ) );
-
+		$per_page     = $this->get_items_per_page( 'pull_posts_per_page', get_option( 'posts_per_page' ) );
 		$current_page = $this->get_pagenum();
 
 		// Support 'View all' filtering for internal connections.
@@ -563,18 +562,23 @@ class PullListTable extends \WP_List_Table {
 			$remote_get_args['paged']    = 1;
 		}
 
+		if ( ! is_array( $remote_get_args['post_type'] ) ) {
+			$remote_get_args['post_type'] = [ $remote_get_args['post_type'] ];
+		}
+
+		$total_items   = 0;
+		$response_data = array();
+
+		// Setup remote connection from the connection object.
 		$remote_get = $connection_now->remote_get( $remote_get_args );
 
+		// Check and throw error if there is one.
 		if ( is_wp_error( $remote_get ) ) {
 			$this->pull_error = $remote_get->get_error_messages();
-
-			return;
 		}
 
-		// Get total items retrieved from the remote request if not already set.
-		if ( false === $total_items ) {
-			$total_items = $remote_get['total_items'];
-		}
+		$total_items   = $remote_get['total_items'];
+		$response_data = array_merge( $response_data, array_values( $remote_get['items'] ) );
 
 		$this->set_pagination_args(
 			[
@@ -583,7 +587,7 @@ class PullListTable extends \WP_List_Table {
 			]
 		);
 
-		foreach ( $remote_get['items'] as $item ) {
+		foreach ( $response_data as $item ) {
 			$this->items[] = $item;
 		}
 	}
