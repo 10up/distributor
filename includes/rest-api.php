@@ -586,12 +586,7 @@ function distributor_meta() {
  * Check user permissions for available post types
  */
 function check_post_types_permissions() {
-	$types = get_post_types(
-		array(
-			'show_in_rest' => true,
-		),
-		'objects'
-	);
+	$types = Utils\distributable_post_types( 'objects' );
 
 	$response = array(
 		'can_get'          => array(),
@@ -623,10 +618,11 @@ function check_post_types_permissions() {
  * @return \WP_REST_Response|\WP_Error
  */
 function get_pull_content_list( $request ) {
-	$args = [
+	$post_type = ! empty( $request['post_type'] ) ? $request['post_type'] : array( 'post' );
+	$args      = [
 		'posts_per_page' => isset( $request['posts_per_page'] ) ? $request['posts_per_page'] : 20,
 		'paged'          => isset( $request['page'] ) ? $request['page'] : 1,
-		'post_type'      => isset( $request['post_type'] ) ? $request['post_type'] : 'post',
+		'post_type'      => $post_type,
 		'post_status'    => isset( $request['post_status'] ) ? $request['post_status'] : array( 'any' ),
 		'order'          => ! empty( $request['order'] ) ? strtoupper( $request['order'] ) : 'DESC',
 	];
