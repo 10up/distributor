@@ -4,6 +4,45 @@ All notable changes to this project will be documented in this file, per [the Ke
 
 ## [Unreleased] - TBD
 
+## [2.0.5] - 2024-08-15
+**Note that Distributor now requires WordPress 6.4 or later.**
+
+### Added
+- Introduce "View all" post type view when pulling content from external connections (props [@mehul0810](https://github.com/mehul0810), [@ravinderk](https://github.com/ravinderk), [@cadic](https://github.com/cadic), [@peterwilsoncc](https://github.com/peterwilsoncc), [@ankitrox](https://github.com/ankitrox), [@Sidsector9](https://github.com/Sidsector9), [@jeffpaul](https://github.com/jeffpaul) via [#1002](https://github.com/10up/distributor/pull/1002)).
+
+### Changed
+- Account for FSE post types in rest endpoints (props [@mehul0810](https://github.com/mehul0810), [@peterwilsoncc](https://github.com/peterwilsoncc), [@faisal-alvi](https://github.com/faisal-alvi) via [#1246](https://github.com/10up/distributor/pull/1246)).
+- Bump WordPress "tested up to" version 6.6 (props [@jeffpaul](https://github.com/jeffpaul), [@qasumitbagthariya](https://github.com/qasumitbagthariya), [@dkotter](https://github.com/dkotter) via [#1214](https://github.com/10up/distributor/pull/1214), [#1243](https://github.com/10up/distributor/pull/1243)).
+- Bump WordPress minimum from 5.7 to 6.4 (props [@jeffpaul](https://github.com/jeffpaul), [@dkotter](https://github.com/dkotter) via [#1214](https://github.com/10up/distributor/pull/1214), [#1261](https://github.com/10up/distributor/pull/1261)).
+
+### Fixed
+- Ensure you can publish distributed posts in WordPress 6.6 (props [@claudiulodro](https://github.com/claudiulodro), [@phpbits](https://github.com/phpbits), [@faisal-alvi](https://github.com/faisal-alvi) via [#1252](https://github.com/10up/distributor/pull/1252)).
+- Address an issue where the incorrect featured image can sometimes be pushed with a post (props [@phpbits](https://github.com/phpbits), [@matthew-upslope](https://github.com/matthew-upslope), [@dkotter](https://github.com/dkotter), [@faisal-alvi](https://github.com/faisal-alvi) via [#1254](https://github.com/10up/distributor/pull/1254)).
+- Add a check to ensure a connection is internal and exit early if not (props [@kirtangajjar](https://github.com/kirtangajjar), [@peterwilsoncc](https://github.com/peterwilsoncc) via [#1225](https://github.com/10up/distributor/pull/1225)).
+- Ensure the proper admin CSS file loads (props [@psorensen](https://github.com/psorensen), [@Sidsector9](https://github.com/Sidsector9) via [#1208](https://github.com/10up/distributor/pull/1208)).
+- Address a PHP deprecation notice (props [@kirtangajjar](https://github.com/kirtangajjar), [@peterwilsoncc](https://github.com/peterwilsoncc), [@faisal-alvi](https://github.com/faisal-alvi) via [#1227](https://github.com/10up/distributor/pull/1227)).
+- Ensure no errors occur in the synced patterns editor (props [@kirtangajjar](https://github.com/kirtangajjar), [@peterwilsoncc](https://github.com/peterwilsoncc), [@Sidsector9](https://github.com/Sidsector9) via [#1228](https://github.com/10up/distributor/pull/1228)).
+- Undefined array key "id" warning on the Pull Content page (props [@Sidsector9](https://github.com/Sidsector9), [@peterwilsoncc](https://github.com/peterwilsoncc) via [#1247](https://github.com/10up/distributor/pull/1247)).
+- PHP warning about invalid argument supplied for foreach in `\Distributor\Utils\prepare_meta()` (props [@dhanendran](https://github.com/dhanendran), [@peterwilsoncc](https://github.com/peterwilsoncc), [@faisal-alvi](https://github.com/faisal-alvi), [@kirtangajjar](https://github.com/kirtangajjar) via [#1167](https://github.com/10up/distributor/pull/1167)).
+- Deprecation notice in `PullListTable` when distributed posts are not allowed to be edited (props [@kirtangajjar](https://github.com/kirtangajjar), [@faisal-alvi](https://github.com/faisal-alvi) via [#1245](https://github.com/10up/distributor/pull/1245)).
+- Undefined "id" notices showing in the error log (props [@phpbits](https://github.com/phpbits), [@dkotter](https://github.com/dkotter) via [#1253](https://github.com/10up/distributor/pull/1253)).
+
+### Security
+- Bump `follow-redirects` from 1.15.4 to 1.15.6 (props [@dependabot](https://github.com/apps/dependabot), [@faisal-alvi](https://github.com/faisal-alvi) via [#1209](https://github.com/10up/distributor/pull/1209)).
+- Bump `ip` from 1.1.8 to 1.1.9 (props [@dependabot](https://github.com/apps/dependabot), [@faisal-alvi](https://github.com/faisal-alvi) via [#1209](https://github.com/10up/distributor/pull/1209)).
+- Bump `jsdoc` from 3.6.11 to 4.0.2 (props [@dependabot](https://github.com/apps/dependabot), [@faisal-alvi](https://github.com/faisal-alvi) via [#1209](https://github.com/10up/distributor/pull/1209)).
+- Bump `webpack-dev-middleware` from 5.3.3 to 5.3.4 (props [@dependabot](https://github.com/apps/dependabot), [@faisal-alvi](https://github.com/faisal-alvi) via [#1209](https://github.com/10up/distributor/pull/1209)).
+- Bump `express` from 4.18.2 to 4.19.2 (props [@dependabot[bot]](https://github.com/apps/dependabot), [@peterwilsoncc](https://github.com/peterwilsoncc) via [#1213](https://github.com/10up/distributor/pull/1213)).
+- Bump `braces` from 3.0.2 to 3.03, `pac-resolver` from 7.0.0 to 7.0.1, `socks` from 2.7.1 to 2.8.3, `ws` from 7.5.9 to 7.5.10 and remove `ip` (props [@dependabot[bot]](https://github.com/apps/dependabot), [@Sidsector9](https://github.com/Sidsector9) via [#1234](https://github.com/10up/distributor/pull/1234)).
+
+### Developer
+- "Testing" section in the `CONTRIBUTING.md` file (props [@kmgalanakis](https://github.com/kmgalanakis), [@iamdharmesh](https://github.com/iamdharmesh), [@jeffpaul](https://github.com/jeffpaul) via [#1219](https://github.com/10up/distributor/pull/1219)).
+- Bumped `actions/upload-artifact` from v3 to v4 (props [@iamdharmesh](https://github.com/iamdharmesh), [@jeffpaul](https://github.com/jeffpaul) via [#1217](https://github.com/10up/distributor/pull/1217)).
+- Replaced `lee-dohm/no-response` with `actions/stale` to help with closing no-response/stale issues (props [@jeffpaul](https://github.com/jeffpaul), [@dkotter](https://github.com/dkotter) via [#1206](https://github.com/10up/distributor/pull/1206)).
+- Use `GITHUB_OUTPUT` envvar instead of `set-output` command (props [@arunsathiya](https://github.com/arunsathiya), [@iamdharmesh](https://github.com/iamdharmesh) via [#1178](https://github.com/10up/distributor/pull/1178)).
+- Fix some failing E2E tests (props [@kirtangajjar](https://github.com/kirtangajjar), [@iamdharmesh](https://github.com/iamdharmesh) via [#1242](https://github.com/10up/distributor/pull/1242)).
+- Add `taffydb` as devDependecy (props [@dependabot](https://github.com/apps/dependabot), [@faisal-alvi](https://github.com/faisal-alvi) via [#1209](https://github.com/10up/distributor/pull/1209)).
+
 ## [2.0.4] - 2024-02-29
 ### Added
 - Repo Automator GitHub Action to automate repo operations (props [@iamdharmesh](https://github.com/iamdharmesh), [@jeffpaul](https://github.com/jeffpaul) via [#1191](https://github.com/10up/distributor/pull/1191)).
@@ -525,6 +564,7 @@ This adds a post type selector when viewing the Pull Content list for both exter
 - Initial closed release.
 
 [Unreleased]: https://github.com/10up/distributor/compare/trunk...develop
+[2.0.5]: https://github.com/10up/distributor/compare/2.0.4...2.0.5
 [2.0.4]: https://github.com/10up/distributor/compare/2.0.3...2.0.4
 [2.0.3]: https://github.com/10up/distributor/compare/2.0.2...2.0.3
 [2.0.2]: https://github.com/10up/distributor/compare/2.0.1...2.0.2
