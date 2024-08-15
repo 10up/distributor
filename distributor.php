@@ -5,7 +5,7 @@
  * Update URI:        https://distributorplugin.com
  * Description:       Makes it easy to distribute and reuse content across your websites, whether inside of a multisite or across the web.
  * Version:           2.0.5
- * Requires at least: 6.3
+ * Requires at least: 6.4
  * Requires PHP:      7.4
  * Author:            10up Inc.
  * Author URI:        https://distributorplugin.com
@@ -50,7 +50,7 @@ if ( is_multisite() && isset( $active_plugins[ plugin_basename( __FILE__ ) ] ) )
  * @return string Minimum version required.
  */
 function minimum_wp_requirement() {
-	return '5.7';
+	return '6.4';
 }
 
 /**
@@ -88,7 +88,7 @@ function site_meets_php_requirements() {
 }
 
 /**
- * Require PHP 7.4+, WP 5.7+ - throw an error if the plugin is activated on an older version.
+ * Require PHP 7.4+, WP 6.4+ - throw an error if the plugin is activated on an older version.
  */
 register_activation_hook(
 	__FILE__,

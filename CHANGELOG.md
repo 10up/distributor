@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file, per [the Ke
 ## [Unreleased] - TBD
 
 ## [2.0.5] - 2024-08-15
-**Note that Distributor now requires WordPress 6.3 or later.**
+**Note that Distributor now requires WordPress 6.4 or later.**
 
 ### Added
 - Introduce "View all" post type view when pulling content from external connections (props [@mehul0810](https://github.com/mehul0810), [@ravinderk](https://github.com/ravinderk), [@cadic](https://github.com/cadic), [@peterwilsoncc](https://github.com/peterwilsoncc), [@ankitrox](https://github.com/ankitrox), [@Sidsector9](https://github.com/Sidsector9), [@jeffpaul](https://github.com/jeffpaul) via [#1002](https://github.com/10up/distributor/pull/1002)).
@@ -13,7 +13,7 @@ All notable changes to this project will be documented in this file, per [the Ke
 ### Changed
 - Account for FSE post types in rest endpoints (props [@mehul0810](https://github.com/mehul0810), [@peterwilsoncc](https://github.com/peterwilsoncc), [@faisal-alvi](https://github.com/faisal-alvi) via [#1246](https://github.com/10up/distributor/pull/1246)).
 - Bump WordPress "tested up to" version 6.6 (props [@jeffpaul](https://github.com/jeffpaul), [@qasumitbagthariya](https://github.com/qasumitbagthariya), [@dkotter](https://github.com/dkotter) via [#1214](https://github.com/10up/distributor/pull/1214), [#1243](https://github.com/10up/distributor/pull/1243)).
-- Bump WordPress minimum from 5.7 to 6.3 (props [@jeffpaul](https://github.com/jeffpaul), [@dkotter](https://github.com/dkotter) via [#1214](https://github.com/10up/distributor/pull/1214)).
+- Bump WordPress minimum from 5.7 to 6.4 (props [@jeffpaul](https://github.com/jeffpaul), [@dkotter](https://github.com/dkotter) via [#1214](https://github.com/10up/distributor/pull/1214), [#1261](https://github.com/10up/distributor/pull/1261)).
 
 ### Fixed
 - Ensure you can publish distributed posts in WordPress 6.6 (props [@claudiulodro](https://github.com/claudiulodro), [@phpbits](https://github.com/phpbits), [@faisal-alvi](https://github.com/faisal-alvi) via [#1252](https://github.com/10up/distributor/pull/1252)).
