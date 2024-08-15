@@ -9,9 +9,9 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2024-02-29T15:20:16+00:00\n"
+"POT-Creation-Date: 2024-08-15T13:56:32+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"X-Generator: WP-CLI 2.10.0\n"
+"X-Generator: WP-CLI 2.11.0\n"
 "X-Domain: distributor\n"
 
 #. Plugin Name of the plugin
@@ -307,7 +307,7 @@ msgid "Edit \"%s\""
 msgstr ""
 
 #: includes/classes/ExternalConnectionListTable.php:74
-#: includes/classes/PullListTable.php:370
+#: includes/classes/PullListTable.php:374
 #: release/includes/classes/ExternalConnectionListTable.php:74
 #: release/includes/classes/PullListTable.php:370
 msgid "Edit"
@@ -528,7 +528,7 @@ msgstr ""
 
 #: includes/classes/PullListTable.php:342
 #: includes/classes/PullListTable.php:358
-#: includes/classes/PullListTable.php:642
+#: includes/classes/PullListTable.php:645
 #: release/includes/classes/PullListTable.php:342
 #: release/includes/classes/PullListTable.php:358
 #: release/includes/classes/PullListTable.php:642
@@ -539,8 +539,8 @@ msgstr ""
 
 #: includes/classes/PullListTable.php:342
 #: includes/classes/PullListTable.php:358
-#: includes/classes/PullListTable.php:585
-#: includes/classes/PullListTable.php:591
+#: includes/classes/PullListTable.php:588
+#: includes/classes/PullListTable.php:594
 #: release/includes/classes/PullListTable.php:342
 #: release/includes/classes/PullListTable.php:358
 #: release/includes/classes/PullListTable.php:585
@@ -552,7 +552,7 @@ msgstr ""
 
 #: includes/classes/PullListTable.php:343
 #: includes/classes/PullListTable.php:361
-#: includes/classes/PullListTable.php:371
+#: includes/classes/PullListTable.php:370
 #: release/includes/classes/PullListTable.php:343
 #: release/includes/classes/PullListTable.php:361
 #: release/includes/classes/PullListTable.php:371
@@ -560,43 +560,43 @@ msgid "View"
 msgstr ""
 
 #: includes/classes/PullListTable.php:345
-#: includes/classes/PullListTable.php:586
+#: includes/classes/PullListTable.php:589
 #: release/includes/classes/PullListTable.php:345
 #: release/includes/classes/PullListTable.php:586
 msgid "Skip"
 msgstr ""
 
 #: includes/classes/PullListTable.php:360
-#: includes/classes/PullListTable.php:592
+#: includes/classes/PullListTable.php:595
 #: release/includes/classes/PullListTable.php:360
 #: release/includes/classes/PullListTable.php:592
 msgid "Unskip"
 msgstr ""
 
-#: includes/classes/PullListTable.php:379
+#: includes/classes/PullListTable.php:382
 #: release/includes/classes/PullListTable.php:379
 msgid "(no title)"
 msgstr ""
 
 #. translators: %s: the post title or draft
-#: includes/classes/PullListTable.php:568
+#: includes/classes/PullListTable.php:571
 #: release/includes/classes/PullListTable.php:568
 msgid "Select %s"
 msgstr ""
 
-#: includes/classes/PullListTable.php:584
-#: includes/classes/PullListTable.php:590
+#: includes/classes/PullListTable.php:587
+#: includes/classes/PullListTable.php:593
 #: release/includes/classes/PullListTable.php:584
 #: release/includes/classes/PullListTable.php:590
 msgid "Bulk Actions"
 msgstr ""
 
-#: includes/classes/PullListTable.php:623
+#: includes/classes/PullListTable.php:626
 #: release/includes/classes/PullListTable.php:623
 msgid "View all"
 msgstr ""
 
-#: includes/classes/PullListTable.php:632
+#: includes/classes/PullListTable.php:635
 #: release/includes/classes/PullListTable.php:632
 msgid "Filter"
 msgstr ""
