@@ -633,7 +633,7 @@ class DistributorPost {
 		$media_array       = array();
 
 		foreach ( $raw_media as $media_post ) {
-			$media_item = Utils\format_media_post( $media_post );
+			$media_item = Utils\format_media_post( $media_post, $post_id );
 
 			if ( $media_item['featured'] ) {
 				$found_featured = true;
@@ -748,7 +748,11 @@ class DistributorPost {
 		}
 
 		if ( in_array( $block['blockName'], $block_names, true ) ) {
-			$media[] = $block['attrs'][ $media_blocks[ $block['blockName'] ] ];
+			$attribute_key = $media_blocks[ $block['blockName'] ];
+
+			if ( isset( $block['attrs'][ $attribute_key ] ) ) {
+				$media[] = $block['attrs'][ $attribute_key ];
+			}
 		}
 
 		return $media;

@@ -2,14 +2,14 @@
 # This file is distributed under the GPLv2 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: Distributor 2.0.4\n"
+"Project-Id-Version: Distributor 2.0.5\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/distributor\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2024-08-15T13:56:32+00:00\n"
+"POT-Creation-Date: 2024-08-15T16:57:47+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.11.0\n"
 "X-Domain: distributor\n"
@@ -309,7 +309,7 @@ msgstr ""
 #: includes/classes/ExternalConnectionListTable.php:74
 #: includes/classes/PullListTable.php:374
 #: release/includes/classes/ExternalConnectionListTable.php:74
-#: release/includes/classes/PullListTable.php:370
+#: release/includes/classes/PullListTable.php:374
 msgid "Edit"
 msgstr ""
 
@@ -528,10 +528,10 @@ msgstr ""
 
 #: includes/classes/PullListTable.php:342
 #: includes/classes/PullListTable.php:358
-#: includes/classes/PullListTable.php:645
+#: includes/classes/PullListTable.php:643
 #: release/includes/classes/PullListTable.php:342
 #: release/includes/classes/PullListTable.php:358
-#: release/includes/classes/PullListTable.php:642
+#: release/includes/classes/PullListTable.php:645
 #: dist/js/admin-pull.min.js:1
 #: release/dist/js/admin-pull.min.js:1
 msgid "Pull as draft"
@@ -543,8 +543,8 @@ msgstr ""
 #: includes/classes/PullListTable.php:594
 #: release/includes/classes/PullListTable.php:342
 #: release/includes/classes/PullListTable.php:358
-#: release/includes/classes/PullListTable.php:585
-#: release/includes/classes/PullListTable.php:591
+#: release/includes/classes/PullListTable.php:588
+#: release/includes/classes/PullListTable.php:594
 #: dist/js/admin-pull.min.js:1
 #: release/dist/js/admin-pull.min.js:1
 msgid "Pull"
@@ -555,49 +555,49 @@ msgstr ""
 #: includes/classes/PullListTable.php:370
 #: release/includes/classes/PullListTable.php:343
 #: release/includes/classes/PullListTable.php:361
-#: release/includes/classes/PullListTable.php:371
+#: release/includes/classes/PullListTable.php:370
 msgid "View"
 msgstr ""
 
 #: includes/classes/PullListTable.php:345
 #: includes/classes/PullListTable.php:589
 #: release/includes/classes/PullListTable.php:345
-#: release/includes/classes/PullListTable.php:586
+#: release/includes/classes/PullListTable.php:589
 msgid "Skip"
 msgstr ""
 
 #: includes/classes/PullListTable.php:360
 #: includes/classes/PullListTable.php:595
 #: release/includes/classes/PullListTable.php:360
-#: release/includes/classes/PullListTable.php:592
+#: release/includes/classes/PullListTable.php:595
 msgid "Unskip"
 msgstr ""
 
 #: includes/classes/PullListTable.php:382
-#: release/includes/classes/PullListTable.php:379
+#: release/includes/classes/PullListTable.php:382
 msgid "(no title)"
 msgstr ""
 
 #. translators: %s: the post title or draft
 #: includes/classes/PullListTable.php:571
-#: release/includes/classes/PullListTable.php:568
+#: release/includes/classes/PullListTable.php:571
 msgid "Select %s"
 msgstr ""
 
 #: includes/classes/PullListTable.php:587
 #: includes/classes/PullListTable.php:593
-#: release/includes/classes/PullListTable.php:584
-#: release/includes/classes/PullListTable.php:590
+#: release/includes/classes/PullListTable.php:587
+#: release/includes/classes/PullListTable.php:593
 msgid "Bulk Actions"
 msgstr ""
 
-#: includes/classes/PullListTable.php:626
-#: release/includes/classes/PullListTable.php:623
+#: includes/classes/PullListTable.php:625
+#: release/includes/classes/PullListTable.php:626
 msgid "View all"
 msgstr ""
 
-#: includes/classes/PullListTable.php:635
-#: release/includes/classes/PullListTable.php:632
+#: includes/classes/PullListTable.php:633
+#: release/includes/classes/PullListTable.php:635
 msgid "Filter"
 msgstr ""
 

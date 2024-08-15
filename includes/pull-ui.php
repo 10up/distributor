@@ -472,27 +472,29 @@ function dashboard() {
 				</select>
 
 				<?php
+				$connection_now->pull_post_type  = '';
 				$connection_now->pull_post_types = \Distributor\Utils\available_pull_post_types( $connection_now, $connection_type );
 
 				// Ensure we have at least one post type to pull.
 				$connection_now->pull_post_type = '';
 				if ( ! empty( $connection_now->pull_post_types ) ) {
-					$connection_now->pull_post_type = ( 'internal' === $connection_type ) ? 'all' : $connection_now->pull_post_types[0]['slug'];
+					$connection_now->pull_post_type = 'all';
 				}
 
 				// Set the post type we want to pull (if any)
 				// This is either from a query param, "post" post type, or the first in the list
 				foreach ( $connection_now->pull_post_types as $post_type ) {
-					if ( isset( $_GET['pull_post_type'] ) ) { // @codingStandardsIgnoreLine No nonce needed here.
-						if ( $_GET['pull_post_type'] === $post_type['slug'] ) { // @codingStandardsIgnoreLine Comparing values, no nonce needed.
+					if ( ! empty( $_GET['pull_post_type'] ) ) {
+						if ( 'all' === $_GET['pull_post_type'] ) {
+							$connection_now->pull_post_type = 'all';
+							break;
+						} elseif ( $_GET['pull_post_type'] === $post_type['slug'] ) {
 							$connection_now->pull_post_type = $post_type['slug'];
 							break;
 						}
 					} else {
-						if ( 'post' === $post_type['slug'] && 'external' === $connection_type ) {
-							$connection_now->pull_post_type = $post_type['slug'];
-							break;
-						}
+						$connection_now->pull_post_type = ! empty( $post_type['slug'] ) ? $post_type['slug'] : 'all';
+						break;
 					}
 				}
 				?>
@@ -576,8 +578,10 @@ function output_pull_errors() {
 
 	if ( is_a( $connection_now, '\Distributor\ExternalConnection' ) ) {
 		$error_key = "external_{$connection_now->id}";
-	} else {
+	} elseif ( is_a( $connection_now, '\Distributor\InternalConnections\NetworkSiteConnection' ) ) {
 		$error_key = "internal_{$connection_now->site->blog_id}";
+	} else {
+		return;
 	}
 
 	$pull_errors = get_transient( 'dt_connection_pull_errors_' . $error_key );

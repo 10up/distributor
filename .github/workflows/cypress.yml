@@ -15,15 +15,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
 
     - name: Use desired version of NodeJS
-      uses: actions/setup-node@v3
+      uses: actions/setup-node@v4
       with:
           node-version-file: '.nvmrc'
 
     - name: Cache Node
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: |
           node_modules
@@ -47,19 +47,19 @@ jobs:
           - {name: 'PHP Default', version: null}
         core:
           - {name: 'WP stable', version: 'latest'}
-          - {name: 'WP 5.7', version: 'WordPress/WordPress#5.7'}
+          - {name: 'WP 6.4', version: 'WordPress/WordPress#6.4'}
           - {name: 'WP trunk', version: 'WordPress/WordPress#master'}
         include:
           - php: {name: 'PHP 7.4', version: '7.4'}
-            core: {name: 'WP 5.7', version: 'WordPress/WordPress#5.7'}
+            core: {name: 'WP 6.4', version: 'WordPress/WordPress#6.4'}
           - php: {name: 'PHP 8.1', version: '8.1'}
             core: {name: 'WP stable', version: 'latest'}
     steps:
     - name: Checkout
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
 
     - name: Use desired version of NodeJS
-      uses: actions/setup-node@v3
+      uses: actions/setup-node@v4
       with:
           node-version-file: '.nvmrc'
 
@@ -67,7 +67,7 @@ jobs:
       run: npm -v; node -v
 
     - name: Cache Node
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: |
           node_modules
@@ -93,8 +93,8 @@ jobs:
 
     - name: Log WP environment versions
       run: |
-        npx wp-env run cli "wp core version"
-        npx wp-env run cli "php --version"
+        npm run env run cli -- wp core version
+        npm run env run cli -- php --version
 
     - name: Test
       run: npm run cypress:run
@@ -108,7 +108,7 @@ jobs:
           npx mochawesome-report-generator tests/cypress/reports/mochawesome.json -o tests/cypress/reports/
           cat ./tests/cypress/reports/mochawesome.md >> $GITHUB_STEP_SUMMARY
     - name: Make artifacts available
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       if: failure()
       with:
         name: cypress-artifact
