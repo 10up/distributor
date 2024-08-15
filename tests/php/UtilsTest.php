@@ -570,7 +570,7 @@ class UtilsTest extends TestCase {
 			]
 		);
 
-		$formatted_media = Utils\format_media_post( $media_post );
+		$formatted_media = Utils\format_media_post( $media_post, $media_post->post_parent );
 
 		$this->assertFalse( $formatted_media['featured'] );
 
@@ -667,7 +667,7 @@ class UtilsTest extends TestCase {
 			]
 		);
 
-		$formatted_media = Utils\format_media_post( $media_post );
+		$formatted_media = Utils\format_media_post( $media_post, $media_post->post_parent );
 
 		$this->assertTrue( $formatted_media['featured'] );
 
@@ -764,7 +764,7 @@ class UtilsTest extends TestCase {
 			]
 		);
 
-		$formatted_media = Utils\format_media_post( $media_post );
+		$formatted_media = Utils\format_media_post( $media_post, $media_post->post_parent );
 
 		$this->assertFalse( array_key_exists( '_wp_attachment_metadata', $formatted_media['meta'] ) );
 

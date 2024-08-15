@@ -8,13 +8,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Generate title
         run: |
           BRANCH=${GITHUB_REF##*/}
           echo $BRANCH
           VERSION=${BRANCH#'release/'}
-          echo ::set-output name=result::"Release: ${VERSION}"
+          echo "result="Release: ${VERSION}"" >> $GITHUB_OUTPUT
         id: title
       - name: Create Pull Request
         run: gh pr create --draft --title "${{ steps.title.outputs.result }}" --body-file ./.github/release-pull-request-template.md

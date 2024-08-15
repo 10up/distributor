@@ -1,10 +1,8 @@
 === Distributor ===
 Contributors:      10up
 Tags:              content, distribution, syndication, management
-Requires at least: 5.7
-Tested up to:      6.4
-Requires PHP:      7.4
-Stable tag:        2.0.4
+Tested up to:      6.6
+Stable tag:        2.0.5
 License:           GPLv2 or later
 License URI:       http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -33,6 +31,9 @@ There are two connection types: `internal` and `external`.
 * For external connections, Distributor needs to be installed on BOTH sides of the connection.
 
 == Upgrade Notice ==
+
+= 2.0.5 =
+**Distributor now requires WordPress 6.4 or later.**
 
 = 2.0.0 =
 **Distributor now requires PHP 7.4 or later and WordPress 5.7 or later.**
