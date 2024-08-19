@@ -28,7 +28,7 @@
 	<arg name="parallel" value="8"/>
 
 	<!-- Configs -->
-	<config name="minimum_supported_wp_version" value="5.7"/>
+	<config name="minimum_supported_wp_version" value="6.4"/>
 
 	<!-- Exclude directory -->
 	<exclude-pattern>/vendor/*</exclude-pattern>
