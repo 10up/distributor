@@ -25,62 +25,6 @@ abstract class Authentication {
 	public static $error_message;
 
 	/**
-	 * Site URL
-	 *
-	 * @var string
-	 */
-	public $site_url;
-
-	/**
-	 * Username
-	 *
-	 * @var string
-	 */
-	public $username;
-
-	/**
-	 * Password
-	 *
-	 * @var string
-	 */
-	public $password;
-
-	/**
-	 * API Key
-	 *
-	 * @var string
-	 */
-	public $client_id;
-
-	/**
-	 * API Secret
-	 *
-	 * @var string
-	 */
-	public $client_secret;
-
-	/**
-	 * Redirect URI
-	 *
-	 * @var string
-	 */
-	public $redirect_uri;
-
-	/**
-	 * Access Token
-	 *
-	 * @var string
-	 */
-	public $base64_encoded;
-
-	/**
-	 * Created Post ID
-	 *
-	 * @var string
-	 */
-	public $dt_created_post_id;
-
-	/**
 	 * Set associative arguments as instance variables
 	 *
 	 * @param array $args Array of arguments to set.
