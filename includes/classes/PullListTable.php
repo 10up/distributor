@@ -386,9 +386,12 @@ class PullListTable extends \WP_List_Table {
 
 			if ( ! empty( $new_post ) ) {
 				$actions = [
-					'edit' => '<a href="' . esc_url( get_edit_post_link( $new_post_id ) ) . '">' . esc_html__( 'Edit', 'distributor' ) . '</a>',
 					'view' => '<a href="' . esc_url( get_permalink( $new_post_id ) ) . '">' . esc_html__( 'View', 'distributor' ) . '</a>',
 				];
+
+				if ( current_user_can( 'edit_post', $new_post_id ) ) {
+					$actions['edit'] = '<a href="' . esc_url( get_edit_post_link( $new_post_id ) ) . '">' . esc_html__( 'Edit', 'distributor' ) . '</a>';
+				}
 			}
 		}
 

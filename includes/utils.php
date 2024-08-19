@@ -1088,10 +1088,11 @@ function set_media( $post_id, $media, $args = [] ) {
  * This is a helper function for transporting/formatting data about a media post
  *
  * @param  \WP_Post $media_post Media post.
+ * @param  int      $post_id    Post ID.
  * @since  1.0
  * @return array
  */
-function format_media_post( $media_post ) {
+function format_media_post( $media_post, $post_id = 0 ) {
 	$media_item = array(
 		'id'    => $media_post->ID,
 		'title' => $media_post->post_title,
@@ -1099,7 +1100,7 @@ function format_media_post( $media_post ) {
 
 	$media_item['featured'] = false;
 
-	if ( (int) get_post_thumbnail_id( $media_post->post_parent ) === $media_post->ID ) {
+	if ( $post_id && (int) get_post_thumbnail_id( $post_id ) === $media_post->ID ) {
 		$media_item['featured'] = true;
 	}
 
