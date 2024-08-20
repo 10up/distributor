@@ -28,7 +28,9 @@ body.dt-linked-post {
 
 	.edit-post-welcome-guide,
 	.edit-post-header__settings,
+	.editor-header__settings,
 	.components-time-picker,
+	.editor-post-status,
 	.react-datepicker,
 	.components-panel__header {
 
@@ -52,6 +54,7 @@ body.dt-linked-post {
 	.editor-post-publish-button,
 	.edit-post-post-schedule__toggle,
 	.components-menu-item__button,
+	.editor-all-actions-button,
 	.editor-post-publish-panel button {
 		opacity: 1;
 		pointer-events: auto;
