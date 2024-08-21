@@ -19,6 +19,17 @@ body.dt-linked-post {
 		cursor: default;
 	}
 
+	.distributed-modal-popup {
+		& * {
+			pointer-events: auto;
+			opacity: 1;
+		}
+
+		a, button {
+			cursor: pointer;
+		}
+	}
+
 	/* Allow clicks on confirmation dialog buttons */
 	.components-confirm-dialog button {
 		opacity: 1;
