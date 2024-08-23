@@ -94,7 +94,7 @@ describe( 'Distributed Post Tests', () => {
 						cy.openDocumentSettingsPanel( 'Pulled Content' );
 						cy.get( '#distributed-from' ).should(
 							'contain.text',
-							'Distributed on'
+							'Pulled & linked on'
 						);
 					}
 				);
