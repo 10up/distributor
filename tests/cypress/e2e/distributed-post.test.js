@@ -25,7 +25,7 @@ describe( 'Distributed Post Tests', () => {
 			// Ensure the settings panel is open.
 			cy.get( 'button[aria-label="Settings"]' ).then( () => {
 				cy.openDocumentSettingsSidebar( 'Post' );
-				cy.openDocumentSettingsPanel( 'Distributor' );
+				cy.openDocumentSettingsPanel( 'Pulled Content' );
 				cy.get( '#distributed-to' ).should(
 					'contain.text',
 					'Distributed to 1 connection'
@@ -46,7 +46,7 @@ describe( 'Distributed Post Tests', () => {
 					$settings.trigger( 'click' );
 				}
 				cy.openDocumentSettingsSidebar( 'Post' );
-				cy.openDocumentSettingsPanel( 'Distributor' );
+				cy.openDocumentSettingsPanel( 'Pulled Content' );
 				cy.get( '#distributed-to' ).should(
 					'contain.text',
 					'Distributed to 2 connections'
@@ -91,10 +91,10 @@ describe( 'Distributed Post Tests', () => {
 							$settings.trigger( 'click' );
 						}
 						cy.openDocumentSettingsSidebar( 'Post' );
-						cy.openDocumentSettingsPanel( 'Distributor' );
+						cy.openDocumentSettingsPanel( 'Pulled Content' );
 						cy.get( '#distributed-from' ).should(
 							'contain.text',
-							'Distributed on'
+							'Pulled & linked on'
 						);
 					}
 				);
