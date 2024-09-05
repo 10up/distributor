@@ -30,8 +30,10 @@ if ( defined( 'DT_REMOVE_ALL_DATA' ) && true === DT_REMOVE_ALL_DATA ) {
 
 		// Delete post meta and posts of type 'dt_subscription'.
 		$subscription_post_ids = $wpdb->get_col(
-			"SELECT ID FROM $wpdb->posts WHERE post_type = %s",
-			'dt_subscription'
+			$wpdb->prepare(
+				"SELECT ID FROM $wpdb->posts WHERE post_type = %s",
+				'dt_subscription'
+			)
 		);
 
 		if ( ! empty( $subscription_post_ids ) ) {
@@ -39,15 +41,17 @@ if ( defined( 'DT_REMOVE_ALL_DATA' ) && true === DT_REMOVE_ALL_DATA ) {
 
 			// Delete subscription meta.
 			$wpdb->query(
-				$wpdb->prepare(
-					"DELETE FROM $wpdb->postmeta WHERE post_id IN ($ids_string);"
+				sprintf(
+					"DELETE FROM $wpdb->postmeta WHERE post_id IN (%s);",
+					$ids_string
 				)
 			);
 
 			// Delete subscription posts.
 			$wpdb->query(
-				$wpdb->prepare(
-					"DELETE FROM $wpdb->posts WHERE ID IN ($ids_string);"
+				sprintf(
+					"DELETE FROM $wpdb->posts WHERE ID IN (%s);",
+					$ids_string
 				)
 			);
 
@@ -80,11 +84,11 @@ if ( defined( 'DT_REMOVE_ALL_DATA' ) && true === DT_REMOVE_ALL_DATA ) {
 		if ( $is_multisite ) {
 			$option_prefixes[] = '_site_transient_dt_';
 			$option_prefixes[] = '_site_transient_timeout_dt_';	
-			$table      = $wpdb->sitemeta;
-			$id_column  = 'meta_id';
-			$key_column = 'meta_key';
+			$table       = $wpdb->sitemeta;
+			$id_column   = 'meta_id';
+			$key_column  = 'meta_key';
 			$site_column = 'site_id';
-			$site_id    = get_current_network_id();
+			$site_id     = get_current_network_id();
 		} else {
 			$table      = $wpdb->options;
 			$id_column  = 'option_id';
@@ -97,13 +101,19 @@ if ( defined( 'DT_REMOVE_ALL_DATA' ) && true === DT_REMOVE_ALL_DATA ) {
 		// Prepare the query with proper escaping for both single and multisite.
 		$query = $is_multisite
 			? $wpdb->prepare(
-				"SELECT $id_column FROM $table WHERE $site_column = %d AND ($where_clause);",
+				sprintf(
+					"SELECT $id_column FROM $table WHERE $site_column = %%d AND (%s);",
+					$where_clause
+				),
 				array_merge( [ $site_id ], array_map( function( $prefix ) use ( $wpdb ) {
 					return $wpdb->esc_like( $prefix ) . '%';
 				}, $option_prefixes ) )
 			)
 			: $wpdb->prepare(
-				"SELECT $id_column FROM $table WHERE $where_clause;",
+				sprintf(
+					"SELECT $id_column FROM $table WHERE %s;",
+					$where_clause
+				),
 				array_map( function( $prefix ) use ( $wpdb ) {
 					return $wpdb->esc_like( $prefix ) . '%';
 				}, $option_prefixes )
@@ -117,8 +127,9 @@ if ( defined( 'DT_REMOVE_ALL_DATA' ) && true === DT_REMOVE_ALL_DATA ) {
 
 			// Delete the options using the retrieved IDs.
 			$wpdb->query(
-				$wpdb->prepare(
-					"DELETE FROM $table WHERE $id_column IN ($ids_string);"
+				sprintf(
+					"DELETE FROM $table WHERE $id_column IN (%s);",
+					$ids_string
 				)
 			);
 
