@@ -21,11 +21,9 @@ if ( defined( 'DT_REMOVE_ALL_DATA' ) && true === DT_REMOVE_ALL_DATA ) {
 	global $wpdb;
 
 	/**
-	 * Function to delete all relevant data from the site (single or multisite).
-	 *
-	 * @param bool $is_multisite Whether it's a multisite installation.
+	 * Function to delete all relevant data from the site.
 	 */
-	function dt_delete_data( $is_multisite = false ) {
+	function dt_delete_data() {
 		global $wpdb;
 
 		// Delete post meta and posts of type 'dt_subscription'.
@@ -41,17 +39,15 @@ if ( defined( 'DT_REMOVE_ALL_DATA' ) && true === DT_REMOVE_ALL_DATA ) {
 
 			// Delete subscription meta.
 			$wpdb->query(
-				sprintf(
-					"DELETE FROM $wpdb->postmeta WHERE post_id IN (%s);",
-					$ids_string
+				$wpdb->prepare(
+					"DELETE FROM $wpdb->postmeta WHERE post_id IN ($ids_string)"
 				)
 			);
 
 			// Delete subscription posts.
 			$wpdb->query(
-				sprintf(
-					"DELETE FROM $wpdb->posts WHERE ID IN (%s);",
-					$ids_string
+				$wpdb->prepare(
+					"DELETE FROM $wpdb->posts WHERE ID IN ($ids_string)"
 				)
 			);
 
@@ -61,16 +57,14 @@ if ( defined( 'DT_REMOVE_ALL_DATA' ) && true === DT_REMOVE_ALL_DATA ) {
 			wp_cache_delete_multiple( $subscription_post_ids, 'post_meta' );
 		}
 
-		// Delete relevant options (single or multisite).
-		delete_site_options( $is_multisite );
+		// Delete relevant options from the options table.
+		delete_site_options();
 	}
 
 	/**
-	 * Delete all relevant options from a site (single or multisite).
-	 *
-	 * @param bool $is_multisite Whether it's a multisite installation.
+	 * Delete all relevant options from the options table.
 	 */
-	function delete_site_options( $is_multisite = false ) {
+	function delete_site_options() {
 		global $wpdb;
 
 		$option_prefixes = array(
@@ -79,45 +73,18 @@ if ( defined( 'DT_REMOVE_ALL_DATA' ) && true === DT_REMOVE_ALL_DATA ) {
 			'_transient_timeout_dt_',
 		);
 
-		// Include multisite-specific prefixes if it's not a single site.
-		// Also determine the appropriate table and column based on multisite or single site.
-		if ( $is_multisite ) {
-			$option_prefixes[] = '_site_transient_dt_';
-			$option_prefixes[] = '_site_transient_timeout_dt_';	
-			$table       = $wpdb->sitemeta;
-			$id_column   = 'meta_id';
-			$key_column  = 'meta_key';
-			$site_column = 'site_id';
-			$site_id     = get_current_network_id();
-		} else {
-			$table      = $wpdb->options;
-			$id_column  = 'option_id';
-			$key_column = 'option_name';
-		}
+		// Prepare the WHERE clause for the options table.
+		$where_clause = implode( ' OR ', array_fill( 0, count( $option_prefixes ), "option_name LIKE %s" ) );
 
-		// Construct the WHERE clause based on the environment.
-		$where_clause = implode( ' OR ', array_fill( 0, count( $option_prefixes ), "$key_column LIKE %s" ) );
-
-		// Prepare the query with proper escaping for both single and multisite.
-		$query = $is_multisite
-			? $wpdb->prepare(
-				sprintf(
-					"SELECT $id_column FROM $table WHERE $site_column = %%d AND (%s);",
-					$where_clause
-				),
-				array_merge( [ $site_id ], array_map( function( $prefix ) use ( $wpdb ) {
-					return $wpdb->esc_like( $prefix ) . '%';
-				}, $option_prefixes ) )
-			)
-			: $wpdb->prepare(
-				sprintf(
-					"SELECT $id_column FROM $table WHERE %s;",
-					$where_clause
-				),
-				array_map( function( $prefix ) use ( $wpdb ) {
-					return $wpdb->esc_like( $prefix ) . '%';
-				}, $option_prefixes )
-			);
+		$query = $wpdb->prepare(
+			sprintf(
+				"SELECT option_id FROM $wpdb->options WHERE %s;",
+				$where_clause
+			),
+			array_map( function( $prefix ) use ( $wpdb ) {
+				return $wpdb->esc_like( $prefix ) . '%';
+			}, $option_prefixes )
+		);
 
 		// Fetch the options to delete.
 		$options_to_delete = $wpdb->get_col( $query );
@@ -127,20 +94,61 @@ if ( defined( 'DT_REMOVE_ALL_DATA' ) && true === DT_REMOVE_ALL_DATA ) {
 
 			// Delete the options using the retrieved IDs.
 			$wpdb->query(
-				sprintf(
-					"DELETE FROM $table WHERE $id_column IN (%s);",
-					$ids_string
+				$wpdb->prepare(
+					"DELETE FROM $wpdb->options WHERE option_id IN ($ids_string)"
 				)
 			);
 
-			// Flush the relevant caches.
-			$cache_group = $is_multisite ? 'site-options' : 'options';
-			wp_cache_delete_multiple( $options_to_delete, $cache_group );
+			// Flush the options cache.
+			wp_cache_delete_multiple( $options_to_delete, 'options' );
 
-			if ( ! $is_multisite ) {
-				// Flush the alloptions cache if it's a single site.
-				wp_cache_delete( 'alloptions', 'options' );
-			}
+			// Flush the alloptions cache.
+			wp_cache_delete( 'alloptions', 'options' );
+		}
+	}
+
+	/**
+	 * Delete all relevant options from the sitemeta table (multisite only).
+	 */
+	function delete_sitemeta_options() {
+		global $wpdb;
+
+		$option_prefixes = array(
+			'dt_',
+			'_site_transient_dt_',
+			'_site_transient_timeout_dt_',
+		);
+
+		// Prepare the WHERE clause for the sitemeta table.
+		$where_clause = implode( ' OR ', array_fill( 0, count( $option_prefixes ), "meta_key LIKE %s" ) );
+
+		$site_id = get_current_network_id();
+
+		$query = $wpdb->prepare(
+			sprintf(
+				"SELECT meta_id FROM $wpdb->sitemeta WHERE site_id = %%d AND (%s);",
+				$where_clause
+			),
+			array_merge( [ $site_id ], array_map( function( $prefix ) use ( $wpdb ) {
+				return $wpdb->esc_like( $prefix ) . '%';
+			}, $option_prefixes ) )
+		);
+
+		// Fetch the sitemeta to delete.
+		$sitemeta_to_delete = $wpdb->get_col( $query );
+
+		if ( ! empty( $sitemeta_to_delete ) ) {
+			$ids_string = implode( ',', array_map( 'intval', $sitemeta_to_delete ) );
+
+			// Delete the sitemeta using the retrieved IDs.
+			$wpdb->query(
+				$wpdb->prepare(
+					"DELETE FROM $wpdb->sitemeta WHERE meta_id IN ($ids_string)"
+				)
+			);
+
+			// Flush the site options cache.
+			wp_cache_delete_multiple( $sitemeta_to_delete, 'site-options' );
 		}
 	}
 
@@ -150,9 +158,12 @@ if ( defined( 'DT_REMOVE_ALL_DATA' ) && true === DT_REMOVE_ALL_DATA ) {
 		$sites = get_sites();
 		foreach ( $sites as $site ) {
 			switch_to_blog( $site->blog_id );
-			dt_delete_data( true );
+			dt_delete_data();
 			restore_current_blog();
 		}
+
+		// Delete network-wide sitemeta options.
+		delete_sitemeta_options();
 	} else {
 		// Single site.
 		dt_delete_data();
