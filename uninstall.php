@@ -6,7 +6,6 @@
  * @since   x.x.x
  */
 
-// phpcs:disable
 
 if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
 	die;
@@ -39,9 +38,7 @@ if ( defined( 'DT_REMOVE_ALL_DATA' ) && true === DT_REMOVE_ALL_DATA ) {
 
 			// Delete subscription meta.
 			$wpdb->query(
-				$wpdb->prepare(
-					"DELETE FROM $wpdb->postmeta WHERE post_id IN ($ids_string)"
-				)
+				"DELETE FROM $wpdb->postmeta WHERE post_id IN ($ids_string)"
 			);
 
 			// Delete subscription posts.
@@ -170,4 +167,3 @@ if ( defined( 'DT_REMOVE_ALL_DATA' ) && true === DT_REMOVE_ALL_DATA ) {
 	}
 }
 
-// phpcs:enable

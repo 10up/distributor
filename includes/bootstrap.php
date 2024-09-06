@@ -246,27 +246,27 @@ function register_deactivation_modal() {
 		}
 	);
 
-	$modal_title                   = esc_js( esc_html__( 'Distributor Deactivation', 'distributor' ) );
-	$modal_button_title_deactivate = esc_js( esc_html__( 'Deactivate', 'distributor' ) );
-	$modal_button_title_cancel     = esc_js( esc_html__( 'Cancel', 'distributor' ) );
+	$modal_title                   = wp_json_encode( __( 'Distributor Deactivation', 'distributor' ) );
+	$modal_button_title_deactivate = wp_json_encode( __( 'Deactivate', 'distributor' ) );
+	$modal_button_title_cancel     = wp_json_encode( __( 'Cancel', 'distributor' ) );
 	$script                        = <<<EOD
 			jQuery(document).ready(function($) {
 				const deactivateButton = jQuery('#deactivate-distributor');
 				deactivateButton.on( 'click', function() {
 					$("#my-modal").dialog({
 						modal: true,
-						title: "$modal_title",
+						title: $modal_title,
 						width: 550,
 						buttons: [
 							{
-								text: "$modal_button_title_cancel",
+								text: $modal_button_title_cancel,
 								class: "button-secondary",
 								click: function() {
 									$(this).dialog("close");
 								}
 							},
 							{
-								text:"$modal_button_title_deactivate",
+								text:$modal_button_title_deactivate,
 								class: 'button-primary',
 								click: function() {
 									$(this).dialog("close");
