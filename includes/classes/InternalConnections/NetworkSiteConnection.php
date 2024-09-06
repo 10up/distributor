@@ -46,6 +46,20 @@ class NetworkSiteConnection extends Connection {
 	public $pull_post_types;
 
 	/**
+	 * Default posts category to pull.
+	 *
+	 * @var string
+	 */
+	public $pull_post_category;
+
+	/**
+	 * Default posts categories to show in filter.
+	 *
+	 * @var string
+	 */
+	public $pull_post_categories;
+
+	/**
 	 * Set up network site connection
 	 *
 	 * @param WP_Site $site Site object.
@@ -495,6 +509,20 @@ class NetworkSiteConnection extends Connection {
 	}
 
 	/**
+	 * Get the available post categories.
+	 *
+	 * @since 1.3
+	 * @return array
+	 */
+	public function get_post_categories() {
+		switch_to_blog( $this->site->blog_id );
+		$post_categories = Utils\distributable_categories();
+		restore_current_blog();
+
+		return $post_categories;
+	}
+
+	/**
 	 * Remotely get posts so we can list them for pulling
 	 *
 	 * @since  0.8
@@ -539,6 +567,10 @@ class NetworkSiteConnection extends Connection {
 				$query_args['post__in'] = $args['post__in'];
 			} elseif ( isset( $args['post__not_in'] ) ) {
 				$query_args['post__not_in'] = $args['post__not_in'];
+			}
+
+			if ( isset( $args['tax_query'] ) ) {
+				$query_args['tax_query'] = $args['tax_query'];
 			}
 
 			$query_args['post_type']      = ( empty( $args['post_type'] ) ) ? 'post' : $args['post_type'];

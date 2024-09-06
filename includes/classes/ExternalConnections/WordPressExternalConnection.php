@@ -72,6 +72,20 @@ class WordPressExternalConnection extends ExternalConnection {
 	public $pull_post_types;
 
 	/**
+	 * Default posts category to pull.
+	 *
+	 * @var string
+	 */
+	public $category;
+
+	/**
+	 * Default posts categories to show in filter.
+	 *
+	 * @var string
+	 */
+	public $categories;
+
+	/**
 	 * This is a utility function for parsing annoying API link headers returned by the types endpoint
 	 *
 	 * @param  array $type Types array.
@@ -165,6 +179,10 @@ class WordPressExternalConnection extends ExternalConnection {
 			if ( ! empty( $args['order'] ) ) {
 				$query_args['order'] = strtolower( $args['order'] );
 			}
+		}
+
+		if ( isset( $args['tax_query'] ) ) {
+			$query_args['tax_query'] = $args['tax_query'];
 		}
 
 		// When running a query for the Pull screen, make a POST request instead
@@ -663,6 +681,41 @@ class WordPressExternalConnection extends ExternalConnection {
 		$types_body_array = json_decode( $types_body, true );
 
 		return $types_body_array;
+	}
+
+	/**
+	 * Get the available post categories.
+	 *
+	 * @since 1.3
+	 * @return array|\WP_Error
+	 */
+	public function get_post_categories() {
+		$path = self::$namespace;
+
+		$categories_path = untrailingslashit( $this->base_url ) . '/' . $path . '/categories';
+
+		$categories_response = Utils\remote_http_request(
+			$categories_path,
+			$this->auth_handler->format_get_args( array( 'timeout' => self::$timeout ) )
+		);
+
+		if ( is_wp_error( $categories_response ) ) {
+			return $categories_response;
+		}
+
+		if ( 404 === wp_remote_retrieve_response_code( $categories_response ) ) {
+			return new \WP_Error( 'bad-endpoint', esc_html__( 'Could not connect to API endpoint.', 'distributor' ) );
+		}
+
+		$categories_body = wp_remote_retrieve_body( $categories_response );
+
+		if ( empty( $categories_body ) ) {
+			return new \WP_Error( 'no-response-body', esc_html__( 'Response body is empty.', 'distributor' ) );
+		}
+
+		$categories_body_array = json_decode( $categories_body, true );
+
+		return $categories_body_array;
 	}
 
 	/**

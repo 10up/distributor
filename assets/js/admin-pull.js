@@ -9,6 +9,7 @@ const { document } = window;
 const chooseConnection = document.getElementById( 'pull_connections' );
 const choosePostType = document.getElementById( 'pull_post_type' );
 const choosePostTypeBtn = document.getElementById( 'pull_post_type_submit' );
+const choosePostCategory = document.getElementById( 'pull_post_category' );
 const searchField = document.getElementById( 'post-search-input' );
 const searchBtn = document.getElementById( 'search-submit' );
 const form = document.getElementById( 'posts-filter' );
@@ -24,7 +25,7 @@ jQuery( chooseConnection ).on( 'change', ( event ) => {
 	document.body.className += ' ' + 'dt-loading';
 } );
 
-if ( chooseConnection && choosePostType && form ) {
+if ( chooseConnection && ( choosePostType || choosePostCategory ) && form ) {
 	if ( choosePostTypeBtn ) {
 		jQuery( choosePostTypeBtn ).on( 'click', ( event ) => {
 			event.preventDefault();
@@ -84,6 +85,8 @@ if ( chooseConnection && choosePostType && form ) {
 const getURL = () => {
 	const postType =
 		choosePostType.options[ choosePostType.selectedIndex ].value;
+	const postCategory =
+		choosePostCategory.options[ choosePostCategory.selectedIndex ].value;
 	const baseURL =
 		chooseConnection.options[ chooseConnection.selectedIndex ].getAttribute(
 			'data-pull-url'
@@ -96,5 +99,5 @@ const getURL = () => {
 		status = 'pulled';
 	}
 
-	return `${ baseURL }&pull_post_type=${ postType }&status=${ status }`;
+	return `${ baseURL }&pull_post_type=${ postType }&pull_post_category=${ postCategory }&status=${ status }`;
 };
