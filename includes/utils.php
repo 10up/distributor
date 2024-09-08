@@ -912,7 +912,10 @@ function process_media( $url, $post_id, $args = [] ) {
 			'jpeg',
 			'jpe',
 			'gif',
-			'png'
+			'png',
+			'webp',
+			'heic',
+			'avif',
 		),
 		$url,
 		$post_id

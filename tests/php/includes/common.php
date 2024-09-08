@@ -266,6 +266,9 @@ function get_allowed_mime_types() {
 		'bmp'          => 'image/bmp',
 		'tif|tiff'     => 'image/tiff',
 		'ico'          => 'image/x-icon',
+		'webp'         => 'image/webp',
+		'heic'         => 'image/heic',
+		'avif'         => 'image/avif',
 	];
 }
 
