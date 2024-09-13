@@ -73,9 +73,10 @@ if ( defined( 'DT_REMOVE_ALL_DATA' ) && true === DT_REMOVE_ALL_DATA ) {
 		// Prepare the WHERE clause for the options table.
 		$where_clause = implode( ' OR ', array_fill( 0, count( $option_prefixes ), "option_name LIKE %s" ) );
 
+		// Prepare the query.
 		$query = $wpdb->prepare(
 			sprintf(
-				"SELECT option_id FROM $wpdb->options WHERE %s;",
+				"SELECT option_id, option_name FROM $wpdb->options WHERE %s;",
 				$where_clause
 			),
 			array_map( function( $prefix ) use ( $wpdb ) {
@@ -84,10 +85,12 @@ if ( defined( 'DT_REMOVE_ALL_DATA' ) && true === DT_REMOVE_ALL_DATA ) {
 		);
 
 		// Fetch the options to delete.
-		$options_to_delete = $wpdb->get_col( $query );
+		$options_to_delete = $wpdb->get_results( $query, ARRAY_A );
 
 		if ( ! empty( $options_to_delete ) ) {
-			$ids_string = implode( ',', array_map( 'intval', $options_to_delete ) );
+			// Collect IDs from fetched options.
+			$ids        = array_column( $options_to_delete, 'option_id' );
+			$ids_string = implode( ',', array_map( 'intval', $ids ) );
 
 			// Delete the options using the retrieved IDs.
 			$wpdb->query(
@@ -97,7 +100,8 @@ if ( defined( 'DT_REMOVE_ALL_DATA' ) && true === DT_REMOVE_ALL_DATA ) {
 			);
 
 			// Flush the options cache.
-			wp_cache_delete_multiple( $options_to_delete, 'options' );
+			$option_names = array_column( $options_to_delete, 'option_name' );
+			wp_cache_delete_multiple( $option_names, 'options' );
 
 			// Flush the alloptions cache.
 			wp_cache_delete( 'alloptions', 'options' );
