@@ -6,6 +6,7 @@
  * @since   x.x.x
  */
 
+ // phpcs:disable WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber
 
 if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
 	die;
@@ -44,7 +45,8 @@ if ( defined( 'DT_REMOVE_ALL_DATA' ) && true === DT_REMOVE_ALL_DATA ) {
 			// Delete subscription posts.
 			$wpdb->query(
 				$wpdb->prepare(
-					"DELETE FROM $wpdb->posts WHERE ID IN ($ids_string)"
+					"DELETE FROM $wpdb->posts WHERE ID IN (%s)",
+					$ids_string
 				)
 			);
 
@@ -81,7 +83,7 @@ if ( defined( 'DT_REMOVE_ALL_DATA' ) && true === DT_REMOVE_ALL_DATA ) {
 		}
 
 		// Prepare the WHERE clause for the options table.
-		$where_clause = implode( ' OR ', array_fill( 0, count( $option_prefixes ), "option_name LIKE %s" ) );
+		$where_clause = implode( ' OR ', array_fill( 0, count( $option_prefixes ), 'option_name LIKE %s' ) );
 
 		// Prepare the query.
 		$query = $wpdb->prepare(
@@ -89,9 +91,12 @@ if ( defined( 'DT_REMOVE_ALL_DATA' ) && true === DT_REMOVE_ALL_DATA ) {
 				"SELECT option_id, option_name FROM $wpdb->options WHERE %s;",
 				$where_clause
 			),
-			array_map( function( $prefix ) use ( $wpdb ) {
-				return $wpdb->esc_like( $prefix ) . '%';
-			}, $option_prefixes )
+			array_map(
+				function( $prefix ) use ( $wpdb ) {
+					return $wpdb->esc_like( $prefix ) . '%';
+				},
+				$option_prefixes 
+			)
 		);
 
 		// Fetch the options to delete.
@@ -131,7 +136,7 @@ if ( defined( 'DT_REMOVE_ALL_DATA' ) && true === DT_REMOVE_ALL_DATA ) {
 		);
 
 		// Prepare the WHERE clause for the sitemeta table.
-		$where_clause = implode( ' OR ', array_fill( 0, count( $option_prefixes ), "meta_key LIKE %s" ) );
+		$where_clause = implode( ' OR ', array_fill( 0, count( $option_prefixes ), 'meta_key LIKE %s' ) );
 
 		$site_id = get_current_network_id();
 
@@ -140,9 +145,15 @@ if ( defined( 'DT_REMOVE_ALL_DATA' ) && true === DT_REMOVE_ALL_DATA ) {
 				"SELECT meta_id, meta_key FROM $wpdb->sitemeta WHERE site_id = %%d AND (%s);",
 				$where_clause
 			),
-			array_merge( [ $site_id ], array_map( function( $prefix ) use ( $wpdb ) {
-				return $wpdb->esc_like( $prefix ) . '%';
-			}, $option_prefixes ) )
+			array_merge(
+				[ $site_id ],
+				array_map(
+					function( $prefix ) use ( $wpdb ) {
+						return $wpdb->esc_like( $prefix ) . '%';
+					},
+					$option_prefixes 
+				) 
+			)
 		);
 
 		// Fetch the sitemeta to delete.
@@ -162,9 +173,12 @@ if ( defined( 'DT_REMOVE_ALL_DATA' ) && true === DT_REMOVE_ALL_DATA ) {
 
 			// Flush the site options cache.
 			$key_names = array_column( $sitemeta_to_delete, 'meta_key' );
-			$key_names = array_map( function( $key ) use ( $site_id ) {
-				return $site_id . ':' . $key;
-			}, $key_names );
+			$key_names = array_map(
+				function( $key ) use ( $site_id ) {
+					return $site_id . ':' . $key;
+				},
+				$key_names 
+			);
 			wp_cache_delete_multiple( $key_names, 'site-options' );
 		}
 	}
