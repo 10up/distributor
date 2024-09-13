@@ -127,7 +127,7 @@ if ( defined( 'DT_REMOVE_ALL_DATA' ) && true === DT_REMOVE_ALL_DATA ) {
 
 		$query = $wpdb->prepare(
 			sprintf(
-				"SELECT meta_id FROM $wpdb->sitemeta WHERE site_id = %%d AND (%s);",
+				"SELECT meta_id, meta_key FROM $wpdb->sitemeta WHERE site_id = %%d AND (%s);",
 				$where_clause
 			),
 			array_merge( [ $site_id ], array_map( function( $prefix ) use ( $wpdb ) {
@@ -136,10 +136,12 @@ if ( defined( 'DT_REMOVE_ALL_DATA' ) && true === DT_REMOVE_ALL_DATA ) {
 		);
 
 		// Fetch the sitemeta to delete.
-		$sitemeta_to_delete = $wpdb->get_col( $query );
+		$sitemeta_to_delete = $wpdb->get_results( $query, ARRAY_A );
 
 		if ( ! empty( $sitemeta_to_delete ) ) {
-			$ids_string = implode( ',', array_map( 'intval', $sitemeta_to_delete ) );
+			// Collect IDs from fetched options.
+			$ids        = array_column( $sitemeta_to_delete, 'meta_id' );
+			$ids_string = implode( ',', array_map( 'intval', $ids ) );
 
 			// Delete the sitemeta using the retrieved IDs.
 			$wpdb->query(
@@ -149,7 +151,11 @@ if ( defined( 'DT_REMOVE_ALL_DATA' ) && true === DT_REMOVE_ALL_DATA ) {
 			);
 
 			// Flush the site options cache.
-			wp_cache_delete_multiple( $sitemeta_to_delete, 'site-options' );
+			$key_names = array_column( $sitemeta_to_delete, 'meta_key' );
+			$key_names = array_map( function( $key ) use ( $site_id ) {
+				return $site_id . ':' . $key;
+			}, $key_names );
+			wp_cache_delete_multiple( $key_names, 'site-options' );
 		}
 	}
 
