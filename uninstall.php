@@ -70,6 +70,16 @@ if ( defined( 'DT_REMOVE_ALL_DATA' ) && true === DT_REMOVE_ALL_DATA ) {
 			'_transient_timeout_dt_',
 		);
 
+		if ( is_multisite() ) {
+			$option_prefixes = array_merge(
+				$option_prefixes,
+				array(
+					'_site_transient_dt_',
+					'_site_transient_timeout_dt_',
+				)
+			);
+		}
+
 		// Prepare the WHERE clause for the options table.
 		$where_clause = implode( ' OR ', array_fill( 0, count( $option_prefixes ), "option_name LIKE %s" ) );
 
