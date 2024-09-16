@@ -72,7 +72,9 @@ if ( defined( 'DT_REMOVE_ALL_DATA' ) && true === DT_REMOVE_ALL_DATA ) {
 			'_transient_timeout_dt_',
 		);
 
-		if ( is_multisite() ) {
+		// Site transients can be used on single sites too.
+		// See https://github.com/10up/distributor/pull/540#discussion_r1759587692
+		if ( ! is_multisite() ) {
 			$option_prefixes = array_merge(
 				$option_prefixes,
 				array(
