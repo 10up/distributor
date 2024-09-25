@@ -276,6 +276,7 @@ Cypress.Commands.add( 'createTweetOEmbedPost', ( tweetUrl ) => {
 		title: postTitle,
 		beforeSave: () => {
 			cy.insertBlock( 'core/embed/twitter', 'Twitter' ).then( ( id ) => {
+				cy.wait( 1000 );
 				cy.getBlockEditor()
 					.find( `#${ id } input[aria-label="Twitter URL"]` )
 					.click()
