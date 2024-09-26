@@ -2,21 +2,20 @@
 # This file is distributed under the GPLv2 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: Distributor 2.0.5\n"
+"Project-Id-Version: Distributor 2.0.6\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/distributor\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2024-08-15T16:57:47+00:00\n"
+"POT-Creation-Date: 2024-09-26T15:13:23+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.11.0\n"
 "X-Domain: distributor\n"
 
 #. Plugin Name of the plugin
 #: distributor.php
-#: dist/js/gutenberg-plugin.min.js:4
 #: release/dist/js/gutenberg-plugin.min.js:1
 msgid "Distributor"
 msgstr ""
@@ -161,73 +160,73 @@ msgstr ""
 msgid "Authorization error:"
 msgstr ""
 
-#: includes/classes/Authentications/WordPressBasicAuth.php:66
+#: includes/classes/Authentications/WordPressBasicAuth.php:122
 #: release/includes/classes/Authentications/WordPressBasicAuth.php:66
 msgid "Remote Connection Wizard"
 msgstr ""
 
-#: includes/classes/Authentications/WordPressBasicAuth.php:68
+#: includes/classes/Authentications/WordPressBasicAuth.php:124
 #: release/includes/classes/Authentications/WordPressBasicAuth.php:68
 msgid "Enter the URL of a site that also has the latest version of Distributor installed and the wizard will attempt to generate an application-specific password and fill in the rest of the connection details for you."
 msgstr ""
 
-#: includes/classes/Authentications/WordPressBasicAuth.php:71
+#: includes/classes/Authentications/WordPressBasicAuth.php:127
 #: release/includes/classes/Authentications/WordPressBasicAuth.php:71
 msgid "If you are not already logged in to the other site, you will be prompted to log in before continuing. The login details you enter will not be stored on this site."
 msgstr ""
 
-#: includes/classes/Authentications/WordPressBasicAuth.php:73
+#: includes/classes/Authentications/WordPressBasicAuth.php:129
 #: release/includes/classes/Authentications/WordPressBasicAuth.php:73
 msgid "External Site URL"
 msgstr ""
 
-#: includes/classes/Authentications/WordPressBasicAuth.php:77
+#: includes/classes/Authentications/WordPressBasicAuth.php:133
 #: release/includes/classes/Authentications/WordPressBasicAuth.php:77
 msgid "Authorize Connection"
 msgstr ""
 
-#: includes/classes/Authentications/WordPressBasicAuth.php:80
+#: includes/classes/Authentications/WordPressBasicAuth.php:136
 #: release/includes/classes/Authentications/WordPressBasicAuth.php:80
 msgid "Manually Set Up Connection"
 msgstr ""
 
-#: includes/classes/Authentications/WordPressBasicAuth.php:84
+#: includes/classes/Authentications/WordPressBasicAuth.php:140
 #: release/includes/classes/Authentications/WordPressBasicAuth.php:84
 msgid "Checking the connection..."
 msgstr ""
 
-#: includes/classes/Authentications/WordPressBasicAuth.php:90
+#: includes/classes/Authentications/WordPressBasicAuth.php:146
 #: release/includes/classes/Authentications/WordPressBasicAuth.php:90
 msgid "Note: the remote site must also be running Distributor version 1.6.0 or higher to use this wizard. If not, please manually set up the connection."
 msgstr ""
 
-#: includes/classes/Authentications/WordPressBasicAuth.php:95
+#: includes/classes/Authentications/WordPressBasicAuth.php:151
 #: release/includes/classes/Authentications/WordPressBasicAuth.php:95
 msgid "Edit configuration"
 msgstr ""
 
-#: includes/classes/Authentications/WordPressBasicAuth.php:97
+#: includes/classes/Authentications/WordPressBasicAuth.php:153
 #: release/includes/classes/Authentications/WordPressBasicAuth.php:97
 msgid "Username"
 msgstr ""
 
-#: includes/classes/Authentications/WordPressBasicAuth.php:100
+#: includes/classes/Authentications/WordPressBasicAuth.php:156
 #: release/includes/classes/Authentications/WordPressBasicAuth.php:100
 msgid "A username from the external WordPress site to connect with. For full functionality, this needs to be a user with an administrator role."
 msgstr ""
 
-#: includes/classes/Authentications/WordPressBasicAuth.php:103
+#: includes/classes/Authentications/WordPressBasicAuth.php:159
 #: release/includes/classes/Authentications/WordPressBasicAuth.php:103
 msgid "Password"
 msgstr ""
 
-#: includes/classes/Authentications/WordPressBasicAuth.php:106
+#: includes/classes/Authentications/WordPressBasicAuth.php:162
 #: release/includes/classes/Authentications/WordPressBasicAuth.php:106
 msgid "(Change)"
 msgstr ""
 
 #. translators: %s: Application Passwords documentation URL
-#: includes/classes/Authentications/WordPressBasicAuth.php:121
+#: includes/classes/Authentications/WordPressBasicAuth.php:177
 #: release/includes/classes/Authentications/WordPressBasicAuth.php:121
 msgid "<strong>Important:</strong> We strongly recommend using the <a href=\"%s\">Application Passwords</a> feature on the site you are connecting to in order to create a unique password for this connection. This helps limit the use of your primary password and will allow you to revoke access in the future if needed."
 msgstr ""
@@ -531,7 +530,7 @@ msgstr ""
 #: includes/classes/PullListTable.php:643
 #: release/includes/classes/PullListTable.php:342
 #: release/includes/classes/PullListTable.php:358
-#: release/includes/classes/PullListTable.php:645
+#: release/includes/classes/PullListTable.php:643
 #: dist/js/admin-pull.min.js:1
 #: release/dist/js/admin-pull.min.js:1
 msgid "Pull as draft"
@@ -592,12 +591,12 @@ msgid "Bulk Actions"
 msgstr ""
 
 #: includes/classes/PullListTable.php:625
-#: release/includes/classes/PullListTable.php:626
+#: release/includes/classes/PullListTable.php:625
 msgid "View all"
 msgstr ""
 
 #: includes/classes/PullListTable.php:633
-#: release/includes/classes/PullListTable.php:635
+#: release/includes/classes/PullListTable.php:633
 msgid "Filter"
 msgstr ""
 
@@ -653,6 +652,8 @@ msgid "Please enter a valid URL, including the HTTP(S)."
 msgstr ""
 
 #: dist/js/admin-external-connection.min.js:2
+#: dist/js/gutenberg-plugin.min.js:4
+#: dist/js/gutenberg-plugin.min.js:6
 #: release/dist/js/admin-external-connection.min.js:1
 msgid "Cancel"
 msgstr ""
@@ -699,8 +700,66 @@ msgstr[1] ""
 
 #. translators: 1: Syndication date and time.
 #: dist/js/gutenberg-plugin.min.js:4
-#: release/dist/js/gutenberg-plugin.min.js:1
-msgid "Distributed on: %1$s"
+msgid "Pulled on %1$s from %2$s"
+msgstr ""
+
+#: dist/js/gutenberg-plugin.min.js:4
+msgid "This post has been unlinked from the "
+msgstr ""
+
+#: dist/js/gutenberg-plugin.min.js:4
+#: dist/js/gutenberg-plugin.min.js:5
+msgid "Original Content"
+msgstr ""
+
+#: dist/js/gutenberg-plugin.min.js:4
+msgid "Restore link to Original"
+msgstr ""
+
+#: dist/js/gutenberg-plugin.min.js:4
+msgid "Restoring the link to the "
+msgstr ""
+
+#: dist/js/gutenberg-plugin.min.js:4
+msgid " will start updating this post automatically from the Original, overwriting current content."
+msgstr ""
+
+#: dist/js/gutenberg-plugin.min.js:4
+msgid "Restore link"
+msgstr ""
+
+#. translators: 1: Syndication date and time.
+#: dist/js/gutenberg-plugin.min.js:5
+msgid "Pulled & linked on %1$s from %2$s"
+msgstr ""
+
+#: dist/js/gutenberg-plugin.min.js:5
+msgid "Updating the "
+msgstr ""
+
+#: dist/js/gutenberg-plugin.min.js:5
+msgid "will update this post automatically."
+msgstr ""
+
+#: dist/js/gutenberg-plugin.min.js:5
+msgid "Unlink from Original"
+msgstr ""
+
+#. translators: %1$s: Original Content URL Opening Tag, %2$s: Original Content URL Closing Tag
+#: dist/js/gutenberg-plugin.min.js:6
+msgid "Unlinking from the %1$sOriginal Content%2$s will stop updating this post automatically."
+msgstr ""
+
+#: dist/js/gutenberg-plugin.min.js:6
+msgid "Unlink"
+msgstr ""
+
+#: dist/js/gutenberg-plugin.min.js:6
+msgid "Unlinked Content"
+msgstr ""
+
+#: dist/js/gutenberg-plugin.min.js:6
+msgid "Pulled Content"
 msgstr ""
 
 #. translators: 1) Source of content, 2) Distributor post type singular name.
@@ -755,3 +814,7 @@ msgid "Selected connection (%d)"
 msgid_plural "Selected connections (%d)"
 msgstr[0] ""
 msgstr[1] ""
+
+#: release/dist/js/gutenberg-plugin.min.js:1
+msgid "Distributed on: %1$s"
+msgstr ""
