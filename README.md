@@ -1,34 +1,17 @@
-<img alt="Distributor icon" src="https://github.com/10up/distributor/blob/trunk/assets/img/icon.svg" height="45" width="45" align="left">
-
 # Distributor
+
+![Distributor](https://github.com/10up/distributor/blob/develop/assets/img/banner-1544x500.png)
+
+[![Support Level](https://img.shields.io/badge/support-active-green.svg)](#support-level) [![Release Version](https://img.shields.io/github/release/10up/distributor.svg)](https://github.com/10up/distributor/releases/latest) ![WordPress tested up to version](https://img.shields.io/badge/WordPress-v6.6%20tested-success.svg) [![License](https://img.shields.io/github/license/10up/distributor.svg)](https://github.com/10up/distributor/blob/develop/LICENSE.md) [![Dependency Review](https://github.com/10up/distributor/actions/workflows/dependency-review.yml/badge.svg)](https://github.com/10up/distributor/actions/workflows/dependency-review.yml)
+[![E2E Tests](https://github.com/10up/distributor/actions/workflows/cypress.yml/badge.svg)](https://github.com/10up/distributor/actions/workflows/cypress.yml) [![PHPUnit Tests](https://github.com/10up/distributor/actions/workflows/test.yml/badge.svg)](https://github.com/10up/distributor/actions/workflows/test.yml) [![Linting](https://github.com/10up/distributor/actions/workflows/lint.yml/badge.svg)](https://github.com/10up/distributor/actions/workflows/lint.yml) [![Code scanning](https://github.com/10up/distributor/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/10up/distributor/actions/workflows/codeql-analysis.yml)
 
 > Distributor is a WordPress plugin that makes it easy to distribute and reuse content across your websites — whether in a single multisite or across the web.
 
-[![Support Level](https://img.shields.io/badge/support-active-green.svg)](#support-level) [![Tests](https://github.com/10up/distributor/actions/workflows/test.yml/badge.svg)](https://github.com/10up/distributor/actions/workflows/test.yml) [![Linting](https://github.com/10up/distributor/actions/workflows/lint.yml/badge.svg)](https://github.com/10up/distributor/actions/workflows/lint.yml) [![Code scanning](https://github.com/10up/distributor/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/10up/distributor/actions/workflows/codeql-analysis.yml) [![Release Version](https://img.shields.io/github/release/10up/distributor.svg)](https://github.com/10up/distributor/releases/latest) ![WordPress tested up to version](https://img.shields.io/badge/WordPress-v6.6%20tested-success.svg) [![License](https://img.shields.io/github/license/10up/distributor.svg)](https://github.com/10up/distributor/blob/develop/LICENSE.md)
-
 *You can learn more about Distributor's features at [DistributorPlugin.com](https://distributorplugin.com) and documentation at the [Distributor documentation site](https://10up.github.io/distributor/).*
 
-_Note:_ The latest stable version of the plugin is the _stable_ branch. [Download the stable branch]((https://github.com/10up/distributor/archive/stable.zip)) if you are intending to use the plugin in a Production environment.
+*Note:* The latest stable version of the plugin is the *stable* branch. [Download the stable branch]((https://github.com/10up/distributor/archive/stable.zip)) if you are intending to use the plugin in a Production environment.
 
-## Table of Contents
-* [Features](#features)
-* [Requirements](#requirements)
-* [Installation](#installation)
-  * [Registration](#registration)
-  * [Set Up External Connections](#set-up-external-connections)
-* [How to Distribute Content](#how-to-distribute-content)
-  * [Pushing Content](#pushing-content)
-  * [Pulling Content](#pulling-content)
-* [Known Caveats/Issues](#known-caveatsissues)
-* [Developers](#developers)
-  * [Running Locally](#running-locally)
-  * [Testing](#testing)
-  * [Debugging](#debugging)
-  * [Application Passwords](#application-passwords-and-wordpress-56)
-* [Changelog](#changelog)
-* [Contributing](#contributing)
-
-## Features
+## Overview
 
 Distributor supports safe, SEO-friendly content reuse and sharing via "pushing" and "pulling".
 
@@ -126,33 +109,61 @@ You can navigate to the `Posts` > `All Posts` table list view to see all content
 
 ## Known Caveats/Issues
 
-__Remote Request Timeouts__ - With external connections, HTTP requests are sent back and forth - creating posts, transferring images, syncing post updates, etc. In certain situations, mostly commonly when distributing posts with a large number of images (or very large file sizes), using poorly configured or saturated servers / hosts, or using plugins that add significant weight to post creation, Distributor requests can fail. Although we do some error handling, there are certain cases in which post distribution can fail silently. If distribution requests are taking a long time to load and/or failing, consider adjusting the timeout; you can filter the timeout for pushing external posts using the [`dt_push_post_timeout` filter](https://10up.github.io/distributor/dt_push_post_timeout.html). More advanced handling of large content requests, and improved error handling is on the road map for a future update.
+### Remote Request Timeouts
 
-__Post Meta Associations__ - A distributed post includes all of the post meta from the original version. Sometimes arbitrary post meta references an ID for another piece of content on the original site. Distributor _does not_ "bring along" the referenced content or update references for arbitrary post meta (it will take care of updating references in the case of core WordPress features, such as the featured image ID). This issue is very common when using field management plugins like Advanced Custom Fields (ACF). This can be addressed on a case by case basis by extending the plugin; for external connections, you can manually handle post meta associations using [the `dt_push_post` hook](https://github.com/10up/distributor/blob/f7b60740e679bce4671ccd69a670abadce4f2f93/includes/classes/ExternalConnections/WordPressExternalConnection.php#L646). For internal connections, use the [`dt_push_post` hook](https://10up.github.io/distributor/dt_push_post.html). Note that while named the same, these hooks accept different parameters.
+With external connections, HTTP requests are sent back and forth - creating posts, transferring images, syncing post updates, etc. In certain situations, mostly commonly when distributing posts with a large number of images (or very large file sizes), using poorly configured or saturated servers / hosts, or using plugins that add significant weight to post creation, Distributor requests can fail. Although we do some error handling, there are certain cases in which post distribution can fail silently. If distribution requests are taking a long time to load and/or failing, consider adjusting the timeout; you can filter the timeout for pushing external posts using the [`dt_push_post_timeout` filter](https://10up.github.io/distributor/dt_push_post_timeout.html). More advanced handling of large content requests, and improved error handling is on the road map for a future update.
 
-__Deleting Distributed Posts__ - When a post that has been distributed is deleted, the distributed copies will become unlinked ("forked") from the original and thus become editable. Similarly, when a distributed post is unpublished, distributed copies will not be unpublished. More sophisticated "removal" workflow is on the road map for a future update.
+### Post Meta Associations
 
-__Gutenberg Block Mismatch__ - When distributing a Gutenberg post to another site that supports Gutenberg, if a block in the post does not exist on the receiving site, the block will be converted to a "Classic" HTML block.
+A distributed post includes all of the post meta from the original version. Sometimes arbitrary post meta references an ID for another piece of content on the original site. Distributor _does not_ "bring along" the referenced content or update references for arbitrary post meta (it will take care of updating references in the case of core WordPress features, such as the featured image ID). This issue is very common when using field management plugins like Advanced Custom Fields (ACF). This can be addressed on a case by case basis by extending the plugin; for external connections, you can manually handle post meta associations using [the `dt_push_post` hook](https://github.com/10up/distributor/blob/f7b60740e679bce4671ccd69a670abadce4f2f93/includes/classes/ExternalConnections/WordPressExternalConnection.php#L646). For internal connections, use the [`dt_push_post` hook](https://10up.github.io/distributor/dt_push_post.html). Note that while named the same, these hooks accept different parameters.
 
-__Parent Posts__ - Distributor does not "bring along" parent (or child posts). If your post (or custom post type) has a parent or a child, it will distribute it as if it's an orphan.
+### Deleting Distributed Posts
 
-__Custom Post Type Support__ - Internal Connections (multisite) support multiple post types. In order for distribution to work with External Connections that have custom post type content, that post type needs to be registered with the argument `show_in_rest => true` on the external site.
+When a post that has been distributed is deleted, the distributed copies will become unlinked ("forked") from the original and thus become editable. Similarly, when a distributed post is unpublished, distributed copies will not be unpublished. More sophisticated "removal" workflow is on the road map for a future update.
 
-__Unable to Push to New Custom Post Types__ - If new Custom Post Types are created after establishing an External Connection, you will only be able to `Pull` those from an External Connection. To ensure you are able to `Push` new Custom Post Types to an External Connection, you will need to update the External Connection by editing it and then clicking the `Update connection` button.
+### Gutenberg Block Mismatch
 
-__Backwards Compatibility__ - While we strive to be mindful of backwards compatibility much the same way WordPress itself is, we do not currently guarantee continued interoperability between different versions of Distributor. We assume the current userbase for this plugin has a high degree of control over any site that has been set up as an external connection and urge you to keep Distributor up to date.
+When distributing a Gutenberg post to another site that supports Gutenberg, if a block in the post does not exist on the receiving site, the block will be converted to a "Classic" HTML block.
 
-__Distributing Post content__ - By default, post content is rendered before being copied.  This means that shortcodes are expanded before being distributed and remote posts will not have the shortcode, but rather the expanded HTML content.
+### Parent Posts
 
-__Distributing Authors__ - By default, distributed posts reference the original site as the "author" with a link to it.  This can be altered by extending Distributor with custom code to make it sync authors.
+Distributor does not "bring along" parent (or child posts). If your post (or custom post type) has a parent or a child, it will distribute it as if it's an orphan.
 
-__Distributing Post Date__ - By default, the "post date" on distributed posts is the date its published on the remote site, not the date published on the origin site.  This can be overridden by extending Distributor with custom code to make it preserve the post date.
+### Custom Post Type Support
 
-__Distributing Canonical URL__ - By default, canonical URL of distributed post will point to original content, which corresponds to SEO best practices. This can be overridden by extending Distributor with custom code and removing Distributor's default front end canonical URL filtering (look for `'get_canonical_url'` and `'wpseo_canonical'`).
+Internal Connections (multisite) support multiple post types. In order for distribution to work with External Connections that have custom post type content, that post type needs to be registered with the argument `show_in_rest => true` on the external site.
 
-__Drafts as Preferred Status__ - By default, drafts are the preferred status and can't be changed at the source site.
+### Unable to Push to New Custom Post Types
 
-__Conflicts with Security plugins__ - Oftentimes the communication Distributor attempts to make across sites using the REST API will be flagged by various security plugins and surreptitiously blocked.  If you run into an issue like this, please reach out to the support for your security plugin and ask about getting Distributor unblocked ([here is an example for doing so with Wordfence](https://wordpress.org/support/topic/distributor-plugin-being-blocked/)).
+If new Custom Post Types are created after establishing an External Connection, you will only be able to `Pull` those from an External Connection. To ensure you are able to `Push` new Custom Post Types to an External Connection, you will need to update the External Connection by editing it and then clicking the `Update connection` button.
+
+### Backwards Compatibility
+
+While we strive to be mindful of backwards compatibility much the same way WordPress itself is, we do not currently guarantee continued interoperability between different versions of Distributor. We assume the current userbase for this plugin has a high degree of control over any site that has been set up as an external connection and urge you to keep Distributor up to date.
+
+### Distributing Post content
+
+By default, post content is rendered before being copied.  This means that shortcodes are expanded before being distributed and remote posts will not have the shortcode, but rather the expanded HTML content.
+
+### Distributing Authors
+
+By default, distributed posts reference the original site as the "author" with a link to it.  This can be altered by extending Distributor with custom code to make it sync authors.
+
+### Distributing Post Date
+
+By default, the "post date" on distributed posts is the date its published on the remote site, not the date published on the origin site.  This can be overridden by extending Distributor with custom code to make it preserve the post date.
+
+### Distributing Canonical URL
+
+By default, canonical URL of distributed post will point to original content, which corresponds to SEO best practices. This can be overridden by extending Distributor with custom code and removing Distributor's default front end canonical URL filtering (look for `'get_canonical_url'` and `'wpseo_canonical'`).
+
+### Drafts as Preferred Status
+
+By default, drafts are the preferred status and can't be changed at the source site.
+
+### Conflicts with Security plugins
+
+Oftentimes the communication Distributor attempts to make across sites using the REST API will be flagged by various security plugins and surreptitiously blocked.  If you run into an issue like this, please reach out to the support for your security plugin and ask about getting Distributor unblocked ([here is an example for doing so with Wordfence](https://wordpress.org/support/topic/distributor-plugin-being-blocked/)).
 
 ## Developers
 
