@@ -493,7 +493,7 @@ function syndicated_message( $post ) {
 							);
 						// phpcs:ignore Squiz.PHP.EmbeddedPhp.ContentAfterEnd, avoids layout issues.
 						?></a></span>
-					<span><a href="<?php echo esc_url( $original_post_url ); ?>">
+					<span><a href="<?php echo esc_url( $original_post_url ); ?>" target="_blank">
 						<?php
 							printf(
 								/* translators: 1) Distributor post type singular name. */
@@ -529,7 +529,7 @@ function syndicated_message( $post ) {
 					);
 				// phpcs:ignore Squiz.PHP.EmbeddedPhp.ContentAfterEnd, avoids layout issues.
 				?></a></span>
-				<span><a href="<?php echo esc_url( $original_post_url ); ?>">
+				<span><a href="<?php echo esc_url( $original_post_url ); ?>" target="_blank">
 				<?php
 					printf(
 						/* translators: 1) Distributor post type singular name. */
