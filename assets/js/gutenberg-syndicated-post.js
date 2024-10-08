@@ -45,7 +45,12 @@ if (
 				__( 'View the origin %1$s.', 'distributor' ),
 				dtGutenberg.postTypeSingular.toLowerCase()
 			),
-			url: dtGutenberg.postUrl,
+			url: false,
+			className: 'action-link is-link',
+			onClick: function(e) {
+				e.preventDefault();
+				window.open(dtGutenberg.postUrl, 'blank')
+			},
 		} );
 	} else {
 		message = sprintf(
@@ -73,7 +78,12 @@ if (
 				__( 'View the origin %1$s.', 'distributor' ),
 				dtGutenberg.postTypeSingular.toLowerCase()
 			),
-			url: dtGutenberg.postUrl,
+			url: false,
+			className: 'action-link is-link',
+			onClick: function(e) {
+				e.preventDefault();
+				window.open(dtGutenberg.postUrl, 'blank')
+			},
 		} );
 	}
 
