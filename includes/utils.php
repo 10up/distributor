@@ -1083,7 +1083,7 @@ function update_image_block_attributes( array $blocks, array $media_item, int $i
 function update_content_image_urls( int $post_id, int $image_id, array $media_item ) {
 	$dt_post = new DistributorPost( $post_id );
 
-	if ( ! $dt_post || ! $dt_post->has_blocks() ) {
+	if ( ! $dt_post ) {
 		return;
 	}
 
@@ -1101,6 +1101,29 @@ function update_content_image_urls( int $post_id, int $image_id, array $media_it
 	 * @return {bool} Whether image URLs should be updated.
 	 */
 	if ( ! apply_filters( 'dt_update_content_image_urls', true, $post_id, $image_id, $media_item ) ) {
+		return;
+	}
+
+	// Process classic editor differently.
+	if ( ! $dt_post->has_blocks() ) {
+		$processor = new \WP_HTML_Tag_Processor( $dt_post->post->post_content );
+
+		while ( $processor->next_tag( 'img' ) ) {
+			$processor->set_attribute( 'src', wp_get_attachment_url( $image_id ) );
+			$processor->add_class( 'wp-image-' . $image_id );
+			$processor->remove_class( 'wp-image-' . $media_item['id'] );
+			$processor->remove_attribute( 'srcset' );
+			$processor->remove_attribute( 'sizes' );
+		}
+
+		// Update the post content.
+		wp_update_post(
+			[
+				'ID'           => $post_id,
+				'post_content' => $processor->get_updated_html(),
+			]
+		);
+
 		return;
 	}
 
