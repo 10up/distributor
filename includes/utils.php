@@ -1037,19 +1037,41 @@ function process_media( $url, $post_id, $args = [] ) {
 }
 
 /**
- * Update an image block with the new image information.
+ * Find and update an image tag.
+ *
+ * @param string $content The post content.
+ * @param array  $media_item The old media item details.
+ * @param int    $image_id The new image ID.
+ * @return string
+ */
+function update_image_tag( string $content, array $media_item, int $image_id ) {
+	$processor = new \WP_HTML_Tag_Processor( $content );
+
+	while ( $processor->next_tag( 'img' ) ) {
+		$processor->set_attribute( 'src', wp_get_attachment_url( $image_id ) );
+		$processor->add_class( 'wp-image-' . $image_id );
+		$processor->remove_class( 'wp-image-' . $media_item['id'] );
+		$processor->remove_attribute( 'srcset' );
+		$processor->remove_attribute( 'sizes' );
+	}
+
+	return $processor->get_updated_html();
+}
+
+/**
+ * Find and update an image block.
  *
  * @param array $blocks All blocks in a post.
  * @param array $media_item The old media item details.
  * @param int   $image_id The new image ID.
  * @return array
  */
-function update_image_block_attributes( array $blocks, array $media_item, int $image_id ) {
+function update_image_block( array $blocks, array $media_item, int $image_id ) {
 	// Find and update all image blocks that match the old image ID.
 	foreach ( $blocks as $key => $block ) {
 		// Recurse into inner blocks.
 		if ( ! empty( $block['innerBlocks'] ) ) {
-			$blocks[ $key ]['innerBlocks'] = update_image_block_attributes( $block['innerBlocks'], $media_item, $image_id );
+			$blocks[ $key ]['innerBlocks'] = update_image_block( $block['innerBlocks'], $media_item, $image_id );
 		}
 
 		// If the block is an image block and the ID matches, update the ID and URL.
@@ -1106,38 +1128,26 @@ function update_content_image_urls( int $post_id, int $image_id, array $media_it
 
 	// Process classic editor differently.
 	if ( ! $dt_post->has_blocks() ) {
-		$processor = new \WP_HTML_Tag_Processor( $dt_post->post->post_content );
+		$content = update_image_tag( $dt_post->post->post_content, $media_item, $image_id );
+	} else {
+		// Parse out the blocks.
+		$blocks = parse_blocks( $dt_post->post->post_content );
 
-		while ( $processor->next_tag( 'img' ) ) {
-			$processor->set_attribute( 'src', wp_get_attachment_url( $image_id ) );
-			$processor->add_class( 'wp-image-' . $image_id );
-			$processor->remove_class( 'wp-image-' . $media_item['id'] );
-			$processor->remove_attribute( 'srcset' );
-			$processor->remove_attribute( 'sizes' );
-		}
-
-		// Update the post content.
-		wp_update_post(
-			[
-				'ID'           => $post_id,
-				'post_content' => $processor->get_updated_html(),
-			]
-		);
-
-		return;
+		// Update the image block attributes.
+		$updated_blocks = update_image_block( $blocks, $media_item, $image_id );
+		$content        = serialize_blocks( $updated_blocks );
 	}
 
-	// Parse out the blocks.
-	$blocks = parse_blocks( $dt_post->post->post_content );
-
-	// Update the image block attributes.
-	$blocks = update_image_block_attributes( $blocks, $media_item, $image_id );
+	// No need to update if the content wasn't modified.
+	if ( $content === $dt_post->post->post_content ) {
+		return;
+	}
 
 	// Update the post content.
 	wp_update_post(
 		[
 			'ID'           => $post_id,
-			'post_content' => serialize_blocks( $blocks ),
+			'post_content' => $content,
 		]
 	);
 }
