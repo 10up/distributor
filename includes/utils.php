@@ -782,6 +782,11 @@ function set_media( $post_id, $media, $args = [] ) {
 			set_meta( $image_id, $media_item['meta'] );
 		}
 
+		// Update media URLs in content.
+		if ( 'featured' !== $settings['media_handling'] ) {
+			update_content_image_urls( (int) $post_id, (int) $image_id, $media_item );
+		}
+
 		// Transfer post properties
 		wp_update_post(
 			[
@@ -1029,6 +1034,89 @@ function process_media( $url, $post_id, $args = [] ) {
 	}
 
 	return (int) $result;
+}
+
+/**
+ * Update an image block with the new image information.
+ *
+ * @param array $blocks All blocks in a post.
+ * @param array $media_item The old media item details.
+ * @param int   $image_id The new image ID.
+ * @return array
+ */
+function update_image_block_attributes( array $blocks, array $media_item, int $image_id ) {
+	// Find and update all image blocks that match the old image ID.
+	foreach ( $blocks as $key => $block ) {
+		// Recurse into inner blocks.
+		if ( ! empty( $block['innerBlocks'] ) ) {
+			$blocks[ $key ]['innerBlocks'] = update_image_block_attributes( $block['innerBlocks'], $media_item, $image_id );
+		}
+
+		// If the block is an image block and the ID matches, update the ID and URL.
+		if ( 'core/image' === $block['blockName'] && $media_item['id'] === $block['attrs']['id'] ) {
+			$blocks[ $key ]['attrs']['id'] = $image_id;
+
+			$processor = new \WP_HTML_Tag_Processor( $blocks[ $key ]['innerHTML'] );
+
+			// Use the HTML API to update the image src and class.
+			if ( $processor->next_tag( 'img' ) ) {
+				$processor->set_attribute( 'src', wp_get_attachment_url( $image_id ) );
+				$processor->add_class( 'wp-image-' . $image_id );
+				$processor->remove_class( 'wp-image-' . $media_item['id'] );
+
+				$blocks[ $key ]['innerHTML']       = $processor->get_updated_html();
+				$blocks[ $key ]['innerContent'][0] = $processor->get_updated_html();
+			}
+		}
+	}
+
+	return $blocks;
+}
+
+/**
+ * For a specific image, update the old URL with the new one.
+ *
+ * @param int   $post_id The post ID.
+ * @param int   $image_id The new image ID.
+ * @param array $media_item The old media item details.
+ */
+function update_content_image_urls( int $post_id, int $image_id, array $media_item ) {
+	$dt_post = new DistributorPost( $post_id );
+
+	if ( ! $dt_post || ! $dt_post->has_blocks() ) {
+		return;
+	}
+
+	/**
+	 * Filter whether image URLS should be updated in the content.
+	 *
+	 * @since x.x.x
+	 * @hook dt_update_content_image_urls
+	 *
+	 * @param {bool}  true        Whether image URLs should be updated. Default `true`.
+	 * @param {int}   $post_id    The post ID.
+	 * @param {int}   $image_id   The new image ID.
+	 * @param {array} $media_item The old media item details.
+	 *
+	 * @return {bool} Whether image URLs should be updated.
+	 */
+	if ( ! apply_filters( 'dt_update_content_image_urls', true, $post_id, $image_id, $media_item ) ) {
+		return;
+	}
+
+	// Parse out the blocks.
+	$blocks = parse_blocks( $dt_post->post->post_content );
+
+	// Update the image block attributes.
+	$blocks = update_image_block_attributes( $blocks, $media_item, $image_id );
+
+	// Update the post content.
+	wp_update_post(
+		[
+			'ID'           => $post_id,
+			'post_content' => serialize_blocks( $blocks ),
+		]
+	);
 }
 
 /**
