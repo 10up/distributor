@@ -1055,9 +1055,16 @@ function update_image_tag( string $content, array $media_item, int $image_id ) {
 	$processor = new \WP_HTML_Tag_Processor( $content );
 
 	while ( $processor->next_tag( 'img' ) ) {
+		$classes = explode( ' ', $processor->get_attribute( 'class' ) ?? ' ' );
+
+		// Only process the image that matches the old ID.
+		if ( ! is_array( $classes ) || ! in_array( 'wp-image-' . $media_item['id'], $classes, true ) ) {
+			continue;
+		}
+
 		// Try to determine the image size from the size class WordPress adds.
 		$image_size   = 'full';
-		$classes      = explode( ' ', $processor->get_attribute( 'class' ) );
+		$classes      = explode( ' ', $processor->get_attribute( 'class' ) ?? [] );
 		$size_classes = array_filter(
 			$classes,
 			function ( $image_class ) {
