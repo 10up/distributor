@@ -734,6 +734,8 @@ function set_media( $post_id, $media, $args = [] ) {
 		$media = ( false !== $featured_key ) ? array( $media[ $featured_key ] ) : array();
 	}
 
+	$image_urls_to_update = [];
+
 	foreach ( $media as $media_item ) {
 
 		$args['source_file'] = $media_item['source_file'];
@@ -782,9 +784,9 @@ function set_media( $post_id, $media, $args = [] ) {
 			set_meta( $image_id, $media_item['meta'] );
 		}
 
-		// Update media URLs in content.
-		if ( 'featured' !== $settings['media_handling'] ) {
-			update_content_image_urls( (int) $post_id, (int) $image_id, $media_item );
+		// Save the images that we need to try updating in the content.
+		if ( 'featured' !== $settings['media_handling'] ) { // TODO: do we want a new setting for this?
+			$image_urls_to_update[ $image_id ] = $media_item;
 		}
 
 		// Transfer post properties
@@ -796,6 +798,11 @@ function set_media( $post_id, $media, $args = [] ) {
 				'post_excerpt' => $media_item['caption']['raw'],
 			]
 		);
+	}
+
+	// Update image URLs in content if needed.
+	if ( ! empty( $image_urls_to_update ) ) {
+		update_content_image_urls( (int) $post_id, $image_urls_to_update );
 	}
 
 	if ( ! $found_featured_image ) {
@@ -1114,13 +1121,12 @@ function update_image_block( array $blocks, array $media_item, int $image_id ) {
 }
 
 /**
- * For a specific image, update the old URL with the new one.
+ * Update all old image URLs with the new ones.
  *
  * @param int   $post_id The post ID.
- * @param int   $image_id The new image ID.
- * @param array $media_item The old media item details.
+ * @param array $images  The old image details.
  */
-function update_content_image_urls( int $post_id, int $image_id, array $media_item ) {
+function update_content_image_urls( int $post_id, array $images ) {
 	$dt_post = new DistributorPost( $post_id );
 
 	if ( ! $dt_post ) {
@@ -1133,27 +1139,30 @@ function update_content_image_urls( int $post_id, int $image_id, array $media_it
 	 * @since x.x.x
 	 * @hook dt_update_content_image_urls
 	 *
-	 * @param {bool}  true        Whether image URLs should be updated. Default `true`.
-	 * @param {int}   $post_id    The post ID.
-	 * @param {int}   $image_id   The new image ID.
-	 * @param {array} $media_item The old media item details.
+	 * @param {bool}  true     Whether image URLs should be updated. Default `true`.
+	 * @param {int}   $post_id The post ID.
+	 * @param {array} $images  The old image details.
 	 *
 	 * @return {bool} Whether image URLs should be updated.
 	 */
-	if ( ! apply_filters( 'dt_update_content_image_urls', true, $post_id, $image_id, $media_item ) ) {
+	if ( ! apply_filters( 'dt_update_content_image_urls', true, $post_id, $images ) ) {
 		return;
 	}
 
-	// Process classic editor differently.
-	if ( ! $dt_post->has_blocks() ) {
-		$content = update_image_tag( $dt_post->post->post_content, $media_item, $image_id );
-	} else {
-		// Parse out the blocks.
-		$blocks = parse_blocks( $dt_post->post->post_content );
+	$content    = $dt_post->post->post_content;
+	$has_blocks = $dt_post->has_blocks();
 
-		// Update the image block attributes.
-		$updated_blocks = update_image_block( $blocks, $media_item, $image_id );
-		$content        = serialize_blocks( $updated_blocks );
+	foreach ( $images as $image_id => $media_item ) {
+		// Process block and classic editor content differently.
+		if ( $has_blocks ) {
+			$blocks = parse_blocks( $content );
+
+			// Update the image block attributes.
+			$updated_blocks = update_image_block( $blocks, $media_item, $image_id );
+			$content        = serialize_blocks( $updated_blocks );
+		} else {
+			$content = update_image_tag( $content, $media_item, $image_id );
+		}
 	}
 
 	// No need to update if the content wasn't modified.
