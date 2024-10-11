@@ -1058,7 +1058,10 @@ function update_image_tag( string $content, array $media_item, int $image_id ) {
 		$classes = explode( ' ', $processor->get_attribute( 'class' ) ?? ' ' );
 
 		// Only process the image that matches the old ID.
-		if ( ! is_array( $classes ) || ! in_array( 'wp-image-' . $media_item['id'], $classes, true ) ) {
+		if (
+			! is_array( $classes ) ||
+			! in_array( 'wp-image-' . $media_item['id'], $classes, true )
+		) {
 			continue;
 		}
 
@@ -1078,7 +1081,19 @@ function update_image_tag( string $content, array $media_item, int $image_id ) {
 			$image_size = str_replace( 'size-', '', $size_class );
 		}
 
-		$processor->set_attribute( 'src', wp_get_attachment_image_url( $image_id, $image_size ) );
+		$src = wp_get_attachment_image_url( $image_id, $image_size );
+
+		// If the image size can't be found, try to get the full size.
+		if ( ! $src ) {
+			$src = wp_get_attachment_image_url( $image_id, 'full' );
+
+			// If we still don't have an image, skip this block.
+			if ( ! $src ) {
+				continue;
+			}
+		}
+
+		$processor->set_attribute( 'src', $src );
 		$processor->add_class( 'wp-image-' . $image_id );
 		$processor->remove_class( 'wp-image-' . $media_item['id'] );
 		$processor->remove_attribute( 'srcset' );
@@ -1114,7 +1129,19 @@ function update_image_block( array $blocks, array $media_item, int $image_id ) {
 
 			// Use the HTML API to update the image src and class.
 			if ( $processor->next_tag( 'img' ) ) {
-				$processor->set_attribute( 'src', wp_get_attachment_image_url( $image_id, $image_size ) );
+				$src = wp_get_attachment_image_url( $image_id, $image_size );
+
+				// If the image size can't be found, try to get the full size.
+				if ( ! $src ) {
+					$src = wp_get_attachment_image_url( $image_id, 'full' );
+
+					// If we still don't have an image, skip this block.
+					if ( ! $src ) {
+						continue;
+					}
+				}
+
+				$processor->set_attribute( 'src', $src );
 				$processor->add_class( 'wp-image-' . $image_id );
 				$processor->remove_class( 'wp-image-' . $media_item['id'] );
 
