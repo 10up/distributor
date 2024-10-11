@@ -1,0 +1,29 @@
+{
+  "$schema": "https://playground.wordpress.net/blueprint-schema.json",
+  "phpExtensionBundles": [
+    "kitchen-sink"
+  ],
+  "features": {
+    "networking": true
+  },
+  "steps": [
+    {
+      "step": "installPlugin",
+      "pluginData": {
+        "resource": "url",
+        "url": "https://github-proxy.com/proxy/?repo=10up/distributor&branch=stable"
+      }
+    },
+    {
+      "step": "enableMultisite"
+    },
+    {
+      "step": "wp-cli",
+      "command": "wp plugin activate distributor-stable --network"
+    },
+    {
+      "step": "wp-cli",
+      "command": "wp site create --slug=test"
+    }
+  ]
+}
