@@ -1048,7 +1048,23 @@ function update_image_tag( string $content, array $media_item, int $image_id ) {
 	$processor = new \WP_HTML_Tag_Processor( $content );
 
 	while ( $processor->next_tag( 'img' ) ) {
-		$processor->set_attribute( 'src', wp_get_attachment_url( $image_id ) );
+		// Try to determine the image size from the size class WordPress adds.
+		$image_size   = 'full';
+		$classes      = explode( ' ', $processor->get_attribute( 'class' ) );
+		$size_classes = array_filter(
+			$classes,
+			function ( $image_class ) {
+				return false !== strpos( $image_class, 'size-' );
+			}
+		);
+
+		if ( ! empty( $size_classes ) ) {
+			// If an image happens to have multiple size classes, just use the first.
+			$size_class = reset( $size_classes );
+			$image_size = str_replace( 'size-', '', $size_class );
+		}
+
+		$processor->set_attribute( 'src', wp_get_attachment_image_url( $image_id, $image_size ) );
 		$processor->add_class( 'wp-image-' . $image_id );
 		$processor->remove_class( 'wp-image-' . $media_item['id'] );
 		$processor->remove_attribute( 'srcset' );
@@ -1076,13 +1092,15 @@ function update_image_block( array $blocks, array $media_item, int $image_id ) {
 
 		// If the block is an image block and the ID matches, update the ID and URL.
 		if ( 'core/image' === $block['blockName'] && $media_item['id'] === $block['attrs']['id'] ) {
+			$image_size = $block['attrs']['sizeSlug'] ?? 'full';
+
 			$blocks[ $key ]['attrs']['id'] = $image_id;
 
 			$processor = new \WP_HTML_Tag_Processor( $blocks[ $key ]['innerHTML'] );
 
 			// Use the HTML API to update the image src and class.
 			if ( $processor->next_tag( 'img' ) ) {
-				$processor->set_attribute( 'src', wp_get_attachment_url( $image_id ) );
+				$processor->set_attribute( 'src', wp_get_attachment_image_url( $image_id, $image_size ) );
 				$processor->add_class( 'wp-image-' . $image_id );
 				$processor->remove_class( 'wp-image-' . $media_item['id'] );
 
