@@ -6,6 +6,7 @@
   "features": {
     "networking": true
   },
+  "landingPage": "/wp-admin/admin.php?page=pull",
   "steps": [
     {
       "step": "installPlugin",
