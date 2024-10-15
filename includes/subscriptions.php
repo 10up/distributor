@@ -339,13 +339,39 @@ function send_notifications( $post ) {
 				$update_subscriptions = true;
 
 				wp_delete_post( $subscription_id, true );
+
+				/**
+				 * Fires after Distributor pushes a post subscription
+				 *
+				 * @since TBD
+				 * @hook dt_after_set_meta
+				 *
+				 * @param {int}   $post_id         Post ID
+				 * @param {int}   $subscription_id Subscription ID
+				 * @param {array} $request         Request array
+				 */
+				do_action( 'dt_subscription_after_post_push', $post_id, $subscription_id, $request );
 			}
+
+
 		}
+
 	}
 
 	if ( $update_subscriptions ) {
 		update_post_meta( $post_id, 'dt_subscriptions', $subscriptions );
 	}
+
+	/**
+	 * Fires after Distributor completes all subscriptions regardless of success/failure
+	 *
+	 * @since TBD
+	 * @hook dt_after_set_meta
+	 *
+	 * @param {int}   $post_id       Post ID
+	 * @param {array} $subscriptions Array of Subscriptions
+	 */
+	do_action( 'dt_subscriptions_after_post_push', $post_id, $subscriptions );
 }
 
 /**
