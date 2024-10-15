@@ -23,7 +23,7 @@ function setup() {
 			add_action( 'wp_enqueue_scripts', __NAMESPACE__ . '\enqueue_scripts' );
 			add_filter( 'amp_dev_mode_element_xpaths', __NAMESPACE__ . '\add_element_xpaths' );
 			add_filter( 'script_loader_tag', __NAMESPACE__ . '\add_dev_mode_to_assets', 10, 2 );
-			add_action( 'wp_ajax_dt_load_connections', __NAMESPACE__ . '\get_connections' );
+			add_action( 'wp_ajax_dt_load_connections_push', __NAMESPACE__ . '\get_connections' );
 			add_action( 'wp_ajax_dt_push', __NAMESPACE__ . '\ajax_push' );
 			add_action( 'admin_bar_menu', __NAMESPACE__ . '\menu_button', 999 );
 			add_action( 'wp_footer', __NAMESPACE__ . '\menu_content', 10, 1 );

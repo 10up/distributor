@@ -21,6 +21,7 @@ function setup() {
 		function() {
 			add_action( 'admin_menu', __NAMESPACE__ . '\action_admin_menu' );
 			add_action( 'admin_enqueue_scripts', __NAMESPACE__ . '\admin_enqueue_scripts' );
+			add_action( 'wp_ajax_dt_load_connections_pull', __NAMESPACE__ . '\get_connections' );
 			add_action( 'load-distributor_page_pull', __NAMESPACE__ . '\setup_list_table' );
 			add_filter( 'set-screen-option', __NAMESPACE__ . '\set_screen_option', 10, 3 );
 		}
@@ -425,51 +426,14 @@ function dashboard() {
 				?>
 			<?php else : ?>
 				<?php esc_html_e( 'Pull Content from', 'distributor' ); ?>
-				<select id="pull_connections" name="connection" method="get">
-					<?php if ( ! empty( $internal_connection_group ) ) : ?>
-						<?php if ( ! empty( $external_connection_group ) ) : ?>
-							<optgroup label="<?php esc_attr_e( 'Network Connections', 'distributor' ); ?>">
-						<?php endif; ?>
-							<?php
-							foreach ( $internal_connection_group as $connection ) :
-								$selected = false;
-								$type     = 'internal';
-								$name     = untrailingslashit( $connection->site->domain . $connection->site->path );
-								$id       = $connection->site->blog_id;
+				<div class="searchable-select">
+					<div class="searchable-select__input-container">
+						<input class="searchable-select__input" type="text" placeholder="Search...">
+						<span class="dashicons dashicons-arrow-down"></span>
+					</div>
+					<div class="searchable-select__dropdown"></div>
+				</div>
 
-								if ( is_a( $connection_now, '\Distributor\InternalConnections\NetworkSiteConnection' ) && (int) $connection_now->site->blog_id === (int) $id ) {
-									$selected = true;
-								}
-								?>
-								<option <?php selected( true, $selected ); ?> data-pull-url="<?php echo esc_url( admin_url( 'admin.php?page=pull&connection_type=' . $type . '&connection_id=' . $id ) ); ?>"><?php echo esc_html( $name ); ?></option>
-							<?php endforeach; ?>
-						<?php if ( ! empty( $external_connection_group ) ) : ?>
-							</optgroup>
-						<?php endif; ?>
-					<?php endif; ?>
-
-					<?php if ( ! empty( $external_connection_group ) ) : ?>
-						<?php if ( ! empty( $internal_connection_group ) ) : ?>
-							<optgroup label="<?php esc_attr_e( 'External Connections', 'distributor' ); ?>">
-						<?php endif; ?>
-							<?php
-							foreach ( $external_connection_group as $connection ) :
-								$type     = 'external';
-								$selected = false;
-								$name     = $connection->name;
-								$id       = $connection->id;
-
-								if ( is_a( $connection_now, '\Distributor\ExternalConnection' ) && (int) $connection_now->id === (int) $id ) {
-									$selected = true;
-								}
-								?>
-								<option <?php selected( true, $selected ); ?> data-pull-url="<?php echo esc_url( admin_url( 'admin.php?page=pull&connection_type=' . $type . '&connection_id=' . $id ) ); ?>"><?php echo esc_html( $name ); ?></option>
-							<?php endforeach; ?>
-						<?php if ( ! empty( $internal_connection_group ) ) : ?>
-							</optgroup>
-						<?php endif; ?>
-					<?php endif; ?>
-				</select>
 
 				<?php
 				$connection_now->pull_post_type  = '';
@@ -623,4 +587,64 @@ function output_pull_errors() {
 	</div>
 
 	<?php
+}
+
+/**
+ * Get connections for pull
+ */
+function get_connections() {
+	$connections = array();
+
+	if ( ! empty( \Distributor\Connections::factory()->get_registered()['networkblog'] ) ) {
+		$sites = \Distributor\InternalConnections\NetworkSiteConnection::get_available_authorized_sites( 'pull' );
+
+		foreach ( $sites as $site_array ) {
+			$internal_connection = new \Distributor\InternalConnections\NetworkSiteConnection( $site_array['site'] );
+
+			$connections[] = [
+				'id'   => $internal_connection->site->blog_id,
+				'name' => untrailingslashit( $internal_connection->site->domain . $internal_connection->site->path ),
+				'url'  => untrailingslashit( preg_replace( '#(https?:\/\/|www\.)#i', '', get_site_url( $internal_connection->site->blog_id ) ) ),
+				'pull_url' => esc_url( admin_url( 'admin.php?page=pull&connection_type=internal&connection_id=' . $internal_connection->site->blog_id ) ),
+				'type' => 'internal',
+			];
+		}
+	}
+
+	$external_connections = new \WP_Query(
+		array(
+			'post_type'      => 'dt_ext_connection',
+			'fields'         => 'ids',
+			'no_found_rows'  => true,
+			'posts_per_page' => -1,
+		)
+	);
+
+	foreach ( $external_connections->posts as $external_connection_id ) {
+		$external_connection_type = get_post_meta( $external_connection_id, 'dt_external_connection_type', true );
+
+		if ( empty( \Distributor\Connections::factory()->get_registered()[ $external_connection_type ] ) ) {
+			continue;
+		}
+
+		$external_connection_status = get_post_meta( $external_connection_id, 'dt_external_connections', true );
+
+		if ( empty( $external_connection_status ) || empty( $external_connection_status['can_get'] ) ) {
+			continue;
+		}
+
+		$external_connection = \Distributor\ExternalConnection::instantiate( $external_connection_id );
+
+		if ( ! is_wp_error( $external_connection ) ) {
+			$connections[] = [
+				'id'   => $external_connection->id,
+				'name' => $external_connection->name,
+				'url'  => $external_connection->base_url,
+				'pull_url' => esc_url( admin_url( 'admin.php?page=pull&connection_type=external&connection_id=' . $external_connection->id ) ),
+				'type' => 'external',
+			];
+		}
+	}
+
+	wp_send_json_success( $connections );
 }
