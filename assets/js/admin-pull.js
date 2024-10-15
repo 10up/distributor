@@ -6,6 +6,18 @@ import { __ } from '@wordpress/i18n';
 
 const { document } = window;
 
+/**
+ * Escape special characters in URL components.
+ *
+ * @param {string} str The string to escape.
+ * @return {string} The escaped string.
+ */
+const escapeURLComponent = (str) => {
+    return encodeURIComponent(str).replace(/[!'()*]/g, (c) => {
+        return '%' + c.charCodeAt(0).toString(16);
+    });
+};
+
 const chooseConnection = document.getElementById( 'pull_connections' );
 const choosePostType = document.getElementById( 'pull_post_type' );
 const choosePostTypeBtn = document.getElementById( 'pull_post_type_submit' );
@@ -83,11 +95,11 @@ if ( chooseConnection && choosePostType && form ) {
  */
 const getURL = () => {
 	const postType =
-		choosePostType.options[ choosePostType.selectedIndex ].value;
+		escapeURLComponent(choosePostType.options[ choosePostType.selectedIndex ].value);
 	const baseURL =
-		chooseConnection.options[ chooseConnection.selectedIndex ].getAttribute(
+		escapeURLComponent(chooseConnection.options[ chooseConnection.selectedIndex ].getAttribute(
 			'data-pull-url'
-		);
+		));
 	let status = 'new';
 
 	if ( -1 < ` ${ form.className } `.indexOf( ' status-skipped ' ) ) {
