@@ -905,7 +905,21 @@ function process_media( $url, $post_id, $args = [] ) {
 	 *
 	 * @return {array} Media extensions to be processed.
 	 */
-	$allowed_extensions = apply_filters( 'dt_allowed_media_extensions', array( 'jpg', 'jpeg', 'jpe', 'gif', 'png' ), $url, $post_id );
+	$allowed_extensions = apply_filters(
+		'dt_allowed_media_extensions',
+		array(
+			'jpg',
+			'jpeg',
+			'jpe',
+			'gif',
+			'png',
+			'webp',
+			'heic',
+			'avif',
+		),
+		$url,
+		$post_id
+	);
 	preg_match( '/[^\?]+\.(' . implode( '|', $allowed_extensions ) . ')\b/i', $url, $matches );
 	if ( ! $matches ) {
 		$media_name = null;
