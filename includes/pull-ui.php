@@ -25,6 +25,8 @@ function setup() {
 			add_filter( 'set-screen-option', __NAMESPACE__ . '\set_screen_option', 10, 3 );
 		}
 	);
+
+	add_action( 'wp_ajax_distributor_pull_content', __NAMESPACE__ . '\pull_contents' );
 }
 
 /**
@@ -193,102 +195,96 @@ function screen_option() {
 }
 
 /**
+ * Pull contents via ajax call
+ *
+ * @return void
+ */
+function pull_contents() {
+	global $dt_pull_messages;
+
+	// Verify nonce
+	if ( empty( $_POST['_wpnonce'] ) || ! wp_verify_nonce( $_POST['_wpnonce'], 'bulk-distributor_page_pull' ) ) {
+		wp_send_json_error( array( 'message' => __( 'Invalid Session!', 'distributor' ) ) );
+		exit;
+	}
+
+	// Capability check
+	if ( ! current_user_can( apply_filters( 'dt_pull_capabilities', 'manage_options' ) ) ) {
+		wp_send_json_error( array( 'message' => __( 'Sorry, you are not allowed to add this item.', 'distributor' ) ) );
+		exit;
+	}
+
+	// Input data check
+	if ( empty( $_POST['pull_post_type'] ) || empty( $_POST['connection_type'] ) || empty( $_POST['connection_id'] ) || empty( $_POST['post_id'] ) ) {
+		wp_send_json_error( array( 'message' => __( 'Invalid data!', 'distributor' ) ) );
+		exit;
+	}
+
+	// Prepare arguments
+	$new_post    = null;
+	$post_type   = sanitize_text_field( $_POST['pull_post_type'] );
+	$post_status = ! empty( $_POST['dt_as_draft'] ) && 'draft' === $_POST['dt_as_draft'] ? 'draft' : '';
+	$post        = array(
+		'remote_post_id' => (int) $_POST['post_id'],
+		'post_type'      => $post_type,
+		'post_status'    => $post_status,
+	);
+
+	// Pull contents external or internal
+	if ( 'external' === $_POST['connection_type'] ) {
+		$connection = \Distributor\ExternalConnection::instantiate( intval( $_POST['connection_id'] ) );
+		$new_posts  = $connection->pull( array( $post ) );
+		$new_post   = is_array( $new_posts ) ? $new_posts[0] ?? null : null;
+
+		if ( ! empty( $new_post ) ) {
+			\Distributor\Subscriptions\create_remote_subscription( $connection, $post['remote_post_id'], $new_post );
+		}
+	} else {
+		$site       = get_site( intval( $_POST['connection_id'] ) );
+		$connection = new \Distributor\InternalConnections\NetworkSiteConnection( $site );
+		$new_posts  = $connection->pull( array( $post ) );
+		$new_post   = is_array( $new_posts ) ? $new_posts[0] ?? null : null;
+	}
+
+	if ( empty( $new_post ) || $is_error = is_wp_error( $new_post ) ) {
+		wp_send_json_error( array( 'message' => $is_error ? $new_post->get_error_message() : __( 'Pull Failed!', 'distributor' ) ) );
+		exit;
+	}
+
+	// Delete media error
+	$media_errors = get_transient( 'dt_media_errors_' . $new_post );
+	if ( ! empty( $media_errors ) ) {
+		delete_transient( 'dt_media_errors_' . $new_post );
+	}
+
+	// Log mapping
+	$connection->log_sync( array( $post['remote_post_id'] => $new_post ), 0, false );
+
+	if ( empty( $dt_pull_messages['duplicated'] ) ) {
+		setcookie( 'dt-syndicated', 1, time() + DAY_IN_SECONDS, ADMIN_COOKIE_PATH, COOKIE_DOMAIN, is_ssl() );
+	}
+
+	if ( ! empty( $dt_pull_messages['duplicated'] ) ) {
+		setcookie( 'dt-duplicated', 1, time() + DAY_IN_SECONDS, ADMIN_COOKIE_PATH, COOKIE_DOMAIN, is_ssl() );
+	}
+
+	// Redirect to the pulled content tab
+	wp_send_json_success(
+		array(
+			'redirect_to' => add_query_arg( 'status', 'pulled', wp_get_referer() ),
+		)
+	);
+	exit;
+}
+
+/**
  * Process content changing actions
  *
  * @since  0.8
  */
-function process_actions() {
+function process_actions( ) {
 	global $connection_list_table;
-	global $dt_pull_messages;
-
 	switch ( $connection_list_table->current_action() ) {
-		case 'syndicate':
-		case 'bulk-syndicate':
-			if ( empty( $_GET['_wpnonce'] ) || ! wp_verify_nonce( $_GET['_wpnonce'], 'bulk-distributor_page_pull' ) ) {
-				exit;
-			}
-
-			// Filter documented above.
-			if ( ! current_user_can( apply_filters( 'dt_pull_capabilities', 'manage_options' ) ) ) {
-				wp_die(
-					'<h1>' . esc_html__( 'Cheatin&#8217; uh?', 'distributor' ) . '</h1>' .
-					'<p>' . esc_html__( 'Sorry, you are not allowed to add this item.', 'distributor' ) . '</p>',
-					403
-				);
-			}
-
-			if ( empty( $_GET['pull_post_type'] ) || empty( $_GET['connection_type'] ) || empty( $_GET['connection_id'] ) || empty( $_GET['post'] ) ) {
-				break;
-			}
-
-			$posts       = array_map( 'intval', (array) wp_unslash( $_GET['post'] ) );
-			$post_type   = sanitize_text_field( $_GET['pull_post_type'] );
-			$post_status = ! empty( $_GET['dt_as_draft'] ) && 'draft' === $_GET['dt_as_draft'] ? 'draft' : '';
-
-			$posts = array_map(
-				function( $remote_post_id ) use ( $post_type, $post_status ) {
-						return [
-							'remote_post_id' => $remote_post_id,
-							'post_type'      => $post_type,
-							'post_status'    => $post_status,
-						];
-				},
-				$posts
-			);
-
-			if ( 'external' === $_GET['connection_type'] ) {
-				$connection = \Distributor\ExternalConnection::instantiate( intval( $_GET['connection_id'] ) );
-				$new_posts  = $connection->pull( $posts );
-				$error_key  = "external_{$connection->id}";
-
-				foreach ( $posts as $key => $post_array ) {
-					if ( is_wp_error( $new_posts[ $key ] ) ) {
-						continue;
-					}
-					\Distributor\Subscriptions\create_remote_subscription( $connection, $post_array['remote_post_id'], $new_posts[ $key ] );
-				}
-			} else {
-				$site       = get_site( intval( $_GET['connection_id'] ) );
-				$connection = new \Distributor\InternalConnections\NetworkSiteConnection( $site );
-				$new_posts  = $connection->pull( $posts );
-				$error_key  = "internal_{$connection->site->blog_id}";
-			}
-
-			$post_id_mappings = array();
-			$pull_errors      = array();
-
-			foreach ( $posts as $key => $post_array ) {
-				if ( is_wp_error( $new_posts[ $key ] ) ) {
-					$pull_errors[ $post_array['remote_post_id'] ] = [ $new_posts[ $key ]->get_error_message() ];
-					continue;
-				}
-				$post_id_mappings[ $post_array['remote_post_id'] ] = $new_posts[ $key ];
-
-				$media_errors = get_transient( 'dt_media_errors_' . $new_posts[ $key ] );
-
-				if ( ! empty( $media_errors ) ) {
-					delete_transient( 'dt_media_errors_' . $new_posts[ $key ] );
-					$pull_errors[ $post_array['remote_post_id'] ] = $media_errors;
-				}
-			}
-
-			if ( ! empty( $pull_errors ) ) {
-				set_transient( 'dt_connection_pull_errors_' . $error_key, $pull_errors, DAY_IN_SECONDS );
-			}
-
-			$connection->log_sync( $post_id_mappings );
-
-			if ( empty( $dt_pull_messages['duplicated'] ) ) {
-				setcookie( 'dt-syndicated', 1, time() + DAY_IN_SECONDS, ADMIN_COOKIE_PATH, COOKIE_DOMAIN, is_ssl() );
-			}
-
-			if ( ! empty( $dt_pull_messages['duplicated'] ) ) {
-				setcookie( 'dt-duplicated', 1, time() + DAY_IN_SECONDS, ADMIN_COOKIE_PATH, COOKIE_DOMAIN, is_ssl() );
-			}
-
-			// Redirect to the pulled content tab
-			wp_safe_redirect( add_query_arg( 'status', 'pulled', wp_get_referer() ) );
-			exit;
 		case 'bulk-skip':
 		case 'skip':
 			if ( ! wp_verify_nonce( $_GET['_wpnonce'], 'dt_skip' ) && ! wp_verify_nonce( $_GET['_wpnonce'], 'bulk-distributor_page_pull' ) ) {
@@ -526,8 +522,6 @@ function dashboard() {
 			</div>
 		<?php endif; ?>
 
-		<?php output_pull_errors(); ?>
-
 		<?php $connection_list_table->prepare_items(); ?>
 
 		<?php if ( ! empty( $connection_list_table->pull_error ) ) : ?>
@@ -560,67 +554,5 @@ function dashboard() {
 			</form>
 		<?php endif; ?>
 	</div>
-	<?php
-}
-
-/**
- * Get pull errors saved in transient and display it to user.
- *
- * @todo Log persistent
- */
-function output_pull_errors() {
-	global $connection_now;
-
-	// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- No nonce needed here.
-	if ( empty( $_GET['connection_id'] ) ) {
-		return;
-	}
-
-	if ( is_a( $connection_now, '\Distributor\ExternalConnection' ) ) {
-		$error_key = "external_{$connection_now->id}";
-	} elseif ( is_a( $connection_now, '\Distributor\InternalConnections\NetworkSiteConnection' ) ) {
-		$error_key = "internal_{$connection_now->site->blog_id}";
-	} else {
-		return;
-	}
-
-	$pull_errors = get_transient( 'dt_connection_pull_errors_' . $error_key );
-
-	if ( empty( $pull_errors ) ) {
-		return;
-	}
-
-	delete_transient( 'dt_connection_pull_errors_' . $error_key );
-
-	$post_ids = array_keys( $pull_errors );
-
-	$_posts = $connection_now->remote_get( [ 'post__in' => $post_ids ] );
-	$posts  = [];
-
-	if ( empty( $_posts ) ) {
-		return;
-	}
-
-	foreach ( $_posts['items'] as $post ) {
-		$posts[ $post->ID ] = $post->post_title;
-	}
-	?>
-
-	<div id="pull-errors" class="notice notice-warning is-dismissible">
-		<p><?php esc_html_e( 'Some errors occurred while pulling selected posts. Please review the list of the errors bellow for more details.', 'distributor' ); ?></p>
-		<ul>
-			<?php foreach ( $pull_errors as $id => $errors ) : ?>
-			<li>
-				<strong><?php echo esc_html( $posts[ $id ] ); ?>:</strong>
-				<ul>
-				<?php foreach ( $errors as $error ) : ?>
-					<li><?php echo esc_html( $error ); ?></li>
-				<?php endforeach; ?>
-				</ul>
-			</li>
-			<?php endforeach; ?>
-		</ul>
-	</div>
-
 	<?php
 }
