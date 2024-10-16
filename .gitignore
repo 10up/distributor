@@ -17,3 +17,5 @@ tests/cypress/reports
 tests/cypress/downloads
 
 distributor.zip
+
+.github/phpcs-report.xml
