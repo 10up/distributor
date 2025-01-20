@@ -78,6 +78,26 @@ jobs:
     - name: Install dependencies
       run: npm install
 
+    - name: Get composer cache directory
+      id: composer-cache
+      run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+
+    - name: Cache dependencies
+      id: cache-composer
+      uses: actions/cache@v4
+      env:
+        cache-name: cache-composer
+      with:
+        path: ${{ steps.composer-cache.outputs.dir }}
+        key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/composer.lock') }}
+
+    - name: Set PHP version
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: ${{ matrix.php.version }}
+        coverage: none
+        tools: composer:v2
+
     - name: Composer install
       run: composer install
 
