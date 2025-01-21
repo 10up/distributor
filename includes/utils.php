@@ -1120,7 +1120,7 @@ function update_image_block( array $blocks, array $media_item, int $image_id ) {
 		}
 
 		// If the block is an image block and the ID matches, update the ID and URL.
-		if ( 'core/image' === $block['blockName'] && $media_item['id'] === $block['attrs']['id'] ) {
+		if ( 'core/image' === $block['blockName'] && (int) $media_item['id'] === (int) $block['attrs']['id'] ) {
 			$image_size = $block['attrs']['sizeSlug'] ?? 'full';
 
 			$blocks[ $key ]['attrs']['id'] = $image_id;
