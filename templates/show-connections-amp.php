@@ -45,7 +45,7 @@
 
 		<div class="connections-selected empty">
 			<header class="with-selected">
-				<?php esc_html_e( 'Selected connections', 'distributor' ); ?>
+				<span class="selected-connections-text"></span>
 				<button class="button button-link selectno-connections unavailable"><?php esc_html_e( 'Clear', 'distributor' ); ?></button>
 			</header>
 			<header class="no-selected">
