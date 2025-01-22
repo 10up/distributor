@@ -397,6 +397,8 @@ function excluded_meta() {
 				'dt_original_post_url',
 				'dt_original_post_id',
 				'dt_original_blog_id',
+				'dt_original_media_url',
+				'dt_original_media_id',
 				'dt_connection_map',
 				'_wp_old_slug',
 				'_wp_old_date',
@@ -738,7 +740,8 @@ function set_media( $post_id, $media, $args = [] ) {
 
 	foreach ( $media as $media_item ) {
 
-		$args['source_file'] = $media_item['source_file'];
+		$args['original_media_id'] = $media_item['id'];
+		$args['source_file']       = $media_item['source_file'];
 
 		// Delete duplicate if it exists (unless filter says otherwise)
 		/**
@@ -886,8 +889,9 @@ function process_media( $url, $post_id, $args = [] ) {
 	$args = wp_parse_args(
 		$args,
 		[
-			'use_filesystem' => false,
-			'source_file'    => '',
+			'use_filesystem'    => false,
+			'source_file'       => '',
+			'original_media_id' => 0
 		]
 	);
 
@@ -941,6 +945,15 @@ function process_media( $url, $post_id, $args = [] ) {
 
 	if ( is_null( $media_name ) ) {
 		return false;
+	}
+
+	// Check if the media is already existing on the site. If it is, return the media ID.
+	if ( ! empty( $args['original_media_id'] ) && ! empty( $url ) ) {
+		$existing_media_id = get_attachment_id_by_original_data( $url, $args['original_media_id'] );
+
+		if ( $existing_media_id ) {
+			return $existing_media_id;
+		}
 	}
 
 	$file_array         = array();
@@ -1041,6 +1054,44 @@ function process_media( $url, $post_id, $args = [] ) {
 	}
 
 	return (int) $result;
+}
+
+/**
+ * Get existing media ID based on the original source URL and original media ID.
+ *
+ * @param string $original_url The original source URL.
+ * @param int    $original_id  The original media ID.
+ * @return int|bool The existing media ID or false if not found.
+ */
+function get_attachment_id_by_original_data( $original_url, $original_id ) {
+	$attachments_query = new \WP_Query( array(
+		'post_type'              => 'attachment',
+		'post_status'            => 'any',
+		'posts_per_page'         => 1,
+		'fields'                 => 'ids',
+		'no_found_rows'          => true,
+		'update_post_meta_cache' => false,
+		'update_post_term_cache' => false,
+		'meta_query'     => array(
+			'relation' => 'AND',
+			array(
+				'key'     => 'dt_original_media_id',
+				'value'   => $original_id,
+				'compare' => '=',
+			),
+			array(
+				'key'     => 'dt_original_media_url',
+				'value'   => $original_url,
+				'compare' => '=',
+			)
+		),
+	) );
+
+	if ( ! empty( $attachments_query->posts ) && ! empty( $attachments_query->posts[0] ) ) {
+		return (int) $attachments_query->posts[0];
+	}
+
+	return false;
 }
 
 /**
