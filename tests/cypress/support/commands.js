@@ -36,6 +36,17 @@ Cypress.Commands.add( 'networkActivatePlugin', ( slug ) => {
 	} );
 } );
 
+Cypress.Commands.add( 'networkDeactivatePlugin', ( slug ) => {
+	cy.visit( '/wp-admin/network/plugins.php' );
+	cy.get( `#the-list tr[data-slug="${ slug }"]` ).then( ( $pluginRow ) => {
+		if ( $pluginRow.find( '.deactivate > a' ).length > 0 ) {
+			cy.get( `#the-list tr[data-slug="${ slug }"] .deactivate > a` )
+				.should( 'have.text', 'Network Deactivate' )
+				.click();
+		}
+	} );
+} );
+
 Cypress.Commands.add( 'networkEnableTheme', ( slug ) => {
 	cy.visit( '/wp-admin/network/themes.php' );
 	cy.get( `#the-list tr[data-slug="${ slug }"]` ).then( ( $themeRow ) => {
@@ -130,7 +141,8 @@ Cypress.Commands.add(
 		toConnectionName,
 		fromBlogSlug = '',
 		postStatus = 'publish',
-		external = false
+		external = false,
+		classicEditor = false
 	) => {
 		const info = {
 			originalEditUrl:
@@ -158,9 +170,11 @@ Cypress.Commands.add(
 			info.originalFrontUrl = originalFrontUrl;
 		} );
 
-		cy.disableFullscreenEditor();
-		cy.dismissNUXTip();
-		cy.closeWelcomeGuide();
+		if ( ! classicEditor ) {
+			cy.disableFullscreenEditor();
+			cy.dismissNUXTip();
+			cy.closeWelcomeGuide();
+		}
 
 		cy.get( '#wp-admin-bar-distributor' )
 			.contains( 'Distributor' )
@@ -296,4 +310,22 @@ Cypress.Commands.add( 'postContains', ( postId, content, siteUrl ) => {
 		cliCommand += ` --url=${ siteUrl }`;
 	}
 	cy.wpCli( cliCommand ).its( 'stdout' ).should( 'contain', content );
+} );
+
+Cypress.Commands.add( 'uploadImage', ( imagePath ) => {
+	cy.visit( '/wp-admin/media-new.php' );
+	cy.get( '#plupload-upload-ui' ).should( 'exist' );
+	cy.get( '#plupload-upload-ui input[type=file]' ).selectFile( imagePath, {
+		force: true,
+	} );
+
+	cy.get( '#media-items .media-item a.edit-attachment', {
+		timeout: 20000,
+	} ).should( 'exist' );
+	cy.get( '#media-items .media-item a.edit-attachment' )
+		.invoke( 'attr', 'href' )
+		.then( ( editLink = '' ) => {
+			const mediaId = editLink?.split( 'post=' )[ 1 ]?.split( '&' )[ 0 ];
+			cy.wrap( mediaId );
+		} );
 } );
