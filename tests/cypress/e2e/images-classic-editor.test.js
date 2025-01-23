@@ -19,6 +19,10 @@ describe( '[Classic Editor] Image distribution tests', () => {
 	};
 
 	before( () => {
+		// Prevent uncaught exceptions from failing the test on WP trunk.
+		Cypress.on( 'uncaught:exception', () => {
+			return false;
+		} );
 		cy.login();
 		cy.networkActivatePlugin( 'distributor' );
 		cy.networkActivatePlugin( 'classic-editor' );
