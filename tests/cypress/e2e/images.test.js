@@ -4,13 +4,30 @@ describe( '[Block Editor] Image distribution tests', () => {
 	let externalConnectionOneToTwo, externalConnectionTwoToOne;
 	const attachImages = () => {
 		cy.openDocumentSettingsSidebar( 'Post' );
-		cy.get( '.editor-post-featured-image__toggle' ).click();
-		cy.get( '.media-menu-item' ).contains( 'Media Library' ).click();
-		cy.get( '.attachments-browser .attachment' ).first().click();
-		cy.get( '.media-button-select' ).click();
-		cy.get( '.editor-post-featured-image__preview-image' ).should(
-			'be.visible'
-		);
+		cy.get( 'body' ).then( ( $body ) => {
+			if (
+				$body.find( '.editor-post-featured-image__toggle:visible' )
+					.length
+			) {
+				cy.get( '.editor-post-featured-image__toggle' ).click();
+				cy.get( '.media-menu-item' )
+					.contains( 'Media Library' )
+					.click();
+				cy.get( '.attachments-browser .attachment' ).first().click();
+				cy.get( '.media-button-select' ).click();
+				cy.get( '.editor-post-featured-image__preview-image' ).should(
+					'be.visible'
+				);
+			} else {
+				cy.openDocumentSettingsPanel( 'Featured Image' );
+				cy.get( '.editor-post-featured-image__toggle' ).click();
+				cy.get( '.media-menu-item' )
+					.contains( 'Media Library' )
+					.click();
+				cy.get( '.attachments-browser .attachment' ).first().click();
+				cy.get( '.media-button-select' ).click();
+			}
+		} );
 
 		cy.insertBlock( 'core/image', 'Image' ).then( ( id ) => {
 			cy.getBlockEditor()
