@@ -626,6 +626,11 @@ class DistributorPost {
 			$raw_media = $this->parse_media_blocks();
 		} else {
 			$raw_media = get_attached_media( get_allowed_mime_types(), $post_id );
+			// Parse images from post content.
+			$parsed_media = $this->parse_images_from_post_content();
+			foreach ( $parsed_media as $media_post ) {
+				$raw_media[ $media_post->ID ] = $media_post;
+			}
 		}
 
 		$featured_image_id = $this->get_post_thumbnail_id();
@@ -650,6 +655,49 @@ class DistributorPost {
 		}
 
 		return $media_array;
+	}
+
+	/**
+	 * Parse the post's content to obtain media items by image tags.
+	 *
+	 * @return array<WP_Post> Array of media posts.
+	 */
+	protected function parse_images_from_post_content() {
+		$processor = new \WP_HTML_Tag_Processor( $this->post->post_content );
+
+		$media = array();
+		while ( $processor->next_tag( 'img' ) ) {
+			$classes = explode( ' ', $processor->get_attribute( 'class' ) ?? ' ' );
+
+			if ( ! is_array( $classes ) ) {
+				continue;
+			}
+
+			// Filter out classes that are not image classes.
+			$classes = array_filter(
+				$classes,
+				function( $class ) {
+					return strpos( $class, 'wp-image-' ) === 0;
+				}
+			);
+
+			if ( empty( $classes ) ) {
+				continue;
+			}
+
+			$image_id   = (int) str_replace( 'wp-image-', '', current( $classes ) );
+			$media_post = get_post( $image_id );
+
+			if ( empty( $media_post ) ) {
+				continue;
+			}
+
+			$media[ $media_post->ID ] = $media_post;
+		}
+
+		$media = array_filter( $media );
+
+		return $media;
 	}
 
 	/**

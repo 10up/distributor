@@ -891,7 +891,7 @@ function process_media( $url, $post_id, $args = [] ) {
 		[
 			'use_filesystem'    => false,
 			'source_file'       => '',
-			'original_media_id' => 0
+			'original_media_id' => 0,
 		]
 	);
 
@@ -1064,28 +1064,30 @@ function process_media( $url, $post_id, $args = [] ) {
  * @return int|bool The existing media ID or false if not found.
  */
 function get_attachment_id_by_original_data( $original_url, $original_id ) {
-	$attachments_query = new \WP_Query( array(
-		'post_type'              => 'attachment',
-		'post_status'            => 'any',
-		'posts_per_page'         => 1,
-		'fields'                 => 'ids',
-		'no_found_rows'          => true,
-		'update_post_meta_cache' => false,
-		'update_post_term_cache' => false,
-		'meta_query'     => array(
-			'relation' => 'AND',
-			array(
-				'key'     => 'dt_original_media_id',
-				'value'   => $original_id,
-				'compare' => '=',
+	$attachments_query = new \WP_Query(
+		array(
+			'post_type'              => 'attachment',
+			'post_status'            => 'any',
+			'posts_per_page'         => 1,
+			'fields'                 => 'ids',
+			'no_found_rows'          => true,
+			'update_post_meta_cache' => false,
+			'update_post_term_cache' => false,
+			'meta_query'             => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
+				'relation' => 'AND',
+				array(
+					'key'     => 'dt_original_media_id',
+					'value'   => $original_id,
+					'compare' => '=',
+				),
+				array(
+					'key'     => 'dt_original_media_url',
+					'value'   => $original_url,
+					'compare' => '=',
+				),
 			),
-			array(
-				'key'     => 'dt_original_media_url',
-				'value'   => $original_url,
-				'compare' => '=',
-			)
-		),
-	) );
+		)
+	);
 
 	if ( ! empty( $attachments_query->posts ) && ! empty( $attachments_query->posts[0] ) ) {
 		return (int) $attachments_query->posts[0];
