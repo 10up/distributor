@@ -741,14 +741,14 @@ function set_media( $post_id, $media, $args = [] ) {
 		$args['original_media_id'] = $media_item['id'];
 		$args['source_file']       = $media_item['source_file'];
 
-		// Delete duplicate if it exists (unless filter says otherwise)
+		// Delete duplicate if it exists (if filter set to true)
 		/**
 		 * Filter whether media should be deleted and replaced if it already exists.
 		 *
 		 * @since 1.0.0
 		 * @hook dt_sync_media_delete_and_replace
 		 *
-		 * @param {bool}   true     Whether pre-existing media should be deleted and replaced. Default `true`.
+		 * @param {bool}   true     Whether pre-existing media should be deleted and replaced. Default `false`.
 		 * @param {int}    $post_id The post ID.
 		 *
 		 * @return {bool} Whether pre-existing media should be deleted and replaced.
@@ -1061,7 +1061,7 @@ function get_attachment_id_by_original_data( $original_url, $original_id ) {
 			'no_found_rows'          => true,
 			'update_post_meta_cache' => false,
 			'update_post_term_cache' => false,
-			'meta_query'     => array(
+			'meta_query'             => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
 				'relation' => 'AND',
 				array(
 					'key'     => 'dt_original_media_id',
