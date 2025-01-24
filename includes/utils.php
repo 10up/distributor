@@ -1070,8 +1070,8 @@ function get_attachment_id_by_original_data( $original_url, $original_id ) {
 				),
 				array(
 					'key'     => 'dt_original_media_url',
-					'value'   => $original_url,
-					'compare' => '=',
+					'value'   => basename( $original_url ),
+					'compare' => 'LIKE', // Using LIKE to account different source URLs for the same media based on from where it was pulled/pushed. see https://core.trac.wordpress.org/ticket/25650
 				),
 			),
 		)
