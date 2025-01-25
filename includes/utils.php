@@ -737,9 +737,7 @@ function set_media( $post_id, $media, $args = [] ) {
 	}
 
 	foreach ( $media as $media_item ) {
-
-		$args['original_media_id'] = $media_item['id'];
-		$args['source_file']       = $media_item['source_file'];
+		$args['source_file'] = $media_item['source_file'];
 
 		// Delete duplicate if it exists (if filter set to true)
 		/**
@@ -762,6 +760,13 @@ function set_media( $post_id, $media, $args = [] ) {
 		} else {
 			if ( ! empty( $current_media[ $media_item['source_url'] ] ) ) {
 				$image_id = $current_media[ $media_item['source_url'] ];
+			} elseif ( ! empty( $media_item['id'] ) && ! empty( $media_item['source_url'] ) ) {
+				// Check if the media is already existing on the site. If it is, return the media ID.
+				$image_id = get_attachment_id_by_original_data( $media_item['id'], $media_item['source_url'] );
+
+				if ( ! $image_id ) {
+					$image_id = process_media( $media_item['source_url'], $post_id, $args );
+				}
 			} else {
 				$image_id = process_media( $media_item['source_url'], $post_id, $args );
 			}
@@ -877,9 +882,8 @@ function process_media( $url, $post_id, $args = [] ) {
 	$args = wp_parse_args(
 		$args,
 		[
-			'use_filesystem'    => false,
-			'source_file'       => '',
-			'original_media_id' => 0,
+			'use_filesystem' => false,
+			'source_file'    => '',
 		]
 	);
 
@@ -933,15 +937,6 @@ function process_media( $url, $post_id, $args = [] ) {
 
 	if ( is_null( $media_name ) ) {
 		return false;
-	}
-
-	// Check if the media is already existing on the site. If it is, return the media ID.
-	if ( ! empty( $args['original_media_id'] ) && ! empty( $url ) ) {
-		$existing_media_id = get_attachment_id_by_original_data( $url, $args['original_media_id'] );
-
-		if ( $existing_media_id ) {
-			return $existing_media_id;
-		}
 	}
 
 	$file_array         = array();
@@ -1047,11 +1042,11 @@ function process_media( $url, $post_id, $args = [] ) {
 /**
  * Get existing media ID based on the original source URL and original media ID.
  *
- * @param string $original_url The original source URL.
  * @param int    $original_id  The original media ID.
+ * @param string $original_url The original source URL.
  * @return int|bool The existing media ID or false if not found.
  */
-function get_attachment_id_by_original_data( $original_url, $original_id ) {
+function get_attachment_id_by_original_data( $original_id, $original_url ) {
 	$attachments_query = new \WP_Query(
 		array(
 			'post_type'              => 'attachment',
