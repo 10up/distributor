@@ -777,7 +777,11 @@ class UtilsTest extends TestCase {
 	 * @since 1.0
 	 * @group Utils
 	 * @runInSeparateProcess
-	 * @dataProvider data_test_set_media
+	 * @dataProvider data_set_media
+	 *
+	 * @param int    $new_image_id      ID of the new image.
+	 * @param string $source_url        Source URL of the media item.
+	 * @param int    $existing_media_id Existing media ID to test for existing media.
 	 */
 	public function test_set_media( $new_image_id, $source_url, $existing_media_id ) {
 		$post_id    = 1;
@@ -939,10 +943,11 @@ class UtilsTest extends TestCase {
 	/**
 	 * Data provider for test_set_media
 	 *
-	 * @since 1.0
 	 * @group Utils
+	 *
+	 * @return array[] Data provider.
 	 */
-	public function data_test_set_media() {
+	public function data_set_media() {
 		return [
 			[ 5, 'http://mediaitem.com/mediaitem.jpg', 0 ],
 			[ 3, 'http://mediaitem.com', 0 ],
