@@ -397,6 +397,8 @@ function excluded_meta() {
 				'dt_original_post_url',
 				'dt_original_post_id',
 				'dt_original_blog_id',
+				'dt_original_media_url',
+				'dt_original_media_id',
 				'dt_connection_map',
 				'_wp_old_slug',
 				'_wp_old_date',
@@ -737,22 +739,21 @@ function set_media( $post_id, $media, $args = [] ) {
 	$image_urls_to_update = [];
 
 	foreach ( $media as $media_item ) {
-
 		$args['source_file'] = $media_item['source_file'];
 
-		// Delete duplicate if it exists (unless filter says otherwise)
+		// Delete duplicate if it exists (if filter set to true)
 		/**
 		 * Filter whether media should be deleted and replaced if it already exists.
 		 *
 		 * @since 1.0.0
 		 * @hook dt_sync_media_delete_and_replace
 		 *
-		 * @param {bool}   true     Whether pre-existing media should be deleted and replaced. Default `true`.
+		 * @param {bool}   true     Whether pre-existing media should be deleted and replaced. Default `false`.
 		 * @param {int}    $post_id The post ID.
 		 *
 		 * @return {bool} Whether pre-existing media should be deleted and replaced.
 		 */
-		if ( apply_filters( 'dt_sync_media_delete_and_replace', true, $post_id ) ) {
+		if ( apply_filters( 'dt_sync_media_delete_and_replace', false, $post_id ) ) {
 			if ( ! empty( $current_media[ $media_item['source_url'] ] ) ) {
 				wp_delete_attachment( $current_media[ $media_item['source_url'] ], true );
 			}
@@ -761,6 +762,13 @@ function set_media( $post_id, $media, $args = [] ) {
 		} else {
 			if ( ! empty( $current_media[ $media_item['source_url'] ] ) ) {
 				$image_id = $current_media[ $media_item['source_url'] ];
+			} elseif ( ! empty( $media_item['id'] ) && ! empty( $media_item['source_url'] ) ) {
+				// Check if the media is already existing on the site. If it is, return the media ID.
+				$image_id = get_attachment_id_by_original_data( $media_item['id'], $media_item['source_url'] );
+
+				if ( ! $image_id ) {
+					$image_id = process_media( $media_item['source_url'], $post_id, $args );
+				}
 			} else {
 				$image_id = process_media( $media_item['source_url'], $post_id, $args );
 			}
@@ -1211,6 +1219,46 @@ function update_content_image_urls( int $post_id, array $images ) {
 			'post_content' => $content,
 		]
 	);
+}
+
+/**
+ * Get existing media ID based on the original source URL and original media ID.
+ *
+ * @param int    $original_id  The original media ID.
+ * @param string $original_url The original source URL.
+ * @return int|bool The existing media ID or false if not found.
+ */
+function get_attachment_id_by_original_data( $original_id, $original_url ) {
+	$attachments_query = new \WP_Query(
+		array(
+			'post_type'              => 'attachment',
+			'post_status'            => 'any',
+			'posts_per_page'         => 1,
+			'fields'                 => 'ids',
+			'no_found_rows'          => true,
+			'update_post_meta_cache' => false,
+			'update_post_term_cache' => false,
+			'meta_query'             => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
+				'relation' => 'AND',
+				array(
+					'key'     => 'dt_original_media_id',
+					'value'   => $original_id,
+					'compare' => '=',
+				),
+				array(
+					'key'     => 'dt_original_media_url',
+					'value'   => basename( $original_url ),
+					'compare' => 'LIKE', // Using LIKE to account different source URLs for the same media based on from where it was pulled/pushed. see https://core.trac.wordpress.org/ticket/25650
+				),
+			),
+		)
+	);
+
+	if ( ! empty( $attachments_query->posts ) && ! empty( $attachments_query->posts[0] ) ) {
+		return (int) $attachments_query->posts[0];
+	}
+
+	return false;
 }
 
 /**
