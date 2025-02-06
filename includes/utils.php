@@ -793,7 +793,7 @@ function set_media( $post_id, $media, $args = [] ) {
 		}
 
 		// Save the images that we need to try updating in the content.
-		if ( 'featured' !== $settings['media_handling'] ) { // TODO: do we want a new setting for this?
+		if ( 'featured' !== $settings['media_handling'] ) {
 			$image_urls_to_update[ $image_id ] = $media_item;
 		}
 
