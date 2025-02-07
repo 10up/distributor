@@ -1178,7 +1178,7 @@ function update_content_image_urls( int $post_id, array $images ) {
 	/**
 	 * Filter whether image URLS should be updated in the content.
 	 *
-	 * @since x.x.x
+	 * @since 2.1.0
 	 * @hook dt_update_content_image_urls
 	 *
 	 * @param {bool}  true     Whether image URLs should be updated. Default `true`.
