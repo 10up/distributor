@@ -180,7 +180,7 @@ class NetworkSiteConnection extends Connection {
 		 */
 		if ( apply_filters( 'dt_push_post_media', true, $new_post_id, $post_media, $post_id, $args, $this ) ) {
 			Utils\set_media( $new_post_id, $post_media, [ 'use_filesystem' => true ] );
-		};
+		}
 
 		$media_errors = get_transient( 'dt_media_errors_' . $new_post_id );
 
