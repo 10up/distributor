@@ -397,6 +397,8 @@ function excluded_meta() {
 				'dt_original_post_url',
 				'dt_original_post_id',
 				'dt_original_blog_id',
+				'dt_original_media_url',
+				'dt_original_media_id',
 				'dt_connection_map',
 				'_wp_old_slug',
 				'_wp_old_date',
@@ -734,23 +736,24 @@ function set_media( $post_id, $media, $args = [] ) {
 		$media = ( false !== $featured_key ) ? array( $media[ $featured_key ] ) : array();
 	}
 
-	foreach ( $media as $media_item ) {
+	$image_urls_to_update = [];
 
+	foreach ( $media as $media_item ) {
 		$args['source_file'] = $media_item['source_file'];
 
-		// Delete duplicate if it exists (unless filter says otherwise)
+		// Delete duplicate if it exists (if filter set to true)
 		/**
 		 * Filter whether media should be deleted and replaced if it already exists.
 		 *
 		 * @since 1.0.0
 		 * @hook dt_sync_media_delete_and_replace
 		 *
-		 * @param {bool}   true     Whether pre-existing media should be deleted and replaced. Default `true`.
+		 * @param {bool}   true     Whether pre-existing media should be deleted and replaced. Default `false`.
 		 * @param {int}    $post_id The post ID.
 		 *
 		 * @return {bool} Whether pre-existing media should be deleted and replaced.
 		 */
-		if ( apply_filters( 'dt_sync_media_delete_and_replace', true, $post_id ) ) {
+		if ( apply_filters( 'dt_sync_media_delete_and_replace', false, $post_id ) ) {
 			if ( ! empty( $current_media[ $media_item['source_url'] ] ) ) {
 				wp_delete_attachment( $current_media[ $media_item['source_url'] ], true );
 			}
@@ -759,6 +762,13 @@ function set_media( $post_id, $media, $args = [] ) {
 		} else {
 			if ( ! empty( $current_media[ $media_item['source_url'] ] ) ) {
 				$image_id = $current_media[ $media_item['source_url'] ];
+			} elseif ( ! empty( $media_item['id'] ) && ! empty( $media_item['source_url'] ) ) {
+				// Check if the media is already existing on the site. If it is, return the media ID.
+				$image_id = get_attachment_id_by_original_data( $media_item['id'], $media_item['source_url'] );
+
+				if ( ! $image_id ) {
+					$image_id = process_media( $media_item['source_url'], $post_id, $args );
+				}
 			} else {
 				$image_id = process_media( $media_item['source_url'], $post_id, $args );
 			}
@@ -782,6 +792,11 @@ function set_media( $post_id, $media, $args = [] ) {
 			set_meta( $image_id, $media_item['meta'] );
 		}
 
+		// Save the images that we need to try updating in the content.
+		if ( 'featured' !== $settings['media_handling'] ) {
+			$image_urls_to_update[ $image_id ] = $media_item;
+		}
+
 		// Transfer post properties
 		wp_update_post(
 			[
@@ -791,6 +806,11 @@ function set_media( $post_id, $media, $args = [] ) {
 				'post_excerpt' => $media_item['caption']['raw'],
 			]
 		);
+	}
+
+	// Update image URLs in content if needed.
+	if ( ! empty( $image_urls_to_update ) ) {
+		update_content_image_urls( (int) $post_id, $image_urls_to_update );
 	}
 
 	if ( ! $found_featured_image ) {
@@ -1029,6 +1049,216 @@ function process_media( $url, $post_id, $args = [] ) {
 	}
 
 	return (int) $result;
+}
+
+/**
+ * Find and update an image tag.
+ *
+ * @param string $content The post content.
+ * @param array  $media_item The old media item details.
+ * @param int    $image_id The new image ID.
+ * @return string
+ */
+function update_image_tag( string $content, array $media_item, int $image_id ) {
+	$processor = new \WP_HTML_Tag_Processor( $content );
+
+	while ( $processor->next_tag( 'img' ) ) {
+		$classes = explode( ' ', $processor->get_attribute( 'class' ) ?? ' ' );
+
+		// Only process the image that matches the old ID.
+		if (
+			! is_array( $classes ) ||
+			! in_array( 'wp-image-' . $media_item['id'], $classes, true )
+		) {
+			continue;
+		}
+
+		// Try to determine the image size from the size class WordPress adds.
+		$image_size   = 'full';
+		$classes      = explode( ' ', $processor->get_attribute( 'class' ) ?? [] );
+		$size_classes = array_filter(
+			$classes,
+			function ( $image_class ) {
+				return false !== strpos( $image_class, 'size-' );
+			}
+		);
+
+		if ( ! empty( $size_classes ) ) {
+			// If an image happens to have multiple size classes, just use the first.
+			$size_class = reset( $size_classes );
+			$image_size = str_replace( 'size-', '', $size_class );
+		}
+
+		$src = wp_get_attachment_image_url( $image_id, $image_size );
+
+		// If the image size can't be found, try to get the full size.
+		if ( ! $src ) {
+			$src = wp_get_attachment_image_url( $image_id, 'full' );
+
+			// If we still don't have an image, skip this block.
+			if ( ! $src ) {
+				continue;
+			}
+		}
+
+		$processor->set_attribute( 'src', $src );
+		$processor->add_class( 'wp-image-' . $image_id );
+		$processor->remove_class( 'wp-image-' . $media_item['id'] );
+		$processor->remove_attribute( 'srcset' );
+		$processor->remove_attribute( 'sizes' );
+	}
+
+	return $processor->get_updated_html();
+}
+
+/**
+ * Find and update an image block.
+ *
+ * @param array $blocks All blocks in a post.
+ * @param array $media_item The old media item details.
+ * @param int   $image_id The new image ID.
+ * @return array
+ */
+function update_image_block( array $blocks, array $media_item, int $image_id ) {
+	// Find and update all image blocks that match the old image ID.
+	foreach ( $blocks as $key => $block ) {
+		// Recurse into inner blocks.
+		if ( ! empty( $block['innerBlocks'] ) ) {
+			$blocks[ $key ]['innerBlocks'] = update_image_block( $block['innerBlocks'], $media_item, $image_id );
+		}
+
+		// If the block is an image block and the ID matches, update the ID and URL.
+		if ( 'core/image' === $block['blockName'] && (int) $media_item['id'] === (int) $block['attrs']['id'] ) {
+			$image_size = $block['attrs']['sizeSlug'] ?? 'full';
+
+			$blocks[ $key ]['attrs']['id'] = $image_id;
+
+			$processor = new \WP_HTML_Tag_Processor( $blocks[ $key ]['innerHTML'] );
+
+			// Use the HTML API to update the image src and class.
+			if ( $processor->next_tag( 'img' ) ) {
+				$src = wp_get_attachment_image_url( $image_id, $image_size );
+
+				// If the image size can't be found, try to get the full size.
+				if ( ! $src ) {
+					$src = wp_get_attachment_image_url( $image_id, 'full' );
+
+					// If we still don't have an image, skip this block.
+					if ( ! $src ) {
+						continue;
+					}
+				}
+
+				$processor->set_attribute( 'src', $src );
+				$processor->add_class( 'wp-image-' . $image_id );
+				$processor->remove_class( 'wp-image-' . $media_item['id'] );
+
+				$blocks[ $key ]['innerHTML']       = $processor->get_updated_html();
+				$blocks[ $key ]['innerContent'][0] = $processor->get_updated_html();
+			}
+		}
+	}
+
+	return $blocks;
+}
+
+/**
+ * Update all old image URLs with the new ones.
+ *
+ * @param int   $post_id The post ID.
+ * @param array $images  The old image details.
+ */
+function update_content_image_urls( int $post_id, array $images ) {
+	$dt_post = new DistributorPost( $post_id );
+
+	if ( ! $dt_post ) {
+		return;
+	}
+
+	/**
+	 * Filter whether image URLS should be updated in the content.
+	 *
+	 * @since 2.1.0
+	 * @hook dt_update_content_image_urls
+	 *
+	 * @param {bool}  true     Whether image URLs should be updated. Default `true`.
+	 * @param {int}   $post_id The post ID.
+	 * @param {array} $images  The old image details.
+	 *
+	 * @return {bool} Whether image URLs should be updated.
+	 */
+	if ( ! apply_filters( 'dt_update_content_image_urls', true, $post_id, $images ) ) {
+		return;
+	}
+
+	$content    = $dt_post->post->post_content;
+	$has_blocks = $dt_post->has_blocks();
+
+	foreach ( $images as $image_id => $media_item ) {
+		// Process block and classic editor content differently.
+		if ( $has_blocks ) {
+			$blocks = parse_blocks( $content );
+
+			// Update the image block attributes.
+			$updated_blocks = update_image_block( $blocks, $media_item, $image_id );
+			$content        = serialize_blocks( $updated_blocks );
+		} else {
+			$content = update_image_tag( $content, $media_item, $image_id );
+		}
+	}
+
+	// No need to update if the content wasn't modified.
+	if ( $content === $dt_post->post->post_content ) {
+		return;
+	}
+
+	// Update the post content.
+	wp_update_post(
+		[
+			'ID'           => $post_id,
+			'post_content' => $content,
+		]
+	);
+}
+
+/**
+ * Get existing media ID based on the original source URL and original media ID.
+ *
+ * @param int    $original_id  The original media ID.
+ * @param string $original_url The original source URL.
+ * @return int|bool The existing media ID or false if not found.
+ */
+function get_attachment_id_by_original_data( $original_id, $original_url ) {
+	$attachments_query = new \WP_Query(
+		array(
+			'post_type'              => 'attachment',
+			'post_status'            => 'any',
+			'posts_per_page'         => 1,
+			'fields'                 => 'ids',
+			'no_found_rows'          => true,
+			'update_post_meta_cache' => false,
+			'update_post_term_cache' => false,
+			'meta_query'             => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
+				'relation' => 'AND',
+				array(
+					'key'     => 'dt_original_media_id',
+					'value'   => $original_id,
+					'compare' => '=',
+				),
+				array(
+					'key'     => 'dt_original_media_url',
+					'value'   => basename( $original_url ),
+					'compare' => 'LIKE', // Using LIKE to account different source URLs for the same media based on from where it was pulled/pushed. see https://core.trac.wordpress.org/ticket/25650
+				),
+			),
+		)
+	);
+
+	if ( ! empty( $attachments_query->posts ) && ! empty( $attachments_query->posts[0] ) ) {
+		return (int) $attachments_query->posts[0];
+	}
+
+	return false;
 }
 
 /**
