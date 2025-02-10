@@ -4,6 +4,24 @@ All notable changes to this project will be documented in this file, per [the Ke
 
 ## [Unreleased] - TBD
 
+## [2.1.0] - 2025-02-10
+**Note that this release bumps the WordPress minimum supported version from 6.4 to 6.5.**
+
+### Added
+- When the setting to distribute all images is turned on, do a search/replace on the distributed content to update the image URLs from the origin site to the destination site (props [@dkotter](https://github.com/dkotter), [@iamdharmesh](https://github.com/iamdharmesh), [@willemb2](https://github.com/willemb2), [@dcarrionc](https://github.com/dcarrionc), [@lucymtc](https://github.com/lucymtc), [@Sidsector9](https://github.com/Sidsector9) via [#1283](https://github.com/10up/distributor/pull/1283)).
+
+### Changed
+- The default value of the filter `dt_sync_media_delete_and_replace` has been updated from `true` to `false`. This means by default, if an existing media item is found, it is not deleted and replaced, whereas previously it was (props [@philbraun](https://github.com/philbraun), [@iamdharmesh](https://github.com/iamdharmesh), [@jeffpaul](https://github.com/jeffpaul), [@peterwilsoncc](https://github.com/peterwilsoncc) via [#1296](https://github.com/10up/distributor/pull/1296)).
+- Bump WordPress "tested up to" version 6.7 (props [@jeffpaul](https://github.com/jeffpaul), [@qasumitbagthariya](https://github.com/qasumitbagthariya), [@iamdharmesh](https://github.com/iamdharmesh) via [#1290](https://github.com/10up/distributor/pull/1214)).
+- Bump WordPress minimum from 6.4 to 6.5 (props [@jeffpaul](https://github.com/jeffpaul), [@qasumitbagthariya](https://github.com/qasumitbagthariya), [@iamdharmesh](https://github.com/iamdharmesh) via [#1290](https://github.com/10up/distributor/pull/1214)).
+
+### Fixed
+- Resolved the media duplication issue when the same image is used in multiple posts (props [@philbraun](https://github.com/philbraun), [@iamdharmesh](https://github.com/iamdharmesh), [@jeffpaul](https://github.com/jeffpaul), [@peterwilsoncc](https://github.com/peterwilsoncc) via [#1296](https://github.com/10up/distributor/pull/1296)).
+- Update the Show Connections AMP template to avoid a JS error (props [@s3rgiosan](https://github.com/s3rgiosan), [@dkotter](https://github.com/dkotter) via [#1293](https://github.com/10up/distributor/pull/1293)).
+
+### Developer
+- Add WordPress Playground integration (props [@dottxado](https://github.com/dottxado), [@jeffpaul](https://github.com/jeffpaul), [@dkotter](https://github.com/dkotter) via [#1282](https://github.com/10up/distributor/pull/1282)).
+
 ## [2.0.6] - 2024-09-26
 ### Changed
 - Improved the management of pulled content both from the admin post list view and from the admin single post view, making it easier to see what content has been pulled and what content is linked or not linked, as well as making linking and unlinking clearer (props [@roshniahuja](https://github.com/roshniahuja), [@faisal-alvi](https://github.com/faisal-alvi), [@ravinderk](https://github.com/ravinderk), [@iamdharmesh](https://github.com/iamdharmesh), [@Sidsector9](https://github.com/Sidsector9), [@dkotter](https://github.com/dkotter), [@jeffpaul](https://github.com/jeffpaul), [@oszkarnagy](https://github.com/oszkarnagy) via [#1036](https://github.com/10up/distributor/pull/1036)).
@@ -579,6 +597,7 @@ This adds a post type selector when viewing the Pull Content list for both exter
 - Initial closed release.
 
 [Unreleased]: https://github.com/10up/distributor/compare/trunk...develop
+[2.1.0]: https://github.com/10up/distributor/compare/2.0.6...2.1.0
 [2.0.6]: https://github.com/10up/distributor/compare/2.0.5...2.0.6
 [2.0.5]: https://github.com/10up/distributor/compare/2.0.4...2.0.5
 [2.0.4]: https://github.com/10up/distributor/compare/2.0.3...2.0.4
