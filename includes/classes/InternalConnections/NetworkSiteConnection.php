@@ -110,6 +110,8 @@ class NetworkSiteConnection extends Connection {
 			$update = true;
 		}
 
+		$dt_post_args = Utils\process_registered_data( $dt_post_args );
+
 		add_filter( 'wp_insert_post_data', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'maybe_set_modified_date' ), 10, 2 );
 		// Filter documented in includes/classes/ExternalConnections/WordPressExternalConnection.php
 		$new_post_args = Utils\post_args_allow_list( apply_filters( 'dt_push_post_args', $dt_post_args, $post, $args, $this ) );

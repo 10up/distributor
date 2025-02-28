@@ -1522,3 +1522,211 @@ function get_admin_icon( $color = '#a0a5aa' ) {
 
 	return sprintf( 'data:image/svg+xml;base64,%s', base64_encode( $svg_icon ) );
 }
+
+/**
+ * Recursively process blocks for the target phase.
+ *
+ * @param array $blocks     Array of blocks.
+ * @return array Array with 'blocks' (processed blocks) and 'modified' (bool).
+ */
+function process_blocks_target_recursive( $blocks, $registered_data, $extra_data, $post_data, $index = 0 ) {
+	$callback_fn     = $registered_data['post_distribute_cb'] ?? null;
+	$attributes      = $registered_data['attributes'] ?? array();
+	$block_name      = $attributes['block_name'] ?? '';
+	$block_attribute = $attributes['block_attribute'] ?? '';
+	$modified        = false;
+
+	foreach ( $blocks as &$block ) {
+		if ( isset( $block['blockName'] ) && $block_name === $block['blockName'] ) {
+			if ( is_array( $block_attribute ) ) {
+				$source_data = array();
+				foreach ( $block_attribute as $attribute ) {
+					if ( isset( $block['attrs'][ $attribute ] ) ) {
+						$source_data[ $attribute ] = $block['attrs'][ $attribute ];
+					}
+				}
+				$replacement = call_user_func_array( $callback_fn, array( $extra_data[ $index ], $source_data, $post_data ) );
+				if ( ! empty( $replacement ) ) {
+					foreach ( $block_attribute as $attribute ) {
+						if ( isset( $replacement[ $attribute ] ) ) {
+							$block['attrs'][ $attribute ] = $replacement[ $attribute ];
+						}
+					}
+					$modified = true;
+				}
+				$index++;
+			} elseif ( isset( $block['attrs'][ $block_attribute ] ) ) {
+				$source_data = $block['attrs'][ $block_attribute ];
+				$replacement = call_user_func_array( $callback_fn, array( $extra_data[ $index ], $source_data, $post_data ) );
+				if ( ! empty( $replacement ) ) { // @todo Should we keep this?
+					$block['attrs'][ $block_attribute ] = $replacement;
+					$modified = true;
+				}
+				$index++;
+			}
+		}
+		if ( ! empty( $block['innerBlocks'] ) && is_array( $block['innerBlocks'] ) ) {
+			$inner_result = process_blocks_target_recursive( $block['innerBlocks'],  $registered_data, $extra_data, $post_data, $index );
+			if ( $inner_result['modified'] ) {
+				$block['innerBlocks'] = $inner_result['blocks'];
+				$modified = true;
+			}
+		}
+	}
+	return array( 'blocks' => $blocks, 'modified' => $modified );
+}
+
+
+/**
+ * This function processes the registered data for the post content and post meta.
+ * It calls the callback function provided in the registered data and updates the post data.
+ *
+ * @since x.x.x
+ *
+ * @param array $post_data The post data.
+ * @return array $post_data The processed post data.
+ */
+function process_registered_data( $post_data ) {
+	$registered_data = distributor_get_registered_data();
+
+	foreach ( $registered_data as $data_key => $data ) {
+		$location    = $data['location'];
+		$attributes  = $data['attributes'];
+		$callback_fn = $data['post_distribute_cb'] ?? null;
+
+		// Skip if the callback function is not provided or not callable.
+		if ( empty( $callback_fn ) || ! is_callable( $callback_fn ) ) {
+			continue;
+		}
+
+		$extra_data = $post_data[ 'distributor_extra_data' ][ $data_key ] ?? array();
+
+		if ( 'post_meta' === $location ) {
+			$meta_key = $attributes['meta_key'] ?? '';
+			if ( empty( $meta_key ) ) {
+				continue;
+			}
+
+			$metadata_key = 'distributor_meta';
+			if ( isset( $post_data['meta'] ) && ! empty( $post_data['meta'] ) ) {
+				$metadata_key = 'meta';
+			}
+
+			$post_meta = $post_data[ $metadata_key ] ?? array();
+			// Handle multiple meta keys.
+			if ( is_array( $meta_key ) ) {
+				$original_data = array();
+				foreach ( $meta_key as $key ) {
+					if ( isset( $post_meta[ $key ] ) ) {
+						if ( is_array( $post_meta[ $key ] ) && 1 === count( $post_meta[ $key ] ) ) {
+							$original_data[ $key ] = $post_meta[ $key ][0];
+						} else {
+							$original_data[ $key ] = $post_meta[ $key ];
+						}
+					}
+				}
+				$updated_meta = call_user_func_array( $callback_fn, array( $extra_data, $original_data, $post_data ) );
+
+				if ( ! empty( $updated_meta ) ) {
+					foreach ( $updated_meta as $key => $value ) {
+						if ( is_array( $post_meta[ $key ] ) && 1 === count( $post_meta[ $key ] ) ) {
+							$post_meta[ $key ] = array( $value );
+						} else {
+							$post_meta[ $key ] = $value;
+						}
+					}
+				}
+			} else {
+				$original_data = isset( $post_meta[ $meta_key ] ) ? $post_meta[ $meta_key ] : '';
+				if ( is_array( $original_data ) && 1 === count( $original_data ) ) {
+					$original_data = $original_data[0];
+				}
+				$updated_meta  = call_user_func_array( $callback_fn, array( $extra_data, $original_data, $post_data ) );
+
+				if ( ! empty( $updated_meta ) ) { // @todo Should we keep this?
+					if ( is_array( $post_meta[ $meta_key ] ) && 1 === count( $post_meta[ $meta_key ] ) ) {
+						$post_meta[ $meta_key ] = array( $updated_meta );
+					} else {
+						$post_meta[ $meta_key ] = $updated_meta;
+					}
+				}
+			}
+			// Update post meta.
+			$post_data[ $metadata_key ] = $post_meta;
+		} elseif ( 'post_content' === $location ) {
+			$post_content = $post_data['post_content'] ?? '';
+			$block_name   = $attributes['block_name'] ?? '';
+			$shortcode    = $attributes['shortcode'] ?? '';
+			if ( empty( $block_name ) && empty( $shortcode ) ) {
+				continue;
+			}
+
+			if ( ! empty( $block_name ) && has_blocks( $post_content ) ) {
+				$block_attribute = $attributes['block_attribute'] ?? '';
+				if ( ! empty( $block_attribute ) && has_block( $block_name, $post_content ) ) {
+					$blocks = parse_blocks( $post_content );
+					$result = process_blocks_target_recursive( $blocks, $data, $extra_data, $post_data );
+
+					if ( $result['modified'] ) {
+						$post_data['post_content'] = serialize_blocks( $result['blocks'] );
+					};
+				}
+			}
+
+			// Process the shortcode if shortcode is provided.
+			if ( ! empty( $shortcode ) ) {
+				$shortcode_attribute = $attributes['shortcode_attribute'] ?? '';
+				if ( ! empty( $shortcode_attribute ) && has_shortcode( $post_data['post_content'], $shortcode ) ) {
+
+					$index   = 0;
+					$pattern = get_shortcode_regex( array( $shortcode ) );
+					$post_data['post_content'] = preg_replace_callback( "/$pattern/", function ( $matches ) use ( &$index,  $shortcode, $shortcode_attribute, $callback_fn, $extra_data, $post_data ) {
+						if ( $matches[2] === $shortcode ) {
+							$attrs = shortcode_parse_atts( $matches[3] );
+							$i     = $index;
+							$index++;
+
+							if ( is_array( $shortcode_attribute ) ) {
+								$source_data = array();
+								foreach ( $shortcode_attribute as $key ) {
+									if ( isset( $attrs[ $key ] ) ) {
+										$source_data[ $key ] = $attrs[ $key ];
+									}
+								}
+								$replacement = call_user_func_array( $callback_fn, array( $extra_data[ $i ], $source_data, $post_data ) );
+								if ( ! empty( $replacement ) ) {
+									foreach ( $shortcode_attribute as $key ) {
+										if ( isset( $replacement[ $key ] ) ) {
+											$attrs[ $key ] = $replacement[ $key ];
+										}
+									}
+									$attrs_str = '';
+									foreach ( $attrs as $key => $val ) {
+										$attrs_str .= sprintf( ' %s="%s"', $key, esc_attr( $val ) );
+									}
+									return '[' . $shortcode . $attrs_str . ']';
+								}
+							} elseif ( isset( $attrs[ $shortcode_attribute ] ) ) {
+								$source_data = $attrs[ $shortcode_attribute ];
+								$replacement = call_user_func_array( $callback_fn, array( $extra_data[ $i ], $source_data, $post_data ) );
+								if ( ! empty( $replacement ) ) {
+									// Replace with the new target ID.
+									$attrs[ $shortcode_attribute ] = $replacement;
+									$attrs_str = '';
+									foreach ( $attrs as $key => $val ) {
+										$attrs_str .= sprintf( ' %s="%s"', $key, esc_attr( $val ) );
+									}
+									return '[' . $shortcode . $attrs_str . ']';
+								}
+							}
+							$index++;
+						}
+						return $matches[0];
+					}, $post_data['post_content'] );
+				}
+			}
+		}
+	}
+
+	return $post_data;
+}

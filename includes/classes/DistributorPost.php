@@ -658,6 +658,194 @@ class DistributorPost {
 	}
 
 	/**
+	 * Get the extra data for the post to be processed on the target site.
+	 *
+	 * @since x.x.x
+	 *
+	 * @return array Extra data for the post.
+	 */
+	protected function get_extra_data() {
+		$extra_data      = array();
+		$registered_data = distributor_get_registered_data();
+
+		foreach ( $registered_data as $data_key => $data ) {
+			$location    = $data['location'];
+			$attributes  = $data['attributes'];
+			$callback_fn = $data['pre_distribute_cb'] ?? null;
+
+			// Skip if the callback function is not provided or not callable.
+			if ( empty( $callback_fn ) || ! is_callable( $callback_fn ) ) {
+				continue;
+			}
+
+			if ( 'post_meta' === $location ) {
+				$meta_key = $attributes['meta_key'] ?? '';
+				if ( empty( $meta_key ) ) {
+					continue;
+				}
+
+				// Handle multiple meta keys.
+				if ( is_array( $meta_key ) ) {
+					$meta_data = array();
+					foreach ( $meta_key as $key ) {
+						$meta_value = get_post_meta( $this->post->ID, $key, false );
+						if ( is_array( $meta_value ) && 1 === count( $meta_value ) ) {
+							$meta_data[ $key ] = $meta_value[0];
+						} else {
+							$meta_data[ $key ] = $meta_value;
+						}
+					}
+					$extra_data[ $data_key ] = call_user_func_array( $callback_fn, array( $meta_data, $this->post->ID ) );
+					continue;
+				}
+
+				$meta_value = get_post_meta( $this->post->ID, $meta_key, false );
+				if ( is_array( $meta_value ) && 1 === count( $meta_value ) ) {
+					$meta_data = $meta_value[0];
+				} else {
+					$meta_data = $meta_value;
+				}
+				$extra_data[ $data_key ] = call_user_func_array( $callback_fn, array( $meta_data, $this->post->ID ) );
+			} elseif ( 'post_content' === $location ) {
+				$shortcode  = $attributes['shortcode'] ?? '';
+				$block_name = $attributes['block_name'] ?? '';
+				if ( empty( $shortcode ) && empty( $block_name ) ) {
+					continue;
+				}
+
+				// Process the block if block name is provided.
+				if ( ! empty( $block_name ) && $this->has_blocks() ) {
+					$block_attribute = $attributes['block_attribute'] ?? '';
+					if ( ! empty( $block_attribute ) && $this->has_block( $block_name ) ) {
+						$attribute_values = array();
+						$blocks           = parse_blocks( $this->post->post_content );
+
+						foreach ( $blocks as $block ) {
+							$attribute_values = array_merge( $attribute_values, $this->parse_blocks_for_attribute_values( $block, $block_name, $block_attribute ) );
+						}
+
+						$block_data = array();
+						if ( ! empty( $attribute_values ) ) {
+							foreach ( $attribute_values as $value ) {
+								$block_data[] = call_user_func_array( $callback_fn, array( $value, $this->post->ID ) );
+							}
+						}
+
+						$extra_data[ $data_key ] = $block_data;
+					}
+				}
+
+				// Process the shortcode if shortcode is provided.
+				if ( ! empty( $shortcode ) ) {
+					$shortcode_attribute = $attributes['shortcode_attribute'] ?? '';
+					if ( ! empty( $shortcode_attribute ) && has_shortcode( $this->post->post_content, $shortcode ) ) {
+						$attribute_values = $this->get_shortcode_attribute_values( $this->post->post_content, $shortcode, $shortcode_attribute );
+
+						$shortcode_data = array();
+						if ( ! empty( $attribute_values ) ) {
+							foreach ( $attribute_values as $value ) {
+								$shortcode_data[] = call_user_func_array( $callback_fn, array( $value, $this->post->ID ) );
+							}
+						}
+
+						$extra_data[ $data_key ] = $shortcode_data;
+					}
+				}
+			}
+		}
+
+		/**
+		 * Filters the extra data for the post to be processed on the target site.
+		 *
+		 * @since x.x.x
+		 *
+		 * @param array $extra_data Extra data for the post.
+		 * @param DistributorPost $this The DistributorPost object.
+		 */
+		$extra_data = apply_filters( 'dt_extra_data', $extra_data, $this );
+
+		return $extra_data;
+	}
+
+	/**
+	 * Parse blocks to obtain value of given attribute.
+	 *
+	 * @since x.x.x
+	 *
+	 * @param array        $block           Block to parse.
+	 * @param string       $block_name      Block name to look for.
+	 * @param string|array $block_attribute Block attribute(s) to look for.
+	 * @return array Array of attribute values.
+	 */
+	protected function parse_blocks_for_attribute_values( $block, $block_name, $block_attribute ) {
+		$attribute_values = array();
+
+		if ( ! empty( $block['innerBlocks'] ) ) {
+			foreach ( $block['innerBlocks'] as $inner_block ) {
+				$attribute_values = array_merge( $attribute_values, $this->parse_blocks_for_attribute_values( $inner_block, $block_name, $block_attribute ) );
+			}
+		}
+
+		if ( $block['blockName'] === $block_name ) {
+			// Handle multiple block attributes.
+			if ( is_array( $block_attribute ) ) {
+				$data = array();
+				foreach ( $block_attribute as $attribute ) {
+					if ( isset( $block['attrs'][ $attribute ] ) ) {
+						$data[ $attribute ] = $block['attrs'][ $attribute ];
+					}
+				}
+				$attribute_values[] = $data;
+			} elseif ( isset( $block['attrs'][ $block_attribute ] ) ) {
+				$attribute_values[] = $block['attrs'][ $block_attribute ];
+			}
+		}
+
+		return $attribute_values;
+	}
+
+	/**
+	 * Get the attribute values of a given shortcode.
+	 *
+	 * @since x.x.x
+	 *
+	 * @param string       $content   The post content.
+	 * @param string       $shortcode The shortcode to look for.
+	 * @param string|array $attribute The attribute(s) to look for.
+	 * @return array Array of attribute values.
+	 */
+	protected function get_shortcode_attribute_values( $content, $shortcode, $attribute ) {
+		$attribute_values = array();
+
+		// Build a regex that matches only our target shortcode.
+		$pattern = get_shortcode_regex( array( $shortcode ) );
+
+		// Use preg_match_all to find all matching shortcodes.
+		preg_match_all( "/$pattern/", $content, $matches, PREG_SET_ORDER );
+
+		 // Loop through each matched shortcode.
+		foreach ( $matches as $match ) {
+			// $match[0] = full match, $match[2] = shortcode tag, $match[3] = attributes string.
+			if ( $match[2] === $shortcode ) {
+				$attrs = shortcode_parse_atts( $match[3] );
+				if ( is_array( $attribute ) ) {
+					$data = array();
+					foreach ( $attribute as $attr ) {
+						if ( isset( $attrs[ $attr ] ) ) {
+							$data[ $attr ] = $attrs[ $attr ];
+						}
+					}
+					$attribute_values[] = $data;
+				} elseif ( isset( $attrs[ $attribute ] ) ) {
+					$attribute_values[] = $attrs[ $attribute ];
+				}
+			}
+		}
+
+		return $attribute_values;
+	}
+
+	/**
 	 * Parse the post's content to obtain media items by image tags.
 	 *
 	 * @return array<WP_Post> Array of media posts.
@@ -848,6 +1036,9 @@ class DistributorPost {
 			'distributor_original_site_url'  => $this->source_site['home_url'],
 			'distributor_original_post_url'  => $this->get_permalink(),
 			'distributor_original_post_id'   => $this->post->ID,
+
+			// Extra data for handling stored IDs.
+			'distributor_extra_data'         => $this->get_extra_data(),
 		);
 	}
 
@@ -936,6 +1127,10 @@ class DistributorPost {
 		);
 		if ( ! empty( $post_data['parent'] ) ) {
 			$insert['meta_input']['dt_original_post_parent'] = $post_data['parent'];
+		}
+
+		if ( ! empty( $post_data['distributor_extra_data'] ) ) {
+			$insert['distributor_extra_data'] = $post_data['distributor_extra_data'];
 		}
 
 		return $insert;
