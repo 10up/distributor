@@ -1858,7 +1858,7 @@ function process_registered_shortcode_data( $post_data, $registered_data, $extra
 							foreach ( $attrs as $key => $val ) {
 								$attrs_str .= sprintf( ' %s="%s"', $key, esc_attr( $val ) );
 							}
-							return '[' . $shortcode . $attrs_str . ']';
+							return str_replace( $matches[3], $attrs_str, $matches[0] );
 						}
 					} elseif ( isset( $attrs[ $shortcode_attribute ] ) ) {
 						$source_data = $attrs[ $shortcode_attribute ];
@@ -1870,7 +1870,7 @@ function process_registered_shortcode_data( $post_data, $registered_data, $extra
 							foreach ( $attrs as $key => $val ) {
 								$attrs_str .= sprintf( ' %s="%s"', $key, esc_attr( $val ) );
 							}
-							return '[' . $shortcode . $attrs_str . ']';
+							return str_replace( $matches[3], $attrs_str, $matches[0] );
 						}
 					}
 					$index++;
