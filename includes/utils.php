@@ -1523,13 +1523,42 @@ function get_admin_icon( $color = '#a0a5aa' ) {
 	return sprintf( 'data:image/svg+xml;base64,%s', base64_encode( $svg_icon ) );
 }
 
+
 /**
- * Recursively process blocks for the target phase.
+ * Search and replace inner content of a block with the provided replacements.
  *
- * @param array $blocks     Array of blocks.
+ * @since x.x.x
+ *
+ * @param array $block               The block to search and replace inner content.
+ * @param array $replacement_strings Array of search and replace strings for inner content.
+ * @return array The block with inner content replaced.
+ */
+function search_replace_block_inner_content( $block, $replacement_strings ) {
+	if ( empty( $replacement_strings ) ) {
+		return $block;
+	}
+
+	foreach ( $replacement_strings as $replacement_string ) {
+		$block['innerHTML']       = str_replace( $replacement_string['search'], $replacement_string['replace'], $block['innerHTML'] );
+		$block['innerContent'][0] = str_replace( $replacement_string['search'], $replacement_string['replace'], $block['innerContent'][0] );
+	}
+	return $block;
+}
+
+/**
+ * Recursively process blocks for the registered data.
+ * This function processes the blocks data recursively and calls the callback function provided in the registered data.
+ *
+ * @since x.x.x
+ *
+ * @param array $blocks          Array of blocks.
+ * @param array $registered_data Array of registered data.
+ * @param array $extra_data      Array of extra data provided by source for the registered data.
+ * @param array $post_data       Array of post data.
+ * @param int   $index           Index of the extra data.
  * @return array Array with 'blocks' (processed blocks) and 'modified' (bool).
  */
-function process_blocks_target_recursive( $blocks, $registered_data, $extra_data, $post_data, $index = 0 ) {
+function process_blocks_data_recursive( $blocks, $registered_data, $extra_data, $post_data, $index = 0 ) {
 	$callback_fn     = $registered_data['post_distribute_cb'] ?? null;
 	$attributes      = $registered_data['attributes'] ?? array();
 	$block_name      = $attributes['block_name'] ?? '';
@@ -1552,6 +1581,12 @@ function process_blocks_target_recursive( $blocks, $registered_data, $extra_data
 							$block['attrs'][ $attribute ] = $replacement[ $attribute ];
 						}
 					}
+
+					// Do replacement for innerHTML if it's set.
+					if ( ! empty( $replacement['inner_content_replacements'] ) ) {
+						$block = search_replace_block_inner_content( $block, $replacement['inner_content_replacements'] );
+					}
+
 					$modified = true;
 				}
 				$index++;
@@ -1560,20 +1595,31 @@ function process_blocks_target_recursive( $blocks, $registered_data, $extra_data
 				$replacement = call_user_func_array( $callback_fn, array( $extra_data[ $index ], $source_data, $post_data ) );
 				if ( ! empty( $replacement ) ) { // @todo Should we keep this?
 					$block['attrs'][ $block_attribute ] = $replacement;
+
+					// Do replacement for innerHTML if it's set.
+					if ( ! empty( $replacement['inner_content_replacements'] ) ) {
+						$block = search_replace_block_inner_content( $block, $replacement['inner_content_replacements'] );
+					}
+
 					$modified = true;
 				}
 				$index++;
 			}
 		}
+
 		if ( ! empty( $block['innerBlocks'] ) && is_array( $block['innerBlocks'] ) ) {
-			$inner_result = process_blocks_target_recursive( $block['innerBlocks'],  $registered_data, $extra_data, $post_data, $index );
+			$inner_result = process_blocks_data_recursive( $block['innerBlocks'], $registered_data, $extra_data, $post_data, $index );
 			if ( $inner_result['modified'] ) {
 				$block['innerBlocks'] = $inner_result['blocks'];
-				$modified = true;
+				$modified             = true;
 			}
 		}
 	}
-	return array( 'blocks' => $blocks, 'modified' => $modified );
+
+	return array(
+		'blocks'   => $blocks,
+		'modified' => $modified,
+	);
 }
 
 
@@ -1599,60 +1645,10 @@ function process_registered_data( $post_data ) {
 			continue;
 		}
 
-		$extra_data = $post_data[ 'distributor_extra_data' ][ $data_key ] ?? array();
+		$extra_data = $post_data['distributor_extra_data'][ $data_key ] ?? array();
 
 		if ( 'post_meta' === $location ) {
-			$meta_key = $attributes['meta_key'] ?? '';
-			if ( empty( $meta_key ) ) {
-				continue;
-			}
-
-			$metadata_key = 'distributor_meta';
-			if ( isset( $post_data['meta'] ) && ! empty( $post_data['meta'] ) ) {
-				$metadata_key = 'meta';
-			}
-
-			$post_meta = $post_data[ $metadata_key ] ?? array();
-			// Handle multiple meta keys.
-			if ( is_array( $meta_key ) ) {
-				$original_data = array();
-				foreach ( $meta_key as $key ) {
-					if ( isset( $post_meta[ $key ] ) ) {
-						if ( is_array( $post_meta[ $key ] ) && 1 === count( $post_meta[ $key ] ) ) {
-							$original_data[ $key ] = $post_meta[ $key ][0];
-						} else {
-							$original_data[ $key ] = $post_meta[ $key ];
-						}
-					}
-				}
-				$updated_meta = call_user_func_array( $callback_fn, array( $extra_data, $original_data, $post_data ) );
-
-				if ( ! empty( $updated_meta ) ) {
-					foreach ( $updated_meta as $key => $value ) {
-						if ( is_array( $post_meta[ $key ] ) && 1 === count( $post_meta[ $key ] ) ) {
-							$post_meta[ $key ] = array( $value );
-						} else {
-							$post_meta[ $key ] = $value;
-						}
-					}
-				}
-			} else {
-				$original_data = isset( $post_meta[ $meta_key ] ) ? $post_meta[ $meta_key ] : '';
-				if ( is_array( $original_data ) && 1 === count( $original_data ) ) {
-					$original_data = $original_data[0];
-				}
-				$updated_meta  = call_user_func_array( $callback_fn, array( $extra_data, $original_data, $post_data ) );
-
-				if ( ! empty( $updated_meta ) ) { // @todo Should we keep this?
-					if ( is_array( $post_meta[ $meta_key ] ) && 1 === count( $post_meta[ $meta_key ] ) ) {
-						$post_meta[ $meta_key ] = array( $updated_meta );
-					} else {
-						$post_meta[ $meta_key ] = $updated_meta;
-					}
-				}
-			}
-			// Update post meta.
-			$post_data[ $metadata_key ] = $post_meta;
+			$post_data = process_registered_post_meta_data( $post_data, $data, $extra_data );
 		} elseif ( 'post_content' === $location ) {
 			$post_content = $post_data['post_content'] ?? '';
 			$block_name   = $attributes['block_name'] ?? '';
@@ -1662,71 +1658,244 @@ function process_registered_data( $post_data ) {
 			}
 
 			if ( ! empty( $block_name ) && has_blocks( $post_content ) ) {
-				$block_attribute = $attributes['block_attribute'] ?? '';
-				if ( ! empty( $block_attribute ) && has_block( $block_name, $post_content ) ) {
-					$blocks = parse_blocks( $post_content );
-					$result = process_blocks_target_recursive( $blocks, $data, $extra_data, $post_data );
-
-					if ( $result['modified'] ) {
-						$post_data['post_content'] = serialize_blocks( $result['blocks'] );
-					};
-				}
+				$post_data = process_registered_block_data( $post_data, $data, $extra_data );
 			}
 
 			// Process the shortcode if shortcode is provided.
 			if ( ! empty( $shortcode ) ) {
-				$shortcode_attribute = $attributes['shortcode_attribute'] ?? '';
-				if ( ! empty( $shortcode_attribute ) && has_shortcode( $post_data['post_content'], $shortcode ) ) {
-
-					$index   = 0;
-					$pattern = get_shortcode_regex( array( $shortcode ) );
-					$post_data['post_content'] = preg_replace_callback( "/$pattern/", function ( $matches ) use ( &$index,  $shortcode, $shortcode_attribute, $callback_fn, $extra_data, $post_data ) {
-						if ( $matches[2] === $shortcode ) {
-							$attrs = shortcode_parse_atts( $matches[3] );
-							$i     = $index;
-							$index++;
-
-							if ( is_array( $shortcode_attribute ) ) {
-								$source_data = array();
-								foreach ( $shortcode_attribute as $key ) {
-									if ( isset( $attrs[ $key ] ) ) {
-										$source_data[ $key ] = $attrs[ $key ];
-									}
-								}
-								$replacement = call_user_func_array( $callback_fn, array( $extra_data[ $i ], $source_data, $post_data ) );
-								if ( ! empty( $replacement ) ) {
-									foreach ( $shortcode_attribute as $key ) {
-										if ( isset( $replacement[ $key ] ) ) {
-											$attrs[ $key ] = $replacement[ $key ];
-										}
-									}
-									$attrs_str = '';
-									foreach ( $attrs as $key => $val ) {
-										$attrs_str .= sprintf( ' %s="%s"', $key, esc_attr( $val ) );
-									}
-									return '[' . $shortcode . $attrs_str . ']';
-								}
-							} elseif ( isset( $attrs[ $shortcode_attribute ] ) ) {
-								$source_data = $attrs[ $shortcode_attribute ];
-								$replacement = call_user_func_array( $callback_fn, array( $extra_data[ $i ], $source_data, $post_data ) );
-								if ( ! empty( $replacement ) ) {
-									// Replace with the new target ID.
-									$attrs[ $shortcode_attribute ] = $replacement;
-									$attrs_str = '';
-									foreach ( $attrs as $key => $val ) {
-										$attrs_str .= sprintf( ' %s="%s"', $key, esc_attr( $val ) );
-									}
-									return '[' . $shortcode . $attrs_str . ']';
-								}
-							}
-							$index++;
-						}
-						return $matches[0];
-					}, $post_data['post_content'] );
-				}
+				$post_data = process_registered_shortcode_data( $post_data, $data, $extra_data );
 			}
 		}
 	}
+
+	/**
+	 * Filter the post data after processing the registered data.
+	 *
+	 * @since x.x.x
+	 *
+	 * @param array $post_data       The post data.
+	 * @param array $registered_data The distributor registered data.
+	 * @param array $extra_data      The extra data for the given registered data.
+	 * @return array $post_data The updated post data.
+	 */
+	$post_data = apply_filters( 'dt_after_registered_data_processed', $post_data, $registered_data, $extra_data );
+
+	return $post_data;
+}
+
+/**
+ * This function processes the registered data for the post meta.
+ * It calls the callback function provided in the registered data and updates the post meta data.
+ *
+ * @since x.x.x
+ *
+ * @param array $post_data       The post data.
+ * @param array $registered_data The distributor registered data.
+ * @param array $extra_data      The extra data for the given registered data.
+ * @return array $post_data The processed post data.
+ */
+function process_registered_post_meta_data( $post_data, $registered_data, $extra_data ) {
+	$attributes  = $registered_data['attributes'] ?? array();
+	$callback_fn = $registered_data['post_distribute_cb'] ?? null;
+	$meta_key    = $attributes['meta_key'] ?? '';
+
+	// Skip if the callback function is not provided or not callable.
+	if ( empty( $callback_fn ) || ! is_callable( $callback_fn ) || empty( $meta_key ) ) {
+		return $post_data;
+	}
+
+	$metadata_key = 'distributor_meta';
+	if ( isset( $post_data['meta'] ) && ! empty( $post_data['meta'] ) ) {
+		$metadata_key = 'meta';
+	}
+
+	$post_meta = $post_data[ $metadata_key ] ?? array();
+	// Handle multiple meta keys.
+	if ( is_array( $meta_key ) ) {
+		$original_data = array();
+		foreach ( $meta_key as $key ) {
+			if ( isset( $post_meta[ $key ] ) ) {
+				if ( is_array( $post_meta[ $key ] ) && 1 === count( $post_meta[ $key ] ) ) {
+					$original_data[ $key ] = $post_meta[ $key ][0];
+				} else {
+					$original_data[ $key ] = $post_meta[ $key ];
+				}
+			}
+		}
+		$updated_meta = call_user_func_array( $callback_fn, array( $extra_data, $original_data, $post_data ) );
+
+		if ( ! empty( $updated_meta ) ) {
+			foreach ( $updated_meta as $key => $value ) {
+				if ( is_array( $post_meta[ $key ] ) && 1 === count( $post_meta[ $key ] ) ) {
+					$post_meta[ $key ] = array( $value );
+				} else {
+					$post_meta[ $key ] = $value;
+				}
+			}
+		}
+	} else {
+		$original_data = isset( $post_meta[ $meta_key ] ) ? $post_meta[ $meta_key ] : '';
+		if ( is_array( $original_data ) && 1 === count( $original_data ) ) {
+			$original_data = $original_data[0];
+		}
+		$updated_meta = call_user_func_array( $callback_fn, array( $extra_data, $original_data, $post_data ) );
+
+		if ( ! empty( $updated_meta ) ) { // @todo Should we keep this?
+			if ( is_array( $post_meta[ $meta_key ] ) && 1 === count( $post_meta[ $meta_key ] ) ) {
+				$post_meta[ $meta_key ] = array( $updated_meta );
+			} else {
+				$post_meta[ $meta_key ] = $updated_meta;
+			}
+		}
+	}
+
+	/**
+	 * Filter the post meta data after processing the registered data.
+	 *
+	 * @since x.x.x
+	 *
+	 * @param array $post_meta       The post meta data.
+	 * @param array $registered_data The distributor registered data.
+	 * @param array $extra_data      The extra data for the given registered data.
+	 * @param array $post_data       The post data.
+	 * @return array $post_meta The updated post meta data.
+	 */
+	$post_meta = apply_filters( 'dt_after_registered_post_meta_processed', $post_meta, $registered_data, $extra_data, $post_data );
+
+	// Update post meta.
+	$post_data[ $metadata_key ] = $post_meta;
+
+	return $post_data;
+}
+
+/**
+ * Process the registered block data for the post content.
+ *
+ * @since x.x.x
+ *
+ * @param mixed $post_data       The post data.
+ * @param mixed $registered_data The distributor registered data.
+ * @param mixed $extra_data     The extra data for the given registered data.
+ * @return mixed $post_data The updated post data.
+ */
+function process_registered_block_data( $post_data, $registered_data, $extra_data ) {
+	$attributes      = $registered_data['attributes'] ?? array();
+	$block_name      = $attributes['block_name'] ?? '';
+	$block_attribute = $attributes['block_attribute'] ?? '';
+	$post_content    = $post_data['post_content'] ?? '';
+
+	if ( ! empty( $block_attribute ) && has_block( $block_name, $post_content ) ) {
+		$blocks = parse_blocks( $post_content );
+		$result = process_blocks_data_recursive( $blocks, $registered_data, $extra_data, $post_data );
+
+		if ( $result['modified'] ) {
+			$post_content = serialize_blocks( $result['blocks'] );
+		};
+	}
+
+	/**
+	 * Filter the post content blocks after processing the registered data.
+	 *
+	 * @since x.x.x
+	 *
+	 * @param array $post_content   The post content.
+	 * @param array $registered_data The distributor registered data.
+	 * @param array $extra_data      The extra data for the given registered data.
+	 * @param array $post_data       The post data.
+	 * @return array $post_content The updated post content.
+	 */
+	$post_content = apply_filters( 'dt_after_registered_block_data_processed', $post_content, $registered_data, $extra_data, $post_data );
+
+	// Update post content.
+	$post_data['post_content'] = $post_content;
+
+	return $post_data;
+}
+
+/**
+ * Process the registered shortcode data for the post content.
+ *
+ * @since x.x.x
+ *
+ * @param mixed $post_data       The post data.
+ * @param mixed $registered_data The distributor registered data.
+ * @param mixed $extra_data      The extra data for the given registered data.
+ * @return mixed $post_data The updated post data.
+ */
+function process_registered_shortcode_data( $post_data, $registered_data, $extra_data ) {
+	$attributes          = $registered_data['attributes'] ?? array();
+	$shortcode           = $attributes['shortcode'] ?? '';
+	$shortcode_attribute = $attributes['shortcode_attribute'] ?? '';
+	$callback_fn         = $registered_data['post_distribute_cb'] ?? null;
+	$post_content        = $post_data['post_content'] ?? '';
+
+	if ( ! empty( $shortcode_attribute ) && has_shortcode( $post_content, $shortcode ) ) {
+		$index        = 0;
+		$pattern      = get_shortcode_regex( array( $shortcode ) );
+		$post_content = preg_replace_callback(
+			"/$pattern/",
+			function ( $matches ) use ( &$index, $shortcode, $shortcode_attribute, $callback_fn, $extra_data, $post_data ) {
+				if ( $matches[2] === $shortcode ) {
+					$attrs = shortcode_parse_atts( $matches[3] );
+					$i     = $index;
+					$index++;
+
+					if ( is_array( $shortcode_attribute ) ) {
+						$source_data = array();
+						foreach ( $shortcode_attribute as $key ) {
+							if ( isset( $attrs[ $key ] ) ) {
+								$source_data[ $key ] = $attrs[ $key ];
+							}
+						}
+						$replacement = call_user_func_array( $callback_fn, array( $extra_data[ $i ], $source_data, $post_data ) );
+						if ( ! empty( $replacement ) ) {
+							foreach ( $shortcode_attribute as $key ) {
+								if ( isset( $replacement[ $key ] ) ) {
+									$attrs[ $key ] = $replacement[ $key ];
+								}
+							}
+							$attrs_str = '';
+							foreach ( $attrs as $key => $val ) {
+								$attrs_str .= sprintf( ' %s="%s"', $key, esc_attr( $val ) );
+							}
+							return '[' . $shortcode . $attrs_str . ']';
+						}
+					} elseif ( isset( $attrs[ $shortcode_attribute ] ) ) {
+						$source_data = $attrs[ $shortcode_attribute ];
+						$replacement = call_user_func_array( $callback_fn, array( $extra_data[ $i ], $source_data, $post_data ) );
+						if ( ! empty( $replacement ) ) {
+							// Replace with the new target ID.
+							$attrs[ $shortcode_attribute ] = $replacement;
+							$attrs_str                     = '';
+							foreach ( $attrs as $key => $val ) {
+								$attrs_str .= sprintf( ' %s="%s"', $key, esc_attr( $val ) );
+							}
+							return '[' . $shortcode . $attrs_str . ']';
+						}
+					}
+					$index++;
+				}
+				return $matches[0];
+			},
+			$post_content
+		);
+	}
+
+	/**
+	 * Filter the post content shortcodes after processing the registered data.
+	 *
+	 * @since x.x.x
+	 *
+	 * @param array $post_content   The post content.
+	 * @param array $registered_data The distributor registered data.
+	 * @param array $extra_data      The extra data for the given registered data.
+	 * @param array $post_data       The post data.
+	 * @return array $post_content The updated post content.
+	 */
+	$post_content = apply_filters( 'dt_after_registered_shortcode_data_processed', $post_content, $registered_data, $extra_data, $post_data );
+
+	// Update post content.
+	$post_data['post_content'] = $post_content;
 
 	return $post_data;
 }
