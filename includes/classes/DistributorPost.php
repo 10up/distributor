@@ -664,7 +664,7 @@ class DistributorPost {
 	 *
 	 * @return array Extra data for the post.
 	 */
-	protected function get_extra_data() {
+	public function get_extra_data() {
 		$extra_data      = array();
 		$registered_data = distributor_get_registered_data();
 

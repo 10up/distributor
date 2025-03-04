@@ -571,6 +571,22 @@ function prepare_taxonomy_terms( $post_id, $args = array() ) {
 }
 
 /**
+ * Prepare post extra data for consumption on the target site.
+ *
+ * @param  int $post_id Post ID.
+ * @since  x.x.x
+ * @return array
+ */
+function prepare_extra_data( $post_id ) {
+	$dt_post = new DistributorPost( $post_id );
+	if ( ! $dt_post ) {
+		return array();
+	}
+
+	return $dt_post->get_extra_data();
+}
+
+/**
  * Given an array of terms by taxonomy, set those terms to another post. This function will cleverly merge
  * terms into the post and create terms that don't exist.
  *
@@ -1630,9 +1646,10 @@ function process_blocks_data_recursive( $blocks, $registered_data, $extra_data, 
  * @since x.x.x
  *
  * @param array $post_data The post data.
+ * @param bool  $is_rest   Whether the post data is from the REST API.
  * @return array $post_data The processed post data.
  */
-function process_registered_data( $post_data ) {
+function process_registered_data( $post_data, $is_rest = false ) {
 	$registered_data = distributor_get_registered_data();
 
 	foreach ( $registered_data as $data_key => $data ) {
@@ -1648,22 +1665,39 @@ function process_registered_data( $post_data ) {
 		$extra_data = $post_data['distributor_extra_data'][ $data_key ] ?? array();
 
 		if ( 'post_meta' === $location ) {
-			$post_data = process_registered_post_meta_data( $post_data, $data, $extra_data );
+			$metadata_key = 'distributor_meta';
+			if ( isset( $post_data['meta'] ) && ! empty( $post_data['meta'] ) ) {
+				$metadata_key = 'meta';
+			}
+
+			$post_meta                  = $post_data[ $metadata_key ] ?? array();
+			$post_data[ $metadata_key ] = process_registered_post_meta_data( $post_meta, $data, $extra_data, $post_data );
+
 		} elseif ( 'post_content' === $location ) {
-			$post_content = $post_data['post_content'] ?? '';
+			$content_key  = 'post_content';
+			if ( $is_rest ) {
+				$content_key = 'content';
+				if ( isset( $post_data['distributor_raw_content'] ) ) {
+					$content_key = 'distributor_raw_content';
+				}
+			}
+
+			$post_content = $post_data[ $content_key ] ?? '';
 			$block_name   = $attributes['block_name'] ?? '';
 			$shortcode    = $attributes['shortcode'] ?? '';
+
 			if ( empty( $block_name ) && empty( $shortcode ) ) {
 				continue;
 			}
 
 			if ( ! empty( $block_name ) && has_blocks( $post_content ) ) {
-				$post_data = process_registered_block_data( $post_data, $data, $extra_data );
+				$post_data[ $content_key ] = process_registered_block_data( $post_content, $data, $extra_data, $post_data );
+				$post_content              = $post_data[ $content_key ];
 			}
 
 			// Process the shortcode if shortcode is provided.
 			if ( ! empty( $shortcode ) ) {
-				$post_data = process_registered_shortcode_data( $post_data, $data, $extra_data );
+				$post_data[ $content_key ] = process_registered_shortcode_data( $post_content, $data, $extra_data, $post_data );
 			}
 		}
 	}
@@ -1689,27 +1723,22 @@ function process_registered_data( $post_data ) {
  *
  * @since x.x.x
  *
- * @param array $post_data       The post data.
+ * @param array $post_meta       The post meta data.
  * @param array $registered_data The distributor registered data.
  * @param array $extra_data      The extra data for the given registered data.
+ * @param array $post_data       The post data.
  * @return array $post_data The processed post data.
  */
-function process_registered_post_meta_data( $post_data, $registered_data, $extra_data ) {
+function process_registered_post_meta_data( $post_meta, $registered_data, $extra_data, $post_data ) {
 	$attributes  = $registered_data['attributes'] ?? array();
 	$callback_fn = $registered_data['post_distribute_cb'] ?? null;
 	$meta_key    = $attributes['meta_key'] ?? '';
 
 	// Skip if the callback function is not provided or not callable.
 	if ( empty( $callback_fn ) || ! is_callable( $callback_fn ) || empty( $meta_key ) ) {
-		return $post_data;
+		return $post_meta;
 	}
 
-	$metadata_key = 'distributor_meta';
-	if ( isset( $post_data['meta'] ) && ! empty( $post_data['meta'] ) ) {
-		$metadata_key = 'meta';
-	}
-
-	$post_meta = $post_data[ $metadata_key ] ?? array();
 	// Handle multiple meta keys.
 	if ( is_array( $meta_key ) ) {
 		$original_data = array();
@@ -1760,12 +1789,7 @@ function process_registered_post_meta_data( $post_data, $registered_data, $extra
 	 * @param array $post_data       The post data.
 	 * @return array $post_meta The updated post meta data.
 	 */
-	$post_meta = apply_filters( 'dt_after_registered_post_meta_processed', $post_meta, $registered_data, $extra_data, $post_data );
-
-	// Update post meta.
-	$post_data[ $metadata_key ] = $post_meta;
-
-	return $post_data;
+	return apply_filters( 'dt_after_registered_post_meta_processed', $post_meta, $registered_data, $extra_data, $post_data );
 }
 
 /**
@@ -1773,16 +1797,16 @@ function process_registered_post_meta_data( $post_data, $registered_data, $extra
  *
  * @since x.x.x
  *
- * @param mixed $post_data       The post data.
- * @param mixed $registered_data The distributor registered data.
- * @param mixed $extra_data     The extra data for the given registered data.
- * @return mixed $post_data The updated post data.
+ * @param string $post_content    The post content.
+ * @param array  $registered_data The distributor registered data.
+ * @param array  $extra_data      The extra data for the given registered data.
+ * @param array  $post_data       The post data.
+ * @return string $post_content The updated post content.
  */
-function process_registered_block_data( $post_data, $registered_data, $extra_data ) {
+function process_registered_block_data( $post_content, $registered_data, $extra_data, $post_data ) {
 	$attributes      = $registered_data['attributes'] ?? array();
 	$block_name      = $attributes['block_name'] ?? '';
 	$block_attribute = $attributes['block_attribute'] ?? '';
-	$post_content    = $post_data['post_content'] ?? '';
 
 	if ( ! empty( $block_attribute ) && has_block( $block_name, $post_content ) ) {
 		$blocks = parse_blocks( $post_content );
@@ -1804,12 +1828,7 @@ function process_registered_block_data( $post_data, $registered_data, $extra_dat
 	 * @param array $post_data       The post data.
 	 * @return array $post_content The updated post content.
 	 */
-	$post_content = apply_filters( 'dt_after_registered_block_data_processed', $post_content, $registered_data, $extra_data, $post_data );
-
-	// Update post content.
-	$post_data['post_content'] = $post_content;
-
-	return $post_data;
+	return apply_filters( 'dt_after_registered_block_data_processed', $post_content, $registered_data, $extra_data, $post_data );
 }
 
 /**
@@ -1817,17 +1836,17 @@ function process_registered_block_data( $post_data, $registered_data, $extra_dat
  *
  * @since x.x.x
  *
- * @param mixed $post_data       The post data.
+ * @param mixed $post_content    The post content.
  * @param mixed $registered_data The distributor registered data.
  * @param mixed $extra_data      The extra data for the given registered data.
+ * @param mixed $post_data       The post data.
  * @return mixed $post_data The updated post data.
  */
-function process_registered_shortcode_data( $post_data, $registered_data, $extra_data ) {
+function process_registered_shortcode_data( $post_content, $registered_data, $extra_data, $post_data ) {
 	$attributes          = $registered_data['attributes'] ?? array();
 	$shortcode           = $attributes['shortcode'] ?? '';
 	$shortcode_attribute = $attributes['shortcode_attribute'] ?? '';
 	$callback_fn         = $registered_data['post_distribute_cb'] ?? null;
-	$post_content        = $post_data['post_content'] ?? '';
 
 	if ( ! empty( $shortcode_attribute ) && has_shortcode( $post_content, $shortcode ) ) {
 		$index        = 0;
@@ -1892,10 +1911,5 @@ function process_registered_shortcode_data( $post_data, $registered_data, $extra
 	 * @param array $post_data       The post data.
 	 * @return array $post_content The updated post content.
 	 */
-	$post_content = apply_filters( 'dt_after_registered_shortcode_data_processed', $post_content, $registered_data, $extra_data, $post_data );
-
-	// Update post content.
-	$post_data['post_content'] = $post_content;
-
-	return $post_data;
+	return apply_filters( 'dt_after_registered_shortcode_data_processed', $post_content, $registered_data, $extra_data, $post_data );
 }
