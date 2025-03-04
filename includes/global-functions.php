@@ -168,21 +168,21 @@ function distributor_register_data( $data_name, $args ) {
 
 	// Validate the location.
 	if ( ! in_array( $args['location'], array( 'post_meta', 'post_content' ), true ) ) {
-		_doing_it_wrong( __FUNCTION__, esc_html__( "Invalid data location specified. It must be either post_meta or post_content.", 'distributor' ), DT_VERSION );
+		_doing_it_wrong( __FUNCTION__, esc_html__( 'Invalid data location specified. It must be either post_meta or post_content.', 'distributor' ), esc_attr( DT_VERSION ) );
 	}
 
 	// Validate if meta_key is set for post_meta location.
 	if ( 'post_meta' === $args['location'] && empty( $args['attributes']['meta_key'] ) ) {
-		_doing_it_wrong( __FUNCTION__, esc_html__( "Invalid data attributes specified. meta_keys is required for post_meta location.", 'distributor' ), DT_VERSION );
+		_doing_it_wrong( __FUNCTION__, esc_html__( 'Invalid data attributes specified. meta_keys is required for post_meta location.', 'distributor' ), esc_attr( DT_VERSION ) );
 	}
 
 	// Validate if callback functions are callable.
 	if ( ! empty( $args['pre_distribute_cb'] ) && ! is_callable( $args['pre_distribute_cb'] ) ) {
-		_doing_it_wrong( __FUNCTION__, esc_html__( "Invalid data callback specified. pre_distribute_cb must be callable.", 'distributor' ), DT_VERSION );
+		_doing_it_wrong( __FUNCTION__, esc_html__( 'Invalid data callback specified. pre_distribute_cb must be callable.', 'distributor' ), esc_attr( DT_VERSION ) );
 	}
 
 	if ( ! empty( $args['post_distribute_cb'] ) && ! is_callable( $args['post_distribute_cb'] ) ) {
-		_doing_it_wrong( __FUNCTION__, esc_html__( "Invalid data callback specified. post_distribute_cb must be callable.", 'distributor' ), DT_VERSION );
+		_doing_it_wrong( __FUNCTION__, esc_html__( 'Invalid data callback specified. post_distribute_cb must be callable.', 'distributor' ), esc_attr( DT_VERSION ) );
 	}
 
 	$distributor_registered_data[ $data_name ] = $args;

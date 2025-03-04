@@ -823,9 +823,9 @@ class DistributorPost {
 		// Use preg_match_all to find all matching shortcodes.
 		preg_match_all( "/$pattern/", $content, $matches, PREG_SET_ORDER );
 
-		 // Loop through each matched shortcode.
+		// Loop through each matched shortcode.
 		foreach ( $matches as $match ) {
-			// $match[0] = full match, $match[2] = shortcode tag, $match[3] = attributes string.
+			// $match[0] is full match, $match[2] is shortcode tag and $match[3] is attributes string.
 			if ( $match[2] === $shortcode ) {
 				$attrs = shortcode_parse_atts( $match[3] );
 				if ( is_array( $attribute ) ) {

@@ -62,7 +62,7 @@ function filter_distributor_content( $prepared_post, $request ) {
 		if ( isset( $params['distributor_raw_content'] ) ) {
 			$request['distributor_raw_content'] = $params['distributor_raw_content'];
 		}
-		$request['content'] = $params['content'] ?? "";
+		$request['content'] = $params['content'] ?? '';
 	}
 
 	if (

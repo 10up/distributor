@@ -1674,7 +1674,7 @@ function process_registered_data( $post_data, $is_rest = false ) {
 			$post_data[ $metadata_key ] = process_registered_post_meta_data( $post_meta, $data, $extra_data, $post_data );
 
 		} elseif ( 'post_content' === $location ) {
-			$content_key  = 'post_content';
+			$content_key = 'post_content';
 			if ( $is_rest ) {
 				$content_key = 'content';
 				if ( isset( $post_data['distributor_raw_content'] ) ) {
