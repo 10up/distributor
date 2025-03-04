@@ -542,29 +542,6 @@ function register_endpoints() {
 
 	register_rest_field(
 		$post_types,
-		'distributor_extra_data',
-		array(
-			'get_callback'    => function( $post_array ) {
-				if ( ! isset( $post_array['id'] ) ) {
-					return false;
-				}
-
-				if ( ! current_user_can( 'edit_post', $post_array['id'] ) ) {
-					return false;
-				}
-
-				return \Distributor\Utils\prepare_extra_data( $post_array['id'] );
-			},
-			'update_callback' => function( $value, $post ) { },
-			'schema'          => array(
-				'description' => esc_html__( 'Generated extra data by the callback function of the registered data.', 'distributor' ),
-				'type'        => 'object',
-			),
-		)
-	);
-
-	register_rest_field(
-		$post_types,
 		'distributor_original_site_name',
 		array(
 			'get_callback'    => function( $post_array ) {
