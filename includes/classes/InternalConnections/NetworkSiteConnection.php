@@ -111,6 +111,8 @@ class NetworkSiteConnection extends Connection {
 		}
 
 		$dt_post_args = Utils\process_registered_data( $dt_post_args );
+		// Processed post meta data against the registered data.
+		$post_meta    = $dt_post_args['meta'] ?? [];
 
 		add_filter( 'wp_insert_post_data', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'maybe_set_modified_date' ), 10, 2 );
 		// Filter documented in includes/classes/ExternalConnections/WordPressExternalConnection.php
@@ -293,6 +295,8 @@ class NetworkSiteConnection extends Connection {
 
 			// Process the registered data before updating/inserting the post.
 			$post_array = Utils\process_registered_data( $post_array );
+			// Update post meta data against the registered data.
+			$post['meta'] = $post_array['meta'] ?? [];
 
 			add_filter( 'wp_insert_post_data', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'maybe_set_modified_date' ), 10, 2 );
 

@@ -133,7 +133,7 @@ if ( ! function_exists( 'str_ends_with' ) ) {
  *         @type string|array $block_attribute     Required if data is in a block.
  *     }
  *     @type string   $type               Type of data: e.g. 'image', 'post', 'term'. If set,
- *                                        default callbacks can be used.
+ *                                        default callbacks can be used. To be added in future (Phase 2).
  *     @type callable $pre_distribute_cb  Function that returns extra data that needs to be added
  *                                        to the request (source processing).
  *     @type callable $post_distribute_cb Function that processes the extra data on the target

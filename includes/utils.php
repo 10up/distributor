@@ -1670,7 +1670,12 @@ function process_registered_data( $post_data, $is_rest = false ) {
 				$metadata_key = 'meta';
 			}
 
-			$post_meta                  = $post_data[ $metadata_key ] ?? array();
+			$post_meta = $post_data[ $metadata_key ] ?? array();
+
+			if ( empty( $post_meta ) ) {
+				continue;
+			}
+
 			$post_data[ $metadata_key ] = process_registered_post_meta_data( $post_meta, $data, $extra_data, $post_data );
 
 		} elseif ( 'post_content' === $location ) {
@@ -1686,7 +1691,7 @@ function process_registered_data( $post_data, $is_rest = false ) {
 			$block_name   = $attributes['block_name'] ?? '';
 			$shortcode    = $attributes['shortcode'] ?? '';
 
-			if ( empty( $block_name ) && empty( $shortcode ) ) {
+			if ( ( empty( $block_name ) && empty( $shortcode ) ) || empty( $post_content ) ) {
 				continue;
 			}
 
