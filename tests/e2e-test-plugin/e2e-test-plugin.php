@@ -7,6 +7,14 @@
  * @package Distributor/E2E Test Plugin
  */
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
+if ( ! defined( 'DT_VERSION' ) ) {
+	return;
+}
+
 use function Distributor\Utils\get_attachment_id_by_original_data;
 use function Distributor\Utils\process_media;
 
