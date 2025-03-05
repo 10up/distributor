@@ -78,7 +78,7 @@ describe( '[Block Editor] Image distribution tests', () => {
 		// eslint-disable-next-line cypress/no-unnecessary-waiting
 		cy.wait( 2000 );
 		cy.get( 'body' ).then( ( $body ) => {
-			if ( $body.find( 'ul.attachments' ).length === 0 ) {
+			if ( $body.find( 'ul.attachments li' ).length === 0 ) {
 				cy.uploadImage( './assets/img/banner-772x250.png' );
 				cy.uploadImage( './assets/img/banner-1544x500.png' );
 			}

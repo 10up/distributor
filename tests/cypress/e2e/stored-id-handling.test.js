@@ -16,7 +16,7 @@ describe( '[Block Editor] Stored ID handling tests', () => {
 				.find( `#${ id } button.components-button` )
 				.contains( 'Media Library' )
 				.click();
-			cy.get( '.attachments-browser .attachment' ).click();
+			cy.get( '.attachments-browser .attachment' ).first().click();
 			cy.get( '.media-button-select' ).click();
 			cy.getBlockEditor().find( `#${ id } img` ).should( 'be.visible' );
 		} );
@@ -52,7 +52,7 @@ describe( '[Block Editor] Stored ID handling tests', () => {
 		// eslint-disable-next-line cypress/no-unnecessary-waiting
 		cy.wait( 2000 );
 		cy.get( 'body' ).then( ( $body ) => {
-			if ( $body.find( 'ul.attachments' ).length === 0 ) {
+			if ( $body.find( 'ul.attachments li' ).length === 0 ) {
 				cy.uploadImage( './assets/img/banner-772x250.png' );
 			}
 		} );
