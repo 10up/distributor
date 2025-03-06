@@ -56,7 +56,7 @@
 		"start": "wp-scripts start",
 		"release": "wp-scripts build; npm run makepot; wp-scripts build --config ./webpack.config.release.js",
 		"cypress:open": "cypress open --config-file tests/cypress/config.js --e2e --browser chrome",
-		"cypress:run": "cypress run --config-file tests/cypress/config.js",
+		"cypress:run": "cypress run --config-file tests/cypress/config.js --browser chrome",
 		"env": "wp-env",
 		"env:start": "wp-env start",
 		"env:stop": "wp-env stop",
