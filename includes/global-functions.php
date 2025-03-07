@@ -126,8 +126,8 @@ if ( ! function_exists( 'str_ends_with' ) ) {
  *     @type array  $attributes {
  *         Additional details depending on location.
  *
- *         @type string|array $meta_keys           Required if data is located in meta.
- *         @type string       $shortcode_name      Required if data is in a shortcode.
+ *         @type string|array $meta_key            Required if data is located in meta.
+ *         @type string       $shortcode           Required if data is in a shortcode.
  *         @type string|array $shortcode_attribute Required if data is in a shortcode.
  *         @type string       $block_name          Required if data is in a block.
  *         @type string|array $block_attribute     Required if data is in a block.
