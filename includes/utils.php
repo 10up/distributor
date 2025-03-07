@@ -1652,6 +1652,11 @@ function process_blocks_data_recursive( $blocks, $registered_data, $extra_data, 
 function process_registered_data( $post_data, $is_rest = false ) {
 	$registered_data = distributor_get_registered_data();
 
+	// Skip if no registered data is found.
+	if ( empty( $registered_data ) ) {
+		return $post_data;
+	}
+
 	foreach ( $registered_data as $data_key => $data ) {
 		$location    = $data['location'];
 		$attributes  = $data['attributes'];
@@ -1717,7 +1722,7 @@ function process_registered_data( $post_data, $is_rest = false ) {
 	 * @param array $extra_data      The extra data for the given registered data.
 	 * @return array $post_data The updated post data.
 	 */
-	$post_data = apply_filters( 'dt_after_registered_data_processed', $post_data, $registered_data, $extra_data );
+	$post_data = apply_filters( 'dt_after_registered_data_processed', $post_data, $registered_data, $post_data['distributor_extra_data'] ?? array() );
 
 	return $post_data;
 }
