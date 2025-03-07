@@ -42,6 +42,7 @@ use WP_Post;
  * @method array get_meta()
  * @method array get_terms()
  * @method array get_media()
+ * @method array get_extra_data()
  * @method array post_data()
  * @method array to_insert( array $args = [] )
  * @method array to_pull_list( array $args = [] )
@@ -664,7 +665,7 @@ class DistributorPost {
 	 *
 	 * @return array Extra data for the post.
 	 */
-	public function get_extra_data() {
+	protected function get_extra_data() {
 		$extra_data      = array();
 		$registered_data = distributor_get_registered_data();
 
