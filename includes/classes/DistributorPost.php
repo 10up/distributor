@@ -759,9 +759,11 @@ class DistributorPost {
 		 * Filters the extra data for the post to be processed on the target site.
 		 *
 		 * @since x.x.x
+		 * @hook dt_extra_data
 		 *
-		 * @param array $extra_data Extra data for the post.
-		 * @param DistributorPost $this The DistributorPost object.
+		 * @param {array}           $extra_data Extra data for the post.
+		 * @param {DistributorPost} $this       The DistributorPost object.
+		 * @return {array} Extra data for the post.
 		 */
 		$extra_data = apply_filters( 'dt_extra_data', $extra_data, $this );
 

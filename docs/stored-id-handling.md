@@ -1,4 +1,4 @@
-Distributor often deals with data stored as ID references. This is common in WordPress, where IDs are used in block attributes, shortcodes, or post meta by popular plugins like ACF, Elementor, and WPBakery. However, when content is distributed to another site, these stored IDs may not match, leading to data loss or unexpected content.
+Distributor often deals with data stored as ID references. This is common in WordPress, where IDs are used in block attributes, shortcodes, or post meta by popular plugins like ACF, Elementor, and Gravity Forms. However, when content is distributed to another site, these stored IDs may not match, leading to data loss or unexpected content.
 
 To address this, Distributor provides a helper function: `distributor_register_data`. This function allows developers to register data references, specify where the data is located, define how to extract the ID, and register callbacks to process the data on both the source and target sites.
 
@@ -250,3 +250,5 @@ distributor_register_data( 'example_post_data', array(
 	},
 ) );
 ```
+
+If you have any doubts, encounter any different scenarios to handle, or need further assistance, please feel free to report an issue on our [GitHub repository](https://github.com/10up/distributor) and we would be happy to help.
