@@ -1609,7 +1609,7 @@ function process_blocks_data_recursive( $blocks, $registered_data, $extra_data, 
 			} elseif ( isset( $block['attrs'][ $block_attribute ] ) ) {
 				$source_data = $block['attrs'][ $block_attribute ];
 				$replacement = call_user_func_array( $callback_fn, array( $extra_data[ $index ], $source_data, $post_data ) );
-				if ( ! empty( $replacement ) ) { // @todo Should we keep this?
+				if ( ! empty( $replacement ) ) {
 					$block['attrs'][ $block_attribute ] = $replacement;
 
 					// Do replacement for innerHTML if it's set.
@@ -1780,7 +1780,7 @@ function process_registered_post_meta_data( $post_meta, $registered_data, $extra
 		}
 		$updated_meta = call_user_func_array( $callback_fn, array( $extra_data, $original_data, $post_data ) );
 
-		if ( ! empty( $updated_meta ) ) { // @todo Should we keep this?
+		if ( ! empty( $updated_meta ) ) {
 			if ( is_array( $post_meta[ $meta_key ] ) && 1 === count( $post_meta[ $meta_key ] ) ) {
 				$post_meta[ $meta_key ] = array( $updated_meta );
 			} else {
