@@ -2,7 +2,8 @@
   "core": null,
   "plugins": [
     ".",
-    "./tests/Basic-Auth-master"
+    "./tests/Basic-Auth-master",
+    "https://downloads.wordpress.org/plugin/classic-editor.zip"
   ],
   "env": {
     "tests": {
