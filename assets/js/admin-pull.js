@@ -100,7 +100,7 @@ document.addEventListener( 'DOMContentLoaded', async function () {
 	);
 	const dropdown = container.querySelector( '.searchable-select__dropdown' );
 
-	const itemss = await fetch( '/wp-admin/admin-ajax.php', {
+	const pullConnectionItems = await fetch( '/wp-admin/admin-ajax.php', {
 		method: 'POST',
 		headers: {
 			'Content-Type': 'application/x-www-form-urlencoded',
@@ -122,7 +122,7 @@ document.addEventListener( 'DOMContentLoaded', async function () {
 		const connection_id = params.get( 'connection_id' );
 
 		if ( connection_id ) {
-			const connection = itemss.find(
+			const connection = pullConnectionItems.find(
 				( item ) => item.id === connection_id
 			);
 
@@ -162,7 +162,7 @@ document.addEventListener( 'DOMContentLoaded', async function () {
 	}
 
 	function showDropdown() {
-		createDropdownItems( itemss );
+		createDropdownItems( pullConnectionItems );
 		dropdown.style.display = 'block';
 	}
 
@@ -171,7 +171,7 @@ document.addEventListener( 'DOMContentLoaded', async function () {
 	}
 
 	function filterItems( searchTerm ) {
-		const filteredItems = itemss.filter( ( item ) =>
+		const filteredItems = pullConnectionItems.filter( ( item ) =>
 			item.toLowerCase().includes( searchTerm.toLowerCase() )
 		);
 		createDropdownItems( filteredItems );
