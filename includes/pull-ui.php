@@ -603,7 +603,7 @@ function get_connections() {
 
 			$connections[] = [
 				'id'   => $internal_connection->site->blog_id,
-				'name' => untrailingslashit( $internal_connection->site->domain . $internal_connection->site->path ),
+				'name' => untrailingslashit( $internal_connection->site->blogname ),
 				'url'  => untrailingslashit( preg_replace( '#(https?:\/\/|www\.)#i', '', get_site_url( $internal_connection->site->blog_id ) ) ),
 				'pull_url' => esc_url( admin_url( 'admin.php?page=pull&connection_type=internal&connection_id=' . $internal_connection->site->blog_id ) ),
 				'type' => 'internal',

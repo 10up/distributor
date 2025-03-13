@@ -143,15 +143,18 @@ document.addEventListener( 'DOMContentLoaded', async function () {
 		items.forEach( ( item ) => {
 			const div = document.createElement( 'div' );
 			div.classList.add( 'searchable-select__item' );
-			div.textContent = item.name;
+			// Display name and URL in the dropdown item
+			div.textContent = `${item.name} (${item.url})`;
 			div.setAttribute( 'data-url', item.url );
 
 			div.addEventListener( 'click', () => {
-				input.value = item.name;
+				// Display name and URL in the input field
+				input.value = `${item.name} (${item.url})`;
+				// But set only URL as the actual value
+				input.setAttribute( 'data-url', item.url );
 				input.setAttribute(
 					'data-pull-url',
 					htmlDecode( item.pull_url )
-					// item.pull_url
 				);
 				document.location = getURL();
 
@@ -171,9 +174,12 @@ document.addEventListener( 'DOMContentLoaded', async function () {
 	}
 
 	function filterItems( searchTerm ) {
-		const filteredItems = pullConnectionItems.filter( ( item ) =>
-			item.toLowerCase().includes( searchTerm.toLowerCase() )
-		);
+		const searchTermLower = searchTerm.toLowerCase();
+		const filteredItems = pullConnectionItems.filter( ( item ) => {
+			// Search on both name and URL
+			return item.name.toLowerCase().includes( searchTermLower ) ||
+				item.url.toLowerCase().includes( searchTermLower );
+		} );
 		createDropdownItems( filteredItems );
 	}
 
