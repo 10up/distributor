@@ -145,7 +145,7 @@ function distributor_register_data( $data_name, $args ) {
 	 * Global registry for distributor data.
 	 *
 	 * @var array
-		*/
+	 */
 	global $distributor_registered_data;
 	if ( ! isset( $distributor_registered_data ) ) {
 		$distributor_registered_data = array();
