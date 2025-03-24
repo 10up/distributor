@@ -95,8 +95,8 @@ distributor_register_data( 'example_post_meta_data', array(
 		// If the media is not found, process and save it.
 		if ( ! $image_id ) {
 			$image_id = Utils\process_media( $source_image_url, 0, [] );
-			update_post_meta( $image_id, 'dt_original_media_id', $source_image_id );
-			update_post_meta( $image_id, 'dt_original_media_url', $source_image_url );
+			update_post_meta( $image_id, 'dt_original_media_id', wp_slash( $source_image_id ) );
+			update_post_meta( $image_id, 'dt_original_media_url', wp_slash( $source_image_url ) );
 		}
 
 		// Return the media ID to replace the source reference.
@@ -244,7 +244,7 @@ distributor_register_data( 'example_post_data', array(
 		}
 
 		// Store the original post ID in post meta to check for existing posts on subsequent distributions.
-		update_post_meta( $post_id, 'dt_original_post_id', $source_data );
+		update_post_meta( $post_id, 'dt_original_post_id', wp_slash( $source_data ) );
 
 		return $post_id;
 	},

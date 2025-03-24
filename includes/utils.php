@@ -1581,6 +1581,14 @@ function process_blocks_data_recursive( $blocks, $registered_data, $extra_data, 
 	$block_attribute = $attributes['block_attribute'] ?? '';
 	$modified        = false;
 
+	// Skip if the callback function is not provided or not callable.
+	if ( empty( $callback_fn ) || ! is_callable( $callback_fn ) ) {
+		return array(
+			'blocks'   => $blocks,
+			'modified' => $modified,
+		);
+	}
+
 	foreach ( $blocks as &$block ) {
 		if ( isset( $block['blockName'] ) && $block_name === $block['blockName'] ) {
 			if ( is_array( $block_attribute ) ) {

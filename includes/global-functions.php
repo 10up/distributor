@@ -118,6 +118,8 @@ if ( ! function_exists( 'str_ends_with' ) ) {
  *
  * @since x.x.x
  *
+ * @global array $distributor_registered_data Global registry for distributor data.
+ *
  * @param string $data_name The unique identifier for the data.
  * @param array  $args {
  *     Array of settings to describe where the data is and how to process it.
@@ -141,11 +143,6 @@ if ( ! function_exists( 'str_ends_with' ) ) {
  * }
  */
 function distributor_register_data( $data_name, $args ) {
-	/**
-	 * Global registry for distributor data.
-	 *
-	 * @var array
-		*/
 	global $distributor_registered_data;
 	if ( ! isset( $distributor_registered_data ) ) {
 		$distributor_registered_data = array();
@@ -193,15 +190,12 @@ function distributor_register_data( $data_name, $args ) {
  *
  * @since x.x.x
  *
+ * @global array $distributor_registered_data Global registry for distributor data.
+ *
  * @see distributor_register_data()
  * @return array
  */
 function distributor_get_registered_data() {
-	/**
-	 * Global registry for distributor data.
-	 *
-	 * @var array
-	 */
 	global $distributor_registered_data;
 	if ( ! isset( $distributor_registered_data ) ) {
 		$distributor_registered_data = array();

@@ -228,8 +228,8 @@ function distributor_image_post_distribute_cb( $extra_data, $source_data, $post_
 
 	if ( ! $image_id ) {
 		$image_id = process_media( $source_image_url, 0, [] );
-		update_post_meta( $image_id, 'dt_original_media_id', $source_image_id );
-		update_post_meta( $image_id, 'dt_original_media_url', $source_image_url );
+		update_post_meta( $image_id, 'dt_original_media_id', wp_slash( $source_image_id ) );
+		update_post_meta( $image_id, 'dt_original_media_url', wp_slash( $source_image_url ) );
 	}
 
 	return $image_id;

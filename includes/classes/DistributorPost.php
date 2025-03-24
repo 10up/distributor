@@ -663,7 +663,11 @@ class DistributorPost {
 	 *
 	 * @since x.x.x
 	 *
-	 * @return array Extra data for the post.
+	 * @return array[] {
+	 *   Array of extra data keyed by the data name.
+	 *
+	 *   @type mixed $data_name The extra data returned by the callback function.
+	 * }
 	 */
 	protected function get_extra_data() {
 		$extra_data      = array();
