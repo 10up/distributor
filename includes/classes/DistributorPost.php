@@ -47,6 +47,8 @@ use WP_Post;
  * @method array to_insert( array $args = [] )
  * @method array to_pull_list( array $args = [] )
  * @method array to_rest( array $args = [] )
+ * @method array parse_blocks_for_attribute_values( string $block, string $block_name, string|array $block_attribute )
+ * @method array get_shortcode_attribute_values( string $content, string $shortcode, string|array $shortcode_attribute )
  */
 class DistributorPost {
 	/**
