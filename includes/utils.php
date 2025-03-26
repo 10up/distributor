@@ -1935,3 +1935,89 @@ function process_registered_shortcode_data( $post_content, $registered_data, $ex
 	 */
 	return apply_filters( 'dt_after_registered_shortcode_data_processed', $post_content, $registered_data, $extra_data, $post_data );
 }
+
+/**
+ * Prepare the term extra data to be sent to the target site.
+ *
+ * @since x.x.x
+ *
+ * @param int  $term_id     The term ID.
+ * @param bool $with_parent Whether to include the parent term data.
+ * @return array|int The term extra data.
+ */
+function prepare_registered_data_term( $term_id, $with_parent = false ) {
+	$term = get_term( $term_id );
+	if ( ! $term || is_wp_error( $term ) ) {
+		return 0;
+	}
+
+	$term_data = array(
+		'term_id'     => $term->term_id,
+		'name'        => $term->name,
+		'slug'        => $term->slug,
+		'description' => $term->description,
+		'taxonomy'    => $term->taxonomy,
+	);
+
+	if ( ! empty( $term->parent ) && $with_parent && is_taxonomy_hierarchical( $term->taxonomy ) ) {
+		$term_data['parent'] = prepare_registered_data_term( $term->parent, $with_parent );
+	}
+
+	return $term_data;
+}
+
+/**
+ * Process the registered data for the term.
+ *
+ * @since x.x.x
+ *
+ * @param mixed $term_data      The term data to be processed.
+ * @param bool  $process_parent Whether to process the parent term.
+ * @return int The term ID of the processed term.
+ */
+function process_registered_data_term( $term_data, $process_parent = false ) {
+	if ( empty( $term_data ) ) {
+		return 0;
+	}
+
+	if ( ! is_array( $term_data ) ) {
+		$term_data = (array) $term_data;
+	}
+
+	$process_parent = $process_parent && is_taxonomy_hierarchical( $term_data['taxonomy'] );
+	$parent_term_id = 0;
+	if ( $process_parent && ! empty( $term_data['parent'] ) ) {
+		if ( ! empty( $term_data['parent']['term_id'] ) ) {
+			$parent_term_id = process_registered_data_term( $term_data['parent'], $process_parent );
+		}
+	}
+
+	$taxonomy = $term_data['taxonomy'] ?? '';
+
+	// Check if the term exists on the target site already and return the term ID if it does.
+	$term = get_term_by( 'slug', $term_data['slug'], $taxonomy );
+	if ( ! empty( $term ) && ! empty( $term->term_id ) ) {
+		return $term->term_id;
+	}
+
+	$args = array(
+		'slug'        => $term_data['slug'],
+		'description' => $term_data['description'],
+	);
+
+	if ( $process_parent && ! empty( $parent_term_id ) ) {
+		$args['parent'] = $parent_term_id;
+	}
+
+	$term = wp_insert_term(
+		$term_data['name'],
+		$taxonomy,
+		$args
+	);
+
+	if ( is_wp_error( $term ) || empty( $term['term_id'] ) ) {
+		return 0;
+	}
+
+	return $term['term_id'];
+}

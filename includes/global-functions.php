@@ -1,4 +1,7 @@
 <?php
+
+use function Distributor\Utils\prepare_registered_data_term;
+use function Distributor\Utils\process_registered_data_term;
 /**
  * Functions in the global namespace.
  *
@@ -134,8 +137,8 @@ if ( ! function_exists( 'str_ends_with' ) ) {
  *         @type string       $block_name          Required if data is in a block.
  *         @type string|array $block_attribute     Required if data is in a block.
  *     }
- *     @type string   $type               Type of data: e.g. 'image', 'post', 'term'. If set,
- *                                        default callbacks can be used. To be added in future (Phase 2).
+ *     @type string   $type               Type of data, e.g., 'image', 'post', or 'term'. If set, default callbacks can be used.
+ *                                        Cannot be combined with custom callbacks. Adding custom callbacks will override the default behavior.
  *     @type callable $pre_distribute_cb  Function that returns extra data that needs to be added
  *                                        to the request (source processing).
  *     @type callable $post_distribute_cb Function that processes the extra data on the target
@@ -182,6 +185,29 @@ function distributor_register_data( $data_name, $args ) {
 		_doing_it_wrong( __FUNCTION__, esc_html__( 'Invalid data callback specified. post_distribute_cb must be callable.', 'distributor' ), esc_attr( DT_VERSION ) );
 	}
 
+	// Validate if type is set and default callbacks are used.
+	if ( ! empty( $args['type'] ) && ( ! empty( $args['pre_distribute_cb'] ) || ! empty( $args['post_distribute_cb'] ) ) ) {
+		_doing_it_wrong( __FUNCTION__, esc_html__( 'Invalid data type specified. If type is set, custom callbacks cannot be used.', 'distributor' ), esc_attr( DT_VERSION ) );
+	}
+
+	// Set default callbacks based on type.
+	if ( ! empty( $args['type'] ) ) {
+		switch ( $args['type'] ) {
+			case 'image':
+				$args['pre_distribute_cb']  = 'distributor_image_pre_distribute_callback';
+				$args['post_distribute_cb'] = 'distributor_image_post_distribute_callback';
+				break;
+			case 'post':
+				$args['pre_distribute_cb']  = 'distributor_post_pre_distribute_callback';
+				$args['post_distribute_cb'] = 'distributor_post_post_distribute_callback';
+				break;
+			case 'term':
+				$args['pre_distribute_cb']  = 'distributor_term_pre_distribute_callback';
+				$args['post_distribute_cb'] = 'distributor_term_post_distribute_callback';
+				break;
+		}
+	}
+
 	$distributor_registered_data[ $data_name ] = $args;
 }
 
@@ -202,4 +228,121 @@ function distributor_get_registered_data() {
 	}
 
 	return $distributor_registered_data;
+}
+
+/**
+ * Pre-distribute callback for image data.
+ * This is the default pre-distribute callback for image data, used when the type is set to 'image' in distributor_register_data().
+ *
+ * @param mixed $image The image ID to be processed before distribution.
+ * @return array The extra data of the image to be distributed to the target site.
+ */
+function distributor_image_pre_distribute_callback( $image_id ) {
+	// TODO: Implement pre processing.
+	return array();
+}
+
+/**
+ * Post-distribute callback for image data.
+ * This is the default post-distribute callback for image data, used when the type is set to 'image' in distributor_register_data().
+ *
+ * @param mixed $image_extra_data The extra data to be processed after distribution.
+ * @param mixed $source_image_id  The source image ID.
+ * @param mixed $post_data        The post data.
+ * @return int The ID of the distributed image.
+ */
+function distributor_image_post_distribute_callback( $image_extra_data, $source_image_id, $post_data ) {
+	// Do something with the data.
+	return $source_image_id;
+}
+
+/**
+ * Pre-distribute callback for post data.
+ * This is the default pre-distribute callback for post data, used when the type is set to 'post' in distributor_register_data().
+ *
+ * @param mixed $post_id The post ID to be processed before distribution.
+ * @return array The data of the post to be distributed to the target site.
+ */
+function distributor_post_pre_distribute_callback( $post_id ) {
+	// TODO: Implement pre processing.
+	return array();
+}
+
+/**
+ * Post-distribute callback for post data.
+ * This is the default post-distribute callback for post data, used when the type is set to 'post' in distributor_register_data().
+ *
+ * @param mixed $post_extra_data The extra data to be processed after distribution.
+ * @param mixed $source_post_id  The source post ID.
+ * @param mixed $post_data       The post data.
+ * @return int The ID of the distributed post.
+ */
+function distributor_post_post_distribute_callback( $post_extra_data, $source_post_id, $post_data ) {
+	// TODO: Implement post processing.
+	return $source_post_id;
+}
+
+/**
+ * Pre-distribute callback for term data.
+ * This is the default pre-distribute callback for term data, used when the type is set to 'term' in distributor_register_data().
+ *
+ * @param mixed $term_id The Term ID to be processed before distribution.
+ * @return array|WP_Term The data of the term to be distributed to the target site.
+ */
+function distributor_term_pre_distribute_callback( $term_id ) {
+	if ( ! $term_id ) {
+		return array();
+	}
+
+	/**
+	 * Filter whether to distribute term with parents.
+	 * If set to true, the term will be distributed with its parents.
+	 *
+	 * @since x.x.x
+	 * @hook dt_register_data_distribute_term_with_parents
+	 *
+	 * @param bool $with_parents Whether to distribute term with parents. Default false.
+	 *
+	 * @return bool Whether to distribute term with parents.
+	 */
+	$with_parents = apply_filters( 'dt_registered_data_distribute_term_with_parents', false );
+	$term         = prepare_registered_data_term( $term_id, $with_parents );
+
+	if ( ! $term ) {
+		return array();
+	}
+
+	return $term;
+}
+
+/**
+ * Post-distribute callback for term data.
+ * This is the default post-distribute callback for term data, used when the type is set to 'term' in distributor_register_data().
+ *
+ * @param mixed $term_extra_data The extra data to be processed after distribution.
+ * @param mixed $source_term_id  The source term ID.
+ * @param mixed $post_data       The post data.
+ * @return int The ID of the distributed term.
+ */
+function distributor_term_post_distribute_callback( $term_extra_data, $source_term_id, $post_data ) {
+	if ( ! $term_extra_data ) {
+		return $source_term_id;
+	}
+
+	$term_data = (array) $term_extra_data;
+	$taxonomy  = $term_data['taxonomy'];
+
+	if ( ! taxonomy_exists( $taxonomy ) ) {
+		return $source_term_id;
+	}
+
+	// Filter documented in distributor_term_pre_distribute_callback().
+	$process_parent = apply_filters( 'dt_registered_data_distribute_term_with_parents', false );
+	$new_term_id    = process_registered_data_term( $term_data, $process_parent );
+
+	if ( empty( $new_term_id ) ) {
+		return $source_term_id;
+	}
+
+	return $new_term_id;
 }
