@@ -137,7 +137,7 @@ if ( ! function_exists( 'str_ends_with' ) ) {
  *         @type string       $block_name          Required if data is in a block.
  *         @type string|array $block_attribute     Required if data is in a block.
  *     }
- *     @type string   $type               Type of data, e.g., 'image', 'post', or 'term'. If set, default callbacks can be used.
+ *     @type string   $type               Type of data, e.g., 'media', 'post', or 'term'. If set, default callbacks can be used.
  *                                        Cannot be combined with custom callbacks. Adding custom callbacks will override the default behavior.
  *     @type callable $pre_distribute_cb  Function that returns extra data that needs to be added
  *                                        to the request (source processing).
@@ -193,9 +193,9 @@ function distributor_register_data( $data_name, $args ) {
 	// Set default callbacks based on type.
 	if ( ! empty( $args['type'] ) ) {
 		switch ( $args['type'] ) {
-			case 'image':
-				$args['pre_distribute_cb']  = 'distributor_image_pre_distribute_callback';
-				$args['post_distribute_cb'] = 'distributor_image_post_distribute_callback';
+			case 'media':
+				$args['pre_distribute_cb']  = 'distributor_media_pre_distribute_callback';
+				$args['post_distribute_cb'] = 'distributor_media_post_distribute_callback';
 				break;
 			case 'post':
 				$args['pre_distribute_cb']  = 'distributor_post_pre_distribute_callback';
@@ -231,29 +231,81 @@ function distributor_get_registered_data() {
 }
 
 /**
- * Pre-distribute callback for image data.
- * This is the default pre-distribute callback for image data, used when the type is set to 'image' in distributor_register_data().
+ * Pre-distribute callback for media data.
+ * This is the default pre-distribute callback for media data, used when the type is set to 'media' in distributor_register_data().
  *
- * @param mixed $image The image ID to be processed before distribution.
- * @return array The extra data of the image to be distributed to the target site.
+ * @param mixed $media_id The media ID to be processed before distribution.
+ * @return array The extra data of the media to be distributed to the target site.
  */
-function distributor_image_pre_distribute_callback( $image_id ) {
-	// TODO: Implement pre processing.
-	return array();
+function distributor_media_pre_distribute_callback( $media_id ) {
+	if ( ! $media_id ) {
+		return array();
+	}
+
+	// Get the media data.
+	$media = get_post( $media_id );
+	if ( ! $media ) {
+		return array();
+	}
+
+	return array(
+		'title'       => $media->post_title,
+		'caption'     => $media->post_excerpt,
+		'description' => $media->post_content,
+		'alt'         => get_post_meta( $media->ID, '_wp_attachment_image_alt', true ),
+		'url'         => wp_get_attachment_url( $media->ID ),
+	);
 }
 
 /**
- * Post-distribute callback for image data.
- * This is the default post-distribute callback for image data, used when the type is set to 'image' in distributor_register_data().
+ * Post-distribute callback for media data.
+ * This is the default post-distribute callback for media data, used when the type is set to 'media' in distributor_register_data().
  *
- * @param mixed $image_extra_data The extra data to be processed after distribution.
- * @param mixed $source_image_id  The source image ID.
+ * @param mixed $media_extra_data The extra data to be processed after distribution.
+ * @param mixed $source_media_id  The source media ID.
  * @param mixed $post_data        The post data.
- * @return int The ID of the distributed image.
+ * @return int The ID of the distributed media.
  */
-function distributor_image_post_distribute_callback( $image_extra_data, $source_image_id, $post_data ) {
-	// Do something with the data.
-	return $source_image_id;
+function distributor_media_post_distribute_callback( $media_extra_data, $source_media_id, $post_data ) {
+	if ( ! isset( $media_extra_data['url'] ) ) {
+		return $source_media_id;
+	}
+
+	$source_media_url = $media_extra_data['url'];
+
+	// Check if the media already exists on the target site. If yes, return its ID.
+	$media_id = Distributor\Utils\get_attachment_id_by_original_data( $source_media_id, $source_media_url );
+
+	// If media exists, return the media ID.
+	if ( ! empty( $media_id ) ) {
+		return $media_id;
+	}
+
+	$media_id = Distributor\Utils\process_media( $source_media_url, 0, [] );
+	// if the media not processed, return the source media ID.
+	if ( empty( $media_id ) ) {
+		return $source_media_id;
+	}
+
+	// Update the media data.
+	wp_update_post(
+		array(
+			'ID'           => $media_id,
+			'post_title'   => sanitize_text_field( $media_extra_data['title'] ),
+			'post_excerpt' => sanitize_textarea_field( $media_extra_data['caption'] ),
+			'post_content' => sanitize_textarea_field( $media_extra_data['description'] ),
+		)
+	);
+
+	// Update the media meta.
+	if ( ! empty( $media_extra_data['alt'] ) ) {
+		update_post_meta( $media_id, '_wp_attachment_image_alt', sanitize_textarea_field( $media_extra_data['alt'] ) );
+	}
+	update_post_meta( $media_id, 'dt_original_media_id', wp_slash( $source_media_id ) );
+	update_post_meta( $media_id, 'dt_original_media_url', wp_slash( $source_media_url ) );
+
+	// Return the media ID to replace the source reference.
+	return $media_id;
 }
 
 /**

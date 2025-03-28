@@ -1620,9 +1620,21 @@ function process_blocks_data_recursive( $blocks, $registered_data, $extra_data, 
 				if ( ! empty( $replacement ) ) {
 					$block['attrs'][ $block_attribute ] = $replacement;
 
-					// Do replacement for innerHTML if it's set.
-					if ( ! empty( $replacement['inner_content_replacements'] ) ) {
-						$block = search_replace_block_inner_content( $block, $replacement['inner_content_replacements'] );
+					// Handle inner content replacements for media blocks.
+					$type = $registered_data['type'] ?? '';
+					if ( 'media' === $type && ! empty( $replacement ) ) {
+						$from_url = $extra_data[ $index ]['url'] ?? '';
+						$to_url   = wp_get_attachment_url( $replacement );
+
+						if ( ! empty( $from_url ) && ! empty( $to_url ) ) {
+							$replacements = array(
+								array(
+									'search'  => $from_url,
+									'replace' => $to_url,
+								)
+							);
+							$block = search_replace_block_inner_content( $block, $replacements);
+						}
 					}
 
 					$modified = true;
