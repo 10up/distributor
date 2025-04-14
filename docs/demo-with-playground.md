@@ -2,7 +2,7 @@ Use WordPress Playground to quickly spin up a project to demonstrate the plugin'
 
 ## Example
 
-This is an example URL you can use to run the project: `https://playground.wordpress.net/?blueprint-url=https://raw.githubusercontent.com/10up/distributor/refs/heads/develop/docs/blueprint.json`
+This is an example URL you can use to run the project: `https://playground.wordpress.net/?blueprint-url=https://raw.githubusercontent.com/10up/distributor/refs/heads/develop/.github/blueprints/blueprint.json`
 
 ## Features
 
