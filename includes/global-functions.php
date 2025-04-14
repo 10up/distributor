@@ -351,13 +351,13 @@ function distributor_term_pre_distribute_callback( $term_id ) {
 	 * If set to true, the term will be distributed with its parents.
 	 *
 	 * @since x.x.x
-	 * @hook dt_register_data_distribute_term_with_parents
+	 * @hook dt_registered_data_distribute_term_parent
 	 *
 	 * @param bool $with_parents Whether to distribute term with parents. Default false.
 	 *
 	 * @return bool Whether to distribute term with parents.
 	 */
-	$with_parents = apply_filters( 'dt_registered_data_distribute_term_with_parents', false );
+	$with_parents = apply_filters( 'dt_registered_data_distribute_term_parent', false );
 	$term         = prepare_registered_data_term( $term_id, $with_parents );
 
 	if ( ! $term ) {
@@ -389,8 +389,9 @@ function distributor_term_post_distribute_callback( $term_extra_data, $source_te
 	}
 
 	// Filter documented in distributor_term_pre_distribute_callback().
-	$process_parent = apply_filters( 'dt_registered_data_distribute_term_with_parents', false );
-	$new_term_id    = process_registered_data_term( $term_data, $process_parent );
+	$process_parent   = apply_filters( 'dt_registered_data_distribute_term_parent', false );
+	$update_hierarchy = apply_filters( 'dt_registered_data_update_term_hierarchy', false );
+	$new_term_id      = process_registered_data_term( $term_data, $process_parent, $update_hierarchy );
 
 	if ( empty( $new_term_id ) ) {
 		return $source_term_id;

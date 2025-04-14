@@ -1987,7 +1987,7 @@ function prepare_registered_data_term( $term_id, $with_parent = false ) {
  * @param bool  $process_parent Whether to process the parent term.
  * @return int The term ID of the processed term.
  */
-function process_registered_data_term( $term_data, $process_parent = false ) {
+function process_registered_data_term( $term_data, $process_parent = false, $update_hierarchy = false ) {
 	if ( empty( $term_data ) ) {
 		return 0;
 	}
@@ -2000,7 +2000,7 @@ function process_registered_data_term( $term_data, $process_parent = false ) {
 	$parent_term_id = 0;
 	if ( $process_parent && ! empty( $term_data['parent'] ) ) {
 		if ( ! empty( $term_data['parent']['term_id'] ) ) {
-			$parent_term_id = process_registered_data_term( $term_data['parent'], $process_parent );
+			$parent_term_id = process_registered_data_term( $term_data['parent'], $process_parent, $update_hierarchy );
 		}
 	}
 
@@ -2009,6 +2009,10 @@ function process_registered_data_term( $term_data, $process_parent = false ) {
 	// Check if the term exists on the target site already and return the term ID if it does.
 	$term = get_term_by( 'slug', $term_data['slug'], $taxonomy );
 	if ( ! empty( $term ) && ! empty( $term->term_id ) ) {
+		if ( $update_hierarchy && $process_parent && ! empty( $parent_term_id ) && $term->parent !== $parent_term_id ) {
+			wp_update_term( $term->term_id, $taxonomy, array( 'parent' => $parent_term_id ) );
+		}
+
 		return $term->term_id;
 	}
 
