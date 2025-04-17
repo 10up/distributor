@@ -1,7 +1,13 @@
 <?php
+/**
+ * Global functions for the Distributor plugin.
+ *
+ * @package  distributor
+ */
 
-use function Distributor\Utils\prepare_registered_data_term;
-use function Distributor\Utils\process_registered_data_term;
+use Distributor\DistributorPost;
+
+use Distributor\RegisteredDataHandler;
 /**
  * Functions in the global namespace.
  *
@@ -316,8 +322,43 @@ function distributor_media_post_distribute_callback( $media_extra_data, $source_
  * @return array The data of the post to be distributed to the target site.
  */
 function distributor_post_pre_distribute_callback( $post_id ) {
-	// TODO: Implement pre processing.
-	return array();
+	if ( ! $post_id ) {
+		return array();
+	}
+
+	// Get the post data.
+	$post = get_post( $post_id );
+	if ( ! $post ) {
+		return array();
+	}
+
+	// Disable the process_extra_data filter to prevent infinite loop.
+	add_filter( 'dt_process_extra_data', '__return_false' );
+
+	// Get the extra data.
+	$dt_post = new DistributorPost( $post_id );
+
+	// If post itself distributed from another site (i.e. not the source post), return empty array.
+	if ( ! $dt_post->is_source ) {
+		return array();
+	}
+
+	// Get the post data.
+	$post_data = array(
+		'post_type'      => $post->post_type,
+		'post_title'     => $post->post_title,
+		'source_post_id' => $post_id,
+	);
+
+	$connection_map = get_post_meta( $post_id, 'dt_connection_map', true );
+	if ( ! empty( $connection_map ) ) {
+		$post_data['dt_connection_map'] = $connection_map;
+	}
+
+	// Remove the filter after the callback is executed.
+	remove_filter( 'dt_process_extra_data', '__return_false' );
+
+	return $post_data;
 }
 
 /**
@@ -327,11 +368,149 @@ function distributor_post_pre_distribute_callback( $post_id ) {
  * @param mixed $post_extra_data The extra data to be processed after distribution.
  * @param mixed $source_post_id  The source post ID.
  * @param mixed $post_data       The post data.
+ * @param array $connection_data The connection data.
  * @return int The ID of the distributed post.
  */
-function distributor_post_post_distribute_callback( $post_extra_data, $source_post_id, $post_data ) {
-	// TODO: Implement post processing.
-	return $source_post_id;
+function distributor_post_post_distribute_callback( $post_extra_data, $source_post_id, $post_data, $connection_data = array() ) {
+	if ( ( ! isset( $post_extra_data['post_type'] ) && ! isset( $post_extra_data['post_title'] ) ) || empty( $connection_data ) ) {
+		return $source_post_id;
+	}
+
+	try {
+		// Disable the process_extra_data filter to prevent infinite loop.
+		add_filter( 'dt_process_extra_data', '__return_false' );
+
+		// Check if post already exists on the target site.
+		$connection_type      = $connection_data['connection_type'];
+		$connection_id        = $connection_data['connection_id'];
+		$connection_direction = $connection_data['connection_direction'];
+
+		// Check if remote post ID is set in the post extra data, if yes, return it.
+		if ( ! empty( $post_extra_data['remote_post_id'] ) ) {
+			$post_id = $post_extra_data['remote_post_id'];
+			$post    = get_post( $post_id );
+			// Check if the post exists.
+			if ( ! empty( $post ) ) {
+				return $post_id;
+			}
+		}
+
+		// Check based on the connection map.
+		if ( ! empty( $post_extra_data['dt_connection_map'] ) && ! empty( $post_extra_data['dt_connection_map'][ $connection_type ] ) ) {
+			$connection_map = $post_extra_data['dt_connection_map'][ $connection_type ];
+			if ( 'internal' === $connection_type && ! empty( $connection_map[ get_current_blog_id() ] ) ) {
+				$post_id = $connection_map[ get_current_blog_id() ]['post_id'] ?? 0;
+				$post    = get_post( $post_id );
+				// Check if the post exists.
+				if ( ! empty( $post ) ) {
+					return $post_id;
+				}
+			}
+		}
+
+		// Check if the post exists based on the connection ID and post ID.
+		$posts = get_posts(
+			array(
+				'meta_query'             => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
+					array(
+						'key'   => 'dt_original_post_id',
+						'value' => $source_post_id,
+					),
+					array(
+						'key'   => 'internal' === $connection_type ? 'dt_original_blog_id' : 'dt_original_source_id',
+						'value' => $connection_id,
+					),
+					'relation' => 'AND',
+				),
+				'post_status'            => 'any',
+				'fields'                 => 'ids',
+				'no_found_rows'          => true,
+				'update_post_meta_cache' => false,
+				'update_post_term_cache' => false,
+				'numberposts'            => 1,
+				'orderby'                => 'post_date ID',
+				'order'                  => 'ASC',
+			)
+		);
+		if ( ! empty( $posts ) ) {
+			return $posts[0];
+		}
+
+		// Check for post exists by title and post type.
+		$posts = get_posts(
+			array(
+				'post_type'              => $post_extra_data['post_type'],
+				'title'                  => $post_extra_data['post_title'],
+				'post_status'            => 'any',
+				'fields'                 => 'ids',
+				'no_found_rows'          => true,
+				'update_post_meta_cache' => false,
+				'update_post_term_cache' => false,
+				'numberposts'            => 1,
+				'orderby'                => 'post_date ID',
+				'order'                  => 'ASC',
+			)
+		);
+
+		if ( ! empty( $posts ) ) {
+			return $posts[0];
+		}
+
+		// Handle internal connections (pull and push) and external connection (push) direction.
+		// For external connections and push direction, it is already handled via push from source site we don't have to handle it here.
+		if ( 'internal' === $connection_type || ( 'push' === $connection_direction && 'external' === $connection_type ) ) {
+			if ( 'internal' === $connection_type ) {
+				// For internal connections, we need to pull the post from the source site.
+				$site       = get_site( intval( $connection_id ) );
+				$connection = new \Distributor\InternalConnections\NetworkSiteConnection( $site );
+				$error_key  = "internal_{$connection_id}";
+			} else {
+				// For external connections, we need to pull the post from the source site.
+				$connection = \Distributor\ExternalConnection::instantiate( intval( $connection_id ) );
+				$error_key  = "external_{$connection_id}";
+			}
+
+			$new_posts = $connection->pull(
+				array(
+					array(
+						'remote_post_id' => $source_post_id,
+						'post_type'      => $post_extra_data['post_type'],
+						'post_status'    => $post_data['post_status'] ?? '',
+					),
+				)
+			);
+
+			$new_post = current( $new_posts );
+
+			$pull_errors      = array();
+			$post_id_mappings = array();
+			if ( is_wp_error( $new_post ) ) {
+				$pull_errors[ $source_post_id ] = [ $new_post->get_error_message() ];
+			} else {
+				$media_errors = get_transient( 'dt_media_errors_' . $new_post );
+				if ( ! empty( $media_errors ) ) {
+					delete_transient( 'dt_media_errors_' . $new_post );
+					$pull_errors[ $source_post_id ] = $media_errors;
+				}
+			}
+
+			if ( ! empty( $pull_errors ) ) {
+				set_transient( 'dt_connection_pull_errors_' . $error_key, $pull_errors, DAY_IN_SECONDS );
+			}
+
+			$post_id_mappings[ $source_post_id ] = $new_post;
+			$connection->log_sync( $post_id_mappings );
+		}
+
+		// Remove the filter after the callback is executed.
+		remove_filter( 'dt_process_extra_data', '__return_false' );
+
+	} catch ( Exception $e ) {
+		// If any error occurs, return the source post ID.
+		return $source_post_id;
+	}
+
+	return $new_post ?? $source_post_id;
 }
 
 /**
@@ -357,8 +536,9 @@ function distributor_term_pre_distribute_callback( $term_id ) {
 	 *
 	 * @return bool Whether to distribute term with parents.
 	 */
-	$with_parents = apply_filters( 'dt_registered_data_distribute_term_parent', false );
-	$term         = prepare_registered_data_term( $term_id, $with_parents );
+	$with_parents            = apply_filters( 'dt_registered_data_distribute_term_parent', false );
+	$registered_data_handler = new RegisteredDataHandler();
+	$term                    = $registered_data_handler->prepare_registered_data_term( $term_id, $with_parents );
 
 	if ( ! $term ) {
 		return array();
@@ -389,9 +569,10 @@ function distributor_term_post_distribute_callback( $term_extra_data, $source_te
 	}
 
 	// Filter documented in distributor_term_pre_distribute_callback().
-	$process_parent   = apply_filters( 'dt_registered_data_distribute_term_parent', false );
-	$update_hierarchy = apply_filters( 'dt_registered_data_update_term_hierarchy', false );
-	$new_term_id      = process_registered_data_term( $term_data, $process_parent, $update_hierarchy );
+	$process_parent          = apply_filters( 'dt_registered_data_distribute_term_parent', false );
+	$update_hierarchy        = apply_filters( 'dt_registered_data_update_term_hierarchy', false );
+	$registered_data_handler = new RegisteredDataHandler();
+	$new_term_id             = $registered_data_handler->process_registered_data_term( $term_data, $process_parent, $update_hierarchy );
 
 	if ( empty( $new_term_id ) ) {
 		return $source_term_id;

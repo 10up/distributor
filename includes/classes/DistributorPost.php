@@ -672,6 +672,19 @@ class DistributorPost {
 	 * }
 	 */
 	protected function get_extra_data() {
+		/**
+		 * Filters whether to process extra data for the post.
+		 *
+		 * @since x.x.x
+		 * @hook dt_process_extra_data
+		 *
+		 * @param {bool} $process_extra_data Whether to process extra data.
+		 * @return {bool} Whether to process extra data.
+		 */
+		if ( ! apply_filters( 'dt_process_extra_data', true ) ) {
+			return array();
+		}
+
 		$extra_data      = array();
 		$registered_data = distributor_get_registered_data();
 
