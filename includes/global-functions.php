@@ -192,6 +192,11 @@ function distributor_register_data( $data_name, $args ) {
 	}
 
 	// Validate if type is set and default callbacks are used.
+	if ( ! empty( $args['type'] ) && ! in_array( $args['type'], array( 'media', 'post', 'term' ), true ) ) {
+		_doing_it_wrong( __FUNCTION__, esc_html__( 'Invalid data type specified. It must be either media, post, or term.', 'distributor' ), esc_attr( DT_VERSION ) );
+	}
+
+	// Validate if type is set and default callbacks are used.
 	if ( ! empty( $args['type'] ) && ( ! empty( $args['pre_distribute_cb'] ) || ! empty( $args['post_distribute_cb'] ) ) ) {
 		_doing_it_wrong( __FUNCTION__, esc_html__( 'Invalid data type specified. If type is set, custom callbacks cannot be used.', 'distributor' ), esc_attr( DT_VERSION ) );
 	}
@@ -318,6 +323,10 @@ function distributor_media_post_distribute_callback( $media_extra_data, $source_
  * Pre-distribute callback for post data.
  * This is the default pre-distribute callback for post data, used when the type is set to 'post' in distributor_register_data().
  *
+ * NOTE:
+ * - The post will be distributed only if it is source post. (i.e. not the post that is distributed from another site).
+ * - The extra data will not be processed to prevent infinite loop.
+ *
  * @param mixed $post_id The post ID to be processed before distribution.
  * @return array The data of the post to be distributed to the target site.
  */
@@ -331,9 +340,6 @@ function distributor_post_pre_distribute_callback( $post_id ) {
 	if ( ! $post ) {
 		return array();
 	}
-
-	// Disable the process_extra_data filter to prevent infinite loop.
-	add_filter( 'dt_process_extra_data', '__return_false' );
 
 	// Get the extra data.
 	$dt_post = new DistributorPost( $post_id );
@@ -355,9 +361,6 @@ function distributor_post_pre_distribute_callback( $post_id ) {
 		$post_data['dt_connection_map'] = $connection_map;
 	}
 
-	// Remove the filter after the callback is executed.
-	remove_filter( 'dt_process_extra_data', '__return_false' );
-
 	return $post_data;
 }
 
@@ -377,9 +380,6 @@ function distributor_post_post_distribute_callback( $post_extra_data, $source_po
 	}
 
 	try {
-		// Disable the process_extra_data filter to prevent infinite loop.
-		add_filter( 'dt_process_extra_data', '__return_false' );
-
 		// Check if post already exists on the target site.
 		$connection_type      = $connection_data['connection_type'];
 		$connection_id        = $connection_data['connection_id'];
@@ -459,6 +459,9 @@ function distributor_post_post_distribute_callback( $post_extra_data, $source_po
 		// Handle internal connections (pull and push) and external connection (push) direction.
 		// For external connections and push direction, it is already handled via push from source site we don't have to handle it here.
 		if ( 'internal' === $connection_type || ( 'push' === $connection_direction && 'external' === $connection_type ) ) {
+			// Disable the process_extra_data filter to prevent infinite loop.
+			add_filter( 'dt_process_extra_data', '__return_false' );
+
 			if ( 'internal' === $connection_type ) {
 				// For internal connections, we need to pull the post from the source site.
 				$site       = get_site( intval( $connection_id ) );
@@ -500,10 +503,10 @@ function distributor_post_post_distribute_callback( $post_extra_data, $source_po
 
 			$post_id_mappings[ $source_post_id ] = $new_post;
 			$connection->log_sync( $post_id_mappings );
-		}
 
-		// Remove the filter after the callback is executed.
-		remove_filter( 'dt_process_extra_data', '__return_false' );
+			// Remove the filter after the callback is executed.
+			remove_filter( 'dt_process_extra_data', '__return_false' );
+		}
 
 	} catch ( Exception $e ) {
 		// If any error occurs, return the source post ID.
