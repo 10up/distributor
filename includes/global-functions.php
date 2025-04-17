@@ -458,7 +458,7 @@ function distributor_post_post_distribute_callback( $post_extra_data, $source_po
 
 		// Handle internal connections (pull and push) and external connection (push) direction.
 		// For external connections and push direction, it is already handled via push from source site we don't have to handle it here.
-		if ( 'internal' === $connection_type || ( 'push' === $connection_direction && 'external' === $connection_type ) ) {
+		if ( 'internal' === $connection_type || ( 'pull' === $connection_direction && 'external' === $connection_type ) ) {
 			// Disable the process_extra_data filter to prevent infinite loop.
 			add_filter( 'dt_process_extra_data', '__return_false' );
 
@@ -507,7 +507,6 @@ function distributor_post_post_distribute_callback( $post_extra_data, $source_po
 			// Remove the filter after the callback is executed.
 			remove_filter( 'dt_process_extra_data', '__return_false' );
 		}
-
 	} catch ( Exception $e ) {
 		// If any error occurs, return the source post ID.
 		return $source_post_id;
