@@ -91,7 +91,8 @@ class RegisteredDataHandler {
 							$source_data[ $attribute ] = $block['attrs'][ $attribute ];
 						}
 					}
-					$replacement = call_user_func_array( $callback_fn, array( $extra_data[ $index ], $source_data, $post_data, $this->connection_data ) );
+					$current_extra_data = $extra_data[ $index ] ?? array();
+					$replacement        = call_user_func_array( $callback_fn, array( $current_extra_data, $source_data, $post_data, $this->connection_data ) );
 					if ( ! empty( $replacement ) ) {
 						foreach ( $block_attribute as $attribute ) {
 							if ( isset( $replacement[ $attribute ] ) ) {
@@ -108,15 +109,16 @@ class RegisteredDataHandler {
 					}
 					$index++;
 				} elseif ( isset( $block['attrs'][ $block_attribute ] ) ) {
-					$source_data = $block['attrs'][ $block_attribute ];
-					$replacement = call_user_func_array( $callback_fn, array( $extra_data[ $index ], $source_data, $post_data, $this->connection_data ) );
+					$source_data        = $block['attrs'][ $block_attribute ];
+					$current_extra_data = $extra_data[ $index ] ?? array();
+					$replacement        = call_user_func_array( $callback_fn, array( $current_extra_data, $source_data, $post_data, $this->connection_data ) );
 					if ( ! empty( $replacement ) ) {
 						$block['attrs'][ $block_attribute ] = $replacement;
 
 						// Handle inner content replacements for media blocks.
 						$type = $registered_data['type'] ?? '';
 						if ( 'media' === $type && ! empty( $replacement ) ) {
-							$from_url = $extra_data[ $index ]['url'] ?? '';
+							$from_url = $current_extra_data['url'] ?? '';
 							$to_url   = wp_get_attachment_url( $replacement );
 
 							if ( ! empty( $from_url ) && ! empty( $to_url ) ) {
@@ -413,8 +415,9 @@ class RegisteredDataHandler {
 								return str_replace( $matches[3], $attrs_str, $matches[0] );
 							}
 						} elseif ( isset( $attrs[ $shortcode_attribute ] ) ) {
-							$source_data = $attrs[ $shortcode_attribute ];
-							$replacement = call_user_func_array( $callback_fn, array( $extra_data[ $i ], $source_data, $post_data, $this->connection_data ) );
+							$source_data        = $attrs[ $shortcode_attribute ];
+							$current_extra_data = $extra_data[ $i ] ?? array();
+							$replacement        = call_user_func_array( $callback_fn, array( $current_extra_data, $source_data, $post_data, $this->connection_data ) );
 							if ( ! empty( $replacement ) ) {
 								// Replace with the new target ID.
 								$attrs[ $shortcode_attribute ] = $replacement;
