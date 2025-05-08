@@ -82,51 +82,88 @@ describe( '[Block Editor] Stored ID handling tests', () => {
 		cy.wpCli( `wp post delete ${ postId } --force` );
 	} );
 
-	it( 'Should handle stored IDs when pushing to network connections.', () => {
-		const postTitle = 'Post to push ' + randomName();
+	[ true, false ].forEach( ( withType ) => {
+		const prefix = withType ? '[With Type]' : '[Without Type]';
+		it( `${ prefix } Should handle stored IDs when pushing to network connections.`, () => {
+			if ( withType ) {
+				cy.wpCli(
+					`wp option update distributor_registered_data_with_type ${ withType }`
+				);
+				cy.wpCli(
+					`wp option update distributor_registered_data_with_type ${ withType } --url=http://localhost/second/`
+				);
+			} else {
+				cy.wpCli(
+					`wp option delete distributor_registered_data_with_type`
+				);
+				cy.wpCli(
+					`wp option delete distributor_registered_data_with_type --url=http://localhost/second/`
+				);
+			}
 
-		cy.createPost( {
-			title: postTitle,
-			beforeSave: addPostContent,
-		} ).then( ( sourcePost ) => {
-			cy.wpCli(
-				`wp post meta update ${ sourcePost.id } related_post_id ${ postId }`
-			);
-			cy.distributorPushPost(
-				sourcePost.id,
-				'second',
-				'',
-				'publish'
-			).then( ( distributedPost ) => {
-				cy.verifyShortCodeTermId(
-					distributedPost.distributedPostId,
-					shortcodeTermName,
-					'http://localhost/second/'
+			const postTitle = 'Post to push ' + randomName();
+
+			cy.createPost( {
+				title: postTitle,
+				beforeSave: addPostContent,
+			} ).then( ( sourcePost ) => {
+				cy.wpCli(
+					`wp post meta update ${ sourcePost.id } related_post_id ${ postId }`
 				);
-				cy.verifyRelatedPostMeta(
-					distributedPost.distributedPostId,
-					relatedPostTitle,
-					'http://localhost/second/'
-				);
-				cy.postContains(
-					distributedPost.distributedPostId,
-					'src="http://localhost/wp-content/uploads/sites/2/', // For the push to network connection, image url will be generated from the source site, this is due to https://core.trac.wordpress.org/ticket/25650
-					'http://localhost/second/'
-				);
-				cy.postContains(
-					distributedPost.distributedPostId,
-					'"url":"http://localhost/wp-content/uploads/sites/2/', // For the push to network connection, image url will be generated from the source site, this is due to https://core.trac.wordpress.org/ticket/25650
-					'http://localhost/second/'
-				);
+				cy.distributorPushPost(
+					sourcePost.id,
+					'second',
+					'',
+					'publish'
+				).then( ( distributedPost ) => {
+					cy.verifyShortCodeTermId(
+						distributedPost.distributedPostId,
+						shortcodeTermName,
+						'http://localhost/second/'
+					);
+					cy.verifyRelatedPostMeta(
+						distributedPost.distributedPostId,
+						relatedPostTitle,
+						'http://localhost/second/'
+					);
+					cy.postContains(
+						distributedPost.distributedPostId,
+						'src="http://localhost/wp-content/uploads/sites/2/', // For the push to network connection, image url will be generated from the source site, this is due to https://core.trac.wordpress.org/ticket/25650
+						'http://localhost/second/'
+					);
+					if ( ! withType ) {
+						cy.postContains(
+							distributedPost.distributedPostId,
+							'"url":"http://localhost/wp-content/uploads/sites/2/', // For the push to network connection, image url will be generated from the source site, this is due to https://core.trac.wordpress.org/ticket/25650
+							'http://localhost/second/'
+						);
+					}
+				} );
 			} );
 		} );
-	} );
 
-	it( 'Should handle stored IDs when pulling from network connections.', () => {
-		const postTitle = 'Post to pull ' + randomName();
+		it( `${ prefix } handle stored IDs when pulling from network connections.`, () => {
+			const postTitle = 'Post to pull ' + randomName();
+			if ( withType ) {
+				cy.wpCli(
+					`wp option update distributor_registered_data_with_type ${ withType }`
+				);
+				cy.wpCli(
+					`wp option update distributor_registered_data_with_type ${ withType } --url=http://localhost/second/`
+				);
+			} else {
+				cy.wpCli(
+					`wp option delete distributor_registered_data_with_type`
+				);
+				cy.wpCli(
+					`wp option delete distributor_registered_data_with_type --url=http://localhost/second/`
+				);
+			}
 
-		cy.createPost( { title: postTitle, beforeSave: addPostContent } ).then(
-			( sourcePost ) => {
+			cy.createPost( {
+				title: postTitle,
+				beforeSave: addPostContent,
+			} ).then( ( sourcePost ) => {
 				cy.wpCli(
 					`wp post meta update ${ sourcePost.id } related_post_id ${ postId }`
 				);
@@ -161,21 +198,39 @@ describe( '[Block Editor] Stored ID handling tests', () => {
 						'src="http://localhost/second/wp-content/uploads/',
 						'http://localhost/second/'
 					);
-					cy.postContains(
-						distributedPostId,
-						'"url":"http://localhost/second/wp-content/uploads/',
-						'http://localhost/second/'
-					);
+					if ( ! withType ) {
+						cy.postContains(
+							distributedPostId,
+							'"url":"http://localhost/second/wp-content/uploads/',
+							'http://localhost/second/'
+						);
+					}
 				} );
+			} );
+		} );
+
+		it( `${ prefix } handle stored IDs when pushing to external connections.`, () => {
+			const postTitle = 'Post to push ' + randomName();
+			if ( withType ) {
+				cy.wpCli(
+					`wp option update distributor_registered_data_with_type ${ withType }`
+				);
+				cy.wpCli(
+					`wp option update distributor_registered_data_with_type ${ withType } --url=http://localhost/second/`
+				);
+			} else {
+				cy.wpCli(
+					`wp option delete distributor_registered_data_with_type`
+				);
+				cy.wpCli(
+					`wp option delete distributor_registered_data_with_type --url=http://localhost/second/`
+				);
 			}
-		);
-	} );
 
-	it( 'Should handle stored IDs when pushing to external connections.', () => {
-		const postTitle = 'Post to push ' + randomName();
-
-		cy.createPost( { title: postTitle, beforeSave: addPostContent } ).then(
-			( sourcePost ) => {
+			cy.createPost( {
+				title: postTitle,
+				beforeSave: addPostContent,
+			} ).then( ( sourcePost ) => {
 				cy.wpCli(
 					`wp post meta update ${ sourcePost.id } related_post_id ${ postId }`
 				);
@@ -200,21 +255,39 @@ describe( '[Block Editor] Stored ID handling tests', () => {
 						'src="http://localhost/second/wp-content/uploads/',
 						'http://localhost/second/'
 					);
-					cy.postContains(
-						distributedPost.distributedPostId,
-						'"url":"http://localhost/second/wp-content/uploads/',
-						'http://localhost/second/'
-					);
+					if ( ! withType ) {
+						cy.postContains(
+							distributedPost.distributedPostId,
+							'"url":"http://localhost/second/wp-content/uploads/',
+							'http://localhost/second/'
+						);
+					}
 				} );
+			} );
+		} );
+
+		it( `${ prefix } handle stored IDs when pulling from external connections.`, () => {
+			const postTitle = 'Post to pull ' + randomName();
+			if ( withType ) {
+				cy.wpCli(
+					`wp option update distributor_registered_data_with_type ${ withType }`
+				);
+				cy.wpCli(
+					`wp option update distributor_registered_data_with_type ${ withType } --url=http://localhost/second/`
+				);
+			} else {
+				cy.wpCli(
+					`wp option delete distributor_registered_data_with_type`
+				);
+				cy.wpCli(
+					`wp option delete distributor_registered_data_with_type --url=http://localhost/second/`
+				);
 			}
-		);
-	} );
 
-	it( 'Should handle stored IDs when pulling from external connections.', () => {
-		const postTitle = 'Post to pull ' + randomName();
-
-		cy.createPost( { title: postTitle, beforeSave: addPostContent } ).then(
-			( sourcePost ) => {
+			cy.createPost( {
+				title: postTitle,
+				beforeSave: addPostContent,
+			} ).then( ( sourcePost ) => {
 				cy.wpCli(
 					`wp post meta update ${ sourcePost.id } related_post_id ${ postId }`
 				);
@@ -248,13 +321,15 @@ describe( '[Block Editor] Stored ID handling tests', () => {
 						'src="http://localhost/second/wp-content/uploads/',
 						'http://localhost/second/'
 					);
-					cy.postContains(
-						distributedPostId,
-						'"url":"http://localhost/second/wp-content/uploads/',
-						'http://localhost/second/'
-					);
+					if ( ! withType ) {
+						cy.postContains(
+							distributedPostId,
+							'"url":"http://localhost/second/wp-content/uploads/',
+							'http://localhost/second/'
+						);
+					}
 				} );
-			}
-		);
+			} );
+		} );
 	} );
 } );

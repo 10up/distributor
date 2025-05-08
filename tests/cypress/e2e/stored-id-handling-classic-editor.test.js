@@ -66,143 +66,206 @@ describe( '[Classic Editor] Stored ID handling tests', () => {
 		cy.wpCli( `wp post delete ${ postId } --force` );
 	} );
 
-	it( 'Should handle stored IDs when pushing to network connections.', () => {
-		const postTitle = 'Post to push ' + randomName();
-
-		cy.classicCreatePost( {
-			title: postTitle,
-			content: `[dt_term_shortcode id="${ termId }"]`,
-		} ).then( ( sourcePostID ) => {
-			cy.wpCli(
-				`wp post meta update ${ sourcePostID } related_post_id ${ postId }`
-			);
-			cy.distributorPushPost(
-				sourcePostID,
-				'second',
-				'',
-				'publish',
-				false,
-				true
-			).then( ( distributedPost ) => {
-				// With classic editor rendered content is transferred and not the shortcode.
-				// cy.verifyShortCodeTermId(
-				// 	distributedPost.distributedPostId,
-				// 	shortcodeTermName,
-				// 	'http://localhost/second/'
-				// );
-				cy.verifyRelatedPostMeta(
-					distributedPost.distributedPostId,
-					relatedPostTitle,
-					'http://localhost/second/'
+	[ true, false ].forEach( ( withType ) => {
+		const prefix = withType ? '[With Type]' : '[Without Type]';
+		it( `${ prefix } Should handle stored IDs when pushing to network connections.`, () => {
+			if ( withType ) {
+				cy.wpCli(
+					`wp option update distributor_registered_data_with_type ${ withType }`
 				);
+				cy.wpCli(
+					`wp option update distributor_registered_data_with_type ${ withType } --url=http://localhost/second/`
+				);
+			} else {
+				cy.wpCli(
+					`wp option delete distributor_registered_data_with_type`
+				);
+				cy.wpCli(
+					`wp option delete distributor_registered_data_with_type --url=http://localhost/second/`
+				);
+			}
+			const postTitle = 'Post to push ' + randomName();
+
+			cy.classicCreatePost( {
+				title: postTitle,
+				content: `[dt_term_shortcode id="${ termId }"]`,
+			} ).then( ( sourcePostID ) => {
+				cy.wpCli(
+					`wp post meta update ${ sourcePostID } related_post_id ${ postId }`
+				);
+				cy.distributorPushPost(
+					sourcePostID,
+					'second',
+					'',
+					'publish',
+					false,
+					true
+				).then( ( distributedPost ) => {
+					// With classic editor rendered content is transferred and not the shortcode.
+					// cy.verifyShortCodeTermId(
+					// 	distributedPost.distributedPostId,
+					// 	shortcodeTermName,
+					// 	'http://localhost/second/'
+					// );
+					cy.verifyRelatedPostMeta(
+						distributedPost.distributedPostId,
+						relatedPostTitle,
+						'http://localhost/second/'
+					);
+				} );
 			} );
 		} );
-	} );
 
-	it( 'Should handle stored IDs when pulling from network connections.', () => {
-		const postTitle = 'Post to pull ' + randomName();
-
-		cy.classicCreatePost( {
-			title: postTitle,
-			content: `[dt_term_shortcode id="${ termId }"]`,
-		} ).then( ( sourcePostID ) => {
-			cy.wpCli(
-				`wp post meta update ${ sourcePostID } related_post_id ${ postId }`
-			);
-			cy.distributorPullPost(
-				sourcePostID,
-				'second',
-				'',
-				'localhost'
-			).then( ( distributedPost ) => {
-				const matches =
-					distributedPost.distributedEditUrl.match( /post=(\d+)/ );
-				let distributedPostId;
-				if ( matches ) {
-					distributedPostId = matches[ 1 ];
-				}
-
-				// // With classic editor rendered content is transferred and not the shortcode.
-				// cy.verifyShortCodeTermId(
-				// 	distributedPostId,
-				// 	shortcodeTermName,
-				// 	'http://localhost/second/'
-				// );
-				cy.verifyRelatedPostMeta(
-					distributedPostId,
-					relatedPostTitle,
-					'http://localhost/second/'
+		it( `${ prefix } Should handle stored IDs when pulling from network connections.`, () => {
+			if ( withType ) {
+				cy.wpCli(
+					`wp option update distributor_registered_data_with_type ${ withType }`
 				);
+				cy.wpCli(
+					`wp option update distributor_registered_data_with_type ${ withType } --url=http://localhost/second/`
+				);
+			} else {
+				cy.wpCli(
+					`wp option delete distributor_registered_data_with_type`
+				);
+				cy.wpCli(
+					`wp option delete distributor_registered_data_with_type --url=http://localhost/second/`
+				);
+			}
+			const postTitle = 'Post to pull ' + randomName();
+
+			cy.classicCreatePost( {
+				title: postTitle,
+				content: `[dt_term_shortcode id="${ termId }"]`,
+			} ).then( ( sourcePostID ) => {
+				cy.wpCli(
+					`wp post meta update ${ sourcePostID } related_post_id ${ postId }`
+				);
+				cy.distributorPullPost(
+					sourcePostID,
+					'second',
+					'',
+					'localhost'
+				).then( ( distributedPost ) => {
+					const matches =
+						distributedPost.distributedEditUrl.match( /post=(\d+)/ );
+					let distributedPostId;
+					if ( matches ) {
+						distributedPostId = matches[ 1 ];
+					}
+
+					// // With classic editor rendered content is transferred and not the shortcode.
+					// cy.verifyShortCodeTermId(
+					// 	distributedPostId,
+					// 	shortcodeTermName,
+					// 	'http://localhost/second/'
+					// );
+					cy.verifyRelatedPostMeta(
+						distributedPostId,
+						relatedPostTitle,
+						'http://localhost/second/'
+					);
+				} );
 			} );
 		} );
-	} );
 
-	it( 'Should handle stored IDs when pushing to external connections.', () => {
-		const postTitle = 'Post to push ' + randomName();
-
-		cy.classicCreatePost( {
-			title: postTitle,
-			content: `[dt_term_shortcode id="${ termId }"]`,
-		} ).then( ( sourcePostID ) => {
-			cy.wpCli(
-				`wp post meta update ${ sourcePostID } related_post_id ${ postId }`
-			);
-			cy.distributorPushPost(
-				sourcePostID,
-				externalConnectionOneToTwo,
-				'',
-				'publish',
-				false,
-				true
-			).then( ( distributedPost ) => {
-				// // With classic editor rendered content is transferred and not the shortcode.
-				// cy.verifyShortCodeTermId(
-				// 	distributedPost.distributedPostId,
-				// 	shortcodeTermName,
-				// 	'http://localhost/second/'
-				// );
-				cy.verifyRelatedPostMeta(
-					distributedPost.distributedPostId,
-					relatedPostTitle,
-					'http://localhost/second/'
+		it( `${ prefix } Should handle stored IDs when pushing to external connections.`, () => {
+			if ( withType ) {
+				cy.wpCli(
+					`wp option update distributor_registered_data_with_type ${ withType }`
 				);
+				cy.wpCli(
+					`wp option update distributor_registered_data_with_type ${ withType } --url=http://localhost/second/`
+				);
+			} else {
+				cy.wpCli(
+					`wp option delete distributor_registered_data_with_type`
+				);
+				cy.wpCli(
+					`wp option delete distributor_registered_data_with_type --url=http://localhost/second/`
+				);
+			}
+			const postTitle = 'Post to push ' + randomName();
+
+			cy.classicCreatePost( {
+				title: postTitle,
+				content: `[dt_term_shortcode id="${ termId }"]`,
+			} ).then( ( sourcePostID ) => {
+				cy.wpCli(
+					`wp post meta update ${ sourcePostID } related_post_id ${ postId }`
+				);
+				cy.distributorPushPost(
+					sourcePostID,
+					externalConnectionOneToTwo,
+					'',
+					'publish',
+					false,
+					true
+				).then( ( distributedPost ) => {
+					// // With classic editor rendered content is transferred and not the shortcode.
+					// cy.verifyShortCodeTermId(
+					// 	distributedPost.distributedPostId,
+					// 	shortcodeTermName,
+					// 	'http://localhost/second/'
+					// );
+					cy.verifyRelatedPostMeta(
+						distributedPost.distributedPostId,
+						relatedPostTitle,
+						'http://localhost/second/'
+					);
+				} );
 			} );
 		} );
-	} );
 
-	it( 'Should handle stored IDs when pulling from external connections.', () => {
-		const postTitle = 'Post to pull ' + randomName();
-
-		cy.classicCreatePost( {
-			title: postTitle,
-			content: `[dt_term_shortcode id="${ termId }"]`,
-		} ).then( ( sourcePostID ) => {
-			cy.wpCli(
-				`wp post meta update ${ sourcePostID } related_post_id ${ postId }`
-			);
-			cy.distributorPullPost(
-				sourcePostID,
-				'/second/', // Pull to second site.
-				'', // From primary site.
-				externalConnectionTwoToOne
-			).then( ( distributedPost ) => {
-				const matches =
-					distributedPost.distributedEditUrl.match( /post=(\d+)/ );
-				let distributedPostId;
-				if ( matches ) {
-					distributedPostId = matches[ 1 ];
-				}
-				// // With classic editor rendered content is transferred and not the shortcode.
-				// cy.verifyShortCodeTermId(
-				// 	distributedPostId,
-				// 	shortcodeTermName,
-				// 	'http://localhost/second/'
-				// );
-				cy.verifyRelatedPostMeta(
-					distributedPostId,
-					relatedPostTitle,
-					'http://localhost/second/'
+		it( `${ prefix } Should handle stored IDs when pulling from external connections.`, () => {
+			if ( withType ) {
+				cy.wpCli(
+					`wp option update distributor_registered_data_with_type ${ withType }`
 				);
+				cy.wpCli(
+					`wp option update distributor_registered_data_with_type ${ withType } --url=http://localhost/second/`
+				);
+			} else {
+				cy.wpCli(
+					`wp option delete distributor_registered_data_with_type`
+				);
+				cy.wpCli(
+					`wp option delete distributor_registered_data_with_type --url=http://localhost/second/`
+				);
+			}
+			const postTitle = 'Post to pull ' + randomName();
+
+			cy.classicCreatePost( {
+				title: postTitle,
+				content: `[dt_term_shortcode id="${ termId }"]`,
+			} ).then( ( sourcePostID ) => {
+				cy.wpCli(
+					`wp post meta update ${ sourcePostID } related_post_id ${ postId }`
+				);
+				cy.distributorPullPost(
+					sourcePostID,
+					'/second/', // Pull to second site.
+					'', // From primary site.
+					externalConnectionTwoToOne
+				).then( ( distributedPost ) => {
+					const matches =
+						distributedPost.distributedEditUrl.match( /post=(\d+)/ );
+					let distributedPostId;
+					if ( matches ) {
+						distributedPostId = matches[ 1 ];
+					}
+					// // With classic editor rendered content is transferred and not the shortcode.
+					// cy.verifyShortCodeTermId(
+					// 	distributedPostId,
+					// 	shortcodeTermName,
+					// 	'http://localhost/second/'
+					// );
+					cy.verifyRelatedPostMeta(
+						distributedPostId,
+						relatedPostTitle,
+						'http://localhost/second/'
+					);
+				} );
 			} );
 		} );
 	} );

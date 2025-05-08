@@ -40,6 +40,10 @@ This function registers a data piece by providing details about its location and
       - `block_name` (`string`): The block name. **(Required)**
       - `block_attribute` (`string|array`): The attribute(s) containing the data. **(Required)**
 
+  - **`type`** (`string`):
+    Type of data. Accepted values are `'media'`, `'post'`, or `'term'`. If set, default callbacks can be used.
+    **Note:** This parameter cannot be used in conjunction with custom callbacks. If custom callbacks are provided, they will take precedence over the default behavior.
+
   - **`pre_distribute_cb`** (`callable`):
     A callback function that prepares the data on the source site before distribution. It should return extra data that is required for processing on the target site.
 

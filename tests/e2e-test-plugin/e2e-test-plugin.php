@@ -41,154 +41,196 @@ add_action(
 	}
 );
 
-// Distributor data registration for the related post data stored in post meta.
-distributor_register_data(
-	'related_post_data',
-	array(
-		'location'           => 'post_meta',
-		'attributes'         => array(
-			'meta_key' => 'related_post_id',
-		),
-		'pre_distribute_cb'  => function( $related_post_id ) {
-			if ( ! $related_post_id ) {
-				return array();
-			}
+$registered_data_with_type = (bool) get_option( 'distributor_registered_data_with_type', false );
+if ( $registered_data_with_type ) {
+	// Distributor data registration for the related post data stored in post meta.
+	distributor_register_data(
+		'related_post_data',
+		array(
+			'location'           => 'post_meta',
+			'attributes'         => array(
+				'meta_key' => 'related_post_id',
+			),
+			'type'               => 'post',
+		)
+	);
 
-			$post = get_post( $related_post_id );
-			if ( ! $post ) {
-				return array();
-			}
+	// Distributor data registration for the cover block.
+	distributor_register_data(
+		'cover_block_data',
+		array(
+			'location'           => 'post_content',
+			'attributes'         => array(
+				'block_name'      => 'core/cover',
+				'block_attribute' => 'id',
+			),
+			'type'               => 'media',
+		)
+	);
 
-			return array(
-				'post_type'    => $post->post_type,
-				'post_title'   => $post->post_title,
-				'post_status'  => $post->post_status,
-				'post_content' => $post->post_content,
-			);
-		},
-		'post_distribute_cb' => function( $extra_data, $source_post_id, $post_data ) {
-			if ( ! isset( $extra_data['post_type'] ) && ! isset( $extra_data['post_title'] ) ) {
-				return $source_post_id;
-			}
+	// Distributor data registration for the shortcode.
+	distributor_register_data(
+		'term_shortcode_data',
+		array(
+			'location'           => 'post_content',
+			'attributes'         => array(
+				'shortcode'           => 'dt_term_shortcode',
+				'shortcode_attribute' => 'id',
+			),
+			'type'               => 'term',
+		)
+	);
+} else {
+	// Distributor data registration for the related post data stored in post meta.
+	distributor_register_data(
+		'related_post_data',
+		array(
+			'location'           => 'post_meta',
+			'attributes'         => array(
+				'meta_key' => 'related_post_id',
+			),
+			'pre_distribute_cb'  => function( $related_post_id ) {
+				if ( ! $related_post_id ) {
+					return array();
+				}
 
-			$posts = get_posts(
-				array(
-					'post_type'              => $extra_data['post_type'],
-					'title'                  => $extra_data['post_title'],
-					'post_status'            => 'any',
-					'fields'                 => 'ids',
-					'no_found_rows'          => true,
-					'update_post_meta_cache' => false,
-					'update_post_term_cache' => false,
-					'numberposts'            => 1,
-					'orderby'                => 'post_date ID',
-					'order'                  => 'ASC',
-				)
-			);
+				$post = get_post( $related_post_id );
+				if ( ! $post ) {
+					return array();
+				}
 
-			if ( ! empty( $posts ) ) {
-				return $posts[0];
-			}
+				return array(
+					'post_type'    => $post->post_type,
+					'post_title'   => $post->post_title,
+					'post_status'  => $post->post_status,
+					'post_content' => $post->post_content,
+				);
+			},
+			'post_distribute_cb' => function( $extra_data, $source_post_id, $post_data ) {
+				if ( ! isset( $extra_data['post_type'] ) && ! isset( $extra_data['post_title'] ) ) {
+					return $source_post_id;
+				}
 
-			// Create the post.
-			$post_id = wp_insert_post( $extra_data );
-
-			if ( is_wp_error( $post_id ) ) {
-				return;
-			}
-
-			return $post_id;
-		},
-	)
-);
-
-// Distributor data registration for the cover block.
-distributor_register_data(
-	'cover_block_data',
-	array(
-		'location'           => 'post_content',
-		'attributes'         => array(
-			'block_name'      => 'core/cover',
-			'block_attribute' => [ 'id', 'url' ],
-		),
-		'pre_distribute_cb'  => function( $data, $post_id ) {
-			return distributor_image_pre_distribute_cb( $data['id'] );
-		},
-		'post_distribute_cb' => function( $extra_data, $source_data, $post_data ) {
-			if ( ! isset( $extra_data['image_url'] ) ) {
-				return;
-			}
-
-			// Do something after sending the data.
-			$image_id = distributor_image_post_distribute_cb( $extra_data, $source_data['id'], $post_data );
-			return array(
-				'id'                         => $image_id,
-				'url'                        => wp_get_attachment_image_url( $image_id, 'full' ),
-				'inner_content_replacements' => array(
+				$posts = get_posts(
 					array(
-						'search'  => 'wp-image-' . $source_data['id'],
-						'replace' => 'wp-image-' . $image_id,
+						'post_type'              => $extra_data['post_type'],
+						'title'                  => $extra_data['post_title'],
+						'post_status'            => 'any',
+						'fields'                 => 'ids',
+						'no_found_rows'          => true,
+						'update_post_meta_cache' => false,
+						'update_post_term_cache' => false,
+						'numberposts'            => 1,
+						'orderby'                => 'post_date ID',
+						'order'                  => 'ASC',
+					)
+				);
+
+				if ( ! empty( $posts ) ) {
+					return $posts[0];
+				}
+
+				// Create the post.
+				$post_id = wp_insert_post( $extra_data );
+
+				if ( is_wp_error( $post_id ) ) {
+					return;
+				}
+
+				return $post_id;
+			},
+		)
+	);
+
+	// Distributor data registration for the cover block.
+	distributor_register_data(
+		'cover_block_data',
+		array(
+			'location'           => 'post_content',
+			'attributes'         => array(
+				'block_name'      => 'core/cover',
+				'block_attribute' => [ 'id', 'url' ],
+			),
+			'pre_distribute_cb'  => function( $data, $post_id ) {
+				return distributor_image_pre_distribute_cb( $data['id'] );
+			},
+			'post_distribute_cb' => function( $extra_data, $source_data, $post_data ) {
+				if ( ! isset( $extra_data['image_url'] ) ) {
+					return;
+				}
+
+				// Do something after sending the data.
+				$image_id = distributor_image_post_distribute_cb( $extra_data, $source_data['id'], $post_data );
+				return array(
+					'id'                         => $image_id,
+					'url'                        => wp_get_attachment_image_url( $image_id, 'full' ),
+					'inner_content_replacements' => array(
+						array(
+							'search'  => 'wp-image-' . $source_data['id'],
+							'replace' => 'wp-image-' . $image_id,
+						),
+						array(
+							'search'  => $source_data['url'],
+							'replace' => wp_get_attachment_image_url( $image_id, 'full' ),
+						),
 					),
+				);
+			},
+		)
+	);
+
+	// Distributor data registration for the shortcode.
+	distributor_register_data(
+		'term_shortcode_data',
+		array(
+			'location'           => 'post_content',
+			'attributes'         => array(
+				'shortcode'           => 'dt_term_shortcode',
+				'shortcode_attribute' => 'id',
+			),
+			'pre_distribute_cb'  => function( $data ) {
+				$term = get_term_by( 'id', $data, 'category' );
+				if ( ! $term ) {
+					return array();
+				}
+
+				return array(
+					'name'        => $term->name,
+					'slug'        => $term->slug,
+					'description' => $term->description,
+					'taxonomy'    => $term->taxonomy,
+				);
+			},
+			'post_distribute_cb' => function( $extra_data, $source_data, $post_data ) {
+				if ( ! isset( $extra_data['name'] ) && ! isset( $extra_data['taxonomy'] ) ) {
+					return;
+				}
+
+				$existing_term = get_term_by( 'name', $extra_data['name'], $extra_data['taxonomy'] );
+				if ( $existing_term ) {
+					return $existing_term->term_id;
+				}
+
+				// Create the term.
+				$term = wp_insert_term(
+					$extra_data['name'],
+					$extra_data['taxonomy'],
 					array(
-						'search'  => $source_data['url'],
-						'replace' => wp_get_attachment_image_url( $image_id, 'full' ),
-					),
-				),
-			);
-		},
-	)
-);
+						'description' => $extra_data['description'],
+						'slug'        => $extra_data['slug'],
+					)
+				);
 
-// Distributor data registration for the shortcode.
-distributor_register_data(
-	'term_shortcode_data',
-	array(
-		'location'           => 'post_content',
-		'attributes'         => array(
-			'shortcode'           => 'dt_term_shortcode',
-			'shortcode_attribute' => 'id',
-		),
-		'pre_distribute_cb'  => function( $data ) {
-			$term = get_term_by( 'id', $data, 'category' );
-			if ( ! $term ) {
-				return array();
-			}
+				if ( is_wp_error( $term ) ) {
+					return;
+				}
 
-			return array(
-				'name'        => $term->name,
-				'slug'        => $term->slug,
-				'description' => $term->description,
-				'taxonomy'    => $term->taxonomy,
-			);
-		},
-		'post_distribute_cb' => function( $extra_data, $source_data, $post_data ) {
-			if ( ! isset( $extra_data['name'] ) && ! isset( $extra_data['taxonomy'] ) ) {
-				return;
-			}
+				return $term['term_id'];
+			},
+		)
+	);
+}
 
-			$existing_term = get_term_by( 'name', $extra_data['name'], $extra_data['taxonomy'] );
-			if ( $existing_term ) {
-				return $existing_term->term_id;
-			}
-
-			// Create the term.
-			$term = wp_insert_term(
-				$extra_data['name'],
-				$extra_data['taxonomy'],
-				array(
-					'description' => $extra_data['description'],
-					'slug'        => $extra_data['slug'],
-				)
-			);
-
-			if ( is_wp_error( $term ) ) {
-				return;
-			}
-
-			return $term['term_id'];
-		},
-	)
-);
 
 /**
  * Pre-distribute callback for the cover block data.
