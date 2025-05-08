@@ -137,6 +137,15 @@ describe( '[Block Editor] Stored ID handling tests', () => {
 							'"url":"http://localhost/wp-content/uploads/sites/2/', // For the push to network connection, image url will be generated from the source site, this is due to https://core.trac.wordpress.org/ticket/25650
 							'http://localhost/second/'
 						);
+					} else {
+						cy.visit(
+							`/wp-admin/post.php?post=${ postId }&action=edit`
+						);
+						cy.openDocumentSettingsPanel( 'Pulled Content' );
+						cy.get( '.distributor-panel' ).should(
+							'contain',
+							'Distributed to 1 connection.'
+						);
 					}
 				} );
 			} );

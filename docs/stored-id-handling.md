@@ -60,6 +60,8 @@ Below are several examples demonstrating how to use the `distributor_register_da
 
 In this example, we register an image ID stored in post meta under the key `example_image_id`.
 
+#### With Custom Callback Functions
+
 ```php
 distributor_register_data( 'example_post_meta_data', array(
 	'location'   => 'post_meta',
@@ -109,7 +111,7 @@ distributor_register_data( 'example_post_meta_data', array(
 ) );
 ```
 
-#### Explanation
+**Explanation**
 
 1. **Pre-Distribution Callback (`pre_distribute_cb`):**
    - Retrieves the URL of the image using the stored ID.
@@ -120,9 +122,23 @@ distributor_register_data( 'example_post_meta_data', array(
    - If not found, processes (uploads) the media and updates the relevant post meta with the original source data.
    - Returns the new image ID for the distributed post.
 
+#### Using the `type` Parameter to Utilize the Default Callback
+
+```php
+distributor_register_data( 'example_post_meta_data', array(
+	'location'   => 'post_meta',
+	'attributes' => array(
+		'meta_key' => 'example_image_id',
+	),
+	'type'       => 'media'
+) );
+```
+
 ### 2. Handling Term ID in a Block Attribute
 
 This example demonstrates how to handle a term ID stored in a block attribute.
+
+#### With Custom Callback Functions
 
 ```php
 distributor_register_data(
@@ -181,10 +197,28 @@ distributor_register_data(
 );
 ```
 
+#### Using the `type` Parameter to Utilize the Default Callback
+
+```php
+distributor_register_data(
+	'example_block_data',
+	array(
+		'location'   => 'post_content',
+		'attributes' => array(
+			'block_name'      => 'example/block-name',
+			'block_attribute' => 'id',
+		),
+		'type'       => 'term'
+	)
+);
+```
+
+
 ### 3. Handling Post ID in a Shortcode Attribute
 
 This example shows how to manage a post ID stored within a shortcode attribute.
 
+#### With Custom Callback Functions
 ```php
 // Distributor data registration for the post ID stored in shortcode attribute.
 distributor_register_data( 'example_post_data', array(
@@ -252,6 +286,19 @@ distributor_register_data( 'example_post_data', array(
 
 		return $post_id;
 	},
+) );
+```
+
+#### Using the `type` Parameter to Utilize the Default Callback
+```php
+// Distributor data registration for the post ID stored in shortcode attribute.
+distributor_register_data( 'example_post_data', array(
+	'location'   => 'post_content',
+	'attributes' => array(
+		'shortcode'           => 'extra_shortcode',
+		'shortcode_attribute' => 'example_post_id',
+	),
+	'type'       => 'post'
 ) );
 ```
 

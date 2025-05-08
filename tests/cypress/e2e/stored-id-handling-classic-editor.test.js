@@ -148,7 +148,9 @@ describe( '[Classic Editor] Stored ID handling tests', () => {
 					'localhost'
 				).then( ( distributedPost ) => {
 					const matches =
-						distributedPost.distributedEditUrl.match( /post=(\d+)/ );
+						distributedPost.distributedEditUrl.match(
+							/post=(\d+)/
+						);
 					let distributedPostId;
 					if ( matches ) {
 						distributedPostId = matches[ 1 ];
@@ -249,7 +251,9 @@ describe( '[Classic Editor] Stored ID handling tests', () => {
 					externalConnectionTwoToOne
 				).then( ( distributedPost ) => {
 					const matches =
-						distributedPost.distributedEditUrl.match( /post=(\d+)/ );
+						distributedPost.distributedEditUrl.match(
+							/post=(\d+)/
+						);
 					let distributedPostId;
 					if ( matches ) {
 						distributedPostId = matches[ 1 ];

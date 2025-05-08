@@ -139,7 +139,7 @@ class RegisteredDataHandler {
 										'replace' => $to_url,
 									);
 								}
-								$block        = $this->search_replace_block_inner_content( $block, $replacements );
+								$block = $this->search_replace_block_inner_content( $block, $replacements );
 							}
 						}
 
