@@ -42,7 +42,7 @@ add_action(
 );
 
 $registered_data_with_type = (bool) get_option( 'distributor_registered_data_with_type', false );
-if ( $registered_data_with_type ) {
+if ( true === $registered_data_with_type ) {
 	// Distributor data registration for the related post data stored in post meta.
 	distributor_register_data(
 		'related_post_data',

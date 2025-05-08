@@ -259,12 +259,15 @@ function distributor_media_pre_distribute_callback( $media_id ) {
 		return array();
 	}
 
+	$media_url = wp_get_attachment_url( $media->ID );
+
 	return array(
 		'title'       => $media->post_title,
 		'caption'     => $media->post_excerpt,
 		'description' => $media->post_content,
 		'alt'         => get_post_meta( $media->ID, '_wp_attachment_image_alt', true ),
-		'url'         => wp_get_attachment_url( $media->ID ),
+		'url'         => $media_url,
+		'guid'        => $media->guid ?? $media_url,
 	);
 }
 

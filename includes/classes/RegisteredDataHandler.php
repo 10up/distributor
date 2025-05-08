@@ -127,7 +127,18 @@ class RegisteredDataHandler {
 										'search'  => $from_url,
 										'replace' => $to_url,
 									),
+									array(
+										'search'  => 'wp-image-' . $source_data,
+										'replace' => 'wp-image-' . $replacement,
+									),
 								);
+								// Try replacing the guid as well, due to the media url could be different based on from where it's being pulled.
+								if ( ! empty( $current_extra_data['guid'] ) ) {
+									$replacements[] = array(
+										'search'  => $current_extra_data['guid'],
+										'replace' => $to_url,
+									);
+								}
 								$block        = $this->search_replace_block_inner_content( $block, $replacements );
 							}
 						}
