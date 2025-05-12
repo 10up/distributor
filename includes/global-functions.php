@@ -6,8 +6,8 @@
  */
 
 use Distributor\DistributorPost;
-
 use Distributor\RegisteredDataHandler;
+
 /**
  * Functions in the global namespace.
  *
@@ -143,8 +143,8 @@ if ( ! function_exists( 'str_ends_with' ) ) {
  *         @type string       $block_name          Required if data is in a block.
  *         @type string|array $block_attribute     Required if data is in a block.
  *     }
- *     @type string   $type               Type of data, e.g., 'media', 'post', or 'term'. If set, default callbacks can be used.
- *                                        Cannot be combined with custom callbacks. Adding custom callbacks will override the default behavior.
+ *     @type string   $type               Type of data, e.g., 'media', 'post', or 'term'. If set, the default callbacks will be used.
+ *                                        If this parameter is used in conjunction with custom callbacks, the custom callbacks will be used instead.
  *     @type callable $pre_distribute_cb  Function that returns extra data that needs to be added
  *                                        to the request (source processing).
  *     @type callable $post_distribute_cb Function that processes the extra data on the target
@@ -198,7 +198,7 @@ function distributor_register_data( $data_name, $args ) {
 
 	// Validate if type is set and default callbacks are used.
 	if ( ! empty( $args['type'] ) && ( ! empty( $args['pre_distribute_cb'] ) || ! empty( $args['post_distribute_cb'] ) ) ) {
-		_doing_it_wrong( __FUNCTION__, esc_html__( 'Invalid data type specified. If type is set, custom callbacks cannot be used.', 'distributor' ), esc_attr( DT_VERSION ) );
+		_doing_it_wrong( __FUNCTION__, esc_html__( 'If type is set, custom callbacks cannot be used.', 'distributor' ), esc_attr( DT_VERSION ) );
 	}
 
 	// Set default callbacks based on type.
