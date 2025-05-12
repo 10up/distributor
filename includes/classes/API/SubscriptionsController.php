@@ -222,6 +222,12 @@ class SubscriptionsController extends \WP_REST_Controller {
 				return new \WP_Error( 'rest_post_no_data', esc_html__( 'No post data for update.', 'distributor' ), array( 'status' => 400 ) );
 			}
 
+			// Process registered custom data.
+			$registered_data = distributor_get_registered_data();
+			if ( ! empty( $registered_data ) ) {
+				$request['post_data'] = \Distributor\Utils\process_registered_data( $request['post_data'], true );
+			}
+
 			// When both sides of a subscription connection support Gutenberg, update with the raw content.
 			$content = $request['post_data']['content'];
 			if ( \Distributor\Utils\is_using_gutenberg( $post ) && isset( $request['post_data']['distributor_raw_content'] ) ) {

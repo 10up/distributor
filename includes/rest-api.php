@@ -52,6 +52,22 @@ function setup() {
  * @return Object $prepared_post The filtered post object.
  */
 function filter_distributor_content( $prepared_post, $request ) {
+	// Make sure this is a Distributor push.
+	if ( ! empty( $request['distributor_original_source_id'] ) ) {
+		// Process the registered distributor data.
+		$registered_data = distributor_get_registered_data();
+		if ( ! empty( $registered_data ) ) {
+			$params = Utils\process_registered_data( $request->get_params(), true );
+			if ( ! empty( $params['distributor_meta'] ) ) {
+				$request['distributor_meta'] = $params['distributor_meta'] ?? array();
+			}
+			if ( isset( $params['distributor_raw_content'] ) ) {
+				$request['distributor_raw_content'] = $params['distributor_raw_content'];
+			}
+			$request['content'] = $params['content'] ?? '';
+		}
+	}
+
 	if (
 		isset( $request['distributor_raw_content'] ) &&
 		\Distributor\Utils\dt_use_block_editor_for_post_type( $prepared_post->post_type )
