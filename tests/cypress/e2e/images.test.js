@@ -33,8 +33,13 @@ describe( '[Block Editor] Image distribution tests', () => {
 				.find( `#${ id } button.components-button` )
 				.contains( 'Media Library' )
 				.click();
-			cy.get( '.attachments-browser .attachment' ).eq( 1 ).click();
-			cy.get( '.media-button-select' ).click();
+			cy.get( '[id^=__wp-uploader-id-]:visible' )
+				.find( '.attachments-browser .attachment' )
+				.eq( 1 )
+				.click();
+			cy.get( '[id^=__wp-uploader-id-]:visible' )
+				.find( '.media-button-select' )
+				.click();
 			cy.getBlockEditor().find( `#${ id } img` ).should( 'be.visible' );
 		} );
 	};
