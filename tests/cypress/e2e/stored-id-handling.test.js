@@ -90,14 +90,14 @@ describe( '[Block Editor] Stored ID handling tests', () => {
 					`wp option update distributor_registered_data_with_type ${ withType }`
 				);
 				cy.wpCli(
-					`wp option update distributor_registered_data_with_type ${ withType } --url=http://localhost/second/`
+					`wp option update distributor_registered_data_with_type ${ withType } --url=http://localhost/second`
 				);
 			} else {
 				cy.wpCli(
 					`wp option delete distributor_registered_data_with_type`
 				);
 				cy.wpCli(
-					`wp option delete distributor_registered_data_with_type --url=http://localhost/second/`
+					`wp option delete distributor_registered_data_with_type --url=http://localhost/second`
 				);
 			}
 
@@ -149,14 +149,14 @@ describe( '[Block Editor] Stored ID handling tests', () => {
 					`wp option update distributor_registered_data_with_type ${ withType }`
 				);
 				cy.wpCli(
-					`wp option update distributor_registered_data_with_type ${ withType } --url=http://localhost/second/`
+					`wp option update distributor_registered_data_with_type ${ withType } --url=http://localhost/second`
 				);
 			} else {
 				cy.wpCli(
 					`wp option delete distributor_registered_data_with_type`
 				);
 				cy.wpCli(
-					`wp option delete distributor_registered_data_with_type --url=http://localhost/second/`
+					`wp option delete distributor_registered_data_with_type --url=http://localhost/second`
 				);
 			}
 
@@ -216,14 +216,14 @@ describe( '[Block Editor] Stored ID handling tests', () => {
 					`wp option update distributor_registered_data_with_type ${ withType }`
 				);
 				cy.wpCli(
-					`wp option update distributor_registered_data_with_type ${ withType } --url=http://localhost/second/`
+					`wp option update distributor_registered_data_with_type ${ withType } --url=http://localhost/second`
 				);
 			} else {
 				cy.wpCli(
 					`wp option delete distributor_registered_data_with_type`
 				);
 				cy.wpCli(
-					`wp option delete distributor_registered_data_with_type --url=http://localhost/second/`
+					`wp option delete distributor_registered_data_with_type --url=http://localhost/second`
 				);
 			}
 
@@ -273,14 +273,14 @@ describe( '[Block Editor] Stored ID handling tests', () => {
 					`wp option update distributor_registered_data_with_type ${ withType }`
 				);
 				cy.wpCli(
-					`wp option update distributor_registered_data_with_type ${ withType } --url=http://localhost/second/`
+					`wp option update distributor_registered_data_with_type ${ withType } --url=http://localhost/second`
 				);
 			} else {
 				cy.wpCli(
 					`wp option delete distributor_registered_data_with_type`
 				);
 				cy.wpCli(
-					`wp option delete distributor_registered_data_with_type --url=http://localhost/second/`
+					`wp option delete distributor_registered_data_with_type --url=http://localhost/second`
 				);
 			}
 

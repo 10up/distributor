@@ -32,7 +32,6 @@ class RegisteredDataHandler {
 		$this->connection_data = $connection_data;
 	}
 
-
 	/**
 	 * Search and replace inner content of a block with the provided replacements.
 	 *
@@ -163,7 +162,6 @@ class RegisteredDataHandler {
 			'modified' => $modified,
 		);
 	}
-
 
 	/**
 	 * This function processes the registered data for the post content and post meta.
@@ -519,10 +517,9 @@ class RegisteredDataHandler {
 			}
 		}
 
-		$taxonomy = $term_data['taxonomy'] ?? '';
-
 		// Check if the term exists on the target site already and return the term ID if it does.
-		$term = get_term_by( 'slug', $term_data['slug'], $taxonomy );
+		$taxonomy = $term_data['taxonomy'] ?? '';
+		$term     = get_term_by( 'slug', $term_data['slug'], $taxonomy );
 		if ( ! empty( $term ) && ! empty( $term->term_id ) ) {
 			if ( $update_hierarchy && $process_parent && ! empty( $parent_term_id ) && $term->parent !== $parent_term_id ) {
 				wp_update_term( $term->term_id, $taxonomy, array( 'parent' => $parent_term_id ) );
