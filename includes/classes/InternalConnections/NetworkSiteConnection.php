@@ -110,6 +110,10 @@ class NetworkSiteConnection extends Connection {
 			$update = true;
 		}
 
+		$dt_post_args = Utils\process_registered_data( $dt_post_args );
+		// Processed post meta data against the registered data.
+		$post_meta = $dt_post_args['meta'] ?? [];
+
 		add_filter( 'wp_insert_post_data', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'maybe_set_modified_date' ), 10, 2 );
 		// Filter documented in includes/classes/ExternalConnections/WordPressExternalConnection.php
 		$new_post_args = Utils\post_args_allow_list( apply_filters( 'dt_push_post_args', $dt_post_args, $post, $args, $this ) );
@@ -180,7 +184,7 @@ class NetworkSiteConnection extends Connection {
 		 */
 		if ( apply_filters( 'dt_push_post_media', true, $new_post_id, $post_media, $post_id, $args, $this ) ) {
 			Utils\set_media( $new_post_id, $post_media, [ 'use_filesystem' => true ] );
-		};
+		}
 
 		$media_errors = get_transient( 'dt_media_errors_' . $new_post_id );
 
@@ -288,6 +292,11 @@ class NetworkSiteConnection extends Connection {
 					}
 				}
 			}
+
+			// Process the registered data before updating/inserting the post.
+			$post_array = Utils\process_registered_data( $post_array );
+			// Update post meta data against the registered data.
+			$post['meta'] = $post_array['meta'] ?? [];
 
 			add_filter( 'wp_insert_post_data', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'maybe_set_modified_date' ), 10, 2 );
 

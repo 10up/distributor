@@ -20,7 +20,7 @@ jobs:
   Validate:
     runs-on: ubuntu-latest
     steps:
-      - uses: 10up/action-repo-automator@trunk
+      - uses: 10up/action-repo-automator@280f5dc0b4ed1b5c50c816e08623bdefce55cdce # v2.1.3
         with:
           fail-label: needs:feedback
           pass-label: needs:code-review
