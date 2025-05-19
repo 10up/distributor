@@ -397,6 +397,8 @@ function excluded_meta() {
 				'dt_original_post_url',
 				'dt_original_post_id',
 				'dt_original_blog_id',
+				'dt_original_media_url',
+				'dt_original_media_id',
 				'dt_connection_map',
 				'_wp_old_slug',
 				'_wp_old_date',
@@ -569,6 +571,22 @@ function prepare_taxonomy_terms( $post_id, $args = array() ) {
 }
 
 /**
+ * Prepare post extra data for consumption on the target site.
+ *
+ * @param  int $post_id Post ID.
+ * @since  x.x.x
+ * @return array
+ */
+function prepare_extra_data( $post_id ) {
+	$dt_post = new DistributorPost( $post_id );
+	if ( ! $dt_post ) {
+		return array();
+	}
+
+	return $dt_post->get_extra_data();
+}
+
+/**
  * Given an array of terms by taxonomy, set those terms to another post. This function will cleverly merge
  * terms into the post and create terms that don't exist.
  *
@@ -734,23 +752,24 @@ function set_media( $post_id, $media, $args = [] ) {
 		$media = ( false !== $featured_key ) ? array( $media[ $featured_key ] ) : array();
 	}
 
-	foreach ( $media as $media_item ) {
+	$image_urls_to_update = [];
 
+	foreach ( $media as $media_item ) {
 		$args['source_file'] = $media_item['source_file'];
 
-		// Delete duplicate if it exists (unless filter says otherwise)
+		// Delete duplicate if it exists (if filter set to true)
 		/**
 		 * Filter whether media should be deleted and replaced if it already exists.
 		 *
 		 * @since 1.0.0
 		 * @hook dt_sync_media_delete_and_replace
 		 *
-		 * @param {bool}   true     Whether pre-existing media should be deleted and replaced. Default `true`.
+		 * @param {bool}   true     Whether pre-existing media should be deleted and replaced. Default `false`.
 		 * @param {int}    $post_id The post ID.
 		 *
 		 * @return {bool} Whether pre-existing media should be deleted and replaced.
 		 */
-		if ( apply_filters( 'dt_sync_media_delete_and_replace', true, $post_id ) ) {
+		if ( apply_filters( 'dt_sync_media_delete_and_replace', false, $post_id ) ) {
 			if ( ! empty( $current_media[ $media_item['source_url'] ] ) ) {
 				wp_delete_attachment( $current_media[ $media_item['source_url'] ], true );
 			}
@@ -759,6 +778,13 @@ function set_media( $post_id, $media, $args = [] ) {
 		} else {
 			if ( ! empty( $current_media[ $media_item['source_url'] ] ) ) {
 				$image_id = $current_media[ $media_item['source_url'] ];
+			} elseif ( ! empty( $media_item['id'] ) && ! empty( $media_item['source_url'] ) ) {
+				// Check if the media is already existing on the site. If it is, return the media ID.
+				$image_id = get_attachment_id_by_original_data( $media_item['id'], $media_item['source_url'] );
+
+				if ( ! $image_id ) {
+					$image_id = process_media( $media_item['source_url'], $post_id, $args );
+				}
 			} else {
 				$image_id = process_media( $media_item['source_url'], $post_id, $args );
 			}
@@ -782,6 +808,11 @@ function set_media( $post_id, $media, $args = [] ) {
 			set_meta( $image_id, $media_item['meta'] );
 		}
 
+		// Save the images that we need to try updating in the content.
+		if ( 'featured' !== $settings['media_handling'] ) {
+			$image_urls_to_update[ $image_id ] = $media_item;
+		}
+
 		// Transfer post properties
 		wp_update_post(
 			[
@@ -791,6 +822,11 @@ function set_media( $post_id, $media, $args = [] ) {
 				'post_excerpt' => $media_item['caption']['raw'],
 			]
 		);
+	}
+
+	// Update image URLs in content if needed.
+	if ( ! empty( $image_urls_to_update ) ) {
+		update_content_image_urls( (int) $post_id, $image_urls_to_update );
 	}
 
 	if ( ! $found_featured_image ) {
@@ -1029,6 +1065,216 @@ function process_media( $url, $post_id, $args = [] ) {
 	}
 
 	return (int) $result;
+}
+
+/**
+ * Find and update an image tag.
+ *
+ * @param string $content The post content.
+ * @param array  $media_item The old media item details.
+ * @param int    $image_id The new image ID.
+ * @return string
+ */
+function update_image_tag( string $content, array $media_item, int $image_id ) {
+	$processor = new \WP_HTML_Tag_Processor( $content );
+
+	while ( $processor->next_tag( 'img' ) ) {
+		$classes = explode( ' ', $processor->get_attribute( 'class' ) ?? ' ' );
+
+		// Only process the image that matches the old ID.
+		if (
+			! is_array( $classes ) ||
+			! in_array( 'wp-image-' . $media_item['id'], $classes, true )
+		) {
+			continue;
+		}
+
+		// Try to determine the image size from the size class WordPress adds.
+		$image_size   = 'full';
+		$classes      = explode( ' ', $processor->get_attribute( 'class' ) ?? [] );
+		$size_classes = array_filter(
+			$classes,
+			function ( $image_class ) {
+				return false !== strpos( $image_class, 'size-' );
+			}
+		);
+
+		if ( ! empty( $size_classes ) ) {
+			// If an image happens to have multiple size classes, just use the first.
+			$size_class = reset( $size_classes );
+			$image_size = str_replace( 'size-', '', $size_class );
+		}
+
+		$src = wp_get_attachment_image_url( $image_id, $image_size );
+
+		// If the image size can't be found, try to get the full size.
+		if ( ! $src ) {
+			$src = wp_get_attachment_image_url( $image_id, 'full' );
+
+			// If we still don't have an image, skip this block.
+			if ( ! $src ) {
+				continue;
+			}
+		}
+
+		$processor->set_attribute( 'src', $src );
+		$processor->add_class( 'wp-image-' . $image_id );
+		$processor->remove_class( 'wp-image-' . $media_item['id'] );
+		$processor->remove_attribute( 'srcset' );
+		$processor->remove_attribute( 'sizes' );
+	}
+
+	return $processor->get_updated_html();
+}
+
+/**
+ * Find and update an image block.
+ *
+ * @param array $blocks All blocks in a post.
+ * @param array $media_item The old media item details.
+ * @param int   $image_id The new image ID.
+ * @return array
+ */
+function update_image_block( array $blocks, array $media_item, int $image_id ) {
+	// Find and update all image blocks that match the old image ID.
+	foreach ( $blocks as $key => $block ) {
+		// Recurse into inner blocks.
+		if ( ! empty( $block['innerBlocks'] ) ) {
+			$blocks[ $key ]['innerBlocks'] = update_image_block( $block['innerBlocks'], $media_item, $image_id );
+		}
+
+		// If the block is an image block and the ID matches, update the ID and URL.
+		if ( 'core/image' === $block['blockName'] && (int) $media_item['id'] === (int) $block['attrs']['id'] ) {
+			$image_size = $block['attrs']['sizeSlug'] ?? 'full';
+
+			$blocks[ $key ]['attrs']['id'] = $image_id;
+
+			$processor = new \WP_HTML_Tag_Processor( $blocks[ $key ]['innerHTML'] );
+
+			// Use the HTML API to update the image src and class.
+			if ( $processor->next_tag( 'img' ) ) {
+				$src = wp_get_attachment_image_url( $image_id, $image_size );
+
+				// If the image size can't be found, try to get the full size.
+				if ( ! $src ) {
+					$src = wp_get_attachment_image_url( $image_id, 'full' );
+
+					// If we still don't have an image, skip this block.
+					if ( ! $src ) {
+						continue;
+					}
+				}
+
+				$processor->set_attribute( 'src', $src );
+				$processor->add_class( 'wp-image-' . $image_id );
+				$processor->remove_class( 'wp-image-' . $media_item['id'] );
+
+				$blocks[ $key ]['innerHTML']       = $processor->get_updated_html();
+				$blocks[ $key ]['innerContent'][0] = $processor->get_updated_html();
+			}
+		}
+	}
+
+	return $blocks;
+}
+
+/**
+ * Update all old image URLs with the new ones.
+ *
+ * @param int   $post_id The post ID.
+ * @param array $images  The old image details.
+ */
+function update_content_image_urls( int $post_id, array $images ) {
+	$dt_post = new DistributorPost( $post_id );
+
+	if ( ! $dt_post ) {
+		return;
+	}
+
+	/**
+	 * Filter whether image URLS should be updated in the content.
+	 *
+	 * @since 2.1.0
+	 * @hook dt_update_content_image_urls
+	 *
+	 * @param {bool}  true     Whether image URLs should be updated. Default `true`.
+	 * @param {int}   $post_id The post ID.
+	 * @param {array} $images  The old image details.
+	 *
+	 * @return {bool} Whether image URLs should be updated.
+	 */
+	if ( ! apply_filters( 'dt_update_content_image_urls', true, $post_id, $images ) ) {
+		return;
+	}
+
+	$content    = $dt_post->post->post_content;
+	$has_blocks = $dt_post->has_blocks();
+
+	foreach ( $images as $image_id => $media_item ) {
+		// Process block and classic editor content differently.
+		if ( $has_blocks ) {
+			$blocks = parse_blocks( $content );
+
+			// Update the image block attributes.
+			$updated_blocks = update_image_block( $blocks, $media_item, $image_id );
+			$content        = serialize_blocks( $updated_blocks );
+		} else {
+			$content = update_image_tag( $content, $media_item, $image_id );
+		}
+	}
+
+	// No need to update if the content wasn't modified.
+	if ( $content === $dt_post->post->post_content ) {
+		return;
+	}
+
+	// Update the post content.
+	wp_update_post(
+		[
+			'ID'           => $post_id,
+			'post_content' => $content,
+		]
+	);
+}
+
+/**
+ * Get existing media ID based on the original source URL and original media ID.
+ *
+ * @param int    $original_id  The original media ID.
+ * @param string $original_url The original source URL.
+ * @return int|bool The existing media ID or false if not found.
+ */
+function get_attachment_id_by_original_data( $original_id, $original_url ) {
+	$attachments_query = new \WP_Query(
+		array(
+			'post_type'              => 'attachment',
+			'post_status'            => 'any',
+			'posts_per_page'         => 1,
+			'fields'                 => 'ids',
+			'no_found_rows'          => true,
+			'update_post_meta_cache' => false,
+			'update_post_term_cache' => false,
+			'meta_query'             => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
+				'relation' => 'AND',
+				array(
+					'key'     => 'dt_original_media_id',
+					'value'   => $original_id,
+					'compare' => '=',
+				),
+				array(
+					'key'     => 'dt_original_media_url',
+					'value'   => basename( $original_url ),
+					'compare' => 'LIKE', // Using LIKE to account different source URLs for the same media based on from where it was pulled/pushed. see https://core.trac.wordpress.org/ticket/25650
+				),
+			),
+		)
+	);
+
+	if ( ! empty( $attachments_query->posts ) && ! empty( $attachments_query->posts[0] ) ) {
+		return (int) $attachments_query->posts[0];
+	}
+
+	return false;
 }
 
 /**
@@ -1291,4 +1537,401 @@ function get_admin_icon( $color = '#a0a5aa' ) {
 	$svg_icon = sprintf( '<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2" viewBox="13.4 8.8 573.2 573.2"><path fill="%1$s" d="M195.113 411.033c45.835 46.692 119.124 58.488 178.387 24.273 70.262-40.566 94.371-130.544 53.806-200.806-40.566-70.262-130.544-94.371-200.806-53.806-19.873 11.474-36.055 26.899-48.124 44.715l64.722 33.186c22.201-25.593 59.796-33.782 91.279-17.639 37.002 18.973 51.64 64.418 32.667 101.421-18.973 37.002-64.418 51.64-101.421 32.667-31.483-16.143-46.776-51.45-38.951-84.415l-81.702-41.892c-8.838-4.532-12.335-15.367-7.814-24.211 15.514-30.346 39.658-56.715 71.344-75.009 87.469-50.5 199.482-20.486 249.983 66.983 50.5 87.469 20.486 199.482-66.983 249.983-75.235 43.437-168.63 27.307-225.419-33.717-17.809 3.778-36.797-4.055-46.387-20.666-11.922-20.648-4.837-47.091 15.812-59.012 20.648-11.922 47.091-4.836 59.012 15.812 7.77 13.458 7.466 29.377.595 42.133Z"/><path fill="%1$s" d="M262.237 72.985C148.8 91.101 62 189.494 62 308c0 131.356 106.644 238 238 238s238-106.644 238-238c0-34.059-7.168-66.458-20.08-95.766-15.121.99-30.323-6.014-39.137-19.626-12.959-20.014-7.231-46.783 12.783-59.742 20.014-12.958 46.783-7.231 59.742 12.783 10.095 15.592 8.849 35.284-1.657 49.352C565.288 229.461 574 267.721 574 308c0 151.225-122.775 274-274 274S26 459.225 26 308C26 170.539 127.443 56.584 259.487 36.98 265.594 20.533 281.438 8.8 300 8.8c23.843 0 43.2 19.357 43.2 43.2 0 23.843-19.357 43.2-43.2 43.2-16.229 0-30.38-8.968-37.763-22.215Z"/></svg>', $color );
 
 	return sprintf( 'data:image/svg+xml;base64,%s', base64_encode( $svg_icon ) );
+}
+
+
+/**
+ * Search and replace inner content of a block with the provided replacements.
+ *
+ * @since x.x.x
+ *
+ * @param array $block               The block to search and replace inner content.
+ * @param array $replacement_strings Array of search and replace strings for inner content.
+ * @return array The block with inner content replaced.
+ */
+function search_replace_block_inner_content( $block, $replacement_strings ) {
+	if ( empty( $replacement_strings ) ) {
+		return $block;
+	}
+
+	foreach ( $replacement_strings as $replacement_string ) {
+		$block['innerHTML']       = str_replace( $replacement_string['search'], $replacement_string['replace'], $block['innerHTML'] );
+		$block['innerContent'][0] = str_replace( $replacement_string['search'], $replacement_string['replace'], $block['innerContent'][0] );
+	}
+	return $block;
+}
+
+/**
+ * Recursively process blocks for the registered data.
+ * This function processes the blocks data recursively and calls the callback function provided in the registered data.
+ *
+ * @since x.x.x
+ *
+ * @param array $blocks          Array of blocks.
+ * @param array $registered_data Array of registered data.
+ * @param array $extra_data      Array of extra data provided by source for the registered data.
+ * @param array $post_data       Array of post data.
+ * @param int   $index           Index of the extra data.
+ * @return array Array with 'blocks' (processed blocks) and 'modified' (bool).
+ */
+function process_blocks_data_recursive( $blocks, $registered_data, $extra_data, $post_data, $index = 0 ) {
+	$callback_fn     = $registered_data['post_distribute_cb'] ?? null;
+	$attributes      = $registered_data['attributes'] ?? array();
+	$block_name      = $attributes['block_name'] ?? '';
+	$block_attribute = $attributes['block_attribute'] ?? '';
+	$modified        = false;
+
+	// Skip if the callback function is not provided or not callable.
+	if ( empty( $callback_fn ) || ! is_callable( $callback_fn ) ) {
+		return array(
+			'blocks'   => $blocks,
+			'modified' => $modified,
+		);
+	}
+
+	foreach ( $blocks as &$block ) {
+		if ( isset( $block['blockName'] ) && $block_name === $block['blockName'] ) {
+			if ( is_array( $block_attribute ) ) {
+				$source_data = array();
+				foreach ( $block_attribute as $attribute ) {
+					if ( isset( $block['attrs'][ $attribute ] ) ) {
+						$source_data[ $attribute ] = $block['attrs'][ $attribute ];
+					}
+				}
+				$replacement = call_user_func_array( $callback_fn, array( $extra_data[ $index ], $source_data, $post_data ) );
+				if ( ! empty( $replacement ) ) {
+					foreach ( $block_attribute as $attribute ) {
+						if ( isset( $replacement[ $attribute ] ) ) {
+							$block['attrs'][ $attribute ] = $replacement[ $attribute ];
+						}
+					}
+
+					// Do replacement for innerHTML if it's set.
+					if ( ! empty( $replacement['inner_content_replacements'] ) ) {
+						$block = search_replace_block_inner_content( $block, $replacement['inner_content_replacements'] );
+					}
+
+					$modified = true;
+				}
+				$index++;
+			} elseif ( isset( $block['attrs'][ $block_attribute ] ) ) {
+				$source_data = $block['attrs'][ $block_attribute ];
+				$replacement = call_user_func_array( $callback_fn, array( $extra_data[ $index ], $source_data, $post_data ) );
+				if ( ! empty( $replacement ) ) {
+					$block['attrs'][ $block_attribute ] = $replacement;
+
+					// Do replacement for innerHTML if it's set.
+					if ( ! empty( $replacement['inner_content_replacements'] ) ) {
+						$block = search_replace_block_inner_content( $block, $replacement['inner_content_replacements'] );
+					}
+
+					$modified = true;
+				}
+				$index++;
+			}
+		}
+
+		if ( ! empty( $block['innerBlocks'] ) && is_array( $block['innerBlocks'] ) ) {
+			$inner_result = process_blocks_data_recursive( $block['innerBlocks'], $registered_data, $extra_data, $post_data, $index );
+			if ( $inner_result['modified'] ) {
+				$block['innerBlocks'] = $inner_result['blocks'];
+				$modified             = true;
+			}
+		}
+	}
+
+	return array(
+		'blocks'   => $blocks,
+		'modified' => $modified,
+	);
+}
+
+
+/**
+ * This function processes the registered data for the post content and post meta.
+ * It calls the callback function provided in the registered data and updates the post data.
+ *
+ * @since x.x.x
+ *
+ * @param array $post_data The post data.
+ * @param bool  $is_rest   Whether the post data is from the REST API.
+ * @return array $post_data The processed post data.
+ */
+function process_registered_data( $post_data, $is_rest = false ) {
+	$registered_data = distributor_get_registered_data();
+
+	// Skip if no registered data is found.
+	if ( empty( $registered_data ) ) {
+		return $post_data;
+	}
+
+	foreach ( $registered_data as $data_key => $data ) {
+		$location    = $data['location'];
+		$attributes  = $data['attributes'];
+		$callback_fn = $data['post_distribute_cb'] ?? null;
+
+		// Skip if the callback function is not provided or not callable.
+		if ( empty( $callback_fn ) || ! is_callable( $callback_fn ) ) {
+			continue;
+		}
+
+		$extra_data = $post_data['distributor_extra_data'][ $data_key ] ?? array();
+
+		if ( 'post_meta' === $location ) {
+			$metadata_key = 'distributor_meta';
+			if ( isset( $post_data['meta'] ) && ! empty( $post_data['meta'] ) ) {
+				$metadata_key = 'meta';
+			}
+
+			$post_meta = $post_data[ $metadata_key ] ?? array();
+
+			if ( empty( $post_meta ) ) {
+				continue;
+			}
+
+			$post_data[ $metadata_key ] = process_registered_post_meta_data( $post_meta, $data, $extra_data, $post_data );
+
+		} elseif ( 'post_content' === $location ) {
+			$content_key = 'post_content';
+			if ( $is_rest ) {
+				$content_key = 'content';
+				if ( isset( $post_data['distributor_raw_content'] ) ) {
+					$content_key = 'distributor_raw_content';
+				}
+			}
+
+			$post_content = $post_data[ $content_key ] ?? '';
+			$block_name   = $attributes['block_name'] ?? '';
+			$shortcode    = $attributes['shortcode'] ?? '';
+
+			if ( ( empty( $block_name ) && empty( $shortcode ) ) || empty( $post_content ) ) {
+				continue;
+			}
+
+			if ( ! empty( $block_name ) && has_blocks( $post_content ) ) {
+				$post_data[ $content_key ] = process_registered_block_data( $post_content, $data, $extra_data, $post_data );
+				$post_content              = $post_data[ $content_key ];
+			}
+
+			// Process the shortcode if shortcode is provided.
+			if ( ! empty( $shortcode ) ) {
+				$post_data[ $content_key ] = process_registered_shortcode_data( $post_content, $data, $extra_data, $post_data );
+			}
+		}
+	}
+
+	/**
+	 * Filter the post data after processing the registered data.
+	 *
+	 * @since x.x.x
+	 * @hook dt_after_registered_data_processed
+	 *
+	 * @param {array} $post_data       The post data.
+	 * @param {array} $registered_data The distributor registered data.
+	 * @param {array} $extra_data      The extra data for the given registered data.
+	 * @return {array} $post_data The updated post data.
+	 */
+	$post_data = apply_filters( 'dt_after_registered_data_processed', $post_data, $registered_data, $post_data['distributor_extra_data'] ?? array() );
+
+	return $post_data;
+}
+
+/**
+ * This function processes the registered data for the post meta.
+ * It calls the callback function provided in the registered data and updates the post meta data.
+ *
+ * @since x.x.x
+ *
+ * @param array $post_meta       The post meta data.
+ * @param array $registered_data The distributor registered data.
+ * @param array $extra_data      The extra data for the given registered data.
+ * @param array $post_data       The post data.
+ * @return array $post_data The processed post data.
+ */
+function process_registered_post_meta_data( $post_meta, $registered_data, $extra_data, $post_data ) {
+	$attributes  = $registered_data['attributes'] ?? array();
+	$callback_fn = $registered_data['post_distribute_cb'] ?? null;
+	$meta_key    = $attributes['meta_key'] ?? '';
+
+	// Skip if the callback function is not provided or not callable.
+	if ( empty( $callback_fn ) || ! is_callable( $callback_fn ) || empty( $meta_key ) ) {
+		return $post_meta;
+	}
+
+	// Handle multiple meta keys.
+	if ( is_array( $meta_key ) ) {
+		$original_data = array();
+		foreach ( $meta_key as $key ) {
+			if ( isset( $post_meta[ $key ] ) ) {
+				if ( is_array( $post_meta[ $key ] ) && 1 === count( $post_meta[ $key ] ) ) {
+					$original_data[ $key ] = $post_meta[ $key ][0];
+				} else {
+					$original_data[ $key ] = $post_meta[ $key ];
+				}
+			}
+		}
+		$updated_meta = call_user_func_array( $callback_fn, array( $extra_data, $original_data, $post_data ) );
+
+		if ( ! empty( $updated_meta ) ) {
+			foreach ( $updated_meta as $key => $value ) {
+				if ( is_array( $post_meta[ $key ] ) && 1 === count( $post_meta[ $key ] ) ) {
+					$post_meta[ $key ] = array( $value );
+				} else {
+					$post_meta[ $key ] = $value;
+				}
+			}
+		}
+	} else {
+		$original_data = isset( $post_meta[ $meta_key ] ) ? $post_meta[ $meta_key ] : '';
+		if ( is_array( $original_data ) && 1 === count( $original_data ) ) {
+			$original_data = $original_data[0];
+		}
+		$updated_meta = call_user_func_array( $callback_fn, array( $extra_data, $original_data, $post_data ) );
+
+		if ( ! empty( $updated_meta ) ) {
+			if ( is_array( $post_meta[ $meta_key ] ) && 1 === count( $post_meta[ $meta_key ] ) ) {
+				$post_meta[ $meta_key ] = array( $updated_meta );
+			} else {
+				$post_meta[ $meta_key ] = $updated_meta;
+			}
+		}
+	}
+
+	/**
+	 * Filter the post meta data after processing the registered data.
+	 *
+	 * @since x.x.x
+	 * @hook dt_after_registered_post_meta_processed
+	 *
+	 * @param {array} $post_meta       The post meta data.
+	 * @param {array} $registered_data The distributor registered data.
+	 * @param {array} $extra_data      The extra data for the given registered data.
+	 * @param {array} $post_data       The post data.
+	 * @return {array} $post_meta The updated post meta data.
+	 */
+	return apply_filters( 'dt_after_registered_post_meta_processed', $post_meta, $registered_data, $extra_data, $post_data );
+}
+
+/**
+ * Process the registered block data for the post content.
+ *
+ * @since x.x.x
+ *
+ * @param string $post_content    The post content.
+ * @param array  $registered_data The distributor registered data.
+ * @param array  $extra_data      The extra data for the given registered data.
+ * @param array  $post_data       The post data.
+ * @return string $post_content The updated post content.
+ */
+function process_registered_block_data( $post_content, $registered_data, $extra_data, $post_data ) {
+	$attributes      = $registered_data['attributes'] ?? array();
+	$block_name      = $attributes['block_name'] ?? '';
+	$block_attribute = $attributes['block_attribute'] ?? '';
+
+	if ( ! empty( $block_attribute ) && has_block( $block_name, $post_content ) ) {
+		$blocks = parse_blocks( $post_content );
+		$result = process_blocks_data_recursive( $blocks, $registered_data, $extra_data, $post_data );
+
+		if ( $result['modified'] ) {
+			$post_content = serialize_blocks( $result['blocks'] );
+		};
+	}
+
+	/**
+	 * Filter the post content blocks after processing the registered data.
+	 *
+	 * @since x.x.x
+	 * @hook dt_after_registered_block_data_processed
+	 *
+	 * @param {array} $post_content   The post content.
+	 * @param {array} $registered_data The distributor registered data.
+	 * @param {array} $extra_data      The extra data for the given registered data.
+	 * @param {array} $post_data       The post data.
+	 * @return {array} $post_content The updated post content.
+	 */
+	return apply_filters( 'dt_after_registered_block_data_processed', $post_content, $registered_data, $extra_data, $post_data );
+}
+
+/**
+ * Process the registered shortcode data for the post content.
+ *
+ * @since x.x.x
+ *
+ * @param mixed $post_content    The post content.
+ * @param mixed $registered_data The distributor registered data.
+ * @param mixed $extra_data      The extra data for the given registered data.
+ * @param mixed $post_data       The post data.
+ * @return mixed $post_data The updated post data.
+ */
+function process_registered_shortcode_data( $post_content, $registered_data, $extra_data, $post_data ) {
+	$attributes          = $registered_data['attributes'] ?? array();
+	$shortcode           = $attributes['shortcode'] ?? '';
+	$shortcode_attribute = $attributes['shortcode_attribute'] ?? '';
+	$callback_fn         = $registered_data['post_distribute_cb'] ?? null;
+
+	if ( ! empty( $shortcode_attribute ) && has_shortcode( $post_content, $shortcode ) ) {
+		$index        = 0;
+		$pattern      = get_shortcode_regex( array( $shortcode ) );
+		$post_content = preg_replace_callback(
+			"/$pattern/",
+			function ( $matches ) use ( &$index, $shortcode, $shortcode_attribute, $callback_fn, $extra_data, $post_data ) {
+				if ( $matches[2] === $shortcode ) {
+					$attrs = shortcode_parse_atts( $matches[3] );
+					$i     = $index;
+					$index++;
+
+					if ( is_array( $shortcode_attribute ) ) {
+						$source_data = array();
+						foreach ( $shortcode_attribute as $key ) {
+							if ( isset( $attrs[ $key ] ) ) {
+								$source_data[ $key ] = $attrs[ $key ];
+							}
+						}
+						$replacement = call_user_func_array( $callback_fn, array( $extra_data[ $i ], $source_data, $post_data ) );
+						if ( ! empty( $replacement ) ) {
+							foreach ( $shortcode_attribute as $key ) {
+								if ( isset( $replacement[ $key ] ) ) {
+									$attrs[ $key ] = $replacement[ $key ];
+								}
+							}
+							$attrs_str = '';
+							foreach ( $attrs as $key => $val ) {
+								$attrs_str .= sprintf( ' %s="%s"', $key, esc_attr( $val ) );
+							}
+							return str_replace( $matches[3], $attrs_str, $matches[0] );
+						}
+					} elseif ( isset( $attrs[ $shortcode_attribute ] ) ) {
+						$source_data = $attrs[ $shortcode_attribute ];
+						$replacement = call_user_func_array( $callback_fn, array( $extra_data[ $i ], $source_data, $post_data ) );
+						if ( ! empty( $replacement ) ) {
+							// Replace with the new target ID.
+							$attrs[ $shortcode_attribute ] = $replacement;
+							$attrs_str                     = '';
+							foreach ( $attrs as $key => $val ) {
+								$attrs_str .= sprintf( ' %s="%s"', $key, esc_attr( $val ) );
+							}
+							return str_replace( $matches[3], $attrs_str, $matches[0] );
+						}
+					}
+					$index++;
+				}
+				return $matches[0];
+			},
+			$post_content
+		);
+	}
+
+	/**
+	 * Filter the post content shortcodes after processing the registered data.
+	 *
+	 * @since x.x.x
+	 * @hook dt_after_registered_shortcode_data_processed
+	 *
+	 * @param {array} $post_content   The post content.
+	 * @param {array} $registered_data The distributor registered data.
+	 * @param {array} $extra_data      The extra data for the given registered data.
+	 * @param {array} $post_data       The post data.
+	 * @return {array} $post_content The updated post content.
+	 */
+	return apply_filters( 'dt_after_registered_shortcode_data_processed', $post_content, $registered_data, $extra_data, $post_data );
 }
