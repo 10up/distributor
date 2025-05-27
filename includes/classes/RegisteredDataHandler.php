@@ -176,6 +176,7 @@ class RegisteredDataHandler {
 	 * @return array $post_data The processed post data.
 	 */
 	public function process_registered_data( $post_data, $is_rest = false ) {
+		$unprocessed_post_data = $post_data;
 		// Filter is documented in includes/classes/DistributorPost.php
 		if ( ! apply_filters( 'dt_process_extra_data', true, $post_data ) ) {
 			return $post_data;
@@ -250,12 +251,13 @@ class RegisteredDataHandler {
 		 * @since x.x.x
 		 * @hook dt_after_registered_data_processed
 		 *
-		 * @param {array} $post_data       The post data.
-		 * @param {array} $registered_data The distributor registered data.
-		 * @param {array} $extra_data      The extra data for the given registered data.
+		 * @param {array} $post_data             The post data after processing the registered data.
+		 * @param {array} $registered_data       The distributor registered data.
+		 * @param {array} $extra_data            The extra data for the given registered data.
+		 * @param {array} $unprocessed_post_data The post data before processing the registered data.
 		 * @return {array} $post_data The updated post data.
 		 */
-		$post_data = apply_filters( 'dt_after_registered_data_processed', $post_data, $registered_data, $post_data['distributor_extra_data'] ?? array() );
+		$post_data = apply_filters( 'dt_after_registered_data_processed', $post_data, $registered_data, $post_data['distributor_extra_data'] ?? array(), $unprocessed_post_data );
 
 		return $post_data;
 	}
@@ -274,9 +276,10 @@ class RegisteredDataHandler {
 	 * @return array $post_data The processed post data.
 	 */
 	public function process_registered_post_meta_data( $post_meta, $registered_data, $extra_data, $post_data ) {
-		$attributes  = $registered_data['attributes'] ?? array();
-		$callback_fn = $registered_data['post_distribute_cb'] ?? null;
-		$meta_key    = $attributes['meta_key'] ?? '';
+		$attributes            = $registered_data['attributes'] ?? array();
+		$callback_fn           = $registered_data['post_distribute_cb'] ?? null;
+		$meta_key              = $attributes['meta_key'] ?? '';
+		$unprocessed_post_meta = $post_meta;
 
 		// Skip if the callback function is not provided or not callable.
 		if ( empty( $callback_fn ) || ! is_callable( $callback_fn ) || empty( $meta_key ) ) {
@@ -328,13 +331,14 @@ class RegisteredDataHandler {
 		 * @since x.x.x
 		 * @hook dt_after_registered_post_meta_processed
 		 *
-		 * @param {array} $post_meta       The post meta data.
-		 * @param {array} $registered_data The distributor registered data.
-		 * @param {array} $extra_data      The extra data for the given registered data.
-		 * @param {array} $post_data       The post data.
+		 * @param {array} $post_meta             The post meta data.
+		 * @param {array} $registered_data       The distributor registered data.
+		 * @param {array} $extra_data            The extra data for the given registered data.
+		 * @param {array} $post_data             The post data.
+		 * @param {array} $unprocessed_post_meta The post meta data before processing the registered data.
 		 * @return {array} $post_meta The updated post meta data.
 		 */
-		return apply_filters( 'dt_after_registered_post_meta_processed', $post_meta, $registered_data, $extra_data, $post_data );
+		return apply_filters( 'dt_after_registered_post_meta_processed', $post_meta, $registered_data, $extra_data, $post_data, $unprocessed_post_meta );
 	}
 
 	/**
@@ -349,9 +353,10 @@ class RegisteredDataHandler {
 	 * @return string $post_content The updated post content.
 	 */
 	public function process_registered_block_data( $post_content, $registered_data, $extra_data, $post_data ) {
-		$attributes      = $registered_data['attributes'] ?? array();
-		$block_name      = $attributes['block_name'] ?? '';
-		$block_attribute = $attributes['block_attribute'] ?? '';
+		$attributes               = $registered_data['attributes'] ?? array();
+		$block_name               = $attributes['block_name'] ?? '';
+		$block_attribute          = $attributes['block_attribute'] ?? '';
+		$unprocessed_post_content = $post_content;
 
 		if ( ! empty( $block_attribute ) && has_block( $block_name, $post_content ) ) {
 			$blocks = parse_blocks( $post_content );
@@ -368,13 +373,14 @@ class RegisteredDataHandler {
 		 * @since x.x.x
 		 * @hook dt_after_registered_block_data_processed
 		 *
-		 * @param {array} $post_content   The post content.
-		 * @param {array} $registered_data The distributor registered data.
-		 * @param {array} $extra_data      The extra data for the given registered data.
-		 * @param {array} $post_data       The post data.
+		 * @param {array} $post_content             The post content.
+		 * @param {array} $registered_data          The distributor registered data.
+		 * @param {array} $extra_data               The extra data for the given registered data.
+		 * @param {array} $post_data                The post data.
+		 * @param {array} $unprocessed_post_content The post content before processing the registered data.
 		 * @return {array} $post_content The updated post content.
 		 */
-		return apply_filters( 'dt_after_registered_block_data_processed', $post_content, $registered_data, $extra_data, $post_data );
+		return apply_filters( 'dt_after_registered_block_data_processed', $post_content, $registered_data, $extra_data, $post_data, $unprocessed_post_content );
 	}
 
 	/**
@@ -389,10 +395,11 @@ class RegisteredDataHandler {
 	 * @return mixed $post_data The updated post data.
 	 */
 	public function process_registered_shortcode_data( $post_content, $registered_data, $extra_data, $post_data ) {
-		$attributes          = $registered_data['attributes'] ?? array();
-		$shortcode           = $attributes['shortcode'] ?? '';
-		$shortcode_attribute = $attributes['shortcode_attribute'] ?? '';
-		$callback_fn         = $registered_data['post_distribute_cb'] ?? null;
+		$attributes               = $registered_data['attributes'] ?? array();
+		$shortcode                = $attributes['shortcode'] ?? '';
+		$shortcode_attribute      = $attributes['shortcode_attribute'] ?? '';
+		$callback_fn              = $registered_data['post_distribute_cb'] ?? null;
+		$unprocessed_post_content = $post_content;
 
 		if ( ! empty( $shortcode_attribute ) && has_shortcode( $post_content, $shortcode ) ) {
 			$index        = 0;
@@ -454,13 +461,14 @@ class RegisteredDataHandler {
 		 * @since x.x.x
 		 * @hook dt_after_registered_shortcode_data_processed
 		 *
-		 * @param {array} $post_content   The post content.
-		 * @param {array} $registered_data The distributor registered data.
-		 * @param {array} $extra_data      The extra data for the given registered data.
-		 * @param {array} $post_data       The post data.
+		 * @param {array} $post_content             The post content.
+		 * @param {array} $registered_data          The distributor registered data.
+		 * @param {array} $extra_data               The extra data for the given registered data.
+		 * @param {array} $post_data                The post data.
+		 * @param {array} $unprocessed_post_content The post content before processing the registered data.
 		 * @return {array} $post_content The updated post content.
 		 */
-		return apply_filters( 'dt_after_registered_shortcode_data_processed', $post_content, $registered_data, $extra_data, $post_data );
+		return apply_filters( 'dt_after_registered_shortcode_data_processed', $post_content, $registered_data, $extra_data, $post_data, $unprocessed_post_content );
 	}
 
 	/**
