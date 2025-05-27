@@ -39,7 +39,7 @@ if ( chooseConnection && choosePostType && form ) {
 		jQuery( searchBtn ).on( 'click', ( event ) => {
 			event.preventDefault();
 
-			const search = encodeURIComponent(searchField.value);
+			const search = encodeURIComponent( searchField.value );
 
 			document.location = `${ getURL() }&s=${ search }`;
 
