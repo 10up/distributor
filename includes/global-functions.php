@@ -243,9 +243,10 @@ function distributor_get_registered_data() {
 
 /**
  * Pre-distribute callback for media data.
+ *
  * This is the default pre-distribute callback for media data, used when the type is set to 'media' in distributor_register_data().
  *
- * @param mixed $media_id The media ID to be processed before distribution.
+ * @param int $media_id The media ID to be processed before distribution.
  * @return array The extra data of the media to be distributed to the target site.
  */
 function distributor_media_pre_distribute_callback( $media_id ) {
@@ -255,7 +256,7 @@ function distributor_media_pre_distribute_callback( $media_id ) {
 
 	// Get the media data.
 	$media = get_post( $media_id );
-	if ( ! $media ) {
+	if ( ! $media || 'attachment' !== $media->post_type ) {
 		return array();
 	}
 
@@ -275,9 +276,9 @@ function distributor_media_pre_distribute_callback( $media_id ) {
  * Post-distribute callback for media data.
  * This is the default post-distribute callback for media data, used when the type is set to 'media' in distributor_register_data().
  *
- * @param mixed $media_extra_data The extra data to be processed after distribution.
- * @param mixed $source_media_id  The source media ID.
- * @param mixed $post_data        The post data.
+ * @param array $media_extra_data The extra data to be processed after distribution.
+ * @param int   $source_media_id  The source media ID.
+ * @param array $post_data        The post data.
  * @return int The ID of the distributed media.
  */
 function distributor_media_post_distribute_callback( $media_extra_data, $source_media_id, $post_data ) {
@@ -313,7 +314,7 @@ function distributor_media_post_distribute_callback( $media_extra_data, $source_
 
 	// Update the media meta.
 	if ( ! empty( $media_extra_data['alt'] ) ) {
-		update_post_meta( $media_id, '_wp_attachment_image_alt', sanitize_textarea_field( $media_extra_data['alt'] ) );
+		update_post_meta( $media_id, '_wp_attachment_image_alt', wp_slash( sanitize_textarea_field( $media_extra_data['alt'] ) ) );
 	}
 	update_post_meta( $media_id, 'dt_original_media_id', wp_slash( $source_media_id ) );
 	update_post_meta( $media_id, 'dt_original_media_url', wp_slash( $source_media_url ) );
@@ -330,7 +331,7 @@ function distributor_media_post_distribute_callback( $media_extra_data, $source_
  * - The post will be distributed only if it is source post. (i.e. not the post that is distributed from another site).
  * - The extra data will not be processed to prevent infinite loop.
  *
- * @param mixed $post_id The post ID to be processed before distribution.
+ * @param int $post_id The post ID to be processed before distribution.
  * @return array The data of the post to be distributed to the target site.
  */
 function distributor_post_pre_distribute_callback( $post_id ) {
@@ -371,9 +372,9 @@ function distributor_post_pre_distribute_callback( $post_id ) {
  * Post-distribute callback for post data.
  * This is the default post-distribute callback for post data, used when the type is set to 'post' in distributor_register_data().
  *
- * @param mixed $post_extra_data The extra data to be processed after distribution.
- * @param mixed $source_post_id  The source post ID.
- * @param mixed $post_data       The post data.
+ * @param array $post_extra_data The extra data to be processed after distribution.
+ * @param int   $source_post_id  The source post ID.
+ * @param array $post_data       The post data.
  * @param array $connection_data The connection data.
  * @return int The ID of the distributed post.
  */
@@ -523,7 +524,7 @@ function distributor_post_post_distribute_callback( $post_extra_data, $source_po
  * Pre-distribute callback for term data.
  * This is the default pre-distribute callback for term data, used when the type is set to 'term' in distributor_register_data().
  *
- * @param mixed $term_id The Term ID to be processed before distribution.
+ * @param int $term_id The Term ID to be processed before distribution.
  * @return array|WP_Term The data of the term to be distributed to the target site.
  */
 function distributor_term_pre_distribute_callback( $term_id ) {
@@ -557,9 +558,9 @@ function distributor_term_pre_distribute_callback( $term_id ) {
  * Post-distribute callback for term data.
  * This is the default post-distribute callback for term data, used when the type is set to 'term' in distributor_register_data().
  *
- * @param mixed $term_extra_data The extra data to be processed after distribution.
- * @param mixed $source_term_id  The source term ID.
- * @param mixed $post_data       The post data.
+ * @param array $term_extra_data The extra data to be processed after distribution.
+ * @param int   $source_term_id  The source term ID.
+ * @param array $post_data       The post data.
  * @return int The ID of the distributed term.
  */
 function distributor_term_post_distribute_callback( $term_extra_data, $source_term_id, $post_data ) {

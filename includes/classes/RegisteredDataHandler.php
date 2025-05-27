@@ -388,11 +388,11 @@ class RegisteredDataHandler {
 	 *
 	 * @since x.x.x
 	 *
-	 * @param mixed $post_content    The post content.
-	 * @param mixed $registered_data The distributor registered data.
-	 * @param mixed $extra_data      The extra data for the given registered data.
-	 * @param mixed $post_data       The post data.
-	 * @return mixed $post_data The updated post data.
+	 * @param string $post_content    The post content.
+	 * @param array  $registered_data The distributor registered data.
+	 * @param array  $extra_data      The extra data for the given registered data.
+	 * @param array  $post_data       The post data.
+	 * @return string $post_content The updated post content.
 	 */
 	public function process_registered_shortcode_data( $post_content, $registered_data, $extra_data, $post_data ) {
 		$attributes               = $registered_data['attributes'] ?? array();
@@ -506,7 +506,7 @@ class RegisteredDataHandler {
 	 *
 	 * @since x.x.x
 	 *
-	 * @param mixed $term_data        The term data to be processed.
+	 * @param array $term_data        The term data to be processed.
 	 * @param bool  $process_parent   Whether to process the parent term.
 	 * @param bool  $update_hierarchy Whether to update the term hierarchy.
 	 * @return int The term ID of the processed term.
