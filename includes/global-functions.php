@@ -205,16 +205,28 @@ function distributor_register_data( $data_name, $args ) {
 	if ( ! empty( $args['type'] ) ) {
 		switch ( $args['type'] ) {
 			case 'media':
-				$args['pre_distribute_cb']  = 'distributor_media_pre_distribute_callback';
-				$args['post_distribute_cb'] = 'distributor_media_post_distribute_callback';
+				$args['pre_distribute_cb']  = function( $data, $post_id ) {
+					return distributor_media_pre_distribute_callback( $data, $post_id );
+				};
+				$args['post_distribute_cb'] = function( $post_extra_data, $source_post_id, $post_data, $connection_data = array() ) {
+					return distributor_media_post_distribute_callback( $post_extra_data, $source_post_id, $post_data );
+				};
 				break;
 			case 'post':
-				$args['pre_distribute_cb']  = 'distributor_post_pre_distribute_callback';
-				$args['post_distribute_cb'] = 'distributor_post_post_distribute_callback';
+				$args['pre_distribute_cb']  = function( $data, $post_id ) {
+					return distributor_post_pre_distribute_callback( $data, $post_id );
+				};
+				$args['post_distribute_cb'] = function( $post_extra_data, $source_post_id, $post_data, $connection_data = array() ) {
+					return distributor_post_post_distribute_callback( $post_extra_data, $source_post_id, $post_data, $connection_data );
+				};
 				break;
 			case 'term':
-				$args['pre_distribute_cb']  = 'distributor_term_pre_distribute_callback';
-				$args['post_distribute_cb'] = 'distributor_term_post_distribute_callback';
+				$args['pre_distribute_cb']  = function( $data, $post_id ) {
+					return distributor_term_pre_distribute_callback( $data, $post_id );
+				};
+				$args['post_distribute_cb'] = function( $term_extra_data, $source_term_id, $post_data, $connection_data = array() ) {
+					return distributor_term_post_distribute_callback( $term_extra_data, $source_term_id, $post_data );
+				};
 				break;
 		}
 	}
@@ -246,10 +258,11 @@ function distributor_get_registered_data() {
  *
  * This is the default pre-distribute callback for media data, used when the type is set to 'media' in distributor_register_data().
  *
- * @param int $media_id The media ID to be processed before distribution.
+ * @param int $media_id       The media ID to be processed before distribution.
+ * @param int $source_post_id The source post ID.
  * @return array The extra data of the media to be distributed to the target site.
  */
-function distributor_media_pre_distribute_callback( $media_id ) {
+function distributor_media_pre_distribute_callback( $media_id, $source_post_id ) {
 	if ( ! $media_id ) {
 		return array();
 	}
@@ -331,10 +344,11 @@ function distributor_media_post_distribute_callback( $media_extra_data, $source_
  * - The post will be distributed only if it is source post. (i.e. not the post that is distributed from another site).
  * - The extra data will not be processed to prevent infinite loop.
  *
- * @param int $post_id The post ID to be processed before distribution.
+ * @param int $post_id        The post ID to be processed before distribution.
+ * @param int $source_post_id The source post ID.
  * @return array The data of the post to be distributed to the target site.
  */
-function distributor_post_pre_distribute_callback( $post_id ) {
+function distributor_post_pre_distribute_callback( $post_id, $source_post_id ) {
 	if ( ! $post_id ) {
 		return array();
 	}
@@ -526,10 +540,11 @@ function distributor_post_post_distribute_callback( $post_extra_data, $source_po
  * Pre-distribute callback for term data.
  * This is the default pre-distribute callback for term data, used when the type is set to 'term' in distributor_register_data().
  *
- * @param int $term_id The Term ID to be processed before distribution.
+ * @param int $term_id        The Term ID to be processed before distribution.
+ * @param int $source_post_id The source post ID.
  * @return array|WP_Term The data of the term to be distributed to the target site.
  */
-function distributor_term_pre_distribute_callback( $term_id ) {
+function distributor_term_pre_distribute_callback( $term_id, $source_post_id ) {
 	if ( ! $term_id ) {
 		return array();
 	}
