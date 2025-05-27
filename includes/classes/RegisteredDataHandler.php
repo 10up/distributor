@@ -55,7 +55,8 @@ class RegisteredDataHandler {
 
 	/**
 	 * Recursively process blocks for the registered data.
-	 * This function processes the blocks data recursively and calls the callback function provided in the registered data.
+	 *
+	 * Processes the blocks data recursively and calls the callback function provided in the registered data.
 	 *
 	 * @since x.x.x
 	 *
@@ -164,8 +165,9 @@ class RegisteredDataHandler {
 	}
 
 	/**
-	 * This function processes the registered data for the post content and post meta.
-	 * It calls the callback function provided in the registered data and updates the post data.
+	 * Processes the registered data for the post content and post meta.
+	 *
+	 * Calls the callback function provided in the registered data and updates the post data.
 	 *
 	 * @since x.x.x
 	 *
@@ -259,8 +261,9 @@ class RegisteredDataHandler {
 	}
 
 	/**
-	 * This function processes the registered data for the post meta.
-	 * It calls the callback function provided in the registered data and updates the post meta data.
+	 * Processes the registered data for the post meta.
+	 *
+	 * Calls the callback function provided in the registered data and updates the post meta data.
 	 *
 	 * @since x.x.x
 	 *
@@ -553,7 +556,8 @@ class RegisteredDataHandler {
 	/**
 	 * Pre-process registered "post" type data for external connections.
 	 *
-	 * This function handles "post" type data when pushing to an external connection.
+	 * Handles "post" type data when pushing to an external connection.
+	 *
 	 * Since the target site cannot pull the post, we push it to the target site,
 	 * retrieve the remote post ID, and include it in the extra data sent to the target site.
 	 *
