@@ -175,7 +175,7 @@ class RegisteredDataHandler {
 	 */
 	public function process_registered_data( $post_data, $is_rest = false ) {
 		// Filter is documented in includes/classes/DistributorPost.php
-		if ( ! apply_filters( 'dt_process_extra_data', true ) ) {
+		if ( ! apply_filters( 'dt_process_extra_data', true, $post_data ) ) {
 			return $post_data;
 		}
 
@@ -563,7 +563,7 @@ class RegisteredDataHandler {
 	 */
 	public function pre_process_registered_data_post( $post_data, $connection ) {
 		$extra_data = $post_data['distributor_extra_data'] ?? array();
-		if ( empty( $extra_data ) || ! is_array( $extra_data ) || ! apply_filters( 'dt_process_extra_data', true ) ) {
+		if ( empty( $extra_data ) || ! is_array( $extra_data ) || ! apply_filters( 'dt_process_extra_data', true, $post_data ) ) {
 			return $post_data;
 		}
 
