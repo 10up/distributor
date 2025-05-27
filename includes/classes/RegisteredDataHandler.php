@@ -589,7 +589,9 @@ class RegisteredDataHandler {
 			);
 
 			if ( ! empty( $registered_post_data ) && ! empty( $extra_data ) ) {
-				$prevent_processing = function(){ return false; };
+				$prevent_processing = function() {
+					return false;
+				};
 				// Disable the process_extra_data filter to prevent infinite loop.
 				add_filter( 'dt_process_extra_data', $prevent_processing, 9999 );
 
