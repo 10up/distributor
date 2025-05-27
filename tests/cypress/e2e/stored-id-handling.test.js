@@ -6,12 +6,12 @@ describe( '[Block Editor] Stored ID handling tests', () => {
 	const relatedPostTitle = 'Sample Related Post' + randomName();
 	const shortcodeTermName = 'Sample Term' + randomName();
 	const addPostContent = () => {
-		cy.insertBlockLocal( 'core/shortcode', 'Shortcode' ).then( ( id ) => {
+		cy.insertBlock( 'core/shortcode', 'Shortcode' ).then( ( id ) => {
 			cy.getBlockEditor()
 				.find( `#${ id } textarea.blocks-shortcode__textarea` )
 				.type( `[dt_term_shortcode id="${ termId }"]` );
 		} );
-		cy.insertBlockLocal( 'core/cover/cover', 'Cover' ).then( ( id ) => {
+		cy.insertBlock( 'core/cover/cover', 'Cover' ).then( ( id ) => {
 			cy.getBlockEditor()
 				.find( `#${ id } button.components-button` )
 				.contains( 'Media Library' )
