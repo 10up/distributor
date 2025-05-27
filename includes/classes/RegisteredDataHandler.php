@@ -589,8 +589,9 @@ class RegisteredDataHandler {
 			);
 
 			if ( ! empty( $registered_post_data ) && ! empty( $extra_data ) ) {
+				$prevent_processing = function(){ return false; };
 				// Disable the process_extra_data filter to prevent infinite loop.
-				add_filter( 'dt_process_extra_data', '__return_false' );
+				add_filter( 'dt_process_extra_data', $prevent_processing, 9999 );
 
 				foreach ( $registered_post_data as $key => $data ) {
 					if ( empty( $extra_data[ $key ] ) || ! is_array( $extra_data[ $key ] ) ) {
@@ -637,7 +638,7 @@ class RegisteredDataHandler {
 				}
 
 				// Remove the filter.
-				remove_filter( 'dt_process_extra_data', '__return_false' );
+				remove_filter( 'dt_process_extra_data', $prevent_processing, 9999 );
 			}
 		} catch ( \Exception $e ) {
 			// Ignore.
