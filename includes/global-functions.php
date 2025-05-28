@@ -282,6 +282,7 @@ function distributor_media_pre_distribute_callback( $media_id, $source_post_id )
 		'alt'         => get_post_meta( $media->ID, '_wp_attachment_image_alt', true ),
 		'url'         => $media_url,
 		'guid'        => $media->guid ?? $media_url,
+		'mime_type'   => $media->post_mime_type,
 	);
 }
 
