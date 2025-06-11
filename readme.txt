@@ -1,7 +1,7 @@
 === Distributor ===
 Contributors:      10up
 Tags:              content, distribution, syndication, management
-Tested up to:      6.7
+Tested up to:      6.8
 Stable tag:        2.1.0
 License:           GPLv2 or later
 License URI:       http://www.gnu.org/licenses/gpl-2.0.html
@@ -33,7 +33,7 @@ There are two connection types: `internal` and `external`.
 == Upgrade Notice ==
 
 = 2.0.5 =
-**Distributor now requires WordPress 6.4 or later.**
+**Distributor now requires WordPress 6.6 or later.**
 
 = 2.0.0 =
 **Distributor now requires PHP 7.4 or later and WordPress 5.7 or later.**

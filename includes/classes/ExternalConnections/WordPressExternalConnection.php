@@ -392,6 +392,9 @@ class WordPressExternalConnection extends ExternalConnection {
 				$post_array['post_status'] = $item_array['post_status'];
 			}
 
+			// Process registered data.
+			$post_array = Utils\process_registered_data( $post_array );
+
 			/**
 			 * Filter the arguments passed into wp_insert_post during a pull.
 			 *

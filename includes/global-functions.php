@@ -112,3 +112,94 @@ if ( ! function_exists( 'str_ends_with' ) ) {
 		return 0 === substr_compare( $haystack, $needle, -$len, $len );
 	}
 }
+
+/**
+ * Register a data field for Stored ID handling.
+ *
+ * @since x.x.x
+ *
+ * @global array $distributor_registered_data Global registry for distributor data.
+ *
+ * @param string $data_name The unique identifier for the data.
+ * @param array  $args {
+ *     Array of settings to describe where the data is and how to process it.
+ *
+ *     @type string $location             Where is the data located? Either 'post_meta' or 'post_content'.
+ *     @type array  $attributes {
+ *         Additional details depending on location.
+ *
+ *         @type string|array $meta_key            Required if data is located in meta.
+ *         @type string       $shortcode           Required if data is in a shortcode.
+ *         @type string|array $shortcode_attribute Required if data is in a shortcode.
+ *         @type string       $block_name          Required if data is in a block.
+ *         @type string|array $block_attribute     Required if data is in a block.
+ *     }
+ *     @type string   $type               Type of data: e.g. 'image', 'post', 'term'. If set,
+ *                                        default callbacks can be used. To be added in future (Phase 2).
+ *     @type callable $pre_distribute_cb  Function that returns extra data that needs to be added
+ *                                        to the request (source processing).
+ *     @type callable $post_distribute_cb Function that processes the extra data on the target
+ *                                        and returns the resulting ID to replace the source ID.
+ * }
+ */
+function distributor_register_data( $data_name, $args ) {
+	global $distributor_registered_data;
+	if ( ! isset( $distributor_registered_data ) ) {
+		$distributor_registered_data = array();
+	}
+
+	if ( empty( $args ) ) {
+		return;
+	}
+
+	// Default values.
+	$defaults = array(
+		'location'           => '',
+		'attributes'         => array(),
+		'type'               => '',
+		'pre_distribute_cb'  => null,
+		'post_distribute_cb' => null,
+	);
+
+	$args = wp_parse_args( $args, $defaults );
+
+	// Validate the location.
+	if ( ! in_array( $args['location'], array( 'post_meta', 'post_content' ), true ) ) {
+		_doing_it_wrong( __FUNCTION__, esc_html__( 'Invalid data location specified. It must be either post_meta or post_content.', 'distributor' ), esc_attr( DT_VERSION ) );
+	}
+
+	// Validate if meta_key is set for post_meta location.
+	if ( 'post_meta' === $args['location'] && empty( $args['attributes']['meta_key'] ) ) {
+		_doing_it_wrong( __FUNCTION__, esc_html__( 'Invalid data attributes specified. meta_keys is required for post_meta location.', 'distributor' ), esc_attr( DT_VERSION ) );
+	}
+
+	// Validate if callback functions are callable.
+	if ( ! empty( $args['pre_distribute_cb'] ) && ! is_callable( $args['pre_distribute_cb'] ) ) {
+		_doing_it_wrong( __FUNCTION__, esc_html__( 'Invalid data callback specified. pre_distribute_cb must be callable.', 'distributor' ), esc_attr( DT_VERSION ) );
+	}
+
+	if ( ! empty( $args['post_distribute_cb'] ) && ! is_callable( $args['post_distribute_cb'] ) ) {
+		_doing_it_wrong( __FUNCTION__, esc_html__( 'Invalid data callback specified. post_distribute_cb must be callable.', 'distributor' ), esc_attr( DT_VERSION ) );
+	}
+
+	$distributor_registered_data[ $data_name ] = $args;
+}
+
+/**
+ * Get the registered distributor data.
+ *
+ * @since x.x.x
+ *
+ * @global array $distributor_registered_data Global registry for distributor data.
+ *
+ * @see distributor_register_data()
+ * @return array
+ */
+function distributor_get_registered_data() {
+	global $distributor_registered_data;
+	if ( ! isset( $distributor_registered_data ) ) {
+		$distributor_registered_data = array();
+	}
+
+	return $distributor_registered_data;
+}
