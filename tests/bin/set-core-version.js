@@ -10,7 +10,9 @@ const config = fs.existsSync( path ) ? require( path ) : {};
 
 const args = process.argv.slice( 2 );
 
-if ( args.length == 0 ) exit( 0 );
+if ( args.length == 0 ) {
+	exit( 0 );
+}
 
 if ( args[ 0 ] == 'latest' ) {
 	config.core = null;
