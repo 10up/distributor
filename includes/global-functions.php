@@ -205,28 +205,16 @@ function distributor_register_data( $data_name, $args ) {
 	if ( ! empty( $args['type'] ) ) {
 		switch ( $args['type'] ) {
 			case 'media':
-				$args['pre_distribute_cb']  = function( $data, $post_id ) {
-					return distributor_media_pre_distribute_callback( $data, $post_id );
-				};
-				$args['post_distribute_cb'] = function( $post_extra_data, $source_post_id, $post_data, $connection_data = array() ) {
-					return distributor_media_post_distribute_callback( $post_extra_data, $source_post_id, $post_data );
-				};
+				$args['pre_distribute_cb']  = 'distributor_media_pre_distribute_callback';
+				$args['post_distribute_cb'] = 'distributor_media_post_distribute_callback';
 				break;
 			case 'post':
-				$args['pre_distribute_cb']  = function( $data, $post_id ) {
-					return distributor_post_pre_distribute_callback( $data, $post_id );
-				};
-				$args['post_distribute_cb'] = function( $post_extra_data, $source_post_id, $post_data, $connection_data = array() ) {
-					return distributor_post_post_distribute_callback( $post_extra_data, $source_post_id, $post_data, $connection_data );
-				};
+				$args['pre_distribute_cb']  = 'distributor_post_pre_distribute_callback';
+				$args['post_distribute_cb'] = 'distributor_post_post_distribute_callback';
 				break;
 			case 'term':
-				$args['pre_distribute_cb']  = function( $data, $post_id ) {
-					return distributor_term_pre_distribute_callback( $data, $post_id );
-				};
-				$args['post_distribute_cb'] = function( $term_extra_data, $source_term_id, $post_data, $connection_data = array() ) {
-					return distributor_term_post_distribute_callback( $term_extra_data, $source_term_id, $post_data );
-				};
+				$args['pre_distribute_cb']  = 'distributor_term_pre_distribute_callback';
+				$args['post_distribute_cb'] = 'distributor_term_post_distribute_callback';
 				break;
 		}
 	}
