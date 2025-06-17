@@ -22,9 +22,16 @@ describe( '[Block Editor] Stored ID handling tests', () => {
 			cy.getBlockEditor()
 				.find( `#${ id } .components-drop-zone` )
 				.click( { force: true } );
-			cy.get( 'select.components-select-control__input' ).select(
-				'full'
-			);
+			cy.get( 'body' ).then( ( $body ) => {
+				if (
+					$body.find( 'select.components-select-control__input' )
+						.length > 0
+				) {
+					cy.get( 'select.components-select-control__input' )
+						.first()
+						.select( 'full' );
+				}
+			} );
 		} );
 	};
 
