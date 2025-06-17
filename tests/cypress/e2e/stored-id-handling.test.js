@@ -22,6 +22,8 @@ describe( '[Block Editor] Stored ID handling tests', () => {
 			cy.getBlockEditor()
 				.find( `#${ id } .components-drop-zone` )
 				.click( { force: true } );
+			// eslint-disable-next-line cypress/no-unnecessary-waiting
+			cy.wait( 1000 );
 			cy.get( 'body' ).then( ( $body ) => {
 				if (
 					$body.find( 'select.components-select-control__input' )
