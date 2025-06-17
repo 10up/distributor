@@ -19,6 +19,12 @@ describe( '[Block Editor] Stored ID handling tests', () => {
 			cy.get( '.attachments-browser .attachment' ).first().click();
 			cy.get( '.media-button-select' ).click();
 			cy.getBlockEditor().find( `#${ id } img` ).should( 'be.visible' );
+			cy.getBlockEditor()
+				.find( `#${ id } .components-drop-zone` )
+				.click( { force: true } );
+			cy.get( 'select.components-select-control__input' ).select(
+				'full'
+			);
 		} );
 	};
 
