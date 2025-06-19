@@ -1,7 +1,17 @@
 <?php
+/**
+ * Auto-distribution functionality for Distributor.
+ *
+ * @package  distributor
+ */
 
 namespace Distributor\AutoDistribute;
 
+/**
+ * Setup actions and filters.
+ *
+ * @since x.x.x
+ */
 function setup() {
 	$n = function( $function ) {
 		return __NAMESPACE__ . "\\$function";
@@ -41,7 +51,7 @@ function setup() {
  * including both internal and external connections.
  *
  * @param int|WP_Post $post     Post ID or WP_Post object.
- * @param int          $user_id User ID of the post author. Defaults to current user.
+ * @param int         $user_id User ID of the post author. Defaults to current user.
  */
 function schedule_post_for_auto_distribution( $post = 0, $user_id = 0 ) {
 	$post = get_post( $post );
@@ -69,7 +79,7 @@ function schedule_post_for_auto_distribution( $post = 0, $user_id = 0 ) {
  * and distributes the post to each connection that is not already syndicated.
  *
  * @param int|WP_Post $post     Post ID or WP_Post object.
- * @param int          $user_id User ID of the post author.
+ * @param int         $user_id User ID of the post author.
  */
 function distribute_post_to_all_connections( $post = 0, $user_id = 0 ) {
 	$post = get_post( $post );
@@ -83,12 +93,12 @@ function distribute_post_to_all_connections( $post = 0, $user_id = 0 ) {
 		return;
 	}
 
-	foreach( $connections as $connection ) {
+	foreach ( $connections as $connection ) {
 		if ( $connection['syndicated'] ) {
 			continue;
 		}
 
-		$connection_id = $connection['id'];
+		$connection_id   = $connection['id'];
 		$connection_type = $connection['type'];
 
 		distribute_post( $post->ID, $user_id, $connection_id, $connection_type );
@@ -121,16 +131,16 @@ function distribute_post( $post_id = 0, $user_id = 0, $connection_id = 0, $conne
 		return; // Invalid connection type
 	}
 
-	$post_id = $post->ID;
+	$post_id        = $post->ID;
 	$connection_map = get_post_meta( intval( $post_id ), 'dt_connection_map', true );
 	if ( ! is_array( $connection_map ) ) {
 		$connection_map = [];
 	}
-	if ( empty( $connection_map[ 'internal' ] ) ) {
-		$connection_map[ 'internal' ] = [];
+	if ( empty( $connection_map['internal'] ) ) {
+		$connection_map['internal'] = [];
 	}
-	if ( empty( $connection_map[ 'external' ] ) ) {
-		$connection_map[ 'external' ] = [];
+	if ( empty( $connection_map['external'] ) ) {
+		$connection_map['external'] = [];
 	}
 	$remote_post = $connection->push( $post_id );
 	if ( ! is_wp_error( $remote_post ) && ! empty( $remote_post['id'] ) ) {
@@ -173,6 +183,7 @@ function get_external_connections( $post_id = 0, $user_id = 0 ) {
 			'post_type'      => 'dt_ext_connection',
 			'fields'         => 'ids',
 			'no_found_rows'  => true,
+			// phpcs:ignore WordPress.WP.PostsPerPage.posts_per_page_posts_per_page -- All connections need to be fetched.
 			'posts_per_page' => 550,
 		]
 	);
@@ -258,7 +269,7 @@ function get_internal_connections( $post_id = 0, $user_id = 0 ) {
 	}
 
 	// Get our current connection mapping
-	$connection_map  = (array) get_post_meta( $post_id, 'dt_connection_map', true );
+	$connection_map = (array) get_post_meta( $post_id, 'dt_connection_map', true );
 	if ( empty( $connection_map['internal'] ) ) {
 		$connection_map['internal'] = [];
 	}
