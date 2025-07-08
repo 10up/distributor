@@ -23,7 +23,9 @@ function setup() {
 			add_action( 'wp_enqueue_scripts', __NAMESPACE__ . '\enqueue_scripts' );
 			add_filter( 'amp_dev_mode_element_xpaths', __NAMESPACE__ . '\add_element_xpaths' );
 			add_filter( 'script_loader_tag', __NAMESPACE__ . '\add_dev_mode_to_assets', 10, 2 );
-			add_action( 'wp_ajax_dt_load_connections', __NAMESPACE__ . '\get_connections' );
+			// Deprecated action, use wp_ajax_dt_load_connections_push instead
+			add_action( 'wp_ajax_dt_load_connections', __NAMESPACE__ . '\deprecated_get_connections' );
+			add_action( 'wp_ajax_dt_load_connections_push', __NAMESPACE__ . '\get_connections' );
 			add_action( 'wp_ajax_dt_push', __NAMESPACE__ . '\ajax_push' );
 			add_action( 'admin_bar_menu', __NAMESPACE__ . '\menu_button', 999 );
 			add_action( 'wp_footer', __NAMESPACE__ . '\menu_content', 10, 1 );
@@ -98,6 +100,22 @@ function syndicatable() {
 	}
 
 	return true;
+}
+
+/**
+ * Get available connections for use in the Push UI.
+ *
+ * This is a deprecated function that forwards to get_connections().
+ * The action 'wp_ajax_dt_load_connections' is deprecated in favor of 'wp_ajax_dt_load_connections_push'.
+ *
+ * @since x.x.x
+ * @deprecated x.x.x Use Distributor\PushUI\get_connections() instead.
+ * @see Distributor\PushUI\get_connections()
+ */
+function deprecated_get_connections() {
+	_deprecated_function( __FUNCTION__, 'x.x.x', __NAMESPACE__ . '\get_connections' );
+
+	get_connections();
 }
 
 /**

@@ -356,7 +356,7 @@ jQuery( window ).on( 'load', () => {
 		distributorPushWrapper.classList.add( 'loaded' );
 
 		const data = {
-			action: 'dt_load_connections',
+			action: 'dt_load_connections_push',
 			loadConnectionsNonce: dt.loadConnectionsNonce,
 			postId: dt.postId,
 		};
