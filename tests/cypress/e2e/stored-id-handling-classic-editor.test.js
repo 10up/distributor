@@ -101,12 +101,6 @@ describe( '[Classic Editor] Stored ID handling tests', () => {
 					false,
 					true
 				).then( ( distributedPost ) => {
-					// With classic editor rendered content is transferred and not the shortcode.
-					// cy.verifyShortCodeTermId(
-					// 	distributedPost.distributedPostId,
-					// 	shortcodeTermName,
-					// 	'http://localhost/second/'
-					// );
 					cy.verifyRelatedPostMeta(
 						distributedPost.distributedPostId,
 						relatedPostTitle,
@@ -156,12 +150,6 @@ describe( '[Classic Editor] Stored ID handling tests', () => {
 						distributedPostId = matches[ 1 ];
 					}
 
-					// // With classic editor rendered content is transferred and not the shortcode.
-					// cy.verifyShortCodeTermId(
-					// 	distributedPostId,
-					// 	shortcodeTermName,
-					// 	'http://localhost/second/'
-					// );
 					cy.verifyRelatedPostMeta(
 						distributedPostId,
 						relatedPostTitle,
@@ -204,12 +192,6 @@ describe( '[Classic Editor] Stored ID handling tests', () => {
 					false,
 					true
 				).then( ( distributedPost ) => {
-					// // With classic editor rendered content is transferred and not the shortcode.
-					// cy.verifyShortCodeTermId(
-					// 	distributedPost.distributedPostId,
-					// 	shortcodeTermName,
-					// 	'http://localhost/second/'
-					// );
 					cy.verifyRelatedPostMeta(
 						distributedPost.distributedPostId,
 						relatedPostTitle,
@@ -258,12 +240,6 @@ describe( '[Classic Editor] Stored ID handling tests', () => {
 					if ( matches ) {
 						distributedPostId = matches[ 1 ];
 					}
-					// // With classic editor rendered content is transferred and not the shortcode.
-					// cy.verifyShortCodeTermId(
-					// 	distributedPostId,
-					// 	shortcodeTermName,
-					// 	'http://localhost/second/'
-					// );
 					cy.verifyRelatedPostMeta(
 						distributedPostId,
 						relatedPostTitle,

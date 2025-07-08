@@ -307,10 +307,11 @@ function distributor_media_post_distribute_callback( $media_extra_data, $source_
 	// Update the media data.
 	wp_update_post(
 		array(
-			'ID'           => $media_id,
-			'post_title'   => sanitize_text_field( $media_extra_data['title'] ),
-			'post_excerpt' => sanitize_textarea_field( $media_extra_data['caption'] ),
-			'post_content' => sanitize_textarea_field( $media_extra_data['description'] ),
+			'ID'             => $media_id,
+			'post_title'     => sanitize_text_field( $media_extra_data['title'] ),
+			'post_excerpt'   => sanitize_textarea_field( $media_extra_data['caption'] ),
+			'post_content'   => sanitize_textarea_field( $media_extra_data['description'] ),
+			'post_mime_type' => sanitize_text_field( $media_extra_data['mime_type'] ),
 		)
 	);
 

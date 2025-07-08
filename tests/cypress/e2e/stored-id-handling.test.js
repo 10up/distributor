@@ -22,7 +22,7 @@ describe( '[Block Editor] Stored ID handling tests', () => {
 			cy.getBlockEditor()
 				.find( `#${ id } .components-drop-zone` )
 				.click( { force: true } );
-			// eslint-disable-next-line cypress/no-unnecessary-waiting
+			// eslint-disable-next-line cypress/no-unnecessary-waiting -- wait for the image size selector to be loaded.
 			cy.wait( 1000 );
 			cy.get( 'body' ).then( ( $body ) => {
 				if (
