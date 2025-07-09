@@ -411,6 +411,8 @@ function dashboard() {
 	<div class="wrap nosubsub">
 		<h1>
 			<?php
+			$dt_pull_url_id = 0;
+			$dt_pull_urls   = array();
 			if ( empty( $connection_list_table->connection_objects ) ) :
 				$connection_now = 0;
 				?>
@@ -436,12 +438,14 @@ function dashboard() {
 								$type     = 'internal';
 								$name     = untrailingslashit( $connection->site->domain . $connection->site->path );
 								$id       = $connection->site->blog_id;
+								++$dt_pull_url_id;
+								$dt_pull_urls[ $dt_pull_url_id ] = sanitize_url( admin_url( 'admin.php?page=pull&connection_type=' . $type . '&connection_id=' . $id ) );
 
 								if ( is_a( $connection_now, '\Distributor\InternalConnections\NetworkSiteConnection' ) && (int) $connection_now->site->blog_id === (int) $id ) {
 									$selected = true;
 								}
 								?>
-								<option <?php selected( true, $selected ); ?> data-pull-url="<?php echo esc_url( admin_url( 'admin.php?page=pull&connection_type=' . $type . '&connection_id=' . $id ) ); ?>"><?php echo esc_html( $name ); ?></option>
+								<option <?php selected( true, $selected ); ?> data-pull-url-id="<?php echo esc_attr( $dt_pull_url_id ); ?>"><?php echo esc_html( $name ); ?></option>
 							<?php endforeach; ?>
 						<?php if ( ! empty( $external_connection_group ) ) : ?>
 							</optgroup>
@@ -458,18 +462,32 @@ function dashboard() {
 								$selected = false;
 								$name     = $connection->name;
 								$id       = $connection->id;
+								++$dt_pull_url_id;
+								$dt_pull_urls[ $dt_pull_url_id ] = sanitize_url( admin_url( 'admin.php?page=pull&connection_type=' . $type . '&connection_id=' . $id ) );
 
 								if ( is_a( $connection_now, '\Distributor\ExternalConnection' ) && (int) $connection_now->id === (int) $id ) {
 									$selected = true;
 								}
 								?>
-								<option <?php selected( true, $selected ); ?> data-pull-url="<?php echo esc_url( admin_url( 'admin.php?page=pull&connection_type=' . $type . '&connection_id=' . $id ) ); ?>"><?php echo esc_html( $name ); ?></option>
+								<option <?php selected( true, $selected ); ?> data-pull-url-id="<?php echo esc_attr( $dt_pull_url_id ); ?>"><?php echo esc_html( $name ); ?></option>
 							<?php endforeach; ?>
 						<?php if ( ! empty( $internal_connection_group ) ) : ?>
 							</optgroup>
 						<?php endif; ?>
 					<?php endif; ?>
 				</select>
+				<script>
+					DISTRIBUTOR = window.DISTRIBUTOR || {};
+					DISTRIBUTOR.getPullUrl = function( pullUrlId ) {
+						var distributorPullUrls = <?php echo wp_json_encode( $dt_pull_urls ); ?>;
+
+						if ( ! pullUrlId || ! distributorPullUrls[ pullUrlId ] ) {
+							return;
+						}
+
+						return distributorPullUrls[ pullUrlId ];
+					}
+				</script>
 
 				<?php
 				$connection_now->pull_post_type  = '';
