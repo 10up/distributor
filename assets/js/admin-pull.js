@@ -12,10 +12,10 @@ const { document } = window;
  * @param {string} str The string to escape.
  * @return {string} The escaped string.
  */
-const escapeURLComponent = (str) => {
-    return encodeURIComponent(str).replace(/[!'()*]/g, (c) => {
-        return '%' + c.charCodeAt(0).toString(16);
-    });
+const escapeURLComponent = ( str ) => {
+	return encodeURIComponent( str ).replace( /[!'()*]/g, ( c ) => {
+		return '%' + c.charCodeAt( 0 ).toString( 16 );
+	} );
 };
 
 const chooseConnection = document.getElementById( 'pull_connections' );
@@ -94,12 +94,14 @@ if ( chooseConnection && choosePostType && form ) {
  * @return {string} Distribution URL.
  */
 const getURL = () => {
-	const postType =
-		escapeURLComponent(choosePostType.options[ choosePostType.selectedIndex ].value);
-	const baseURL =
-		escapeURLComponent(chooseConnection.options[ chooseConnection.selectedIndex ].getAttribute(
+	const postType = escapeURLComponent(
+		choosePostType.options[ choosePostType.selectedIndex ].value
+	);
+	const baseURL = escapeURLComponent(
+		chooseConnection.options[ chooseConnection.selectedIndex ].getAttribute(
 			'data-pull-url'
-		));
+		)
+	);
 	let status = 'new';
 
 	if ( -1 < ` ${ form.className } `.indexOf( ' status-skipped ' ) ) {
