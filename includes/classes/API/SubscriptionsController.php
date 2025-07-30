@@ -270,11 +270,24 @@ class SubscriptionsController extends \WP_REST_Controller {
 				return $response;
 			}
 
+			$request['post_data']['content'] = $content;
+
+			/**
+			 * Filter the subscription request from Distributor.
+			 *
+			 * @since TBD
+			 * @hook dt_process_subscription_request
+			 *
+			 * @param {WP_REST_Request} $request Request object.
+			 * @param {WP_Post}         $post    Updated post object.
+			 */
+			$request = apply_filters( 'dt_process_subscription_request', $request, $post );
+
 			wp_update_post(
 				[
 					'ID'           => $request['post_id'],
 					'post_title'   => $request['post_data']['title'],
-					'post_content' => $content,
+					'post_content' => $request['post_data']['content'],
 					'post_excerpt' => $request['post_data']['excerpt'],
 					'post_name'    => $request['post_data']['slug'],
 				]
