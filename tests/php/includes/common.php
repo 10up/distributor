@@ -243,6 +243,30 @@ class WP_Post {
 }
 
 /**
+ * Mock WP_HTML_Tag_Processor
+ */
+class WP_HTML_Tag_Processor {
+	protected $html;
+
+	/**
+	 * Constructor.
+	 *
+	 * @param string $html HTML to process.
+	 */
+	public function __construct( $html ) {
+		$this->html = $html;
+	}
+
+	public function next_tag() {
+		return false;
+	}
+
+	public function get_attribute() {
+		return null;
+	}
+}
+
+/**
  * Return testing friendly url
  *
  * @since  1.0

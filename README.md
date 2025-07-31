@@ -2,14 +2,14 @@
 
 ![Distributor](https://github.com/10up/distributor/blob/develop/assets/img/banner-1544x500.png)
 
-[![Support Level](https://img.shields.io/badge/support-active-green.svg)](#support-level) [![Release Version](https://img.shields.io/github/release/10up/distributor.svg)](https://github.com/10up/distributor/releases/latest) ![WordPress tested up to version](https://img.shields.io/badge/WordPress-v6.6%20tested-success.svg) [![License](https://img.shields.io/github/license/10up/distributor.svg)](https://github.com/10up/distributor/blob/develop/LICENSE.md) [![Dependency Review](https://github.com/10up/distributor/actions/workflows/dependency-review.yml/badge.svg)](https://github.com/10up/distributor/actions/workflows/dependency-review.yml)
+[![Support Level](https://img.shields.io/badge/support-active-green.svg)](#support-level) [![Release Version](https://img.shields.io/github/release/10up/distributor.svg)](https://github.com/10up/distributor/releases/latest) ![WordPress tested up to version](https://img.shields.io/badge/WordPress-v6.8%20tested-success.svg) [![License](https://img.shields.io/github/license/10up/distributor.svg)](https://github.com/10up/distributor/blob/develop/LICENSE.md) [![Dependency Review](https://github.com/10up/distributor/actions/workflows/dependency-review.yml/badge.svg)](https://github.com/10up/distributor/actions/workflows/dependency-review.yml) [![WordPress Playground Demo](https://img.shields.io/badge/Playground_Demo-8A2BE2?logo=wordpress&logoColor=FFFFFF&labelColor=3858E9&color=3858E9)](https://playground.wordpress.net/?blueprint-url=https://raw.githubusercontent.com/10up/distributor/refs/heads/develop/.github/blueprints/blueprint.json)
 [![E2E Tests](https://github.com/10up/distributor/actions/workflows/cypress.yml/badge.svg)](https://github.com/10up/distributor/actions/workflows/cypress.yml) [![PHPUnit Tests](https://github.com/10up/distributor/actions/workflows/test.yml/badge.svg)](https://github.com/10up/distributor/actions/workflows/test.yml) [![Linting](https://github.com/10up/distributor/actions/workflows/lint.yml/badge.svg)](https://github.com/10up/distributor/actions/workflows/lint.yml) [![Code scanning](https://github.com/10up/distributor/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/10up/distributor/actions/workflows/codeql-analysis.yml)
 
 > Distributor is a WordPress plugin that makes it easy to distribute and reuse content across your websites — whether in a single multisite or across the web.
 
 *You can learn more about Distributor's features at [DistributorPlugin.com](https://distributorplugin.com) and documentation at the [Distributor documentation site](https://10up.github.io/distributor/).*
 
-_Note:_ The latest stable version of the plugin is the _stable_ branch. [Download the stable branch]((https://github.com/10up/distributor/archive/stable.zip)) if you are intending to use the plugin in a Production environment.
+*Note:* The latest stable version of the plugin is the *stable* branch. [Download the stable branch]((https://github.com/10up/distributor/archive/stable.zip)) if you are intending to use the plugin in a Production environment.
 
 ## Overview
 
@@ -38,7 +38,7 @@ Distributor is built with the same extensible approach as WordPress itself, with
 ## Requirements
 
 * PHP 7.4+
-* [WordPress](http://wordpress.org) 6.4+
+* [WordPress](http://wordpress.org) 6.5+
 * External connections require HTTP Basic Authentication or [WordPress.com OAuth2](https://developer.wordpress.com/docs/oauth2/) (must be on [WordPress VIP](https://wpvip.com/)) be set up on the remote website. For Basic Auth, we recommend using [Application Passwords](https://make.wordpress.org/core/2020/11/05/application-passwords-integration-guide/#Getting-Credentials) built in to WordPress.
 * For external connections, Distributor needs to be installed on BOTH sides of the connection.
 * Version 2.0.0 of Distributor requires version 2.0.0 on BOTH sides of all connections. For other version 2.0.0 specific changes, please see our [migration guide](https://10up.github.io/distributor/tutorial-migration-guide-version-1-to-version-2.html).
@@ -115,7 +115,13 @@ With external connections, HTTP requests are sent back and forth - creating post
 
 ### Post Meta Associations
 
-A distributed post includes all of the post meta from the original version. Sometimes arbitrary post meta references an ID for another piece of content on the original site. Distributor _does not_ "bring along" the referenced content or update references for arbitrary post meta (it will take care of updating references in the case of core WordPress features, such as the featured image ID). This issue is very common when using field management plugins like Advanced Custom Fields (ACF). This can be addressed on a case by case basis by extending the plugin; for external connections, you can manually handle post meta associations using [the `dt_push_post` hook](https://github.com/10up/distributor/blob/f7b60740e679bce4671ccd69a670abadce4f2f93/includes/classes/ExternalConnections/WordPressExternalConnection.php#L646). For internal connections, use the [`dt_push_post` hook](https://10up.github.io/distributor/dt_push_post.html). Note that while named the same, these hooks accept different parameters.
+A distributed post includes all of the post meta from the original version. Sometimes arbitrary post meta references an ID for another piece of content on the original site. Distributor _does not_ "bring along" the referenced content or update references for arbitrary post meta (it will take care of updating references in the case of core WordPress features, such as the featured image ID). This issue is very common when using field management plugins like Advanced Custom Fields (ACF). This can be addressed on a case-by-case basis by extending the plugin. Distributor provides the `distributor_register_data` helper function for [stored ID handling](https://10up.github.io/distributor/tutorial-stored-id-handling.html). Additionally, for external connections, you can manually handle post meta associations using [the `dt_push_post` hook](https://github.com/10up/distributor/blob/f7b60740e679bce4671ccd69a670abadce4f2f93/includes/classes/ExternalConnections/WordPressExternalConnection.php#L646). For internal connections, use the [`dt_push_post` hook](https://10up.github.io/distributor/dt_push_post.html). Note that while named the same, these hooks accept different parameters.
+
+### Stored ID Handling
+
+Distributor often deals with data stored as ID references. This is common in WordPress, where IDs are used in block attributes, shortcodes, or post meta by popular plugins like ACF, Elementor, and Gravity Forms. However, when content is distributed to another site, these stored IDs may not match, leading to data loss or unexpected content.
+
+To address this, Distributor provides a helper function: `distributor_register_data`. This function allows developers to register data references, specify where the data is located, define how to extract the ID, and register callbacks to process the data on both the source and target sites. More information can be found [here](https://10up.github.io/distributor/tutorial-stored-id-handling.html).
 
 ### Deleting Distributed Posts
 
@@ -179,4 +185,4 @@ Please read [CODE_OF_CONDUCT.md](https://github.com/10up/distributor/blob/develo
 
 ## Like what you see?
 
-<a href="http://10up.com/contact/"><img src="https://10up.com/uploads/2016/10/10up-Github-Banner.png" width="850"></a>
+<a href="http://10up.com/contact/"><img src="https://github.com/10up/.github/blob/trunk/profile/10up-github-banner.jpg" width="850" alt="Work with the 10up WordPress Practice at Fueled"></a>

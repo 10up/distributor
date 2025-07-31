@@ -1733,6 +1733,7 @@ class DistributorPostTest extends TestCase {
 			'distributor_original_site_url'  => 'http://test.com',
 			'distributor_original_post_url'  => 'http://example.org/?p=1',
 			'distributor_original_post_id'   => 1,
+			'distributor_extra_data'         => array(),
 		);
 
 		$this->assertSame( $post_data_expected, $post_data_actual, 'Post data is not in an expected form' );
@@ -1781,6 +1782,7 @@ class DistributorPostTest extends TestCase {
 			'distributor_original_site_name' => 'Test Internal Origin',
 			'distributor_original_site_url'  => 'http://test.com',
 			'distributor_original_post_url'  => 'http://example.org/?p=1',
+			'distributor_extra_data'         => array(),
 			'distributor_remote_post_id'     => 1,
 
 		);
@@ -1892,6 +1894,7 @@ class DistributorPostTest extends TestCase {
 			'distributor_original_site_url'  => 'http://test.com',
 			'distributor_original_post_url'  => 'http://example.org/?p=1',
 			'distributor_original_post_id'   => 1,
+			'distributor_extra_data'         => array(),
 		);
 
 		$this->assertSame( $post_data_expected, $post_data_actual, 'Post data is not in an expected form' );
@@ -1938,6 +1941,7 @@ class DistributorPostTest extends TestCase {
 			'distributor_original_site_name' => 'Test Internal Origin',
 			'distributor_original_site_url'  => 'http://test.com',
 			'distributor_original_post_url'  => 'http://example.org/?p=1',
+			'distributor_extra_data'         => array(),
 			'distributor_remote_post_id'     => 1,
 
 		);
@@ -2072,6 +2076,7 @@ class DistributorPostTest extends TestCase {
 			'distributor_original_site_url'  => 'http://test.com',
 			'distributor_original_post_url'  => 'http://example.org/?p=1',
 			'distributor_original_post_id'   => 1,
+			'distributor_extra_data'         => array(),
 		);
 
 		$this->assertSame( $post_data_expected, $post_data_actual, 'Post data is not in an expected form' );
@@ -2118,6 +2123,7 @@ class DistributorPostTest extends TestCase {
 			'distributor_original_site_name' => 'Test Internal Origin',
 			'distributor_original_site_url'  => 'http://test.com',
 			'distributor_original_post_url'  => 'http://example.org/?p=1',
+			'distributor_extra_data'         => array(),
 			'distributor_remote_post_id'     => 1,
 			'distributor_raw_content'        => '<!-- wp:paragraph --><p>Test Content</p><!-- /wp:paragraph -->',
 		);
