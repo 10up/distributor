@@ -17,6 +17,24 @@ function setup() {
 		return __NAMESPACE__ . "\\$function";
 	};
 
+	if ( ! enabled() ) {
+		return;
+	}
+
+	add_action( 'publish_post', $n( 'schedule_post_for_auto_distribution' ), 10 );
+	add_action( 'dt_auto_distribute', $n( 'distribute_post_to_all_connections' ), 10, 2 );
+}
+
+/**
+ * Whether auto-distribution is enabled.
+ *
+ * Default is false, see the filter `dt_auto_distribution_enabled` to enable it.
+ *
+ * @since x.x.x
+ *
+ * @return bool Whether the auto-distribution feature is enabled.
+ */
+function enabled() {
 	/**
 	 * Filter whether auto-distribution is enabled.
 	 *
@@ -36,12 +54,7 @@ function setup() {
 	 *
 	 * @return {bool} Whether the auto-distribution feature is enabled.
 	 */
-	if ( ! apply_filters( 'dt_auto_distribution_enabled', false ) ) {
-		return;
-	}
-
-	add_action( 'publish_post', $n( 'schedule_post_for_auto_distribution' ), 10 );
-	add_action( 'dt_auto_distribute', $n( 'distribute_post_to_all_connections' ), 10, 2 );
+	return apply_filters( 'dt_auto_distribution_enabled', false );
 }
 
 /**
