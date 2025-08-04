@@ -58,6 +58,31 @@ function enabled() {
 }
 
 /**
+ * Return supported post types.
+ *
+ * By default, this is post and page but that
+ * value can be filtered.
+ *
+ * @since x.x.x
+ *
+ * @return string[] Array of post types that can be auto-distributed.
+ */
+function auto_distribute_supported_post_types() {
+	$post_types = array( 'post', 'page' );
+	/**
+	 * Filter the post types that are auto-distributable.
+	 *
+	 * @since x.x.x
+	 * @hook auto_distribute_supported_post_types
+	 *
+	 * @param {string[]} $post_types Array of post types that can be auto-distributed.
+	 *                             Default is array( 'post', 'page' ).
+	 * @return {string[]} Array of post types that can be auto-distributed.
+	 */
+	return apply_filters( 'auto_distribute_supported_post_types', $post_types );
+}
+
+/**
  * Schedule a post for auto distribution.
  *
  * Create a scheduled event to distribute the post to all connections,
@@ -70,6 +95,11 @@ function schedule_post_for_auto_distribution( $post = 0, $user_id = 0 ) {
 	$post = get_post( $post );
 
 	if ( ! $post ) {
+		return;
+	}
+
+	if ( ! in_array( $post->post_type, auto_distribute_supported_post_types(), true ) ) {
+		// If the post type is not supported, do not schedule for distribution.
 		return;
 	}
 
@@ -98,6 +128,11 @@ function distribute_post_to_all_connections( $post = 0, $user_id = 0 ) {
 	$post = get_post( $post );
 
 	if ( ! $post || ! $user_id ) {
+		return;
+	}
+
+	if ( ! in_array( $post->post_type, auto_distribute_supported_post_types(), true ) ) {
+		// If the post type is not supported, do not auto distribute.
 		return;
 	}
 
