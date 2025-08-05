@@ -58,6 +58,34 @@ function enabled() {
 }
 
 /**
+ * Return the default post status for auto-distributed posts.
+ *
+ * This is the default status that will be applied to auto-distributed posts
+ * on the distribution site.
+ *
+ * @since x.x.x
+ *
+ * @param int|\WP_Post $post Post ID or WP_Post object for the post being pushed.
+ * @return string Default status for auto-distributed posts.
+ *                Default is 'publish'.
+ */
+function default_post_status( $post ) {
+	$post = get_post( $post );
+	/**
+	 * Filter the default status for auto-distributed posts.
+	 *
+	 * @since x.x.x
+	 * @hook dt_auto_distribution_default_status
+	 *
+	 * @param {string}       $status Default status for auto-distributed posts. Default 'publish'.
+	 * @param {int|\WP_Post} $post   Post ID or WP_Post object for the post being pushed.
+	 *
+	 * @return {string} Default status for auto-distributed posts.
+	 */
+	return apply_filters( 'dt_auto_distribution_default_status', 'publish', $post );
+}
+
+/**
  * Return supported post types.
  *
  * By default, this is post and page but that
@@ -196,7 +224,10 @@ function distribute_post( $post_id = 0, $user_id = 0, $connection_id = 0, $conne
 	if ( empty( $connection_map['external'] ) ) {
 		$connection_map['external'] = [];
 	}
-	$remote_post = $connection->push( $post_id );
+	$args        = array(
+		'post_status' => default_post_status( $post ),
+	);
+	$remote_post = $connection->push( $post_id, $args );
 	if ( ! is_wp_error( $remote_post ) && ! empty( $remote_post['id'] ) ) {
 		// Store the connection mapping
 		$connection_map[ $connection_type ][ $connection_id ] = [
