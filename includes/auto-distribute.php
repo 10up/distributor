@@ -171,6 +171,12 @@ function distribute_post( $post_id = 0, $user_id = 0, $connection_id = 0, $conne
 		return;
 	}
 
+	// Make sure we have a proper user set up
+	if ( ! $user_id ) {
+		$user_id = get_current_user_id();
+	}
+	wp_set_current_user( $user_id );
+
 	if ( 'external' === $connection_type ) {
 		$connection = \Distributor\ExternalConnection::instantiate( $connection_id );
 	} elseif ( 'internal' === $connection_type ) {
