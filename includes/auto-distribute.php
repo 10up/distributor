@@ -108,7 +108,7 @@ function schedule_post_for_auto_distribution( $post = 0, $user_id = 0 ) {
 		return;
 	}
 
-	$user_id = $user_id ?? get_current_user_id();
+	$user_id = $user_id ? $user_id : get_current_user_id();
 
 	if ( ! wp_next_scheduled( 'dt_auto_distribute', [ $post->ID, $user_id ] ) ) {
 		wp_schedule_single_event( time(), 'dt_auto_distribute', [ $post->ID, $user_id ] );
