@@ -7,6 +7,8 @@
 
 namespace Distributor\API;
 
+use Distributor\RegisteredDataHandler;
+
 /**
  * Subscription controller REST API class
  */
@@ -225,7 +227,15 @@ class SubscriptionsController extends \WP_REST_Controller {
 			// Process registered custom data.
 			$registered_data = distributor_get_registered_data();
 			if ( ! empty( $registered_data ) ) {
-				$request['post_data'] = \Distributor\Utils\process_registered_data( $request['post_data'], true );
+				$connection_data = array(
+					'connection_type'           => 'external',
+					'connection_direction'      => 'pull',
+					'connection_id'             => get_post_meta( (int) $request['post_id'], 'dt_original_source_id', true ),
+					'subscription_notification' => true,
+				);
+
+				$registered_data_handler = new RegisteredDataHandler( $connection_data );
+				$request['post_data']    = $registered_data_handler->process_registered_data( $request['post_data'], true );
 			}
 
 			// When both sides of a subscription connection support Gutenberg, update with the raw content.
