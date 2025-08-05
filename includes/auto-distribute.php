@@ -86,6 +86,43 @@ function default_post_status( $post ) {
 }
 
 /**
+ * Determine if a post should be auto-distributed.
+ *
+ * This function checks if the post should be auto-distributed based on filters.
+ *
+ * @since x.x.x
+ *
+ * @param int|\WP_Post $post             Post ID or WP_Post object for the post being pushed.
+ * @param int          $user_id          User ID of the user pushing the post.
+ * @param string       $connection_type  Type of connection ('external' or 'internal').
+ * @param int          $connection_id    Connection ID.
+ *
+ * @return bool Whether the post should be auto-distributed.
+ */
+function auto_distribute_post( $post, $user_id, $connection_type, $connection_id ) {
+	$post = get_post( $post );
+	if ( ! $post ) {
+		return false;
+	}
+
+	/**
+	 * Filter to determine if a post should be auto-distributed.
+	 *
+	 * @since x.x.x
+	 * @hook dt_auto_distribute_post
+	 *
+	 * @param {bool}     $should_distribute Whether the post should be auto-distributed.
+	 * @param {\WP_Post} $post              WP_Post object for the post being pushed.
+	 * @param {int}      $user_id           User ID of the user pushing the post.
+	 * @param {string}   $connection_type   Type of connection ('external' or 'internal').
+	 * @param {int}      $connection_id     Connection ID.
+	 *
+	 * @return {bool} Whether the post should be auto-distributed.
+	 */
+	return apply_filters( 'dt_auto_distribute_post', true, $post, $user_id, $connection_type, $connection_id );
+}
+
+/**
  * Return supported post types.
  *
  * By default, this is post and page but that
@@ -196,6 +233,11 @@ function distribute_post( $post_id = 0, $user_id = 0, $connection_id = 0, $conne
 	$post = get_post( $post_id );
 
 	if ( ! $post || ! $user_id || ! $connection_id || ! $connection_type ) {
+		return;
+	}
+
+	if ( ! auto_distribute_post( $post, $user_id, $connection_type, $connection_id ) ) {
+		// The post should not be auto-distributed, do not proceed.
 		return;
 	}
 
