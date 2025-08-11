@@ -647,6 +647,14 @@ class PullListTable extends \WP_List_Table {
 	 * @param string $which Whether above or below the table.
 	 */
 	public function extra_tablenav( $which ) {
+
+		/**
+		 * This is to avoid the filter being displayed twice with the same HTML id.
+		 */
+		if ( 'bottom' === $which ) {
+			return;
+		}
+
 		global $connection_now;
 
 		if ( is_a( $connection_now, '\Distributor\InternalConnections\NetworkSiteConnection' ) ) {
