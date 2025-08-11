@@ -601,11 +601,21 @@ function generate_taxonomy_links( $taxonomy, $post, $terms = [] ) {
  * @return string The formatted link string.
  */
 function get_edit_link( $args, $link_text, $css_class = '' ) {
+
+	global $connection_now;
+
+	// Get the admin URL for the current connection.
 	$url = '';
-	if ( is_internal_connection() ) {
-		$url = add_query_arg( $args, get_admin_url( null, 'edit.php' ) );
-	} else {
-		$url = add_query_arg( $args, trailingslashit( get_root_url() ) . 'wp-admin/edit.php' );
+	if ( is_a( $connection_now, '\Distributor\InternalConnections\NetworkSiteConnection' ) ) {
+		$url = add_query_arg( $args, get_admin_url( $connection_now->site->blog_id, 'edit.php' ) );
+	} elseif ( is_a( $connection_now, '\Distributor\ExternalConnection' ) && ! empty( $connection_now->base_url ) ) {
+		$base_url = str_replace( '/wp-json', '', $connection_now->base_url );
+		$url      = add_query_arg( $args, trailingslashit( $base_url ) . 'wp-admin/edit.php' );
+	}
+
+	// If the URL is empty, return an empty string.
+	if ( empty( $url ) ) {
+		return '';
 	}
 
 	$class_html   = '';
@@ -629,65 +639,6 @@ function get_edit_link( $args, $link_text, $css_class = '' ) {
 		$aria_current,
 		$link_text
 	);
-}
-
-/**
- * Is current connection an external connection?
- *
- * @since 2.0.5
- *
- * @return boolean
- */
-function is_external_connection() {
-	global $connection_now;
-
-	return is_a( $connection_now, '\Distributor\ExternalConnection' );
-}
-
-/**
- * Is current connection an internal connection?
- *
- * @since 2.0.5
- *
- * @return boolean
- */
-function is_internal_connection() {
-	global $connection_now;
-
-	return is_a( $connection_now, '\Distributor\InternalConnections\NetworkSiteConnection' );
-}
-
-/**
- * Get the root URL of the current connection
- *
- * @since 2.0.5
- *
- * @return string
- */
-function get_root_url() {
-	$base_url = get_conn_base_url();
-
-	return str_replace( '/wp-json', '', $base_url );
-}
-
-/**
- * Get the base URL of the current connection
- *
- * @since 2.0.5
- *
- * @return string
- */
-function get_conn_base_url() {
-	if ( ! is_external_connection() ) {
-		return get_site_url();
-	}
-	global $connection_now;
-
-	if ( ! $connection_now || ! property_exists( $connection_now, 'base_url' ) ) {
-		return '';
-	}
-
-	return $connection_now->base_url;
 }
 
 /**
