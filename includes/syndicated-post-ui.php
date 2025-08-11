@@ -79,18 +79,23 @@ function output_distributor_column( $column_name, $post_id ) {
 		$original_blog_id   = get_post_meta( $post_id, 'dt_original_blog_id', true );
 		$original_source_id = get_post_meta( $post_id, 'dt_original_source_id', true );
 		$original_deleted   = (bool) get_post_meta( $post_id, 'dt_original_post_deleted', true );
+		$connection_map     = get_post_meta( $post_id, 'dt_connection_map', true );
 
-		if ( ( empty( $original_blog_id ) && empty( $original_source_id ) ) || $original_deleted ) {
-			echo '—';
+		if ( ( ( empty( $original_blog_id ) && empty( $original_source_id ) ) || $original_deleted ) && ! $connection_map ) {
+			echo '';
 		} else {
-			$unlinked         = (bool) get_post_meta( $post_id, 'dt_unlinked', true );
-			$post_type_object = get_post_type_object( get_post_type( $post_id ) );
-			$post_url         = get_post_meta( $post_id, 'dt_original_post_url', true );
-
-			if ( $unlinked ) {
-				echo '<a href="' . esc_url( $post_url ) . '"><img class="dt-unlinked" src="' . esc_url( plugins_url( 'assets/img/icon.svg', __DIR__ ) ) . '" alt="' . esc_attr__( 'Unlinked', 'distributor' ) . '" title="' . esc_attr__( 'Unlinked', 'distributor' ) . '"></a>';
+			if ( $connection_map ) {
+				// When a post is pushed from current site or pulled by other sites.
+				echo '<span title="' . esc_attr__( 'Pushed', 'distributor' ) . '" class="dashicons dashicons-admin-page"></span>';
 			} else {
-				echo '<a href="' . esc_url( $post_url ) . '"><img src="' . esc_url( plugins_url( 'assets/img/icon.svg', __DIR__ ) ) . '" alt="' . esc_attr__( 'Linked', 'distributor' ) . '" title="' . esc_attr__( 'Linked', 'distributor' ) . '"></a>';
+				$unlinked = (bool) get_post_meta( $post_id, 'dt_unlinked', true );
+				$post_url = get_post_meta( $post_id, 'dt_original_post_url', true );
+	
+				if ( $unlinked ) {
+					echo '<a target="_blank" href="' . esc_url( $post_url ) . '"><span title="' . esc_attr__( 'Unlinked', 'distributor' ) . '" class="dashicons dashicons-editor-unlink"></span></span></a>';
+				} else {
+					echo '<a target="_blank" href="' . esc_url( $post_url ) . '"><span title="' . esc_attr__( 'Linked', 'distributor' ) . '" class="dashicons dashicons-admin-links"></span></a>';
+				}               
 			}
 		}
 	}
@@ -373,12 +378,12 @@ function link() {
 
 		if ( ! empty( $update ) ) {
 			wp_update_post(
-				[
+				array(
 					'ID'           => $post_id,
 					'post_title'   => $update['post_title'],
 					'post_content' => $update['post_content'],
 					'post_excerpt' => $update['post_excerpt'],
-				]
+				)
 			);
 
 			if ( null !== $update['meta'] ) {
@@ -640,7 +645,7 @@ function enqueue_gutenberg_edit_scripts() {
 		'gutenberg-syndicated-post.min'
 	);
 
-	$localize_data = [
+	$localize_data = array(
 		'originalBlogId'       => (int) $original_blog_id,
 		'originalPostId'       => (int) $original_post_id,
 		'originalSourceId'     => (int) $original_source_id,
@@ -658,7 +663,7 @@ function enqueue_gutenberg_edit_scripts() {
 		'supportedPostStati'   => \Distributor\Utils\distributable_post_statuses(),
 		// Filter documented in includes/push-ui.php.
 		'noPermissions'        => ! is_user_logged_in() || ! current_user_can( apply_filters( 'dt_syndicatable_capabilities', 'edit_posts' ) ),
-	];
+	);
 
 	$gutenberg_syndicated_post_script
 		->load_in_footer()

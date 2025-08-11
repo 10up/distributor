@@ -4,7 +4,20 @@ import jQuery from 'jquery';
 import { addQueryArgs } from '@wordpress/url';
 import { __ } from '@wordpress/i18n';
 
-const { document } = window;
+const { document, DISTRIBUTOR } = window;
+const { getPullUrl } = DISTRIBUTOR;
+
+/**
+ * Escape special characters in URL components.
+ *
+ * @param {string} str The string to escape.
+ * @return {string} The escaped string.
+ */
+const escapeURLComponent = ( str ) => {
+	return encodeURIComponent( str ).replace( /[!'()*]/g, ( c ) => {
+		return '%' + c.charCodeAt( 0 ).toString( 16 );
+	} );
+};
 
 const chooseConnection = document.getElementById( 'pull_connections' );
 const choosePostType = document.getElementById( 'pull_post_type' );
@@ -17,11 +30,12 @@ const asDraftCheckboxes = document.querySelectorAll( '[name=dt_as_draft]' );
 const pullLinks = document.querySelectorAll( '.distributor_page_pull .pull a' );
 
 jQuery( chooseConnection ).on( 'change', ( event ) => {
-	document.location =
+	const pullUrlId =
 		event.currentTarget.options[
 			event.currentTarget.selectedIndex
-		].getAttribute( 'data-pull-url' );
+		].getAttribute( 'data-pull-url-id' );
 
+	document.location = getPullUrl( pullUrlId );
 	document.body.className += ' ' + 'dt-loading';
 } );
 
@@ -40,7 +54,7 @@ if ( chooseConnection && ( choosePostType || choosePostCategory ) && form ) {
 		jQuery( searchBtn ).on( 'click', ( event ) => {
 			event.preventDefault();
 
-			const search = searchField.value;
+			const search = encodeURIComponent( searchField.value );
 
 			document.location = `${ getURL() }&s=${ search }`;
 
@@ -83,14 +97,17 @@ if ( chooseConnection && ( choosePostType || choosePostCategory ) && form ) {
  * @return {string} Distribution URL.
  */
 const getURL = () => {
-	const postType =
-		choosePostType.options[ choosePostType.selectedIndex ].value;
+	const postType = escapeURLComponent(
+		choosePostType.options[ choosePostType.selectedIndex ].value
+	);
 	const postCategory =
 		choosePostCategory.options[ choosePostCategory.selectedIndex ].value;
-	const baseURL =
+	const pullUrlId = escapeURLComponent(
 		chooseConnection.options[ chooseConnection.selectedIndex ].getAttribute(
-			'data-pull-url'
-		);
+			'data-pull-url-id'
+		)
+	);
+	const baseURL = getPullUrl( pullUrlId );
 	let status = 'new';
 
 	if ( -1 < ` ${ form.className } `.indexOf( ' status-skipped ' ) ) {

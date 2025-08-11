@@ -273,7 +273,7 @@ class PullListTable extends \WP_List_Table {
 	 * @param  string         $column_name Column name.
 	 *
 	 * @return string.
-	 * @since  2.0.5
+	 * @since  0.8
 	 */
 	public function column_default( $item, $column_name ) {
 		if ( 'post_type' === $column_name ) {

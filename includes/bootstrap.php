@@ -62,6 +62,13 @@ add_filter(
 	}
 );
 
+/**
+ * Global registry for distributor data.
+ *
+ * @var array
+*/
+global $distributor_registered_data;
+
 \Distributor\Connections::factory();
 
 // Include in case we have composer issues.
