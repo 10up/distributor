@@ -494,14 +494,12 @@ function dashboard() {
 				<?php
 				$connection_now->pull_post_type  = '';
 				$connection_now->pull_post_types = \Distributor\Utils\available_pull_post_types( $connection_now, $connection_type );
-				$connection_now->pull_post_categories = \Distributor\Utils\available_pull_post_categories( $connection_now, $connection_type );
-
-				// Ensure we have at least one post type to pull.
-				$connection_now->pull_post_type = '';
-				$connection_now->pull_post_category = '';
 				if ( ! empty( $connection_now->pull_post_types ) ) {
 					$connection_now->pull_post_type = 'all';
 				}
+
+				$connection_now->pull_post_category   = '';
+				$connection_now->pull_post_categories = \Distributor\Utils\available_pull_post_categories( $connection_now, $connection_type );
 				if ( ! empty( $connection_now->pull_post_categories ) ) {
 					$connection_now->pull_post_category = 'all';
 				}
@@ -530,7 +528,7 @@ function dashboard() {
 							break;
 						}
 					} else {
-						$connection_now->pull_post_category = $post_category['slug'];
+						$connection_now->pull_post_category = 'all';
 					}
 				}
 				?>

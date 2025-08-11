@@ -77,14 +77,14 @@ class WordPressExternalConnection extends ExternalConnection {
 	 *
 	 * @var string
 	 */
-	public $category;
+	public $pull_post_category;
 
 	/**
 	 * Default posts categories to show in filter.
 	 *
 	 * @var string
 	 */
-	public $categories;
+	public $pull_post_categories;
 
 	/**
 	 * This is a utility function for parsing annoying API link headers returned by the types endpoint

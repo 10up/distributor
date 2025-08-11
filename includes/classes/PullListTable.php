@@ -471,13 +471,13 @@ class PullListTable extends \WP_List_Table {
 			}
 
 			if ( empty( $connection_now->pull_post_category ) || 'all' === $connection_now->pull_post_category ) {
-				$post_category = wp_list_pluck( $connection_now->pull_post_post_categories, 'slug' );
+				$post_category = wp_list_pluck( $connection_now->pull_post_categories, 'slug' );
 			} else {
 				$post_category = $connection_now->pull_post_category;
 			}
 		} else {
-			$post_type = $connection_now->pull_post_type ? $connection_now->pull_post_type : 'post';
-			$post_category = $connection_now->pull_post_category ? $connection_now->pull_post_category : '';
+			$post_type     = $connection_now->pull_post_type ? $connection_now->pull_post_type : 'post';
+			$post_category = $connection_now->pull_post_category ? $connection_now->pull_post_category : 'all';
 		}
 
 		$remote_get_args = [
