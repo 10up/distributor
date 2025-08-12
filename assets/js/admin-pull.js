@@ -172,7 +172,9 @@ const getURL = () => {
 		pullTaxonomies.forEach( ( taxonomyField ) => {
 			if ( jQuery( taxonomyField ).hasClass( 'show' ) ) {
 				taxonomies += `${ taxonomyField.id }=${
-					taxonomyField.options[ taxonomyField.selectedIndex ].value
+					escapeURLComponent(
+						taxonomyField.options[ taxonomyField.selectedIndex ].value
+					)
 				}&`;
 			}
 		} );
