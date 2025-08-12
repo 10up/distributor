@@ -55,13 +55,29 @@ class PullListTable extends \WP_List_Table {
 	 * @return array
 	 */
 	public function get_columns() {
+
+		global $connection_now;
+
 		$columns = [
-			'cb'         => '<input type="checkbox" />',
-			'name'       => esc_html__( 'Name', 'distributor' ),
-			'post_type'  => esc_html__( 'Post Type', 'distributor' ),
-			'categories' => esc_html__( 'Categories', 'distributor' ),
-			'date'       => esc_html__( 'Date', 'distributor' ),
+			'cb'        => '<input type="checkbox" />',
+			'name'      => esc_html__( 'Name', 'distributor' ),
+			'post_type' => esc_html__( 'Post Type', 'distributor' ),
 		];
+
+		/**
+		 * Dynamically add the taxonomies to the columns, only if the post type supports the taxonomy.
+		 */
+		if ( ! empty( $connection_now->pull_taxonomy_terms ) ) {
+
+			foreach ( $connection_now->pull_taxonomy_terms as $taxonomy => $taxonomy_data ) {
+
+				if ( ! empty( $taxonomy_data['post_types'] ) && in_array( $connection_now->pull_post_type, $taxonomy_data['post_types'], true ) ) {
+					$columns[ $taxonomy ] = $taxonomy_data['label'];
+				}
+			}
+		}
+
+		$columns['date'] = esc_html__( 'Date', 'distributor' );
 
 		/**
 		 * Filters the columns displayed in the pull list table.
@@ -251,22 +267,6 @@ class PullListTable extends \WP_List_Table {
 	}
 
 	/**
-	 * Output categories column.
-	 *
-	 * @param  \WP_Post $post Post object.
-	 * @since  2.0.5
-	 */
-	public function column_categories( $post ) {
-		$categories = $post->terms['category'] ?? [];
-
-		if ( empty( $categories ) ) {
-			return;
-		}
-
-		echo wp_kses_post( generate_taxonomy_links( 'category', $post, $categories ) );
-	}
-
-	/**
 	 * Output standard table columns.
 	 *
 	 * @param  array|\WP_Post $item Item to output.
@@ -276,11 +276,30 @@ class PullListTable extends \WP_List_Table {
 	 * @since  0.8
 	 */
 	public function column_default( $item, $column_name ) {
+
+		global $connection_now;
+
 		if ( 'post_type' === $column_name ) {
 			$post_type = get_post_type_object( $item->post_type );
 
 			if ( $post_type && isset( $post_type->labels->singular_name ) ) {
 				return $post_type->labels->singular_name;
+			}
+		}
+
+		// If the post type supports the taxonomy, output the taxonomy links.
+		if ( ! empty( $connection_now->pull_taxonomy_terms ) ) {
+
+			foreach ( $connection_now->pull_taxonomy_terms as $taxonomy => $taxonomy_data ) {
+
+				// If the post type does not support the taxonomy, skip it.
+				if ( empty( $taxonomy_data['post_types'] ) || ! in_array( $connection_now->pull_post_type, $taxonomy_data['post_types'], true ) ) {
+					continue;
+				}
+
+				if ( $column_name === $taxonomy ) {
+					return wp_kses_post( generate_taxonomy_links( $taxonomy, $item, $item->terms[ $taxonomy ] ) );
+				}
 			}
 		}
 
