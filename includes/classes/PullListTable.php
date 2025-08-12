@@ -480,6 +480,23 @@ class PullListTable extends \WP_List_Table {
 			$remote_get_args['s'] = rawurlencode( $_GET['s'] ); // @codingStandardsIgnoreLine Nonce isn't required.
 		}
 
+		// Add taxonomy filters to the remote get arguments.
+		if ( ! empty( $connection_now->pull_taxonomy_terms ) ) {
+
+			foreach ( $connection_now->pull_taxonomy_terms as $taxonomy => $taxonomy_data ) {
+
+				if ( 'all' === $connection_now->pull_taxonomy_term[ $taxonomy ] ) {
+					continue;
+				}
+
+				$remote_get_args['tax_query'][] = array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query
+					'taxonomy' => $taxonomy,
+					'field'    => 'slug',
+					'terms'    => $connection_now->pull_taxonomy_term[ $taxonomy ],
+				);
+			}
+		}
+
 		if ( is_a( $connection_now, '\Distributor\ExternalConnection' ) ) {
 			$this->sync_log = get_post_meta( $connection_now->id, 'dt_sync_log', true );
 		} else {
@@ -626,12 +643,29 @@ class PullListTable extends \WP_List_Table {
 	 * @param string $which Whether above or below the table.
 	 */
 	public function extra_tablenav( $which ) {
+
+		/**
+		 * This is to avoid the filter being displayed twice with the same HTML id.
+		 */
+		if ( 'bottom' === $which ) {
+			return;
+		}
+
 		global $connection_now;
 
 		if ( is_a( $connection_now, '\Distributor\InternalConnections\NetworkSiteConnection' ) ) {
 			$connection_type = 'internal';
 		} else {
 			$connection_type = 'external';
+		}
+
+		// Check if there are any filters applied.
+		$has_filters = false;
+		foreach ( $connection_now->pull_taxonomy_term as $taxonomy => $selected_term ) {
+			if ( 'all' !== $selected_term ) {
+				$has_filters = true;
+				break;
+			}
 		}
 
 		if ( $connection_now && $connection_now->pull_post_types ) :
@@ -644,12 +678,46 @@ class PullListTable extends \WP_List_Table {
 						<?php esc_html_e( 'View all', 'distributor' ); ?>
 					</option>
 					<?php foreach ( $connection_now->pull_post_types as $post_type ) : ?>
-						<option <?php selected( $connection_now->pull_post_type, $post_type['slug'] ); ?> value="<?php echo esc_attr( $post_type['slug'] ); ?>">
+						<option <?php selected( $connection_now->pull_post_type, $post_type['slug'] ); ?> value="<?php echo esc_attr( $post_type['slug'] ); ?>" data-taxonomies="<?php echo esc_attr( wp_json_encode( array_keys( $post_type['taxonomies'] ) ) ); ?>">
 							<?php echo esc_html( $post_type['name'] ); ?>
 						</option>
 					<?php endforeach; ?>
 				</select>
+				<?php if ( ! empty( $connection_now->pull_taxonomy_terms ) ) : ?>
+					<?php foreach ( $connection_now->pull_taxonomy_terms as $taxonomy => $taxonomy_data ) : ?>
+						<?php
+						$toggle_class = 'show';
+						if ( empty( $taxonomy_data['post_types'] ) || ! in_array( $connection_now->pull_post_type, $taxonomy_data['post_types'], true ) ) {
+							$toggle_class = 'hide';
+						}
+						?>
+						<select id="pull_<?php echo esc_attr( $taxonomy ); ?>" name="pull_<?php echo esc_attr( $taxonomy ); ?>" class="pull-taxonomy <?php echo esc_attr( $toggle_class ); ?>">
+							<option <?php selected( $connection_now->pull_taxonomy_term[ $taxonomy ], 'all' ); ?> value="all">
+								<?php
+								printf(
+									/* translators: %s: taxonomy label */
+									esc_html__( 'All %s', 'distributor' ),
+									esc_html( $taxonomy_data['label'] )
+								);
+								?>
+							</option>
+							<?php foreach ( $taxonomy_data['items'] as $term ) : ?>
+								<option <?php selected( $connection_now->pull_taxonomy_term[ $taxonomy ], $term['slug'] ); ?> value="<?php echo esc_attr( $term['slug'] ); ?>">
+									<?php echo esc_html( $term['name'] ); ?>
+								</option>
+							<?php endforeach; ?>
+						</select>
+					<?php endforeach; ?>
+				<?php endif; ?>
 				<input type="submit" name="filter_action" id="pull_post_type_submit" class="button" value="<?php esc_attr_e( 'Filter', 'distributor' ); ?>">
+
+				<?php
+				if ( $has_filters ) :
+					?>
+					<input type="submit" name="reset_filters" id="pull_post_type_reset"  class="button dt-reset-filters-button" value="<?php esc_attr_e( 'Reset Filters', 'distributor' ); ?>">
+					<?php
+				endif;
+				?>
 
 				<?php
 				// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- nonce is not required.

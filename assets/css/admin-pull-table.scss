@@ -18,6 +18,21 @@
 			padding-left: 10px;
 		}
 	}
+
+	.pull-taxonomy {
+
+		&.hide {
+			display: none;
+		}
+
+		&.show {
+			display: block;
+		}
+	}
+
+	.dt-reset-filters-button {
+		margin-left: 6px
+	}
 }
 
 .wp-list-table .disabled {

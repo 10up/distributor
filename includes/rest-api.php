@@ -378,6 +378,44 @@ function get_pull_content_list_args() {
 				'title',
 			),
 		),
+		'tax_query'      => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query
+			'description' => esc_html__( 'Filter posts by taxonomy terms.', 'distributor' ),
+			'type'        => 'array',
+			'items'       => array(
+				'type'       => 'object',
+				'properties' => array(
+					'taxonomy'         => array(
+						'description' => esc_html__( 'Taxonomy name.', 'distributor' ),
+						'type'        => 'string',
+					),
+					'field'            => array(
+						'description' => esc_html__( 'Field to match terms by (slug, term_id, name).', 'distributor' ),
+						'type'        => 'string',
+						'enum'        => array( 'slug', 'term_id', 'name' ),
+						'default'     => 'slug',
+					),
+					'terms'            => array(
+						'description' => esc_html__( 'Term(s) to filter by.', 'distributor' ),
+						'type'        => array( 'array', 'string', 'integer' ),
+						'items'       => array(
+							'type' => array( 'string', 'integer' ),
+						),
+					),
+					'operator'         => array(
+						'description' => esc_html__( 'Taxonomy query operator.', 'distributor' ),
+						'type'        => 'string',
+						'enum'        => array( 'IN', 'NOT IN', 'AND', 'EXISTS', 'NOT EXISTS' ),
+						'default'     => 'IN',
+					),
+					'include_children' => array(
+						'description' => esc_html__( 'Whether to include child terms.', 'distributor' ),
+						'type'        => 'boolean',
+						'default'     => true,
+					),
+				),
+				'required'   => array( 'taxonomy', 'terms' ),
+			),
+		),
 	);
 }
 
@@ -667,6 +705,11 @@ function get_pull_content_list( $request ) {
 	if ( ! empty( $request['search'] ) ) {
 		$args['s']       = rawurldecode( $request['search'] );
 		$args['orderby'] = 'relevance';
+	}
+
+	// Add the tax query to the query args.
+	if ( isset( $request['tax_query'] ) ) {
+		$args['tax_query'] = $request['tax_query']; // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query
 	}
 
 	if ( ! empty( $request['exclude'] ) && ! empty( $request['include'] ) ) {
