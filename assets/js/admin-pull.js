@@ -45,6 +45,7 @@ if ( chooseConnection && choosePostType && form ) {
 	 * When the post type is changed, show/hide the taxonomy fields based on the post type.
 	 */
 	jQuery( choosePostType ).on( 'change', ( event ) => {
+		let shouldHideResetFiltersButton = false;
 		const selectedPostType =
 			event.currentTarget.options[ event.currentTarget.selectedIndex ];
 		if ( selectedPostType ) {
@@ -65,14 +66,34 @@ if ( chooseConnection && choosePostType && form ) {
 							jQuery( taxonomyField ).addClass( 'hide' );
 							jQuery( taxonomyField ).removeClass( 'show' );
 						}
+
+						if (
+							! shouldHideResetFiltersButton &&
+							'all' !==
+								taxonomyField.options[
+									taxonomyField.selectedIndex
+								].value
+						) {
+							shouldHideResetFiltersButton = true;
+						}
 					} );
 				} else {
 					pullTaxonomies.forEach( ( taxonomyField ) => {
 						jQuery( taxonomyField ).addClass( 'hide' );
 						jQuery( taxonomyField ).removeClass( 'show' );
 					} );
+
+					shouldHideResetFiltersButton = true;
 				}
 			}
+		}
+
+		if ( shouldHideResetFiltersButton ) {
+			jQuery( choosePostTypeReset ).addClass( 'hide' );
+			jQuery( choosePostTypeReset ).removeClass( 'show' );
+		} else {
+			jQuery( choosePostTypeReset ).addClass( 'show' );
+			jQuery( choosePostTypeReset ).removeClass( 'hide' );
 		}
 	} );
 
