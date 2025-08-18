@@ -59,7 +59,7 @@ describe( 'Internal Push', () => {
 			);
 
 			// Set Featured Image
-			cy.uploadMedia( 'assets/img/banner-772x250.png' ).then(
+			cy.uploadMedia( 'assets/img/browser-frame.jpg' ).then(
 				( media ) => {
 					if ( media && media.mediaId ) {
 						cy.wpCli(
