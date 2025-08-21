@@ -786,7 +786,7 @@ function generate_taxonomy_links( $taxonomy, $post, $terms = [] ) {
 
 			$label = esc_html( sanitize_term_field( 'name', $t->name, $t->term_id, $taxonomy, 'display' ) );
 
-			$term_links[] = get_edit_link( $posts_in_term_qv, $label );
+			$term_links[] = get_edit_link( $posts_in_term_qv, $label, '', true );
 		}
 
 		/**
@@ -816,13 +816,14 @@ function generate_taxonomy_links( $taxonomy, $post, $terms = [] ) {
  *
  * @since 2.0.5
  *
- * @param string[] $args      Associative array of URL parameters for the link.
- * @param string   $link_text Link text.
- * @param string   $css_class Optional. Class attribute. Default empty string.
+ * @param string[] $args                   Associative array of URL parameters for the link.
+ * @param string   $link_text              Link text.
+ * @param string   $css_class              Optional. Class attribute. Default empty string.
+ * @param bool     $should_open_in_new_tab Optional. Whether to open the link in a new tab. Default false.
  *
  * @return string The formatted link string.
  */
-function get_edit_link( $args, $link_text, $css_class = '' ) {
+function get_edit_link( $args, $link_text, $css_class = '', $should_open_in_new_tab = false ) {
 
 	global $connection_now;
 
@@ -842,6 +843,7 @@ function get_edit_link( $args, $link_text, $css_class = '' ) {
 
 	$class_html   = '';
 	$aria_current = '';
+	$target       = '';
 
 	if ( ! empty( $css_class ) ) {
 		$class_html = sprintf(
@@ -854,11 +856,16 @@ function get_edit_link( $args, $link_text, $css_class = '' ) {
 		}
 	}
 
+	if ( $should_open_in_new_tab ) {
+		$target = ' target="_blank"';
+	}
+
 	return sprintf(
-		'<a href="%s"%s%s>%s</a>',
+		'<a href="%s"%s%s%s>%s</a>',
 		esc_url( $url ),
 		$class_html,
 		$aria_current,
+		$target,
 		$link_text
 	);
 }
