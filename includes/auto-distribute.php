@@ -310,8 +310,20 @@ function get_external_connections( $post_id = 0, $user_id = 0 ) {
 			'post_type'      => 'dt_ext_connection',
 			'fields'         => 'ids',
 			'no_found_rows'  => true,
-			// phpcs:ignore WordPress.WP.PostsPerPage.posts_per_page_posts_per_page -- All connections need to be fetched.
-			'posts_per_page' => 550,
+			/**
+			 * Filter the maximum number of external connections to load.
+			 *
+			 * Modify the maximum number of external connection post types are
+			 * queried with requesting the post type.
+			 *
+			 * @hook dt_external_connections_per_page
+			 *
+			 * @since x.x.x
+			 *
+			 * @param {int} $max_connections The maximum number of external connections to load.
+			 * @return {int} The maximum number of external connections to load.
+			 */
+			'posts_per_page' => apply_filters( 'dt_external_connections_per_page', 200 ), // @codingStandardsIgnoreLine This high pagination limit is purposeful
 		]
 	);
 	// Prime posts and post meta caches. No terms for external connections.
