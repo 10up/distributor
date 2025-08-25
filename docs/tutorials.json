@@ -14,10 +14,10 @@
 	"snippets": {
 		"title": "Snippets"
 	},
-  "demo-with-playground": {
-    "title": "Demo with Playground"
-  },
-  "stored-id-handling": {
-    "title": "Stored ID Handling"
-  }
+	"demo-with-playground": {
+		"title": "Demo with Playground"
+	},
+	"stored-id-handling": {
+		"title": "Stored ID Handling"
+	}
 }
