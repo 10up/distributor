@@ -77,8 +77,8 @@ function default_post_status( $post ) {
 	 * @since x.x.x
 	 * @hook dt_auto_distribution_default_status
 	 *
-	 * @param {string}   $status Default status for auto-distributed posts. Default 'publish'.
-	 * @param {\WP_Post} $post   Post object for the post being pushed.
+	 * @param {string}  $status Default status for auto-distributed posts. Default 'publish'.
+	 * @param {WP_Post} $post   Post object for the post being pushed.
 	 *
 	 * @return {string} Default status for auto-distributed posts.
 	 */
@@ -111,11 +111,11 @@ function auto_distribute_post( $post, $user_id, $connection_type, $connection_id
 	 * @since x.x.x
 	 * @hook dt_auto_distribute_post
 	 *
-	 * @param {bool}     $should_distribute Whether the post should be auto-distributed.
-	 * @param {\WP_Post} $post              WP_Post object for the post being pushed.
-	 * @param {int}      $user_id           User ID of the user pushing the post.
-	 * @param {string}   $connection_type   Type of connection ('external' or 'internal').
-	 * @param {int}      $connection_id     Connection ID.
+	 * @param {bool}    $should_distribute Whether the post should be auto-distributed.
+	 * @param {WP_Post} $post              WP_Post object for the post being pushed.
+	 * @param {int}     $user_id           User ID of the user pushing the post.
+	 * @param {string}  $connection_type   Type of connection ('external' or 'internal').
+	 * @param {int}     $connection_id     Connection ID.
 	 *
 	 * @return {bool} Whether the post should be auto-distributed.
 	 */
