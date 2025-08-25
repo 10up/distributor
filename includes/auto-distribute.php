@@ -77,8 +77,8 @@ function default_post_status( $post ) {
 	 * @since x.x.x
 	 * @hook dt_auto_distribution_default_status
 	 *
-	 * @param {string}       $status Default status for auto-distributed posts. Default 'publish'.
-	 * @param {int|\WP_Post} $post   Post ID or WP_Post object for the post being pushed.
+	 * @param {string}   $status Default status for auto-distributed posts. Default 'publish'.
+	 * @param {\WP_Post} $post   Post object for the post being pushed.
 	 *
 	 * @return {string} Default status for auto-distributed posts.
 	 */
