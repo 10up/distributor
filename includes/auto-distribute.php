@@ -141,7 +141,7 @@ function auto_distribute_supported_post_types() {
 	 * @hook auto_distribute_supported_post_types
 	 *
 	 * @param {string[]} $post_types Array of post types that can be auto-distributed.
-	 *                             Default is array( 'post', 'page' ).
+	 *                               Default is array( 'post', 'page' ).
 	 * @return {string[]} Array of post types that can be auto-distributed.
 	 */
 	return apply_filters( 'auto_distribute_supported_post_types', $post_types );
