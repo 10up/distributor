@@ -1,0 +1,67 @@
+You can enable the automatic distribution of posts upon publication by togging on the "auto-distribute" feature.
+
+To enable auto-distribution, you can include this code in your site's feature plugin.
+
+```php
+	add_filter( 'dt_auto_distribution_enabled', '__return_true' );
+```
+
+With auto-distribution enabled, the following will occur:
+
+* upon publication, posts and pages will be pushed to all internal and external connections,
+* the default status for pushing posts is `publish`, and,
+* auto distribution is runs via cron jobs to avoid slowing down the publication process for users.
+
+## Filters
+
+The auto-distribution feature comes with a number of filters in additional to the one above.
+
+### Auto-distributed post types
+
+By default only posts and pages are auto-distributed. To enable auto-distribution of custom post
+types requires the `auto_distribute_supported_post_types` filter be used.
+
+To add a custom post type to supported post types would require the code:
+
+```php
+add_filter( 'auto_distribute_supported_post_types', function( $post_types ) {
+	$post_types[] = 'my_cpt';
+	return $post_types;
+} );
+```
+
+### Default post status.
+
+The `dt_auto_distribution_default_status` filter allows you to filter the default post status for
+distribution. To modify the default post status for one post type but not others, you can use the code:
+
+```php
+function ad_demo_modify_page_default_status( $default_status, $post ) {
+	if ( 'page' !== get_post_type() ) {
+		return $default_status;
+	}
+
+	return 'draft';
+}
+add_filter( 'dt_auto_distribution_default_status', 'ad_demo_modify_page_default_status', 10, 2 );
+```
+
+### Whether to auto-distribute a post
+
+The `dt_auto_distribute_post` filter allows you to filter whether an individual post will be
+auto-distributed. The filter accepts a number of arguments providing the context of the post,
+see the [filter's docs](./dt_auto_distribute_post.html) for further information.'
+
+This filter is only run for post types that are supported, see above.
+
+To prevent auto-distribution to a certain connection type:
+
+```php
+function ad_demo_no_external( $should_distribute, $post, $user_id, $connection_type ) {
+	if ( $connection_type === 'external' ) {
+		return false;
+	}
+	return $should_distribute;
+}
+add_filter( 'dt_auto_distribute_post', 'ad_demo_no_external', 10, 4 );
+```

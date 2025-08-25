@@ -19,5 +19,8 @@
 	},
 	"stored-id-handling": {
 		"title": "Stored ID Handling"
+	},
+	"auto-distribution": {
+		"title": "Enabling Auto Distribution"
 	}
 }
