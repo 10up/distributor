@@ -314,6 +314,8 @@ function get_external_connections( $post_id = 0, $user_id = 0 ) {
 			'posts_per_page' => 550,
 		]
 	);
+	// Prime posts and post meta caches. No terms for external connections.
+	_prime_post_caches( $connections->posts, false, true );
 
 	// Get our current connection mapping
 	$connection_map = (array) get_post_meta( $post_id, 'dt_connection_map', true );
