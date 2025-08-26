@@ -32,8 +32,12 @@ There are two connection types: `internal` and `external`.
 
 == Upgrade Notice ==
 
-= 2.0.5 =
+= 2.2.0 =
 **Distributor now requires WordPress 6.6 or later.**
+
+= 2.1.0 =
+**Distributor now requires WordPress 6.4 or later.**
 
 = 2.0.0 =
 **Distributor now requires PHP 7.4 or later and WordPress 5.7 or later.**
+
