@@ -281,13 +281,15 @@ class SubscriptionsController extends \WP_REST_Controller {
 			}
 
 			wp_update_post(
-				[
-					'ID'           => $request['post_id'],
-					'post_title'   => $request['post_data']['title'],
-					'post_content' => $content,
-					'post_excerpt' => $request['post_data']['excerpt'],
-					'post_name'    => $request['post_data']['slug'],
-				]
+				wp_slash(
+					[
+						'ID'           => $request['post_id'],
+						'post_title'   => $request['post_data']['title'],
+						'post_content' => $content,
+						'post_excerpt' => $request['post_data']['excerpt'],
+						'post_name'    => $request['post_data']['slug'],
+					]
+				)
 			);
 
 			/**
