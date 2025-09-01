@@ -23,7 +23,7 @@
   "require-dev": {
     "10up/phpcs-composer": "dev-master",
     "10up/wp_mock": "~0.4",
-    "phpunit/phpunit": ">=7.0 <9.0",
+    "phpunit/phpunit": "^8.5",
     "yoast/phpunit-polyfills": "^1.0",
     "automattic/vipwpcs": "^2.3"
   },

@@ -9,6 +9,7 @@ namespace Distributor\ExternalConnections;
 
 use Distributor\DistributorPost;
 use \Distributor\ExternalConnection as ExternalConnection;
+use Distributor\RegisteredDataHandler;
 use \Distributor\Utils;
 
 /**
@@ -392,6 +393,16 @@ class WordPressExternalConnection extends ExternalConnection {
 				$post_array['post_status'] = $item_array['post_status'];
 			}
 
+			// Process registered data.
+			$connection_data = array(
+				'connection_type'      => 'external',
+				'connection_direction' => 'pull',
+				'connection_id'        => $this->id,
+			);
+
+			$registered_data_handler = new RegisteredDataHandler( $connection_data );
+			$post_array              = $registered_data_handler->process_registered_data( $post_array );
+
 			/**
 			 * Filter the arguments passed into wp_insert_post during a pull.
 			 *
@@ -522,6 +533,12 @@ class WordPressExternalConnection extends ExternalConnection {
 			'distributor_original_source_id' => $this->id,
 		);
 		$post_body = $dt_post->to_rest( $rest_args );
+
+		if ( ! empty( $post_body['distributor_extra_data'] ) ) {
+			// Pre-process extra data for the "post" type registered data.
+			$request_data_handler = new RegisteredDataHandler();
+			$post_body            = $request_data_handler->pre_process_registered_data_post( $post_body, $this );
+		}
 
 		// Map to remote ID if a push has already happened
 		if ( ! empty( $args['remote_post_id'] ) ) {

@@ -48,8 +48,10 @@ describe( 'Internal Push', () => {
 
 		cy.createPost( { title: postTitle, content } ).then( ( post ) => {
 			// Set category and tag
-			cy.wpCli( `post term set ${ post.id } category ${ categoryName }` );
-			cy.wpCli( `post term set ${ post.id } post_tag ${ tagName }` );
+			cy.wpCli(
+				`wp post term set ${ post.id } category ${ categoryName }`
+			);
+			cy.wpCli( `wp post term set ${ post.id } post_tag ${ tagName }` );
 
 			// Set post meta.
 			cy.wpCli(
@@ -57,19 +59,15 @@ describe( 'Internal Push', () => {
 			);
 
 			// Set Featured Image
-			// This test is temporarily disabled due to failures in GitHub actions that are not reproducible locally.
-			// On GitHub the success message expected within the cy.distributorPushPost command is not found as the
-			// distribution fails with an undefined error.
-
-			// cy.uploadMedia( 'assets/img/banner-772x250.png' ).then(
-			// 	( media ) => {
-			// 		if ( media && media.mediaId ) {
-			// 			cy.wpCli(
-			// 				`wp post meta set ${ post.id } _thumbnail_id ${ media.mediaId }`
-			// 			);
-			// 		}
-			// 	}
-			// );
+			cy.uploadMedia( 'tests/cypress/assets/img/browser-frame.jpg' ).then(
+				( media ) => {
+					if ( media && media.mediaId ) {
+						cy.wpCli(
+							`wp post meta set ${ post.id } _thumbnail_id ${ media.mediaId }`
+						);
+					}
+				}
+			);
 
 			cy.distributorPushPost( post.id, 'second', '', 'publish' ).then(
 				( distributeInfo ) => {
@@ -109,11 +107,11 @@ describe( 'Internal Push', () => {
 						.should( 'contain', content );
 
 					// validate featured image.
-					// cy.wpCli(
-					// 	`wp post meta get ${ distributeInfo.distributedPostId } _thumbnail_id --url=${ siteUrl }`
-					// )
-					// 	.its( 'stdout' )
-					// 	.should( 'not.empty' );
+					cy.wpCli(
+						`wp post meta get ${ distributeInfo.distributedPostId } _thumbnail_id --url=${ siteUrl }`
+					)
+						.its( 'stdout' )
+						.should( 'not.empty' );
 				}
 			);
 		} );
