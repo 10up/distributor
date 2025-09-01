@@ -10,6 +10,8 @@ namespace Distributor\AutoDistribute;
 /**
  * Setup actions and filters.
  *
+ * Runs on the `plugins_loaded, 20` hook.
+ *
  * @since x.x.x
  */
 function setup() {

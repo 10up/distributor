@@ -237,4 +237,6 @@ add_action(
 \Distributor\DistributedPostUI\setup();
 \Distributor\Settings\setup();
 \Distributor\DebugInfo\setup();
-\Distributor\AutoDistribute\setup();
+
+// Runs late to allow for site feature plugins to enable the feature.
+add_action( 'plugins_loaded', 'Distributor\\AutoDistribute\\setup', 20 );

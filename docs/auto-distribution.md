@@ -6,6 +6,8 @@ To enable auto-distribution, you can include this code in your site's feature pl
 	add_filter( 'dt_auto_distribution_enabled', '__return_true' );
 ```
 
+This code must run prior to or on the `plugins_loaded` hook. If running on the `plugins_loaded` hook, it must do so at priority 19 or lower.
+
 With auto-distribution enabled, the following will occur:
 
 * upon publication, posts and pages will be pushed to all internal and external connections,
