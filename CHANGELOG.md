@@ -10,6 +10,7 @@ All notable changes to this project will be documented in this file, per [the Ke
 ### Added
 - The `distributor_register_data` function that enables developers to register stored data references, such as IDs stored in post meta, shortcodes, or block attributes and define custom pre-distribution and post-distribution callbacks to process these references (props [@iamdharmesh](https://github.com/iamdharmesh), [@jeffpaul](https://github.com/jeffpaul), [@peterwilsoncc](https://github.com/peterwilsoncc), [@dkotter](https://github.com/dkotter) via [#1302](https://github.com/10up/distributor/pull/1302)).
 - Add some default pre and post callback functions to the `distributor_register_data` function, allowing easy processing of common entities like posts, terms, and media (props [@iamdharmesh](https://github.com/iamdharmesh), [@jeffpaul](https://github.com/jeffpaul), [@peterwilsoncc](https://github.com/peterwilsoncc), [@dkotter](https://github.com/dkotter) via [#1309](https://github.com/10up/distributor/pull/1309)).
+- Ability to auto-distribute posts when turned on via a filter, `dt_auto_distribution_enabled` (props [@peterwilsoncc](https://github.com/peterwilsoncc), [@faisal-alvi](https://github.com/faisal-alvi), [@jeffpaul](https://github.com/jeffpaul), [@dkotter](https://github.com/dkotter) via [#1321](https://github.com/10up/distributor/pull/1321)).
 
 ### Changed
 - Bump WordPress "tested up to" version 6.8 (props [@Sourabh208](https://github.com/Sourabh208), [@dkotter](https://github.com/dkotter) via [#1311](https://github.com/10up/distributor/pull/1311)).
