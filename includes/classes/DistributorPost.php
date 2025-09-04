@@ -672,6 +672,39 @@ class DistributorPost {
 	 * }
 	 */
 	protected function get_extra_data() {
+		// Post data to pass to the filter.
+		$post_data = array(
+			'title'                          => html_entity_decode( get_the_title( $this->post->ID ), ENT_QUOTES, get_bloginfo( 'charset' ) ),
+			'slug'                           => $this->post->post_name,
+			'type'                           => $this->post->post_type,
+			'content'                        => Utils\get_processed_content( $this->post->post_content ),
+			'excerpt'                        => $this->post->post_excerpt,
+			'parent'                         => ! empty( $this->post->post_parent ) ? (int) $this->post->post_parent : 0,
+			'status'                         => $this->post->post_status,
+			'date'                           => $this->post->post_date,
+			'date_gmt'                       => $this->post->post_date_gmt,
+
+			// Original site and post data.
+			'distributor_original_site_name' => $this->source_site['name'],
+			'distributor_original_site_url'  => $this->source_site['home_url'],
+			'distributor_original_post_url'  => $this->get_permalink(),
+			'distributor_original_post_id'   => $this->post->ID,
+		);
+
+		/**
+		 * Filters whether to process extra data for the post.
+		 *
+		 * @since x.x.x
+		 * @hook dt_process_extra_data
+		 *
+		 * @param {bool} $process_extra_data Whether to process extra data.
+		 * @param {array} $post_data The post data.
+		 * @return {bool} Whether to process extra data.
+		 */
+		if ( ! apply_filters( 'dt_process_extra_data', true, $post_data ) ) {
+			return array();
+		}
+
 		$extra_data      = array();
 		$registered_data = distributor_get_registered_data();
 
