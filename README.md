@@ -17,15 +17,15 @@ Distributor supports safe, SEO-friendly content reuse and sharing via "pushing" 
 
 While logged in and editing or viewing any single post (or custom post type) that can be distributed, a `Distributor` admin bar item will appear, that will facilitate sharing ("pushing") that content to any `connection`.
 
-<a href="http://distributorplugin.com/"><img src="https://distributorplugin.com/wp-content/themes/distributor-theme/assets/img/push-screenshot.jpg" alt="Push the content you’re editing or viewing to any of your other sites from the admin bar" width="600"></a>
+<a href="http://distributorplugin.com/"><img src="/.github/screenshots/screenshot-2.png" alt="Push the content you’re editing or viewing to any of your other sites from the admin bar" width="600"></a>
 
 In the admin dashboard, a top level Distributor menu item links to the "pull" screen. Here, editors can share ("pull") content from any `connection` into the current site.
 
-<a href="http://distributorplugin.com/"><img src="https://distributorplugin.com/wp-content/themes/distributor-theme/assets/img/pull-screenshot.jpg" alt="Pull content from another site from the Distributor admin menu" width="600"></a>
+<a href="http://distributorplugin.com/"><img src="/.github/screenshots/screenshot-6.png" alt="Pull content from another site from the Distributor admin menu" width="600"></a>
 
 Content this is distributed (via Push or Pull) is connected to the original.  Reposted content receives updates from the original, canonical source automatically.
 
-<a href="http://distributorplugin.com/"><img alt="Distributor intuitively presents the origin and status of any reused content" class="browser-frame" src="https://distributorplugin.com/wp-content/themes/distributor-theme/assets/img/syndicated-screenshot.jpg" width="600"></a>
+<a href="http://distributorplugin.com/"><img alt="Distributor intuitively presents the origin and status of any reused content" src="/.github/screenshots/screenshot-9.jpg" width="600"></a>
 
 There are two connection types: `internal` and `external`.
 * Internal connections are other sites inside of the same multisite network. Any user logged into the network can distribute any content in the network to any other sites in the network where that user has permission to publish posts (assuming the site supports the same post type).
