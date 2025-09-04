@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file, per [the Ke
 
 ## [Unreleased] - TBD
 
-## [2.2.0] - 2025-08-28
+## [2.2.0] - 2025-09-08
 **Note that this release bumps the WordPress minimum supported version from 6.5 to 6.6.**
 
 ### Added
@@ -18,6 +18,7 @@ All notable changes to this project will be documented in this file, per [the Ke
 
 ### Fixed
 - Ensure post data is slashed when sent via a subscription update (props [@chandrapatel](https://github.com/chandrapatel), [@peterwilsoncc](https://github.com/peterwilsoncc) via [#1310](https://github.com/10up/distributor/pull/1310)).
+- Broken images in docs (props [@GaryJones](https://github.com/GaryJones), [@jeffpaul](https://github.com/jeffpaul), [@av3nger](https://github.com/av3nger), [@dkotter](https://github.com/dkotter) via [#1319](https://github.com/10up/distributor/pull/1319)).
 
 ### Security
 - Prevent cross-site scripting vulnerabilities on the pull screen (props [@iamdharmesh](https://github.com/iamdharmesh), [@peterwilsoncc](https://github.com/peterwilsoncc), [@jeffpaul](https://github.com/jeffpaul), [@Sidsector9](https://github.com/Sidsector9), [@dkotter](https://github.com/dkotter) via [#1273](https://github.com/10up/distributor/pull/1273), [#1274](https://github.com/10up/distributor/pull/1274), [#1316](https://github.com/10up/distributor/pull/1316)).

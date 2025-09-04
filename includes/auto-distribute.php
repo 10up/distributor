@@ -12,7 +12,7 @@ namespace Distributor\AutoDistribute;
  *
  * Runs on the `plugins_loaded, 20` hook.
  *
- * @since x.x.x
+ * @since 2.2.0
  */
 function setup() {
 	$n = function( $function ) {
@@ -32,7 +32,7 @@ function setup() {
  *
  * Default is false, see the filter `dt_auto_distribution_enabled` to enable it.
  *
- * @since x.x.x
+ * @since 2.2.0
  *
  * @return bool Whether the auto-distribution feature is enabled.
  */
@@ -49,7 +49,7 @@ function enabled() {
 	 * to all network and external connections that the post had not already been distributed
 	 * to. These posts will be distributed as published posts, not drafts.
 	 *
-	 * @since x.x.x.
+	 * @since 2.2.0
 	 * @hook dt_auto_distribution_enabled
 	 *
 	 * @param {bool} $enabled Whether the auto-distribution feature is enabled. Default false.
@@ -65,7 +65,7 @@ function enabled() {
  * This is the default status that will be applied to auto-distributed posts
  * on the distribution site.
  *
- * @since x.x.x
+ * @since 2.2.0
  *
  * @param int|\WP_Post $post Post ID or WP_Post object for the post being pushed.
  * @return string Default status for auto-distributed posts.
@@ -76,7 +76,7 @@ function default_post_status( $post ) {
 	/**
 	 * Filter the default status for auto-distributed posts.
 	 *
-	 * @since x.x.x
+	 * @since 2.2.0
 	 * @hook dt_auto_distribution_default_status
 	 *
 	 * @param {string}  $status Default status for auto-distributed posts. Default 'publish'.
@@ -92,7 +92,7 @@ function default_post_status( $post ) {
  *
  * This function checks if the post should be auto-distributed based on filters.
  *
- * @since x.x.x
+ * @since 2.2.0
  *
  * @param int|\WP_Post $post             Post ID or WP_Post object for the post being pushed.
  * @param int          $user_id          User ID of the user pushing the post.
@@ -110,7 +110,7 @@ function auto_distribute_post( $post, $user_id, $connection_type, $connection_id
 	/**
 	 * Filter to determine if a post should be auto-distributed.
 	 *
-	 * @since x.x.x
+	 * @since 2.2.0
 	 * @hook dt_auto_distribute_post
 	 *
 	 * @param {bool}    $should_distribute Whether the post should be auto-distributed.
@@ -130,7 +130,7 @@ function auto_distribute_post( $post, $user_id, $connection_type, $connection_id
  * By default, this is post and page but that
  * value can be filtered.
  *
- * @since x.x.x
+ * @since 2.2.0
  *
  * @return string[] Array of post types that can be auto-distributed.
  */
@@ -139,7 +139,7 @@ function auto_distribute_supported_post_types() {
 	/**
 	 * Filter the post types that are auto-distributable.
 	 *
-	 * @since x.x.x
+	 * @since 2.2.0
 	 * @hook auto_distribute_supported_post_types
 	 *
 	 * @param {string[]} $post_types Array of post types that can be auto-distributed.
@@ -320,7 +320,7 @@ function get_external_connections( $post_id = 0, $user_id = 0 ) {
 			 *
 			 * @hook dt_external_connections_per_page
 			 *
-			 * @since x.x.x
+			 * @since 2.2.0
 			 *
 			 * @param {int} $max_connections The maximum number of external connections to load.
 			 * @return {int} The maximum number of external connections to load.
