@@ -2,16 +2,16 @@
 # This file is distributed under the GPLv2 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: Distributor 2.1.0\n"
+"Project-Id-Version: Distributor 2.2.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/distributor\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2025-02-10T15:20:28+00:00\n"
+"POT-Creation-Date: 2025-09-08T14:44:18+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"X-Generator: WP-CLI 2.11.0\n"
+"X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: distributor\n"
 
 #. Plugin Name of the plugin
@@ -44,6 +44,7 @@ msgstr ""
 #: distributor.php:153
 #: release/distributor.php:103
 #: release/distributor.php:153
+#, php-format
 msgid "Distributor requires PHP version %1$s or later and WordPress version %2$s or later. Please upgrade your software or disable the plugin."
 msgstr ""
 
@@ -61,6 +62,7 @@ msgstr ""
 #: distributor.php:171
 #: release/distributor.php:114
 #: release/distributor.php:171
+#, php-format
 msgid "Distributor requires WordPress version %s or later. Please upgrade WordPress or disable the plugin."
 msgstr ""
 
@@ -69,86 +71,87 @@ msgstr ""
 #: distributor.php:188
 #: release/distributor.php:123
 #: release/distributor.php:188
+#, php-format
 msgid "Distributor requires PHP version %s or later. Please upgrade PHP or disable the plugin."
 msgstr ""
 
-#: includes/classes/API/SubscriptionsController.php:57
+#: includes/classes/API/SubscriptionsController.php:59
 #: release/includes/classes/API/SubscriptionsController.php:57
 msgid "Post that is being subscribed to."
 msgstr ""
 
-#: includes/classes/API/SubscriptionsController.php:62
+#: includes/classes/API/SubscriptionsController.php:64
 #: release/includes/classes/API/SubscriptionsController.php:62
 msgid "Post on remote site that maps to subscription post."
 msgstr ""
 
-#: includes/classes/API/SubscriptionsController.php:67
+#: includes/classes/API/SubscriptionsController.php:69
 #: release/includes/classes/API/SubscriptionsController.php:67
 msgid "WordPress URL to notify."
 msgstr ""
 
-#: includes/classes/API/SubscriptionsController.php:72
+#: includes/classes/API/SubscriptionsController.php:74
 #: release/includes/classes/API/SubscriptionsController.php:72
 msgid "Subscription signature for post."
 msgstr ""
 
-#: includes/classes/API/SubscriptionsController.php:91
+#: includes/classes/API/SubscriptionsController.php:93
 #: release/includes/classes/API/SubscriptionsController.php:91
 msgid "Post to be updated."
 msgstr ""
 
-#: includes/classes/API/SubscriptionsController.php:96
+#: includes/classes/API/SubscriptionsController.php:98
 #: release/includes/classes/API/SubscriptionsController.php:96
 msgid "Signature for given signature"
 msgstr ""
 
-#: includes/classes/API/SubscriptionsController.php:115
+#: includes/classes/API/SubscriptionsController.php:117
 #: release/includes/classes/API/SubscriptionsController.php:115
 msgid "Post with subscription."
 msgstr ""
 
-#: includes/classes/API/SubscriptionsController.php:120
+#: includes/classes/API/SubscriptionsController.php:122
 #: release/includes/classes/API/SubscriptionsController.php:120
 msgid "Signature for given subscription"
 msgstr ""
 
-#: includes/classes/API/SubscriptionsController.php:161
+#: includes/classes/API/SubscriptionsController.php:163
 #: release/includes/classes/API/SubscriptionsController.php:161
 msgid "Signature invalid or missing."
 msgstr ""
 
-#: includes/classes/API/SubscriptionsController.php:166
+#: includes/classes/API/SubscriptionsController.php:168
 #: release/includes/classes/API/SubscriptionsController.php:166
 msgid "Invalid post id."
 msgstr ""
 
-#: includes/classes/API/SubscriptionsController.php:209
+#: includes/classes/API/SubscriptionsController.php:211
 #: release/includes/classes/API/SubscriptionsController.php:209
 msgid "Post not distributed."
 msgstr ""
 
-#: includes/classes/API/SubscriptionsController.php:222
+#: includes/classes/API/SubscriptionsController.php:224
 #: release/includes/classes/API/SubscriptionsController.php:222
 msgid "No post data for update."
 msgstr ""
 
-#: includes/classes/API/SubscriptionsController.php:339
+#: includes/classes/API/SubscriptionsController.php:357
 #: release/includes/classes/API/SubscriptionsController.php:339
 msgid "Sorry, you are not allowed to create subscriptions."
 msgstr ""
 
-#: includes/classes/API/SubscriptionsController.php:354
+#: includes/classes/API/SubscriptionsController.php:372
 #: release/includes/classes/API/SubscriptionsController.php:354
 msgid "Cannot create existing subscription."
 msgstr ""
 
-#: includes/classes/API/SubscriptionsController.php:358
+#: includes/classes/API/SubscriptionsController.php:376
 #: release/includes/classes/API/SubscriptionsController.php:358
 msgid "Subscription post does not exist."
 msgstr ""
 
-#: includes/classes/API/SubscriptionsController.php:410
-#: includes/classes/API/SubscriptionsController.php:433
+#: includes/classes/API/SubscriptionsController.php:428
+#: includes/classes/API/SubscriptionsController.php:451
 #: release/includes/classes/API/SubscriptionsController.php:410
 #: release/includes/classes/API/SubscriptionsController.php:433
 msgid "Invalid post ID."
@@ -227,18 +230,21 @@ msgstr ""
 #. translators: %s: Application Passwords documentation URL
 #: includes/classes/Authentications/WordPressBasicAuth.php:177
 #: release/includes/classes/Authentications/WordPressBasicAuth.php:177
+#, php-format
 msgid "<strong>Important:</strong> We strongly recommend using the <a href=\"%s\">Application Passwords</a> feature on the site you are connecting to in order to create a unique password for this connection. This helps limit the use of your primary password and will allow you to revoke access in the future if needed."
 msgstr ""
 
 #. translators: %1$s URL of wordpress.com applications manager.
 #: includes/classes/Authentications/WordPressDotcomOauth2Authentication.php:115
 #: release/includes/classes/Authentications/WordPressDotcomOauth2Authentication.php:115
+#, php-format
 msgid "To connect, first <a href=\"%1$s\">create an application with the WordPress.com applications manager</a>."
 msgstr ""
 
 #. translators: %1$s Redirect URL for WordPress.com application displayed as bold text.
 #: includes/classes/Authentications/WordPressDotcomOauth2Authentication.php:126
 #: release/includes/classes/Authentications/WordPressDotcomOauth2Authentication.php:126
+#, php-format
 msgid "Use the following redirect URL when creating your application: %1$s"
 msgstr ""
 
@@ -278,12 +284,13 @@ msgid "Authorize Connection with WordPress.com"
 msgstr ""
 
 #. translators: %s: method name
-#: includes/classes/DistributorPost.php:261
+#: includes/classes/DistributorPost.php:264
 #: release/includes/classes/DistributorPost.php:261
+#, php-format
 msgid "Call to undefined method %s"
 msgstr ""
 
-#: includes/classes/DistributorPost.php:271
+#: includes/classes/DistributorPost.php:274
 #: release/includes/classes/DistributorPost.php:271
 msgid "DistributorPost object was called from a switched site."
 msgstr ""
@@ -301,6 +308,7 @@ msgstr ""
 #. translators: %s: post title
 #: includes/classes/ExternalConnectionListTable.php:73
 #: release/includes/classes/ExternalConnectionListTable.php:73
+#, php-format
 msgid "Edit \"%s\""
 msgstr ""
 
@@ -314,6 +322,7 @@ msgstr ""
 #. translators: %s: post title
 #: includes/classes/ExternalConnectionListTable.php:83
 #: release/includes/classes/ExternalConnectionListTable.php:83
+#, php-format
 msgid "Restore \"%s\" from the Trash"
 msgstr ""
 
@@ -325,6 +334,7 @@ msgstr ""
 #. translators: %s: post title
 #: includes/classes/ExternalConnectionListTable.php:91
 #: release/includes/classes/ExternalConnectionListTable.php:91
+#, php-format
 msgid "Move \"%s\" to the Trash"
 msgstr ""
 
@@ -337,6 +347,7 @@ msgstr ""
 #. translators: %s: post title
 #: includes/classes/ExternalConnectionListTable.php:100
 #: release/includes/classes/ExternalConnectionListTable.php:100
+#, php-format
 msgid "Delete \"%s\" permanently"
 msgstr ""
 
@@ -345,27 +356,27 @@ msgstr ""
 msgid "Delete Permanently"
 msgstr ""
 
-#: includes/classes/ExternalConnections/WordPressExternalConnection.php:208
+#: includes/classes/ExternalConnections/WordPressExternalConnection.php:209
 #: release/includes/classes/ExternalConnections/WordPressExternalConnection.php:208
 msgid "Endpoint URL must be set."
 msgstr ""
 
-#: includes/classes/ExternalConnections/WordPressExternalConnection.php:256
-#: includes/classes/ExternalConnections/WordPressExternalConnection.php:654
+#: includes/classes/ExternalConnections/WordPressExternalConnection.php:257
+#: includes/classes/ExternalConnections/WordPressExternalConnection.php:671
 #: release/includes/classes/ExternalConnections/WordPressExternalConnection.php:256
 #: release/includes/classes/ExternalConnections/WordPressExternalConnection.php:654
 msgid "Could not connect to API endpoint."
 msgstr ""
 
-#: includes/classes/ExternalConnections/WordPressExternalConnection.php:262
+#: includes/classes/ExternalConnections/WordPressExternalConnection.php:263
 #: release/includes/classes/ExternalConnections/WordPressExternalConnection.php:262
 msgid "API endpoint error."
 msgstr ""
 
-#: includes/classes/ExternalConnections/WordPressExternalConnection.php:271
-#: includes/classes/ExternalConnections/WordPressExternalConnection.php:503
-#: includes/classes/ExternalConnections/WordPressExternalConnection.php:606
-#: includes/classes/ExternalConnections/WordPressExternalConnection.php:660
+#: includes/classes/ExternalConnections/WordPressExternalConnection.php:272
+#: includes/classes/ExternalConnections/WordPressExternalConnection.php:514
+#: includes/classes/ExternalConnections/WordPressExternalConnection.php:623
+#: includes/classes/ExternalConnections/WordPressExternalConnection.php:677
 #: release/includes/classes/ExternalConnections/WordPressExternalConnection.php:271
 #: release/includes/classes/ExternalConnections/WordPressExternalConnection.php:503
 #: release/includes/classes/ExternalConnections/WordPressExternalConnection.php:606
@@ -373,51 +384,51 @@ msgstr ""
 msgid "Response body is empty."
 msgstr ""
 
-#: includes/classes/ExternalConnections/WordPressExternalConnection.php:285
+#: includes/classes/ExternalConnections/WordPressExternalConnection.php:286
 #: release/includes/classes/ExternalConnections/WordPressExternalConnection.php:285
 msgid "Pulling content from external connections requires Distributor version 2.0.0 or later."
 msgstr ""
 
-#: includes/classes/ExternalConnections/WordPressExternalConnection.php:289
+#: includes/classes/ExternalConnections/WordPressExternalConnection.php:290
 #: release/includes/classes/ExternalConnections/WordPressExternalConnection.php:289
 msgid "Please update Distributor on the site you are pulling content from."
 msgstr ""
 
-#: includes/classes/ExternalConnections/WordPressExternalConnection.php:364
+#: includes/classes/ExternalConnections/WordPressExternalConnection.php:365
 #: release/includes/classes/ExternalConnections/WordPressExternalConnection.php:364
 msgid "No post found."
 msgstr ""
 
-#: includes/classes/ExternalConnections/WordPressExternalConnection.php:473
-#: includes/classes/InternalConnections/NetworkSiteConnection.php:75
+#: includes/classes/ExternalConnections/WordPressExternalConnection.php:484
+#: includes/classes/InternalConnections/NetworkSiteConnection.php:76
 #: release/includes/classes/ExternalConnections/WordPressExternalConnection.php:473
 #: release/includes/classes/InternalConnections/NetworkSiteConnection.php:75
 msgid "Post ID required to push."
 msgstr ""
 
-#: includes/classes/ExternalConnections/WordPressExternalConnection.php:477
-#: includes/classes/InternalConnections/NetworkSiteConnection.php:79
+#: includes/classes/ExternalConnections/WordPressExternalConnection.php:488
+#: includes/classes/InternalConnections/NetworkSiteConnection.php:80
 #: release/includes/classes/ExternalConnections/WordPressExternalConnection.php:477
 #: release/includes/classes/InternalConnections/NetworkSiteConnection.php:79
 msgid "Post does not exist."
 msgstr ""
 
-#: includes/classes/ExternalConnections/WordPressExternalConnection.php:511
+#: includes/classes/ExternalConnections/WordPressExternalConnection.php:522
 #: release/includes/classes/ExternalConnections/WordPressExternalConnection.php:511
 msgid "Could not determine remote post type endpoint."
 msgstr ""
 
-#: includes/classes/ExternalConnections/WordPressExternalConnection.php:612
+#: includes/classes/ExternalConnections/WordPressExternalConnection.php:629
 #: release/includes/classes/ExternalConnections/WordPressExternalConnection.php:612
 msgid "Could not determine remote post ID."
 msgstr ""
 
-#: includes/classes/InternalConnections/NetworkSiteConnection.php:105
+#: includes/classes/InternalConnections/NetworkSiteConnection.php:106
 #: release/includes/classes/InternalConnections/NetworkSiteConnection.php:105
 msgid "Invalid remote post ID"
 msgstr ""
 
-#: includes/classes/InternalConnections/NetworkSiteConnection.php:235
+#: includes/classes/InternalConnections/NetworkSiteConnection.php:248
 #: release/includes/classes/InternalConnections/NetworkSiteConnection.php:235
 msgid "The dt_push_post action has been deprecated. Please use dt_push_network_post or dt_push_external_post instead."
 msgstr ""
@@ -483,12 +494,14 @@ msgstr ""
 #: includes/classes/PullListTable.php:222
 #: release/includes/classes/PullListTable.php:199
 #: release/includes/classes/PullListTable.php:222
+#, php-format
 msgid "%s ago"
 msgstr ""
 
 #. translators: %s: time of pull
 #: includes/classes/PullListTable.php:205
 #: release/includes/classes/PullListTable.php:205
+#, php-format
 msgid "Pulled %s"
 msgstr ""
 
@@ -579,6 +592,7 @@ msgstr ""
 #. translators: %s: the post title or draft
 #: includes/classes/PullListTable.php:571
 #: release/includes/classes/PullListTable.php:571
+#, php-format
 msgid "Select %s"
 msgstr ""
 
@@ -605,8 +619,7 @@ msgid "Checking endpoint…"
 msgstr ""
 
 #: dist/js/admin-external-connection.min.js:1
-#: release/dist/js/admin-external-connection.min.js:1
-msgid "Did you mean: "
+msgid "Did you mean:"
 msgstr ""
 
 #: dist/js/admin-external-connection.min.js:1
@@ -642,6 +655,7 @@ msgstr ""
 #. translators: %1$s: site name, %2$s: site URL
 #: dist/js/admin-external-connection.min.js:2
 #: release/dist/js/admin-external-connection.min.js:1
+#, js-format
 msgid "Distributor on %1$s (%2$s)"
 msgstr ""
 
@@ -676,6 +690,7 @@ msgstr ""
 #. translators: 1: Post type or generic term content.
 #: dist/js/gutenberg-plugin.min.js:2
 #: release/dist/js/gutenberg-plugin.min.js:1
+#, js-format
 msgid "Distribute %1$s"
 msgstr ""
 
@@ -693,6 +708,7 @@ msgstr ""
 #. translators: 1: Number of connections content distributed to.
 #: dist/js/gutenberg-plugin.min.js:3
 #: release/dist/js/gutenberg-plugin.min.js:1
+#, js-format
 msgid "Distributed to %1$s connection."
 msgid_plural "Distributed to %1$s connections."
 msgstr[0] ""
@@ -701,12 +717,12 @@ msgstr[1] ""
 #. translators: 1: Syndication date and time.
 #: dist/js/gutenberg-plugin.min.js:4
 #: release/dist/js/gutenberg-plugin.min.js:1
+#, js-format
 msgid "Pulled on %1$s from %2$s"
 msgstr ""
 
 #: dist/js/gutenberg-plugin.min.js:4
-#: release/dist/js/gutenberg-plugin.min.js:1
-msgid "This post has been unlinked from the "
+msgid "This post has been unlinked from the"
 msgstr ""
 
 #: dist/js/gutenberg-plugin.min.js:4
@@ -721,13 +737,11 @@ msgid "Restore link to Original"
 msgstr ""
 
 #: dist/js/gutenberg-plugin.min.js:4
-#: release/dist/js/gutenberg-plugin.min.js:1
-msgid "Restoring the link to the "
+msgid "Restoring the link to the"
 msgstr ""
 
 #: dist/js/gutenberg-plugin.min.js:4
-#: release/dist/js/gutenberg-plugin.min.js:1
-msgid " will start updating this post automatically from the Original, overwriting current content."
+msgid "will start updating this post automatically from the Original, overwriting current content."
 msgstr ""
 
 #: dist/js/gutenberg-plugin.min.js:4
@@ -738,12 +752,12 @@ msgstr ""
 #. translators: 1: Syndication date and time.
 #: dist/js/gutenberg-plugin.min.js:5
 #: release/dist/js/gutenberg-plugin.min.js:1
+#, js-format
 msgid "Pulled & linked on %1$s from %2$s"
 msgstr ""
 
 #: dist/js/gutenberg-plugin.min.js:5
-#: release/dist/js/gutenberg-plugin.min.js:1
-msgid "Updating the "
+msgid "Updating the"
 msgstr ""
 
 #: dist/js/gutenberg-plugin.min.js:5
@@ -759,6 +773,7 @@ msgstr ""
 #. translators: %1$s: Original Content URL Opening Tag, %2$s: Original Content URL Closing Tag
 #: dist/js/gutenberg-plugin.min.js:6
 #: release/dist/js/gutenberg-plugin.min.js:1
+#, js-format
 msgid "Unlinking from the %1$sOriginal Content%2$s will stop updating this post automatically."
 msgstr ""
 
@@ -780,12 +795,14 @@ msgstr ""
 #. translators: 1) Source of content, 2) Distributor post type singular name.
 #: dist/js/gutenberg-syndicated-post.min.js:3
 #: release/dist/js/gutenberg-syndicated-post.min.js:1
+#, js-format
 msgid "Originally distributed from %1$s. This %2$s has been unlinked from the origin %2$s. Edits to the origin %2$s will not update this remote version."
 msgstr ""
 
 #. translators: 1) Distributor post type singular name.
 #: dist/js/gutenberg-syndicated-post.min.js:4
 #: release/dist/js/gutenberg-syndicated-post.min.js:1
+#, js-format
 msgid "Relink to the origin %1$s."
 msgstr ""
 
@@ -793,18 +810,21 @@ msgstr ""
 #: dist/js/gutenberg-syndicated-post.min.js:5
 #: dist/js/gutenberg-syndicated-post.min.js:8
 #: release/dist/js/gutenberg-syndicated-post.min.js:1
+#, js-format
 msgid "View the origin %1$s."
 msgstr ""
 
 #. translators: 1) Source of content, 2) Distributor post type singular name.
 #: dist/js/gutenberg-syndicated-post.min.js:6
 #: release/dist/js/gutenberg-syndicated-post.min.js:1
+#, js-format
 msgid "Distributed from %1$s. This %2$s is linked to the origin %2$s. Edits to the origin %2$s will update this remote version."
 msgstr ""
 
 #. translators: 1) Distributor post type singular name.
 #: dist/js/gutenberg-syndicated-post.min.js:7
 #: release/dist/js/gutenberg-syndicated-post.min.js:1
+#, js-format
 msgid "Unlink from the origin %1$s."
 msgstr ""
 
@@ -825,7 +845,28 @@ msgstr ""
 #: dist/js/push.min.js:5
 #: dist/js/push.min.js:6
 #: release/dist/js/push.min.js:1
+#, js-format
 msgid "Selected connection (%d)"
 msgid_plural "Selected connections (%d)"
 msgstr[0] ""
 msgstr[1] ""
+
+#: release/dist/js/admin-external-connection.min.js:1
+msgid "Did you mean: "
+msgstr ""
+
+#: release/dist/js/gutenberg-plugin.min.js:1
+msgid "This post has been unlinked from the "
+msgstr ""
+
+#: release/dist/js/gutenberg-plugin.min.js:1
+msgid "Restoring the link to the "
+msgstr ""
+
+#: release/dist/js/gutenberg-plugin.min.js:1
+msgid " will start updating this post automatically from the Original, overwriting current content."
+msgstr ""
+
+#: release/dist/js/gutenberg-plugin.min.js:1
+msgid "Updating the "
+msgstr ""
