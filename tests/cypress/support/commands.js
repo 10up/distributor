@@ -329,3 +329,35 @@ Cypress.Commands.add( 'uploadImage', ( imagePath ) => {
 			cy.wrap( mediaId );
 		} );
 } );
+
+Cypress.Commands.add(
+	'verifyRelatedPostMeta',
+	( postId, relatedPostTitle, siteUrl ) => {
+		const cliCommand = `wp post meta get ${ postId } related_post_id --url=${ siteUrl }`;
+		cy.wpCli( cliCommand ).then( ( response ) => {
+			cy.wpCli(
+				`wp post get ${ response.stdout } --field=post_title --url=${ siteUrl }`
+			)
+				.its( 'stdout' )
+				.should( 'eq', relatedPostTitle );
+		} );
+	}
+);
+
+Cypress.Commands.add(
+	'verifyShortCodeTermId',
+	( postId, shortcodeTermName, siteUrl ) => {
+		const slug = shortcodeTermName.split( ' ' ).join( '-' ).toLowerCase();
+		const cliCommand = `wp term get category ${ slug } --by=slug --field=term_id --url=${ siteUrl }`;
+		cy.wpCli( cliCommand ).then( ( response ) => {
+			cy.wpCli(
+				`wp post get ${ postId } --field=content --url=${ siteUrl }`
+			)
+				.its( 'stdout' )
+				.should(
+					'contain',
+					`[dt_term_shortcode id="${ response.stdout }"]`
+				);
+		} );
+	}
+);

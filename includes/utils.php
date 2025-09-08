@@ -571,6 +571,22 @@ function prepare_taxonomy_terms( $post_id, $args = array() ) {
 }
 
 /**
+ * Prepare post extra data for consumption on the target site.
+ *
+ * @param  int $post_id Post ID.
+ * @since  2.2.0
+ * @return array
+ */
+function prepare_extra_data( $post_id ) {
+	$dt_post = new DistributorPost( $post_id );
+	if ( ! $dt_post ) {
+		return array();
+	}
+
+	return $dt_post->get_extra_data();
+}
+
+/**
  * Given an array of terms by taxonomy, set those terms to another post. This function will cleverly merge
  * terms into the post and create terms that don't exist.
  *

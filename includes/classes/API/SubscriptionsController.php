@@ -7,6 +7,8 @@
 
 namespace Distributor\API;
 
+use Distributor\RegisteredDataHandler;
+
 /**
  * Subscription controller REST API class
  */
@@ -222,6 +224,20 @@ class SubscriptionsController extends \WP_REST_Controller {
 				return new \WP_Error( 'rest_post_no_data', esc_html__( 'No post data for update.', 'distributor' ), array( 'status' => 400 ) );
 			}
 
+			// Process registered custom data.
+			$registered_data = distributor_get_registered_data();
+			if ( ! empty( $registered_data ) ) {
+				$connection_data = array(
+					'connection_type'           => 'external',
+					'connection_direction'      => 'pull',
+					'connection_id'             => get_post_meta( (int) $request['post_id'], 'dt_original_source_id', true ),
+					'subscription_notification' => true,
+				);
+
+				$registered_data_handler = new RegisteredDataHandler( $connection_data );
+				$request['post_data']    = $registered_data_handler->process_registered_data( $request['post_data'], true );
+			}
+
 			// When both sides of a subscription connection support Gutenberg, update with the raw content.
 			$content = $request['post_data']['content'];
 			if ( \Distributor\Utils\is_using_gutenberg( $post ) && isset( $request['post_data']['distributor_raw_content'] ) ) {
@@ -265,13 +281,15 @@ class SubscriptionsController extends \WP_REST_Controller {
 			}
 
 			wp_update_post(
-				[
-					'ID'           => $request['post_id'],
-					'post_title'   => $request['post_data']['title'],
-					'post_content' => $content,
-					'post_excerpt' => $request['post_data']['excerpt'],
-					'post_name'    => $request['post_data']['slug'],
-				]
+				wp_slash(
+					[
+						'ID'           => $request['post_id'],
+						'post_title'   => $request['post_data']['title'],
+						'post_content' => $content,
+						'post_excerpt' => $request['post_data']['excerpt'],
+						'post_name'    => $request['post_data']['slug'],
+					]
+				)
 			);
 
 			/**

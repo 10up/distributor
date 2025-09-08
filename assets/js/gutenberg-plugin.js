@@ -151,7 +151,7 @@ const RenderDistributedFrom = () => {
 					) }
 				</span>
 				<span id="distributed-data">
-					{ __( 'Updating the ', 'distributor' ) }
+					{ __( 'Updating the', 'distributor' ) }{ ' ' }
 					<a href={ dtGutenberg.postUrl }>
 						{ __( 'Original Content', 'distributor' ) }
 					</a>
@@ -217,7 +217,7 @@ const RenderDistributedFrom = () => {
 				) }
 			</span>
 			<span id="distributed-data">
-				{ __( 'This post has been unlinked from the ', 'distributor' ) }
+				{ __( 'This post has been unlinked from the', 'distributor' ) }{ ' ' }
 				<a href={ dtGutenberg.postUrl }>
 					{ __( 'Original Content', 'distributor' ) }
 				</a>
@@ -239,12 +239,12 @@ const RenderDistributedFrom = () => {
 					overlayClassName="distributed-modal-overlay"
 				>
 					<span id="distributed-data">
-						{ __( 'Restoring the link to the ', 'distributor' ) }
+						{ __( 'Restoring the link to the', 'distributor' ) }{ ' ' }
 						<a href={ dtGutenberg.postUrl }>
 							{ __( 'Original Content', 'distributor' ) }
-						</a>
+						</a>{ ' ' }
 						{ __(
-							' will start updating this post automatically from the Original, overwriting current content.',
+							'will start updating this post automatically from the Original, overwriting current content.',
 							'distributor'
 						) }
 					</span>

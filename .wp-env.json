@@ -3,6 +3,7 @@
   "plugins": [
     ".",
     "./tests/Basic-Auth-master",
+    "./tests/e2e-test-plugin",
     "https://downloads.wordpress.org/plugin/classic-editor.zip"
   ],
   "env": {

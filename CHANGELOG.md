@@ -4,6 +4,34 @@ All notable changes to this project will be documented in this file, per [the Ke
 
 ## [Unreleased] - TBD
 
+## [2.2.0] - 2025-09-08
+**Note that this release bumps the WordPress minimum supported version from 6.5 to 6.6.**
+
+### Added
+- The `distributor_register_data` function that enables developers to register stored data references, such as IDs stored in post meta, shortcodes, or block attributes and define custom pre-distribution and post-distribution callbacks to process these references (props [@iamdharmesh](https://github.com/iamdharmesh), [@jeffpaul](https://github.com/jeffpaul), [@peterwilsoncc](https://github.com/peterwilsoncc), [@dkotter](https://github.com/dkotter) via [#1302](https://github.com/10up/distributor/pull/1302)).
+- Add some default pre and post callback functions to the `distributor_register_data` function, allowing easy processing of common entities like posts, terms, and media (props [@iamdharmesh](https://github.com/iamdharmesh), [@jeffpaul](https://github.com/jeffpaul), [@peterwilsoncc](https://github.com/peterwilsoncc), [@dkotter](https://github.com/dkotter) via [#1309](https://github.com/10up/distributor/pull/1309)).
+- Ability to auto-distribute posts when turned on via a filter, `dt_auto_distribution_enabled` (props [@peterwilsoncc](https://github.com/peterwilsoncc), [@faisal-alvi](https://github.com/faisal-alvi), [@jeffpaul](https://github.com/jeffpaul), [@dkotter](https://github.com/dkotter) via [#1321](https://github.com/10up/distributor/pull/1321)).
+
+### Changed
+- Bump WordPress "tested up to" version 6.8 (props [@Sourabh208](https://github.com/Sourabh208), [@dkotter](https://github.com/dkotter) via [#1311](https://github.com/10up/distributor/pull/1311)).
+- Bump WordPress minimum to 6.6 (props [@Sourabh208](https://github.com/Sourabh208), [@jeffpaul](https://github.com/jeffpaul), [@peterwilsoncc](https://github.com/peterwilsoncc) via [#1312](https://github.com/10up/distributor/pull/1312)).
+
+### Fixed
+- Ensure post data is slashed when sent via a subscription update (props [@chandrapatel](https://github.com/chandrapatel), [@peterwilsoncc](https://github.com/peterwilsoncc) via [#1310](https://github.com/10up/distributor/pull/1310)).
+- Broken images in docs (props [@GaryJones](https://github.com/GaryJones), [@jeffpaul](https://github.com/jeffpaul), [@av3nger](https://github.com/av3nger), [@dkotter](https://github.com/dkotter) via [#1319](https://github.com/10up/distributor/pull/1319)).
+
+### Security
+- Prevent cross-site scripting vulnerabilities on the pull screen (props [@iamdharmesh](https://github.com/iamdharmesh), [@peterwilsoncc](https://github.com/peterwilsoncc), [@jeffpaul](https://github.com/jeffpaul), [@Sidsector9](https://github.com/Sidsector9), [@dkotter](https://github.com/dkotter) via [#1273](https://github.com/10up/distributor/pull/1273), [#1274](https://github.com/10up/distributor/pull/1274), [#1316](https://github.com/10up/distributor/pull/1316)).
+- Bump `ws` from 7.5.10 to 8.18.0 and `@wordpress/scripts` from 26.19.0 to 29.0.0 (props [@dependabot](https://github.com/apps/dependabot), [@Sidsector9](https://github.com/Sidsector9) via [#1270](https://github.com/10up/distributor/pull/1270)).
+- Bump `axios` from 1.7.4 to 1.9.0, `body-parser` from 1.20.2 to 1.20.3, `express` from 4.19.2 to 4.21.2, `@wordpress/e2e-test-utils-playwright` from 1.7.0 to 1.23.0, `http-proxy-middleware` from 2.0.6 to 2.0.9, `tar-fs` from 3.0.4 to 3.0.8, `serialize-javascript` from 6.0.1 to 6.0.2, `mocha` from 10.2.0 to 11.3.0 and `send` from 0.18.0 to 0.19.0; also removes `cookie` (props [@dependabot](https://github.com/apps/dependabot), [@peterwilsoncc](https://github.com/peterwilsoncc) via [#1314](https://github.com/10up/distributor/pull/1314)).
+- Bump `on-headers` from 1.0.2 to 1.1.0 and `compression` from 1.7.4 to 1.8.1 (props [@dependabot](https://github.com/apps/dependabot), [@dkotter](https://github.com/dkotter) via [#1325](https://github.com/10up/distributor/pull/1325)).
+- Bump `tmp` from 0.2.1 to 0.2.5 and `@wordpress/env` from 10.5.0 to 10.29.0 (props [@dependabot](https://github.com/apps/dependabot), [@dkotter](https://github.com/dkotter) via [#1334](https://github.com/10up/distributor/pull/1334)).
+
+### Developer
+- Fix eslint errors (props [@GaryJones](https://github.com/GaryJones), [@iamdharmesh](https://github.com/iamdharmesh) via [#1320](https://github.com/10up/distributor/pull/1320)).
+- Update all third-party actions our workflows rely on to use versions based on specific commit hashes (props [@dkotter](https://github.com/dkotter), [@jeffpaul](https://github.com/jeffpaul), [@faisal-alvi](https://github.com/faisal-alvi) via [#1305](https://github.com/10up/distributor/pull/1305)).
+- Fix featured media E2E tests (props [@peterwilsoncc](https://github.com/peterwilsoncc), [@dkotter](https://github.com/dkotter) via [#1332](https://github.com/10up/distributor/pull/1332)).
+
 ## [2.1.0] - 2025-02-10
 **Note that this release bumps the WordPress minimum supported version from 6.4 to 6.5.**
 
@@ -597,6 +625,7 @@ This adds a post type selector when viewing the Pull Content list for both exter
 - Initial closed release.
 
 [Unreleased]: https://github.com/10up/distributor/compare/trunk...develop
+[2.2.0]: https://github.com/10up/distributor/compare/2.1.0...2.2.0
 [2.1.0]: https://github.com/10up/distributor/compare/2.0.6...2.1.0
 [2.0.6]: https://github.com/10up/distributor/compare/2.0.5...2.0.6
 [2.0.5]: https://github.com/10up/distributor/compare/2.0.4...2.0.5
