@@ -75,10 +75,13 @@ use WP_Post;
  * @method array get_meta()
  * @method array get_terms()
  * @method array get_media()
+ * @method array get_extra_data()
  * @method array post_data()
  * @method array to_insert( array $args = [] )
  * @method array to_pull_list( array $args = [] )
  * @method array to_rest( array $args = [] )
+ * @method array parse_blocks_for_attribute_values( string $block, string $block_name, string|array $block_attribute )
+ * @method array get_shortcode_attribute_values( string $content, string $shortcode, string|array $shortcode_attribute )
  */
 class DistributorPost {
 	/**
@@ -659,6 +662,11 @@ class DistributorPost {
 			$raw_media = $this->parse_media_blocks();
 		} else {
 			$raw_media = get_attached_media( get_allowed_mime_types(), $post_id );
+			// Parse images from post content.
+			$parsed_media = $this->parse_images_from_post_content();
+			foreach ( $parsed_media as $media_post ) {
+				$raw_media[ $media_post->ID ] = $media_post;
+			}
 		}
 
 		$featured_image_id = $this->get_post_thumbnail_id();
@@ -683,6 +691,276 @@ class DistributorPost {
 		}
 
 		return $media_array;
+	}
+
+	/**
+	 * Get the extra data for the post to be processed on the target site.
+	 *
+	 * @since 2.2.0
+	 *
+	 * @return array[] {
+	 *   Array of extra data keyed by the data name.
+	 *
+	 *   @type mixed $data_name The extra data returned by the callback function.
+	 * }
+	 */
+	protected function get_extra_data() {
+		// Post data to pass to the filter.
+		$post_data = array(
+			'title'                          => html_entity_decode( get_the_title( $this->post->ID ), ENT_QUOTES, get_bloginfo( 'charset' ) ),
+			'slug'                           => $this->post->post_name,
+			'type'                           => $this->post->post_type,
+			'content'                        => Utils\get_processed_content( $this->post->post_content ),
+			'excerpt'                        => $this->post->post_excerpt,
+			'parent'                         => ! empty( $this->post->post_parent ) ? (int) $this->post->post_parent : 0,
+			'status'                         => $this->post->post_status,
+			'date'                           => $this->post->post_date,
+			'date_gmt'                       => $this->post->post_date_gmt,
+
+			// Original site and post data.
+			'distributor_original_site_name' => $this->source_site['name'],
+			'distributor_original_site_url'  => $this->source_site['home_url'],
+			'distributor_original_post_url'  => $this->get_permalink(),
+			'distributor_original_post_id'   => $this->post->ID,
+		);
+
+		/**
+		 * Filters whether to process extra data for the post.
+		 *
+		 * @since 2.2.0
+		 * @hook dt_process_extra_data
+		 *
+		 * @param {bool} $process_extra_data Whether to process extra data.
+		 * @param {array} $post_data The post data.
+		 * @return {bool} Whether to process extra data.
+		 */
+		if ( ! apply_filters( 'dt_process_extra_data', true, $post_data ) ) {
+			return array();
+		}
+
+		$extra_data      = array();
+		$registered_data = distributor_get_registered_data();
+
+		foreach ( $registered_data as $data_key => $data ) {
+			$location    = $data['location'];
+			$attributes  = $data['attributes'];
+			$callback_fn = $data['pre_distribute_cb'] ?? null;
+
+			// Skip if the callback function is not provided or not callable.
+			if ( empty( $callback_fn ) || ! is_callable( $callback_fn ) ) {
+				continue;
+			}
+
+			if ( 'post_meta' === $location ) {
+				$meta_key = $attributes['meta_key'] ?? '';
+				if ( empty( $meta_key ) ) {
+					continue;
+				}
+
+				// Handle multiple meta keys.
+				if ( is_array( $meta_key ) ) {
+					$meta_data = array();
+					foreach ( $meta_key as $key ) {
+						$meta_value = get_post_meta( $this->post->ID, $key, false );
+						if ( is_array( $meta_value ) &amp;&amp; 1 === count( $meta_value ) ) {
+							$meta_data[ $key ] = $meta_value[0];
+						} else {
+							$meta_data[ $key ] = $meta_value;
+						}
+					}
+					$extra_data[ $data_key ] = call_user_func_array( $callback_fn, array( $meta_data, $this->post->ID ) );
+					continue;
+				}
+
+				$meta_value = get_post_meta( $this->post->ID, $meta_key, false );
+				if ( is_array( $meta_value ) &amp;&amp; 1 === count( $meta_value ) ) {
+					$meta_data = $meta_value[0];
+				} else {
+					$meta_data = $meta_value;
+				}
+				$extra_data[ $data_key ] = call_user_func_array( $callback_fn, array( $meta_data, $this->post->ID ) );
+			} elseif ( 'post_content' === $location ) {
+				$shortcode  = $attributes['shortcode'] ?? '';
+				$block_name = $attributes['block_name'] ?? '';
+				if ( empty( $shortcode ) &amp;&amp; empty( $block_name ) ) {
+					continue;
+				}
+
+				// Process the block if block name is provided.
+				if ( ! empty( $block_name ) &amp;&amp; $this->has_blocks() ) {
+					$block_attribute = $attributes['block_attribute'] ?? '';
+					if ( ! empty( $block_attribute ) &amp;&amp; $this->has_block( $block_name ) ) {
+						$attribute_values = array();
+						$blocks           = parse_blocks( $this->post->post_content );
+
+						foreach ( $blocks as $block ) {
+							$attribute_values = array_merge( $attribute_values, $this->parse_blocks_for_attribute_values( $block, $block_name, $block_attribute ) );
+						}
+
+						$block_data = array();
+						if ( ! empty( $attribute_values ) ) {
+							foreach ( $attribute_values as $value ) {
+								$block_data[] = call_user_func_array( $callback_fn, array( $value, $this->post->ID ) );
+							}
+						}
+
+						$extra_data[ $data_key ] = $block_data;
+					}
+				}
+
+				// Process the shortcode if shortcode is provided.
+				if ( ! empty( $shortcode ) ) {
+					$shortcode_attribute = $attributes['shortcode_attribute'] ?? '';
+					if ( ! empty( $shortcode_attribute ) &amp;&amp; has_shortcode( $this->post->post_content, $shortcode ) ) {
+						$attribute_values = $this->get_shortcode_attribute_values( $this->post->post_content, $shortcode, $shortcode_attribute );
+
+						$shortcode_data = array();
+						if ( ! empty( $attribute_values ) ) {
+							foreach ( $attribute_values as $value ) {
+								$shortcode_data[] = call_user_func_array( $callback_fn, array( $value, $this->post->ID ) );
+							}
+						}
+
+						$extra_data[ $data_key ] = $shortcode_data;
+					}
+				}
+			}
+		}
+
+		/**
+		 * Filters the extra data for the post to be processed on the target site.
+		 *
+		 * @since 2.2.0
+		 * @hook dt_extra_data
+		 *
+		 * @param {array}           $extra_data Extra data for the post.
+		 * @param {DistributorPost} $this       The DistributorPost object.
+		 * @return {array} Extra data for the post.
+		 */
+		$extra_data = apply_filters( 'dt_extra_data', $extra_data, $this );
+
+		return $extra_data;
+	}
+
+	/**
+	 * Parse blocks to obtain value of given attribute.
+	 *
+	 * @since 2.2.0
+	 *
+	 * @param array        $block           Block to parse.
+	 * @param string       $block_name      Block name to look for.
+	 * @param string|array $block_attribute Block attribute(s) to look for.
+	 * @return array Array of attribute values.
+	 */
+	protected function parse_blocks_for_attribute_values( $block, $block_name, $block_attribute ) {
+		$attribute_values = array();
+
+		if ( ! empty( $block['innerBlocks'] ) ) {
+			foreach ( $block['innerBlocks'] as $inner_block ) {
+				$attribute_values = array_merge( $attribute_values, $this->parse_blocks_for_attribute_values( $inner_block, $block_name, $block_attribute ) );
+			}
+		}
+
+		if ( $block['blockName'] === $block_name ) {
+			// Handle multiple block attributes.
+			if ( is_array( $block_attribute ) ) {
+				$data = array();
+				foreach ( $block_attribute as $attribute ) {
+					if ( isset( $block['attrs'][ $attribute ] ) ) {
+						$data[ $attribute ] = $block['attrs'][ $attribute ];
+					}
+				}
+				$attribute_values[] = $data;
+			} elseif ( isset( $block['attrs'][ $block_attribute ] ) ) {
+				$attribute_values[] = $block['attrs'][ $block_attribute ];
+			}
+		}
+
+		return $attribute_values;
+	}
+
+	/**
+	 * Get the attribute values of a given shortcode.
+	 *
+	 * @since 2.2.0
+	 *
+	 * @param string       $content   The post content.
+	 * @param string       $shortcode The shortcode to look for.
+	 * @param string|array $attribute The attribute(s) to look for.
+	 * @return array Array of attribute values.
+	 */
+	protected function get_shortcode_attribute_values( $content, $shortcode, $attribute ) {
+		$attribute_values = array();
+
+		// Build a regex that matches only our target shortcode.
+		$pattern = get_shortcode_regex( array( $shortcode ) );
+
+		// Use preg_match_all to find all matching shortcodes.
+		preg_match_all( "/$pattern/", $content, $matches, PREG_SET_ORDER );
+
+		// Loop through each matched shortcode.
+		foreach ( $matches as $match ) {
+			// $match[0] is full match, $match[2] is shortcode tag and $match[3] is attributes string.
+			if ( $match[2] === $shortcode ) {
+				$attrs = shortcode_parse_atts( $match[3] );
+				if ( is_array( $attribute ) ) {
+					$data = array();
+					foreach ( $attribute as $attr ) {
+						if ( isset( $attrs[ $attr ] ) ) {
+							$data[ $attr ] = $attrs[ $attr ];
+						}
+					}
+					$attribute_values[] = $data;
+				} elseif ( isset( $attrs[ $attribute ] ) ) {
+					$attribute_values[] = $attrs[ $attribute ];
+				}
+			}
+		}
+
+		return $attribute_values;
+	}
+
+	/**
+	 * Parse the post's content to obtain media items by image tags.
+	 *
+	 * @return array&lt;WP_Post> Array of media posts.
+	 */
+	protected function parse_images_from_post_content() {
+		$processor = new \WP_HTML_Tag_Processor( $this->post->post_content );
+
+		$media = array();
+		while ( $processor->next_tag( 'img' ) ) {
+			$classes = explode( ' ', $processor->get_attribute( 'class' ) ?? ' ' );
+
+			if ( ! is_array( $classes ) ) {
+				continue;
+			}
+
+			// Filter out classes that are not image classes.
+			$classes = array_filter(
+				$classes,
+				function( $class ) {
+					return strpos( $class, 'wp-image-' ) === 0;
+				}
+			);
+
+			if ( empty( $classes ) ) {
+				continue;
+			}
+
+			$image_id   = (int) str_replace( 'wp-image-', '', current( $classes ) );
+			$media_post = get_post( $image_id );
+
+			if ( empty( $media_post ) ) {
+				continue;
+			}
+
+			$media[ $media_post->ID ] = $media_post;
+		}
+
+		$media = array_filter( $media );
+
+		return $media;
 	}
 
 	/**
@@ -833,6 +1111,9 @@ class DistributorPost {
 			'distributor_original_site_url'  => $this->source_site['home_url'],
 			'distributor_original_post_url'  => $this->get_permalink(),
 			'distributor_original_post_id'   => $this->post->ID,
+
+			// Extra data for handling stored IDs.
+			'distributor_extra_data'         => $this->get_extra_data(),
 		);
 	}
 
@@ -921,6 +1202,10 @@ class DistributorPost {
 		);
 		if ( ! empty( $post_data['parent'] ) ) {
 			$insert['meta_input']['dt_original_post_parent'] = $post_data['parent'];
+		}
+
+		if ( ! empty( $post_data['distributor_extra_data'] ) ) {
+			$insert['distributor_extra_data'] = $post_data['distributor_extra_data'];
 		}
 
 		return $insert;
@@ -1039,7 +1324,7 @@ class DistributorPost {
 
 <nav>
 	
-	<h2><a href="index.html">Home</a></h2><h3>Tutorials</h3><ul><li><a href="tutorial-connect-to-an-existing-post.html">Connect to an Existing Post</a></li><li><a href="tutorial-exclude-meta-from-yoast-duplicate-post.html">Exclude Meta from Yoast Duplicate Post</a></li><li><a href="tutorial-migration-guide-version-1-to-version-2.html">Migration Guide Version 1 to Version 2</a></li><li><a href="tutorial-post-meta.html">Post Meta</a></li><li><a href="tutorial-snippets.html">Snippets</a></li></ul><h3>Actions</h3><ul><li><a href="dt_after_set_meta.html">dt_after_set_meta</a></li><li><a href="dt_before_set_meta.html">dt_before_set_meta</a></li><li><a href="dt_link_post.html">dt_link_post</a></li><li><a href="dt_log_sync.html">dt_log_sync</a></li><li><a href="dt_oauth_admin_notices.html">dt_oauth_admin_notices</a></li><li><a href="dt_prepared_taxonomy_terms.html">dt_prepared_taxonomy_terms</a></li><li><a href="dt_process_distributor_attributes.html">dt_process_distributor_attributes</a></li><li><a href="dt_process_subscription_attributes.html">dt_process_subscription_attributes</a></li><li><a href="dt_pull_filters.html">dt_pull_filters</a></li><li><a href="dt_pull_list_table_custom_column.html">dt_pull_list_table_custom_column</a></li><li><a href="dt_pull_post.html">dt_pull_post</a></li><li><a href="dt_push_external_post.html">dt_push_external_post</a></li><li><a href="dt_push_network_post.html">dt_push_network_post</a></li><li><a href="dt_push_post.html">dt_push_post</a></li><li><a href="dt_unlink_post.html">dt_unlink_post</a></li></ul><h3>Filters</h3><ul><li><a href="distributable_post_types.html">distributable_post_types</a></li><li><a href="distributor_get_original_site_link.html">distributor_get_original_site_link</a></li><li><a href="dt_ajax_requires_with_credentials.html">dt_ajax_requires_with_credentials</a></li><li><a href="dt_allow_post_unlink.html">dt_allow_post_unlink</a></li><li><a href="dt_allowed_media_extensions.html">dt_allowed_media_extensions</a></li><li><a href="dt_auth_format_get_args.html">dt_auth_format_get_args</a></li><li><a href="dt_auth_format_post_args.html">dt_auth_format_post_args</a></li><li><a href="dt_auth_prepare_credentials.html">dt_auth_prepare_credentials</a></li><li><a href="dt_authorized_sites.html">dt_authorized_sites</a></li><li><a href="dt_available_pull_post_types.html">dt_available_pull_post_types</a></li><li><a href="dt_available_push_post_types.html">dt_available_push_post_types</a></li><li><a href="dt_capabilities.html">dt_capabilities</a></li><li><a href="dt_create_missing_terms.html">dt_create_missing_terms</a></li><li><a href="dt_debug_info_enabled.html">dt_debug_info_enabled</a></li><li><a href="dt_distributable_post_statuses.html">dt_distributable_post_statuses</a></li><li><a href="dt_excluded_meta.html">dt_excluded_meta</a></li><li><a href="dt_external_capabilities.html">dt_external_capabilities</a></li><li><a href="dt_get_media_details.html">dt_get_media_details</a></li><li><a href="dt_get_pull_content_rest_query_args.html">dt_get_pull_content_rest_query_args</a></li><li><a href="dt_get_rest_url.html">dt_get_rest_url</a></li><li><a href="dt_item_mapping.html">dt_item_mapping</a></li><li><a href="dt_media_item_formatted.html">dt_media_item_formatted</a></li><li><a href="dt_media_processing_filename.html">dt_media_processing_filename</a></li><li><a href="dt_network_site_connection_enabled.html">dt_network_site_connection_enabled</a></li><li><a href="dt_parse_media_blocks.html">dt_parse_media_blocks</a></li><li><a href="dt_post_to_pull.html">dt_post_to_pull</a></li><li><a href="dt_pre_get_authorized_sites.html">dt_pre_get_authorized_sites</a></li><li><a href="dt_prepared_meta.html">dt_prepared_meta</a></li><li><a href="dt_process_media_args.html">dt_process_media_args</a></li><li><a href="dt_process_media_save_source_file_path.html">dt_process_media_save_source_file_path</a></li><li><a href="dt_pull_as_draft.html">dt_pull_as_draft</a></li><li><a href="dt_pull_capabilities.html">dt_pull_capabilities</a></li><li><a href="dt_pull_list_table_columns.html">dt_pull_list_table_columns</a></li><li><a href="dt_pull_list_table_tr_class.html">dt_pull_list_table_tr_class</a></li><li><a href="dt_pull_post_apply_rendered_content.html">dt_pull_post_apply_rendered_content</a></li><li><a href="dt_pull_post_args.html">dt_pull_post_args</a></li><li><a href="dt_pull_post_media.html">dt_pull_post_media</a></li><li><a href="dt_pull_post_meta.html">dt_pull_post_meta</a></li><li><a href="dt_pull_post_terms.html">dt_pull_post_terms</a></li><li><a href="dt_push_capabilities.html">dt_push_capabilities</a></li><li><a href="dt_push_post_args.html">dt_push_post_args</a></li><li><a href="dt_push_post_media.html">dt_push_post_media</a></li><li><a href="dt_push_post_meta.html">dt_push_post_meta</a></li><li><a href="dt_push_post_terms.html">dt_push_post_terms</a></li><li><a href="dt_push_post_timeout.html">dt_push_post_timeout</a></li><li><a href="dt_remote_get.html">dt_remote_get</a></li><li><a href="dt_remote_post.html">dt_remote_post</a></li><li><a href="dt_remote_post_query_args.html">dt_remote_post_query_args</a></li><li><a href="dt_remote_post_timeout.html">dt_remote_post_timeout</a></li><li><a href="dt_set_media_args.html">dt_set_media_args</a></li><li><a href="dt_subscription_post_args.html">dt_subscription_post_args</a></li><li><a href="dt_subscription_post_timeout.html">dt_subscription_post_timeout</a></li><li><a href="dt_sync_media_delete_and_replace.html">dt_sync_media_delete_and_replace</a></li><li><a href="dt_sync_meta.html">dt_sync_meta</a></li><li><a href="dt_syncable_taxonomies.html">dt_syncable_taxonomies</a></li><li><a href="dt_syndicatable_capabilities.html">dt_syndicatable_capabilities</a></li><li><a href="dt_update_content_via_request_args.html">dt_update_content_via_request_args</a></li><li><a href="dt_update_term_hierarchy.html">dt_update_term_hierarchy</a></li><li><a href="dt_use_block_editor_for_post_type.html">dt_use_block_editor_for_post_type</a></li></ul>
+	<h2><a href="index.html">Home</a></h2><h3>Tutorials</h3><ul><li><a href="tutorial-auto-distribution.html">Enabling Auto Distribution</a></li><li><a href="tutorial-connect-to-an-existing-post.html">Connect to an Existing Post</a></li><li><a href="tutorial-demo-with-playground.html">Demo with Playground</a></li><li><a href="tutorial-exclude-meta-from-yoast-duplicate-post.html">Exclude Meta from Yoast Duplicate Post</a></li><li><a href="tutorial-migration-guide-version-1-to-version-2.html">Migration Guide Version 1 to Version 2</a></li><li><a href="tutorial-post-meta.html">Post Meta</a></li><li><a href="tutorial-snippets.html">Snippets</a></li><li><a href="tutorial-stored-id-handling.html">Stored ID Handling</a></li></ul><h3>Actions</h3><ul><li><a href="dt_after_set_meta.html">dt_after_set_meta</a></li><li><a href="dt_before_set_meta.html">dt_before_set_meta</a></li><li><a href="dt_link_post.html">dt_link_post</a></li><li><a href="dt_log_sync.html">dt_log_sync</a></li><li><a href="dt_oauth_admin_notices.html">dt_oauth_admin_notices</a></li><li><a href="dt_prepared_taxonomy_terms.html">dt_prepared_taxonomy_terms</a></li><li><a href="dt_process_distributor_attributes.html">dt_process_distributor_attributes</a></li><li><a href="dt_process_subscription_attributes.html">dt_process_subscription_attributes</a></li><li><a href="dt_pull_filters.html">dt_pull_filters</a></li><li><a href="dt_pull_list_table_custom_column.html">dt_pull_list_table_custom_column</a></li><li><a href="dt_pull_post.html">dt_pull_post</a></li><li><a href="dt_push_external_post.html">dt_push_external_post</a></li><li><a href="dt_push_network_post.html">dt_push_network_post</a></li><li><a href="dt_push_post.html">dt_push_post</a></li><li><a href="dt_unlink_post.html">dt_unlink_post</a></li></ul><h3>Filters</h3><ul><li><a href="auto_distribute_supported_post_types.html">auto_distribute_supported_post_types</a></li><li><a href="distributable_post_types.html">distributable_post_types</a></li><li><a href="distributor_get_original_site_link.html">distributor_get_original_site_link</a></li><li><a href="dt_after_registered_block_data_processed.html">dt_after_registered_block_data_processed</a></li><li><a href="dt_after_registered_data_processed.html">dt_after_registered_data_processed</a></li><li><a href="dt_after_registered_post_meta_processed.html">dt_after_registered_post_meta_processed</a></li><li><a href="dt_after_registered_shortcode_data_processed.html">dt_after_registered_shortcode_data_processed</a></li><li><a href="dt_ajax_requires_with_credentials.html">dt_ajax_requires_with_credentials</a></li><li><a href="dt_allow_post_unlink.html">dt_allow_post_unlink</a></li><li><a href="dt_allowed_media_extensions.html">dt_allowed_media_extensions</a></li><li><a href="dt_auth_format_get_args.html">dt_auth_format_get_args</a></li><li><a href="dt_auth_format_post_args.html">dt_auth_format_post_args</a></li><li><a href="dt_auth_prepare_credentials.html">dt_auth_prepare_credentials</a></li><li><a href="dt_authorized_sites.html">dt_authorized_sites</a></li><li><a href="dt_auto_distribute_post.html">dt_auto_distribute_post</a></li><li><a href="dt_auto_distribution_default_status.html">dt_auto_distribution_default_status</a></li><li><a href="dt_auto_distribution_enabled.html">dt_auto_distribution_enabled</a></li><li><a href="dt_available_pull_post_types.html">dt_available_pull_post_types</a></li><li><a href="dt_available_push_post_types.html">dt_available_push_post_types</a></li><li><a href="dt_capabilities.html">dt_capabilities</a></li><li><a href="dt_create_missing_terms.html">dt_create_missing_terms</a></li><li><a href="dt_debug_info_enabled.html">dt_debug_info_enabled</a></li><li><a href="dt_distributable_post_statuses.html">dt_distributable_post_statuses</a></li><li><a href="dt_excluded_meta.html">dt_excluded_meta</a></li><li><a href="dt_external_capabilities.html">dt_external_capabilities</a></li><li><a href="dt_external_connections_per_page.html">dt_external_connections_per_page</a></li><li><a href="dt_extra_data.html">dt_extra_data</a></li><li><a href="dt_get_media_details.html">dt_get_media_details</a></li><li><a href="dt_get_pull_content_rest_query_args.html">dt_get_pull_content_rest_query_args</a></li><li><a href="dt_get_rest_url.html">dt_get_rest_url</a></li><li><a href="dt_item_mapping.html">dt_item_mapping</a></li><li><a href="dt_media_item_formatted.html">dt_media_item_formatted</a></li><li><a href="dt_media_processing_filename.html">dt_media_processing_filename</a></li><li><a href="dt_network_site_connection_enabled.html">dt_network_site_connection_enabled</a></li><li><a href="dt_parse_media_blocks.html">dt_parse_media_blocks</a></li><li><a href="dt_post_to_pull.html">dt_post_to_pull</a></li><li><a href="dt_pre_get_authorized_sites.html">dt_pre_get_authorized_sites</a></li><li><a href="dt_prepared_meta.html">dt_prepared_meta</a></li><li><a href="dt_process_extra_data.html">dt_process_extra_data</a></li><li><a href="dt_process_media_args.html">dt_process_media_args</a></li><li><a href="dt_process_media_save_source_file_path.html">dt_process_media_save_source_file_path</a></li><li><a href="dt_pull_as_draft.html">dt_pull_as_draft</a></li><li><a href="dt_pull_capabilities.html">dt_pull_capabilities</a></li><li><a href="dt_pull_list_table_columns.html">dt_pull_list_table_columns</a></li><li><a href="dt_pull_list_table_tr_class.html">dt_pull_list_table_tr_class</a></li><li><a href="dt_pull_post_apply_rendered_content.html">dt_pull_post_apply_rendered_content</a></li><li><a href="dt_pull_post_args.html">dt_pull_post_args</a></li><li><a href="dt_pull_post_media.html">dt_pull_post_media</a></li><li><a href="dt_pull_post_meta.html">dt_pull_post_meta</a></li><li><a href="dt_pull_post_terms.html">dt_pull_post_terms</a></li><li><a href="dt_push_capabilities.html">dt_push_capabilities</a></li><li><a href="dt_push_post_args.html">dt_push_post_args</a></li><li><a href="dt_push_post_media.html">dt_push_post_media</a></li><li><a href="dt_push_post_meta.html">dt_push_post_meta</a></li><li><a href="dt_push_post_terms.html">dt_push_post_terms</a></li><li><a href="dt_push_post_timeout.html">dt_push_post_timeout</a></li><li><a href="dt_registered_data_distribute_term_parent.html">dt_registered_data_distribute_term_parent</a></li><li><a href="dt_remote_get.html">dt_remote_get</a></li><li><a href="dt_remote_post.html">dt_remote_post</a></li><li><a href="dt_remote_post_query_args.html">dt_remote_post_query_args</a></li><li><a href="dt_remote_post_timeout.html">dt_remote_post_timeout</a></li><li><a href="dt_set_media_args.html">dt_set_media_args</a></li><li><a href="dt_subscription_post_args.html">dt_subscription_post_args</a></li><li><a href="dt_subscription_post_timeout.html">dt_subscription_post_timeout</a></li><li><a href="dt_sync_media_delete_and_replace.html">dt_sync_media_delete_and_replace</a></li><li><a href="dt_sync_meta.html">dt_sync_meta</a></li><li><a href="dt_syncable_taxonomies.html">dt_syncable_taxonomies</a></li><li><a href="dt_syndicatable_capabilities.html">dt_syndicatable_capabilities</a></li><li><a href="dt_update_content_image_urls.html">dt_update_content_image_urls</a></li><li><a href="dt_update_content_via_request_args.html">dt_update_content_via_request_args</a></li><li><a href="dt_update_term_hierarchy.html">dt_update_term_hierarchy</a></li><li><a href="dt_use_block_editor_for_post_type.html">dt_use_block_editor_for_post_type</a></li></ul>
 </nav>
 
 <br class="clear">

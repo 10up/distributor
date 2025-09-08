@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Tutorial: Stored ID Handling - 10up Distributor Developer Documentation</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+
+	<link href="https://fonts.googleapis.com/css?family=IBM+Plex+Mono|IBM+Plex+Sans:300,400|Playfair+Display:900&display=swap" rel="stylesheet"> 
+    <link type="text/css" rel="stylesheet" href="styles-10up.css">
+</head>
+
+<body>
+
+<div id="main">
+
+	
+    <h1 class="page-title">Tutorial: Stored ID Handling</h1>
+	
+
+    <section>
+
+<header>
+    
+
+    <h2>Stored ID Handling</h2>
+</header>
+
+<article>
+    <p>Distributor often deals with data stored as ID references. This is common in WordPress, where IDs are used in block attributes, shortcodes, or post meta by popular plugins like ACF, Elementor, and Gravity Forms. However, when content is distributed to another site, these stored IDs may not match, leading to data loss or unexpected content.</p>
+<p>To address this, Distributor provides a helper function: <code>distributor_register_data</code>. This function allows developers to register data references, specify where the data is located, define how to extract the ID, and register callbacks to process the data on both the source and target sites.</p>
+<h2 id="overview">Overview</h2>
+<p>The <code>distributor_register_data</code> function streamlines the process of updating stored ID references by:</p>
+<ul>
+<li><strong>Identifying the data location:</strong> Whether in post meta or within post content (shortcodes or blocks).</li>
+<li><strong>Extracting the reference:</strong> Defining how to locate the specific attribute or meta key holding the ID.</li>
+<li><strong>Processing the data:</strong> Using pre-distribution and post-distribution callbacks to prepare and update the reference IDs, ensuring they point to the correct data on the target site.</li>
+</ul>
+<h4 id="important%3A-ensure-that-this-data-registration-code-is-added-to-both-the-source-and-target-sites.-also%2C-verify-that-your-distributor-plugin-version-is-the-same-on-both-sites-and-equal-to-or-greater-than-the-required-version-(2.2.0)."><strong>Important:</strong> Ensure that this data registration code is added to both the source and target sites. Also, verify that your Distributor plugin version is the same on both sites and equal to or greater than the required version (2.2.0).</h4>
+<h2 id="function-definition">Function Definition</h2>
+<h3 id="distributor_register_data"><code>distributor_register_data</code></h3>
+<p>This function registers a data piece by providing details about its location and the callbacks needed to process it during distribution.</p>
+<h4 id="parameters">Parameters</h4>
+<ul>
+<li>
+<p><strong><code>$data_name</code></strong> (<code>string</code>):
+The unique identifier for the data.</p>
+</li>
+<li>
+<p><strong><code>$args</code></strong> (<code>array</code>):
+An array of parameters that describe:</p>
+<ul>
+<li>
+<p><strong><code>location</code></strong> (<code>string</code>):
+Where the data is stored. Accepted values are <code>'post_meta'</code> or <code>'post_content'</code>.</p>
+</li>
+<li>
+<p><strong><code>attributes</code></strong> (<code>array</code>):
+Additional details depending on the location:</p>
+<ul>
+<li><strong>For post meta:</strong>
+<ul>
+<li><code>meta_key</code> (<code>string</code>): The post meta key. <strong>(Required)</strong></li>
+</ul>
+</li>
+<li><strong>For shortcodes:</strong>
+<ul>
+<li><code>shortcode</code> (<code>string</code>): The shortcode tag. <strong>(Required)</strong></li>
+<li><code>shortcode_attribute</code> (<code>string|array</code>): The attribute(s) containing the data. <strong>(Required)</strong></li>
+</ul>
+</li>
+<li><strong>For blocks:</strong>
+<ul>
+<li><code>block_name</code> (<code>string</code>): The block name. <strong>(Required)</strong></li>
+<li><code>block_attribute</code> (<code>string|array</code>): The attribute(s) containing the data. <strong>(Required)</strong></li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p><strong><code>type</code></strong> (<code>string</code>):
+Type of data. Accepted values are <code>'media'</code>, <code>'post'</code>, or <code>'term'</code>. If set, the default callbacks will be used.
+<strong>Note:</strong> If this parameter is used in conjunction with custom callbacks, the custom callbacks will be used instead.</p>
+</li>
+<li>
+<p><strong><code>pre_distribute_cb</code></strong> (<code>callable</code>):
+A callback function that prepares the data on the source site before distribution. It should return extra data that is required for processing on the target site.</p>
+</li>
+<li>
+<p><strong><code>post_distribute_cb</code></strong> (<code>callable</code>):
+A callback function that processes the extra data on the target site and returns the updated ID to replace the source reference.</p>
+</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h2 id="examples">Examples</h2>
+<p>Below are several examples demonstrating how to use the <code>distributor_register_data</code> function in different scenarios.</p>
+<h3 id="1.-handling-an-image-id-stored-in-post-meta">1. Handling an Image ID Stored in Post Meta</h3>
+<p>In this example, we register an image ID stored in post meta under the key <code>example_image_id</code>.</p>
+<h4 id="with-custom-callback-functions">With Custom Callback Functions</h4>
+<pre class="prettyprint source lang-php"><code>distributor_register_data( 'example_post_meta_data', array(
+	'location'   => 'post_meta',
+	'attributes' => array(
+		'meta_key' => 'example_image_id',
+	),
+	// Callback function to prepare the data before sending it from the source site.
+	// $image_id is the ID stored in post meta (example_image_id).
+	// $source_post_id is the ID of the post being distributed.
+	'pre_distribute_cb' => function ( $image_id, $source_post_id ) {
+		if ( ! $image_id ) {
+			return array();
+		}
+
+		$image_url = wp_get_attachment_image_url( $image_id, 'full' );
+
+		// Return extra data required for processing on the target site.
+		return array(
+			'image_url' => $image_url,
+		);
+	},
+	// Callback function to process the data before saving it on the target site.
+	// $extra_data is the data returned from pre_distribute_cb.
+	// $source_data is the original data stored in post meta.
+	// $post_data is the distributed post's data.
+	'post_distribute_cb' => function ( $extra_data, $source_data, $post_data ) {
+		if ( ! isset( $extra_data['image_url'] ) ) {
+			return;
+		}
+
+		$source_image_url = $extra_data['image_url'];
+		$source_image_id  = $source_data;
+
+		// Check if the media already exists on the target site. If yes, return its ID.
+		$image_id = Utils\get_attachment_id_by_original_data( $source_image_id, $source_image_url );
+
+		// If the media is not found, process and save it.
+		if ( ! $image_id ) {
+			$image_id = Utils\process_media( $source_image_url, 0, [] );
+			update_post_meta( $image_id, 'dt_original_media_id', wp_slash( $source_image_id ) );
+			update_post_meta( $image_id, 'dt_original_media_url', wp_slash( $source_image_url ) );
+		}
+
+		// Return the media ID to replace the source reference.
+		return $image_id;
+	},
+) );
+</code></pre>
+<p><strong>Explanation</strong></p>
+<ol>
+<li>
+<p><strong>Pre-Distribution Callback (<code>pre_distribute_cb</code>):</strong></p>
+<ul>
+<li>Retrieves the URL of the image using the stored ID.</li>
+<li>Returns an array with the image URL to be used on the target site.</li>
+</ul>
+</li>
+<li>
+<p><strong>Post-Distribution Callback (<code>post_distribute_cb</code>):</strong></p>
+<ul>
+<li>Checks whether the media already exists on the target site by comparing the source image data.</li>
+<li>If not found, processes (uploads) the media and updates the relevant post meta with the original source data.</li>
+<li>Returns the new image ID for the distributed post.</li>
+</ul>
+</li>
+</ol>
+<h4 id="using-the-type-parameter-to-utilize-the-default-callback">Using the <code>type</code> Parameter to Utilize the Default Callback</h4>
+<pre class="prettyprint source lang-php"><code>distributor_register_data( 'example_post_meta_data', array(
+	'location'   => 'post_meta',
+	'attributes' => array(
+		'meta_key' => 'example_image_id',
+	),
+	'type'       => 'media'
+) );
+</code></pre>
+<h3 id="2.-handling-term-id-in-a-block-attribute">2. Handling Term ID in a Block Attribute</h3>
+<p>This example demonstrates how to handle a term ID stored in a block attribute.</p>
+<h4 id="with-custom-callback-functions-1">With Custom Callback Functions</h4>
+<pre class="prettyprint source lang-php"><code>distributor_register_data(
+	'example_block_data',
+	array(
+		'location'           => 'post_content',
+		'attributes'         => array(
+			'block_name'      => 'example/block-name',
+			'block_attribute' => 'id',
+		),
+		'pre_distribute_cb'  => function( $source_term_id ) {
+			if ( ! $source_term_id ) {
+				return array();
+			}
+
+			$term = get_term_by( 'id', $source_term_id, 'category' );
+			if ( ! $term ) {
+				return array();
+			}
+
+			// Return extra data required for processing on the target site.
+			return array(
+				'name'        => $term->name,
+				'slug'        => $term->slug,
+				'description' => $term->description,
+				'taxonomy'    => $term->taxonomy,
+			);
+		},
+		'post_distribute_cb' => function( $extra_data, $source_data, $post_data ) {
+			if ( ! isset( $extra_data['name'] ) && ! isset( $extra_data['taxonomy'] ) ) {
+				return;
+			}
+
+			$existing_term = get_term_by( 'name', $extra_data['name'], $extra_data['taxonomy'] );
+			if ( $existing_term ) {
+				return $existing_term->term_id;
+			}
+
+			// Create the term on the target site.
+			$term = wp_insert_term(
+				$extra_data['name'],
+				$extra_data['taxonomy'],
+				array(
+					'description' => $extra_data['description'],
+					'slug'        => $extra_data['slug'],
+				)
+			);
+
+			if ( is_wp_error( $term ) ) {
+				return;
+			}
+
+			return $term['term_id'];
+		},
+	)
+);
+</code></pre>
+<h4 id="using-the-type-parameter-to-utilize-the-default-callback-1">Using the <code>type</code> Parameter to Utilize the Default Callback</h4>
+<pre class="prettyprint source lang-php"><code>distributor_register_data(
+	'example_block_data',
+	array(
+		'location'   => 'post_content',
+		'attributes' => array(
+			'block_name'      => 'example/block-name',
+			'block_attribute' => 'id',
+		),
+		'type'       => 'term'
+	)
+);
+</code></pre>
+<h3 id="3.-handling-post-id-in-a-shortcode-attribute">3. Handling Post ID in a Shortcode Attribute</h3>
+<p>This example shows how to manage a post ID stored within a shortcode attribute.</p>
+<h4 id="with-custom-callback-functions-2">With Custom Callback Functions</h4>
+<pre class="prettyprint source lang-php"><code>// Distributor data registration for the post ID stored in shortcode attribute.
+distributor_register_data( 'example_post_data', array(
+	'location'   => 'post_content',
+	'attributes' => array(
+		'shortcode'           => 'extra_shortcode',
+		'shortcode_attribute' => 'example_post_id',
+	),
+	'pre_distribute_cb' => function( $post_id ) {
+		if ( ! $post_id ) {
+			return array();
+		}
+
+		$post = get_post( $post_id );
+		if ( ! $post ) {
+			return array();
+		}
+
+		return array(
+			'post_type'    => $post->post_type,
+			'post_title'   => $post->post_title,
+			'post_status'  => $post->post_status,
+			'post_content' => $post->post_content,
+		);
+	},
+	'post_distribute_cb' => function( $extra_data, $source_data, $post_data ) {
+		if ( ! isset( $extra_data['post_type'] ) && ! isset( $extra_data['post_title'] ) ) {
+			return $source_data;
+		}
+
+		$posts = get_posts(
+			array(
+				'post_type'              => $extra_data['post_type'],
+				'meta_query'             => array(
+					array(
+						'key'     => 'dt_original_post_id',
+						'value'   => $source_data,
+						'compare' => '=',
+					),
+				),
+				'post_status'            => 'any',
+				'fields'                 => 'ids',
+				'no_found_rows'          => true,
+				'update_post_meta_cache' => false,
+				'update_post_term_cache' => false,
+				'numberposts'            => 1,
+				'orderby'                => 'post_date ID',
+				'order'                  => 'ASC',
+			)
+		);
+
+		if ( ! empty( $posts ) ) {
+			return $posts[0];
+		}
+
+		// Create the post.
+		$post_id = wp_insert_post( $extra_data );
+
+		if ( is_wp_error( $post_id ) ) {
+			return;
+		}
+
+		// Store the original post ID in post meta to check for existing posts on subsequent distributions.
+		update_post_meta( $post_id, 'dt_original_post_id', wp_slash( $source_data ) );
+
+		return $post_id;
+	},
+) );
+</code></pre>
+<h4 id="using-the-type-parameter-to-utilize-the-default-callback-2">Using the <code>type</code> Parameter to Utilize the Default Callback</h4>
+<pre class="prettyprint source lang-php"><code>// Distributor data registration for the post ID stored in shortcode attribute.
+distributor_register_data( 'example_post_data', array(
+	'location'   => 'post_content',
+	'attributes' => array(
+		'shortcode'           => 'extra_shortcode',
+		'shortcode_attribute' => 'example_post_id',
+	),
+	'type'       => 'post'
+) );
+</code></pre>
+<p>If you have any doubts, encounter any different scenarios to handle, or need further assistance, please feel free to report an issue on our <a href="https://github.com/10up/distributor">GitHub repository</a> and we would be happy to help.</p>
+</article>
+
+</section>
+
+
+    <footer>
+		<a href="https://distributorplugin.com/">Distributor Plugin</a> &bull;
+		<a href="https://github.com/10up/distributor/">Distributor on GitHub</a> &bull;
+		<a href="https://10up.com/careers">Careers at 10up</a>
+	</footer>
+
+</div>
+
+<nav>
+	
+	<h2><a href="index.html">Home</a></h2><h3>Tutorials</h3><ul><li><a href="tutorial-auto-distribution.html">Enabling Auto Distribution</a></li><li><a href="tutorial-connect-to-an-existing-post.html">Connect to an Existing Post</a></li><li><a href="tutorial-demo-with-playground.html">Demo with Playground</a></li><li><a href="tutorial-exclude-meta-from-yoast-duplicate-post.html">Exclude Meta from Yoast Duplicate Post</a></li><li><a href="tutorial-migration-guide-version-1-to-version-2.html">Migration Guide Version 1 to Version 2</a></li><li><a href="tutorial-post-meta.html">Post Meta</a></li><li><a href="tutorial-snippets.html">Snippets</a></li><li><a href="tutorial-stored-id-handling.html">Stored ID Handling</a></li></ul><h3>Actions</h3><ul><li><a href="dt_after_set_meta.html">dt_after_set_meta</a></li><li><a href="dt_before_set_meta.html">dt_before_set_meta</a></li><li><a href="dt_link_post.html">dt_link_post</a></li><li><a href="dt_log_sync.html">dt_log_sync</a></li><li><a href="dt_oauth_admin_notices.html">dt_oauth_admin_notices</a></li><li><a href="dt_prepared_taxonomy_terms.html">dt_prepared_taxonomy_terms</a></li><li><a href="dt_process_distributor_attributes.html">dt_process_distributor_attributes</a></li><li><a href="dt_process_subscription_attributes.html">dt_process_subscription_attributes</a></li><li><a href="dt_pull_filters.html">dt_pull_filters</a></li><li><a href="dt_pull_list_table_custom_column.html">dt_pull_list_table_custom_column</a></li><li><a href="dt_pull_post.html">dt_pull_post</a></li><li><a href="dt_push_external_post.html">dt_push_external_post</a></li><li><a href="dt_push_network_post.html">dt_push_network_post</a></li><li><a href="dt_push_post.html">dt_push_post</a></li><li><a href="dt_unlink_post.html">dt_unlink_post</a></li></ul><h3>Filters</h3><ul><li><a href="auto_distribute_supported_post_types.html">auto_distribute_supported_post_types</a></li><li><a href="distributable_post_types.html">distributable_post_types</a></li><li><a href="distributor_get_original_site_link.html">distributor_get_original_site_link</a></li><li><a href="dt_after_registered_block_data_processed.html">dt_after_registered_block_data_processed</a></li><li><a href="dt_after_registered_data_processed.html">dt_after_registered_data_processed</a></li><li><a href="dt_after_registered_post_meta_processed.html">dt_after_registered_post_meta_processed</a></li><li><a href="dt_after_registered_shortcode_data_processed.html">dt_after_registered_shortcode_data_processed</a></li><li><a href="dt_ajax_requires_with_credentials.html">dt_ajax_requires_with_credentials</a></li><li><a href="dt_allow_post_unlink.html">dt_allow_post_unlink</a></li><li><a href="dt_allowed_media_extensions.html">dt_allowed_media_extensions</a></li><li><a href="dt_auth_format_get_args.html">dt_auth_format_get_args</a></li><li><a href="dt_auth_format_post_args.html">dt_auth_format_post_args</a></li><li><a href="dt_auth_prepare_credentials.html">dt_auth_prepare_credentials</a></li><li><a href="dt_authorized_sites.html">dt_authorized_sites</a></li><li><a href="dt_auto_distribute_post.html">dt_auto_distribute_post</a></li><li><a href="dt_auto_distribution_default_status.html">dt_auto_distribution_default_status</a></li><li><a href="dt_auto_distribution_enabled.html">dt_auto_distribution_enabled</a></li><li><a href="dt_available_pull_post_types.html">dt_available_pull_post_types</a></li><li><a href="dt_available_push_post_types.html">dt_available_push_post_types</a></li><li><a href="dt_capabilities.html">dt_capabilities</a></li><li><a href="dt_create_missing_terms.html">dt_create_missing_terms</a></li><li><a href="dt_debug_info_enabled.html">dt_debug_info_enabled</a></li><li><a href="dt_distributable_post_statuses.html">dt_distributable_post_statuses</a></li><li><a href="dt_excluded_meta.html">dt_excluded_meta</a></li><li><a href="dt_external_capabilities.html">dt_external_capabilities</a></li><li><a href="dt_external_connections_per_page.html">dt_external_connections_per_page</a></li><li><a href="dt_extra_data.html">dt_extra_data</a></li><li><a href="dt_get_media_details.html">dt_get_media_details</a></li><li><a href="dt_get_pull_content_rest_query_args.html">dt_get_pull_content_rest_query_args</a></li><li><a href="dt_get_rest_url.html">dt_get_rest_url</a></li><li><a href="dt_item_mapping.html">dt_item_mapping</a></li><li><a href="dt_media_item_formatted.html">dt_media_item_formatted</a></li><li><a href="dt_media_processing_filename.html">dt_media_processing_filename</a></li><li><a href="dt_network_site_connection_enabled.html">dt_network_site_connection_enabled</a></li><li><a href="dt_parse_media_blocks.html">dt_parse_media_blocks</a></li><li><a href="dt_post_to_pull.html">dt_post_to_pull</a></li><li><a href="dt_pre_get_authorized_sites.html">dt_pre_get_authorized_sites</a></li><li><a href="dt_prepared_meta.html">dt_prepared_meta</a></li><li><a href="dt_process_extra_data.html">dt_process_extra_data</a></li><li><a href="dt_process_media_args.html">dt_process_media_args</a></li><li><a href="dt_process_media_save_source_file_path.html">dt_process_media_save_source_file_path</a></li><li><a href="dt_pull_as_draft.html">dt_pull_as_draft</a></li><li><a href="dt_pull_capabilities.html">dt_pull_capabilities</a></li><li><a href="dt_pull_list_table_columns.html">dt_pull_list_table_columns</a></li><li><a href="dt_pull_list_table_tr_class.html">dt_pull_list_table_tr_class</a></li><li><a href="dt_pull_post_apply_rendered_content.html">dt_pull_post_apply_rendered_content</a></li><li><a href="dt_pull_post_args.html">dt_pull_post_args</a></li><li><a href="dt_pull_post_media.html">dt_pull_post_media</a></li><li><a href="dt_pull_post_meta.html">dt_pull_post_meta</a></li><li><a href="dt_pull_post_terms.html">dt_pull_post_terms</a></li><li><a href="dt_push_capabilities.html">dt_push_capabilities</a></li><li><a href="dt_push_post_args.html">dt_push_post_args</a></li><li><a href="dt_push_post_media.html">dt_push_post_media</a></li><li><a href="dt_push_post_meta.html">dt_push_post_meta</a></li><li><a href="dt_push_post_terms.html">dt_push_post_terms</a></li><li><a href="dt_push_post_timeout.html">dt_push_post_timeout</a></li><li><a href="dt_registered_data_distribute_term_parent.html">dt_registered_data_distribute_term_parent</a></li><li><a href="dt_remote_get.html">dt_remote_get</a></li><li><a href="dt_remote_post.html">dt_remote_post</a></li><li><a href="dt_remote_post_query_args.html">dt_remote_post_query_args</a></li><li><a href="dt_remote_post_timeout.html">dt_remote_post_timeout</a></li><li><a href="dt_set_media_args.html">dt_set_media_args</a></li><li><a href="dt_subscription_post_args.html">dt_subscription_post_args</a></li><li><a href="dt_subscription_post_timeout.html">dt_subscription_post_timeout</a></li><li><a href="dt_sync_media_delete_and_replace.html">dt_sync_media_delete_and_replace</a></li><li><a href="dt_sync_meta.html">dt_sync_meta</a></li><li><a href="dt_syncable_taxonomies.html">dt_syncable_taxonomies</a></li><li><a href="dt_syndicatable_capabilities.html">dt_syndicatable_capabilities</a></li><li><a href="dt_update_content_image_urls.html">dt_update_content_image_urls</a></li><li><a href="dt_update_content_via_request_args.html">dt_update_content_via_request_args</a></li><li><a href="dt_update_term_hierarchy.html">dt_update_term_hierarchy</a></li><li><a href="dt_use_block_editor_for_post_type.html">dt_use_block_editor_for_post_type</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

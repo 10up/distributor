@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Source: classes/RegisteredDataHandler.php - 10up Distributor Developer Documentation</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+
+	<link href="https://fonts.googleapis.com/css?family=IBM+Plex+Mono|IBM+Plex+Sans:300,400|Playfair+Display:900&display=swap" rel="stylesheet"> 
+    <link type="text/css" rel="stylesheet" href="styles-10up.css">
+</head>
+
+<body>
+
+<div id="main">
+
+	
+    <h1 class="page-title">Source: classes/RegisteredDataHandler.php</h1>
+	
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>&lt;?php
+/**
+ * Class for process registered data.
+ *
+ * @package  distributor
+ */
+
+namespace Distributor;
+
+/**
+ * This class is responsible for processing the registered data for the post content and post meta.
+ *
+ * @since 2.2.0
+ */
+class RegisteredDataHandler {
+	/**
+	 * The Connection data array.
+	 *
+	 * @since 2.2.0
+	 * @var array
+	 */
+	public $connection_data = array();
+
+	/**
+	 * Constructor for the RegisteredDataHandler class.
+	 *
+	 * @since 2.2.0
+	 *
+	 * @param array $connection_data The connection data array.
+	 */
+	public function __construct( $connection_data = array() ) {
+		$this->connection_data = $connection_data;
+	}
+
+	/**
+	 * Search and replace inner content of a block with the provided replacements.
+	 *
+	 * @since 2.2.0
+	 *
+	 * @param array $block               The block to search and replace inner content.
+	 * @param array $replacement_strings Array of search and replace strings for inner content.
+	 * @return array The block with inner content replaced.
+	 */
+	public function search_replace_block_inner_content( $block, $replacement_strings ) {
+		if ( empty( $replacement_strings ) ) {
+			return $block;
+		}
+
+		foreach ( $replacement_strings as $replacement_string ) {
+			$block['innerHTML']       = str_replace( $replacement_string['search'], $replacement_string['replace'], $block['innerHTML'] );
+			$block['innerContent'][0] = str_replace( $replacement_string['search'], $replacement_string['replace'], $block['innerContent'][0] );
+		}
+		return $block;
+	}
+
+	/**
+	 * Recursively process blocks for the registered data.
+	 *
+	 * Processes the blocks data recursively and calls the callback function provided in the registered data.
+	 *
+	 * @since 2.2.0
+	 *
+	 * @param array $blocks          Array of blocks.
+	 * @param array $registered_data Array of registered data.
+	 * @param array $extra_data      Array of extra data provided by source for the registered data.
+	 * @param array $post_data       Array of post data.
+	 * @param int   $index           Index of the extra data.
+	 * @return array Array with 'blocks' (processed blocks) and 'modified' (bool).
+	 */
+	public function process_blocks_data_recursive( $blocks, $registered_data, $extra_data, $post_data, $index = 0 ) {
+		$callback_fn     = $registered_data['post_distribute_cb'] ?? null;
+		$attributes      = $registered_data['attributes'] ?? array();
+		$block_name      = $attributes['block_name'] ?? '';
+		$block_attribute = $attributes['block_attribute'] ?? '';
+		$modified        = false;
+
+		// Skip if the callback function is not provided or not callable.
+		if ( empty( $callback_fn ) || ! is_callable( $callback_fn ) ) {
+			return array(
+				'blocks'   => $blocks,
+				'modified' => $modified,
+			);
+		}
+
+		foreach ( $blocks as &amp;$block ) {
+			if ( isset( $block['blockName'] ) &amp;&amp; $block_name === $block['blockName'] ) {
+				if ( is_array( $block_attribute ) ) {
+					$source_data = array();
+					foreach ( $block_attribute as $attribute ) {
+						if ( isset( $block['attrs'][ $attribute ] ) ) {
+							$source_data[ $attribute ] = $block['attrs'][ $attribute ];
+						}
+					}
+					$current_extra_data = $extra_data[ $index ] ?? array();
+					$replacement        = call_user_func_array( $callback_fn, array( $current_extra_data, $source_data, $post_data, $this->connection_data ) );
+					if ( ! empty( $replacement ) ) {
+						foreach ( $block_attribute as $attribute ) {
+							if ( isset( $replacement[ $attribute ] ) ) {
+								$block['attrs'][ $attribute ] = $replacement[ $attribute ];
+							}
+						}
+
+						// Do replacement for innerHTML if it's set.
+						if ( ! empty( $replacement['inner_content_replacements'] ) ) {
+							$block = $this->search_replace_block_inner_content( $block, $replacement['inner_content_replacements'] );
+						}
+
+						$modified = true;
+					}
+					$index++;
+				} elseif ( isset( $block['attrs'][ $block_attribute ] ) ) {
+					$source_data        = $block['attrs'][ $block_attribute ];
+					$current_extra_data = $extra_data[ $index ] ?? array();
+					$replacement        = call_user_func_array( $callback_fn, array( $current_extra_data, $source_data, $post_data, $this->connection_data ) );
+					if ( ! empty( $replacement ) ) {
+						$block['attrs'][ $block_attribute ] = $replacement;
+
+						// Handle inner content replacements for media blocks.
+						$type = $registered_data['type'] ?? '';
+						if ( 'media' === $type &amp;&amp; ! empty( $replacement ) ) {
+							$from_url = $current_extra_data['url'] ?? '';
+							$to_url   = wp_get_attachment_url( $replacement );
+
+							if ( ! empty( $from_url ) &amp;&amp; ! empty( $to_url ) ) {
+								$replacements = array(
+									array(
+										'search'  => $from_url,
+										'replace' => $to_url,
+									),
+									array(
+										'search'  => 'wp-image-' . $source_data,
+										'replace' => 'wp-image-' . $replacement,
+									),
+								);
+								// Try replacing the guid as well, due to the media url could be different based on from where it's being pulled.
+								if ( ! empty( $current_extra_data['guid'] ) ) {
+									$replacements[] = array(
+										'search'  => $current_extra_data['guid'],
+										'replace' => $to_url,
+									);
+								}
+								$block = $this->search_replace_block_inner_content( $block, $replacements );
+							}
+						}
+
+						$modified = true;
+					}
+					$index++;
+				}
+			}
+
+			if ( ! empty( $block['innerBlocks'] ) &amp;&amp; is_array( $block['innerBlocks'] ) ) {
+				$inner_result = $this->process_blocks_data_recursive( $block['innerBlocks'], $registered_data, $extra_data, $post_data, $index );
+				if ( $inner_result['modified'] ) {
+					$block['innerBlocks'] = $inner_result['blocks'];
+					$modified             = true;
+				}
+			}
+		}
+
+		return array(
+			'blocks'   => $blocks,
+			'modified' => $modified,
+		);
+	}
+
+	/**
+	 * Processes the registered data for the post content and post meta.
+	 *
+	 * Calls the callback function provided in the registered data and updates the post data.
+	 *
+	 * @since 2.2.0
+	 *
+	 * @param array $post_data The post data.
+	 * @param bool  $is_rest   Whether the post data is from the REST API.
+	 * @return array $post_data The processed post data.
+	 */
+	public function process_registered_data( $post_data, $is_rest = false ) {
+		$unprocessed_post_data = $post_data;
+		// Filter is documented in includes/classes/DistributorPost.php
+		if ( ! apply_filters( 'dt_process_extra_data', true, $post_data ) ) {
+			return $post_data;
+		}
+
+		// Get the registered data.
+		$registered_data = distributor_get_registered_data();
+
+		// Skip if no registered data is found.
+		if ( empty( $registered_data ) ) {
+			return $post_data;
+		}
+
+		foreach ( $registered_data as $data_key => $data ) {
+			$location    = $data['location'];
+			$attributes  = $data['attributes'];
+			$callback_fn = $data['post_distribute_cb'] ?? null;
+
+			// Skip if the callback function is not provided or not callable.
+			if ( empty( $callback_fn ) || ! is_callable( $callback_fn ) ) {
+				continue;
+			}
+
+			$extra_data = $post_data['distributor_extra_data'][ $data_key ] ?? array();
+
+			if ( 'post_meta' === $location ) {
+				$metadata_key = 'distributor_meta';
+				if ( isset( $post_data['meta'] ) &amp;&amp; ! empty( $post_data['meta'] ) ) {
+					$metadata_key = 'meta';
+				}
+
+				$post_meta = $post_data[ $metadata_key ] ?? array();
+
+				if ( empty( $post_meta ) ) {
+					continue;
+				}
+
+				$post_data[ $metadata_key ] = $this->process_registered_post_meta_data( $post_meta, $data, $extra_data, $post_data );
+
+			} elseif ( 'post_content' === $location ) {
+				$content_key = 'post_content';
+				if ( $is_rest ) {
+					$content_key = 'content';
+					if ( isset( $post_data['distributor_raw_content'] ) ) {
+						$content_key = 'distributor_raw_content';
+					}
+				}
+
+				$post_content = $post_data[ $content_key ] ?? '';
+				$block_name   = $attributes['block_name'] ?? '';
+				$shortcode    = $attributes['shortcode'] ?? '';
+
+				if ( ( empty( $block_name ) &amp;&amp; empty( $shortcode ) ) || empty( $post_content ) ) {
+					continue;
+				}
+
+				if ( ! empty( $block_name ) &amp;&amp; has_blocks( $post_content ) ) {
+					$post_data[ $content_key ] = $this->process_registered_block_data( $post_content, $data, $extra_data, $post_data );
+					$post_content              = $post_data[ $content_key ];
+				}
+
+				// Process the shortcode if shortcode is provided.
+				if ( ! empty( $shortcode ) ) {
+					$post_data[ $content_key ] = $this->process_registered_shortcode_data( $post_content, $data, $extra_data, $post_data );
+				}
+			}
+		}
+
+		/**
+		 * Filter the post data after processing the registered data.
+		 *
+		 * @since 2.2.0
+		 * @hook dt_after_registered_data_processed
+		 *
+		 * @param {array} $post_data             The post data after processing the registered data.
+		 * @param {array} $registered_data       The distributor registered data.
+		 * @param {array} $extra_data            The extra data for the given registered data.
+		 * @param {array} $unprocessed_post_data The post data before processing the registered data.
+		 * @return {array} $post_data The updated post data.
+		 */
+		$post_data = apply_filters( 'dt_after_registered_data_processed', $post_data, $registered_data, $post_data['distributor_extra_data'] ?? array(), $unprocessed_post_data );
+
+		return $post_data;
+	}
+
+	/**
+	 * Processes the registered data for the post meta.
+	 *
+	 * Calls the callback function provided in the registered data and updates the post meta data.
+	 *
+	 * @since 2.2.0
+	 *
+	 * @param array $post_meta       The post meta data.
+	 * @param array $registered_data The distributor registered data.
+	 * @param array $extra_data      The extra data for the given registered data.
+	 * @param array $post_data       The post data.
+	 * @return array $post_data The processed post data.
+	 */
+	public function process_registered_post_meta_data( $post_meta, $registered_data, $extra_data, $post_data ) {
+		$attributes            = $registered_data['attributes'] ?? array();
+		$callback_fn           = $registered_data['post_distribute_cb'] ?? null;
+		$meta_key              = $attributes['meta_key'] ?? '';
+		$unprocessed_post_meta = $post_meta;
+
+		// Skip if the callback function is not provided or not callable.
+		if ( empty( $callback_fn ) || ! is_callable( $callback_fn ) || empty( $meta_key ) ) {
+			return $post_meta;
+		}
+
+		// Handle multiple meta keys.
+		if ( is_array( $meta_key ) ) {
+			$original_data = array();
+			foreach ( $meta_key as $key ) {
+				if ( isset( $post_meta[ $key ] ) ) {
+					if ( is_array( $post_meta[ $key ] ) &amp;&amp; 1 === count( $post_meta[ $key ] ) ) {
+						$original_data[ $key ] = $post_meta[ $key ][0];
+					} else {
+						$original_data[ $key ] = $post_meta[ $key ];
+					}
+				}
+			}
+			$updated_meta = call_user_func_array( $callback_fn, array( $extra_data, $original_data, $post_data, $this->connection_data ) );
+
+			if ( ! empty( $updated_meta ) ) {
+				foreach ( $updated_meta as $key => $value ) {
+					if ( is_array( $post_meta[ $key ] ) &amp;&amp; 1 === count( $post_meta[ $key ] ) ) {
+						$post_meta[ $key ] = array( $value );
+					} else {
+						$post_meta[ $key ] = $value;
+					}
+				}
+			}
+		} else {
+			$original_data = isset( $post_meta[ $meta_key ] ) ? $post_meta[ $meta_key ] : '';
+			if ( is_array( $original_data ) &amp;&amp; 1 === count( $original_data ) ) {
+				$original_data = $original_data[0];
+			}
+			$updated_meta = call_user_func_array( $callback_fn, array( $extra_data, $original_data, $post_data, $this->connection_data ) );
+
+			if ( ! empty( $updated_meta ) ) {
+				if ( is_array( $post_meta[ $meta_key ] ) &amp;&amp; 1 === count( $post_meta[ $meta_key ] ) ) {
+					$post_meta[ $meta_key ] = array( $updated_meta );
+				} else {
+					$post_meta[ $meta_key ] = $updated_meta;
+				}
+			}
+		}
+
+		/**
+		 * Filter the post meta data after processing the registered data.
+		 *
+		 * @since 2.2.0
+		 * @hook dt_after_registered_post_meta_processed
+		 *
+		 * @param {array} $post_meta             The post meta data.
+		 * @param {array} $registered_data       The distributor registered data.
+		 * @param {array} $extra_data            The extra data for the given registered data.
+		 * @param {array} $post_data             The post data.
+		 * @param {array} $unprocessed_post_meta The post meta data before processing the registered data.
+		 * @return {array} $post_meta The updated post meta data.
+		 */
+		return apply_filters( 'dt_after_registered_post_meta_processed', $post_meta, $registered_data, $extra_data, $post_data, $unprocessed_post_meta );
+	}
+
+	/**
+	 * Process the registered block data for the post content.
+	 *
+	 * @since 2.2.0
+	 *
+	 * @param string $post_content    The post content.
+	 * @param array  $registered_data The distributor registered data.
+	 * @param array  $extra_data      The extra data for the given registered data.
+	 * @param array  $post_data       The post data.
+	 * @return string $post_content The updated post content.
+	 */
+	public function process_registered_block_data( $post_content, $registered_data, $extra_data, $post_data ) {
+		$attributes               = $registered_data['attributes'] ?? array();
+		$block_name               = $attributes['block_name'] ?? '';
+		$block_attribute          = $attributes['block_attribute'] ?? '';
+		$unprocessed_post_content = $post_content;
+
+		if ( ! empty( $block_attribute ) &amp;&amp; has_block( $block_name, $post_content ) ) {
+			$blocks = parse_blocks( $post_content );
+			$result = $this->process_blocks_data_recursive( $blocks, $registered_data, $extra_data, $post_data );
+
+			if ( $result['modified'] ) {
+				$post_content = serialize_blocks( $result['blocks'] );
+			};
+		}
+
+		/**
+		 * Filter the post content blocks after processing the registered data.
+		 *
+		 * @since 2.2.0
+		 * @hook dt_after_registered_block_data_processed
+		 *
+		 * @param {array} $post_content             The post content.
+		 * @param {array} $registered_data          The distributor registered data.
+		 * @param {array} $extra_data               The extra data for the given registered data.
+		 * @param {array} $post_data                The post data.
+		 * @param {array} $unprocessed_post_content The post content before processing the registered data.
+		 * @return {array} $post_content The updated post content.
+		 */
+		return apply_filters( 'dt_after_registered_block_data_processed', $post_content, $registered_data, $extra_data, $post_data, $unprocessed_post_content );
+	}
+
+	/**
+	 * Process the registered shortcode data for the post content.
+	 *
+	 * @since 2.2.0
+	 *
+	 * @param string $post_content    The post content.
+	 * @param array  $registered_data The distributor registered data.
+	 * @param array  $extra_data      The extra data for the given registered data.
+	 * @param array  $post_data       The post data.
+	 * @return string $post_content The updated post content.
+	 */
+	public function process_registered_shortcode_data( $post_content, $registered_data, $extra_data, $post_data ) {
+		$attributes               = $registered_data['attributes'] ?? array();
+		$shortcode                = $attributes['shortcode'] ?? '';
+		$shortcode_attribute      = $attributes['shortcode_attribute'] ?? '';
+		$callback_fn              = $registered_data['post_distribute_cb'] ?? null;
+		$unprocessed_post_content = $post_content;
+
+		if ( ! empty( $shortcode_attribute ) &amp;&amp; has_shortcode( $post_content, $shortcode ) ) {
+			$index        = 0;
+			$pattern      = get_shortcode_regex( array( $shortcode ) );
+			$post_content = preg_replace_callback(
+				"/$pattern/",
+				function ( $matches ) use ( &amp;$index, $shortcode, $shortcode_attribute, $callback_fn, $extra_data, $post_data ) {
+					if ( $matches[2] === $shortcode ) {
+						$attrs = shortcode_parse_atts( $matches[3] );
+						$i     = $index;
+						$index++;
+
+						if ( is_array( $shortcode_attribute ) ) {
+							$source_data = array();
+							foreach ( $shortcode_attribute as $key ) {
+								if ( isset( $attrs[ $key ] ) ) {
+									$source_data[ $key ] = $attrs[ $key ];
+								}
+							}
+							$current_extra_data = $extra_data[ $i ] ?? array();
+							$replacement        = call_user_func_array( $callback_fn, array( $current_extra_data, $source_data, $post_data, $this->connection_data ) );
+							if ( ! empty( $replacement ) ) {
+								foreach ( $shortcode_attribute as $key ) {
+									if ( isset( $replacement[ $key ] ) ) {
+										$attrs[ $key ] = $replacement[ $key ];
+									}
+								}
+								$attrs_str = '';
+								foreach ( $attrs as $key => $val ) {
+									$attrs_str .= sprintf( ' %s="%s"', $key, esc_attr( $val ) );
+								}
+								return str_replace( $matches[3], $attrs_str, $matches[0] );
+							}
+						} elseif ( isset( $attrs[ $shortcode_attribute ] ) ) {
+							$source_data        = $attrs[ $shortcode_attribute ];
+							$current_extra_data = $extra_data[ $i ] ?? array();
+							$replacement        = call_user_func_array( $callback_fn, array( $current_extra_data, $source_data, $post_data, $this->connection_data ) );
+							if ( ! empty( $replacement ) ) {
+								// Replace with the new target ID.
+								$attrs[ $shortcode_attribute ] = $replacement;
+								$attrs_str                     = '';
+								foreach ( $attrs as $key => $val ) {
+									$attrs_str .= sprintf( ' %s="%s"', $key, esc_attr( $val ) );
+								}
+								return str_replace( $matches[3], $attrs_str, $matches[0] );
+							}
+						}
+						$index++;
+					}
+					return $matches[0];
+				},
+				$post_content
+			);
+		}
+
+		/**
+		 * Filter the post content shortcodes after processing the registered data.
+		 *
+		 * @since 2.2.0
+		 * @hook dt_after_registered_shortcode_data_processed
+		 *
+		 * @param {array} $post_content             The post content.
+		 * @param {array} $registered_data          The distributor registered data.
+		 * @param {array} $extra_data               The extra data for the given registered data.
+		 * @param {array} $post_data                The post data.
+		 * @param {array} $unprocessed_post_content The post content before processing the registered data.
+		 * @return {array} $post_content The updated post content.
+		 */
+		return apply_filters( 'dt_after_registered_shortcode_data_processed', $post_content, $registered_data, $extra_data, $post_data, $unprocessed_post_content );
+	}
+
+	/**
+	 * Prepare the term extra data to be sent to the target site.
+	 *
+	 * @since 2.2.0
+	 *
+	 * @param int  $term_id     The term ID.
+	 * @param bool $with_parent Whether to include the parent term data.
+	 * @return array|int The term extra data.
+	 */
+	public function prepare_registered_data_term( $term_id, $with_parent = false ) {
+		$term = get_term( $term_id );
+		if ( ! $term || is_wp_error( $term ) ) {
+			return 0;
+		}
+
+		$term_data = array(
+			'term_id'     => $term->term_id,
+			'name'        => $term->name,
+			'slug'        => $term->slug,
+			'description' => $term->description,
+			'taxonomy'    => $term->taxonomy,
+		);
+
+		if ( ! empty( $term->parent ) &amp;&amp; $with_parent &amp;&amp; is_taxonomy_hierarchical( $term->taxonomy ) ) {
+			$term_data['parent'] = $this->prepare_registered_data_term( $term->parent, $with_parent );
+		}
+
+		return $term_data;
+	}
+
+	/**
+	 * Process the registered data for the term.
+	 *
+	 * @since 2.2.0
+	 *
+	 * @param array $term_data        The term data to be processed.
+	 * @param bool  $process_parent   Whether to process the parent term.
+	 * @param bool  $update_hierarchy Whether to update the term hierarchy.
+	 * @return int The term ID of the processed term.
+	 */
+	public function process_registered_data_term( $term_data, $process_parent = false, $update_hierarchy = false ) {
+		if ( empty( $term_data ) ) {
+			return 0;
+		}
+
+		if ( ! is_array( $term_data ) ) {
+			$term_data = (array) $term_data;
+		}
+
+		$process_parent = $process_parent &amp;&amp; is_taxonomy_hierarchical( $term_data['taxonomy'] );
+		$parent_term_id = 0;
+		if ( $process_parent &amp;&amp; ! empty( $term_data['parent'] ) ) {
+			if ( ! empty( $term_data['parent']['term_id'] ) ) {
+				$parent_term_id = $this->process_registered_data_term( $term_data['parent'], $process_parent, $update_hierarchy );
+			}
+		}
+
+		// Check if the term exists on the target site already and return the term ID if it does.
+		$taxonomy = $term_data['taxonomy'] ?? '';
+		$term     = get_term_by( 'slug', $term_data['slug'], $taxonomy );
+		if ( ! empty( $term ) &amp;&amp; ! empty( $term->term_id ) ) {
+			if ( $update_hierarchy &amp;&amp; $process_parent &amp;&amp; ! empty( $parent_term_id ) &amp;&amp; $term->parent !== $parent_term_id ) {
+				wp_update_term( $term->term_id, $taxonomy, array( 'parent' => $parent_term_id ) );
+			}
+
+			return $term->term_id;
+		}
+
+		$args = array(
+			'slug'        => $term_data['slug'],
+			'description' => $term_data['description'],
+		);
+
+		if ( $process_parent &amp;&amp; ! empty( $parent_term_id ) ) {
+			$args['parent'] = $parent_term_id;
+		}
+
+		$term = wp_insert_term(
+			$term_data['name'],
+			$taxonomy,
+			$args
+		);
+
+		if ( is_wp_error( $term ) || empty( $term['term_id'] ) ) {
+			return 0;
+		}
+
+		return $term['term_id'];
+	}
+
+	/**
+	 * Pre-process registered "post" type data for external connections.
+	 *
+	 * Handles "post" type data when pushing to an external connection.
+	 *
+	 * Since the target site cannot pull the post, we push it to the target site,
+	 * retrieve the remote post ID, and include it in the extra data sent to the target site.
+	 *
+	 * @param array                           $post_data The post data to process for the external connection.
+	 * @param \Distributor\ExternalConnection $connection The connection object.
+	 * @return array The processed extra data.
+	 */
+	public function pre_process_registered_data_post( $post_data, $connection ) {
+		$extra_data = $post_data['distributor_extra_data'] ?? array();
+		if ( empty( $extra_data ) || ! is_array( $extra_data ) || ! apply_filters( 'dt_process_extra_data', true, $post_data ) ) {
+			return $post_data;
+		}
+
+		try {
+			$registered_data      = distributor_get_registered_data();
+			$registered_post_data = array_filter(
+				$registered_data,
+				function( $arr ) {
+					return 'post' === $arr['type'];
+				}
+			);
+
+			if ( ! empty( $registered_post_data ) &amp;&amp; ! empty( $extra_data ) ) {
+				$prevent_processing = function() {
+					return false;
+				};
+				// Disable the process_extra_data filter to prevent infinite loop.
+				add_filter( 'dt_process_extra_data', $prevent_processing, 9999 );
+
+				foreach ( $registered_post_data as $key => $data ) {
+					if ( empty( $extra_data[ $key ] ) || ! is_array( $extra_data[ $key ] ) ) {
+						continue;
+					}
+
+					foreach ( $extra_data[ $key ] as $index => $current_extra_data ) {
+						if ( ! empty( $current_extra_data['source_post_id'] ) ) {
+							$source_post_id = absint( wp_unslash( $current_extra_data['source_post_id'] ) );
+							$source_post    = get_post( $source_post_id );
+							if ( empty( $source_post ) ) {
+								continue;
+							}
+
+							// Push the source post ID to the remote site.
+							$connection_map = get_post_meta( $source_post_id, 'dt_connection_map', true );
+							if ( empty( $connection_map ) ) {
+								$connection_map             = array();
+								$connection_map['external'] = array();
+							} else {
+								$external_connections = $connection_map['external'] ?? array();
+								if ( ! empty( $external_connections[ $connection->id ] ) &amp;&amp; ! empty( $external_connections[ $connection->id ]['post_id'] ) ) {
+									// If the post is already pushed to the remote site, skip it.
+									$extra_data[ $key ][ $index ]['remote_post_id'] = (int) $external_connections[ $connection->id ]['post_id'];
+									continue;
+								}
+							}
+
+							$remote_post = $connection->push( $source_post_id, array( 'post_status' => $post_data['post_status'] ?? 'publish' ) );
+							if ( ! is_wp_error( $remote_post ) &amp;&amp; ! empty( $remote_post['id'] ) ) {
+								$connection_map['external'][ (int) $connection->id ] = array(
+									'post_id' => (int) $remote_post['id'],
+									'time'    => time(),
+								);
+
+								$connection->log_sync( array( (int) $remote_post['id'] => $source_post_id ) );
+								update_post_meta( $source_post_id, 'dt_connection_map', $connection_map );
+
+								// Update the extra data with the remote post ID.
+								$extra_data[ $key ][ $index ]['remote_post_id'] = (int) $remote_post['id'];
+							}
+						}
+					}
+				}
+
+				// Remove the filter.
+				remove_filter( 'dt_process_extra_data', $prevent_processing, 9999 );
+			}
+		} catch ( \Exception $e ) {
+			// Ignore.
+		}
+		$post_data['distributor_extra_data'] = $extra_data;
+
+		return $post_data;
+	}
+}
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+
+    <footer>
+		<a href="https://distributorplugin.com/">Distributor Plugin</a> &bull;
+		<a href="https://github.com/10up/distributor/">Distributor on GitHub</a> &bull;
+		<a href="https://10up.com/careers">Careers at 10up</a>
+	</footer>
+
+</div>
+
+<nav>
+	
+	<h2><a href="index.html">Home</a></h2><h3>Tutorials</h3><ul><li><a href="tutorial-auto-distribution.html">Enabling Auto Distribution</a></li><li><a href="tutorial-connect-to-an-existing-post.html">Connect to an Existing Post</a></li><li><a href="tutorial-demo-with-playground.html">Demo with Playground</a></li><li><a href="tutorial-exclude-meta-from-yoast-duplicate-post.html">Exclude Meta from Yoast Duplicate Post</a></li><li><a href="tutorial-migration-guide-version-1-to-version-2.html">Migration Guide Version 1 to Version 2</a></li><li><a href="tutorial-post-meta.html">Post Meta</a></li><li><a href="tutorial-snippets.html">Snippets</a></li><li><a href="tutorial-stored-id-handling.html">Stored ID Handling</a></li></ul><h3>Actions</h3><ul><li><a href="dt_after_set_meta.html">dt_after_set_meta</a></li><li><a href="dt_before_set_meta.html">dt_before_set_meta</a></li><li><a href="dt_link_post.html">dt_link_post</a></li><li><a href="dt_log_sync.html">dt_log_sync</a></li><li><a href="dt_oauth_admin_notices.html">dt_oauth_admin_notices</a></li><li><a href="dt_prepared_taxonomy_terms.html">dt_prepared_taxonomy_terms</a></li><li><a href="dt_process_distributor_attributes.html">dt_process_distributor_attributes</a></li><li><a href="dt_process_subscription_attributes.html">dt_process_subscription_attributes</a></li><li><a href="dt_pull_filters.html">dt_pull_filters</a></li><li><a href="dt_pull_list_table_custom_column.html">dt_pull_list_table_custom_column</a></li><li><a href="dt_pull_post.html">dt_pull_post</a></li><li><a href="dt_push_external_post.html">dt_push_external_post</a></li><li><a href="dt_push_network_post.html">dt_push_network_post</a></li><li><a href="dt_push_post.html">dt_push_post</a></li><li><a href="dt_unlink_post.html">dt_unlink_post</a></li></ul><h3>Filters</h3><ul><li><a href="auto_distribute_supported_post_types.html">auto_distribute_supported_post_types</a></li><li><a href="distributable_post_types.html">distributable_post_types</a></li><li><a href="distributor_get_original_site_link.html">distributor_get_original_site_link</a></li><li><a href="dt_after_registered_block_data_processed.html">dt_after_registered_block_data_processed</a></li><li><a href="dt_after_registered_data_processed.html">dt_after_registered_data_processed</a></li><li><a href="dt_after_registered_post_meta_processed.html">dt_after_registered_post_meta_processed</a></li><li><a href="dt_after_registered_shortcode_data_processed.html">dt_after_registered_shortcode_data_processed</a></li><li><a href="dt_ajax_requires_with_credentials.html">dt_ajax_requires_with_credentials</a></li><li><a href="dt_allow_post_unlink.html">dt_allow_post_unlink</a></li><li><a href="dt_allowed_media_extensions.html">dt_allowed_media_extensions</a></li><li><a href="dt_auth_format_get_args.html">dt_auth_format_get_args</a></li><li><a href="dt_auth_format_post_args.html">dt_auth_format_post_args</a></li><li><a href="dt_auth_prepare_credentials.html">dt_auth_prepare_credentials</a></li><li><a href="dt_authorized_sites.html">dt_authorized_sites</a></li><li><a href="dt_auto_distribute_post.html">dt_auto_distribute_post</a></li><li><a href="dt_auto_distribution_default_status.html">dt_auto_distribution_default_status</a></li><li><a href="dt_auto_distribution_enabled.html">dt_auto_distribution_enabled</a></li><li><a href="dt_available_pull_post_types.html">dt_available_pull_post_types</a></li><li><a href="dt_available_push_post_types.html">dt_available_push_post_types</a></li><li><a href="dt_capabilities.html">dt_capabilities</a></li><li><a href="dt_create_missing_terms.html">dt_create_missing_terms</a></li><li><a href="dt_debug_info_enabled.html">dt_debug_info_enabled</a></li><li><a href="dt_distributable_post_statuses.html">dt_distributable_post_statuses</a></li><li><a href="dt_excluded_meta.html">dt_excluded_meta</a></li><li><a href="dt_external_capabilities.html">dt_external_capabilities</a></li><li><a href="dt_external_connections_per_page.html">dt_external_connections_per_page</a></li><li><a href="dt_extra_data.html">dt_extra_data</a></li><li><a href="dt_get_media_details.html">dt_get_media_details</a></li><li><a href="dt_get_pull_content_rest_query_args.html">dt_get_pull_content_rest_query_args</a></li><li><a href="dt_get_rest_url.html">dt_get_rest_url</a></li><li><a href="dt_item_mapping.html">dt_item_mapping</a></li><li><a href="dt_media_item_formatted.html">dt_media_item_formatted</a></li><li><a href="dt_media_processing_filename.html">dt_media_processing_filename</a></li><li><a href="dt_network_site_connection_enabled.html">dt_network_site_connection_enabled</a></li><li><a href="dt_parse_media_blocks.html">dt_parse_media_blocks</a></li><li><a href="dt_post_to_pull.html">dt_post_to_pull</a></li><li><a href="dt_pre_get_authorized_sites.html">dt_pre_get_authorized_sites</a></li><li><a href="dt_prepared_meta.html">dt_prepared_meta</a></li><li><a href="dt_process_extra_data.html">dt_process_extra_data</a></li><li><a href="dt_process_media_args.html">dt_process_media_args</a></li><li><a href="dt_process_media_save_source_file_path.html">dt_process_media_save_source_file_path</a></li><li><a href="dt_pull_as_draft.html">dt_pull_as_draft</a></li><li><a href="dt_pull_capabilities.html">dt_pull_capabilities</a></li><li><a href="dt_pull_list_table_columns.html">dt_pull_list_table_columns</a></li><li><a href="dt_pull_list_table_tr_class.html">dt_pull_list_table_tr_class</a></li><li><a href="dt_pull_post_apply_rendered_content.html">dt_pull_post_apply_rendered_content</a></li><li><a href="dt_pull_post_args.html">dt_pull_post_args</a></li><li><a href="dt_pull_post_media.html">dt_pull_post_media</a></li><li><a href="dt_pull_post_meta.html">dt_pull_post_meta</a></li><li><a href="dt_pull_post_terms.html">dt_pull_post_terms</a></li><li><a href="dt_push_capabilities.html">dt_push_capabilities</a></li><li><a href="dt_push_post_args.html">dt_push_post_args</a></li><li><a href="dt_push_post_media.html">dt_push_post_media</a></li><li><a href="dt_push_post_meta.html">dt_push_post_meta</a></li><li><a href="dt_push_post_terms.html">dt_push_post_terms</a></li><li><a href="dt_push_post_timeout.html">dt_push_post_timeout</a></li><li><a href="dt_registered_data_distribute_term_parent.html">dt_registered_data_distribute_term_parent</a></li><li><a href="dt_remote_get.html">dt_remote_get</a></li><li><a href="dt_remote_post.html">dt_remote_post</a></li><li><a href="dt_remote_post_query_args.html">dt_remote_post_query_args</a></li><li><a href="dt_remote_post_timeout.html">dt_remote_post_timeout</a></li><li><a href="dt_set_media_args.html">dt_set_media_args</a></li><li><a href="dt_subscription_post_args.html">dt_subscription_post_args</a></li><li><a href="dt_subscription_post_timeout.html">dt_subscription_post_timeout</a></li><li><a href="dt_sync_media_delete_and_replace.html">dt_sync_media_delete_and_replace</a></li><li><a href="dt_sync_meta.html">dt_sync_meta</a></li><li><a href="dt_syncable_taxonomies.html">dt_syncable_taxonomies</a></li><li><a href="dt_syndicatable_capabilities.html">dt_syndicatable_capabilities</a></li><li><a href="dt_update_content_image_urls.html">dt_update_content_image_urls</a></li><li><a href="dt_update_content_via_request_args.html">dt_update_content_via_request_args</a></li><li><a href="dt_update_term_hierarchy.html">dt_update_term_hierarchy</a></li><li><a href="dt_use_block_editor_for_post_type.html">dt_use_block_editor_for_post_type</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>
