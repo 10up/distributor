@@ -62,6 +62,13 @@ add_filter(
 	}
 );
 
+/**
+ * Global registry for distributor data.
+ *
+ * @var array
+*/
+global $distributor_registered_data;
+
 \Distributor\Connections::factory();
 
 // Include in case we have composer issues.
@@ -80,6 +87,7 @@ require_once __DIR__ . '/distributed-post-ui.php';
 require_once __DIR__ . '/settings.php';
 require_once __DIR__ . '/template-tags.php';
 require_once __DIR__ . '/debug-info.php';
+require_once __DIR__ . '/auto-distribute.php';
 
 // Include application passwords.
 add_action(
@@ -229,3 +237,6 @@ add_action(
 \Distributor\DistributedPostUI\setup();
 \Distributor\Settings\setup();
 \Distributor\DebugInfo\setup();
+
+// Runs late to allow for site feature plugins to enable the feature.
+add_action( 'plugins_loaded', 'Distributor\\AutoDistribute\\setup', 20 );

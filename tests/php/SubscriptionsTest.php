@@ -322,6 +322,12 @@ class SubscriptionsTest extends TestCase {
 		);
 
 		\WP_Mock::userFunction(
+			'\Distributor\Utils\prepare_extra_data', [
+				'return' => [],
+			]
+		);
+
+		\WP_Mock::userFunction(
 			'\Distributor\Utils\prepare_taxonomy_terms', [
 				'return' => [],
 			]
@@ -366,14 +372,15 @@ class SubscriptionsTest extends TestCase {
 							'post_id'   => $remote_post_id,
 							'signature' => $signature,
 							'post_data' => [
-								'title'             => 'title',
-								'slug'              => 'slug',
-								'post_type'         => 'post',
-								'content'           => 'content',
-								'excerpt'           => 'excerpt',
-								'distributor_media' => null, // Accounts for https://github.com/10up/wp_mock/issues/173
-								'distributor_terms' => null, // Accounts for https://github.com/10up/wp_mock/issues/173
-								'distributor_meta'  => null, // Accounts for https://github.com/10up/wp_mock/issues/173
+								'title'                  => 'title',
+								'slug'                   => 'slug',
+								'post_type'              => 'post',
+								'content'                => 'content',
+								'excerpt'                => 'excerpt',
+								'distributor_media'      => null, // Accounts for https://github.com/10up/wp_mock/issues/173
+								'distributor_terms'      => null, // Accounts for https://github.com/10up/wp_mock/issues/173
+								'distributor_meta'       => null, // Accounts for https://github.com/10up/wp_mock/issues/173
+								'distributor_extra_data' => null, // Accounts for https://github.com/10up/wp_mock/issues/173
 							]
 						] ),
 						'headers' => [
@@ -514,6 +521,12 @@ class SubscriptionsTest extends TestCase {
 		);
 
 		\WP_Mock::userFunction(
+			'\Distributor\Utils\prepare_extra_data', [
+				'return' => [],
+			]
+		);
+
+		\WP_Mock::userFunction(
 			'\Distributor\Utils\prepare_taxonomy_terms', [
 				'return' => [],
 			]
@@ -558,14 +571,15 @@ class SubscriptionsTest extends TestCase {
 							'post_id'   => $remote_post_id,
 							'signature' => $signature,
 							'post_data' => [
-								'title'             => 'title',
-								'slug'              => 'slug',
-								'post_type'         => 'post',
-								'content'           => 'content',
-								'excerpt'           => 'excerpt',
-								'distributor_media' => null, // Accounts for https://github.com/10up/wp_mock/issues/173
-								'distributor_terms' => null, // Accounts for https://github.com/10up/wp_mock/issues/173
-								'distributor_meta'  => null, // Accounts for https://github.com/10up/wp_mock/issues/173
+								'title'                  => 'title',
+								'slug'                   => 'slug',
+								'post_type'              => 'post',
+								'content'                => 'content',
+								'excerpt'                => 'excerpt',
+								'distributor_media'      => null, // Accounts for https://github.com/10up/wp_mock/issues/173
+								'distributor_terms'      => null, // Accounts for https://github.com/10up/wp_mock/issues/173
+								'distributor_meta'       => null, // Accounts for https://github.com/10up/wp_mock/issues/173
+								'distributor_extra_data' => null, // Accounts for https://github.com/10up/wp_mock/issues/173
 							],
 						] ),
 						'headers' => [
