@@ -68,7 +68,7 @@ function setup_list_table() {
 			 *
 			 * @hook dt_external_connections_per_page
 			 *
-			 * @since x.x.x
+			 * @since 2.2.0
 			 *
 			 * @param {int} $max_connections The maximum number of external connections to load.
 			 * @return {int} The maximum number of external connections to load.
