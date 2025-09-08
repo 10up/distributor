@@ -14,18 +14,21 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v2.4.0
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           ref: ${{ inputs.ref }}
+
       - name: Use desired version of NodeJS
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@cdca7365b2dadb8aad0a33bc7601856ffabcc48e # v4.3.0
         with:
           node-version-file: '.nvmrc'
+
       - name: Set PHP version
-        uses: shivammathur/setup-php@2.17.0
+        uses: shivammathur/setup-php@9e72090525849c5e82e596468b86eb55e9cc5401 # v2.32.0
         with:
           php-version: 7.4
           tools: composer:v2, wp
+
       - name: Check versions
         run: |
           npm -v
@@ -42,7 +45,7 @@ jobs:
           rm -rf ./release && unzip ${{ github.event.repository.name }}.zip -d ./release
 
       - name: Upload the ZIP file as an artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@4cec3d8aa04e39d1a68397de0c4cd6fb9dce8ec1 # v4.6.1
         with:
           name: ${{ github.event.repository.name }}
           path: release

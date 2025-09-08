@@ -8,6 +8,7 @@
 namespace Distributor\RestApi;
 
 use Distributor\DistributorPost;
+use Distributor\RegisteredDataHandler;
 use Distributor\Utils;
 use WP_Error;
 
@@ -52,6 +53,30 @@ function setup() {
  * @return Object $prepared_post The filtered post object.
  */
 function filter_distributor_content( $prepared_post, $request ) {
+	// Make sure this is a Distributor push.
+	if ( ! empty( $request['distributor_original_source_id'] ) ) {
+		// Process the registered distributor data.
+		$registered_data = distributor_get_registered_data();
+		if ( ! empty( $registered_data ) ) {
+			$connection_data = array(
+				'connection_type'      => 'external',
+				'connection_direction' => 'push',
+				'connection_id'        => $request['distributor_original_source_id'],
+			);
+
+			$registered_data_handler = new RegisteredDataHandler( $connection_data );
+			$params                  = $registered_data_handler->process_registered_data( $request->get_params(), true );
+
+			if ( ! empty( $params['distributor_meta'] ) ) {
+				$request['distributor_meta'] = $params['distributor_meta'] ?? array();
+			}
+			if ( isset( $params['distributor_raw_content'] ) ) {
+				$request['distributor_raw_content'] = $params['distributor_raw_content'];
+			}
+			$request['content'] = $params['content'] ?? '';
+		}
+	}
+
 	if (
 		isset( $request['distributor_raw_content'] ) &&
 		\Distributor\Utils\dt_use_block_editor_for_post_type( $prepared_post->post_type )
@@ -463,6 +488,10 @@ function register_endpoints() {
 		'distributor_meta',
 		array(
 			'get_callback'    => function( $post_array ) {
+				if ( ! isset( $post_array['id'] ) ) {
+					return false;
+				}
+
 				if ( ! current_user_can( 'edit_post', $post_array['id'] ) ) {
 					return false;
 				}
@@ -482,6 +511,10 @@ function register_endpoints() {
 		'distributor_terms',
 		array(
 			'get_callback'    => function( $post_array ) {
+				if ( ! isset( $post_array['id'] ) ) {
+					return false;
+				}
+
 				if ( ! current_user_can( 'edit_post', $post_array['id'] ) ) {
 					return false;
 				}
@@ -501,6 +534,10 @@ function register_endpoints() {
 		'distributor_media',
 		array(
 			'get_callback'    => function( $post_array ) {
+				if ( ! isset( $post_array['id'] ) ) {
+					return false;
+				}
+
 				if ( ! current_user_can( 'edit_post', $post_array['id'] ) ) {
 					return false;
 				}
@@ -520,7 +557,7 @@ function register_endpoints() {
 		'distributor_original_site_name',
 		array(
 			'get_callback'    => function( $post_array ) {
-				$site_name = get_post_meta( $post_array['id'], 'dt_original_site_name', true );
+				$site_name = isset( $post_array['id'] ) ? get_post_meta( $post_array['id'], 'dt_original_site_name', true ) : '';
 
 				if ( ! $site_name ) {
 					$site_name = get_bloginfo( 'name' );
@@ -541,7 +578,7 @@ function register_endpoints() {
 		'distributor_original_site_url',
 		array(
 			'get_callback'    => function( $post_array ) {
-				$site_url = get_post_meta( $post_array['id'], 'dt_original_site_url', true );
+				$site_url = isset( $post_array['id'] ) ? get_post_meta( $post_array['id'], 'dt_original_site_url', true ) : '';
 
 				if ( ! $site_url ) {
 					$site_url = home_url();
@@ -586,12 +623,7 @@ function distributor_meta() {
  * Check user permissions for available post types
  */
 function check_post_types_permissions() {
-	$types = get_post_types(
-		array(
-			'show_in_rest' => true,
-		),
-		'objects'
-	);
+	$types = Utils\distributable_post_types( 'objects' );
 
 	$response = array(
 		'can_get'          => array(),
@@ -623,10 +655,11 @@ function check_post_types_permissions() {
  * @return \WP_REST_Response|\WP_Error
  */
 function get_pull_content_list( $request ) {
-	$args = [
+	$post_type = ! empty( $request['post_type'] ) ? $request['post_type'] : array( 'post' );
+	$args      = [
 		'posts_per_page' => isset( $request['posts_per_page'] ) ? $request['posts_per_page'] : 20,
 		'paged'          => isset( $request['page'] ) ? $request['page'] : 1,
-		'post_type'      => isset( $request['post_type'] ) ? $request['post_type'] : 'post',
+		'post_type'      => $post_type,
 		'post_status'    => isset( $request['post_status'] ) ? $request['post_status'] : array( 'any' ),
 		'order'          => ! empty( $request['order'] ) ? strtoupper( $request['order'] ) : 'DESC',
 	];
@@ -802,7 +835,7 @@ function register_push_errors_field() {
 			'push-errors',
 			array(
 				'get_callback' => function( $params ) {
-					$media_errors = get_transient( 'dt_media_errors_' . $params['id'] );
+					$media_errors = isset( $params['id'] ) ? get_transient( 'dt_media_errors_' . $params['id'] ) : '';
 
 					if ( ! empty( $media_errors ) ) {
 						delete_transient( 'dt_media_errors_' . $params['id'] );

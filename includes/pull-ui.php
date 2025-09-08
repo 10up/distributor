@@ -62,7 +62,20 @@ function setup_list_table() {
 			'post_type'      => 'dt_ext_connection',
 			'fields'         => 'ids',
 			'no_found_rows'  => true,
-			'posts_per_page' => 100,
+			/**
+			 * Filter the maximum number of external connections to load.
+			 *
+			 * Modify the maximum number of external connection post types are
+			 * queried with requesting the post type.
+			 *
+			 * @hook dt_external_connections_per_page
+			 *
+			 * @since 2.2.0
+			 *
+			 * @param {int} $max_connections The maximum number of external connections to load.
+			 * @return {int} The maximum number of external connections to load.
+			 */
+			'posts_per_page' => apply_filters( 'dt_external_connections_per_page', 200 ), // @codingStandardsIgnoreLine This high pagination limit is purposeful
 		)
 	);
 
@@ -407,6 +420,8 @@ function dashboard() {
 	<div class="wrap nosubsub">
 		<h1>
 			<?php
+			$dt_pull_url_id = 0;
+			$dt_pull_urls   = array();
 			if ( empty( $connection_list_table->connection_objects ) ) :
 				$connection_now = 0;
 				?>
@@ -432,12 +447,14 @@ function dashboard() {
 								$type     = 'internal';
 								$name     = untrailingslashit( $connection->site->domain . $connection->site->path );
 								$id       = $connection->site->blog_id;
+								++$dt_pull_url_id;
+								$dt_pull_urls[ $dt_pull_url_id ] = sanitize_url( admin_url( 'admin.php?page=pull&connection_type=' . $type . '&connection_id=' . $id ) );
 
 								if ( is_a( $connection_now, '\Distributor\InternalConnections\NetworkSiteConnection' ) && (int) $connection_now->site->blog_id === (int) $id ) {
 									$selected = true;
 								}
 								?>
-								<option <?php selected( true, $selected ); ?> data-pull-url="<?php echo esc_url( admin_url( 'admin.php?page=pull&connection_type=' . $type . '&connection_id=' . $id ) ); ?>"><?php echo esc_html( $name ); ?></option>
+								<option <?php selected( true, $selected ); ?> data-pull-url-id="<?php echo esc_attr( $dt_pull_url_id ); ?>"><?php echo esc_html( $name ); ?></option>
 							<?php endforeach; ?>
 						<?php if ( ! empty( $external_connection_group ) ) : ?>
 							</optgroup>
@@ -454,41 +471,57 @@ function dashboard() {
 								$selected = false;
 								$name     = $connection->name;
 								$id       = $connection->id;
+								++$dt_pull_url_id;
+								$dt_pull_urls[ $dt_pull_url_id ] = sanitize_url( admin_url( 'admin.php?page=pull&connection_type=' . $type . '&connection_id=' . $id ) );
 
 								if ( is_a( $connection_now, '\Distributor\ExternalConnection' ) && (int) $connection_now->id === (int) $id ) {
 									$selected = true;
 								}
 								?>
-								<option <?php selected( true, $selected ); ?> data-pull-url="<?php echo esc_url( admin_url( 'admin.php?page=pull&connection_type=' . $type . '&connection_id=' . $id ) ); ?>"><?php echo esc_html( $name ); ?></option>
+								<option <?php selected( true, $selected ); ?> data-pull-url-id="<?php echo esc_attr( $dt_pull_url_id ); ?>"><?php echo esc_html( $name ); ?></option>
 							<?php endforeach; ?>
 						<?php if ( ! empty( $internal_connection_group ) ) : ?>
 							</optgroup>
 						<?php endif; ?>
 					<?php endif; ?>
 				</select>
+				<script>
+					DISTRIBUTOR = window.DISTRIBUTOR || {};
+					DISTRIBUTOR.getPullUrl = function( pullUrlId ) {
+						var distributorPullUrls = <?php echo wp_json_encode( $dt_pull_urls ); ?>;
+
+						if ( ! pullUrlId || ! distributorPullUrls[ pullUrlId ] ) {
+							return;
+						}
+
+						return distributorPullUrls[ pullUrlId ];
+					}
+				</script>
 
 				<?php
+				$connection_now->pull_post_type  = '';
 				$connection_now->pull_post_types = \Distributor\Utils\available_pull_post_types( $connection_now, $connection_type );
 
 				// Ensure we have at least one post type to pull.
 				$connection_now->pull_post_type = '';
 				if ( ! empty( $connection_now->pull_post_types ) ) {
-					$connection_now->pull_post_type = ( 'internal' === $connection_type ) ? 'all' : $connection_now->pull_post_types[0]['slug'];
+					$connection_now->pull_post_type = 'all';
 				}
 
 				// Set the post type we want to pull (if any)
 				// This is either from a query param, "post" post type, or the first in the list
 				foreach ( $connection_now->pull_post_types as $post_type ) {
-					if ( isset( $_GET['pull_post_type'] ) ) { // @codingStandardsIgnoreLine No nonce needed here.
-						if ( $_GET['pull_post_type'] === $post_type['slug'] ) { // @codingStandardsIgnoreLine Comparing values, no nonce needed.
+					if ( ! empty( $_GET['pull_post_type'] ) ) {
+						if ( 'all' === $_GET['pull_post_type'] ) {
+							$connection_now->pull_post_type = 'all';
+							break;
+						} elseif ( $_GET['pull_post_type'] === $post_type['slug'] ) {
 							$connection_now->pull_post_type = $post_type['slug'];
 							break;
 						}
 					} else {
-						if ( 'post' === $post_type['slug'] && 'external' === $connection_type ) {
-							$connection_now->pull_post_type = $post_type['slug'];
-							break;
-						}
+						$connection_now->pull_post_type = ! empty( $post_type['slug'] ) ? $post_type['slug'] : 'all';
+						break;
 					}
 				}
 				?>

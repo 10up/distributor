@@ -324,7 +324,7 @@ function checkConnections() {
 
 				if ( response.data.endpoint_suggestion ) {
 					endpointResult.innerText = `${ __(
-						'Did you mean: ',
+						'Did you mean:',
 						'distributor'
 					) } `;
 
@@ -337,7 +337,7 @@ function checkConnections() {
 					endpointResult.appendChild( suggestion );
 
 					speak(
-						`${ __( 'Did you mean: ', 'distributor' ) } ${
+						`${ __( 'Did you mean:', 'distributor' ) } ${
 							response.data.endpoint_suggestion
 						}`,
 						'polite'
