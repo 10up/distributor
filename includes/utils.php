@@ -953,7 +953,7 @@ function prepare_taxonomy_terms( $post_id, $args = array() ) {
  * Prepare post extra data for consumption on the target site.
  *
  * @param  int $post_id Post ID.
- * @since  x.x.x
+ * @since  2.2.0
  * @return array
  */
 function prepare_extra_data( $post_id ) {
