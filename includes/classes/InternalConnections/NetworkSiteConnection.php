@@ -972,8 +972,8 @@ class NetworkSiteConnection extends Connection {
 		if ( ! $last_changed ) {
 			self::set_sites_last_changed_time();
 		} else {
-			delete_transient( "authorized_sites:$user_id:push:$last_changed" );
-			delete_transient( "authorized_sites:$user_id:pull:$last_changed" );
+			delete_transient( "dt_authorized_sites:$user_id:push:$last_changed" );
+			delete_transient( "dt_authorized_sites:$user_id:pull:$last_changed" );
 		}
 	}
 
