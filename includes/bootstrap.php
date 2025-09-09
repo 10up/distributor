@@ -12,7 +12,6 @@
 
 namespace Distributor;
 
-use WP_Screen;
 use YahnisElsts\PluginUpdateChecker\v5\PucFactory;
 
 /**
