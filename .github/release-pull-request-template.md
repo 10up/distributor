@@ -1,13 +1,14 @@
 - [x] Branch: Starting from `develop`, create a release branch named `release/X.Y.Z` for your changes.
 - [ ] Version bump: Bump the version number in `distributor.php`, `package-lock.json`, `package.json`, `readme.txt` and `tests/php/bootstrap.php` if it does not already reflect the version being released.  In `distributor.php` update both the plugin "Version:" property and the plugin `DT_VERSION` constant.
-- [ ] New files: Ensure any new files, especially in the vendor folder, are correctly included in `webpack.config.release.js`.
 - [ ] Changelog: Add/update the changelog in `CHANGELOG.md`.
 - [ ] Props: Update `CREDITS.md` file with any new contributors, confirm maintainers are accurate.
 - [ ] Readme updates: Make any other readme changes as necessary.  `README.md` is geared toward GitHub and `readme.txt` contains WordPress.org-specific content.  The two are slightly different.
+- [ ] New files: Ensure any new files, especially in the vendor folder, are correctly included in `webpack.config.release.js`.
 - [ ] Since tag updates: ensure `@since` tags indicate the new version, replacing `x.x.x`, `n.e.x.t` and other placeholders.
-- [ ] Merge: Make a non-fast-forward merge from your release branch to `develop` (or merge the Pull Request), then do the same for `develop` into `trunk` (`git checkout trunk && git merge --no-ff develop`).  `trunk` contains the stable development version.
+- [ ] Merge: Make a non-fast-forward merge from your release branch to `develop` (or merge the Pull Request), then do the same for `develop` into `trunk` (`git checkout develop && git pull origin develop && git checkout trunk && git pull origin trunk && git merge --no-ff develop`).  `trunk` contains the stable development version.
+- [ ] Push: Push your trunk branch to GitHub (e.g. `git push origin trunk`).
+- [ ] [Compare](https://github.com/10up/distributor/compare/trunk...develop) `trunk` to `develop` to ensure no additional changes were missed.
 - [ ] Build: Wait for the [Build Stable Release Action](https://github.com/10up/distributor/actions?query=workflow%3A%22Build+Stable+Release%22) to finish running.
-- [ ] Update this pull request's status from `draft` to `ready to merge`.
 - [ ] Review: Do a review of the commit to the `stable` branch to ensure the contents of the diffs are as expected.
 - [ ] Test: Check out the `stable` branch and test it locally to ensure everything works as expected.  It is recommended that you rename the existing `distributor` directory and check out `stable` fresh because switching branches does not delete files.  This can be done with `git clone --single-branch --branch stable git@github.com:10up/distributor.git`
 - [ ] Either perform a regression testing utilizing the available [Critical Flows](https://10up.github.io/Open-Source-Best-Practices/testing/#critical-flows) and Test Cases or if [end-to-end tests](https://10up.github.io/Open-Source-Best-Practices/testing/#e2e-testing) cover a significant portion of those Critical Flows then run e2e tests.  Only proceed if everything tests successfully.
