@@ -90,8 +90,6 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 
 		/**
 		 * Display any authorization or token errors.
-		 *
-		 * @hook dt_oauth_admin_notices
 		 */
 		do_action( 'dt_oauth_admin_notices' );
 

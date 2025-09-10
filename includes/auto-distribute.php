@@ -50,11 +50,10 @@ function enabled() {
 	 * to. These posts will be distributed as published posts, not drafts.
 	 *
 	 * @since 2.2.0
-	 * @hook dt_auto_distribution_enabled
 	 *
-	 * @param {bool} $enabled Whether the auto-distribution feature is enabled. Default false.
+	 * @param bool $enabled Whether the auto-distribution feature is enabled. Default false.
 	 *
-	 * @return {bool} Whether the auto-distribution feature is enabled.
+	 * @return bool Whether the auto-distribution feature is enabled.
 	 */
 	return apply_filters( 'dt_auto_distribution_enabled', false );
 }
@@ -77,12 +76,11 @@ function default_post_status( $post ) {
 	 * Filter the default status for auto-distributed posts.
 	 *
 	 * @since 2.2.0
-	 * @hook dt_auto_distribution_default_status
 	 *
-	 * @param {string}  $status Default status for auto-distributed posts. Default 'publish'.
-	 * @param {WP_Post} $post   Post object for the post being pushed.
+	 * @param string  $status Default status for auto-distributed posts. Default 'publish'.
+	 * @param WP_Post $post   Post object for the post being pushed.
 	 *
-	 * @return {string} Default status for auto-distributed posts.
+	 * @return string Default status for auto-distributed posts.
 	 */
 	return apply_filters( 'dt_auto_distribution_default_status', 'publish', $post );
 }
@@ -111,15 +109,14 @@ function auto_distribute_post( $post, $user_id, $connection_type, $connection_id
 	 * Filter to determine if a post should be auto-distributed.
 	 *
 	 * @since 2.2.0
-	 * @hook dt_auto_distribute_post
 	 *
-	 * @param {bool}    $should_distribute Whether the post should be auto-distributed.
-	 * @param {WP_Post} $post              WP_Post object for the post being pushed.
-	 * @param {int}     $user_id           User ID of the user pushing the post.
-	 * @param {string}  $connection_type   Type of connection ('external' or 'internal').
-	 * @param {int}     $connection_id     Connection ID.
+	 * @param bool    $should_distribute Whether the post should be auto-distributed.
+	 * @param WP_Post $post              WP_Post object for the post being pushed.
+	 * @param int     $user_id           User ID of the user pushing the post.
+	 * @param string  $connection_type   Type of connection ('external' or 'internal').
+	 * @param int     $connection_id     Connection ID.
 	 *
-	 * @return {bool} Whether the post should be auto-distributed.
+	 * @return bool Whether the post should be auto-distributed.
 	 */
 	return apply_filters( 'dt_auto_distribute_post', true, $post, $user_id, $connection_type, $connection_id );
 }
@@ -140,11 +137,10 @@ function auto_distribute_supported_post_types() {
 	 * Filter the post types that are auto-distributable.
 	 *
 	 * @since 2.2.0
-	 * @hook auto_distribute_supported_post_types
 	 *
-	 * @param {string[]} $post_types Array of post types that can be auto-distributed.
+	 * @param string[] $post_types Array of post types that can be auto-distributed.
 	 *                               Default is array( 'post', 'page' ).
-	 * @return {string[]} Array of post types that can be auto-distributed.
+	 * @return string[] Array of post types that can be auto-distributed.
 	 */
 	return apply_filters( 'auto_distribute_supported_post_types', $post_types );
 }
@@ -318,12 +314,10 @@ function get_external_connections( $post_id = 0, $user_id = 0 ) {
 			 * Modify the maximum number of external connection post types are
 			 * queried with requesting the post type.
 			 *
-			 * @hook dt_external_connections_per_page
-			 *
 			 * @since 2.2.0
 			 *
-			 * @param {int} $max_connections The maximum number of external connections to load.
-			 * @return {int} The maximum number of external connections to load.
+			 * @param int $max_connections The maximum number of external connections to load.
+			 * @return int The maximum number of external connections to load.
 			 */
 			'posts_per_page' => apply_filters( 'dt_external_connections_per_page', 200 ), // @codingStandardsIgnoreLine This high pagination limit is purposeful
 		]
