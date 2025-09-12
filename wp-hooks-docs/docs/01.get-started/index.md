@@ -1,6 +1,6 @@
 ---
 id: get-started
-title: "ClassifAI Docs - Get Started"
+title: "Distributor Docs - Get Started"
 sidebar_label: "Get Started"
 ---
 
