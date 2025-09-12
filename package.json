@@ -26,7 +26,7 @@
 	},
 	"devDependencies": {
 		"@10up/cypress-wp-utils": "^0.6.0",
-		"@10up/wp-hooks-documentor": "^1.0.0",
+		"@10up/wp-hooks-documentor": "^1.0.1",
 		"@wordpress/env": "^10.29.0",
 		"@wordpress/scripts": "^29.0.0",
 		"compare-versions": "^4.1.3",
