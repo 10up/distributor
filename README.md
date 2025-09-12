@@ -176,6 +176,7 @@ Oftentimes the communication Distributor attempts to make across sites using the
 The Distributor documentation site is built using [WP Hooks Documentor](https://github.com/10up/wp-hooks-documentor). Follow these steps to build and run the documentation site locally:
 
 ### 1. Build Documentation
+Node.js >= 20.0 and PHP >= 8.3 will be needed in your development environment.
 
 ```bash
 # Install dependencies and build the plugin
