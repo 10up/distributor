@@ -1,0 +1,111 @@
+/**
+ * Custom CSS for WordPress Hooks Documentation
+ */
+
+:root {
+	--ifm-color-primary: #ffc619;
+	--ifm-color-primary-dark: #ffc619;
+	--ifm-color-primary-darker: #ffc619;
+	--ifm-color-primary-darkest: #ffc619;
+	--ifm-color-primary-light: #ffc619;
+	--ifm-color-primary-lighter: #ffc619;
+	--ifm-color-primary-lightest: #ffc619;
+	--ifm-code-font-size: 95%;
+	--docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.1);
+}
+
+[data-theme='dark'] {
+	--ifm-color-primary: #fee450;
+	--ifm-color-primary-dark: #fedf2f;
+	--ifm-color-primary-darker: #fedc1e;
+	--ifm-color-primary-darkest: #e8c601;
+	--ifm-color-primary-light: #fee971;
+	--ifm-color-primary-lighter: #feec82;
+	--ifm-color-primary-lightest: #fff3b4;
+	--docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.3);
+}
+
+.hook-type {
+  display: inline-block;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+.hook-type.action {
+  background-color: var(--ifm-color-primary-lightest);
+  color: var(--ifm-color-primary-darkest);
+}
+
+.hook-type.filter {
+  background-color: var(--ifm-color-primary-darker);
+  color: white;
+}
+
+.hook-parameters {
+  margin-top: 1rem;
+  padding: 1rem;
+  background-color: var(--ifm-color-emphasis-100);
+  border-radius: 8px;
+}
+
+.hook-source {
+  font-family: var(--ifm-font-family-monospace);
+  font-size: var(--ifm-code-font-size);
+  padding: 0.2rem 0.4rem;
+  background-color: var(--ifm-color-emphasis-200);
+  border-radius: 4px;
+}
+
+.navbar__logo img {
+  height: 2rem;
+}
+
+.navbar__search > * {
+  max-width: 47.5rem;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.main-wrapper .navbar__search > button {
+  right: calc(50% - 47.5rem / 2 + 4rem);
+  width: auto;
+  background: var(--ifm-navbar-search-input-background-color);
+  border-radius: .25rem;
+  width: 2rem;
+  height: 2rem;
+  transition: background-color .2s;
+}
+
+.main-wrapper .navbar__search span {
+  width: 100%;
+}
+
+.main-wrapper .navbar__search input::placeholder {
+  color: var(--ifm-color-content);
+}
+
+.navbar__search [class^=searchHintContainer_] {
+  display: none !important;
+}
+
+.main-wrapper .navbar__search input {
+  background-color: #fff;
+  border-radius: 0.75em;
+  height: 4rem;
+  display: block;
+  width: 100%;
+  border: 3px solid  var(--ifm-color-content);
+  padding: 1rem 1.5rem;
+  background-position: right 1.5rem center;
+  margin-right: auto;
+  margin-left: auto;
+  font-size: 1.125rem;
+  color: var(--ifm-color-content);
+}
+
+[data-theme='light'] .markdown > ul > li > a {
+  font-weight: 700;
+}
