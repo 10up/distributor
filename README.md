@@ -200,10 +200,9 @@ The documentation site will be available at [http://localhost:3000](http://local
 
 The documentation site will automatically deploy to GitHub Pages when changes are merged into the `trunk` branch. You can view the live documentation at [https://10up.github.io/distributor/](https://10up.github.io/distributor/).
 
-
 ## Developers
 
-See [Distributor Developer Documentation](https://10up.github.io/distributor/#developers).
+See [Distributor Developer Documentation](https://10up.github.io/distributor/get-started/developers).
 
 ## Changelog
 

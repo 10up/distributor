@@ -38,7 +38,7 @@
 	},
 	"scripts": {
 		"build": "wp-scripts build",
-		"prebuild:docs": "cp ./CHANGELOG.md ./wp-hooks-docs/docs/01.get-started/04.CHANGELOG.md",
+		"prebuild:docs": "cp ./CHANGELOG.md ./wp-hooks-docs/docs/01.get-started/05.CHANGELOG.md",
 		"build:docs": "rm -rf docs-built && wp-hooks-documentor generate",
 		"check-engines": "wp-scripts check-engines",
 		"check-licenses": "wp-scripts check-licenses",
