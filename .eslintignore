@@ -4,3 +4,4 @@ dist/*
 docs-built/*
 vendor/*
 gulp-tasks/*
+wp-hooks-docs/*
