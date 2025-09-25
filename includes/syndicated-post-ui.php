@@ -90,12 +90,12 @@ function output_distributor_column( $column_name, $post_id ) {
 			} else {
 				$unlinked = (bool) get_post_meta( $post_id, 'dt_unlinked', true );
 				$post_url = get_post_meta( $post_id, 'dt_original_post_url', true );
-	
+
 				if ( $unlinked ) {
 					echo '<a target="_blank" href="' . esc_url( $post_url ) . '"><span title="' . esc_attr__( 'Unlinked', 'distributor' ) . '" class="dashicons dashicons-editor-unlink"></span></span></a>';
 				} else {
 					echo '<a target="_blank" href="' . esc_url( $post_url ) . '"><span title="' . esc_attr__( 'Linked', 'distributor' ) . '" class="dashicons dashicons-admin-links"></span></a>';
-				}               
+				}
 			}
 		}
 	}
@@ -493,7 +493,7 @@ function syndicated_message( $post ) {
 							);
 						// phpcs:ignore Squiz.PHP.EmbeddedPhp.ContentAfterEnd, avoids layout issues.
 						?></a></span>
-					<span><a href="<?php echo esc_url( $original_post_url ); ?>">
+					<span><a class="action-link" href="<?php echo esc_url( $original_post_url ); ?>" target="_blank">
 						<?php
 							printf(
 								/* translators: 1) Distributor post type singular name. */

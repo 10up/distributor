@@ -56,6 +56,21 @@ body.dt-linked-post {
 	label[for="revisionsdiv-hide"] {
 		display: none;
 	}
+
+	.action-link {
+
+		&:after {
+			font-family: dashicons;
+			content: "\f504";
+			font-size: 1rem;
+			position: absolute;
+			margin-top: -.125rem;
+		}
+
+		&.is-secondary:hover:not(:disabled,[aria-disabled=true]) {
+			box-shadow: none;
+		}
+	}
 }
 
 #syndicate-time,
