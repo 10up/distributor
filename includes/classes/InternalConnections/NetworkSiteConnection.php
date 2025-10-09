@@ -943,7 +943,7 @@ class NetworkSiteConnection extends Connection {
 			$last_changed = self::set_sites_last_changed_time();
 		}
 
-		$cache_key        = "authorized_sites:$user_id:$context:$last_changed";
+		$cache_key        = "dt_authorized_sites:$user_id:$context:$last_changed";
 		$authorized_sites = get_transient( $cache_key );
 
 		if ( $force || false === $authorized_sites ) {
@@ -1028,8 +1028,8 @@ class NetworkSiteConnection extends Connection {
 		if ( ! $last_changed ) {
 			self::set_sites_last_changed_time();
 		} else {
-			delete_transient( "authorized_sites:$user_id:push:$last_changed" );
-			delete_transient( "authorized_sites:$user_id:pull:$last_changed" );
+			delete_transient( "dt_authorized_sites:$user_id:push:$last_changed" );
+			delete_transient( "dt_authorized_sites:$user_id:pull:$last_changed" );
 		}
 	}
 
