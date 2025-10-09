@@ -10,7 +10,7 @@ The `distributor_register_data` function streamlines the process of updating sto
 - **Extracting the reference:** Defining how to locate the specific attribute or meta key holding the ID.
 - **Processing the data:** Using pre-distribution and post-distribution callbacks to prepare and update the reference IDs, ensuring they point to the correct data on the target site.
 
-#### **Important:** Ensure that this data registration code is added to both the source and target sites. Also, verify that your Distributor plugin version is the same on both sites and equal to or greater than the required version (x.x.x).
+#### **Important:** Ensure that this data registration code is added to both the source and target sites. Also, verify that your Distributor plugin version is the same on both sites and equal to or greater than the required version (2.2.0).
 
 ## Function Definition
 

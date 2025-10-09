@@ -10,13 +10,13 @@ namespace Distributor;
 /**
  * This class is responsible for processing the registered data for the post content and post meta.
  *
- * @since x.x.x
+ * @since 2.2.0
  */
 class RegisteredDataHandler {
 	/**
 	 * The Connection data array.
 	 *
-	 * @since x.x.x
+	 * @since 2.2.0
 	 * @var array
 	 */
 	public $connection_data = array();
@@ -24,7 +24,7 @@ class RegisteredDataHandler {
 	/**
 	 * Constructor for the RegisteredDataHandler class.
 	 *
-	 * @since x.x.x
+	 * @since 2.2.0
 	 *
 	 * @param array $connection_data The connection data array.
 	 */
@@ -35,7 +35,7 @@ class RegisteredDataHandler {
 	/**
 	 * Search and replace inner content of a block with the provided replacements.
 	 *
-	 * @since x.x.x
+	 * @since 2.2.0
 	 *
 	 * @param array $block               The block to search and replace inner content.
 	 * @param array $replacement_strings Array of search and replace strings for inner content.
@@ -58,7 +58,7 @@ class RegisteredDataHandler {
 	 *
 	 * Processes the blocks data recursively and calls the callback function provided in the registered data.
 	 *
-	 * @since x.x.x
+	 * @since 2.2.0
 	 *
 	 * @param array $blocks          Array of blocks.
 	 * @param array $registered_data Array of registered data.
@@ -169,7 +169,7 @@ class RegisteredDataHandler {
 	 *
 	 * Calls the callback function provided in the registered data and updates the post data.
 	 *
-	 * @since x.x.x
+	 * @since 2.2.0
 	 *
 	 * @param array $post_data The post data.
 	 * @param bool  $is_rest   Whether the post data is from the REST API.
@@ -248,7 +248,7 @@ class RegisteredDataHandler {
 		/**
 		 * Filter the post data after processing the registered data.
 		 *
-		 * @since x.x.x
+		 * @since 2.2.0
 		 * @hook dt_after_registered_data_processed
 		 *
 		 * @param {array} $post_data             The post data after processing the registered data.
@@ -267,7 +267,7 @@ class RegisteredDataHandler {
 	 *
 	 * Calls the callback function provided in the registered data and updates the post meta data.
 	 *
-	 * @since x.x.x
+	 * @since 2.2.0
 	 *
 	 * @param array $post_meta       The post meta data.
 	 * @param array $registered_data The distributor registered data.
@@ -328,7 +328,7 @@ class RegisteredDataHandler {
 		/**
 		 * Filter the post meta data after processing the registered data.
 		 *
-		 * @since x.x.x
+		 * @since 2.2.0
 		 * @hook dt_after_registered_post_meta_processed
 		 *
 		 * @param {array} $post_meta             The post meta data.
@@ -344,7 +344,7 @@ class RegisteredDataHandler {
 	/**
 	 * Process the registered block data for the post content.
 	 *
-	 * @since x.x.x
+	 * @since 2.2.0
 	 *
 	 * @param string $post_content    The post content.
 	 * @param array  $registered_data The distributor registered data.
@@ -370,7 +370,7 @@ class RegisteredDataHandler {
 		/**
 		 * Filter the post content blocks after processing the registered data.
 		 *
-		 * @since x.x.x
+		 * @since 2.2.0
 		 * @hook dt_after_registered_block_data_processed
 		 *
 		 * @param {array} $post_content             The post content.
@@ -386,7 +386,7 @@ class RegisteredDataHandler {
 	/**
 	 * Process the registered shortcode data for the post content.
 	 *
-	 * @since x.x.x
+	 * @since 2.2.0
 	 *
 	 * @param string $post_content    The post content.
 	 * @param array  $registered_data The distributor registered data.
@@ -458,7 +458,7 @@ class RegisteredDataHandler {
 		/**
 		 * Filter the post content shortcodes after processing the registered data.
 		 *
-		 * @since x.x.x
+		 * @since 2.2.0
 		 * @hook dt_after_registered_shortcode_data_processed
 		 *
 		 * @param {array} $post_content             The post content.
@@ -474,7 +474,7 @@ class RegisteredDataHandler {
 	/**
 	 * Prepare the term extra data to be sent to the target site.
 	 *
-	 * @since x.x.x
+	 * @since 2.2.0
 	 *
 	 * @param int  $term_id     The term ID.
 	 * @param bool $with_parent Whether to include the parent term data.
@@ -504,7 +504,7 @@ class RegisteredDataHandler {
 	/**
 	 * Process the registered data for the term.
 	 *
-	 * @since x.x.x
+	 * @since 2.2.0
 	 *
 	 * @param array $term_data        The term data to be processed.
 	 * @param bool  $process_parent   Whether to process the parent term.

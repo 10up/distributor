@@ -663,7 +663,7 @@ class DistributorPost {
 	/**
 	 * Get the extra data for the post to be processed on the target site.
 	 *
-	 * @since x.x.x
+	 * @since 2.2.0
 	 *
 	 * @return array[] {
 	 *   Array of extra data keyed by the data name.
@@ -694,7 +694,7 @@ class DistributorPost {
 		/**
 		 * Filters whether to process extra data for the post.
 		 *
-		 * @since x.x.x
+		 * @since 2.2.0
 		 * @hook dt_process_extra_data
 		 *
 		 * @param {bool} $process_extra_data Whether to process extra data.
@@ -797,7 +797,7 @@ class DistributorPost {
 		/**
 		 * Filters the extra data for the post to be processed on the target site.
 		 *
-		 * @since x.x.x
+		 * @since 2.2.0
 		 * @hook dt_extra_data
 		 *
 		 * @param {array}           $extra_data Extra data for the post.
@@ -812,7 +812,7 @@ class DistributorPost {
 	/**
 	 * Parse blocks to obtain value of given attribute.
 	 *
-	 * @since x.x.x
+	 * @since 2.2.0
 	 *
 	 * @param array        $block           Block to parse.
 	 * @param string       $block_name      Block name to look for.
@@ -849,7 +849,7 @@ class DistributorPost {
 	/**
 	 * Get the attribute values of a given shortcode.
 	 *
-	 * @since x.x.x
+	 * @since 2.2.0
 	 *
 	 * @param string       $content   The post content.
 	 * @param string       $shortcode The shortcode to look for.

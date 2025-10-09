@@ -10,6 +10,7 @@ module.exports = {
 		new CopyPlugin( {
 			patterns: [
 				{ from: 'readme.txt', to: './' },
+				{ from: 'uninstall.php', to: './' },
 				{ from: 'README.md', to: './' },
 				{ from: 'CHANGELOG.md', to: './' },
 				{ from: 'composer.json', to: './' },
