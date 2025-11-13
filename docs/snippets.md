@@ -9,6 +9,7 @@
 - [Automatically unlink posts](#automatically-unlink-posts)
 - [Modify custom meta data](#modify-custom-meta-data)
 - [Exclude meta key from distribution](#exclude-meta-key-from-distribution)
+- [Turn off automatic updates for distributed content](#turn-off-automatic-updates-for-distributed-content)
 
 ---
 
