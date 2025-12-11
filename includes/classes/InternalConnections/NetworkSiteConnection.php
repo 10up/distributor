@@ -81,6 +81,11 @@ class NetworkSiteConnection extends Connection {
 		}
 		$post_id = $post->ID;
 
+		$should_push = apply_filters( 'dt_should_push_network_post', true, $post, $args, $this );
+		if ( ! $should_push ) {
+			return new \WP_Error( 'post-not-allowed-to-push', esc_html__( 'Post is configured to not be pushed via dt_should_push_network_post filter.', 'distributor' ) );
+		}
+
 		$args = wp_parse_args(
 			$args,
 			array(
