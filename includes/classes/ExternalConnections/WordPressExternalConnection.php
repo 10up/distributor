@@ -494,6 +494,22 @@ class WordPressExternalConnection extends ExternalConnection {
 		$post_type = $dt_post->get_post_type();
 		$path      = self::$namespace;
 
+		/**
+		 * Allow bypassing of external post distribution.
+		 *
+		 * @hook dt_should_push_external_post
+		 *
+		 * @param {bool}                  true           If Distributor should push the post.
+		 * @param {WP_Post}               $post          The post object.
+		 * @param {array}                 $args          The arguments passed into wp_insert_post().
+		 * @param {WordPressExternalConnection} $this    The Distributor connection being pushed to.
+		 *
+		 */
+		$should_push = apply_filters( 'dt_should_push_external_post', true, $post, $args, $this );
+		if ( ! $should_push ) {
+			return new \WP_Error( 'post-not-allowed-to-push', esc_html__( 'Post is configured to not be pushed via dt_should_push_external_post filter.', 'distributor' ) );
+		}
+
 		/*
 		 * First let's get the actual route. We don't know the "plural" of our post type
 		 */
