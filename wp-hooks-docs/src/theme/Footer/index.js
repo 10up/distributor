@@ -61,7 +61,7 @@ function Footer() {
 									copyright={ `Finely crafted by Fueled, ©${ currentYear }` }
 								/>
 								<a href="https://github.com/10up/distributor/issues/">
-									Support
+									Issues
 								</a>
 								&nbsp;
 								<span>&nbsp;|&nbsp;</span>
