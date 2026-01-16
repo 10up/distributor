@@ -103,10 +103,6 @@ You can navigate to the `Posts` > `All Posts` table list view to see all content
 
 <img src="/.github/screenshots/screenshot-8.png" alt="All Posts screen showing Distributor links for pushed and pulled content" width="300">
 
-## Support Level
-
-**Active:** 10up is actively working on this, and we expect to continue work for the foreseeable future including keeping tested up to the most recent version of WordPress.  Bug reports, feature requests, questions, and pull requests are welcome.
-
 ## Known Caveats/Issues
 
 ### Remote Request Timeouts
@@ -174,6 +170,16 @@ Oftentimes the communication Distributor attempts to make across sites using the
 ## Developers
 
 See [Distributor Developer Documentation](https://10up.github.io/distributor/#developers).
+
+## Frequently Asked Questions
+
+### Where do I report security bugs found in this plugin?
+
+Please report security bugs found in the source code of the undefined plugin through the [Patchstack Vulnerability Disclosure  Program](https://patchstack.com/database/vdp/2198169c-4564-4fae-bc07-9e737721a9b2).  The Patchstack team will assist you with verification, CVE assignment, and notify the developers of this plugin.
+
+## Support Level
+
+**Active:** 10up is actively working on this, and we expect to continue work for the foreseeable future including keeping tested up to the most recent version of WordPress.  Bug reports, feature requests, questions, and pull requests are welcome.
 
 ## Changelog
 
