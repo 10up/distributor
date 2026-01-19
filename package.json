@@ -19,7 +19,7 @@
 		"url": "https://github.com/10up/distributor/issues"
 	},
 	"engines": {
-		"node": ">=12.13.0"
+		"node": ">=20.0.0"
 	},
 	"dependencies": {
 		"mustache": "^4.2.0"
