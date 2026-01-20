@@ -4,3 +4,6 @@ dist/*
 docs-built/*
 vendor/*
 gulp-tasks/*
+tests/cypress/reports/*
+tests/cypress/videos/*
+tests/cypress/screenshots/*
