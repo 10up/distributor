@@ -5,3 +5,6 @@ docs-built/*
 vendor/*
 gulp-tasks/*
 wp-hooks-docs/*
+tests/cypress/reports/*
+tests/cypress/videos/*
+tests/cypress/screenshots/*
