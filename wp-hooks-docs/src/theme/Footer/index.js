@@ -82,7 +82,7 @@ function Footer() {
 								width="172"
 								height="33"
 								src="https://distributorplugin.com/wp-content/uploads/sites/2/2025/06/lockup_white.svg"
-								alt="Fueled Logo"
+								alt="Fueled"
 							/>
 							<div className={ styles.footer10upButton }>
 								<div className={ styles.footer10upButtonInner }>
@@ -98,7 +98,7 @@ function Footer() {
 											height="24"
 											style={ { width: '21px' } }
 											src="https://distributorplugin.com/wp-content/uploads/sites/2/2025/06/svgexport-3-1.svg"
-											alt="10up Logo"
+											alt="10up"
 										/>{ ' ' }
 										WordPress Practice
 									</a>
