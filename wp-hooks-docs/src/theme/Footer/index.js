@@ -110,8 +110,6 @@ function Footer() {
 								href="https://www.facebook.com/10up.agency/?ref=distributor"
 								title="10up on Facebook"
 								aria-hidden="true"
-								target="_blank"
-								rel="noopener nofollow noreferrer"
 							>
 								<svg
 									xmlns="http://www.w3.org/2000/svg"
@@ -125,8 +123,6 @@ function Footer() {
 								href="https://x.com/10up"
 								aria-hidden="true"
 								title="10up on X"
-								target="_blank"
-								rel="noopener nofollow noreferrer"
 							>
 								<svg
 									xmlns="http://www.w3.org/2000/svg"
@@ -140,8 +136,6 @@ function Footer() {
 								href="https://github.com/10up/"
 								aria-hidden="true"
 								title="10up on GitHub"
-								target="_blank"
-								rel="noopener nofollow noreferrer"
 							>
 								<svg
 									xmlns="http://www.w3.org/2000/svg"
