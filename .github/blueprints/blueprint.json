@@ -11,8 +11,9 @@
     {
       "step": "installPlugin",
       "pluginData": {
-        "resource": "url",
-        "url": "https://github-proxy.com/proxy/?repo=10up/distributor&branch=stable"
+        "resource": "git:directory",
+        "url": "https://github.com/10up/distributor",
+        "ref": "stable"
       }
     },
     {
