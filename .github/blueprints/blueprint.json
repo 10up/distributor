@@ -21,7 +21,7 @@
     },
     {
       "step": "wp-cli",
-      "command": "wp plugin activate distributor-stable --network"
+      "command": "wp plugin activate https-github.com-10up-distributor-stable --network"
     },
     {
       "step": "wp-cli",
