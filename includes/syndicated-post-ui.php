@@ -90,12 +90,12 @@ function output_distributor_column( $column_name, $post_id ) {
 			} else {
 				$unlinked = (bool) get_post_meta( $post_id, 'dt_unlinked', true );
 				$post_url = get_post_meta( $post_id, 'dt_original_post_url', true );
-	
+
 				if ( $unlinked ) {
 					echo '<a target="_blank" href="' . esc_url( $post_url ) . '"><span title="' . esc_attr__( 'Unlinked', 'distributor' ) . '" class="dashicons dashicons-editor-unlink"></span></span></a>';
 				} else {
 					echo '<a target="_blank" href="' . esc_url( $post_url ) . '"><span title="' . esc_attr__( 'Linked', 'distributor' ) . '" class="dashicons dashicons-admin-links"></span></a>';
-				}               
+				}
 			}
 		}
 	}
@@ -307,12 +307,11 @@ function unlink() {
 		 * Filters whether the post can be unlinked.
 		 *
 		 * @since 1.0
-		 * @hook dt_allow_post_unlink
 		 *
-		 * @param {bool} true       Whether the post is allowed to be unlinked. Default true.
-		 * @param {int}  $post_id   The ID of the post attempting to be unlinked.
+		 * @param bool true       Whether the post is allowed to be unlinked. Default true.
+		 * @param int  $post_id   The ID of the post attempting to be unlinked.
 		 *
-		 * @return {bool} Whether the post is allowed to be unlinked.
+		 * @return bool Whether the post is allowed to be unlinked.
 		 */
 		! apply_filters( 'dt_allow_post_unlink', true, $post_id ) ) {
 		return;
@@ -327,9 +326,8 @@ function unlink() {
 	 * Fires when a post is unlinked.
 	 *
 	 * @since 1.0
-	 * @hook dt_unlink_post
 	 *
-	 * @param {int} $post_id ID of the post being unlinked.
+	 * @param int $post_id ID of the post being unlinked.
 	 */
 	do_action( 'dt_unlink_post', $post_id );
 
@@ -404,9 +402,8 @@ function link() {
 	 * Fires when a post is linked.
 	 *
 	 * @since 1.0
-	 * @hook dt_link_post
 	 *
-	 * @param {int} $post_id ID of the post being linked.
+	 * @param int $post_id ID of the post being linked.
 	 */
 	do_action( 'dt_link_post', $post_id );
 

@@ -151,11 +151,10 @@ function process_distributor_attributes( $post, $request, $update ) {
 	 * Fires after an API push is handled by Distributor.
 	 *
 	 * @since 1.0
-	 * @hook dt_process_distributor_attributes
 	 *
-	 * @param {WP_Post}         $post    Inserted or updated post object.
-	 * @param {WP_REST_Request} $request Request object.
-	 * @param {bool}            $update  True when creating a post, false when updating.
+	 * @param WP_Post         $post    Inserted or updated post object.
+	 * @param WP_REST_Request $request Request object.
+	 * @param bool            $update  True when creating a post, false when updating.
 	 */
 	do_action( 'dt_process_distributor_attributes', $post, $request, $update );
 }
@@ -712,12 +711,10 @@ function get_pull_content_list( $request ) {
 	 *
 	 * Enables adding extra arguments or setting defaults for a post collection request.
 	 *
-	 * @hook dt_get_pull_content_rest_query_args
+	 * @param array           $args    Array of arguments for WP_Query.
+	 * @param WP_REST_Request $request The REST API request.
 	 *
-	 * @param {array}           $args    Array of arguments for WP_Query.
-	 * @param {WP_REST_Request} $request The REST API request.
-	 *
-	 * @return {array} The array of arguments for WP_Query.
+	 * @return array The array of arguments for WP_Query.
 	 */
 	$args = apply_filters( 'dt_get_pull_content_rest_query_args', $args, $request );
 
