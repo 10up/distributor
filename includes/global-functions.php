@@ -544,7 +544,6 @@ function distributor_term_pre_distribute_callback( $term_id, $source_post_id ) {
 	 * If set to true, the term will be distributed with its parents.
 	 *
 	 * @since 2.2.0
-	 * @hook dt_registered_data_distribute_term_parent
 	 *
 	 * @param bool $with_parents Whether to distribute term with parents. Default false.
 	 *
