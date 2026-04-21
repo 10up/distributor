@@ -672,6 +672,7 @@ class DistributorPost {
 	 * }
 	 */
 	protected function get_extra_data() {
+		$this->populate_source_site();
 		// Post data to pass to the filter.
 		$post_data = array(
 			'title'                          => html_entity_decode( get_the_title( $this->post->ID ), ENT_QUOTES, get_bloginfo( 'charset' ) ),
@@ -685,8 +686,8 @@ class DistributorPost {
 			'date_gmt'                       => $this->post->post_date_gmt,
 
 			// Original site and post data.
-			'distributor_original_site_name' => $this->source_site['name'],
-			'distributor_original_site_url'  => $this->source_site['home_url'],
+			'distributor_original_site_name' => $this->source_site['name'] ?? '',
+			'distributor_original_site_url'  => $this->source_site['home_url'] ?? '',
 			'distributor_original_post_url'  => $this->get_permalink(),
 			'distributor_original_post_id'   => $this->post->ID,
 		);
