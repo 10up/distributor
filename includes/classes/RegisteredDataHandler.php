@@ -65,7 +65,7 @@ class RegisteredDataHandler {
 	 * @param array $extra_data      Array of extra data provided by source for the registered data.
 	 * @param array $post_data       Array of post data.
 	 * @param int   $index           Index of the extra data.
-	 * @return array Array with 'blocks' (processed blocks) and 'modified' (bool).
+	 * @return array Array with 'blocks' (processed blocks), 'modified' (bool), and 'index' (int).
 	 */
 	public function process_blocks_data_recursive( $blocks, $registered_data, $extra_data, $post_data, $index = 0 ) {
 		$callback_fn     = $registered_data['post_distribute_cb'] ?? null;
@@ -79,6 +79,7 @@ class RegisteredDataHandler {
 			return array(
 				'blocks'   => $blocks,
 				'modified' => $modified,
+				'index'    => $index,
 			);
 		}
 
@@ -155,12 +156,14 @@ class RegisteredDataHandler {
 					$block['innerBlocks'] = $inner_result['blocks'];
 					$modified             = true;
 				}
+				$index = $inner_result['index'];
 			}
 		}
 
 		return array(
 			'blocks'   => $blocks,
 			'modified' => $modified,
+			'index'    => $index,
 		);
 	}
 
