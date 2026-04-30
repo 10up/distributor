@@ -65,7 +65,7 @@ class RegisteredDataHandler {
 	 * @param array $extra_data      Array of extra data provided by source for the registered data.
 	 * @param array $post_data       Array of post data.
 	 * @param int   $index           Index of the extra data.
-	 * @return array Array with 'blocks' (processed blocks) and 'modified' (bool).
+	 * @return array Array with 'blocks' (processed blocks), 'modified' (bool), and 'index' (int).
 	 */
 	public function process_blocks_data_recursive( $blocks, $registered_data, $extra_data, $post_data, $index = 0 ) {
 		$callback_fn     = $registered_data['post_distribute_cb'] ?? null;
@@ -79,6 +79,7 @@ class RegisteredDataHandler {
 			return array(
 				'blocks'   => $blocks,
 				'modified' => $modified,
+				'index'    => $index,
 			);
 		}
 
@@ -155,12 +156,14 @@ class RegisteredDataHandler {
 					$block['innerBlocks'] = $inner_result['blocks'];
 					$modified             = true;
 				}
+				$index = $inner_result['index'];
 			}
 		}
 
 		return array(
 			'blocks'   => $blocks,
 			'modified' => $modified,
+			'index'    => $index,
 		);
 	}
 
@@ -249,13 +252,12 @@ class RegisteredDataHandler {
 		 * Filter the post data after processing the registered data.
 		 *
 		 * @since 2.2.0
-		 * @hook dt_after_registered_data_processed
 		 *
-		 * @param {array} $post_data             The post data after processing the registered data.
-		 * @param {array} $registered_data       The distributor registered data.
-		 * @param {array} $extra_data            The extra data for the given registered data.
-		 * @param {array} $unprocessed_post_data The post data before processing the registered data.
-		 * @return {array} $post_data The updated post data.
+		 * @param array $post_data             The post data after processing the registered data.
+		 * @param array $registered_data       The distributor registered data.
+		 * @param array $extra_data            The extra data for the given registered data.
+		 * @param array $unprocessed_post_data The post data before processing the registered data.
+		 * @return array $post_data The updated post data.
 		 */
 		$post_data = apply_filters( 'dt_after_registered_data_processed', $post_data, $registered_data, $post_data['distributor_extra_data'] ?? array(), $unprocessed_post_data );
 
@@ -329,14 +331,13 @@ class RegisteredDataHandler {
 		 * Filter the post meta data after processing the registered data.
 		 *
 		 * @since 2.2.0
-		 * @hook dt_after_registered_post_meta_processed
 		 *
-		 * @param {array} $post_meta             The post meta data.
-		 * @param {array} $registered_data       The distributor registered data.
-		 * @param {array} $extra_data            The extra data for the given registered data.
-		 * @param {array} $post_data             The post data.
-		 * @param {array} $unprocessed_post_meta The post meta data before processing the registered data.
-		 * @return {array} $post_meta The updated post meta data.
+		 * @param array $post_meta             The post meta data.
+		 * @param array $registered_data       The distributor registered data.
+		 * @param array $extra_data            The extra data for the given registered data.
+		 * @param array $post_data             The post data.
+		 * @param array $unprocessed_post_meta The post meta data before processing the registered data.
+		 * @return array $post_meta The updated post meta data.
 		 */
 		return apply_filters( 'dt_after_registered_post_meta_processed', $post_meta, $registered_data, $extra_data, $post_data, $unprocessed_post_meta );
 	}
@@ -371,14 +372,13 @@ class RegisteredDataHandler {
 		 * Filter the post content blocks after processing the registered data.
 		 *
 		 * @since 2.2.0
-		 * @hook dt_after_registered_block_data_processed
 		 *
-		 * @param {array} $post_content             The post content.
-		 * @param {array} $registered_data          The distributor registered data.
-		 * @param {array} $extra_data               The extra data for the given registered data.
-		 * @param {array} $post_data                The post data.
-		 * @param {array} $unprocessed_post_content The post content before processing the registered data.
-		 * @return {array} $post_content The updated post content.
+		 * @param array $post_content             The post content.
+		 * @param array $registered_data          The distributor registered data.
+		 * @param array $extra_data               The extra data for the given registered data.
+		 * @param array $post_data                The post data.
+		 * @param array $unprocessed_post_content The post content before processing the registered data.
+		 * @return array $post_content The updated post content.
 		 */
 		return apply_filters( 'dt_after_registered_block_data_processed', $post_content, $registered_data, $extra_data, $post_data, $unprocessed_post_content );
 	}
@@ -459,14 +459,13 @@ class RegisteredDataHandler {
 		 * Filter the post content shortcodes after processing the registered data.
 		 *
 		 * @since 2.2.0
-		 * @hook dt_after_registered_shortcode_data_processed
 		 *
-		 * @param {array} $post_content             The post content.
-		 * @param {array} $registered_data          The distributor registered data.
-		 * @param {array} $extra_data               The extra data for the given registered data.
-		 * @param {array} $post_data                The post data.
-		 * @param {array} $unprocessed_post_content The post content before processing the registered data.
-		 * @return {array} $post_content The updated post content.
+		 * @param array $post_content             The post content.
+		 * @param array $registered_data          The distributor registered data.
+		 * @param array $extra_data               The extra data for the given registered data.
+		 * @param array $post_data                The post data.
+		 * @param array $unprocessed_post_content The post content before processing the registered data.
+		 * @return array $post_content The updated post content.
 		 */
 		return apply_filters( 'dt_after_registered_shortcode_data_processed', $post_content, $registered_data, $extra_data, $post_data, $unprocessed_post_content );
 	}

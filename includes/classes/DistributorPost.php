@@ -695,11 +695,10 @@ class DistributorPost {
 		 * Filters whether to process extra data for the post.
 		 *
 		 * @since 2.2.0
-		 * @hook dt_process_extra_data
 		 *
-		 * @param {bool} $process_extra_data Whether to process extra data.
-		 * @param {array} $post_data The post data.
-		 * @return {bool} Whether to process extra data.
+		 * @param bool  $process_extra_data Whether to process extra data.
+		 * @param array $post_data          The post data.
+		 * @return bool Whether to process extra data.
 		 */
 		if ( ! apply_filters( 'dt_process_extra_data', true, $post_data ) ) {
 			return array();
@@ -798,11 +797,10 @@ class DistributorPost {
 		 * Filters the extra data for the post to be processed on the target site.
 		 *
 		 * @since 2.2.0
-		 * @hook dt_extra_data
 		 *
-		 * @param {array}           $extra_data Extra data for the post.
-		 * @param {DistributorPost} $this       The DistributorPost object.
-		 * @return {array} Extra data for the post.
+		 * @param array           $extra_data Extra data for the post.
+		 * @param DistributorPost $this       The DistributorPost object.
+		 * @return array Extra data for the post.
 		 */
 		$extra_data = apply_filters( 'dt_extra_data', $extra_data, $this );
 
@@ -1009,11 +1007,10 @@ class DistributorPost {
 		 * }
 		 *
 		 * @since 2.0.0
-		 * @hook dt_parse_media_blocks
 		 *
-		 * @param {array} $media_blocks Array of media blocks.
+		 * @param array $media_blocks Array of media blocks.
 		 *
-		 * @return {array} Modified array of media blocks.
+		 * @return array Modified array of media blocks.
 		 */
 		$media_blocks = apply_filters( 'dt_parse_media_blocks', $media_blocks );
 
@@ -1213,11 +1210,10 @@ class DistributorPost {
 		 * Filters the post data for when they are being formatted for a pull
 		 *
 		 * @since 2.0.3
-		 * @hook dt_post_to_pull
 		 *
-		 * @param {array} $display_data The post data.
+		 * @param array $display_data The post data.
 		 *
-		 * @return {array} Modified post data.
+		 * @return array Modified post data.
 		 */
 		return apply_filters( 'dt_post_to_pull', $display_data );
 	}

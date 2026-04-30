@@ -1,0 +1,16 @@
+/**
+ * Custom CSS for WordPress Hooks Documentation
+ */
+
+html:not([data-theme='dark']) {
+  --ifm-color-primary: #3071db;
+  --ifm-breadcrumb-color-active: #2c6bd4;
+  --ifm-hover-overlay: rgba(0, 0, 0, 0.1)
+}
+
+html[data-theme='dark'] {
+  --ifm-color-primary: #367ff6;
+  --ifm-breadcrumb-color-active: #3884ff;
+  --ifm-breadcrumb-item-background-active: #202022;
+  --ifm-hover-overlay: rgba(255, 255, 255, 0.1)
+}

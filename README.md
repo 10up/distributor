@@ -103,10 +103,6 @@ You can navigate to the `Posts` > `All Posts` table list view to see all content
 
 <img src="/.github/screenshots/screenshot-8.png" alt="All Posts screen showing Distributor links for pushed and pulled content" width="300">
 
-## Support Level
-
-**Active:** 10up is actively working on this, and we expect to continue work for the foreseeable future including keeping tested up to the most recent version of WordPress.  Bug reports, feature requests, questions, and pull requests are welcome.
-
 ## Known Caveats/Issues
 
 ### Remote Request Timeouts
@@ -171,9 +167,49 @@ By default, drafts are the preferred status and can't be changed at the source s
 
 Oftentimes the communication Distributor attempts to make across sites using the REST API will be flagged by various security plugins and surreptitiously blocked.  If you run into an issue like this, please reach out to the support for your security plugin and ask about getting Distributor unblocked ([here is an example for doing so with Wordfence](https://wordpress.org/support/topic/distributor-plugin-being-blocked/)).
 
+## Building and Running Documentation Site
+
+The Distributor documentation site is built using [WP Hooks Documentor](https://github.com/10up/wp-hooks-documentor). Follow these steps to build and run the documentation site locally:
+
+### 1. Build Documentation
+Node.js >= 20.0 and PHP >= 8.3 will be needed in your development environment.
+
+```bash
+# Install dependencies and build the plugin
+npm i && npm run build:docs
+```
+
+This will:
+- Install all required dependencies
+- Process all hook documentation from the codebase
+- Generate the documentation site in the `./docs-built` directory
+
+### 2. Run Documentation Site Locally
+
+```bash
+# Navigate to docs-built directory and start the server
+cd ./docs-built && npm run serve
+```
+
+The documentation site will be available at [http://localhost:3000](http://localhost:3000).
+
+### 3. Deployment
+
+The documentation site will automatically deploy to GitHub Pages when changes are merged into the `trunk` branch. You can view the live documentation at [https://10up.github.io/distributor/](https://10up.github.io/distributor/).
+
 ## Developers
 
-See [Distributor Developer Documentation](https://10up.github.io/distributor/#developers).
+See [Distributor Developer Documentation](https://10up.github.io/distributor/get-started/developers).
+
+## Frequently Asked Questions
+
+### Where do I report security bugs found in this plugin?
+
+Please report security bugs found in the source code of the undefined plugin through the [Patchstack Vulnerability Disclosure  Program](https://patchstack.com/database/vdp/2198169c-4564-4fae-bc07-9e737721a9b2).  The Patchstack team will assist you with verification, CVE assignment, and notify the developers of this plugin.
+
+## Support Level
+
+**Active:** 10up is actively working on this, and we expect to continue work for the foreseeable future including keeping tested up to the most recent version of WordPress.  Bug reports, feature requests, questions, and pull requests are welcome.
 
 ## Changelog
 

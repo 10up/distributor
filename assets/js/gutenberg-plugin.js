@@ -141,7 +141,7 @@ const RenderDistributedFrom = () => {
 			<div>
 				<span id="distributed-from">
 					{ sprintf(
-						/* translators: 1: Syndication date and time. */
+						/* translators: 1: Syndication date and time; 2: Original location name */
 						__(
 							'Pulled & linked on %1$s from %2$s',
 							'distributor'
@@ -210,7 +210,7 @@ const RenderDistributedFrom = () => {
 		<div>
 			<span id="distributed-from">
 				{ sprintf(
-					/* translators: 1: Syndication date and time. */
+					/* translators: 1: Syndication date and time; 2: Original location name */
 					__( 'Pulled on %1$s from %2$s', 'distributor' ),
 					dtGutenberg.syndicationTime,
 					dtGutenberg.originalLocationName

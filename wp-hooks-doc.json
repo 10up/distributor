@@ -1,0 +1,20 @@
+{
+  "input": ".",
+  "outputDir": "./docs-built",
+  "ignoreFiles": [
+    "/tests/",
+    "/vendor/",
+    "/node_modules/"
+  ],
+  "templatesDir": "./wp-hooks-docs",
+  "ignoreHooks": [],
+  "title": "Distributor Developer Documentation",
+  "tagline": "Documentation for actions, filters, and WP-CLI commands found in the Distributor plugin",
+  "url": "https://distributorplugin.com",
+  "baseUrl": "/distributor/",
+  "repoUrl": "https://github.com/10up/distributor",
+  "githubSourceCodeUrl": "https://github.com/10up/distributor/blob/trunk",
+  "organizationName": "10up",
+  "projectName": "distributor",
+  "footerStyle": "dark"
+}

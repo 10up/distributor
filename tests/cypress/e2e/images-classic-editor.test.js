@@ -15,7 +15,10 @@ describe( '[Classic Editor] Image distribution tests', () => {
 		cy.get( '.attachments-wrapper .attachments li.attachment:visible' )
 			.eq( 1 )
 			.click();
+		// Intercept admin ajax request with image details.
+		cy.intercept( 'admin-ajax.php' ).as( 'adminAjax' );
 		cy.get( '.button-primary.media-button-insert' ).click();
+		cy.wait( '@adminAjax' );
 	};
 
 	before( () => {
