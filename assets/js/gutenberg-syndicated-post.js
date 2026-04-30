@@ -47,9 +47,9 @@ if (
 			),
 			url: false,
 			className: 'action-link is-link',
-			onClick: function(e) {
+			onClick( e ) {
 				e.preventDefault();
-				window.open(dtGutenberg.postUrl, 'blank')
+				window.open( dtGutenberg.postUrl, 'blank' );
 			},
 		} );
 	} else {
@@ -80,9 +80,9 @@ if (
 			),
 			url: false,
 			className: 'action-link is-link',
-			onClick: function(e) {
+			onClick( e ) {
 				e.preventDefault();
-				window.open(dtGutenberg.postUrl, 'blank')
+				window.open( dtGutenberg.postUrl, 'blank' );
 			},
 		} );
 	}
