@@ -59,7 +59,7 @@ body.dt-linked-post {
 
 	.action-link {
 
-		&:after {
+		&::after {
 			font-family: dashicons;
 			content: "\f504";
 			font-size: 1rem;
@@ -67,7 +67,7 @@ body.dt-linked-post {
 			margin-top: -.125rem;
 		}
 
-		&.is-secondary:hover:not(:disabled,[aria-disabled=true]) {
+		&.is-secondary:hover:not(:disabled,[aria-disabled="true"]) {
 			box-shadow: none;
 		}
 	}
