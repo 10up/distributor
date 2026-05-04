@@ -686,8 +686,8 @@ class DistributorPost {
 			'date_gmt'                       => $this->post->post_date_gmt,
 
 			// Original site and post data.
-			'distributor_original_site_name' => $this->source_site['name'] ?? '',
-			'distributor_original_site_url'  => $this->source_site['home_url'] ?? '',
+			'distributor_original_site_name' => $this->source_site['name'],
+			'distributor_original_site_url'  => $this->source_site['home_url'],
 			'distributor_original_post_url'  => $this->get_permalink(),
 			'distributor_original_post_id'   => $this->post->ID,
 		);
