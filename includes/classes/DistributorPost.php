@@ -672,6 +672,7 @@ class DistributorPost {
 	 * }
 	 */
 	protected function get_extra_data() {
+		$this->populate_source_site();
 		// Post data to pass to the filter.
 		$post_data = array(
 			'title'                          => html_entity_decode( get_the_title( $this->post->ID ), ENT_QUOTES, get_bloginfo( 'charset' ) ),
