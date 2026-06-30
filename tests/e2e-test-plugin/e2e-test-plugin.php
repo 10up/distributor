@@ -237,14 +237,6 @@ add_action(
 );
 
 /**
- * Remove view transitions to prevent Cypress from failing on a transition promise.
- */
-add_action( 'admin_enqueue_scripts', function() {
-	remove_action( 'admin_enqueue_scripts', 'wp_enqueue_view_transitions_admin_css' );
-}, 5 );
-
-
-/**
  * Pre-distribute callback for the cover block data.
  *
  * @param mixed $image_id           Background image ID.
