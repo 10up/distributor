@@ -12,7 +12,7 @@
 
 namespace Distributor;
 
-use YahnisElsts\PluginUpdateChecker\v5\PucFactory;
+use YahnisElsts\PluginUpdateChecker\v5p7\PucFactory;
 
 /**
  * PSR-4 autoloading
@@ -140,7 +140,7 @@ add_action(
 	}
 );
 
-if ( class_exists( '\\YahnisElsts\PluginUpdateChecker\v5\PucFactory' ) ) {
+if ( class_exists( '\\YahnisElsts\\PluginUpdateChecker\\v5p7\\PucFactory' ) ) {
 	/**
 	 * Enable updates if we have a valid license
 	 */
@@ -209,11 +209,10 @@ add_action(
 			 * Filter whether the network connection type is enabled. Enabled by default, return false to disable.
 			 *
 			 * @since 1.0.0
-			 * @hook dt_network_site_connection_enabled
 			 *
-			 * @param {bool} true Whether the network connection should be enabled.
+			 * @param bool true Whether the network connection should be enabled.
 			 *
-			 * @return {bool} Whether the network connection should be enabled.
+			 * @return bool Whether the network connection should be enabled.
 			 */
 			apply_filters( 'dt_network_site_connection_enabled', true )
 		) {

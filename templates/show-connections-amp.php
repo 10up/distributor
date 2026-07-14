@@ -60,13 +60,11 @@
 				/**
 				 * Filter whether the 'As Draft' option appears in the push ui.
 				 *
-				 * @hook dt_allow_as_draft_distribute
+				 * @param bool    $as_draft   Whether the 'As Draft' option should appear.
+				 * @param object  $connection The connection being used to push.
+				 * @param WP_Post $post       The post being pushed.
 				 *
-				 * @param {bool}    $as_draft   Whether the 'As Draft' option should appear.
-				 * @param {object}  $connection The connection being used to push.
-				 * @param {WP_Post} $post       The post being pushed.
-				 *
-				 * @return {bool} Whether the 'As Draft' option should appear.
+				 * @return bool Whether the 'As Draft' option should appear.
 				 */
 				$as_draft = apply_filters( 'dt_allow_as_draft_distribute', $as_draft, $connection = null, $post );
 				?>

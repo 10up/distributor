@@ -212,7 +212,7 @@ Cypress.Commands.add(
 				.closest( '.add-connection' )
 				.find( 'a' )
 				.contains( 'View' )
-				.click();
+				.click( { force: true } ); // Force click link inside a button, works in browsers but not Cypress.
 
 			cy.get( '#wp-admin-bar-edit a' )
 				.invoke( 'attr', 'href' )

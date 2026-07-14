@@ -66,12 +66,10 @@ function setup_list_table() {
 			 * Modify the maximum number of external connection post types are
 			 * queried with requesting the post type.
 			 *
-			 * @hook dt_external_connections_per_page
-			 *
 			 * @since 2.2.0
 			 *
-			 * @param {int} $max_connections The maximum number of external connections to load.
-			 * @return {int} The maximum number of external connections to load.
+			 * @param int $max_connections The maximum number of external connections to load.
+			 * @return int The maximum number of external connections to load.
 			 */
 			'posts_per_page' => apply_filters( 'dt_external_connections_per_page', 200 ), // @codingStandardsIgnoreLine This high pagination limit is purposeful
 		)
@@ -161,11 +159,10 @@ function action_admin_menu() {
 		 * Filter Distributor capabilities allowed to pull content.
 		 *
 		 * @since 1.0.0
-		 * @hook dt_pull_capabilities
 		 *
-		 * @param {string} 'manage_options' The capability allowed to pull content.
+		 * @param string 'manage_options' The capability allowed to pull content.
 		 *
-		 * @return {string} The capability allowed to pull content.
+		 * @return string The capability allowed to pull content.
 		 */
 		apply_filters( 'dt_pull_capabilities', 'manage_options' ),
 		'pull',

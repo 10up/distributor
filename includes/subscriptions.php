@@ -291,12 +291,10 @@ function send_notifications( $post ) {
 		/**
 		 * Filter the timeout used when calling `\Distributor\Subscriptions\send_notifications`
 		 *
-		 * @hook dt_subscription_post_timeout
+		 * @param int     $timeout The timeout to use for the remote post. Default `5`.
+		 * @param WP_Post $post    The post object
 		 *
-		 * @param {int}     $timeout The timeout to use for the remote post. Default `5`.
-		 * @param {WP_Post} $post    The post object
-		 *
-		 * @return {int} The timeout to use for the remote post.
+		 * @return int The timeout to use for the remote post.
 		 */
 		$request_timeout = apply_filters( 'dt_subscription_post_timeout', 5, $post );
 
@@ -304,12 +302,11 @@ function send_notifications( $post ) {
 		 * Filter the arguments sent to the remote server during a subscription update.
 		 *
 		 * @since 1.3.0
-		 * @hook dt_subscription_post_args
 		 *
-		 * @param  {array}   $post_body The request body to send.
-		 * @param  {WP_Post} $post      The WP_Post that is being pushed.
+		 * @param  array   $post_body The request body to send.
+		 * @param  WP_Post $post      The WP_Post that is being pushed.
 		 *
-		 * @return {array} The request body to send.
+		 * @return array The request body to send.
 		 */
 		$post_body = apply_filters( 'dt_subscription_post_args', $post_body, $post );
 
@@ -370,5 +367,3 @@ function register_cpt() {
 
 	register_post_type( 'dt_subscription', $args );
 }
-
-

@@ -141,12 +141,11 @@ class WordPressExternalConnection extends ExternalConnection {
 					 * Filter the remote_get request.
 					 *
 					 * @since 1.0
-					 * @hook dt_remote_get
 					 *
-					 * @param {array} $args  The arguments originally passed to `remote_get`.
-					 * @param {object} $this The authentication class.
+					 * @param array  $args The arguments originally passed to `remote_get`.
+					 * @param object $this The authentication class.
 					 *
-					 * @return {array} The arguments originally passed to `remote_get`.
+					 * @return array The arguments originally passed to `remote_get`.
 					 */
 					return apply_filters(
 						'dt_remote_get',
@@ -232,12 +231,11 @@ class WordPressExternalConnection extends ExternalConnection {
 		* Filter the remote_post query arguments
 		*
 		* @since 1.6.7
-		* @hook dt_remote_post_query_args
 		*
-		* @param {array}  $args The request arguments.
-		* @param {WordPressExternalConnection} $this The current connection object.
+		* @param array                       $args The request arguments.
+		* @param WordPressExternalConnection $this The current connection object.
 		*
-		* @return {array} The query arguments.
+		* @return array The query arguments.
 		*/
 		$body = apply_filters( 'dt_remote_post_query_args', $args, $this );
 
@@ -252,12 +250,11 @@ class WordPressExternalConnection extends ExternalConnection {
 					 * Filter the timeout used when calling `remote_post`
 					 *
 					 * @since 1.6.7
-					 * @hook dt_remote_post_timeout
 					 *
-					 * @param {int}   $timeout The timeout to use for the remote post. Default `45`.
-					 * @param {array} $args    The request arguments.
+					 * @param int   $timeout The timeout to use for the remote post. Default `45`.
+					 * @param array $args    The request arguments.
 					 *
-					 * @return {int} The timeout to use for the remote_post call.
+					 * @return int The timeout to use for the remote_post call.
 					 */
 					'timeout' => apply_filters( 'dt_remote_post_timeout', 45, $args ),
 					'body'    => $body,
@@ -326,13 +323,12 @@ class WordPressExternalConnection extends ExternalConnection {
 		 * Filter the items returned when using `WordPressExternalConnection::remote_post`
 		 *
 		 * @since 1.6.7
-		 * @hook dt_remote_post
 		 *
-		 * @param {array}                       $items The items returned from the POST request.
-		 * @param {array}                       $args  The arguments used in the POST request.
-		 * @param {WordPressExternalConnection} $this  The current connection object.
+		 * @param array                       $items The items returned from the POST request.
+		 * @param array                       $args  The arguments used in the POST request.
+		 * @param WordPressExternalConnection $this  The current connection object.
 		 *
-		 * @return {array} The items returned from a remote POST request.
+		 * @return array The items returned from a remote POST request.
 		 */
 		return apply_filters(
 			'dt_remote_post',
@@ -426,14 +422,13 @@ class WordPressExternalConnection extends ExternalConnection {
 			 * Filter the arguments passed into wp_insert_post during a pull.
 			 *
 			 * @since 1.0
-			 * @hook dt_pull_post_args
 			 *
-			 * @param  {array}              $post_array      The post data to be inserted.
-			 * @param  {array}              $remote_post_id  The remote post ID.
-			 * @param  {object}             $post            The request that got the post.
-			 * @param  {ExternalConnection} $this            The Distributor connection pulling the post.
+			 * @param  array              $post_array      The post data to be inserted.
+			 * @param  array              $remote_post_id  The remote post ID.
+			 * @param  object             $post            The request that got the post.
+			 * @param  ExternalConnection $this            The Distributor connection pulling the post.
 			 *
-			 * @return {array} The post data to be inserted.
+			 * @return array The post data to be inserted.
 			 */
 			$new_post_args = Utils\post_args_allow_list( apply_filters( 'dt_pull_post_args', $post_array, $item_array['remote_post_id'], $post, $this ) );
 			if ( $update ) {
@@ -582,27 +577,26 @@ class WordPressExternalConnection extends ExternalConnection {
 					 * Filter the timeout used when calling `WordPressExternalConnection::push`.
 					 *
 					 * @since 1.0
-					 * @hook dt_push_post_timeout
 					 *
-					 * @param {int} $timeout The timeout to use for the remote post. Default `5`.
-					 * @param {object} $post The post object
+					 * @param int    $timeout The timeout to use for the remote post. Default `5`.
+					 * @param object $post    The post object
 					 *
-					 * @return {int} The timeout to use for the remote post.
+					 * @return int The timeout to use for the remote post.
 					 */
 					'timeout' => apply_filters( 'dt_push_post_timeout', 45, $post ),
 					/**
 					 * Filter the arguments sent to the remote server during a push.
 					 *
 					 * @since 1.0
-					 * @hook dt_push_post_args
+					 *
 					 * @tutorial snippets
 					 *
-					 * @param  {array}              $post_body  The request body to send.
-					 * @param  {object}             $post       The WP_Post that is being pushed.
-					 * @param  {array}              $args       Post args to push.
-					 * @param  {ExternalConnection} $this       The distributor connection being pushed to.
+					 * @param  array              $post_body  The request body to send.
+					 * @param  object             $post       The WP_Post that is being pushed.
+					 * @param  array              $args       Post args to push.
+					 * @param  ExternalConnection $this       The distributor connection being pushed to.
 					 *
-					 * @return {array} The request body to send.
+					 * @return array The request body to send.
 					 */
 					'body'    => apply_filters( 'dt_push_post_args', $post_body, $post, $args, $this ),
 				)
@@ -621,14 +615,13 @@ class WordPressExternalConnection extends ExternalConnection {
 		 * Fires the action after a post is pushed via Distributor before remote request validation.
 		 *
 		 * @since 2.0.0
-		 * @hook  dt_push_external_post
 		 *
-		 * @param {array|WP_Error}              $response    The response from the remote request.
-		 * @param {array}                       $post_body   The Post data formatted for the REST API endpoint.
-		 * @param {string}                      $type_url    The Post type api endpoint.
-		 * @param {int}                         $post_id     The Post id.
-		 * @param {array}                       $args        The arguments passed into wp_insert_post.
-		 * @param {WordPressExternalConnection} $this        The Distributor connection being pushed to.
+		 * @param array|WP_Error              $response    The response from the remote request.
+		 * @param array                       $post_body   The Post data formatted for the REST API endpoint.
+		 * @param string                      $type_url    The Post type api endpoint.
+		 * @param int                         $post_id     The Post id.
+		 * @param array                       $args        The arguments passed into wp_insert_post.
+		 * @param WordPressExternalConnection $this        The Distributor connection being pushed to.
 		 */
 		do_action( 'dt_push_external_post', $response, $post_body, $type_url, $post_id, $args, $this );
 
@@ -980,12 +973,11 @@ class WordPressExternalConnection extends ExternalConnection {
 		 * Filter the post item.
 		 *
 		 * @since 1.0
-		 * @hook dt_item_mapping
 		 *
-		 * @param  {WP_Post}            $obj  The WP_Post that is being pushed.
-		 * @param  {ExternalConnection} $this The external connection the post concerns.
+		 * @param  WP_Post            $obj  The WP_Post that is being pushed.
+		 * @param  ExternalConnection $this The external connection the post concerns.
 		 *
-		 * @return {WP_Post} The WP_Post that is being pushed.
+		 * @return WP_Post The WP_Post that is being pushed.
 		 */
 		$post_object = apply_filters( 'dt_item_mapping', new \WP_Post( $obj ), $post, $this );
 

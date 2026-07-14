@@ -167,10 +167,9 @@ function set_meta( $post_id, $meta ) {
 	 * from the saved meta data.
 	 *
 	 * @since 2.0.0
-	 * @hook dt_before_set_meta
 	 *
-	 * @param {array} $meta          All received meta for the post
-	 * @param {int}   $post_id       Post ID
+	 * @param array $meta          All received meta for the post
+	 * @param int   $post_id       Post ID
 	 */
 	$meta = apply_filters( 'dt_before_set_meta', $meta, $post_id );
 
@@ -210,12 +209,11 @@ function set_meta( $post_id, $meta ) {
 	 * Take care to continue to filter out excluded keys in any further meta setting.
 	 *
 	 * @since 1.3.8
-	 * @hook dt_after_set_meta
 	 * @tutorial snippets
 	 *
-	 * @param {array} $meta          All received meta for the post
-	 * @param {array} $existing_meta Existing meta for the post
-	 * @param {int}   $post_id       Post ID
+	 * @param array $meta          All received meta for the post
+	 * @param array $existing_meta Existing meta for the post
+	 * @param int   $post_id       Post ID
 	 */
 	do_action( 'dt_after_set_meta', $meta, $existing_meta, $post_id );
 }
@@ -298,15 +296,14 @@ function available_pull_post_types( $connection, $type ) {
 	 * Helpful for sites that want to pull custom post type content from another site into a different existing post type on the receiving end.
 	 *
 	 * @since 1.3.5
-	 * @hook dt_available_pull_post_types
 	 *
-	 * @param {array}      $post_types        Post types available for pull with name and slug.
-	 * @param {array}      $remote_post_types Post types available from the remote connection.
-	 * @param {array}      $local_post_types  Post types registered as public on the local site.
-	 * @param {Connection} $connection        Distributor connection object.
-	 * @param {string}     $type              Distributor connection type.
+	 * @param array      $post_types        Post types available for pull with name and slug.
+	 * @param array      $remote_post_types Post types available from the remote connection.
+	 * @param array      $local_post_types  Post types registered as public on the local site.
+	 * @param Connection $connection        Distributor connection object.
+	 * @param string     $type              Distributor connection type.
 	 *
-	 * @return {array} Post types available for pull with name and slug.
+	 * @return array Post types available for pull with name and slug.
 	 */
 	$pull_post_types = apply_filters( 'dt_available_pull_post_types', $post_types, $remote_post_types, $local_post_types, $connection, $type );
 
@@ -471,12 +468,11 @@ function distributable_post_types( $output = 'names' ) {
 	 * Filter post types that are distributable.
 	 *
 	 * @since 1.0.0
-	 * @hook distributable_post_types
 	 * @tutorial snippets
 	 *
-	 * @param {array} Post types that are distributable.
+	 * @param array Post types that are distributable.
 	 *
-	 * @return {array} Post types that are distributable.
+	 * @return array Post types that are distributable.
 	 */
 	$post_types = apply_filters( 'distributable_post_types', $post_types );
 
@@ -567,11 +563,9 @@ function distributable_post_statuses() {
 	 *
 	 * By default only published posts can be distributed.
 	 *
-	 * @hook dt_distributable_post_statuses
+	 * @param array $statuses Post statuses that are distributable. Default `publish`.
 	 *
-	 * @param {array} $statuses Post statuses that are distributable. Default `publish`.
-	 *
-	 * @return {array} Post statuses that are distributable.
+	 * @return array Post statuses that are distributable.
 	 */
 	return apply_filters( 'dt_distributable_post_statuses', array( 'publish' ) );
 }
@@ -639,12 +633,11 @@ function excluded_meta() {
 	 * Filter meta keys that are excluded from distribution.
 	 *
 	 * @since 1.9.0
-	 * @hook dt_excluded_meta
 	 * @tutorial snippets
 	 *
-	 * @param {array} $meta_keys Excluded meta keys. Default `dt_unlinked, dt_connection_map, dt_subscription_update, dt_subscriptions, dt_subscription_signature, dt_original_post_id, dt_original_post_url, dt_original_blog_id, dt_syndicate_time, _wp_attached_file, _wp_attachment_metadata, _edit_lock, _edit_last, _wp_old_slug, _wp_old_date`.
+	 * @param array $meta_keys Excluded meta keys. Default `dt_unlinked, dt_connection_map, dt_subscription_update, dt_subscriptions, dt_subscription_signature, dt_original_post_id, dt_original_post_url, dt_original_blog_id, dt_syndicate_time, _wp_attached_file, _wp_attachment_metadata, _edit_lock, _edit_last, _wp_old_slug, _wp_old_date`.
 	 *
-	 * @return {array} Excluded meta keys.
+	 * @return array Excluded meta keys.
 	 */
 	return apply_filters( 'dt_excluded_meta', $excluded_meta );
 }
@@ -676,14 +669,12 @@ function prepare_meta( $post_id ) {
 				/**
 				 * Filter whether to sync meta.
 				 *
-				 * @hook dt_sync_meta
+				 * @param bool   $sync_meta  Whether to sync meta. Default `true`.
+				 * @param string $meta_key   The meta key.
+				 * @param mixed  $meta_value The meta value.
+				 * @param int    $post_id    The post ID.
 				 *
-				 * @param {bool}   $sync_meta  Whether to sync meta. Default `true`.
-				 * @param {string} $meta_key   The meta key.
-				 * @param {mixed}  $meta_value The meta value.
-				 * @param {int}    $post_id    The post ID.
-				 *
-				 * @return {bool} Whether to sync meta.
+				 * @return bool Whether to sync meta.
 				 */
 				if ( false === apply_filters( 'dt_sync_meta', true, $meta_key, $meta_value, $post_id ) ) {
 					continue;
@@ -701,12 +692,11 @@ function prepare_meta( $post_id ) {
 	 * see `excluded_meta()`.
 	 *
 	 * @since 2.0.0
-	 * @hook dt_prepared_meta
 	 *
-	 * @param {array} $prepared_meta Prepared meta.
-	 * @param {int}   $post_id      Post ID.
+	 * @param array $prepared_meta Prepared meta.
+	 * @param int   $post_id      Post ID.
 	 *
-	 * @return {array} Prepared meta.
+	 * @return array Prepared meta.
 	 */
 	$prepared_meta = apply_filters( 'dt_prepared_meta', $prepared_meta, $post_id );
 
@@ -916,12 +906,11 @@ function prepare_taxonomy_terms( $post_id, $args = array() ) {
 	 * Filters the taxonomies that should be synced.
 	 *
 	 * @since 1.0
-	 * @hook dt_syncable_taxonomies
 	 *
-	 * @param {array}  $taxonomies  Associative array list of taxonomies supported by current post in the format of `$taxonomy => $terms`.
-	 * @param {WP_Post} $post       The post object.
+	 * @param array  $taxonomies  Associative array list of taxonomies supported by current post in the format of `$taxonomy => $terms`.
+	 * @param WP_Post $post       The post object.
 	 *
-	 * @return {array} Associative array list of taxonomies supported by current post in the format of `$taxonomy => $terms`.
+	 * @return array Associative array list of taxonomies supported by current post in the format of `$taxonomy => $terms`.
 	 */
 	$taxonomies = apply_filters( 'dt_syncable_taxonomies', $taxonomies, $post );
 
@@ -937,12 +926,11 @@ function prepare_taxonomy_terms( $post_id, $args = array() ) {
 	 * taxonomies permitted for distribution. See the `dt_syncable_taxonomies` hook.
 	 *
 	 * @since 2.0.0
-	 * @hook dt_prepared_taxonomy_terms
 	 *
-	 * @param {array} $taxonomy_terms Associative array of terms keyed by taxonomy.
-	 * @param {int}   $post_id        Post ID.
+	 * @param array $taxonomy_terms Associative array of terms keyed by taxonomy.
+	 * @param int   $post_id        Post ID.
 	 *
-	 * @param {array} $args           Modified array of terms keyed by taxonomy.
+	 * @param array $args           Modified array of terms keyed by taxonomy.
 	 */
 	$taxonomy_terms = apply_filters( 'dt_prepared_taxonomy_terms', $taxonomy_terms, $post_id );
 
@@ -996,14 +984,13 @@ function set_taxonomy_terms( $post_id, $taxonomy_terms ) {
 			 * Filter whether missing terms should be created.
 			 *
 			 * @since 1.0.0
-			 * @hook dt_create_missing_terms
 			 *
-			 * @param {bool}                true        Whether missing terms should be created. Default `true`.
-			 * @param {string}              $taxonomy   The taxonomy name.
-			 * @param {array}               $term_array Term data.
-			 * @param {WP_Term|array|false} $term       `WP_Term` object or `array` if found, `false` if not.
+			 * @param bool                true        Whether missing terms should be created. Default `true`.
+			 * @param string              $taxonomy   The taxonomy name.
+			 * @param array               $term_array Term data.
+			 * @param WP_Term|array|false} $term       `WP_Term` object or `array` if found, `false` if not.
 			 *
-			 * @return {bool} Whether missing terms should be created.
+			 * @return bool Whether missing terms should be created.
 			 */
 			$create_missing_terms = apply_filters( 'dt_create_missing_terms', true, $taxonomy, $term_array, $term );
 
@@ -1038,12 +1025,11 @@ function set_taxonomy_terms( $post_id, $taxonomy_terms ) {
 		 * Filter whether term hierarchy should be updated.
 		 *
 		 * @since 1.0.0
-		 * @hook dt_update_term_hierarchy
 		 *
-		 * @param {bool}   true      Whether term hierarchy should be updated. Default `true`.
-		 * @param {string} $taxonomy The taxonomy slug for the current term.
+		 * @param bool   true      Whether term hierarchy should be updated. Default `true`.
+		 * @param string $taxonomy The taxonomy slug for the current term.
 		 *
-		 * @return {bool} Whether term hierarchy should be updated.
+		 * @return bool Whether term hierarchy should be updated.
 		 */
 		$update_term_hierarchy = apply_filters( 'dt_update_term_hierarchy', true, $taxonomy );
 
@@ -1103,13 +1089,12 @@ function set_media( $post_id, $media, $args = [] ) {
 	 * Allow filtering of the set_media args.
 	 *
 	 * @since 1.6.0
-	 * @hook dt_set_media_args
 	 *
-	 * @param {array} $args    List of args.
-	 * @param {int}   $post_id Post ID.
-	 * @param {array} $media   Array of media posts.
+	 * @param array $args    List of args.
+	 * @param int   $post_id Post ID.
+	 * @param array $media   Array of media posts.
 	 *
-	 * @return {array} set_media args.
+	 * @return array set_media args.
 	 */
 	$args = apply_filters( 'dt_set_media_args', $args, $post_id, $media );
 
@@ -1141,12 +1126,11 @@ function set_media( $post_id, $media, $args = [] ) {
 		 * Filter whether media should be deleted and replaced if it already exists.
 		 *
 		 * @since 1.0.0
-		 * @hook dt_sync_media_delete_and_replace
 		 *
-		 * @param {bool}   true     Whether pre-existing media should be deleted and replaced. Default `false`.
-		 * @param {int}    $post_id The post ID.
+		 * @param bool   true     Whether pre-existing media should be deleted and replaced. Default `false`.
+		 * @param int    $post_id The post ID.
 		 *
-		 * @return {bool} Whether pre-existing media should be deleted and replaced.
+		 * @return bool Whether pre-existing media should be deleted and replaced.
 		 */
 		if ( apply_filters( 'dt_sync_media_delete_and_replace', false, $post_id ) ) {
 			if ( ! empty( $current_media[ $media_item['source_url'] ] ) ) {
@@ -1248,12 +1232,10 @@ function format_media_post( $media_post, $post_id = 0 ) {
 	/**
 	 * Filter media details retrieved by `wp_get_attachment_metadata()`.
 	 *
-	 * @hook dt_get_media_details
+	 * @param array|false $metadata       Array of media metadata. `false` on failure.
+	 * @param int         $media_post->ID The media post ID.
 	 *
-	 * @param {array|false} $metadata       Array of media metadata. `false` on failure.
-	 * @param {int}         $media_post->ID The media post ID.
-	 *
-	 * @return {array} Array of media metadata.
+	 * @return array Array of media metadata.
 	 */
 	$media_item['media_details'] = apply_filters( 'dt_get_media_details', wp_get_attachment_metadata( $media_post->ID ), $media_post->ID );
 	$media_item['post']          = $media_post->post_parent;
@@ -1264,12 +1246,10 @@ function format_media_post( $media_post, $post_id = 0 ) {
 	/**
 	 * Filter formatted media item.
 	 *
-	 * @hook dt_media_item_formatted
+	 * @param array $media_item     Array of media item details.
+	 * @param int   $media_post->ID The media post ID.
 	 *
-	 * @param {array} $media_item Array of media item details.
-	 * @param {int}   $media_post->ID The media post ID.
-	 *
-	 * @return {array} Array of media item details.
+	 * @return array Array of media item details.
 	 */
 	return apply_filters( 'dt_media_item_formatted', $media_item, $media_post->ID );
 }
@@ -1298,7 +1278,6 @@ function process_media( $url, $post_id, $args = [] ) {
 	 * Allow filtering of the process_media args.
 	 *
 	 * @since 1.6.0
-	 * @hook dt_process_media_args
 	 *
 	 * @param array  $args    List of args.
 	 * @param string $url     URL of media.
@@ -1312,13 +1291,12 @@ function process_media( $url, $post_id, $args = [] ) {
 	 * Filter allowed media extensions to be processed
 	 *
 	 * @since 1.3.7
-	 * @hook dt_allowed_media_extensions
 	 *
-	 * @param {array}  $allowed_extensions Allowed extensions array.
-	 * @param {string} $url                Media url.
-	 * @param {int}    $post_id            Post ID.
+	 * @param array  $allowed_extensions Allowed extensions array.
+	 * @param string $url                Media url.
+	 * @param int    $post_id            Post ID.
 	 *
-	 * @return {array} Media extensions to be processed.
+	 * @return array Media extensions to be processed.
 	 */
 	$allowed_extensions = apply_filters( 'dt_allowed_media_extensions', array( 'jpg', 'jpeg', 'jpe', 'gif', 'png' ), $url, $post_id );
 	preg_match( '/[^\?]+\.(' . implode( '|', $allowed_extensions ) . ')\b/i', $url, $matches );
@@ -1332,13 +1310,12 @@ function process_media( $url, $post_id, $args = [] ) {
 	 * Filter name of the processing media.
 	 *
 	 * @since 1.3.7
-	 * @hook dt_media_processing_filename
 	 *
-	 * @param {string} $media_name Filename of the media being processed.
-	 * @param {string} $url        Media url.
-	 * @param {int}    $post_id    Post ID.
+	 * @param string $media_name Filename of the media being processed.
+	 * @param string $url        Media url.
+	 * @param int    $post_id    Post ID.
 	 *
-	 * @return {string} Filename of the media being processed.
+	 * @return string Filename of the media being processed.
 	 */
 	$media_name = apply_filters( 'dt_media_processing_filename', $media_name, $url, $post_id );
 
@@ -1378,11 +1355,10 @@ function process_media( $url, $post_id, $args = [] ) {
 				 * Allow filtering whether to save the source file path.
 				 *
 				 * @since 1.6.0
-				 * @hook dt_process_media_save_source_file_path
 				 *
-				 * @param {boolean} $save_file Whether to save the source file path. Default `false`.
+				 * @param boolean $save_file Whether to save the source file path. Default `false`.
 				 *
-				 * @return {boolean} Whether to save the source file path or not.
+				 * @return boolean Whether to save the source file path or not.
 				 */
 				$save_source_file_path = apply_filters( 'dt_process_media_save_source_file_path', false );
 
@@ -1574,13 +1550,12 @@ function update_content_image_urls( int $post_id, array $images ) {
 	 * Filter whether image URLS should be updated in the content.
 	 *
 	 * @since 2.1.0
-	 * @hook dt_update_content_image_urls
 	 *
-	 * @param {bool}  true     Whether image URLs should be updated. Default `true`.
-	 * @param {int}   $post_id The post ID.
-	 * @param {array} $images  The old image details.
+	 * @param bool  true     Whether image URLs should be updated. Default `true`.
+	 * @param int   $post_id The post ID.
+	 * @param array $images  The old image details.
 	 *
-	 * @return {bool} Whether image URLs should be updated.
+	 * @return bool Whether image URLs should be updated.
 	 */
 	if ( ! apply_filters( 'dt_update_content_image_urls', true, $post_id, $images ) ) {
 		return;
@@ -1694,12 +1669,11 @@ function dt_use_block_editor_for_post_type( $post_type ) {
 	 * Filters whether an item is able to be edited in the block editor.
 	 *
 	 * @since 1.6.9
-	 * @hook dt_use_block_editor_for_post_type
 	 *
-	 * @param {bool}   $use_block_editor Whether the post type uses the block editor. Default true.
-	 * @param {string} $post_type        The post type being checked.
+	 * @param bool   $use_block_editor Whether the post type uses the block editor. Default true.
+	 * @param string $post_type        The post type being checked.
 	 *
-	 * @return {bool} Whether the post type uses the block editor.
+	 * @return bool Whether the post type uses the block editor.
 	 */
 	return apply_filters( 'dt_use_block_editor_for_post_type', true, $post_type );
 }
@@ -1758,13 +1732,11 @@ function get_rest_url( $blog_id, $post_id ) {
 	/**
 	 * Allow filtering of the REST API URL used for pulling post content.
 	 *
-	 * @hook dt_get_rest_url
+	 * @param string $rest_url The default REST URL to the post.
+	 * @param int    $blog_id  The blog ID.
+	 * @param int    $post_id  The post ID being retrieved.
 	 *
-	 * @param {string} $rest_url The default REST URL to the post.
-	 * @param {int}    $blog_id  The blog ID.
-	 * @param {int}    $post_id  The post ID being retrieved.
-	 *
-	 * @return {string} REST API URL for pulling post content.
+	 * @return string REST API URL for pulling post content.
 	 */
 	return apply_filters( 'dt_get_rest_url', $rest_url, $blog_id, $post_id );
 }
