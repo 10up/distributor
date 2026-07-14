@@ -359,10 +359,10 @@ function available_pull_taxonomy_terms( $connection, $type, $supported_taxonomie
 	 *
 	 * @hook dt_allowed_pull_taxonomies
 	 *
-	 * @param {array} $allowed_taxonomies          Array of allowed taxonomies.
-	 * @param {array} $common_supported_taxonomies Array of common supported taxonomies from all post types.
+	 * @param array $allowed_taxonomies          Array of allowed taxonomies.
+	 * @param array $common_supported_taxonomies Array of common supported taxonomies from all post types.
 	 *
-	 * @return {array} Array of allowed taxonomies.
+	 * @return array Array of allowed taxonomies.
 	 */
 	$allowed_taxonomies = apply_filters( 'dt_allowed_pull_taxonomies', array( 'category' ), $common_supported_taxonomies );
 
@@ -526,10 +526,10 @@ function distributable_taxonomy_terms( $taxonomies = array(), $terms = array() )
 		 *
 		 * @hook distributable_{$taxonomy}_terms
 		 *
-		 * @param {array}  $terms    Array of terms.
-		 * @param {string} $taxonomy Taxonomy name.
+		 * @param array  $terms    Array of terms.
+		 * @param string $taxonomy Taxonomy name.
 		 *
-		 * @return {array} Array of terms.
+		 * @return array Array of terms.
 		 */
 		$found_terms = apply_filters( "distributable_{$taxonomy}_terms", $found_terms, $taxonomy );
 
@@ -732,11 +732,11 @@ function generate_taxonomy_links( $taxonomy, $post, $terms = [] ) {
 	 * @since 2.0.5
 	 * @hook dt_syncable_taxonomy_terms
 	 *
-	 * @param {array}  $terms    Array of terms.
-	 * @param {string} $taxonomy Taxonomy name.
-	 * @param {object} $post     Post Object.
+	 * @param array  $terms    Array of terms.
+	 * @param string $taxonomy Taxonomy name.
+	 * @param object $post     Post Object.
 	 *
-	 * @return {array} Array of terms.
+	 * @return array Array of terms.
 	 */
 	$terms = apply_filters( "dt_syncable_{$taxonomy}_terms", $terms, $taxonomy, $post );
 
@@ -746,11 +746,11 @@ function generate_taxonomy_links( $taxonomy, $post, $terms = [] ) {
 	 * @since 2.0.5
 	 * @hook dt_syncable_terms
 	 *
-	 * @param {array}  $terms    Array of categories.
-	 * @param {string} $taxonomy Taxonomy name.
-	 * @param {object} $post     Post Object.
+	 * @param array  $terms    Array of categories.
+	 * @param string $taxonomy Taxonomy name.
+	 * @param object $post     Post Object.
 	 *
-	 * @return {array} Array of categories.
+	 * @return array Array of categories.
 	 */
 	$terms = apply_filters( 'dt_syncable_terms', $terms, $taxonomy, $post );
 
@@ -785,11 +785,11 @@ function generate_taxonomy_links( $taxonomy, $post, $terms = [] ) {
 		 * @since 2.0.5
 		 * @hook dt_taxonomy_links
 		 *
-		 * @param {string[]}  $term_links Array of term editing links.
-		 * @param {string}    $taxonomy   Taxonomy name.
-		 * @param {WP_Term[]} $terms      Array of term objects appearing in the post row.
+		 * @param string[]  $term_links Array of term editing links.
+		 * @param string    $taxonomy   Taxonomy name.
+		 * @param WP_Term[] $terms      Array of term objects appearing in the post row.
 		 *
-		 * @return {string[]} Array of term editing links.
+		 * @return string[] Array of term editing links.
 		 */
 		$term_links = apply_filters( 'dt_taxonomy_links', $term_links, $taxonomy, $terms );
 
