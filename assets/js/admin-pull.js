@@ -41,9 +41,7 @@ jQuery( chooseConnection ).on( 'change', ( event ) => {
 } );
 
 if ( chooseConnection && choosePostType && form ) {
-	/**
-	 * When the post type is changed, show/hide the taxonomy fields based on the post type.
-	 */
+	// When the post type is changed, show/hide the taxonomy fields based on the post type.
 	jQuery( choosePostType ).on( 'change', ( event ) => {
 		let shouldHideResetFiltersButton = false;
 		const selectedPostType =
@@ -107,9 +105,7 @@ if ( chooseConnection && choosePostType && form ) {
 		} );
 	}
 
-	/**
-	 * When the reset filters button is clicked, reset the filters and reload the page.
-	 */
+	// When the reset filters button is clicked, reset the filters and reload the page.
 	if ( choosePostTypeReset ) {
 		jQuery( choosePostTypeReset ).on( 'click', ( event ) => {
 			event.preventDefault();

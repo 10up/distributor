@@ -64,9 +64,7 @@ class PullListTable extends \WP_List_Table {
 			'post_type' => esc_html__( 'Post Type', 'distributor' ),
 		];
 
-		/**
-		 * Dynamically add the taxonomies to the columns, only if the post type supports the taxonomy.
-		 */
+		// Dynamically add the taxonomies to the columns, only if the post type supports the taxonomy.
 		if ( ! empty( $connection_now->pull_taxonomy_terms ) ) {
 
 			foreach ( $connection_now->pull_taxonomy_terms as $taxonomy => $taxonomy_data ) {
@@ -655,7 +653,7 @@ class PullListTable extends \WP_List_Table {
 	 */
 	public function extra_tablenav( $which ) {
 
-		/**
+		/*
 		 * This is to avoid the filter being displayed twice with the same HTML id.
 		 */
 		if ( 'bottom' === $which ) {

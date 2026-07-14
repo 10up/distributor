@@ -244,7 +244,7 @@ function available_pull_post_types( $connection, $type ) {
 	// Get the local post types.
 	$local_post_types = array_diff_key( get_post_types( [ 'public' => true ], 'objects' ), array_flip( [ 'attachment', 'dt_ext_connection', 'dt_subscription' ] ) );
 
-	/**
+	/*
 	 * Loop through the remote post types and get the taxonomies for each post type.
 	 * If the post type is not available on the local site, skip it.
 	 */
@@ -344,7 +344,7 @@ function available_pull_taxonomy_terms( $connection, $type, $supported_taxonomie
 		}
 	}
 
-	/**
+	/*
 	 * Get the common supported taxonomies.
 	 * Include all taxonomies from all post types.
 	 */
@@ -413,7 +413,7 @@ function available_pull_taxonomy_terms( $connection, $type, $supported_taxonomie
 
 	$final_taxonomy_terms = array();
 
-	/**
+	/*
 	 * Loop through the pull taxonomy terms and add the distributable terms to the final taxonomy terms array.
 	 * If the taxonomy or term is not distributable, skip it.
 	 */

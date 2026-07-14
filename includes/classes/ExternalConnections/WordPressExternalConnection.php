@@ -776,7 +776,7 @@ class WordPressExternalConnection extends ExternalConnection {
 
 		$taxonomy_terms = array();
 
-		/**
+		/*
 		 * Loop through the remote taxonomies and get the terms for each taxonomy.
 		 */
 		foreach ( $remote_taxonomies as $taxonomy => $taxonomy_data ) {
