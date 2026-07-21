@@ -928,13 +928,27 @@ class NetworkSiteConnection extends Connection {
 		$cache_key        = "dt_authorized_sites:$user_id:$context:$last_changed";
 		$authorized_sites = get_transient( $cache_key );
 
+		/**
+		 * Filter the maximum number of authorized sites to display.
+		 *
+		 * This limits the number of sites displayed in the Distributor interface
+		 * for super admins on both the push and pull screens.
+		 *
+		 * @since 2.3.0
+		 *
+		 * @param int    $maximum_authorized_sites The maximum number of sites a user can be authorized to use.
+		 * @param int    $user_id                  The current user ID.
+		 * @param string $context                  The context of the authorization. Either push or pull.
+		 */
+		$maximum_authorized_sites = apply_filters( 'dt_max_authorized_sites', 1000, $user_id, $context );
+
 		if ( $force || false === $authorized_sites ) {
 			$authorized_sites = array();
 
 			if ( is_super_admin() ) {
 				$sites = get_sites(
 					array(
-						'number' => 1000,
+						'number' => $maximum_authorized_sites,
 					)
 				);
 			} else {
