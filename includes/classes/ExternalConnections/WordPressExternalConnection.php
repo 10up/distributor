@@ -513,12 +513,12 @@ class WordPressExternalConnection extends ExternalConnection {
 		 *
 		 * @hook dt_should_push_external_post
 		 *
-		 * @param {bool}                  true           If Distributor should push the post.
-		 * @param {WP_Post}               $post          The post object.
-		 * @param {array}                 $args          The arguments passed into wp_insert_post().
-		 * @param {WordPressExternalConnection} $this    The Distributor connection being pushed to.
+		 * @param bool                        true  If Distributor should push the post.
+		 * @param \WP_Post                    $post The post object.
+		 * @param array                       $args The arguments passed into wp_insert_post().
+		 * @param WordPressExternalConnection $this The Distributor connection being pushed to.
 		 *
-		 * @return {bool} If Distributor should push the post.
+		 * @return bool If Distributor should push the post.
 		 */
 		$should_push = apply_filters( 'dt_should_push_external_post', true, $post, $args, $this );
 		if ( ! $should_push ) {
