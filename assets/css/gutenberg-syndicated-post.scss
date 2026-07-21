@@ -20,6 +20,7 @@ body.dt-linked-post {
 	}
 
 	.distributed-modal-popup {
+
 		& * {
 			pointer-events: auto;
 			opacity: 1;
@@ -80,6 +81,22 @@ body.dt-linked-post {
 	.edit-post-last-revision__panel {
 		display: none;
 	}
+
+	.action-link {
+
+		&::after {
+			font-family: dashicons;
+			content: "\f504";
+			font-size: 1rem;
+			position: absolute;
+			margin-top: -.125rem;
+		}
+
+		&.is-secondary:hover:not(:disabled,[aria-disabled="true"]) {
+			box-shadow: none;
+		}
+	}
+
 
 }
 

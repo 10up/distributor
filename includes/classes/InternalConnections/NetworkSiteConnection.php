@@ -47,6 +47,20 @@ class NetworkSiteConnection extends Connection {
 	public $pull_post_types;
 
 	/**
+	 * Default taxonomy term to pull.
+	 *
+	 * @var string
+	 */
+	public $pull_taxonomy_term;
+
+	/**
+	 * Default taxonomy terms to show in filter.
+	 *
+	 * @var string
+	 */
+	public $pull_taxonomy_terms;
+
+	/**
 	 * Set up network site connection
 	 *
 	 * @param WP_Site $site Site object.
@@ -521,6 +535,43 @@ class NetworkSiteConnection extends Connection {
 	}
 
 	/**
+	 * Get the available post type taxonomies.
+	 *
+	 * @param string $post_type Post type.
+	 *
+	 * @return array
+	 */
+	public function get_post_type_taxonomies( $post_type ) {
+		switch_to_blog( $this->site->blog_id );
+
+		$post_type_taxonomies = array();
+
+		$object_taxonomies = get_object_taxonomies( $post_type, 'objects' );
+		foreach ( $object_taxonomies as $taxonomy_name => $taxonomy_object ) {
+			$post_type_taxonomies[ $taxonomy_name ] = $taxonomy_object->label;
+		}
+
+		restore_current_blog();
+
+		return $post_type_taxonomies;
+	}
+
+	/**
+	 * Get the available taxonomy terms.
+	 *
+	 * @param array $taxonomies Taxonomies to get terms for.
+	 *
+	 * @return array|\WP_Error Array of taxonomy terms with items and label, or WP_Error if the request fails.
+	 */
+	public function get_taxonomy_terms( $taxonomies = array() ) {
+		switch_to_blog( $this->site->blog_id );
+		$taxonomy_terms = Utils\distributable_taxonomy_terms( $taxonomies );
+		restore_current_blog();
+
+		return $taxonomy_terms;
+	}
+
+	/**
 	 * Remotely get posts so we can list them for pulling
 	 *
 	 * @since  0.8
@@ -565,6 +616,11 @@ class NetworkSiteConnection extends Connection {
 				$query_args['post__in'] = $args['post__in'];
 			} elseif ( isset( $args['post__not_in'] ) ) {
 				$query_args['post__not_in'] = $args['post__not_in'];
+			}
+
+			// Add the tax query to the query args.
+			if ( isset( $args['tax_query'] ) ) {
+				$query_args['tax_query'] = $args['tax_query']; // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query
 			}
 
 			$query_args['post_type']      = ( empty( $args['post_type'] ) ) ? 'post' : $args['post_type'];

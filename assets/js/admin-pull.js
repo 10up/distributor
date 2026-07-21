@@ -22,11 +22,13 @@ const escapeURLComponent = ( str ) => {
 const chooseConnection = document.getElementById( 'pull_connections' );
 const choosePostType = document.getElementById( 'pull_post_type' );
 const choosePostTypeBtn = document.getElementById( 'pull_post_type_submit' );
+const choosePostTypeReset = document.getElementById( 'pull_post_type_reset' );
 const searchField = document.getElementById( 'post-search-input' );
 const searchBtn = document.getElementById( 'search-submit' );
 const form = document.getElementById( 'posts-filter' );
 const asDraftCheckboxes = document.querySelectorAll( '[name=dt_as_draft]' );
 const pullLinks = document.querySelectorAll( '.distributor_page_pull .pull a' );
+const pullTaxonomies = document.querySelectorAll( '.pull-taxonomy' );
 
 jQuery( chooseConnection ).on( 'change', ( event ) => {
 	const pullUrlId =
@@ -39,12 +41,93 @@ jQuery( chooseConnection ).on( 'change', ( event ) => {
 } );
 
 if ( chooseConnection && choosePostType && form ) {
+	// When the post type is changed, show/hide the taxonomy fields based on the post type.
+	jQuery( choosePostType ).on( 'change', ( event ) => {
+		let shouldHideResetFiltersButton = false;
+		const selectedPostType =
+			event.currentTarget.options[ event.currentTarget.selectedIndex ];
+		if ( selectedPostType ) {
+			const dataTaxonomies =
+				selectedPostType.getAttribute( 'data-taxonomies' );
+			if ( dataTaxonomies ) {
+				const supportedTaxonomies = JSON.parse( dataTaxonomies );
+				if ( supportedTaxonomies.length > 0 ) {
+					pullTaxonomies.forEach( ( taxonomyField ) => {
+						if (
+							supportedTaxonomies.includes(
+								taxonomyField.id.replace( 'pull_', '' )
+							)
+						) {
+							jQuery( taxonomyField ).addClass( 'show' );
+							jQuery( taxonomyField ).removeClass( 'hide' );
+						} else {
+							jQuery( taxonomyField ).addClass( 'hide' );
+							jQuery( taxonomyField ).removeClass( 'show' );
+						}
+
+						if (
+							! shouldHideResetFiltersButton &&
+							'all' !==
+								taxonomyField.options[
+									taxonomyField.selectedIndex
+								].value
+						) {
+							shouldHideResetFiltersButton = true;
+						}
+					} );
+				} else {
+					pullTaxonomies.forEach( ( taxonomyField ) => {
+						jQuery( taxonomyField ).addClass( 'hide' );
+						jQuery( taxonomyField ).removeClass( 'show' );
+					} );
+
+					shouldHideResetFiltersButton = true;
+				}
+			}
+		}
+
+		if ( shouldHideResetFiltersButton ) {
+			jQuery( choosePostTypeReset ).addClass( 'hide' );
+			jQuery( choosePostTypeReset ).removeClass( 'show' );
+		} else {
+			jQuery( choosePostTypeReset ).addClass( 'show' );
+			jQuery( choosePostTypeReset ).removeClass( 'hide' );
+		}
+	} );
+
 	if ( choosePostTypeBtn ) {
 		jQuery( choosePostTypeBtn ).on( 'click', ( event ) => {
 			event.preventDefault();
 
 			document.location = getURL();
 
+			document.body.className += ' ' + 'dt-loading';
+		} );
+	}
+
+	// When the reset filters button is clicked, reset the filters and reload the page.
+	if ( choosePostTypeReset ) {
+		jQuery( choosePostTypeReset ).on( 'click', ( event ) => {
+			event.preventDefault();
+
+			const pullUrlId = escapeURLComponent(
+				chooseConnection.options[
+					chooseConnection.selectedIndex
+				].getAttribute( 'data-pull-url-id' )
+			);
+
+			const baseURL = getPullUrl( pullUrlId );
+			let status = 'new';
+
+			if ( -1 < ` ${ form.className } `.indexOf( ' status-skipped ' ) ) {
+				status = 'skipped';
+			} else if (
+				-1 < ` ${ form.className } `.indexOf( ' status-pulled ' )
+			) {
+				status = 'pulled';
+			}
+
+			document.location = `${ baseURL }&status=${ status }`;
 			document.body.className += ' ' + 'dt-loading';
 		} );
 	}
@@ -99,6 +182,23 @@ const getURL = () => {
 	const postType = escapeURLComponent(
 		choosePostType.options[ choosePostType.selectedIndex ].value
 	);
+
+	// Build the taxonomies query string.
+	let taxonomies = '';
+	if ( pullTaxonomies ) {
+		pullTaxonomies.forEach( ( taxonomyField ) => {
+			if ( jQuery( taxonomyField ).hasClass( 'show' ) ) {
+				taxonomies += `${ taxonomyField.id }=${ escapeURLComponent(
+					taxonomyField.options[ taxonomyField.selectedIndex ].value
+				) }&`;
+			}
+		} );
+	}
+
+	if ( taxonomies ) {
+		taxonomies = taxonomies.slice( 0, -1 );
+	}
+
 	const pullUrlId = escapeURLComponent(
 		chooseConnection.options[ chooseConnection.selectedIndex ].getAttribute(
 			'data-pull-url-id'
@@ -113,5 +213,5 @@ const getURL = () => {
 		status = 'pulled';
 	}
 
-	return `${ baseURL }&pull_post_type=${ postType }&status=${ status }`;
+	return `${ baseURL }&pull_post_type=${ postType }&status=${ status }&${ taxonomies }`;
 };

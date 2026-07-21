@@ -490,7 +490,7 @@ function syndicated_message( $post ) {
 							);
 						// phpcs:ignore Squiz.PHP.EmbeddedPhp.ContentAfterEnd, avoids layout issues.
 						?></a></span>
-					<span><a href="<?php echo esc_url( $original_post_url ); ?>">
+					<span><a class="action-link" href="<?php echo esc_url( $original_post_url ); ?>" target="_blank">
 						<?php
 							printf(
 								/* translators: 1) Distributor post type singular name. */
@@ -572,7 +572,7 @@ function enqueue_post_scripts( $hook ) {
 		if ( file_exists( $asset_file ) ) {
 			$asset_data = require $asset_file;
 		}
-		wp_enqueue_style( 'dt-gutenberg-syndicated-post', plugins_url( '/dist/css/gutenberg-syndicated-post.min.css', __DIR__ ), array(), $asset_data['version'] );
+		wp_enqueue_style( 'dt-gutenberg-syndicated-post', plugins_url( '/dist/css/gutenberg-syndicated-post.min.css', __DIR__ ), array( 'dashicons' ), $asset_data['version'] );
 	} else {
 		$asset_file = DT_PLUGIN_PATH . '/dist/js/admin-syndicated-post-css.min.asset.php';
 		// Fallback asset data.
@@ -583,7 +583,7 @@ function enqueue_post_scripts( $hook ) {
 		if ( file_exists( $asset_file ) ) {
 			$asset_data = require $asset_file;
 		}
-		wp_enqueue_style( 'dt-admin-syndicated-post', plugins_url( '/dist/css/admin-syndicated-post.min.css', __DIR__ ), array(), $asset_data['version'] );
+		wp_enqueue_style( 'dt-admin-syndicated-post', plugins_url( '/dist/css/admin-syndicated-post.min.css', __DIR__ ), array( 'dashicons' ), $asset_data['version'] );
 	}
 
 	$unlinked = (bool) get_post_meta( $post->ID, 'dt_unlinked', true );

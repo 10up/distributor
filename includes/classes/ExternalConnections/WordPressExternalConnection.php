@@ -73,6 +73,20 @@ class WordPressExternalConnection extends ExternalConnection {
 	public $pull_post_types;
 
 	/**
+	 * Default taxonomy term to pull.
+	 *
+	 * @var string
+	 */
+	public $pull_taxonomy_term;
+
+	/**
+	 * Default taxonomy terms to show in filter.
+	 *
+	 * @var string
+	 */
+	public $pull_taxonomy_terms;
+
+	/**
 	 * This is a utility function for parsing annoying API link headers returned by the types endpoint
 	 *
 	 * @param  array $type Types array.
@@ -165,6 +179,11 @@ class WordPressExternalConnection extends ExternalConnection {
 			if ( ! empty( $args['order'] ) ) {
 				$query_args['order'] = strtolower( $args['order'] );
 			}
+		}
+
+		// Add the tax query to the query args.
+		if ( isset( $args['tax_query'] ) ) {
+			$query_args['tax_query'] = $args['tax_query']; // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query
 		}
 
 		// When running a query for the Pull screen, make a POST request instead
@@ -690,6 +709,125 @@ class WordPressExternalConnection extends ExternalConnection {
 		$types_body_array = json_decode( $types_body, true );
 
 		return $types_body_array;
+	}
+
+	/**
+	 * Get the available post type taxonomies.
+	 * The taxonomies with external connection are already available in the post type object.
+	 *
+	 * @param string $post_type Post type.
+	 *
+	 * @return array
+	 */
+	public function get_post_type_taxonomies( $post_type ) {
+		return array();
+	}
+
+	/**
+	 * Get the available taxonomies from the remote connection.
+	 *
+	 * @param array $taxonomies Taxonomies to get.
+	 *
+	 * @return array|\WP_Error Array of taxonomies with rest_base and label, or WP_Error if the request fails.
+	 */
+	private function get_remote_taxonomies( $taxonomies = array() ) {
+
+		$path = self::$namespace;
+
+		$taxonomies_path = untrailingslashit( $this->base_url ) . '/' . $path . '/taxonomies';
+
+		$taxonomies_response = Utils\remote_http_request(
+			$taxonomies_path,
+			$this->auth_handler->format_get_args( array( 'timeout' => self::$timeout ) )
+		);
+
+		if ( is_wp_error( $taxonomies_response ) ) {
+			return $taxonomies_response;
+		}
+
+		if ( 404 === wp_remote_retrieve_response_code( $taxonomies_response ) ) {
+			return new \WP_Error( 'bad-endpoint', esc_html__( 'Could not connect to API endpoint.', 'distributor' ) );
+		}
+
+		$taxonomies_body = wp_remote_retrieve_body( $taxonomies_response );
+
+		if ( empty( $taxonomies_body ) ) {
+			return new \WP_Error( 'no-response-body', esc_html__( 'Response body is empty.', 'distributor' ) );
+		}
+
+		$taxonomies_body_array = json_decode( $taxonomies_body, true );
+
+		$taxonomies_exists = array();
+		foreach ( $taxonomies as $taxonomy ) {
+			if ( isset( $taxonomies_body_array[ $taxonomy ] ) ) {
+				$taxonomies_exists[ $taxonomy ] = array(
+					'rest_base' => $taxonomies_body_array[ $taxonomy ]['rest_base'],
+					'label'     => $taxonomies_body_array[ $taxonomy ]['name'],
+				);
+			}
+		}
+
+		if ( empty( $taxonomies_exists ) ) {
+			return new \WP_Error( 'no-taxonomies', esc_html__( 'No taxonomies found.', 'distributor' ) );
+		}
+
+		return $taxonomies_exists;
+	}
+
+	/**
+	 * Get the available taxonomy terms.
+	 *
+	 * @param array $taxonomies Taxonomies to get terms for.
+	 *
+	 * @return array|\WP_Error Array of taxonomy terms with items and label, or WP_Error if the request fails.
+	 */
+	public function get_taxonomy_terms( $taxonomies = array() ) {
+
+		// Get the remote taxonomies, if the request fails, return an empty array.
+		$remote_taxonomies = $this->get_remote_taxonomies( $taxonomies );
+		if ( empty( $remote_taxonomies ) || is_wp_error( $remote_taxonomies ) ) {
+			return array();
+		}
+
+		$path = self::$namespace;
+
+		$taxonomy_terms = array();
+
+		/*
+		 * Loop through the remote taxonomies and get the terms for each taxonomy.
+		 */
+		foreach ( $remote_taxonomies as $taxonomy => $taxonomy_data ) {
+
+			$taxonomy_path = untrailingslashit( $this->base_url ) . '/' . $path . '/' . $taxonomy_data['rest_base'];
+
+			$taxonomy_response = Utils\remote_http_request(
+				$taxonomy_path,
+				$this->auth_handler->format_get_args( array( 'timeout' => self::$timeout ) )
+			);
+
+			if ( is_wp_error( $taxonomy_response ) ) {
+				continue;
+			}
+
+			if ( 404 === wp_remote_retrieve_response_code( $taxonomy_response ) ) {
+				continue;
+			}
+
+			$taxonomy_body = wp_remote_retrieve_body( $taxonomy_response );
+
+			if ( empty( $taxonomy_body ) ) {
+				continue;
+			}
+
+			$taxonomy_body_array = json_decode( $taxonomy_body, true );
+
+			$taxonomy_terms[ $taxonomy ] = array(
+				'items' => $taxonomy_body_array,
+				'label' => $taxonomy_data['label'],
+			);
+		}
+
+		return $taxonomy_terms;
 	}
 
 	/**

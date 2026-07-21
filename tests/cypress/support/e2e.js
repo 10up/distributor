@@ -18,6 +18,15 @@ import '@10up/cypress-wp-utils';
 // Import commands.js using ES2015 syntax:
 import './commands';
 
+Cypress.on( 'uncaught:exception', ( err ) => {
+	if (
+		err?.name === 'AbortError' &&
+		err?.message?.includes( 'Transition was skipped' )
+	) {
+		return false;
+	}
+} );
+
 beforeEach( () => {
 	cy.session( 'login', cy.login, {
 		cacheAcrossSpecs: true,

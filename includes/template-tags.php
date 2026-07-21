@@ -188,7 +188,7 @@ function distributor_get_original_site_link( $post_id = null ) {
  * @since 1.0
  */
 function distributor_the_original_site_link( $post_id = null ) {
-	echo esc_url( distributor_get_original_site_link( $post_id ) );
+	echo wp_kses_post( distributor_get_original_site_link( $post_id ) );
 }
 
 

@@ -12,7 +12,7 @@
 
 namespace Distributor;
 
-use YahnisElsts\PluginUpdateChecker\v5\PucFactory;
+use YahnisElsts\PluginUpdateChecker\v5p7\PucFactory;
 
 /**
  * PSR-4 autoloading
@@ -140,7 +140,7 @@ add_action(
 	}
 );
 
-if ( class_exists( '\\YahnisElsts\PluginUpdateChecker\v5\PucFactory' ) ) {
+if ( class_exists( '\\YahnisElsts\\PluginUpdateChecker\\v5p7\\PucFactory' ) ) {
 	/**
 	 * Enable updates if we have a valid license
 	 */

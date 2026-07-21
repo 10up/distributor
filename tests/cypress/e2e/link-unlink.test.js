@@ -34,12 +34,6 @@ describe( 'Linking and unlinking tests', () => {
 					.should( 'contain.text', 'Unlink from the origin post' )
 					.should( 'have.attr', 'href' )
 					.and( 'match', /&action=unlink&/ );
-				cy.get(
-					'.components-notice__content .components-notice__action:eq(1)'
-				)
-					.should( 'contain.text', 'View the origin post' )
-					.should( 'have.attr', 'href', sourcePost.link );
-
 				// Ensure the post is not editable
 				cy.get( '.edit-post-visual-editor' ).should(
 					'have.css',

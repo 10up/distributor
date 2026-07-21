@@ -525,6 +525,30 @@ function dashboard() {
 						break;
 					}
 				}
+
+				// Get the supported taxonomies for the post types.
+				$supported_taxonomies = [];
+				foreach ( $connection_now->pull_post_types as $post_type ) {
+					$supported_taxonomies[ $post_type['slug'] ] = $post_type['taxonomies'];
+				}
+
+				// Get the available taxonomy terms.
+				$connection_now->pull_taxonomy_term = [];
+				$connection_now->pull_taxonomy_terms = \Distributor\Utils\available_pull_taxonomy_terms( $connection_now, $connection_type, $supported_taxonomies );
+				if ( ! empty( $connection_now->pull_taxonomy_terms ) ) {
+
+					foreach ( $connection_now->pull_taxonomy_terms as $taxonomy => $taxonomy_data ) {
+
+						$term_slugs = wp_list_pluck( $taxonomy_data['items'], 'slug' );
+
+						// Set the taxonomy term to pull.
+						if ( isset( $_GET["pull_{$taxonomy}"] ) && in_array( $_GET["pull_{$taxonomy}"], $term_slugs, true ) ) {
+							$connection_now->pull_taxonomy_term[ $taxonomy ] = $_GET["pull_{$taxonomy}"];
+						} else {
+							$connection_now->pull_taxonomy_term[ $taxonomy ] = 'all';
+						}
+					}
+				}
 				?>
 
 			<?php endif; ?>
