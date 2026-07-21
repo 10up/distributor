@@ -47,6 +47,20 @@ class NetworkSiteConnection extends Connection {
 	public $pull_post_types;
 
 	/**
+	 * Default taxonomy term to pull.
+	 *
+	 * @var string
+	 */
+	public $pull_taxonomy_term;
+
+	/**
+	 * Default taxonomy terms to show in filter.
+	 *
+	 * @var string
+	 */
+	public $pull_taxonomy_terms;
+
+	/**
 	 * Set up network site connection
 	 *
 	 * @param WP_Site $site Site object.
@@ -139,12 +153,11 @@ class NetworkSiteConnection extends Connection {
 			 *
 			 * @since 1.2.2
 			 * @deprecated 2.0.0 The dt_push_post action has been deprecated. Please use dt_push_network_post or dt_push_external_post instead.
-			 * @hook  dt_push_post
 			 *
-			 * @param {int}        $new_post_id The newly created post.
-			 * @param {int}        $post_id     The original post.
-			 * @param {array}      $args        The arguments passed into wp_insert_post.
-			 * @param {Connection} $this        The Distributor connection being pushed to.
+			 * @param int        $new_post_id The newly created post.
+			 * @param int        $post_id     The original post.
+			 * @param array      $args        The arguments passed into wp_insert_post.
+			 * @param Connection $this        The Distributor connection being pushed to.
 			 */
 			do_action_deprecated(
 				'dt_push_post',
@@ -157,12 +170,11 @@ class NetworkSiteConnection extends Connection {
 			 * Fires the action after a post is pushed via Distributor before `restore_current_blog()`.
 			 *
 			 * @since 2.0.0
-			 * @hook  dt_push_network_post
 			 *
-			 * @param {int}                   $new_post_id The newly created post.
-			 * @param {int}                   $post_id     The original post.
-			 * @param {array}                 $args        The arguments passed into wp_insert_post.
-			 * @param {NetworkSiteConnection} $this        The Distributor connection being pushed to.
+			 * @param int                   $new_post_id The newly created post.
+			 * @param int                   $post_id     The original post.
+			 * @param array                 $args        The arguments passed into wp_insert_post.
+			 * @param NetworkSiteConnection $this        The Distributor connection being pushed to.
 			 */
 			do_action( 'dt_push_network_post', $new_post_id, $post_id, $args, $this );
 
@@ -180,16 +192,14 @@ class NetworkSiteConnection extends Connection {
 		/**
 		 * Allow bypassing of all media processing.
 		 *
-		 * @hook dt_push_post_media
+		 * @param bool       true           If Distributor should push the post media.
+		 * @param int        $new_post_id   The newly created post ID.
+		 * @param array      $post_media    List of media items attached to the post, formatted by {@link \Distributor\Utils\prepare_media()}.
+		 * @param int        $post_id       The original post ID.
+		 * @param array      $args          The arguments passed into wp_insert_post.
+		 * @param Connection $this          The distributor connection being pushed to.
 		 *
-		 * @param {bool}       true           If Distributor should push the post media.
-		 * @param {int}        $new_post_id   The newly created post ID.
-		 * @param {array}      $post_media    List of media items attached to the post, formatted by {@link \Distributor\Utils\prepare_media()}.
-		 * @param {int}        $post_id       The original post ID.
-		 * @param {array}      $args          The arguments passed into wp_insert_post.
-		 * @param {Connection} $this          The distributor connection being pushed to.
-		 *
-		 * @return {bool} If Distributor should push the post media.
+		 * @return bool If Distributor should push the post media.
 		 */
 		if ( apply_filters( 'dt_push_post_media', true, $new_post_id, $post_media, $post_id, $args, $this ) ) {
 			Utils\set_media( $new_post_id, $post_media, [ 'use_filesystem' => true ] );
@@ -205,16 +215,14 @@ class NetworkSiteConnection extends Connection {
 		/**
 		 * Allow bypassing of all term processing.
 		 *
-		 * @hook dt_push_post_terms
+		 * @param bool       true           If Distributor should push the post terms.
+		 * @param int        $new_post_id   The newly created post ID.
+		 * @param array      $post_terms    Terms attached to the post, formatted by {@link \Distributor\Utils\prepare_taxonomy_terms()}.
+		 * @param int        $post_id       The original post ID.
+		 * @param array      $args          The arguments passed into wp_insert_post.
+		 * @param Connection $this          The distributor connection being pushed to.
 		 *
-		 * @param {bool}       true           If Distributor should push the post terms.
-		 * @param {int}        $new_post_id   The newly created post ID.
-		 * @param {array}      $post_terms    Terms attached to the post, formatted by {@link \Distributor\Utils\prepare_taxonomy_terms()}.
-		 * @param {int}        $post_id       The original post ID.
-		 * @param {array}      $args          The arguments passed into wp_insert_post.
-		 * @param {Connection} $this          The distributor connection being pushed to.
-		 *
-		 * @return {bool} If Distributor should push the post terms.
+		 * @return bool If Distributor should push the post terms.
 		 */
 		if ( apply_filters( 'dt_push_post_terms', true, $new_post_id, $post_terms, $post_id, $args, $this ) ) {
 			Utils\set_taxonomy_terms( $new_post_id, $post_terms );
@@ -223,16 +231,14 @@ class NetworkSiteConnection extends Connection {
 		/**
 		 * Allow bypassing of all meta processing.
 		 *
-		 * @hook dt_push_post_meta
+		 * @param bool       true           If Distributor should push the post meta.
+		 * @param int        $new_post_id   The newly created post ID.
+		 * @param array      $post_meta     Meta attached to the post, formatted by {@link \Distributor\Utils\prepare_meta()}.
+		 * @param int        $post_id       The original post ID.
+		 * @param array      $args          The arguments passed into wp_insert_post.
+		 * @param Connection $this          The distributor connection being pushed to.
 		 *
-		 * @param {bool}       true           If Distributor should push the post meta.
-		 * @param {int}        $new_post_id   The newly created post ID.
-		 * @param {array}      $post_meta     Meta attached to the post, formatted by {@link \Distributor\Utils\prepare_meta()}.
-		 * @param {int}        $post_id       The original post ID.
-		 * @param {array}      $args          The arguments passed into wp_insert_post.
-		 * @param {Connection} $this          The distributor connection being pushed to.
-		 *
-		 * @return {bool} If Distributor should push the post meta.
+		 * @return bool If Distributor should push the post meta.
 		 */
 		if ( apply_filters( 'dt_push_post_meta', true, $new_post_id, $post_meta, $post_id, $args, $this ) ) {
 			$post_meta = $this->exclude_additional_meta_data( $post_meta );
@@ -335,16 +341,14 @@ class NetworkSiteConnection extends Connection {
 				/**
 				 * Allow bypassing of all media processing.
 				 *
-				 * @hook dt_pull_post_media
+				 * @param bool                  true            If Distributor should set the post media.
+				 * @param int                   $new_post_id    The newly created post ID.
+				 * @param array                 $post_media     List of media items attached to the post, formatted by {@link \Distributor\Utils\prepare_media()}.
+				 * @param int                   $remote_post_id The original post ID.
+				 * @param array                 $post_array     The arguments passed into wp_insert_post.
+				 * @param NetworkSiteConnection $this           The Distributor connection being pulled from.
 				 *
-				 * @param {bool}                  true            If Distributor should set the post media.
-				 * @param {int}                   $new_post_id    The newly created post ID.
-				 * @param {array}                 $post_media     List of media items attached to the post, formatted by {@link \Distributor\Utils\prepare_media()}.
-				 * @param {int}                   $remote_post_id The original post ID.
-				 * @param {array}                 $post_array     The arguments passed into wp_insert_post.
-				 * @param {NetworkSiteConnection} $this           The Distributor connection being pulled from.
-				 *
-				 * @return {bool} If Distributor should set the post media.
+				 * @return bool If Distributor should set the post media.
 				 */
 				if ( apply_filters( 'dt_pull_post_media', true, $new_post_id, $post['media'], $item_array['remote_post_id'], $post_array, $this ) ) {
 					\Distributor\Utils\set_media( $new_post_id, $post['media'], [ 'use_filesystem' => true ] );
@@ -353,16 +357,14 @@ class NetworkSiteConnection extends Connection {
 				/**
 				 * Allow bypassing of all terms processing.
 				 *
-				 * @hook dt_pull_post_terms
+				 * @param bool                  true            If Distributor should set the post terms.
+				 * @param int                   $new_post_id    The newly created post ID.
+				 * @param array                 $post_terms     List of terms items attached to the post, formatted by {@link \Distributor\Utils\prepare_taxonomy_terms()}.
+				 * @param int                   $remote_post_id The original post ID.
+				 * @param array                 $post_array     The arguments passed into wp_insert_post.
+				 * @param NetworkSiteConnection $this           The Distributor connection being pulled from.
 				 *
-				 * @param {bool}                  true            If Distributor should set the post terms.
-				 * @param {int}                   $new_post_id    The newly created post ID.
-				 * @param {array}                 $post_terms     List of terms items attached to the post, formatted by {@link \Distributor\Utils\prepare_taxonomy_terms()}.
-				 * @param {int}                   $remote_post_id The original post ID.
-				 * @param {array}                 $post_array     The arguments passed into wp_insert_post.
-				 * @param {NetworkSiteConnection} $this           The Distributor connection being pulled from.
-				 *
-				 * @return {bool} If Distributor should set the post terms.
+				 * @return bool If Distributor should set the post terms.
 				 */
 				if ( apply_filters( 'dt_pull_post_terms', true, $new_post_id, $post['terms'], $item_array['remote_post_id'], $post_array, $this ) ) {
 					\Distributor\Utils\set_taxonomy_terms( $new_post_id, $post['terms'] );
@@ -371,16 +373,14 @@ class NetworkSiteConnection extends Connection {
 				/**
 				 * Allow bypassing of all meta processing.
 				 *
-				 * @hook dt_pull_post_meta
+				 * @param bool                  true            If Distributor should set the post meta.
+				 * @param int                   $new_post_id    The newly created post ID.
+				 * @param array                 $post_meta      List of meta items attached to the post, formatted by {@link \Distributor\Utils\prepare_meta()}.
+				 * @param int                   $remote_post_id The original post ID.
+				 * @param array                 $post_array     The arguments passed into wp_insert_post.
+				 * @param NetworkSiteConnection $this           The Distributor connection being pulled from.
 				 *
-				 * @param {bool}                  true            If Distributor should set the post meta.
-				 * @param {int}                   $new_post_id    The newly created post ID.
-				 * @param {array}                 $post_meta      List of meta items attached to the post, formatted by {@link \Distributor\Utils\prepare_meta()}.
-				 * @param {int}                   $remote_post_id The original post ID.
-				 * @param {array}                 $post_array     The arguments passed into wp_insert_post.
-				 * @param {NetworkSiteConnection} $this           The Distributor connection being pulled from.
-				 *
-				 * @return {bool} If Distributor should set the post meta.
+				 * @return bool If Distributor should set the post meta.
 				 */
 				if ( apply_filters( 'dt_pull_post_meta', true, $new_post_id, $post['meta'], $item_array['remote_post_id'], $post_array, $this ) ) {
 					$post_meta = $this->exclude_additional_meta_data( $post['meta'] );
@@ -415,14 +415,12 @@ class NetworkSiteConnection extends Connection {
 			/**
 			 * Allow the sync'ed post to be updated via a REST request get the rendered content.
 			 *
-			 * @hook dt_pull_post_apply_rendered_content
+			 * @param bool        false          Apply rendered content after a pull? Defaults to false.
+			 * @param int         $new_post_id   The new post ID.
+			 * @param Connection  $this          The Distributor connection pulling the post.
+			 * @param array       $post_array    The post array used to create the new post.
 			 *
-			 * @param {bool}        false          Apply rendered content after a pull? Defaults to false.
-			 * @param {int}         $new_post_id   The new post ID.
-			 * @param {Connection}  $this          The Distributor connection pulling the post.
-			 * @param {array}       $post_array    The post array used to create the new post.
-			 *
-			 * @return {bool} Whether to apply rendered content after a pull.
+			 * @return bool Whether to apply rendered content after a pull.
 			 */
 			if ( apply_filters( 'dt_pull_post_apply_rendered_content', false, $new_post_id, $this, $post_array ) ) {
 				$this->update_content_via_rest( $new_post_id );
@@ -433,11 +431,10 @@ class NetworkSiteConnection extends Connection {
 			 * Fires after a post is pulled via Distributor and after `restore_current_blog()`.
 			 *
 			 * @since 1.0
-			 * @hook dt_pull_post
 			 *
-			 * @param {int}         $new_post_id   The new post ID that was pulled.
-			 * @param {Connection}  $this          The Distributor connection pulling the post.
-			 * @param {array}       $post_array    The original post data retrieved via the connection.
+			 * @param int         $new_post_id   The new post ID that was pulled.
+			 * @param Connection  $this          The Distributor connection pulling the post.
+			 * @param array       $post_array    The original post data retrieved via the connection.
 			 */
 			do_action( 'dt_pull_post', $new_post_id, $this, $post_array );
 
@@ -521,6 +518,43 @@ class NetworkSiteConnection extends Connection {
 	}
 
 	/**
+	 * Get the available post type taxonomies.
+	 *
+	 * @param string $post_type Post type.
+	 *
+	 * @return array
+	 */
+	public function get_post_type_taxonomies( $post_type ) {
+		switch_to_blog( $this->site->blog_id );
+
+		$post_type_taxonomies = array();
+
+		$object_taxonomies = get_object_taxonomies( $post_type, 'objects' );
+		foreach ( $object_taxonomies as $taxonomy_name => $taxonomy_object ) {
+			$post_type_taxonomies[ $taxonomy_name ] = $taxonomy_object->label;
+		}
+
+		restore_current_blog();
+
+		return $post_type_taxonomies;
+	}
+
+	/**
+	 * Get the available taxonomy terms.
+	 *
+	 * @param array $taxonomies Taxonomies to get terms for.
+	 *
+	 * @return array|\WP_Error Array of taxonomy terms with items and label, or WP_Error if the request fails.
+	 */
+	public function get_taxonomy_terms( $taxonomies = array() ) {
+		switch_to_blog( $this->site->blog_id );
+		$taxonomy_terms = Utils\distributable_taxonomy_terms( $taxonomies );
+		restore_current_blog();
+
+		return $taxonomy_terms;
+	}
+
+	/**
 	 * Remotely get posts so we can list them for pulling
 	 *
 	 * @since  0.8
@@ -565,6 +599,11 @@ class NetworkSiteConnection extends Connection {
 				$query_args['post__in'] = $args['post__in'];
 			} elseif ( isset( $args['post__not_in'] ) ) {
 				$query_args['post__not_in'] = $args['post__not_in'];
+			}
+
+			// Add the tax query to the query args.
+			if ( isset( $args['tax_query'] ) ) {
+				$query_args['tax_query'] = $args['tax_query']; // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query
 			}
 
 			$query_args['post_type']      = ( empty( $args['post_type'] ) ) ? 'post' : $args['post_type'];
@@ -838,14 +877,13 @@ class NetworkSiteConnection extends Connection {
 		 *
 		 * @since 1.2
 		 * @since 1.3.7 Added the `$context` parameter.
-		 * @hook dt_pre_get_authorized_sites
 		 *
 		 * @see \Distributor\InternalConnections\NetworkSiteConnection::get_available_authorized_sites()
 		 *
-		 * @param {array}  $authorized_sites Array of `WP_Site` object and post type objects the user can edit.
-		 * @param {string} $context          The context of the authorization.
+		 * @param array  $authorized_sites Array of `WP_Site` object and post type objects the user can edit.
+		 * @param string $context          The context of the authorization.
 		 *
-		 * @return {array} Array of `WP_Site` object and post type objects.
+		 * @return array Array of `WP_Site` object and post type objects.
 		 */
 		$authorized_sites = apply_filters( 'dt_pre_get_authorized_sites', array(), $context );
 		if ( ! empty( $authorized_sites ) ) {
@@ -859,13 +897,13 @@ class NetworkSiteConnection extends Connection {
 		 *
 		 * @since 1.2
 		 * @since 1.3.7 Added the `$context` parameter.
-		 * @hook dt_authorized_sites
+		*
 		 * @tutorial snippets
 		 *
-		 * @param {array}  $authorized_sites An array of `WP_Site` objects and the post type objects the user can edit.
-		 * @param {string} $context          The context of the authorization.
+		 * @param array  $authorized_sites An array of `WP_Site` objects and the post type objects the user can edit.
+		 * @param string $context          The context of the authorization.
 		 *
-		 * @return {array} An array of `WP_Site` objects and the post type objects.
+		 * @return array An array of `WP_Site` objects and the post type objects.
 		 */
 		return apply_filters( 'dt_authorized_sites', $authorized_sites, $context );
 	}
@@ -1125,13 +1163,11 @@ class NetworkSiteConnection extends Connection {
 		 * Allow filtering of the HTTP request args before updating content
 		 * via a REST API call.
 		 *
-		 * @hook dt_update_content_via_request_args
+		 * @param array                 $list            List of request args.
+		 * @param int                   $new_post_id    The new post ID.
+		 * @param NetworkSiteConnection $this           The distributor connection being pulled from.
 		 *
-		 * @param {array}                 list            List of request args.
-		 * @param {int}                   $new_post_id    The new post ID.
-		 * @param {NetworkSiteConnection} $this           The distributor connection being pulled from.
-		 *
-		 * @return {array} List of filtered request args.
+		 * @return array List of filtered request args.
 		 */
 		$request = apply_filters( 'dt_update_content_via_request_args', [], $new_post_id, $this );
 

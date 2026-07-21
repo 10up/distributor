@@ -1,0 +1,207 @@
+.mainFooter {
+	background-color: #202020;
+	background: url('./img/footer-bg.jpg') no-repeat center center;
+	background-size: cover;
+	color: #888889;
+	text-align: center;
+	min-height: 200px;
+	position: relative;
+	padding-top: 4rem;
+    padding-bottom: 4rem;
+}
+
+.footerBackground {
+	bottom: 0;
+    left: 0;
+    opacity: .5;
+    position: absolute;
+    right: 0;
+    top: 0;
+    z-index: 0;
+	background: #000;
+}
+
+.footerContainer {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	justify-content: center;
+}
+
+.footerCopyright,
+.footerLogo,
+.footerSocial {
+	flex-basis: 0;
+	flex-grow: 1;
+	width: 100%;
+	z-index: 1;
+}
+
+.footerLogo {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	gap: 24px;
+}
+
+.footer10upButton {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: center;
+	align-items: center;
+}
+
+.footer10upButtonInner a {
+    border-radius: 48px;
+    background: rgba(0, 0, 0, 0.40);
+    display: flex;
+	padding: 6px 16px;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    font-family: Aeonik, sans-serif;
+    position: relative;
+    text-wrap: nowrap;
+    color: white;
+}
+
+.footer10upButtonInner a:before {
+	background: linear-gradient(265.77deg, rgba(0, 0, 0, 0) 8.36%, #372b8e 42.17%, #e0adfc 71.15%, #fff 95.31%);
+	border-radius: 100px;
+	content: "";
+	inset: -2px;
+	mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+	mask-composite: exclude;
+	opacity: 0;
+	padding: 2px;
+	pointer-events: none;
+	position: absolute;
+	transition: opacity 0.3s ease-out;
+}
+
+.footer10upButtonInner a:hover {
+	text-decoration: none;
+    color: white;
+    background: rgba(0, 0, 0, 0.40);
+}
+
+.footer10upButtonInner a:hover:before {
+	opacity: 1;
+}
+
+.footerCopyright {
+	text-align: left;
+}
+
+.footerSocial {
+	text-align: right;
+}
+
+.footerSocial a svg {
+	margin-right: 15px;
+    width: 25px;
+}
+
+.footerSocial a svg:hover {
+	transform: scale(1.1);
+}
+
+.footerSocial a svg path {
+	fill: #9d9d9d;
+}
+
+.footerSocial a svg:hover path {
+	fill: #fff;
+}
+
+.footerCopyrightLinks a {
+	color: #9d9d9d;
+	text-decoration: underline;
+}
+
+.footerCopyrightLinks a:hover {
+	color: #fff;
+}
+
+
+@media (max-width: 900px) {
+  .footerContainer {
+	display: flex;
+    flex-direction: column;
+	gap: 24px;
+  }
+
+  .footerLogo,
+  .footerSocial,
+  .footerCopyright {
+    text-align: center;
+	flex-basis: 100%;
+	flex-grow: 1;
+  }
+
+  .footerLogo {
+	order: -1;
+  }
+}
+
+
+.getStartedSection {
+	padding: 3rem 0;
+}
+
+.getStartedSection {
+	background: #fff;
+	text-align: center;
+}
+
+[data-theme='dark'] .getStartedSection, [data-theme='dark'] .greySection {
+	background: var(--ifm-navbar-background-color);
+}
+
+.greySection {
+	background: #f8f9fa;
+}
+
+.sectionTitle {
+	font-size: 2.5rem;
+	text-align: center;
+	margin-bottom: 1rem;
+	color: #000;
+}
+
+[data-theme='dark'] .sectionTitle {
+	color: #fff;
+}
+
+.sectionDescription {
+	text-align: center;
+	max-width: 700px;
+	margin: 0 auto 1rem;
+	color: #666;
+	font-size: 1.1rem;
+	line-height: 1.6;
+}
+
+[data-theme='dark'] .sectionDescription {
+	color: #ccc;
+}
+
+
+.getStartedActions {
+	display: flex;
+	justify-content: center;
+	gap: 1rem;
+	margin-top: 2rem;
+}
+
+@media screen and (max-width: 996px) {
+	.getStartedActions {
+	flex-direction: column;
+	}
+
+	.getStartedActions a {
+	width: 100%;
+	}
+}
+

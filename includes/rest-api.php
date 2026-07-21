@@ -151,11 +151,10 @@ function process_distributor_attributes( $post, $request, $update ) {
 	 * Fires after an API push is handled by Distributor.
 	 *
 	 * @since 1.0
-	 * @hook dt_process_distributor_attributes
 	 *
-	 * @param {WP_Post}         $post    Inserted or updated post object.
-	 * @param {WP_REST_Request} $request Request object.
-	 * @param {bool}            $update  True when creating a post, false when updating.
+	 * @param WP_Post         $post    Inserted or updated post object.
+	 * @param WP_REST_Request $request Request object.
+	 * @param bool            $update  True when creating a post, false when updating.
 	 */
 	do_action( 'dt_process_distributor_attributes', $post, $request, $update );
 }
@@ -376,6 +375,44 @@ function get_pull_content_list_args() {
 				'relevance',
 				'slug',
 				'title',
+			),
+		),
+		'tax_query'      => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query
+			'description' => esc_html__( 'Filter posts by taxonomy terms.', 'distributor' ),
+			'type'        => 'array',
+			'items'       => array(
+				'type'       => 'object',
+				'properties' => array(
+					'taxonomy'         => array(
+						'description' => esc_html__( 'Taxonomy name.', 'distributor' ),
+						'type'        => 'string',
+					),
+					'field'            => array(
+						'description' => esc_html__( 'Field to match terms by (slug, term_id, name).', 'distributor' ),
+						'type'        => 'string',
+						'enum'        => array( 'slug', 'term_id', 'name' ),
+						'default'     => 'slug',
+					),
+					'terms'            => array(
+						'description' => esc_html__( 'Term(s) to filter by.', 'distributor' ),
+						'type'        => array( 'array', 'string', 'integer' ),
+						'items'       => array(
+							'type' => array( 'string', 'integer' ),
+						),
+					),
+					'operator'         => array(
+						'description' => esc_html__( 'Taxonomy query operator.', 'distributor' ),
+						'type'        => 'string',
+						'enum'        => array( 'IN', 'NOT IN', 'AND', 'EXISTS', 'NOT EXISTS' ),
+						'default'     => 'IN',
+					),
+					'include_children' => array(
+						'description' => esc_html__( 'Whether to include child terms.', 'distributor' ),
+						'type'        => 'boolean',
+						'default'     => true,
+					),
+				),
+				'required'   => array( 'taxonomy', 'terms' ),
 			),
 		),
 	);
@@ -669,6 +706,11 @@ function get_pull_content_list( $request ) {
 		$args['orderby'] = 'relevance';
 	}
 
+	// Add the tax query to the query args.
+	if ( isset( $request['tax_query'] ) ) {
+		$args['tax_query'] = $request['tax_query']; // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query
+	}
+
 	if ( ! empty( $request['exclude'] ) && ! empty( $request['include'] ) ) {
 		/*
 		 * Use only `post__in` if both `include` and `exclude` are populated.
@@ -712,12 +754,10 @@ function get_pull_content_list( $request ) {
 	 *
 	 * Enables adding extra arguments or setting defaults for a post collection request.
 	 *
-	 * @hook dt_get_pull_content_rest_query_args
+	 * @param array           $args    Array of arguments for WP_Query.
+	 * @param WP_REST_Request $request The REST API request.
 	 *
-	 * @param {array}           $args    Array of arguments for WP_Query.
-	 * @param {WP_REST_Request} $request The REST API request.
-	 *
-	 * @return {array} The array of arguments for WP_Query.
+	 * @return array The array of arguments for WP_Query.
 	 */
 	$args = apply_filters( 'dt_get_pull_content_rest_query_args', $args, $request );
 
