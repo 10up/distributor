@@ -280,7 +280,7 @@ const isUnlinkedContent = parseInt( dtGutenberg.unlinked ) !== 0;
 const DistributorTitle = () => {
 	return isUnlinkedContent
 		? __( 'Unlinked Content', 'distributor' )
-		: __( 'Pulled Content', 'distributor' );
+		: __( 'Content Distribution', 'distributor' );
 };
 
 /**
