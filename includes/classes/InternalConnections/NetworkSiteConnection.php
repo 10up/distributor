@@ -945,14 +945,54 @@ class NetworkSiteConnection extends Connection {
 		$cache_key        = "dt_authorized_sites:$user_id:$context:$last_changed";
 		$authorized_sites = get_transient( $cache_key );
 
+		/**
+		 * Filter the maximum number of authorized sites to display.
+		 *
+		 * This limits the number of sites displayed in the Distributor interface
+		 * for super admins on both the push and pull screens.
+		 *
+		 * @since 2.3.0
+		 *
+		 * @param int    $maximum_authorized_sites The maximum number of sites a user can be authorized to use.
+		 * @param int    $user_id                  The current user ID.
+		 * @param string $context                  The context of the authorization. Either push or pull.
+		 */
+		$maximum_authorized_sites = apply_filters( 'dt_max_authorized_sites', 1000, $user_id, $context );
+
 		if ( $force || false === $authorized_sites ) {
 			$authorized_sites = array();
-			$sites            = get_sites(
-				array(
-					'number' => 1000,
-				)
-			);
-			$current_blog_id  = (int) get_current_blog_id();
+
+			if ( is_super_admin() ) {
+				$sites = get_sites(
+					array(
+						'number' => $maximum_authorized_sites,
+					)
+				);
+			} else {
+				$user_sites    = get_blogs_of_user( $user_id );
+				$user_site_ids = wp_list_pluck( $user_sites, 'userblog_id' );
+				$sites         = array();
+
+				/*
+				 * get_blogs_of_user() returns sites in a different shape to get_sites().
+				 *
+				 * To avoid an additional query, the cache for the site IDs is primed and then
+				 * get_site() is used to retrieve the site object. This prevents an unnecessary
+				 * query in get_sites().
+				 */
+				_prime_site_caches( $user_site_ids );
+				foreach ( $user_site_ids as $user_site_id ) {
+					$user_site = get_site( $user_site_id );
+
+					if ( ! $user_site ) {
+						continue;
+					}
+
+					$sites[] = $user_site;
+				}
+			}
+
+			$current_blog_id = (int) get_current_blog_id();
 
 			foreach ( $sites as $site ) {
 				$blog_id = (int) $site->blog_id;
