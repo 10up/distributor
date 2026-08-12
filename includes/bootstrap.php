@@ -18,17 +18,17 @@ use YahnisElsts\PluginUpdateChecker\v5p7\PucFactory;
  * PSR-4 autoloading
  */
 spl_autoload_register(
-	function ( $class ) {
+	function ( $load_class ) {
 			// Project-specific namespace prefix.
 			$prefix = 'Distributor\\';
 			// Base directory for the namespace prefix.
 			$base_dir = __DIR__ . '/classes/';
 			// Does the class use the namespace prefix?
 			$len = strlen( $prefix );
-		if ( strncmp( $prefix, $class, $len ) !== 0 ) {
+		if ( strncmp( $prefix, $load_class, $len ) !== 0 ) {
 			return;
 		}
-			$relative_class = substr( $class, $len );
+			$relative_class = substr( $load_class, $len );
 			$file           = $base_dir . str_replace( '\\', '/', $relative_class ) . '.php';
 			// If the file exists, require it.
 		if ( file_exists( $file ) ) {
