@@ -408,7 +408,7 @@ function ajax_push() {
  * @param  string $hook WP hook.
  * @since  0.8
  */
-function enqueue_scripts( $hook ) {
+function enqueue_scripts( $hook ) { //phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.Found
 	if ( ! syndicatable() ) {
 		return;
 	}

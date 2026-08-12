@@ -598,6 +598,7 @@ class NetworkSiteConnection extends Connection {
 
 				$query_args['post__in'] = $args['post__in'];
 			} elseif ( isset( $args['post__not_in'] ) ) {
+				// phpcs:ignore WordPressVIPMinimum.Performance.WPQueryParams.PostNotIn_post__not_in
 				$query_args['post__not_in'] = $args['post__not_in'];
 			}
 

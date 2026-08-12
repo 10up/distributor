@@ -538,6 +538,7 @@ class PullListTable extends \WP_List_Table {
 			$post_ids = array_merge( $skipped, $syndicated );
 
 			if ( ! empty( $post_ids ) ) {
+				// phpcs:ignore WordPressVIPMinimum.Performance.WPQueryParams.PostNotIn_post__not_in
 				$remote_get_args['post__not_in'] = $post_ids;
 			}
 

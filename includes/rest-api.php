@@ -719,6 +719,7 @@ function get_pull_content_list( $request ) {
 		 */
 		$args['post__in'] = array_diff( $request['include'], $request['exclude'] );
 	} elseif ( ! empty( $request['exclude'] ) ) {
+		// phpcs:ignore WordPressVIPMinimum.Performance.WPQueryParams.PostNotIn_post__not_in
 		$args['post__not_in'] = $request['exclude'];
 	} elseif ( ! empty( $request['include'] ) ) {
 		$args['post__in'] = $request['include'];

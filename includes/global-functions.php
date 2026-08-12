@@ -250,7 +250,7 @@ function distributor_get_registered_data() {
  * @param int $source_post_id The source post ID.
  * @return array The extra data of the media to be distributed to the target site.
  */
-function distributor_media_pre_distribute_callback( $media_id, $source_post_id ) {
+function distributor_media_pre_distribute_callback( $media_id, $source_post_id ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed -- back compat
 	if ( ! $media_id ) {
 		return array();
 	}
@@ -283,7 +283,7 @@ function distributor_media_pre_distribute_callback( $media_id, $source_post_id )
  * @param array $post_data        The post data.
  * @return int The ID of the distributed media.
  */
-function distributor_media_post_distribute_callback( $media_extra_data, $source_media_id, $post_data ) {
+function distributor_media_post_distribute_callback( $media_extra_data, $source_media_id, $post_data ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed -- back compat
 	if ( ! isset( $media_extra_data['url'] ) ) {
 		return $source_media_id;
 	}
@@ -338,7 +338,7 @@ function distributor_media_post_distribute_callback( $media_extra_data, $source_
  * @param int $source_post_id The source post ID.
  * @return array The data of the post to be distributed to the target site.
  */
-function distributor_post_pre_distribute_callback( $post_id, $source_post_id ) {
+function distributor_post_pre_distribute_callback( $post_id, $source_post_id ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed -- back compat
 	if ( ! $post_id ) {
 		return array();
 	}
@@ -534,7 +534,7 @@ function distributor_post_post_distribute_callback( $post_extra_data, $source_po
  * @param int $source_post_id The source post ID.
  * @return array|WP_Term The data of the term to be distributed to the target site.
  */
-function distributor_term_pre_distribute_callback( $term_id, $source_post_id ) {
+function distributor_term_pre_distribute_callback( $term_id, $source_post_id ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed -- back compat
 	if ( ! $term_id ) {
 		return array();
 	}
@@ -569,7 +569,7 @@ function distributor_term_pre_distribute_callback( $term_id, $source_post_id ) {
  * @param array $post_data       The post data.
  * @return int The ID of the distributed term.
  */
-function distributor_term_post_distribute_callback( $term_extra_data, $source_term_id, $post_data ) {
+function distributor_term_post_distribute_callback( $term_extra_data, $source_term_id, $post_data ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed -- back compat
 	if ( ! $term_extra_data ) {
 		return $source_term_id;
 	}
