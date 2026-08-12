@@ -468,7 +468,7 @@ function distributor_post_post_distribute_callback( $post_extra_data, $source_po
 		// For external connections and push direction, it is already handled via push from source site we don't have to handle it here.
 		if ( 'internal' === $connection_type || ( 'pull' === $connection_direction && 'external' === $connection_type ) ) {
 			// Disable the process_extra_data filter to prevent infinite loop.
-			$prevent_processing = function() {
+			$prevent_processing = function () {
 				return false;
 			};
 			add_filter( 'dt_process_extra_data', $prevent_processing, 9999 );

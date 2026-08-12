@@ -15,7 +15,7 @@ namespace Distributor\AutoDistribute;
  * @since 2.2.0
  */
 function setup() {
-	$n = function( $function ) {
+	$n = function ( $function ) {
 		return __NAMESPACE__ . "\\$function";
 	};
 

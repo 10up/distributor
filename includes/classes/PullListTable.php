@@ -217,7 +217,7 @@ class PullListTable extends \WP_List_Table {
 					}
 
 					/* translators: %s: time of pull */
-					echo sprintf( esc_html__( 'Pulled %s', 'distributor' ), esc_html( $h_time ) );
+					printf( esc_html__( 'Pulled %s', 'distributor' ), esc_html( $h_time ) );
 				}
 			}
 		} else {
@@ -440,7 +440,7 @@ class PullListTable extends \WP_List_Table {
 		 */
 		$class = sanitize_html_class( apply_filters( 'dt_pull_list_table_tr_class', 'dt-table-row', $item ) );
 
-		echo sprintf( '<tr class="%s">', esc_attr( $class ) );
+		printf( '<tr class="%s">', esc_attr( $class ) );
 		$this->single_row_columns( $item );
 		echo '</tr>';
 	}

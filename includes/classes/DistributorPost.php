@@ -905,7 +905,7 @@ class DistributorPost {
 			// Filter out classes that are not image classes.
 			$classes = array_filter(
 				$classes,
-				function( $class ) {
+				function ( $class ) {
 					return strpos( $class, 'wp-image-' ) === 0;
 				}
 			);

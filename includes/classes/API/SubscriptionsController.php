@@ -35,7 +35,6 @@ class SubscriptionsController extends \WP_REST_Controller {
 
 		$this->meta = new \WP_REST_Post_Meta_Fields( $this->post_type );
 		add_filter( 'rest_authentication_errors', array( $this, 'dt_verify_signature_authentication' ) );
-
 	}
 
 	/**

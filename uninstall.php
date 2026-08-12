@@ -94,7 +94,7 @@ if ( defined( 'DT_REMOVE_ALL_DATA' ) && true === DT_REMOVE_ALL_DATA ) {
 				$where_clause
 			),
 			array_map(
-				function( $prefix ) use ( $wpdb ) {
+				function ( $prefix ) use ( $wpdb ) {
 					return $wpdb->esc_like( $prefix ) . '%';
 				},
 				$option_prefixes 
@@ -150,7 +150,7 @@ if ( defined( 'DT_REMOVE_ALL_DATA' ) && true === DT_REMOVE_ALL_DATA ) {
 			array_merge(
 				[ $site_id ],
 				array_map(
-					function( $prefix ) use ( $wpdb ) {
+					function ( $prefix ) use ( $wpdb ) {
 						return $wpdb->esc_like( $prefix ) . '%';
 					},
 					$option_prefixes 
@@ -176,7 +176,7 @@ if ( defined( 'DT_REMOVE_ALL_DATA' ) && true === DT_REMOVE_ALL_DATA ) {
 			// Flush the site options cache.
 			$key_names = array_column( $sitemeta_to_delete, 'meta_key' );
 			$key_names = array_map(
-				function( $key ) use ( $site_id ) {
+				function ( $key ) use ( $site_id ) {
 					return $site_id . ':' . $key;
 				},
 				$key_names 
@@ -202,4 +202,3 @@ if ( defined( 'DT_REMOVE_ALL_DATA' ) && true === DT_REMOVE_ALL_DATA ) {
 		dt_delete_data();
 	}
 }
-

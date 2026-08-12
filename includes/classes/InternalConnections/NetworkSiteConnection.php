@@ -7,11 +7,11 @@
 
 namespace Distributor\InternalConnections;
 
-use \Distributor\DistributorPost;
-use \Distributor\Connection as Connection;
+use Distributor\DistributorPost;
+use Distributor\Connection;
 use Distributor\RegisteredDataHandler;
 use Distributor\Utils;
-use \WP_Site as WP_Site;
+use WP_Site;
 
 /**
  * A network site connection let's you push and pull content within your blog
@@ -352,7 +352,7 @@ class NetworkSiteConnection extends Connection {
 				 */
 				if ( apply_filters( 'dt_pull_post_media', true, $new_post_id, $post['media'], $item_array['remote_post_id'], $post_array, $this ) ) {
 					\Distributor\Utils\set_media( $new_post_id, $post['media'], [ 'use_filesystem' => true ] );
-				};
+				}
 
 				/**
 				 * Allow bypassing of all terms processing.
