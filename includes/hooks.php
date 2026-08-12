@@ -15,8 +15,8 @@ use WP_Post;
  * Setup actions and filters
  */
 function setup() {
-	$n = function ( $function ) {
-		return __NAMESPACE__ . "\\$function";
+	$n = function ( $callback_function ) {
+		return __NAMESPACE__ . "\\$callback_function";
 	};
 
 	add_filter( 'get_canonical_url', $n( 'get_canonical_url' ), 10, 2 );
