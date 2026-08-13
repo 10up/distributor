@@ -669,10 +669,12 @@ class PullListTable extends \WP_List_Table {
 
 		// Check if there are any filters applied.
 		$has_filters = false;
-		foreach ( $connection_now->pull_taxonomy_term as $taxonomy => $selected_term ) {
-			if ( 'all' !== $selected_term ) {
-				$has_filters = true;
-				break;
+		if ( ! empty( $connection_now->pull_taxonomy_term ) && is_array( $connection_now->pull_taxonomy_term ) ) {
+			foreach ( $connection_now->pull_taxonomy_term as $selected_term ) {
+				if ( 'all' !== $selected_term ) {
+					$has_filters = true;
+					break;
+				}
 			}
 		}
 
