@@ -18,7 +18,7 @@ use Distributor\Utils;
 function setup() {
 	add_action(
 		'plugins_loaded',
-		function() {
+		function () {
 			add_action( 'edit_form_top', __NAMESPACE__ . '\syndicated_message', 9, 1 );
 			add_action( 'admin_enqueue_scripts', __NAMESPACE__ . '\enqueue_post_scripts' );
 			add_action( 'admin_enqueue_scripts', __NAMESPACE__ . '\enqueue_edit_scripts' );
@@ -83,19 +83,17 @@ function output_distributor_column( $column_name, $post_id ) {
 
 		if ( ( ( empty( $original_blog_id ) && empty( $original_source_id ) ) || $original_deleted ) && ! $connection_map ) {
 			echo '';
-		} else {
-			if ( $connection_map ) {
+		} elseif ( $connection_map ) {
 				// When a post is pushed from current site or pulled by other sites.
 				echo '<span title="' . esc_attr__( 'Pushed', 'distributor' ) . '" class="dashicons dashicons-admin-page"></span>';
-			} else {
-				$unlinked = (bool) get_post_meta( $post_id, 'dt_unlinked', true );
-				$post_url = get_post_meta( $post_id, 'dt_original_post_url', true );
+		} else {
+			$unlinked = (bool) get_post_meta( $post_id, 'dt_unlinked', true );
+			$post_url = get_post_meta( $post_id, 'dt_original_post_url', true );
 
-				if ( $unlinked ) {
-					echo '<a target="_blank" href="' . esc_url( $post_url ) . '"><span title="' . esc_attr__( 'Unlinked', 'distributor' ) . '" class="dashicons dashicons-editor-unlink"></span></span></a>';
-				} else {
-					echo '<a target="_blank" href="' . esc_url( $post_url ) . '"><span title="' . esc_attr__( 'Linked', 'distributor' ) . '" class="dashicons dashicons-admin-links"></span></a>';
-				}
+			if ( $unlinked ) {
+				echo '<a target="_blank" href="' . esc_url( $post_url ) . '"><span title="' . esc_attr__( 'Unlinked', 'distributor' ) . '" class="dashicons dashicons-editor-unlink"></span></span></a>';
+			} else {
+				echo '<a target="_blank" href="' . esc_url( $post_url ) . '"><span title="' . esc_attr__( 'Linked', 'distributor' ) . '" class="dashicons dashicons-admin-links"></span></a>';
 			}
 		}
 	}

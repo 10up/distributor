@@ -7,7 +7,7 @@
 
 namespace Distributor;
 
-use \Distributor\ExternalConnection as ExternalConnection;
+use Distributor\ExternalConnection;
 
 /**
  * Authentication types extend this base abstract class. Authentication types
@@ -128,7 +128,7 @@ abstract class Authentication {
 		self::$error_message = $error_message;
 		add_action(
 			'auth_admin_notices',
-			function() {
+			function () {
 				?>
 		<div class="notice notice-error is-dismissible">
 			<p>

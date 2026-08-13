@@ -108,7 +108,7 @@ class RegisteredDataHandler {
 
 						$modified = true;
 					}
-					$index++;
+					++$index;
 				} elseif ( isset( $block['attrs'][ $block_attribute ] ) ) {
 					$source_data        = $block['attrs'][ $block_attribute ];
 					$current_extra_data = $extra_data[ $index ] ?? array();
@@ -146,7 +146,7 @@ class RegisteredDataHandler {
 
 						$modified = true;
 					}
-					$index++;
+					++$index;
 				}
 			}
 
@@ -365,7 +365,7 @@ class RegisteredDataHandler {
 
 			if ( $result['modified'] ) {
 				$post_content = serialize_blocks( $result['blocks'] );
-			};
+			}
 		}
 
 		/**
@@ -582,13 +582,13 @@ class RegisteredDataHandler {
 			$registered_data      = distributor_get_registered_data();
 			$registered_post_data = array_filter(
 				$registered_data,
-				function( $arr ) {
+				function ( $arr ) {
 					return 'post' === $arr['type'];
 				}
 			);
 
 			if ( ! empty( $registered_post_data ) && ! empty( $extra_data ) ) {
-				$prevent_processing = function() {
+				$prevent_processing = function () {
 					return false;
 				};
 				// Disable the process_extra_data filter to prevent infinite loop.

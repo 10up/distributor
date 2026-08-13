@@ -20,7 +20,7 @@ use WP_Error;
 function setup() {
 	add_action(
 		'init',
-		function() {
+		function () {
 			add_action( 'rest_api_init', __NAMESPACE__ . '\register_endpoints' );
 			add_action( 'rest_api_init', __NAMESPACE__ . '\register_rest_routes' );
 			add_action( 'rest_api_init', __NAMESPACE__ . '\register_push_errors_field' );
@@ -210,7 +210,7 @@ function get_pull_content_list_args() {
 				'type' => 'integer',
 			),
 			'default'           => array(),
-			'sanitize_callback' => function( $param ) {
+			'sanitize_callback' => function ( $param ) {
 				if ( ! is_array( $param ) ) {
 					$param = array( $param );
 				}
@@ -241,7 +241,7 @@ function get_pull_content_list_args() {
 				'type' => 'string',
 			),
 			'default'           => array( 'post' ),
-			'validate_callback' => function( $param ) {
+			'validate_callback' => function ( $param ) {
 				if ( is_string( $param ) ) {
 					return sanitize_key( $param ) === $param;
 				}
@@ -254,7 +254,7 @@ function get_pull_content_list_args() {
 
 				return true;
 			},
-			'sanitize_callback' => function( $param ) {
+			'sanitize_callback' => function ( $param ) {
 				if ( is_string( $param ) ) {
 					$param = array( $param );
 				}
@@ -288,7 +288,7 @@ function get_pull_content_list_args() {
 
 				$param = array_filter(
 					$param,
-					function( $post_type ) {
+					function ( $post_type ) {
 						$post_type_object = get_post_type_object( $post_type );
 						return current_user_can( $post_type_object->cap->edit_posts );
 					}
@@ -314,7 +314,7 @@ function get_pull_content_list_args() {
 			'items'             => array(
 				'type' => 'string',
 			),
-			'validate_callback' => function( $param ) {
+			'validate_callback' => function ( $param ) {
 				if ( is_string( $param ) ) {
 					return sanitize_key( $param ) === $param;
 				}
@@ -327,7 +327,7 @@ function get_pull_content_list_args() {
 
 				return true;
 			},
-			'sanitize_callback' => function( $param ) {
+			'sanitize_callback' => function ( $param ) {
 				if ( is_string( $param ) ) {
 					$param = array( $param );
 				}
@@ -524,7 +524,7 @@ function register_endpoints() {
 		$post_types,
 		'distributor_meta',
 		array(
-			'get_callback'    => function( $post_array ) {
+			'get_callback'    => function ( $post_array ) {
 				if ( ! isset( $post_array['id'] ) ) {
 					return false;
 				}
@@ -535,7 +535,7 @@ function register_endpoints() {
 
 				return \Distributor\Utils\prepare_meta( $post_array['id'] );
 			},
-			'update_callback' => function( $value, $post ) { },
+			'update_callback' => function ( $value, $post ) { },
 			'schema'          => array(
 				'description' => esc_html__( 'Post meta for Distributor.', 'distributor' ),
 				'type'        => 'object',
@@ -547,7 +547,7 @@ function register_endpoints() {
 		$post_types,
 		'distributor_terms',
 		array(
-			'get_callback'    => function( $post_array ) {
+			'get_callback'    => function ( $post_array ) {
 				if ( ! isset( $post_array['id'] ) ) {
 					return false;
 				}
@@ -558,7 +558,7 @@ function register_endpoints() {
 
 				return \Distributor\Utils\prepare_taxonomy_terms( $post_array['id'] );
 			},
-			'update_callback' => function( $value, $post ) { },
+			'update_callback' => function ( $value, $post ) { },
 			'schema'          => array(
 				'description' => esc_html__( 'Taxonomy terms for Distributor.', 'distributor' ),
 				'type'        => 'object',
@@ -570,7 +570,7 @@ function register_endpoints() {
 		$post_types,
 		'distributor_media',
 		array(
-			'get_callback'    => function( $post_array ) {
+			'get_callback'    => function ( $post_array ) {
 				if ( ! isset( $post_array['id'] ) ) {
 					return false;
 				}
@@ -581,7 +581,7 @@ function register_endpoints() {
 
 				return \Distributor\Utils\prepare_media( $post_array['id'] );
 			},
-			'update_callback' => function( $value, $post ) { },
+			'update_callback' => function ( $value, $post ) { },
 			'schema'          => array(
 				'description' => esc_html__( 'Media for Distributor.', 'distributor' ),
 				'type'        => 'object',
@@ -593,7 +593,7 @@ function register_endpoints() {
 		$post_types,
 		'distributor_original_site_name',
 		array(
-			'get_callback'    => function( $post_array ) {
+			'get_callback'    => function ( $post_array ) {
 				$site_name = isset( $post_array['id'] ) ? get_post_meta( $post_array['id'], 'dt_original_site_name', true ) : '';
 
 				if ( ! $site_name ) {
@@ -602,7 +602,7 @@ function register_endpoints() {
 
 				return esc_html( $site_name );
 			},
-			'update_callback' => function( $value, $post ) { },
+			'update_callback' => function ( $value, $post ) { },
 			'schema'          => array(
 				'description' => esc_html__( 'Original site name for Distributor.', 'distributor' ),
 				'type'        => 'string',
@@ -614,7 +614,7 @@ function register_endpoints() {
 		$post_types,
 		'distributor_original_site_url',
 		array(
-			'get_callback'    => function( $post_array ) {
+			'get_callback'    => function ( $post_array ) {
 				$site_url = isset( $post_array['id'] ) ? get_post_meta( $post_array['id'], 'dt_original_site_url', true ) : '';
 
 				if ( ! $site_url ) {
@@ -623,7 +623,7 @@ function register_endpoints() {
 
 				return esc_url_raw( $site_url );
 			},
-			'update_callback' => function( $value, $post ) { },
+			'update_callback' => function ( $value, $post ) { },
 			'schema'          => array(
 				'description' => esc_html__( 'Original site url for Distributor.', 'distributor' ),
 				'type'        => 'string',
@@ -641,7 +641,6 @@ function register_endpoints() {
 			'permission_callback' => '__return_true',
 		)
 	);
-
 }
 
 /**
@@ -720,6 +719,7 @@ function get_pull_content_list( $request ) {
 		 */
 		$args['post__in'] = array_diff( $request['include'], $request['exclude'] );
 	} elseif ( ! empty( $request['exclude'] ) ) {
+		// phpcs:ignore WordPressVIPMinimum.Performance.WPQueryParams.PostNotIn_post__not_in
 		$args['post__not_in'] = $request['exclude'];
 	} elseif ( ! empty( $request['include'] ) ) {
 		$args['post__in'] = $request['include'];
@@ -874,7 +874,7 @@ function register_push_errors_field() {
 			$post_type,
 			'push-errors',
 			array(
-				'get_callback' => function( $params ) {
+				'get_callback' => function ( $params ) {
 					$media_errors = isset( $params['id'] ) ? get_transient( 'dt_media_errors_' . $params['id'] ) : '';
 
 					if ( ! empty( $media_errors ) ) {

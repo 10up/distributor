@@ -92,7 +92,7 @@ function site_meets_php_requirements() {
  */
 register_activation_hook(
 	__FILE__,
-	function() {
+	function () {
 		if (
 			! site_meets_wp_requirements() &&
 			! site_meets_php_requirements()
@@ -131,7 +131,7 @@ register_activation_hook(
 
 add_action(
 	'plugins_loaded',
-	function() {
+	function () {
 		if ( site_meets_wp_requirements() && site_meets_php_requirements() ) {
 			// Do nothing, everything is fine.
 			return;
@@ -139,7 +139,7 @@ add_action(
 
 		add_action(
 			'admin_notices',
-			function() {
+			function () {
 				if (
 					! site_meets_wp_requirements() &&
 					! site_meets_php_requirements()
