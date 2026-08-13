@@ -18,17 +18,17 @@ use YahnisElsts\PluginUpdateChecker\v5p7\PucFactory;
  * PSR-4 autoloading
  */
 spl_autoload_register(
-	function( $class ) {
+	function ( $load_class ) {
 			// Project-specific namespace prefix.
 			$prefix = 'Distributor\\';
 			// Base directory for the namespace prefix.
 			$base_dir = __DIR__ . '/classes/';
 			// Does the class use the namespace prefix?
 			$len = strlen( $prefix );
-		if ( strncmp( $prefix, $class, $len ) !== 0 ) {
+		if ( strncmp( $prefix, $load_class, $len ) !== 0 ) {
 			return;
 		}
-			$relative_class = substr( $class, $len );
+			$relative_class = substr( $load_class, $len );
 			$file           = $base_dir . str_replace( '\\', '/', $relative_class ) . '.php';
 			// If the file exists, require it.
 		if ( file_exists( $file ) ) {
@@ -42,7 +42,7 @@ spl_autoload_register(
  */
 add_action(
 	'send_headers',
-	function() {
+	function () {
 		if ( ! headers_sent() ) {
 			header( 'X-Distributor: yes' );
 		}
@@ -54,7 +54,7 @@ add_action(
  */
 add_filter(
 	'rest_post_dispatch',
-	function( $response ) {
+	function ( $response ) {
 		$response->header( 'X-Distributor', 'yes' );
 		$response->header( 'X-Distributor-Version', DT_VERSION );
 
@@ -92,11 +92,11 @@ require_once __DIR__ . '/auto-distribute.php';
 // Include application passwords.
 add_action(
 	'plugins_loaded',
-	function() {
+	function () {
 		if ( ! wp_is_application_passwords_available() ) {
 			add_action(
 				'admin_notices',
-				function() {
+				function () {
 					if ( get_current_screen()->id !== 'toplevel_page_distributor' ) {
 						return;
 					}
@@ -124,7 +124,7 @@ add_action(
 // Override some styles for application passwords until we can get these changes upstream.
 add_action(
 	'admin_enqueue_scripts',
-	function() {
+	function () {
 		$asset_file = DT_PLUGIN_PATH . '/dist/js/admin-css.min.asset.php';
 		// Fallback asset data.
 		$asset_data = array(
@@ -201,7 +201,7 @@ if ( class_exists( '\\YahnisElsts\\PluginUpdateChecker\\v5p7\\PucFactory' ) ) {
  */
 add_action(
 	'init',
-	function() {
+	function () {
 		\Distributor\Connections::factory()->register( '\Distributor\ExternalConnections\WordPressExternalConnection' );
 		\Distributor\Connections::factory()->register( '\Distributor\ExternalConnections\WordPressDotcomExternalConnection' );
 		if (

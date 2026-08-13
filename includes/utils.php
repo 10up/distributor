@@ -1138,19 +1138,17 @@ function set_media( $post_id, $media, $args = [] ) {
 			}
 
 			$image_id = process_media( $media_item['source_url'], $post_id, $args );
-		} else {
-			if ( ! empty( $current_media[ $media_item['source_url'] ] ) ) {
+		} elseif ( ! empty( $current_media[ $media_item['source_url'] ] ) ) {
 				$image_id = $current_media[ $media_item['source_url'] ];
-			} elseif ( ! empty( $media_item['id'] ) && ! empty( $media_item['source_url'] ) ) {
-				// Check if the media is already existing on the site. If it is, return the media ID.
-				$image_id = get_attachment_id_by_original_data( $media_item['id'], $media_item['source_url'] );
+		} elseif ( ! empty( $media_item['id'] ) && ! empty( $media_item['source_url'] ) ) {
+			// Check if the media is already existing on the site. If it is, return the media ID.
+			$image_id = get_attachment_id_by_original_data( $media_item['id'], $media_item['source_url'] );
 
-				if ( ! $image_id ) {
-					$image_id = process_media( $media_item['source_url'], $post_id, $args );
-				}
-			} else {
+			if ( ! $image_id ) {
 				$image_id = process_media( $media_item['source_url'], $post_id, $args );
 			}
+		} else {
+			$image_id = process_media( $media_item['source_url'], $post_id, $args );
 		}
 
 		// Exit if the image ID is not valid.

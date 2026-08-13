@@ -17,7 +17,7 @@ use Distributor\Utils;
 function setup() {
 	add_action(
 		'plugins_loaded',
-		function() {
+		function () {
 			add_action( 'admin_menu', __NAMESPACE__ . '\admin_menu', 20 );
 
 			if ( DT_IS_NETWORK ) {
@@ -82,7 +82,7 @@ function plugin_update_styles() {
  * @param  string $status Plugin status.
  * @since  1.2
  */
-function update_notice( $plugin_file, $plugin_data, $status ) {
+function update_notice( $plugin_file, $plugin_data, $status ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed -- back compat.
 	if ( DT_PLUGIN_FILE !== $plugin_file ) {
 		return;
 	}
@@ -170,7 +170,7 @@ function maybe_notice() {
  * @param  string $hook WP hook.
  * @since  1.2
  */
-function admin_enqueue_scripts( $hook ) {
+function admin_enqueue_scripts( $hook ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.Found -- back compat.
 	if ( ! empty( $_GET['page'] ) && 'distributor-settings' === $_GET['page'] ) { // @codingStandardsIgnoreLine Nonce not required.
 		$asset_file = DT_PLUGIN_PATH . '/dist/js/admin-settings-css.min.asset.php';
 		// Fallback asset data.
