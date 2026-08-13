@@ -48,12 +48,11 @@ function syndicatable() {
 	/**
 	 * Filter Distributor capabilities allowed to syndicate content.
 	 *
-	 * @hook dt_syndicatable_capabilities
 	 * @tutorial snippets
 	 *
-	 * @param {string} edit_posts The capability allowed to syndicate content.
+	 * @param string edit_posts The capability allowed to syndicate content.
 	 *
-	 * @return {string} The capability allowed to syndicate content.
+	 * @return string The capability allowed to syndicate content.
 	 */
 	if ( ! is_user_logged_in() || ! current_user_can( apply_filters( 'dt_syndicatable_capabilities', 'edit_posts' ) ) ) {
 		return false;
@@ -66,11 +65,9 @@ function syndicatable() {
 	 *
 	 * Helpful for sites that want to push custom post type content to another site.
 	 *
-	 * @hook dt_available_push_post_types
+	 * @param array Post types that are distributable.
 	 *
-	 * @param {array} Post types that are distributable.
-	 *
-	 * @return {array} Post types available for push.
+	 * @return array Post types available for push.
 	 */
 	$distributable_post_types = apply_filters( 'dt_available_push_post_types', $distributable_post_types );
 
@@ -158,7 +155,18 @@ function get_connections() {
 	$external_connections_query = new \WP_Query(
 		array(
 			'post_type'      => 'dt_ext_connection',
-			'posts_per_page' => 200, // @codingStandardsIgnoreLine This high pagination limit is purposeful
+			/**
+			 * Filter the maximum number of external connections to load.
+			 *
+			 * Modify the maximum number of external connection post types are
+			 * queried with requesting the post type.
+			 *
+			 * @since 2.2.0
+			 *
+			 * @param int $max_connections The maximum number of external connections to load.
+			 * @return int The maximum number of external connections to load.
+			 */
+			'posts_per_page' => apply_filters( 'dt_external_connections_per_page', 200 ), // @codingStandardsIgnoreLine This high pagination limit is purposeful
 			'no_found_rows'  => true,
 			'post_status'    => 'publish',
 		)
@@ -196,11 +204,10 @@ function get_connections() {
 		 * Filter Distributor capabilities allowed to push content.
 		 *
 		 * @since 1.0.0
-		 * @hook dt_push_capabilities
 		 *
-		 * @param {string} 'manage_options' The capability allowed to push content.
+		 * @param string 'manage_options' The capability allowed to push content.
 		 *
-		 * @return {string} The capability allowed to push content.
+		 * @return string The capability allowed to push content.
 		 */
 		if ( ! current_user_can( apply_filters( 'dt_push_capabilities', 'manage_options' ) ) ) {
 			$current_user_roles = (array) wp_get_current_user()->roles;
@@ -425,11 +432,10 @@ function enqueue_scripts( $hook ) {
 		 * See {@link https://vip.wordpress.com/documentation/handling-frontend-file-uploads/#handling-ajax-requests}
 		 *
 		 * @since 1.0.0
-		 * @hook dt_ajax_requires_with_credentials
 		 *
-		 * @param {bool} false Whether front end ajax requests should use xhrFields credentials:true.
+		 * @param bool false Whether front end ajax requests should use xhrFields credentials:true.
 		 *
-		 * @return {bool} Whether front end ajax requests should use xhrFields credentials:true.
+		 * @return bool Whether front end ajax requests should use xhrFields credentials:true.
 		 */
 		'usexhr'               => apply_filters( 'dt_ajax_requires_with_credentials', false ),
 	);

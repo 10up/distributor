@@ -2,7 +2,7 @@
 
 ![Distributor](https://github.com/10up/distributor/blob/develop/assets/img/banner-1544x500.png)
 
-[![Support Level](https://img.shields.io/badge/support-active-green.svg)](#support-level) [![Release Version](https://img.shields.io/github/release/10up/distributor.svg)](https://github.com/10up/distributor/releases/latest) ![WordPress tested up to version](https://img.shields.io/badge/WordPress-v6.8%20tested-success.svg) [![License](https://img.shields.io/github/license/10up/distributor.svg)](https://github.com/10up/distributor/blob/develop/LICENSE.md) [![Dependency Review](https://github.com/10up/distributor/actions/workflows/dependency-review.yml/badge.svg)](https://github.com/10up/distributor/actions/workflows/dependency-review.yml) [![WordPress Playground Demo](https://img.shields.io/badge/Playground_Demo-8A2BE2?logo=wordpress&logoColor=FFFFFF&labelColor=3858E9&color=3858E9)](https://playground.wordpress.net/?blueprint-url=https://raw.githubusercontent.com/10up/distributor/refs/heads/develop/.github/blueprints/blueprint.json)
+[![Support Level](https://img.shields.io/badge/support-active-green.svg)](#support-level) [![Release Version](https://img.shields.io/github/release/10up/distributor.svg)](https://github.com/10up/distributor/releases/latest) ![WordPress tested up to version](https://img.shields.io/badge/WordPress-v7.0%20tested-success.svg) [![License](https://img.shields.io/github/license/10up/distributor.svg)](https://github.com/10up/distributor/blob/develop/LICENSE.md) [![Dependency Review](https://github.com/10up/distributor/actions/workflows/dependency-review.yml/badge.svg)](https://github.com/10up/distributor/actions/workflows/dependency-review.yml) [![WordPress Playground Demo](https://img.shields.io/badge/Playground_Demo-8A2BE2?logo=wordpress&logoColor=FFFFFF&labelColor=3858E9&color=3858E9)](https://playground.wordpress.net/?blueprint-url=https://raw.githubusercontent.com/10up/distributor/refs/heads/develop/.github/blueprints/blueprint.json)
 [![E2E Tests](https://github.com/10up/distributor/actions/workflows/cypress.yml/badge.svg)](https://github.com/10up/distributor/actions/workflows/cypress.yml) [![PHPUnit Tests](https://github.com/10up/distributor/actions/workflows/test.yml/badge.svg)](https://github.com/10up/distributor/actions/workflows/test.yml) [![Linting](https://github.com/10up/distributor/actions/workflows/lint.yml/badge.svg)](https://github.com/10up/distributor/actions/workflows/lint.yml) [![Code scanning](https://github.com/10up/distributor/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/10up/distributor/actions/workflows/codeql-analysis.yml)
 
 > Distributor is a WordPress plugin that makes it easy to distribute and reuse content across your websites — whether in a single multisite or across the web.
@@ -17,15 +17,15 @@ Distributor supports safe, SEO-friendly content reuse and sharing via "pushing" 
 
 While logged in and editing or viewing any single post (or custom post type) that can be distributed, a `Distributor` admin bar item will appear, that will facilitate sharing ("pushing") that content to any `connection`.
 
-<a href="http://distributorplugin.com/"><img src="https://distributorplugin.com/wp-content/themes/distributor-theme/assets/img/push-screenshot.jpg" alt="Push the content you’re editing or viewing to any of your other sites from the admin bar" width="600"></a>
+<a href="http://distributorplugin.com/"><img src="/.github/screenshots/screenshot-2.png" alt="Push the content you’re editing or viewing to any of your other sites from the admin bar" width="600"></a>
 
 In the admin dashboard, a top level Distributor menu item links to the "pull" screen. Here, editors can share ("pull") content from any `connection` into the current site.
 
-<a href="http://distributorplugin.com/"><img src="https://distributorplugin.com/wp-content/themes/distributor-theme/assets/img/pull-screenshot.jpg" alt="Pull content from another site from the Distributor admin menu" width="600"></a>
+<a href="http://distributorplugin.com/"><img src="/.github/screenshots/screenshot-6.png" alt="Pull content from another site from the Distributor admin menu" width="600"></a>
 
 Content this is distributed (via Push or Pull) is connected to the original.  Reposted content receives updates from the original, canonical source automatically.
 
-<a href="http://distributorplugin.com/"><img alt="Distributor intuitively presents the origin and status of any reused content" class="browser-frame" src="https://distributorplugin.com/wp-content/themes/distributor-theme/assets/img/syndicated-screenshot.jpg" width="600"></a>
+<a href="http://distributorplugin.com/"><img alt="Distributor intuitively presents the origin and status of any reused content" src="/.github/screenshots/screenshot-9.jpg" width="600"></a>
 
 There are two connection types: `internal` and `external`.
 * Internal connections are other sites inside of the same multisite network. Any user logged into the network can distribute any content in the network to any other sites in the network where that user has permission to publish posts (assuming the site supports the same post type).
@@ -103,10 +103,6 @@ You can navigate to the `Posts` > `All Posts` table list view to see all content
 
 <img src="/.github/screenshots/screenshot-8.png" alt="All Posts screen showing Distributor links for pushed and pulled content" width="300">
 
-## Support Level
-
-**Active:** 10up is actively working on this, and we expect to continue work for the foreseeable future including keeping tested up to the most recent version of WordPress.  Bug reports, feature requests, questions, and pull requests are welcome.
-
 ## Known Caveats/Issues
 
 ### Remote Request Timeouts
@@ -171,9 +167,49 @@ By default, drafts are the preferred status and can't be changed at the source s
 
 Oftentimes the communication Distributor attempts to make across sites using the REST API will be flagged by various security plugins and surreptitiously blocked.  If you run into an issue like this, please reach out to the support for your security plugin and ask about getting Distributor unblocked ([here is an example for doing so with Wordfence](https://wordpress.org/support/topic/distributor-plugin-being-blocked/)).
 
+## Building and Running Documentation Site
+
+The Distributor documentation site is built using [WP Hooks Documentor](https://github.com/10up/wp-hooks-documentor). Follow these steps to build and run the documentation site locally:
+
+### 1. Build Documentation
+Node.js >= 20.0 and PHP >= 8.3 will be needed in your development environment.
+
+```bash
+# Install dependencies and build the plugin
+npm i && npm run build:docs
+```
+
+This will:
+- Install all required dependencies
+- Process all hook documentation from the codebase
+- Generate the documentation site in the `./docs-built` directory
+
+### 2. Run Documentation Site Locally
+
+```bash
+# Navigate to docs-built directory and start the server
+cd ./docs-built && npm run serve
+```
+
+The documentation site will be available at [http://localhost:3000](http://localhost:3000).
+
+### 3. Deployment
+
+The documentation site will automatically deploy to GitHub Pages when changes are merged into the `trunk` branch. You can view the live documentation at [https://10up.github.io/distributor/](https://10up.github.io/distributor/).
+
 ## Developers
 
-See [Distributor Developer Documentation](https://10up.github.io/distributor/#developers).
+See [Distributor Developer Documentation](https://10up.github.io/distributor/get-started/developers).
+
+## Frequently Asked Questions
+
+### Where do I report security bugs found in this plugin?
+
+Please report security bugs found in the source code of the undefined plugin through the [Patchstack Vulnerability Disclosure  Program](https://patchstack.com/database/vdp/2198169c-4564-4fae-bc07-9e737721a9b2).  The Patchstack team will assist you with verification, CVE assignment, and notify the developers of this plugin.
+
+## Support Level
+
+**Active:** 10up is actively working on this, and we expect to continue work for the foreseeable future including keeping tested up to the most recent version of WordPress.  Bug reports, feature requests, questions, and pull requests are welcome.
 
 ## Changelog
 

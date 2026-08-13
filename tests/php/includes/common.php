@@ -358,6 +358,10 @@ class TestExternalConnection extends \Distributor\ExternalConnection {
 	public function remote_get( $args ) { }
 
 	public function get_post_types() { }
+
+	public function get_post_type_taxonomies( $post_type ) { }
+
+	public function get_taxonomy_terms() { }
 }
 
 class TestInternalConnection extends \Distributor\Connection {
@@ -374,4 +378,8 @@ class TestInternalConnection extends \Distributor\Connection {
 	public function get_sync_log( $id ) {}
 
 	public function get_post_types() { }
+
+	public function get_post_type_taxonomies( $post_type ) { }
+
+	public function get_taxonomy_terms() { }
 }

@@ -125,7 +125,7 @@ if ( ! function_exists( 'str_ends_with' ) ) {
 /**
  * Register a data field for Stored ID handling.
  *
- * @since x.x.x
+ * @since 2.2.0
  *
  * @global array $distributor_registered_data Global registry for distributor data.
  *
@@ -225,7 +225,7 @@ function distributor_register_data( $data_name, $args ) {
 /**
  * Get the registered distributor data.
  *
- * @since x.x.x
+ * @since 2.2.0
  *
  * @global array $distributor_registered_data Global registry for distributor data.
  *
@@ -543,8 +543,7 @@ function distributor_term_pre_distribute_callback( $term_id, $source_post_id ) {
 	 * Filter whether to distribute term with parents.
 	 * If set to true, the term will be distributed with its parents.
 	 *
-	 * @since x.x.x
-	 * @hook dt_registered_data_distribute_term_parent
+	 * @since 2.2.0
 	 *
 	 * @param bool $with_parents Whether to distribute term with parents. Default false.
 	 *

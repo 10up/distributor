@@ -663,7 +663,7 @@ class DistributorPost {
 	/**
 	 * Get the extra data for the post to be processed on the target site.
 	 *
-	 * @since x.x.x
+	 * @since 2.2.0
 	 *
 	 * @return array[] {
 	 *   Array of extra data keyed by the data name.
@@ -672,6 +672,7 @@ class DistributorPost {
 	 * }
 	 */
 	protected function get_extra_data() {
+		$this->populate_source_site();
 		// Post data to pass to the filter.
 		$post_data = array(
 			'title'                          => html_entity_decode( get_the_title( $this->post->ID ), ENT_QUOTES, get_bloginfo( 'charset' ) ),
@@ -694,12 +695,11 @@ class DistributorPost {
 		/**
 		 * Filters whether to process extra data for the post.
 		 *
-		 * @since x.x.x
-		 * @hook dt_process_extra_data
+		 * @since 2.2.0
 		 *
-		 * @param {bool} $process_extra_data Whether to process extra data.
-		 * @param {array} $post_data The post data.
-		 * @return {bool} Whether to process extra data.
+		 * @param bool  $process_extra_data Whether to process extra data.
+		 * @param array $post_data          The post data.
+		 * @return bool Whether to process extra data.
 		 */
 		if ( ! apply_filters( 'dt_process_extra_data', true, $post_data ) ) {
 			return array();
@@ -797,12 +797,11 @@ class DistributorPost {
 		/**
 		 * Filters the extra data for the post to be processed on the target site.
 		 *
-		 * @since x.x.x
-		 * @hook dt_extra_data
+		 * @since 2.2.0
 		 *
-		 * @param {array}           $extra_data Extra data for the post.
-		 * @param {DistributorPost} $this       The DistributorPost object.
-		 * @return {array} Extra data for the post.
+		 * @param array           $extra_data Extra data for the post.
+		 * @param DistributorPost $this       The DistributorPost object.
+		 * @return array Extra data for the post.
 		 */
 		$extra_data = apply_filters( 'dt_extra_data', $extra_data, $this );
 
@@ -812,7 +811,7 @@ class DistributorPost {
 	/**
 	 * Parse blocks to obtain value of given attribute.
 	 *
-	 * @since x.x.x
+	 * @since 2.2.0
 	 *
 	 * @param array        $block           Block to parse.
 	 * @param string       $block_name      Block name to look for.
@@ -849,7 +848,7 @@ class DistributorPost {
 	/**
 	 * Get the attribute values of a given shortcode.
 	 *
-	 * @since x.x.x
+	 * @since 2.2.0
 	 *
 	 * @param string       $content   The post content.
 	 * @param string       $shortcode The shortcode to look for.
@@ -1009,11 +1008,10 @@ class DistributorPost {
 		 * }
 		 *
 		 * @since 2.0.0
-		 * @hook dt_parse_media_blocks
 		 *
-		 * @param {array} $media_blocks Array of media blocks.
+		 * @param array $media_blocks Array of media blocks.
 		 *
-		 * @return {array} Modified array of media blocks.
+		 * @return array Modified array of media blocks.
 		 */
 		$media_blocks = apply_filters( 'dt_parse_media_blocks', $media_blocks );
 
@@ -1213,11 +1211,10 @@ class DistributorPost {
 		 * Filters the post data for when they are being formatted for a pull
 		 *
 		 * @since 2.0.3
-		 * @hook dt_post_to_pull
 		 *
-		 * @param {array} $display_data The post data.
+		 * @param array $display_data The post data.
 		 *
-		 * @return {array} Modified post data.
+		 * @return array Modified post data.
 		 */
 		return apply_filters( 'dt_post_to_pull', $display_data );
 	}

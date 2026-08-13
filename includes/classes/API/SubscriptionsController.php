@@ -281,13 +281,15 @@ class SubscriptionsController extends \WP_REST_Controller {
 			}
 
 			wp_update_post(
-				[
-					'ID'           => $request['post_id'],
-					'post_title'   => $request['post_data']['title'],
-					'post_content' => $content,
-					'post_excerpt' => $request['post_data']['excerpt'],
-					'post_name'    => $request['post_data']['slug'],
-				]
+				wp_slash(
+					[
+						'ID'           => $request['post_id'],
+						'post_title'   => $request['post_data']['title'],
+						'post_content' => $content,
+						'post_excerpt' => $request['post_data']['excerpt'],
+						'post_name'    => $request['post_data']['slug'],
+					]
+				)
 			);
 
 			/**
@@ -312,10 +314,9 @@ class SubscriptionsController extends \WP_REST_Controller {
 			 * Action fired after receiving a subscription update from Distributor
 			 *
 			 * @since 1.3.8
-			 * @hook dt_process_subscription_attributes
 			 *
-			 * @param {WP_Post}         $post    Updated post object.
-			 * @param {WP_REST_Request} $request Request object.
+			 * @param WP_Post         $post    Updated post object.
+			 * @param WP_REST_Request $request Request object.
 			 */
 			do_action( 'dt_process_subscription_attributes', $post, $request );
 
