@@ -7,7 +7,7 @@
 
 namespace Distributor;
 
-use \Distributor\Connection as Connection;
+use Distributor\Connection;
 
 /**
  * External connections extend this base abstract class. External connections are used to push and pull content.

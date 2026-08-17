@@ -19,7 +19,7 @@ function distributor_is_unlinked( $post_id = null ) {
 		$post_id = $post->ID;
 	}
 
-	$unlinked = get_post_meta( $post_id, 'dt_unlinked' );
+	$unlinked = get_post_meta( $post_id, 'dt_unlinked', true );
 
 	return (bool) $unlinked;
 }

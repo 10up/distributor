@@ -7,7 +7,7 @@
 
 namespace Distributor\ExternalConnections;
 
-use \Distributor\ExternalConnections\WordPressExternalConnection as WordPressExternalConnection;
+use Distributor\ExternalConnections\WordPressExternalConnection;
 
 /**
  * WP.COM external connection class
@@ -47,5 +47,4 @@ class WordPressDotcomExternalConnection extends WordPressExternalConnection {
 	 * @var string
 	 */
 	public static $namespace = 'wp/v2';
-
 }

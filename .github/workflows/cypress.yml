@@ -99,7 +99,7 @@ jobs:
         tools: composer:v2
 
     - name: Composer install
-      run: composer install
+      run: composer install --no-dev
 
     - name: Build
       run: npm run build

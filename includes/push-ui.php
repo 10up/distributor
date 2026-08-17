@@ -18,7 +18,7 @@ use Distributor\Utils;
 function setup() {
 	add_action(
 		'plugins_loaded',
-		function() {
+		function () {
 			add_action( 'admin_enqueue_scripts', __NAMESPACE__ . '\enqueue_scripts' );
 			add_action( 'wp_enqueue_scripts', __NAMESPACE__ . '\enqueue_scripts' );
 			add_filter( 'amp_dev_mode_element_xpaths', __NAMESPACE__ . '\add_element_xpaths' );
@@ -78,10 +78,8 @@ function syndicatable() {
 		if ( 'post.php' !== $pagenow && 'post-new.php' !== $pagenow ) {
 			return false;
 		}
-	} else {
-		if ( ! is_singular( $distributable_post_types ) ) {
+	} elseif ( ! is_singular( $distributable_post_types ) ) {
 			return false;
-		}
 	}
 
 	// If we're using the classic editor, we need to make sure the post has a distributable status.
@@ -410,7 +408,7 @@ function ajax_push() {
  * @param  string $hook WP hook.
  * @since  0.8
  */
-function enqueue_scripts( $hook ) {
+function enqueue_scripts( $hook ) { //phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.Found
 	if ( ! syndicatable() ) {
 		return;
 	}

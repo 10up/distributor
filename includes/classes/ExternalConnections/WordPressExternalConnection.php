@@ -8,9 +8,9 @@
 namespace Distributor\ExternalConnections;
 
 use Distributor\DistributorPost;
-use \Distributor\ExternalConnection as ExternalConnection;
+use Distributor\ExternalConnection;
 use Distributor\RegisteredDataHandler;
-use \Distributor\Utils;
+use Distributor\Utils;
 
 /**
  * Class handling WP external connections

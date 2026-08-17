@@ -20,7 +20,7 @@ use Distributor\Utils;
 function setup() {
 	add_action(
 		'admin_init',
-		function() {
+		function () {
 			/**
 			 * Filter whether the debug info is enabled. Enabled by default, return false to disable.
 			 *
@@ -311,7 +311,7 @@ function get_external_connection_status( $external_connection_status ) {
  */
 function format_connection_data( $data ) {
 	$formatted = array_map(
-		function( $key, $value ) {
+		function ( $key, $value ) {
 			return sprintf( '- %1$s: %2$s', $key, $value );
 		},
 		array_keys( $data ),

@@ -7,7 +7,7 @@
 
 namespace Distributor\Subscriptions;
 
-use Distributor\ExternalConnection as ExternalConnection;
+use Distributor\ExternalConnection;
 use Distributor\Utils;
 
 /**
@@ -18,7 +18,7 @@ use Distributor\Utils;
 function setup() {
 	add_action(
 		'plugins_loaded',
-		function() {
+		function () {
 			add_action( 'init', __NAMESPACE__ . '\register_cpt' );
 			add_action( 'wp_after_insert_post', __NAMESPACE__ . '\send_notifications', 99 );
 			add_action( 'before_delete_post', __NAMESPACE__ . '\delete_subscriptions' );
