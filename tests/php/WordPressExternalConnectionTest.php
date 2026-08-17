@@ -7,6 +7,20 @@ use WP_Mock\Tools\TestCase;
 
 class WordPressExternalConnectionTest extends TestCase {
 
+	/**
+	 * Basic auth object.
+	 *
+	 * @var WordPressBasicAuth
+	 */
+	public $auth;
+
+	/**
+	 * External connection object.
+	 *
+	 * @var WordPressExternalConnection
+	 */
+	public $connection;
+
 	public function setUp(): void {
 
 		$this->auth       = new WordPressBasicAuth( array() );
