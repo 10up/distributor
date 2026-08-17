@@ -96,7 +96,7 @@ class WordPressExternalConnectionTest extends TestCase {
 		$this->setup_post_meta_mock( array() );
 		\WP_Mock::userFunction( 'do_action_deprecated' );
 		\WP_Mock::userFunction( 'untrailingslashit' );
-		\WP_Mock::userFunction( 'get_the_title' );
+		\WP_Mock::userFunction( 'get_the_title', array( 'return' => '' ) );
 		\WP_Mock::userFunction( 'wp_remote_post' );
 		\WP_Mock::userFunction( 'esc_html__' );
 		\WP_Mock::userFunction( 'get_bloginfo' );
@@ -143,6 +143,7 @@ class WordPressExternalConnectionTest extends TestCase {
 			'post_type'     => $post_type,
 			'post_excerpt'  => 'post excerpt',
 			'post_name'     => 'slug',
+			'post_title'    => 'post title',
 			'post_status'   => 'publish',
 			'ID'            => 1,
 			'post_date'     => '2020-01-01 00:00:00',
@@ -424,7 +425,7 @@ class WordPressExternalConnectionTest extends TestCase {
 		);
 
 		\WP_Mock::userFunction( 'wp_remote_request' );
-		\WP_Mock::userFunction( 'untrailingslashit' );
+		\WP_Mock::userFunction( 'untrailingslashit', array( 'return' => 'url' ) );
 
 		$check = $this->connection->check_connections();
 
@@ -450,7 +451,7 @@ class WordPressExternalConnectionTest extends TestCase {
 		);
 
 		\WP_Mock::userFunction( 'wp_remote_request' );
-		\WP_Mock::userFunction( 'untrailingslashit' );
+		\WP_Mock::userFunction( 'untrailingslashit', array( 'return' => 'url' ) );
 
 		\WP_Mock::userFunction(
 			'wp_remote_retrieve_response_code', [

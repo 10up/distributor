@@ -98,6 +98,7 @@ class NetworkSiteConnection extends Connection {
 		$args = wp_parse_args(
 			$args,
 			array(
+				'post_title'  => '',
 				'post_status' => 'publish',
 			)
 		);
