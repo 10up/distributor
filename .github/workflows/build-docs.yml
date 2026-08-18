@@ -1,4 +1,4 @@
-name: Build Hook Docs
+name: Build Developer Docs
 
 on:
  push:
@@ -11,13 +11,18 @@ jobs:
     steps:
     - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
+    - name: Setup proper PHP version
+      uses: shivammathur/setup-php@9e72090525849c5e82e596468b86eb55e9cc5401 # v2.32.0
+      with:
+        php-version: 8.3
+
     - name: Use desired version of NodeJS
       uses: actions/setup-node@cdca7365b2dadb8aad0a33bc7601856ffabcc48e # v4.3.0
       with:
-          node-version-file: '.nvmrc'
+          node-version: 20
 
     - name: Check versions
-      run: npm -v; node -v
+      run: npm -v; node -v; php -v
 
     - name: npm install, and build docs
       run: |
@@ -31,4 +36,4 @@ jobs:
       uses: peaceiris/actions-gh-pages@4f9cc6602d3f66b9c108549d475ec49e8ef4d45e # v4.0.0
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: './docs-built'
+        publish_dir: './docs-built/build'

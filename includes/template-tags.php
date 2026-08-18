@@ -19,7 +19,7 @@ function distributor_is_unlinked( $post_id = null ) {
 		$post_id = $post->ID;
 	}
 
-	$unlinked = get_post_meta( $post_id, 'dt_unlinked' );
+	$unlinked = get_post_meta( $post_id, 'dt_unlinked', true );
 
 	return (bool) $unlinked;
 }
@@ -171,11 +171,10 @@ function distributor_get_original_site_link( $post_id = null ) {
 	 * Filter the original site link for a distributed post.
 	 *
 	 * @since 1.0.0
-	 * @hook distributor_get_original_site_link
 	 *
-	 * @param {string} $link A formatted version of the original site link.
+	 * @param string $link A formatted version of the original site link.
 	 *
-	 * @return {string} A formatted version of the original site link.
+	 * @return string A formatted version of the original site link.
 	 */
 	/* translators: %1$s: site url, %2$s; site name*/
 	return apply_filters( 'distributor_get_original_site_link', sprintf( __( 'By <a href="%1$s">%2$s</a>', 'distributor' ), esc_url( $site_url ), esc_html( $site_name ) ) );
@@ -189,7 +188,7 @@ function distributor_get_original_site_link( $post_id = null ) {
  * @since 1.0
  */
 function distributor_the_original_site_link( $post_id = null ) {
-	echo esc_url( distributor_get_original_site_link( $post_id ) );
+	echo wp_kses_post( distributor_get_original_site_link( $post_id ) );
 }
 
 
@@ -239,4 +238,3 @@ function distributor_the_connection_source( $post_id = null, $preface = null ) {
 		printf( '%s <a href="%s" target="_blank" rel="noopener noreferrer">%s</a>', esc_html( $preface ), esc_url( $url ), esc_html( $site_name ) );
 	}
 }
-

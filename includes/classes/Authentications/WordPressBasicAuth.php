@@ -7,7 +7,7 @@
 
 namespace Distributor\Authentications;
 
-use \Distributor\Authentication as Authentication;
+use Distributor\Authentication;
 
 /**
  * This auth type is simple username/password WP style
@@ -156,7 +156,8 @@ class WordPressBasicAuth extends Authentication {
 			<span class="description"><?php esc_html_e( 'A username from the external WordPress site to connect with. For full functionality, this needs to be a user with an administrator role.', 'distributor' ); ?></span>
 
 			<p>
-				<label for="dt_username"><?php esc_html_e( 'Password', 'distributor' ); ?> <?php
+				<label for="dt_username"><?php esc_html_e( 'Password', 'distributor' ); ?>
+				<?php
 				if ( ! empty( $args['base64_encoded'] ) ) :
 					?>
 					<a class="change-password" href="#"><?php esc_html_e( '(Change)', 'distributor' ); ?></a><?php endif; ?></label><br>
@@ -211,13 +212,12 @@ class WordPressBasicAuth extends Authentication {
 		 * Filter the authorization credentials prepared before saving.
 		 *
 		 * @since 1.0
-		 * @hook dt_auth_prepare_credentials
 		 *
-		 * @param {array}  $auth The credentials to be saved.
-		 * @param {array}  $args The arguments originally passed to `prepare_credentials`.
-		 * @param {string} $slug The authorization handler type slug.
+		 * @param array  $auth The credentials to be saved.
+		 * @param array  $args The arguments originally passed to `prepare_credentials`.
+		 * @param string $slug The authorization handler type slug.
 		 *
-		 * @return {array} The authorization credentials to be saved.
+		 * @return array The authorization credentials to be saved.
 		 */
 		return apply_filters( 'dt_auth_prepare_credentials', $auth, $args, self::$slug );
 	}

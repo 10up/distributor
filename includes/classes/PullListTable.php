@@ -7,6 +7,8 @@
 
 namespace Distributor;
 
+use function Distributor\Utils\generate_taxonomy_links;
+
 /**
  * List table class for pull screen
  */
@@ -53,21 +55,34 @@ class PullListTable extends \WP_List_Table {
 	 * @return array
 	 */
 	public function get_columns() {
+
+		global $connection_now;
+
 		$columns = [
 			'cb'        => '<input type="checkbox" />',
 			'name'      => esc_html__( 'Name', 'distributor' ),
 			'post_type' => esc_html__( 'Post Type', 'distributor' ),
-			'date'      => esc_html__( 'Date', 'distributor' ),
 		];
+
+		// Dynamically add the taxonomies to the columns, only if the post type supports the taxonomy.
+		if ( ! empty( $connection_now->pull_taxonomy_terms ) ) {
+
+			foreach ( $connection_now->pull_taxonomy_terms as $taxonomy => $taxonomy_data ) {
+
+				if ( ! empty( $taxonomy_data['post_types'] ) && in_array( $connection_now->pull_post_type, $taxonomy_data['post_types'], true ) ) {
+					$columns[ $taxonomy ] = $taxonomy_data['label'];
+				}
+			}
+		}
+
+		$columns['date'] = esc_html__( 'Date', 'distributor' );
 
 		/**
 		 * Filters the columns displayed in the pull list table.
 		 *
-		 * @hook dt_pull_list_table_columns
+		 * @param array $columns An associative array of column headings.
 		 *
-		 * @param {array} $columns An associative array of column headings.
-		 *
-		 * @return {array} An associative array of column headings.
+		 * @return array An associative array of column headings.
 		 */
 		return apply_filters( 'dt_pull_list_table_columns', $columns );
 	}
@@ -202,7 +217,7 @@ class PullListTable extends \WP_List_Table {
 					}
 
 					/* translators: %s: time of pull */
-					echo sprintf( esc_html__( 'Pulled %s', 'distributor' ), esc_html( $h_time ) );
+					printf( esc_html__( 'Pulled %s', 'distributor' ), esc_html( $h_time ) );
 				}
 			}
 		} else {
@@ -257,6 +272,9 @@ class PullListTable extends \WP_List_Table {
 	 * @since  0.8
 	 */
 	public function column_default( $item, $column_name ) {
+
+		global $connection_now;
+
 		if ( 'post_type' === $column_name ) {
 			$post_type = get_post_type_object( $item->post_type );
 
@@ -265,13 +283,27 @@ class PullListTable extends \WP_List_Table {
 			}
 		}
 
+		// If the post type supports the taxonomy, output the taxonomy links.
+		if ( ! empty( $connection_now->pull_taxonomy_terms ) ) {
+
+			foreach ( $connection_now->pull_taxonomy_terms as $taxonomy => $taxonomy_data ) {
+
+				// If the post type does not support the taxonomy, skip it.
+				if ( empty( $taxonomy_data['post_types'] ) || ! in_array( $connection_now->pull_post_type, $taxonomy_data['post_types'], true ) ) {
+					continue;
+				}
+
+				if ( $column_name === $taxonomy ) {
+					return wp_kses_post( generate_taxonomy_links( $taxonomy, $item, $item->terms[ $taxonomy ] ) );
+				}
+			}
+		}
+
 		/**
 		 * Fires for each column in the pull list table.
 		 *
-		 * @hook dt_pull_list_table_custom_column
-		 *
-		 * @param {string}  $column_name The name of the column to display.
-		 * @param {WP_Post} $item        The post/item to output in the column.
+		 * @param string  $column_name The name of the column to display.
+		 * @param WP_Post $item        The post/item to output in the column.
 		 */
 		do_action( 'dt_pull_list_table_custom_column', $column_name, $item );
 
@@ -323,12 +355,10 @@ class PullListTable extends \WP_List_Table {
 				/**
 				 * Filter the default value of the 'Pull as draft' option in the pull ui
 				 *
-				 * @hook dt_pull_as_draft
+				 * @param bool   $as_draft   Whether the 'Pull as draft' option should be checked.
+				 * @param object $connection The connection being used to pull from.
 				 *
-				 * @param {bool}   $as_draft   Whether the 'Pull as draft' option should be checked.
-				 * @param {object} $connection The connection being used to pull from.
-				 *
-				 * @return {bool} Whether the 'Pull as draft' option should be checked.
+				 * @return bool Whether the 'Pull as draft' option should be checked.
 				 */
 				$as_draft = apply_filters( 'dt_pull_as_draft', true, $connection_now );
 
@@ -403,16 +433,14 @@ class PullListTable extends \WP_List_Table {
 		/**
 		 * Filters the class used on the table row on the pull list table.
 		 *
-		 * @hook dt_pull_list_table_tr_class
+		 * @param string  $class The class name.
+		 * @param WP_Post $item  The current post object.
 		 *
-		 * @param {string}  $class The class name.
-		 * @param {WP_Post} $item  The current post object.
-		 *
-		 * @return {string} The class name.
+		 * @return string The class name.
 		 */
 		$class = sanitize_html_class( apply_filters( 'dt_pull_list_table_tr_class', 'dt-table-row', $item ) );
 
-		echo sprintf( '<tr class="%s">', esc_attr( $class ) );
+		printf( '<tr class="%s">', esc_attr( $class ) );
 		$this->single_row_columns( $item );
 		echo '</tr>';
 	}
@@ -461,6 +489,23 @@ class PullListTable extends \WP_List_Table {
 			$remote_get_args['s'] = rawurlencode( $_GET['s'] ); // @codingStandardsIgnoreLine Nonce isn't required.
 		}
 
+		// Add taxonomy filters to the remote get arguments.
+		if ( ! empty( $connection_now->pull_taxonomy_terms ) ) {
+
+			foreach ( $connection_now->pull_taxonomy_terms as $taxonomy => $taxonomy_data ) {
+
+				if ( 'all' === $connection_now->pull_taxonomy_term[ $taxonomy ] ) {
+					continue;
+				}
+
+				$remote_get_args['tax_query'][] = array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query
+					'taxonomy' => $taxonomy,
+					'field'    => 'slug',
+					'terms'    => $connection_now->pull_taxonomy_term[ $taxonomy ],
+				);
+			}
+		}
+
 		if ( is_a( $connection_now, '\Distributor\ExternalConnection' ) ) {
 			$this->sync_log = get_post_meta( $connection_now->id, 'dt_sync_log', true );
 		} else {
@@ -493,6 +538,7 @@ class PullListTable extends \WP_List_Table {
 			$post_ids = array_merge( $skipped, $syndicated );
 
 			if ( ! empty( $post_ids ) ) {
+				// phpcs:ignore WordPressVIPMinimum.Performance.WPQueryParams.PostNotIn_post__not_in
 				$remote_get_args['post__not_in'] = $post_ids;
 			}
 
@@ -607,12 +653,30 @@ class PullListTable extends \WP_List_Table {
 	 * @param string $which Whether above or below the table.
 	 */
 	public function extra_tablenav( $which ) {
+		/*
+		 * This is to avoid the filter being displayed twice with the same HTML id.
+		 */
+		if ( 'bottom' === $which ) {
+			return;
+		}
+
 		global $connection_now;
 
 		if ( is_a( $connection_now, '\Distributor\InternalConnections\NetworkSiteConnection' ) ) {
 			$connection_type = 'internal';
 		} else {
 			$connection_type = 'external';
+		}
+
+		// Check if there are any filters applied.
+		$has_filters = false;
+		if ( ! empty( $connection_now->pull_taxonomy_term ) && is_array( $connection_now->pull_taxonomy_term ) ) {
+			foreach ( $connection_now->pull_taxonomy_term as $selected_term ) {
+				if ( 'all' !== $selected_term ) {
+					$has_filters = true;
+					break;
+				}
+			}
 		}
 
 		if ( $connection_now && $connection_now->pull_post_types ) :
@@ -625,12 +689,46 @@ class PullListTable extends \WP_List_Table {
 						<?php esc_html_e( 'View all', 'distributor' ); ?>
 					</option>
 					<?php foreach ( $connection_now->pull_post_types as $post_type ) : ?>
-						<option <?php selected( $connection_now->pull_post_type, $post_type['slug'] ); ?> value="<?php echo esc_attr( $post_type['slug'] ); ?>">
+						<option <?php selected( $connection_now->pull_post_type, $post_type['slug'] ); ?> value="<?php echo esc_attr( $post_type['slug'] ); ?>" data-taxonomies="<?php echo esc_attr( wp_json_encode( array_keys( $post_type['taxonomies'] ) ) ); ?>">
 							<?php echo esc_html( $post_type['name'] ); ?>
 						</option>
 					<?php endforeach; ?>
 				</select>
+				<?php if ( ! empty( $connection_now->pull_taxonomy_terms ) ) : ?>
+					<?php foreach ( $connection_now->pull_taxonomy_terms as $taxonomy => $taxonomy_data ) : ?>
+						<?php
+						$toggle_class = 'show';
+						if ( empty( $taxonomy_data['post_types'] ) || ! in_array( $connection_now->pull_post_type, $taxonomy_data['post_types'], true ) ) {
+							$toggle_class = 'hide';
+						}
+						?>
+						<select id="pull_<?php echo esc_attr( $taxonomy ); ?>" name="pull_<?php echo esc_attr( $taxonomy ); ?>" class="pull-taxonomy <?php echo esc_attr( $toggle_class ); ?>">
+							<option <?php selected( $connection_now->pull_taxonomy_term[ $taxonomy ], 'all' ); ?> value="all">
+								<?php
+								printf(
+									/* translators: %s: taxonomy label */
+									esc_html__( 'All %s', 'distributor' ),
+									esc_html( $taxonomy_data['label'] )
+								);
+								?>
+							</option>
+							<?php foreach ( $taxonomy_data['items'] as $term ) : ?>
+								<option <?php selected( $connection_now->pull_taxonomy_term[ $taxonomy ], $term['slug'] ); ?> value="<?php echo esc_attr( $term['slug'] ); ?>">
+									<?php echo esc_html( $term['name'] ); ?>
+								</option>
+							<?php endforeach; ?>
+						</select>
+					<?php endforeach; ?>
+				<?php endif; ?>
 				<input type="submit" name="filter_action" id="pull_post_type_submit" class="button" value="<?php esc_attr_e( 'Filter', 'distributor' ); ?>">
+
+				<?php
+				if ( $has_filters ) :
+					?>
+					<input type="submit" name="reset_filters" id="pull_post_type_reset"  class="button dt-reset-filters-button" value="<?php esc_attr_e( 'Reset Filters', 'distributor' ); ?>">
+					<?php
+				endif;
+				?>
 
 				<?php
 				// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- nonce is not required.
@@ -652,7 +750,6 @@ class PullListTable extends \WP_List_Table {
 		 * Action fired when extra table nav is generated.
 		 *
 		 * @since 1.0
-		 * @hook dt_pull_filters
 		 */
 		do_action( 'dt_pull_filters' );
 	}

@@ -66,6 +66,22 @@ abstract class Connection {
 	abstract public function get_post_types();
 
 	/**
+	 * Get available post type taxonomies from a connection
+	 *
+	 * @param string $post_type Post type.
+	 *
+	 * @return array
+	 */
+	abstract public function get_post_type_taxonomies( $post_type );
+
+	/**
+	 * Get available taxonomy terms from a connection
+	 *
+	 * @return array
+	 */
+	abstract public function get_taxonomy_terms();
+
+	/**
 	 * This method is called on every page load. It's helpful for canonicalization
 	 *
 	 * @since  0.8

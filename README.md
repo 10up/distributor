@@ -2,7 +2,7 @@
 
 ![Distributor](https://github.com/10up/distributor/blob/develop/assets/img/banner-1544x500.png)
 
-[![Support Level](https://img.shields.io/badge/support-active-green.svg)](#support-level) [![Release Version](https://img.shields.io/github/release/10up/distributor.svg)](https://github.com/10up/distributor/releases/latest) ![WordPress tested up to version](https://img.shields.io/badge/WordPress-v6.8%20tested-success.svg) [![License](https://img.shields.io/github/license/10up/distributor.svg)](https://github.com/10up/distributor/blob/develop/LICENSE.md) [![Dependency Review](https://github.com/10up/distributor/actions/workflows/dependency-review.yml/badge.svg)](https://github.com/10up/distributor/actions/workflows/dependency-review.yml) [![WordPress Playground Demo](https://img.shields.io/badge/Playground_Demo-8A2BE2?logo=wordpress&logoColor=FFFFFF&labelColor=3858E9&color=3858E9)](https://playground.wordpress.net/?blueprint-url=https://raw.githubusercontent.com/10up/distributor/refs/heads/develop/.github/blueprints/blueprint.json)
+[![Support Level](https://img.shields.io/badge/support-active-green.svg)](#support-level) [![Release Version](https://img.shields.io/github/release/10up/distributor.svg)](https://github.com/10up/distributor/releases/latest) ![WordPress tested up to version](https://img.shields.io/badge/WordPress-v7.1%20tested-success.svg) [![License](https://img.shields.io/github/license/10up/distributor.svg)](https://github.com/10up/distributor/blob/develop/LICENSE.md) [![Dependency Review](https://github.com/10up/distributor/actions/workflows/dependency-review.yml/badge.svg)](https://github.com/10up/distributor/actions/workflows/dependency-review.yml) [![WordPress Playground Demo](https://img.shields.io/badge/Playground_Demo-8A2BE2?logo=wordpress&logoColor=FFFFFF&labelColor=3858E9&color=3858E9)](https://playground.wordpress.net/?blueprint-url=https://raw.githubusercontent.com/10up/distributor/refs/heads/develop/.github/blueprints/blueprint.json)
 [![E2E Tests](https://github.com/10up/distributor/actions/workflows/cypress.yml/badge.svg)](https://github.com/10up/distributor/actions/workflows/cypress.yml) [![PHPUnit Tests](https://github.com/10up/distributor/actions/workflows/test.yml/badge.svg)](https://github.com/10up/distributor/actions/workflows/test.yml) [![Linting](https://github.com/10up/distributor/actions/workflows/lint.yml/badge.svg)](https://github.com/10up/distributor/actions/workflows/lint.yml) [![Code scanning](https://github.com/10up/distributor/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/10up/distributor/actions/workflows/codeql-analysis.yml)
 
 > Distributor is a WordPress plugin that makes it easy to distribute and reuse content across your websites — whether in a single multisite or across the web.
@@ -38,7 +38,7 @@ Distributor is built with the same extensible approach as WordPress itself, with
 ## Requirements
 
 * PHP 7.4+
-* [WordPress](http://wordpress.org) 6.5+
+* [WordPress](http://wordpress.org) 6.8+
 * External connections require HTTP Basic Authentication or [WordPress.com OAuth2](https://developer.wordpress.com/docs/oauth2/) (must be on [WordPress VIP](https://wpvip.com/)) be set up on the remote website. For Basic Auth, we recommend using [Application Passwords](https://make.wordpress.org/core/2020/11/05/application-passwords-integration-guide/#Getting-Credentials) built in to WordPress.
 * For external connections, Distributor needs to be installed on BOTH sides of the connection.
 * Version 2.0.0 of Distributor requires version 2.0.0 on BOTH sides of all connections. For other version 2.0.0 specific changes, please see our [migration guide](https://10up.github.io/distributor/tutorial-migration-guide-version-1-to-version-2.html).
@@ -102,10 +102,6 @@ After you have Bulk Pulled several pieces of content or used the row actions to 
 You can navigate to the `Posts` > `All Posts` table list view to see all content that has been pushed or pulled to the current site via the Distributor column denoted with the Distributor icon (<img alt="Distributor icon" src="https://github.com/10up/distributor/blob/trunk/assets/img/icon.svg" height="45" width="45">).  Rows that include the Distributor icon will link off that icon to the origin site and post where that content was either pushed or pulled from.
 
 <img src="/.github/screenshots/screenshot-8.png" alt="All Posts screen showing Distributor links for pushed and pulled content" width="300">
-
-## Support Level
-
-**Active:** 10up is actively working on this, and we expect to continue work for the foreseeable future including keeping tested up to the most recent version of WordPress.  Bug reports, feature requests, questions, and pull requests are welcome.
 
 ## Known Caveats/Issues
 
@@ -171,9 +167,49 @@ By default, drafts are the preferred status and can't be changed at the source s
 
 Oftentimes the communication Distributor attempts to make across sites using the REST API will be flagged by various security plugins and surreptitiously blocked.  If you run into an issue like this, please reach out to the support for your security plugin and ask about getting Distributor unblocked ([here is an example for doing so with Wordfence](https://wordpress.org/support/topic/distributor-plugin-being-blocked/)).
 
+## Building and Running Documentation Site
+
+The Distributor documentation site is built using [WP Hooks Documentor](https://github.com/10up/wp-hooks-documentor). Follow these steps to build and run the documentation site locally:
+
+### 1. Build Documentation
+Node.js >= 20.0 and PHP >= 8.3 will be needed in your development environment.
+
+```bash
+# Install dependencies and build the plugin
+npm i && npm run build:docs
+```
+
+This will:
+- Install all required dependencies
+- Process all hook documentation from the codebase
+- Generate the documentation site in the `./docs-built` directory
+
+### 2. Run Documentation Site Locally
+
+```bash
+# Navigate to docs-built directory and start the server
+cd ./docs-built && npm run serve
+```
+
+The documentation site will be available at [http://localhost:3000](http://localhost:3000).
+
+### 3. Deployment
+
+The documentation site will automatically deploy to GitHub Pages when changes are merged into the `trunk` branch. You can view the live documentation at [https://10up.github.io/distributor/](https://10up.github.io/distributor/).
+
 ## Developers
 
-See [Distributor Developer Documentation](https://10up.github.io/distributor/#developers).
+See [Distributor Developer Documentation](https://10up.github.io/distributor/get-started/developers).
+
+## Frequently Asked Questions
+
+### Where do I report security bugs found in this plugin?
+
+Please report security bugs found in the source code of the undefined plugin through the [Patchstack Vulnerability Disclosure  Program](https://patchstack.com/database/vdp/2198169c-4564-4fae-bc07-9e737721a9b2).  The Patchstack team will assist you with verification, CVE assignment, and notify the developers of this plugin.
+
+## Support Level
+
+**Active:** 10up is actively working on this, and we expect to continue work for the foreseeable future including keeping tested up to the most recent version of WordPress.  Bug reports, feature requests, questions, and pull requests are welcome.
 
 ## Changelog
 

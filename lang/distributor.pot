@@ -1,15 +1,15 @@
-# Copyright (C) 2025 10up Inc.
+# Copyright (C) 2026 10up Inc.
 # This file is distributed under the GPLv2 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: Distributor 2.2.0\n"
+"Project-Id-Version: Distributor 2.3.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/distributor\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2025-09-08T14:44:18+00:00\n"
+"POT-Creation-Date: 2026-08-18T04:16:59+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: distributor\n"
@@ -75,89 +75,89 @@ msgstr ""
 msgid "Distributor requires PHP version %s or later. Please upgrade PHP or disable the plugin."
 msgstr ""
 
-#: includes/classes/API/SubscriptionsController.php:59
-#: release/includes/classes/API/SubscriptionsController.php:57
+#: includes/classes/API/SubscriptionsController.php:58
+#: release/includes/classes/API/SubscriptionsController.php:59
 msgid "Post that is being subscribed to."
 msgstr ""
 
-#: includes/classes/API/SubscriptionsController.php:64
-#: release/includes/classes/API/SubscriptionsController.php:62
+#: includes/classes/API/SubscriptionsController.php:63
+#: release/includes/classes/API/SubscriptionsController.php:64
 msgid "Post on remote site that maps to subscription post."
 msgstr ""
 
-#: includes/classes/API/SubscriptionsController.php:69
-#: release/includes/classes/API/SubscriptionsController.php:67
+#: includes/classes/API/SubscriptionsController.php:68
+#: release/includes/classes/API/SubscriptionsController.php:69
 msgid "WordPress URL to notify."
 msgstr ""
 
-#: includes/classes/API/SubscriptionsController.php:74
-#: release/includes/classes/API/SubscriptionsController.php:72
+#: includes/classes/API/SubscriptionsController.php:73
+#: release/includes/classes/API/SubscriptionsController.php:74
 msgid "Subscription signature for post."
 msgstr ""
 
-#: includes/classes/API/SubscriptionsController.php:93
-#: release/includes/classes/API/SubscriptionsController.php:91
+#: includes/classes/API/SubscriptionsController.php:92
+#: release/includes/classes/API/SubscriptionsController.php:93
 msgid "Post to be updated."
 msgstr ""
 
-#: includes/classes/API/SubscriptionsController.php:98
-#: release/includes/classes/API/SubscriptionsController.php:96
+#: includes/classes/API/SubscriptionsController.php:97
+#: release/includes/classes/API/SubscriptionsController.php:98
 msgid "Signature for given signature"
 msgstr ""
 
-#: includes/classes/API/SubscriptionsController.php:117
-#: release/includes/classes/API/SubscriptionsController.php:115
+#: includes/classes/API/SubscriptionsController.php:116
+#: release/includes/classes/API/SubscriptionsController.php:117
 msgid "Post with subscription."
 msgstr ""
 
-#: includes/classes/API/SubscriptionsController.php:122
-#: release/includes/classes/API/SubscriptionsController.php:120
+#: includes/classes/API/SubscriptionsController.php:121
+#: release/includes/classes/API/SubscriptionsController.php:122
 msgid "Signature for given subscription"
 msgstr ""
 
-#: includes/classes/API/SubscriptionsController.php:163
-#: release/includes/classes/API/SubscriptionsController.php:161
+#: includes/classes/API/SubscriptionsController.php:162
+#: release/includes/classes/API/SubscriptionsController.php:163
 msgid "Signature invalid or missing."
 msgstr ""
 
-#: includes/classes/API/SubscriptionsController.php:168
-#: release/includes/classes/API/SubscriptionsController.php:166
+#: includes/classes/API/SubscriptionsController.php:167
+#: release/includes/classes/API/SubscriptionsController.php:168
 msgid "Invalid post id."
 msgstr ""
 
-#: includes/classes/API/SubscriptionsController.php:211
-#: release/includes/classes/API/SubscriptionsController.php:209
+#: includes/classes/API/SubscriptionsController.php:210
+#: release/includes/classes/API/SubscriptionsController.php:211
 msgid "Post not distributed."
 msgstr ""
 
-#: includes/classes/API/SubscriptionsController.php:224
-#: release/includes/classes/API/SubscriptionsController.php:222
+#: includes/classes/API/SubscriptionsController.php:223
+#: release/includes/classes/API/SubscriptionsController.php:224
 msgid "No post data for update."
 msgstr ""
 
-#: includes/classes/API/SubscriptionsController.php:357
-#: release/includes/classes/API/SubscriptionsController.php:339
+#: includes/classes/API/SubscriptionsController.php:355
+#: release/includes/classes/API/SubscriptionsController.php:357
 msgid "Sorry, you are not allowed to create subscriptions."
 msgstr ""
 
-#: includes/classes/API/SubscriptionsController.php:372
-#: release/includes/classes/API/SubscriptionsController.php:354
+#: includes/classes/API/SubscriptionsController.php:370
+#: release/includes/classes/API/SubscriptionsController.php:372
 msgid "Cannot create existing subscription."
 msgstr ""
 
-#: includes/classes/API/SubscriptionsController.php:376
-#: release/includes/classes/API/SubscriptionsController.php:358
+#: includes/classes/API/SubscriptionsController.php:374
+#: release/includes/classes/API/SubscriptionsController.php:376
 msgid "Subscription post does not exist."
 msgstr ""
 
-#: includes/classes/API/SubscriptionsController.php:428
-#: includes/classes/API/SubscriptionsController.php:451
-#: release/includes/classes/API/SubscriptionsController.php:410
-#: release/includes/classes/API/SubscriptionsController.php:433
+#: includes/classes/API/SubscriptionsController.php:426
+#: includes/classes/API/SubscriptionsController.php:449
+#: release/includes/classes/API/SubscriptionsController.php:428
+#: release/includes/classes/API/SubscriptionsController.php:451
 msgid "Invalid post ID."
 msgstr ""
 
-#: includes/classes/Authentication.php:138
+#: includes/classes/Authentication.php:136
 #: release/includes/classes/Authentication.php:138
 msgid "Authorization error:"
 msgstr ""
@@ -222,85 +222,85 @@ msgstr ""
 msgid "Password"
 msgstr ""
 
-#: includes/classes/Authentications/WordPressBasicAuth.php:162
+#: includes/classes/Authentications/WordPressBasicAuth.php:163
 #: release/includes/classes/Authentications/WordPressBasicAuth.php:162
 msgid "(Change)"
 msgstr ""
 
 #. translators: %s: Application Passwords documentation URL
-#: includes/classes/Authentications/WordPressBasicAuth.php:177
+#: includes/classes/Authentications/WordPressBasicAuth.php:178
 #: release/includes/classes/Authentications/WordPressBasicAuth.php:177
 #, php-format
 msgid "<strong>Important:</strong> We strongly recommend using the <a href=\"%s\">Application Passwords</a> feature on the site you are connecting to in order to create a unique password for this connection. This helps limit the use of your primary password and will allow you to revoke access in the future if needed."
 msgstr ""
 
 #. translators: %1$s URL of wordpress.com applications manager.
-#: includes/classes/Authentications/WordPressDotcomOauth2Authentication.php:115
+#: includes/classes/Authentications/WordPressDotcomOauth2Authentication.php:113
 #: release/includes/classes/Authentications/WordPressDotcomOauth2Authentication.php:115
 #, php-format
 msgid "To connect, first <a href=\"%1$s\">create an application with the WordPress.com applications manager</a>."
 msgstr ""
 
 #. translators: %1$s Redirect URL for WordPress.com application displayed as bold text.
-#: includes/classes/Authentications/WordPressDotcomOauth2Authentication.php:126
+#: includes/classes/Authentications/WordPressDotcomOauth2Authentication.php:124
 #: release/includes/classes/Authentications/WordPressDotcomOauth2Authentication.php:126
 #, php-format
 msgid "Use the following redirect URL when creating your application: %1$s"
 msgstr ""
 
-#: includes/classes/Authentications/WordPressDotcomOauth2Authentication.php:139
+#: includes/classes/Authentications/WordPressDotcomOauth2Authentication.php:137
 #: release/includes/classes/Authentications/WordPressDotcomOauth2Authentication.php:139
 msgid "Start Setup"
 msgstr ""
 
-#: includes/classes/Authentications/WordPressDotcomOauth2Authentication.php:150
+#: includes/classes/Authentications/WordPressDotcomOauth2Authentication.php:148
 #: release/includes/classes/Authentications/WordPressDotcomOauth2Authentication.php:150
 msgid "Connection Authorized"
 msgstr ""
 
-#: includes/classes/Authentications/WordPressDotcomOauth2Authentication.php:150
+#: includes/classes/Authentications/WordPressDotcomOauth2Authentication.php:148
 #: release/includes/classes/Authentications/WordPressDotcomOauth2Authentication.php:150
 msgid "Change credentials."
 msgstr ""
 
-#: includes/classes/Authentications/WordPressDotcomOauth2Authentication.php:183
+#: includes/classes/Authentications/WordPressDotcomOauth2Authentication.php:181
 #: release/includes/classes/Authentications/WordPressDotcomOauth2Authentication.php:183
 msgid "WordPress.com Application Client ID and Client Secret: "
 msgstr ""
 
-#: includes/classes/Authentications/WordPressDotcomOauth2Authentication.php:186
+#: includes/classes/Authentications/WordPressDotcomOauth2Authentication.php:184
 #: release/includes/classes/Authentications/WordPressDotcomOauth2Authentication.php:186
 msgid "Client ID"
 msgstr ""
 
-#: includes/classes/Authentications/WordPressDotcomOauth2Authentication.php:189
+#: includes/classes/Authentications/WordPressDotcomOauth2Authentication.php:187
 #: release/includes/classes/Authentications/WordPressDotcomOauth2Authentication.php:189
 msgid "Client Secret"
 msgstr ""
 
-#: includes/classes/Authentications/WordPressDotcomOauth2Authentication.php:194
+#: includes/classes/Authentications/WordPressDotcomOauth2Authentication.php:192
 #: release/includes/classes/Authentications/WordPressDotcomOauth2Authentication.php:194
 msgid "Authorize Connection with WordPress.com"
 msgstr ""
 
 #. translators: %s: method name
 #: includes/classes/DistributorPost.php:264
-#: release/includes/classes/DistributorPost.php:261
+#: release/includes/classes/DistributorPost.php:264
 #, php-format
 msgid "Call to undefined method %s"
 msgstr ""
 
 #: includes/classes/DistributorPost.php:274
-#: release/includes/classes/DistributorPost.php:271
+#: release/includes/classes/DistributorPost.php:274
 msgid "DistributorPost object was called from a switched site."
 msgstr ""
 
-#: includes/classes/ExternalConnection.php:155
+#: includes/classes/ExternalConnection.php:154
 #: release/includes/classes/ExternalConnection.php:155
 msgid "External connection not found."
 msgstr ""
 
-#: includes/classes/ExternalConnection.php:161
+#: includes/classes/ExternalConnection.php:160
 #: release/includes/classes/ExternalConnection.php:161
 msgid "External connection type is not registered."
 msgstr ""
@@ -313,7 +313,7 @@ msgid "Edit \"%s\""
 msgstr ""
 
 #: includes/classes/ExternalConnectionListTable.php:74
-#: includes/classes/PullListTable.php:374
+#: includes/classes/PullListTable.php:404
 #: release/includes/classes/ExternalConnectionListTable.php:74
 #: release/includes/classes/PullListTable.php:374
 msgid "Edit"
@@ -356,142 +356,148 @@ msgstr ""
 msgid "Delete Permanently"
 msgstr ""
 
-#: includes/classes/ExternalConnections/WordPressExternalConnection.php:209
-#: release/includes/classes/ExternalConnections/WordPressExternalConnection.php:208
+#: includes/classes/ExternalConnections/WordPressExternalConnection.php:227
+#: release/includes/classes/ExternalConnections/WordPressExternalConnection.php:209
 msgid "Endpoint URL must be set."
 msgstr ""
 
-#: includes/classes/ExternalConnections/WordPressExternalConnection.php:257
-#: includes/classes/ExternalConnections/WordPressExternalConnection.php:671
-#: release/includes/classes/ExternalConnections/WordPressExternalConnection.php:256
-#: release/includes/classes/ExternalConnections/WordPressExternalConnection.php:654
+#: includes/classes/ExternalConnections/WordPressExternalConnection.php:273
+#: includes/classes/ExternalConnections/WordPressExternalConnection.php:683
+#: includes/classes/ExternalConnections/WordPressExternalConnection.php:732
+#: release/includes/classes/ExternalConnections/WordPressExternalConnection.php:257
+#: release/includes/classes/ExternalConnections/WordPressExternalConnection.php:671
 msgid "Could not connect to API endpoint."
 msgstr ""
 
-#: includes/classes/ExternalConnections/WordPressExternalConnection.php:263
-#: release/includes/classes/ExternalConnections/WordPressExternalConnection.php:262
+#: includes/classes/ExternalConnections/WordPressExternalConnection.php:279
+#: release/includes/classes/ExternalConnections/WordPressExternalConnection.php:263
 msgid "API endpoint error."
 msgstr ""
 
-#: includes/classes/ExternalConnections/WordPressExternalConnection.php:272
-#: includes/classes/ExternalConnections/WordPressExternalConnection.php:514
-#: includes/classes/ExternalConnections/WordPressExternalConnection.php:623
-#: includes/classes/ExternalConnections/WordPressExternalConnection.php:677
-#: release/includes/classes/ExternalConnections/WordPressExternalConnection.php:271
-#: release/includes/classes/ExternalConnections/WordPressExternalConnection.php:503
-#: release/includes/classes/ExternalConnections/WordPressExternalConnection.php:606
-#: release/includes/classes/ExternalConnections/WordPressExternalConnection.php:660
+#: includes/classes/ExternalConnections/WordPressExternalConnection.php:288
+#: includes/classes/ExternalConnections/WordPressExternalConnection.php:528
+#: includes/classes/ExternalConnections/WordPressExternalConnection.php:635
+#: includes/classes/ExternalConnections/WordPressExternalConnection.php:689
+#: includes/classes/ExternalConnections/WordPressExternalConnection.php:738
+#: release/includes/classes/ExternalConnections/WordPressExternalConnection.php:272
+#: release/includes/classes/ExternalConnections/WordPressExternalConnection.php:514
+#: release/includes/classes/ExternalConnections/WordPressExternalConnection.php:623
+#: release/includes/classes/ExternalConnections/WordPressExternalConnection.php:677
 msgid "Response body is empty."
 msgstr ""
 
-#: includes/classes/ExternalConnections/WordPressExternalConnection.php:286
-#: release/includes/classes/ExternalConnections/WordPressExternalConnection.php:285
+#: includes/classes/ExternalConnections/WordPressExternalConnection.php:302
+#: release/includes/classes/ExternalConnections/WordPressExternalConnection.php:286
 msgid "Pulling content from external connections requires Distributor version 2.0.0 or later."
 msgstr ""
 
-#: includes/classes/ExternalConnections/WordPressExternalConnection.php:290
-#: release/includes/classes/ExternalConnections/WordPressExternalConnection.php:289
+#: includes/classes/ExternalConnections/WordPressExternalConnection.php:306
+#: release/includes/classes/ExternalConnections/WordPressExternalConnection.php:290
 msgid "Please update Distributor on the site you are pulling content from."
 msgstr ""
 
-#: includes/classes/ExternalConnections/WordPressExternalConnection.php:365
-#: release/includes/classes/ExternalConnections/WordPressExternalConnection.php:364
+#: includes/classes/ExternalConnections/WordPressExternalConnection.php:380
+#: release/includes/classes/ExternalConnections/WordPressExternalConnection.php:365
 msgid "No post found."
 msgstr ""
 
-#: includes/classes/ExternalConnections/WordPressExternalConnection.php:484
-#: includes/classes/InternalConnections/NetworkSiteConnection.php:76
-#: release/includes/classes/ExternalConnections/WordPressExternalConnection.php:473
-#: release/includes/classes/InternalConnections/NetworkSiteConnection.php:75
+#: includes/classes/ExternalConnections/WordPressExternalConnection.php:498
+#: includes/classes/InternalConnections/NetworkSiteConnection.php:90
+#: release/includes/classes/ExternalConnections/WordPressExternalConnection.php:484
+#: release/includes/classes/InternalConnections/NetworkSiteConnection.php:76
 msgid "Post ID required to push."
 msgstr ""
 
-#: includes/classes/ExternalConnections/WordPressExternalConnection.php:488
-#: includes/classes/InternalConnections/NetworkSiteConnection.php:80
-#: release/includes/classes/ExternalConnections/WordPressExternalConnection.php:477
-#: release/includes/classes/InternalConnections/NetworkSiteConnection.php:79
+#: includes/classes/ExternalConnections/WordPressExternalConnection.php:502
+#: includes/classes/InternalConnections/NetworkSiteConnection.php:94
+#: release/includes/classes/ExternalConnections/WordPressExternalConnection.php:488
+#: release/includes/classes/InternalConnections/NetworkSiteConnection.php:80
 msgid "Post does not exist."
 msgstr ""
 
-#: includes/classes/ExternalConnections/WordPressExternalConnection.php:522
-#: release/includes/classes/ExternalConnections/WordPressExternalConnection.php:511
+#: includes/classes/ExternalConnections/WordPressExternalConnection.php:536
+#: release/includes/classes/ExternalConnections/WordPressExternalConnection.php:522
 msgid "Could not determine remote post type endpoint."
 msgstr ""
 
-#: includes/classes/ExternalConnections/WordPressExternalConnection.php:629
-#: release/includes/classes/ExternalConnections/WordPressExternalConnection.php:612
+#: includes/classes/ExternalConnections/WordPressExternalConnection.php:641
+#: release/includes/classes/ExternalConnections/WordPressExternalConnection.php:629
 msgid "Could not determine remote post ID."
 msgstr ""
 
-#: includes/classes/InternalConnections/NetworkSiteConnection.php:106
-#: release/includes/classes/InternalConnections/NetworkSiteConnection.php:105
+#: includes/classes/ExternalConnections/WordPressExternalConnection.php:754
+msgid "No taxonomies found."
+msgstr ""
+
+#: includes/classes/InternalConnections/NetworkSiteConnection.php:121
+#: release/includes/classes/InternalConnections/NetworkSiteConnection.php:106
 msgid "Invalid remote post ID"
 msgstr ""
 
-#: includes/classes/InternalConnections/NetworkSiteConnection.php:248
-#: release/includes/classes/InternalConnections/NetworkSiteConnection.php:235
+#: includes/classes/InternalConnections/NetworkSiteConnection.php:255
+#: release/includes/classes/InternalConnections/NetworkSiteConnection.php:248
 msgid "The dt_push_post action has been deprecated. Please use dt_push_network_post or dt_push_external_post instead."
 msgstr ""
 
-#: includes/classes/PullListTable.php:58
+#: includes/classes/PullListTable.php:63
 #: release/includes/classes/PullListTable.php:58
 msgid "Name"
 msgstr ""
 
-#: includes/classes/PullListTable.php:59
+#: includes/classes/PullListTable.php:64
 #: release/includes/classes/PullListTable.php:59
 msgid "Post Type"
 msgstr ""
 
-#: includes/classes/PullListTable.php:60
+#: includes/classes/PullListTable.php:78
 #: release/includes/classes/PullListTable.php:60
 msgid "Date"
 msgstr ""
 
-#: includes/classes/PullListTable.php:115
+#: includes/classes/PullListTable.php:130
 #: release/includes/classes/PullListTable.php:115
 msgid "New"
 msgstr ""
 
-#: includes/classes/PullListTable.php:116
-#: includes/classes/PullListTable.php:180
+#: includes/classes/PullListTable.php:131
+#: includes/classes/PullListTable.php:195
 #: release/includes/classes/PullListTable.php:116
 #: release/includes/classes/PullListTable.php:180
 msgid "Pulled"
 msgstr ""
 
-#: includes/classes/PullListTable.php:117
-#: includes/classes/PullListTable.php:177
+#: includes/classes/PullListTable.php:132
+#: includes/classes/PullListTable.php:192
 #: release/includes/classes/PullListTable.php:117
 #: release/includes/classes/PullListTable.php:177
 msgid "Skipped"
 msgstr ""
 
-#: includes/classes/PullListTable.php:148
+#: includes/classes/PullListTable.php:163
 #: release/includes/classes/PullListTable.php:148
 msgid "Select bulk action"
 msgstr ""
 
-#: includes/classes/PullListTable.php:157
+#: includes/classes/PullListTable.php:172
 #: release/includes/classes/PullListTable.php:157
 msgid "Apply"
 msgstr ""
 
-#: includes/classes/PullListTable.php:191
+#: includes/classes/PullListTable.php:206
 #: release/includes/classes/PullListTable.php:191
 msgid "Post deleted."
 msgstr ""
 
-#: includes/classes/PullListTable.php:193
-#: includes/classes/PullListTable.php:214
+#: includes/classes/PullListTable.php:208
+#: includes/classes/PullListTable.php:229
 #: release/includes/classes/PullListTable.php:193
 #: release/includes/classes/PullListTable.php:214
 msgid "Y/m/d g:i:s a"
 msgstr ""
 
 #. translators: %s: a human readable time
-#: includes/classes/PullListTable.php:199
-#: includes/classes/PullListTable.php:222
+#: includes/classes/PullListTable.php:214
+#: includes/classes/PullListTable.php:237
 #: release/includes/classes/PullListTable.php:199
 #: release/includes/classes/PullListTable.php:222
 #, php-format
@@ -499,47 +505,47 @@ msgid "%s ago"
 msgstr ""
 
 #. translators: %s: time of pull
-#: includes/classes/PullListTable.php:205
+#: includes/classes/PullListTable.php:220
 #: release/includes/classes/PullListTable.php:205
 #, php-format
 msgid "Pulled %s"
 msgstr ""
 
-#: includes/classes/PullListTable.php:210
-#: includes/classes/PullListTable.php:211
+#: includes/classes/PullListTable.php:225
+#: includes/classes/PullListTable.php:226
 #: release/includes/classes/PullListTable.php:210
 #: release/includes/classes/PullListTable.php:211
 msgid "Unpublished"
 msgstr ""
 
-#: includes/classes/PullListTable.php:224
+#: includes/classes/PullListTable.php:239
 #: release/includes/classes/PullListTable.php:224
 msgid "Y/m/d"
 msgstr ""
 
-#: includes/classes/PullListTable.php:229
+#: includes/classes/PullListTable.php:244
 #: release/includes/classes/PullListTable.php:229
 msgid "Published"
 msgstr ""
 
-#: includes/classes/PullListTable.php:232
+#: includes/classes/PullListTable.php:247
 #: release/includes/classes/PullListTable.php:232
 msgid "Missed schedule"
 msgstr ""
 
-#: includes/classes/PullListTable.php:234
+#: includes/classes/PullListTable.php:249
 #: release/includes/classes/PullListTable.php:234
 msgid "Scheduled"
 msgstr ""
 
-#: includes/classes/PullListTable.php:237
+#: includes/classes/PullListTable.php:252
 #: release/includes/classes/PullListTable.php:237
 msgid "Last Modified"
 msgstr ""
 
-#: includes/classes/PullListTable.php:342
-#: includes/classes/PullListTable.php:358
-#: includes/classes/PullListTable.php:643
+#: includes/classes/PullListTable.php:372
+#: includes/classes/PullListTable.php:388
+#: includes/classes/PullListTable.php:741
 #: release/includes/classes/PullListTable.php:342
 #: release/includes/classes/PullListTable.php:358
 #: release/includes/classes/PullListTable.php:643
@@ -548,10 +554,10 @@ msgstr ""
 msgid "Pull as draft"
 msgstr ""
 
-#: includes/classes/PullListTable.php:342
-#: includes/classes/PullListTable.php:358
-#: includes/classes/PullListTable.php:588
-#: includes/classes/PullListTable.php:594
+#: includes/classes/PullListTable.php:372
+#: includes/classes/PullListTable.php:388
+#: includes/classes/PullListTable.php:634
+#: includes/classes/PullListTable.php:640
 #: release/includes/classes/PullListTable.php:342
 #: release/includes/classes/PullListTable.php:358
 #: release/includes/classes/PullListTable.php:588
@@ -561,56 +567,66 @@ msgstr ""
 msgid "Pull"
 msgstr ""
 
-#: includes/classes/PullListTable.php:343
-#: includes/classes/PullListTable.php:361
-#: includes/classes/PullListTable.php:370
+#: includes/classes/PullListTable.php:373
+#: includes/classes/PullListTable.php:391
+#: includes/classes/PullListTable.php:400
 #: release/includes/classes/PullListTable.php:343
 #: release/includes/classes/PullListTable.php:361
 #: release/includes/classes/PullListTable.php:370
 msgid "View"
 msgstr ""
 
-#: includes/classes/PullListTable.php:345
-#: includes/classes/PullListTable.php:589
+#: includes/classes/PullListTable.php:375
+#: includes/classes/PullListTable.php:635
 #: release/includes/classes/PullListTable.php:345
 #: release/includes/classes/PullListTable.php:589
 msgid "Skip"
 msgstr ""
 
-#: includes/classes/PullListTable.php:360
-#: includes/classes/PullListTable.php:595
+#: includes/classes/PullListTable.php:390
+#: includes/classes/PullListTable.php:641
 #: release/includes/classes/PullListTable.php:360
 #: release/includes/classes/PullListTable.php:595
 msgid "Unskip"
 msgstr ""
 
-#: includes/classes/PullListTable.php:382
+#: includes/classes/PullListTable.php:412
 #: release/includes/classes/PullListTable.php:382
 msgid "(no title)"
 msgstr ""
 
 #. translators: %s: the post title or draft
-#: includes/classes/PullListTable.php:571
+#: includes/classes/PullListTable.php:617
 #: release/includes/classes/PullListTable.php:571
 #, php-format
 msgid "Select %s"
 msgstr ""
 
-#: includes/classes/PullListTable.php:587
-#: includes/classes/PullListTable.php:593
+#: includes/classes/PullListTable.php:633
+#: includes/classes/PullListTable.php:639
 #: release/includes/classes/PullListTable.php:587
 #: release/includes/classes/PullListTable.php:593
 msgid "Bulk Actions"
 msgstr ""
 
-#: includes/classes/PullListTable.php:625
+#: includes/classes/PullListTable.php:689
 #: release/includes/classes/PullListTable.php:625
 msgid "View all"
 msgstr ""
 
-#: includes/classes/PullListTable.php:633
+#. translators: %s: taxonomy label
+#: includes/classes/PullListTable.php:710
+#, php-format
+msgid "All %s"
+msgstr ""
+
+#: includes/classes/PullListTable.php:723
 #: release/includes/classes/PullListTable.php:633
 msgid "Filter"
+msgstr ""
+
+#: includes/classes/PullListTable.php:728
+msgid "Reset Filters"
 msgstr ""
 
 #: dist/js/admin-external-connection.min.js:1
@@ -619,6 +635,7 @@ msgid "Checking endpoint…"
 msgstr ""
 
 #: dist/js/admin-external-connection.min.js:1
+#: release/dist/js/admin-external-connection.min.js:1
 msgid "Did you mean:"
 msgstr ""
 
@@ -714,7 +731,7 @@ msgid_plural "Distributed to %1$s connections."
 msgstr[0] ""
 msgstr[1] ""
 
-#. translators: 1: Syndication date and time.
+#. translators: 1: Syndication date and time; 2: Original location name
 #: dist/js/gutenberg-plugin.min.js:4
 #: release/dist/js/gutenberg-plugin.min.js:1
 #, js-format
@@ -722,6 +739,7 @@ msgid "Pulled on %1$s from %2$s"
 msgstr ""
 
 #: dist/js/gutenberg-plugin.min.js:4
+#: release/dist/js/gutenberg-plugin.min.js:1
 msgid "This post has been unlinked from the"
 msgstr ""
 
@@ -737,10 +755,12 @@ msgid "Restore link to Original"
 msgstr ""
 
 #: dist/js/gutenberg-plugin.min.js:4
+#: release/dist/js/gutenberg-plugin.min.js:1
 msgid "Restoring the link to the"
 msgstr ""
 
 #: dist/js/gutenberg-plugin.min.js:4
+#: release/dist/js/gutenberg-plugin.min.js:1
 msgid "will start updating this post automatically from the Original, overwriting current content."
 msgstr ""
 
@@ -749,7 +769,7 @@ msgstr ""
 msgid "Restore link"
 msgstr ""
 
-#. translators: 1: Syndication date and time.
+#. translators: 1: Syndication date and time; 2: Original location name
 #: dist/js/gutenberg-plugin.min.js:5
 #: release/dist/js/gutenberg-plugin.min.js:1
 #, js-format
@@ -757,6 +777,7 @@ msgid "Pulled & linked on %1$s from %2$s"
 msgstr ""
 
 #: dist/js/gutenberg-plugin.min.js:5
+#: release/dist/js/gutenberg-plugin.min.js:1
 msgid "Updating the"
 msgstr ""
 
@@ -850,23 +871,3 @@ msgid "Selected connection (%d)"
 msgid_plural "Selected connections (%d)"
 msgstr[0] ""
 msgstr[1] ""
-
-#: release/dist/js/admin-external-connection.min.js:1
-msgid "Did you mean: "
-msgstr ""
-
-#: release/dist/js/gutenberg-plugin.min.js:1
-msgid "This post has been unlinked from the "
-msgstr ""
-
-#: release/dist/js/gutenberg-plugin.min.js:1
-msgid "Restoring the link to the "
-msgstr ""
-
-#: release/dist/js/gutenberg-plugin.min.js:1
-msgid " will start updating this post automatically from the Original, overwriting current content."
-msgstr ""
-
-#: release/dist/js/gutenberg-plugin.min.js:1
-msgid "Updating the "
-msgstr ""
