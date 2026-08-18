@@ -4,6 +4,58 @@ All notable changes to this project will be documented in this file, per [the Ke
 
 ## [Unreleased] - TBD
 
+## [2.3.0] - 2026-08-18
+**Note that this release bumps the WordPress minimum supported version from 6.6 to 6.8.**
+
+### Added
+- Add categories to pull screen (props [@kirtangajjar](https://github.com/kirtangajjar), [@sanketio](https://github.com/sanketio), [@jeffpaul](https://github.com/jeffpaul), [@faisal-alvi](https://github.com/faisal-alvi), [@vikrampm1](https://github.com/vikrampm1), [@Sidsector9](https://github.com/Sidsector9), [@dkotter](https://github.com/dkotter) via [#1237](https://github.com/10up/distributor/pull/1237))
+- Taxonomy filter for remote content pulls—allows filtering by category, tag, or custom taxonomy (props [@sanketio](https://github.com/sanketio), [@jeffpaul](https://github.com/jeffpaul), [@peterwilsoncc](https://github.com/peterwilsoncc), [@dkotter](https://github.com/dkotter) via [#1327](https://github.com/10up/distributor/pull/1327))
+- Provide way to delete all Distributor data on plugin deletion, utilizing the `DT_REMOVE_ALL_DATA` constant. (props [@dinhtungdu](https://github.com/dinhtungdu), [@faisal-alvi](https://github.com/faisal-alvi), [@peterwilsoncc](https://github.com/peterwilsoncc), [@ravinderk](https://github.com/ravinderk), [@qasumitbagthariya](https://github.com/qasumitbagthariya), [@jeffpaul](https://github.com/jeffpaul), [@dkotter](https://github.com/dkotter) via [#540](https://github.com/10up/distributor/pull/540))
+
+### Changed
+- Bumped WordPress tested-up-to version 7.1 (props [@phpbits](https://github.com/phpbits), [@peterwilsoncc](https://github.com/peterwilsoncc), [@zamanq](https://github.com/zamanq), [@dkotter](https://github.com/dkotter) via [#1383](https://github.com/10up/distributor/pull/1383), [#1370](https://github.com/10up/distributor/pull/1370), [#1387](https://github.com/10up/distributor/pull/1387))
+- Bumped WordPress minimum supported version to 6.8 (props [@peterwilsoncc](https://github.com/peterwilsoncc), [@dkotter](https://github.com/dkotter) via [#1383](https://github.com/10up/distributor/pull/1383))
+- Link to original Post (props [@gustavo-p-rossler](https://github.com/gustavo-p-rossler), [@jeffpaul](https://github.com/jeffpaul), [@peterwilsoncc](https://github.com/peterwilsoncc), [@dkotter](https://github.com/dkotter), [@sanketio](https://github.com/sanketio) via [#1280](https://github.com/10up/distributor/pull/1280))
+- Update npm dependencies via npm audit fix. (props [@peterwilsoncc](https://github.com/peterwilsoncc), [@dkotter](https://github.com/dkotter) via [#1354](https://github.com/10up/distributor/pull/1354))
+- Update to Node version 20 for build and development tools. (props [@peterwilsoncc](https://github.com/peterwilsoncc), [@dkotter](https://github.com/dkotter) via [#1354](https://github.com/10up/distributor/pull/1354))
+- Upgrade the Plugin Update Checker library from 5.1 to 5.7 (props [@peterwilsoncc](https://github.com/peterwilsoncc), [@dkotter](https://github.com/dkotter) via [#1380](https://github.com/10up/distributor/pull/1380))
+
+### Fixed
+- Ensure our WordPress Playground integration works properly without any deprecation warnings (props [@ianfs-com](https://github.com/ianfs-com), [@dkotter](https://github.com/dkotter), [@jeffpaul](https://github.com/jeffpaul) via [#1357](https://github.com/10up/distributor/pull/1357))
+- Ensure the block index is correctly propagated during recursive processing of registered data, so inner blocks (e.g., images inside columns) receive the right `extra_data` on distribution. (props [@ggutenberg](https://github.com/ggutenberg), [@jeffpaul](https://github.com/jeffpaul), [@peterwilsoncc](https://github.com/peterwilsoncc) via [#1363](https://github.com/10up/distributor/pull/1363))
+- Prevent undefined array key warning in `DistributorPost::get_extra_data()` (props [@oleksandrhurskyi](https://github.com/oleksandrhurskyi), [@peterwilsoncc](https://github.com/peterwilsoncc) via [#1372](https://github.com/10up/distributor/pull/1372))
+- Correct escaping of `distributor_the_original_site_link()` (props [@thisismyurl](https://github.com/thisismyurl), [@peterwilsoncc](https://github.com/peterwilsoncc) via [#1379](https://github.com/10up/distributor/pull/1379))
+- Fixed args type (props [@zamanq](https://github.com/zamanq), [@peterwilsoncc](https://github.com/peterwilsoncc) via [#1387](https://github.com/10up/distributor/pull/1387))
+- Improved database query for getting a users authorized sites on very large networks. (props [@jeffpaul](https://github.com/jeffpaul), [@boonebgorges](https://github.com/boonebgorges), [@peterwilsoncc](https://github.com/peterwilsoncc), [@kirtangajjar](https://github.com/kirtangajjar), [@dkotter](https://github.com/dkotter), [@vikrampm1](https://github.com/vikrampm1), [@Sidsector9](https://github.com/Sidsector9) via [#1179](https://github.com/10up/distributor/pull/1179))
+- Post data not slashed when receive a subscription update (props [@chandrapatel](https://github.com/chandrapatel), [@peterwilsoncc](https://github.com/peterwilsoncc), [@dkotter](https://github.com/dkotter) via [#1310](https://github.com/10up/distributor/pull/1310))
+
+### Security
+- Bump `basic-ftp` from 5.1.0 to 5.2.0 (props [@dependabot[bot]](https://github.com/apps/dependabot), [@dkotter](https://github.com/dkotter) via [#1362](https://github.com/10up/distributor/pull/1362))
+- Bump `flatted` from 3.3.3 to 3.4.2 (props [@dependabot[bot]](https://github.com/apps/dependabot), [@dkotter](https://github.com/dkotter) via [#1366](https://github.com/10up/distributor/pull/1366))
+- Bump `immutable` from 5.1.4 to 5.1.5 (props [@dependabot[bot]](https://github.com/apps/dependabot), [@dkotter](https://github.com/dkotter) via [#1364](https://github.com/10up/distributor/pull/1364))
+- Bump `lodash` from 4.17.21 to 4.17.23 (props [@dependabot[bot]](https://github.com/apps/dependabot), [@dkotter](https://github.com/dkotter) via [#1355](https://github.com/10up/distributor/pull/1355))
+- Bump `lodash-es` from 4.17.22 to 4.17.23 (props [@dependabot[bot]](https://github.com/apps/dependabot), [@dkotter](https://github.com/dkotter) via [#1356](https://github.com/10up/distributor/pull/1356))
+- Bump `node-forge` from 1.3.3 to 1.4.0 (props [@dependabot[bot]](https://github.com/apps/dependabot), [@jeffpaul](https://github.com/jeffpaul), [@peterwilsoncc](https://github.com/peterwilsoncc), [@dependabot](https://github.com/dependabot), [@dkotter](https://github.com/dkotter) via [#1369](https://github.com/10up/distributor/pull/1369))
+- Bump `phpunit/phpunit` from 8.5.29 to 8.5.52 (props [@dependabot[bot]](https://github.com/apps/dependabot), [@dkotter](https://github.com/dkotter) via [#1358](https://github.com/10up/distributor/pull/1358))
+- Bump `qs` from 6.14.1 to 6.14.2 (props [@dependabot[bot]](https://github.com/apps/dependabot), [@dkotter](https://github.com/dkotter) via [#1359](https://github.com/10up/distributor/pull/1359))
+- Bump `simple-git` from 3.30.0 to 3.33.0 (props [@dependabot[bot]](https://github.com/apps/dependabot), [@dkotter](https://github.com/dkotter) via [#1367](https://github.com/10up/distributor/pull/1367))
+- Bump `svgo` from 3.3.2 to 3.3.3 (props [@dependabot[bot]](https://github.com/apps/dependabot), [@dkotter](https://github.com/dkotter) via [#1365](https://github.com/10up/distributor/pull/1365))
+- Bump `systeminformation` from 5.30.5 to 5.31.1 (props [@dependabot[bot]](https://github.com/apps/dependabot), [@jeffpaul](https://github.com/jeffpaul), [@dkotter](https://github.com/dkotter) via [#1361](https://github.com/10up/distributor/pull/1361))
+- Bump `tar-fs` from 3.1.0 to 3.1.1 (props [@dependabot[bot]](https://github.com/apps/dependabot), [@jeffpaul](https://github.com/jeffpaul), [@dkotter](https://github.com/dkotter) via [#1338](https://github.com/10up/distributor/pull/1338))
+- Bump `picomatch` from 2.3.1 to 2.3.2, and 4.0.3 to 4.0.4 (props [@dependabot[bot]](https://github.com/apps/dependabot), [@dkotter](https://github.com/dkotter) via [#1368](https://github.com/10up/distributor/pull/1368))
+
+### Developer
+- Add Patchstack security-reporting FAQ. (props [@jeffpaul](https://github.com/jeffpaul) via [#1353](https://github.com/10up/distributor/pull/1353))
+- Composer dev packages now require PHP 8.0 or later. (props [@peterwilsoncc](https://github.com/peterwilsoncc), [@dkotter](https://github.com/dkotter) via [#1386](https://github.com/10up/distributor/pull/1386))
+- Remove deprecation warnings in test suite. (props [@peterwilsoncc](https://github.com/peterwilsoncc), [@dkotter](https://github.com/dkotter) via [#1388](https://github.com/10up/distributor/pull/1388))
+- Replaced hookdoc with WP Hooks Documentor (props [@jeffpaul](https://github.com/jeffpaul), [@iamdharmesh](https://github.com/iamdharmesh), [@dkotter](https://github.com/dkotter), [@peterwilsoncc](https://github.com/peterwilsoncc) via [#1337](https://github.com/10up/distributor/pull/1337))
+- Tests: Ensure images are saved to classic editor post content (flaky test fix). (props [@peterwilsoncc](https://github.com/peterwilsoncc), [@dkotter](https://github.com/dkotter) via [#1354](https://github.com/10up/distributor/pull/1354))
+- Tests: Force click view post buttons in toolbar. (props [@peterwilsoncc](https://github.com/peterwilsoncc), [@dkotter](https://github.com/dkotter) via [#1354](https://github.com/10up/distributor/pull/1354))
+- Update `@wordpress/env` to 10.38.0 (props [@peterwilsoncc](https://github.com/peterwilsoncc), [@dkotter](https://github.com/dkotter) via [#1354](https://github.com/10up/distributor/pull/1354))
+- Update `@wordpress/scripts` to 31.3.0 (props [@peterwilsoncc](https://github.com/peterwilsoncc), [@dkotter](https://github.com/dkotter) via [#1354](https://github.com/10up/distributor/pull/1354))
+- Update `PHPCS` to 3.13.6. (props [@peterwilsoncc](https://github.com/peterwilsoncc), [@dkotter](https://github.com/dkotter) via [#1386](https://github.com/10up/distributor/pull/1386))
+- Update `cypress` to 15.9.0 (props [@peterwilsoncc](https://github.com/peterwilsoncc), [@dkotter](https://github.com/dkotter) via [#1354](https://github.com/10up/distributor/pull/1354))
+
 ## [2.2.0] - 2025-09-08
 **Note that this release bumps the WordPress minimum supported version from 6.5 to 6.6.**
 
@@ -625,6 +677,7 @@ This adds a post type selector when viewing the Pull Content list for both exter
 - Initial closed release.
 
 [Unreleased]: https://github.com/10up/distributor/compare/trunk...develop
+[2.3.0]: https://github.com/10up/distributor/compare/2.2.0...2.3.0
 [2.2.0]: https://github.com/10up/distributor/compare/2.1.0...2.2.0
 [2.1.0]: https://github.com/10up/distributor/compare/2.0.6...2.1.0
 [2.0.6]: https://github.com/10up/distributor/compare/2.0.5...2.0.6

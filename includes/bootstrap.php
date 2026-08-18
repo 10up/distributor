@@ -227,7 +227,7 @@ add_action(
 /**
  * Add a deactivation modal when deactivating the plugin.
  *
- * @since x.x.x
+ * @since 2.3.0
  */
 function register_deactivation_modal() {
 	// Exit if deactivating plugin from sub site.

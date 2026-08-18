@@ -2,7 +2,7 @@
 Contributors:      10up
 Tags:              content, distribution, syndication, management
 Tested up to:      7.1
-Stable tag:        2.2.0
+Stable tag:        2.3.0
 License:           GPLv2 or later
 License URI:       http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -37,6 +37,9 @@ There are two connection types: `internal` and `external`.
 Please report security bugs found in the source code of the undefined plugin through the [Patchstack Vulnerability Disclosure  Program](https://patchstack.com/database/vdp/2198169c-4564-4fae-bc07-9e737721a9b2).  The Patchstack team will assist you with verification, CVE assignment, and notify the developers of this plugin.
 
 == Upgrade Notice ==
+
+= 2.3.0 =
+**Distributor now requires WordPress 6.8 or later.**
 
 = 2.2.0 =
 **Distributor now requires WordPress 6.6 or later.**
