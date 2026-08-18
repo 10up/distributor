@@ -3,7 +3,7 @@
  * Distributor uninstall script.
  *
  * @package distributor
- * @since   x.x.x
+ * @since   2.3.0
  */
 
  // phpcs:disable WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber
@@ -97,7 +97,7 @@ if ( defined( 'DT_REMOVE_ALL_DATA' ) && true === DT_REMOVE_ALL_DATA ) {
 				function ( $prefix ) use ( $wpdb ) {
 					return $wpdb->esc_like( $prefix ) . '%';
 				},
-				$option_prefixes 
+				$option_prefixes
 			)
 		);
 
@@ -153,8 +153,8 @@ if ( defined( 'DT_REMOVE_ALL_DATA' ) && true === DT_REMOVE_ALL_DATA ) {
 					function ( $prefix ) use ( $wpdb ) {
 						return $wpdb->esc_like( $prefix ) . '%';
 					},
-					$option_prefixes 
-				) 
+					$option_prefixes
+				)
 			)
 		);
 
@@ -179,7 +179,7 @@ if ( defined( 'DT_REMOVE_ALL_DATA' ) && true === DT_REMOVE_ALL_DATA ) {
 				function ( $key ) use ( $site_id ) {
 					return $site_id . ':' . $key;
 				},
-				$key_names 
+				$key_names
 			);
 			wp_cache_delete_multiple( $key_names, 'site-options' );
 		}
