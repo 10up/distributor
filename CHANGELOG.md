@@ -27,19 +27,6 @@ All notable changes to this project will be documented in this file, per [the Ke
 - Improved database query for getting a users authorized sites on very large networks. (props [@jeffpaul](https://github.com/jeffpaul), [@boonebgorges](https://github.com/boonebgorges), [@peterwilsoncc](https://github.com/peterwilsoncc), [@kirtangajjar](https://github.com/kirtangajjar), [@dkotter](https://github.com/dkotter), [@vikrampm1](https://github.com/vikrampm1), [@Sidsector9](https://github.com/Sidsector9) via [#1179](https://github.com/10up/distributor/pull/1179))
 - Post data not slashed when receive a subscription update (props [@chandrapatel](https://github.com/chandrapatel), [@peterwilsoncc](https://github.com/peterwilsoncc), [@dkotter](https://github.com/dkotter) via [#1310](https://github.com/10up/distributor/pull/1310))
 
-### Other
-- Developer - Add Patchstack security-reporting FAQ. (props [@jeffpaul](https://github.com/jeffpaul) via [#1353](https://github.com/10up/distributor/pull/1353))
-- Developer - Composer dev packages now require PHP 8.0 or later. (props [@peterwilsoncc](https://github.com/peterwilsoncc), [@dkotter](https://github.com/dkotter) via [#1386](https://github.com/10up/distributor/pull/1386))
-- Developer - Remove deprecation warnings in test suite. (props [@peterwilsoncc](https://github.com/peterwilsoncc), [@dkotter](https://github.com/dkotter) via [#1388](https://github.com/10up/distributor/pull/1388))
-- Developer - Replaced hookdoc with WP Hooks Documentor (props [@jeffpaul](https://github.com/jeffpaul), [@iamdharmesh](https://github.com/iamdharmesh), [@dkotter](https://github.com/dkotter), [@peterwilsoncc](https://github.com/peterwilsoncc) via [#1337](https://github.com/10up/distributor/pull/1337))
-- Developer - Tests: Ensure images are saved to classic editor post content (flaky test fix). (props [@peterwilsoncc](https://github.com/peterwilsoncc), [@dkotter](https://github.com/dkotter) via [#1354](https://github.com/10up/distributor/pull/1354))
-- Developer - Tests: Force click view post buttons in toolbar. (props [@peterwilsoncc](https://github.com/peterwilsoncc), [@dkotter](https://github.com/dkotter) via [#1354](https://github.com/10up/distributor/pull/1354))
-- Developer - Update @wordpress/env to 10.38.0 (props [@peterwilsoncc](https://github.com/peterwilsoncc), [@dkotter](https://github.com/dkotter) via [#1354](https://github.com/10up/distributor/pull/1354))
-- Developer - Update @wordpress/scripts to 31.3.0 (props [@peterwilsoncc](https://github.com/peterwilsoncc), [@dkotter](https://github.com/dkotter) via [#1354](https://github.com/10up/distributor/pull/1354))
-- Developer - Update PHPCS to 3.13.6. (props [@peterwilsoncc](https://github.com/peterwilsoncc), [@dkotter](https://github.com/dkotter) via [#1386](https://github.com/10up/distributor/pull/1386))
-- Developer - Update cypress to 15.9.0 (props [@peterwilsoncc](https://github.com/peterwilsoncc), [@dkotter](https://github.com/dkotter) via [#1354](https://github.com/10up/distributor/pull/1354))
-- n/a (props [@jeffpaul](https://github.com/jeffpaul), [@dkotter](https://github.com/dkotter) via [#1344](https://github.com/10up/distributor/pull/1344))
-
 ### Security
 - Bump `basic-ftp` from 5.1.0 to 5.2.0 (props [@dependabot[bot]](https://github.com/apps/dependabot), [@dkotter](https://github.com/dkotter) via [#1362](https://github.com/10up/distributor/pull/1362))
 - Bump `flatted` from 3.3.3 to 3.4.2 (props [@dependabot[bot]](https://github.com/apps/dependabot), [@dkotter](https://github.com/dkotter) via [#1366](https://github.com/10up/distributor/pull/1366))
@@ -54,6 +41,18 @@ All notable changes to this project will be documented in this file, per [the Ke
 - Bump `systeminformation` from 5.30.5 to 5.31.1 (props [@dependabot[bot]](https://github.com/apps/dependabot), [@jeffpaul](https://github.com/jeffpaul), [@dkotter](https://github.com/dkotter) via [#1361](https://github.com/10up/distributor/pull/1361))
 - Bump `tar-fs` from 3.1.0 to 3.1.1 (props [@dependabot[bot]](https://github.com/apps/dependabot), [@jeffpaul](https://github.com/jeffpaul), [@dkotter](https://github.com/dkotter) via [#1338](https://github.com/10up/distributor/pull/1338))
 - Bump `picomatch` from 2.3.1 to 2.3.2, and 4.0.3 to 4.0.4 (props [@dependabot[bot]](https://github.com/apps/dependabot), [@dkotter](https://github.com/dkotter) via [#1368](https://github.com/10up/distributor/pull/1368))
+
+### Developer
+- Add Patchstack security-reporting FAQ. (props [@jeffpaul](https://github.com/jeffpaul) via [#1353](https://github.com/10up/distributor/pull/1353))
+- Composer dev packages now require PHP 8.0 or later. (props [@peterwilsoncc](https://github.com/peterwilsoncc), [@dkotter](https://github.com/dkotter) via [#1386](https://github.com/10up/distributor/pull/1386))
+- Remove deprecation warnings in test suite. (props [@peterwilsoncc](https://github.com/peterwilsoncc), [@dkotter](https://github.com/dkotter) via [#1388](https://github.com/10up/distributor/pull/1388))
+- Replaced hookdoc with WP Hooks Documentor (props [@jeffpaul](https://github.com/jeffpaul), [@iamdharmesh](https://github.com/iamdharmesh), [@dkotter](https://github.com/dkotter), [@peterwilsoncc](https://github.com/peterwilsoncc) via [#1337](https://github.com/10up/distributor/pull/1337))
+- Tests: Ensure images are saved to classic editor post content (flaky test fix). (props [@peterwilsoncc](https://github.com/peterwilsoncc), [@dkotter](https://github.com/dkotter) via [#1354](https://github.com/10up/distributor/pull/1354))
+- Tests: Force click view post buttons in toolbar. (props [@peterwilsoncc](https://github.com/peterwilsoncc), [@dkotter](https://github.com/dkotter) via [#1354](https://github.com/10up/distributor/pull/1354))
+- Update `@wordpress/env` to 10.38.0 (props [@peterwilsoncc](https://github.com/peterwilsoncc), [@dkotter](https://github.com/dkotter) via [#1354](https://github.com/10up/distributor/pull/1354))
+- Update `@wordpress/scripts` to 31.3.0 (props [@peterwilsoncc](https://github.com/peterwilsoncc), [@dkotter](https://github.com/dkotter) via [#1354](https://github.com/10up/distributor/pull/1354))
+- Update `PHPCS` to 3.13.6. (props [@peterwilsoncc](https://github.com/peterwilsoncc), [@dkotter](https://github.com/dkotter) via [#1386](https://github.com/10up/distributor/pull/1386))
+- Update `cypress` to 15.9.0 (props [@peterwilsoncc](https://github.com/peterwilsoncc), [@dkotter](https://github.com/dkotter) via [#1354](https://github.com/10up/distributor/pull/1354))
 
 
 ## [2.2.0] - 2025-09-08
