@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file, per [the Ke
 
 ## [Unreleased] - TBD
 
+## [2.3.0] - TBD
+
 ## [2.2.0] - 2025-09-08
 **Note that this release bumps the WordPress minimum supported version from 6.5 to 6.6.**
 
@@ -625,6 +627,7 @@ This adds a post type selector when viewing the Pull Content list for both exter
 - Initial closed release.
 
 [Unreleased]: https://github.com/10up/distributor/compare/trunk...develop
+[2.3.0]: https://github.com/10up/distributor/compare/2.2.0...2.3.0
 [2.2.0]: https://github.com/10up/distributor/compare/2.1.0...2.2.0
 [2.1.0]: https://github.com/10up/distributor/compare/2.0.6...2.1.0
 [2.0.6]: https://github.com/10up/distributor/compare/2.0.5...2.0.6
