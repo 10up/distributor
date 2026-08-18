@@ -39,19 +39,19 @@ All notable changes to this project will be documented in this file, per [the Ke
 - n/a (props [@jeffpaul](https://github.com/jeffpaul), [@dkotter](https://github.com/dkotter) via [#1344](https://github.com/10up/distributor/pull/1344))
 
 ### Security
-- Bump basic-ftp from 5.1.0 to 5.2.0 in the npm_and_yarn group across 1 directory (props [@dependabot[bot]](https://github.com/apps/dependabot), [@dkotter](https://github.com/dkotter) via [#1362](https://github.com/10up/distributor/pull/1362))
-- Bump flatted from 3.3.3 to 3.4.2 in the npm_and_yarn group across 1 directory (props [@dependabot[bot]](https://github.com/apps/dependabot), [@dkotter](https://github.com/dkotter) via [#1366](https://github.com/10up/distributor/pull/1366))
-- Bump immutable from 5.1.4 to 5.1.5 in the npm_and_yarn group across 1 directory (props [@dependabot[bot]](https://github.com/apps/dependabot), [@dkotter](https://github.com/dkotter) via [#1364](https://github.com/10up/distributor/pull/1364))
-- Bump lodash from 4.17.21 to 4.17.23 in the npm_and_yarn group across 1 directory (props [@dependabot[bot]](https://github.com/apps/dependabot), [@dkotter](https://github.com/dkotter) via [#1355](https://github.com/10up/distributor/pull/1355))
-- Bump lodash-es from 4.17.22 to 4.17.23 in the npm_and_yarn group across 1 directory (props [@dependabot[bot]](https://github.com/apps/dependabot), [@dkotter](https://github.com/dkotter) via [#1356](https://github.com/10up/distributor/pull/1356))
-- Bump node-forge from 1.3.3 to 1.4.0 in the npm_and_yarn group across 1 directory (props [@dependabot[bot]](https://github.com/apps/dependabot), [@jeffpaul](https://github.com/jeffpaul), [@peterwilsoncc](https://github.com/peterwilsoncc), [@dependabot](https://github.com/dependabot), [@dkotter](https://github.com/dkotter) via [#1369](https://github.com/10up/distributor/pull/1369))
-- Bump phpunit/phpunit from 8.5.29 to 8.5.52 in the composer group across 1 directory (props [@dependabot[bot]](https://github.com/apps/dependabot), [@dkotter](https://github.com/dkotter) via [#1358](https://github.com/10up/distributor/pull/1358))
-- Bump qs from 6.14.1 to 6.14.2 in the npm_and_yarn group across 1 directory (props [@dependabot[bot]](https://github.com/apps/dependabot), [@dkotter](https://github.com/dkotter) via [#1359](https://github.com/10up/distributor/pull/1359))
-- Bump simple-git from 3.30.0 to 3.33.0 in the npm_and_yarn group across 1 directory (props [@dependabot[bot]](https://github.com/apps/dependabot), [@dkotter](https://github.com/dkotter) via [#1367](https://github.com/10up/distributor/pull/1367))
-- Bump svgo from 3.3.2 to 3.3.3 in the npm_and_yarn group across 1 directory (props [@dependabot[bot]](https://github.com/apps/dependabot), [@dkotter](https://github.com/dkotter) via [#1365](https://github.com/10up/distributor/pull/1365))
-- Bump systeminformation from 5.30.5 to 5.31.1 in the npm_and_yarn group across 1 directory (props [@dependabot[bot]](https://github.com/apps/dependabot), [@jeffpaul](https://github.com/jeffpaul), [@dkotter](https://github.com/dkotter) via [#1361](https://github.com/10up/distributor/pull/1361))
-- Bump tar-fs from 3.1.0 to 3.1.1 in the npm_and_yarn group across 1 directory (props [@dependabot[bot]](https://github.com/apps/dependabot), [@jeffpaul](https://github.com/jeffpaul), [@dkotter](https://github.com/dkotter) via [#1338](https://github.com/10up/distributor/pull/1338))
-- Bump the npm_and_yarn group across 1 directory with 1 update (props [@dependabot[bot]](https://github.com/apps/dependabot), [@dkotter](https://github.com/dkotter) via [#1368](https://github.com/10up/distributor/pull/1368))
+- Bump `basic-ftp` from 5.1.0 to 5.2.0 (props [@dependabot[bot]](https://github.com/apps/dependabot), [@dkotter](https://github.com/dkotter) via [#1362](https://github.com/10up/distributor/pull/1362))
+- Bump `flatted` from 3.3.3 to 3.4.2 (props [@dependabot[bot]](https://github.com/apps/dependabot), [@dkotter](https://github.com/dkotter) via [#1366](https://github.com/10up/distributor/pull/1366))
+- Bump `immutable` from 5.1.4 to 5.1.5 (props [@dependabot[bot]](https://github.com/apps/dependabot), [@dkotter](https://github.com/dkotter) via [#1364](https://github.com/10up/distributor/pull/1364))
+- Bump `lodash` from 4.17.21 to 4.17.23 (props [@dependabot[bot]](https://github.com/apps/dependabot), [@dkotter](https://github.com/dkotter) via [#1355](https://github.com/10up/distributor/pull/1355))
+- Bump `lodash-es` from 4.17.22 to 4.17.23 (props [@dependabot[bot]](https://github.com/apps/dependabot), [@dkotter](https://github.com/dkotter) via [#1356](https://github.com/10up/distributor/pull/1356))
+- Bump `node-forge` from 1.3.3 to 1.4.0 (props [@dependabot[bot]](https://github.com/apps/dependabot), [@jeffpaul](https://github.com/jeffpaul), [@peterwilsoncc](https://github.com/peterwilsoncc), [@dependabot](https://github.com/dependabot), [@dkotter](https://github.com/dkotter) via [#1369](https://github.com/10up/distributor/pull/1369))
+- Bump `phpunit/phpunit` from 8.5.29 to 8.5.52 (props [@dependabot[bot]](https://github.com/apps/dependabot), [@dkotter](https://github.com/dkotter) via [#1358](https://github.com/10up/distributor/pull/1358))
+- Bump `qs` from 6.14.1 to 6.14.2 (props [@dependabot[bot]](https://github.com/apps/dependabot), [@dkotter](https://github.com/dkotter) via [#1359](https://github.com/10up/distributor/pull/1359))
+- Bump `simple-git` from 3.30.0 to 3.33.0 (props [@dependabot[bot]](https://github.com/apps/dependabot), [@dkotter](https://github.com/dkotter) via [#1367](https://github.com/10up/distributor/pull/1367))
+- Bump `svgo` from 3.3.2 to 3.3.3 (props [@dependabot[bot]](https://github.com/apps/dependabot), [@dkotter](https://github.com/dkotter) via [#1365](https://github.com/10up/distributor/pull/1365))
+- Bump `systeminformation` from 5.30.5 to 5.31.1 (props [@dependabot[bot]](https://github.com/apps/dependabot), [@jeffpaul](https://github.com/jeffpaul), [@dkotter](https://github.com/dkotter) via [#1361](https://github.com/10up/distributor/pull/1361))
+- Bump `tar-fs` from 3.1.0 to 3.1.1 (props [@dependabot[bot]](https://github.com/apps/dependabot), [@jeffpaul](https://github.com/jeffpaul), [@dkotter](https://github.com/dkotter) via [#1338](https://github.com/10up/distributor/pull/1338))
+- Bump `picomatch` from 2.3.1 to 2.3.2, and 4.0.3 to 4.0.4 (props [@dependabot[bot]](https://github.com/apps/dependabot), [@dkotter](https://github.com/dkotter) via [#1368](https://github.com/10up/distributor/pull/1368))
 
 
 ## [2.2.0] - 2025-09-08
