@@ -9,6 +9,7 @@
  *
  * @since  0.8
  */
+#[AllowDynamicProperties]
 class WP_Error {
 	public function __construct( $code = '', $message = '' ) {
 		$this->code    = $code;
@@ -101,6 +102,7 @@ function is_serialized( $data, $strict = true ) {
  *
  * @since  0.8
  */
+#[AllowDynamicProperties]
 class WP_Query {
 	public function __construct( $args = array() ) {
 
@@ -230,6 +232,7 @@ function remote_get_setup() {
  *
  * @since  1.0
  */
+#[AllowDynamicProperties]
 class WP_Post {
 	public function __construct( $post ) {
 		if ( ! empty( $post ) ) {
@@ -245,6 +248,7 @@ class WP_Post {
 /**
  * Mock WP_HTML_Tag_Processor
  */
+#[AllowDynamicProperties]
 class WP_HTML_Tag_Processor {
 	protected $html;
 
@@ -344,6 +348,7 @@ function remove_filter() { }
 /**
  * Classes for testing connections
  */
+#[AllowDynamicProperties]
 class TestExternalConnection extends \Distributor\ExternalConnection {
 	static $slug               = 'test-external-connection';
 	static $auth_handler_class = '\Distributor\Authentications\WordPressBasicAuth';
@@ -364,6 +369,7 @@ class TestExternalConnection extends \Distributor\ExternalConnection {
 	public function get_taxonomy_terms() { }
 }
 
+#[AllowDynamicProperties]
 class TestInternalConnection extends \Distributor\Connection {
 	static $slug = 'test-internal-connection';
 

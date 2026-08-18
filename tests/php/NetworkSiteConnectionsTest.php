@@ -76,6 +76,7 @@ class NetworkSiteConnectionsTest extends TestCase {
 					'post_excerpt'  => '',
 					'post_type'     => '',
 					'post_name'     => '',
+					'post_title'    => '',
 					'post_status'   => 'publish',
 					'post_date'     => '2020-01-01 00:00:00',
 					'post_date_gmt' => '2020-01-01 00:00:00',
@@ -116,7 +117,7 @@ class NetworkSiteConnectionsTest extends TestCase {
 		\WP_Mock::userFunction( 'switch_to_blog' );
 		\WP_Mock::userFunction( 'add_filter' );
 		\WP_Mock::userFunction( 'restore_current_blog' );
-		\WP_Mock::userFunction( 'get_the_title' );
+		\WP_Mock::userFunction( 'get_the_title', array( 'return' => '' ) );
 		\WP_Mock::userFunction( 'remove_filter' );
 		\WP_Mock::userFunction( 'get_option' );
 		\WP_Mock::passthruFunction( 'wp_slash' );
