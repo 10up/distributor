@@ -11,7 +11,7 @@ All notable changes to this project will be documented in this file, per [the Ke
 - categories to pull screen (props [@kirtangajjar](https://github.com/kirtangajjar), [@sanketio](https://github.com/sanketio), [@jeffpaul](https://github.com/jeffpaul), [@faisal-alvi](https://github.com/faisal-alvi), [@vikrampm1](https://github.com/vikrampm1), [@Sidsector9](https://github.com/Sidsector9), [@dkotter](https://github.com/dkotter) via [#1237](https://github.com/10up/distributor/pull/1237))
 
 ### Changed
-- Indicate support for WordPress 7.0 (props [@peterwilsoncc](https://github.com/peterwilsoncc), [@dkotter](https://github.com/dkotter) via [#1383](https://github.com/10up/distributor/pull/1383))
+- Indicate support for WordPress 7.1 (props [@phpbits](https://github.com/phpbits), [@peterwilsoncc](https://github.com/peterwilsoncc), [@zamanq](https://github.com/zamanq), [@dkotter](https://github.com/dkotter) via [#1383](https://github.com/10up/distributor/pull/1383), [#1370](https://github.com/10up/distributor/pull/1370), [#1387](https://github.com/10up/distributor/pull/1387))
 - Link to original Post (props [@gustavo-p-rossler](https://github.com/gustavo-p-rossler), [@jeffpaul](https://github.com/jeffpaul), [@peterwilsoncc](https://github.com/peterwilsoncc), [@dkotter](https://github.com/dkotter), [@sanketio](https://github.com/sanketio) via [#1280](https://github.com/10up/distributor/pull/1280))
 - Minimum supported version of WordPress is 6.8 (props [@peterwilsoncc](https://github.com/peterwilsoncc), [@dkotter](https://github.com/dkotter) via [#1383](https://github.com/10up/distributor/pull/1383))
 - Update npm dependencies via npm audit fix. (props [@peterwilsoncc](https://github.com/peterwilsoncc), [@dkotter](https://github.com/dkotter) via [#1354](https://github.com/10up/distributor/pull/1354))
@@ -26,9 +26,7 @@ All notable changes to this project will be documented in this file, per [the Ke
 - Post data not slashed when receive a subscription update (props [@chandrapatel](https://github.com/chandrapatel), [@peterwilsoncc](https://github.com/peterwilsoncc), [@dkotter](https://github.com/dkotter) via [#1310](https://github.com/10up/distributor/pull/1310))
 
 ### Other
-- Bump WordPress "tested up to" version 6.9 (props [@phpbits](https://github.com/phpbits), [@peterwilsoncc](https://github.com/peterwilsoncc) via [#1370](https://github.com/10up/distributor/pull/1370))
 - Developer - Add Patchstack security-reporting FAQ. (props [@jeffpaul](https://github.com/jeffpaul) via [#1353](https://github.com/10up/distributor/pull/1353))
-- Developer - Bumped up Tested up to from 7.0 to 7.1 (props [@zamanq](https://github.com/zamanq), [@peterwilsoncc](https://github.com/peterwilsoncc) via [#1387](https://github.com/10up/distributor/pull/1387))
 - Developer - Composer dev packages now require PHP 8.0 or later. (props [@peterwilsoncc](https://github.com/peterwilsoncc), [@dkotter](https://github.com/dkotter) via [#1386](https://github.com/10up/distributor/pull/1386))
 - Developer - Remove deprecation warnings in test suite. (props [@peterwilsoncc](https://github.com/peterwilsoncc), [@dkotter](https://github.com/dkotter) via [#1388](https://github.com/10up/distributor/pull/1388))
 - Developer - Replaced hookdoc with WP Hooks Documentor (props [@jeffpaul](https://github.com/jeffpaul), [@iamdharmesh](https://github.com/iamdharmesh), [@dkotter](https://github.com/dkotter), [@peterwilsoncc](https://github.com/peterwilsoncc) via [#1337](https://github.com/10up/distributor/pull/1337))
