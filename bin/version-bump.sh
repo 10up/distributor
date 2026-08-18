@@ -75,11 +75,6 @@ if grep -Eq "^= $next_version( - .*)? =$" readme.txt; then
 	exit 1
 fi
 
-if ! grep -Fq "[View historical changelog details here]" readme.txt; then
-	echo "Unable to find historical changelog link in readme.txt" >&2
-	exit 1
-fi
-
 npm version "$bump_type" --no-git-tag-version >/dev/null
 
 new_version="$(node -p "require('./package.json').version")"
@@ -93,43 +88,6 @@ perl -0pi -e "s/^(Stable tag:\s+).*
 /\${1}$new_version\n/m" readme.txt
 
 perl -0pi -e "s/^(== Changelog ==\r?\n\r?\n)/\${1}= $new_version - TBD =\n\n/m" readme.txt
-
-readme_tmp="$(mktemp)"
-awk '
-	BEGIN {
-		in_changelog = 0
-		release_count = 0
-		skipping_old = 0
-	}
-	/^== Changelog ==\r?$/ {
-		in_changelog = 1
-		print
-		next
-	}
-	in_changelog && /^\[View historical changelog details here\]/ {
-		skipping_old = 0
-		in_changelog = 0
-		print
-		next
-	}
-	in_changelog {
-		if ( $0 ~ /^= [0-9]+\.[0-9]+\.[0-9]+( - .*)? =\r?$/ ) {
-			release_count++
-			if ( release_count > 4 ) {
-				skipping_old = 1
-				next
-			}
-			skipping_old = 0
-		}
-		if ( skipping_old ) {
-			next
-		}
-	}
-	{
-		print
-	}
-' readme.txt > "$readme_tmp"
-mv "$readme_tmp" readme.txt
 
 perl -0pi -e "s/^(\s*\* Version:\s+).*
 /\${1}$new_version\n/m" distributor.php
