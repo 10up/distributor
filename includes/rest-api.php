@@ -20,7 +20,7 @@ use WP_Error;
 function setup() {
 	add_action(
 		'init',
-		function() {
+		function () {
 			add_action( 'rest_api_init', __NAMESPACE__ . '\register_endpoints' );
 			add_action( 'rest_api_init', __NAMESPACE__ . '\register_rest_routes' );
 			add_action( 'rest_api_init', __NAMESPACE__ . '\register_push_errors_field' );
@@ -151,11 +151,10 @@ function process_distributor_attributes( $post, $request, $update ) {
 	 * Fires after an API push is handled by Distributor.
 	 *
 	 * @since 1.0
-	 * @hook dt_process_distributor_attributes
 	 *
-	 * @param {WP_Post}         $post    Inserted or updated post object.
-	 * @param {WP_REST_Request} $request Request object.
-	 * @param {bool}            $update  True when creating a post, false when updating.
+	 * @param WP_Post         $post    Inserted or updated post object.
+	 * @param WP_REST_Request $request Request object.
+	 * @param bool            $update  True when creating a post, false when updating.
 	 */
 	do_action( 'dt_process_distributor_attributes', $post, $request, $update );
 }
@@ -211,7 +210,7 @@ function get_pull_content_list_args() {
 				'type' => 'integer',
 			),
 			'default'           => array(),
-			'sanitize_callback' => function( $param ) {
+			'sanitize_callback' => function ( $param ) {
 				if ( ! is_array( $param ) ) {
 					$param = array( $param );
 				}
@@ -242,7 +241,7 @@ function get_pull_content_list_args() {
 				'type' => 'string',
 			),
 			'default'           => array( 'post' ),
-			'validate_callback' => function( $param ) {
+			'validate_callback' => function ( $param ) {
 				if ( is_string( $param ) ) {
 					return sanitize_key( $param ) === $param;
 				}
@@ -255,7 +254,7 @@ function get_pull_content_list_args() {
 
 				return true;
 			},
-			'sanitize_callback' => function( $param ) {
+			'sanitize_callback' => function ( $param ) {
 				if ( is_string( $param ) ) {
 					$param = array( $param );
 				}
@@ -289,7 +288,7 @@ function get_pull_content_list_args() {
 
 				$param = array_filter(
 					$param,
-					function( $post_type ) {
+					function ( $post_type ) {
 						$post_type_object = get_post_type_object( $post_type );
 						return current_user_can( $post_type_object->cap->edit_posts );
 					}
@@ -315,7 +314,7 @@ function get_pull_content_list_args() {
 			'items'             => array(
 				'type' => 'string',
 			),
-			'validate_callback' => function( $param ) {
+			'validate_callback' => function ( $param ) {
 				if ( is_string( $param ) ) {
 					return sanitize_key( $param ) === $param;
 				}
@@ -328,7 +327,7 @@ function get_pull_content_list_args() {
 
 				return true;
 			},
-			'sanitize_callback' => function( $param ) {
+			'sanitize_callback' => function ( $param ) {
 				if ( is_string( $param ) ) {
 					$param = array( $param );
 				}
@@ -376,6 +375,44 @@ function get_pull_content_list_args() {
 				'relevance',
 				'slug',
 				'title',
+			),
+		),
+		'tax_query'      => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query
+			'description' => esc_html__( 'Filter posts by taxonomy terms.', 'distributor' ),
+			'type'        => 'array',
+			'items'       => array(
+				'type'       => 'object',
+				'properties' => array(
+					'taxonomy'         => array(
+						'description' => esc_html__( 'Taxonomy name.', 'distributor' ),
+						'type'        => 'string',
+					),
+					'field'            => array(
+						'description' => esc_html__( 'Field to match terms by (slug, term_id, name).', 'distributor' ),
+						'type'        => 'string',
+						'enum'        => array( 'slug', 'term_id', 'name' ),
+						'default'     => 'slug',
+					),
+					'terms'            => array(
+						'description' => esc_html__( 'Term(s) to filter by.', 'distributor' ),
+						'type'        => array( 'array', 'string', 'integer' ),
+						'items'       => array(
+							'type' => array( 'string', 'integer' ),
+						),
+					),
+					'operator'         => array(
+						'description' => esc_html__( 'Taxonomy query operator.', 'distributor' ),
+						'type'        => 'string',
+						'enum'        => array( 'IN', 'NOT IN', 'AND', 'EXISTS', 'NOT EXISTS' ),
+						'default'     => 'IN',
+					),
+					'include_children' => array(
+						'description' => esc_html__( 'Whether to include child terms.', 'distributor' ),
+						'type'        => 'boolean',
+						'default'     => true,
+					),
+				),
+				'required'   => array( 'taxonomy', 'terms' ),
 			),
 		),
 	);
@@ -487,7 +524,7 @@ function register_endpoints() {
 		$post_types,
 		'distributor_meta',
 		array(
-			'get_callback'    => function( $post_array ) {
+			'get_callback'    => function ( $post_array ) {
 				if ( ! isset( $post_array['id'] ) ) {
 					return false;
 				}
@@ -498,7 +535,7 @@ function register_endpoints() {
 
 				return \Distributor\Utils\prepare_meta( $post_array['id'] );
 			},
-			'update_callback' => function( $value, $post ) { },
+			'update_callback' => function ( $value, $post ) { },
 			'schema'          => array(
 				'description' => esc_html__( 'Post meta for Distributor.', 'distributor' ),
 				'type'        => 'object',
@@ -510,7 +547,7 @@ function register_endpoints() {
 		$post_types,
 		'distributor_terms',
 		array(
-			'get_callback'    => function( $post_array ) {
+			'get_callback'    => function ( $post_array ) {
 				if ( ! isset( $post_array['id'] ) ) {
 					return false;
 				}
@@ -521,7 +558,7 @@ function register_endpoints() {
 
 				return \Distributor\Utils\prepare_taxonomy_terms( $post_array['id'] );
 			},
-			'update_callback' => function( $value, $post ) { },
+			'update_callback' => function ( $value, $post ) { },
 			'schema'          => array(
 				'description' => esc_html__( 'Taxonomy terms for Distributor.', 'distributor' ),
 				'type'        => 'object',
@@ -533,7 +570,7 @@ function register_endpoints() {
 		$post_types,
 		'distributor_media',
 		array(
-			'get_callback'    => function( $post_array ) {
+			'get_callback'    => function ( $post_array ) {
 				if ( ! isset( $post_array['id'] ) ) {
 					return false;
 				}
@@ -544,7 +581,7 @@ function register_endpoints() {
 
 				return \Distributor\Utils\prepare_media( $post_array['id'] );
 			},
-			'update_callback' => function( $value, $post ) { },
+			'update_callback' => function ( $value, $post ) { },
 			'schema'          => array(
 				'description' => esc_html__( 'Media for Distributor.', 'distributor' ),
 				'type'        => 'object',
@@ -556,7 +593,7 @@ function register_endpoints() {
 		$post_types,
 		'distributor_original_site_name',
 		array(
-			'get_callback'    => function( $post_array ) {
+			'get_callback'    => function ( $post_array ) {
 				$site_name = isset( $post_array['id'] ) ? get_post_meta( $post_array['id'], 'dt_original_site_name', true ) : '';
 
 				if ( ! $site_name ) {
@@ -565,7 +602,7 @@ function register_endpoints() {
 
 				return esc_html( $site_name );
 			},
-			'update_callback' => function( $value, $post ) { },
+			'update_callback' => function ( $value, $post ) { },
 			'schema'          => array(
 				'description' => esc_html__( 'Original site name for Distributor.', 'distributor' ),
 				'type'        => 'string',
@@ -577,7 +614,7 @@ function register_endpoints() {
 		$post_types,
 		'distributor_original_site_url',
 		array(
-			'get_callback'    => function( $post_array ) {
+			'get_callback'    => function ( $post_array ) {
 				$site_url = isset( $post_array['id'] ) ? get_post_meta( $post_array['id'], 'dt_original_site_url', true ) : '';
 
 				if ( ! $site_url ) {
@@ -586,7 +623,7 @@ function register_endpoints() {
 
 				return esc_url_raw( $site_url );
 			},
-			'update_callback' => function( $value, $post ) { },
+			'update_callback' => function ( $value, $post ) { },
 			'schema'          => array(
 				'description' => esc_html__( 'Original site url for Distributor.', 'distributor' ),
 				'type'        => 'string',
@@ -604,7 +641,6 @@ function register_endpoints() {
 			'permission_callback' => '__return_true',
 		)
 	);
-
 }
 
 /**
@@ -669,6 +705,11 @@ function get_pull_content_list( $request ) {
 		$args['orderby'] = 'relevance';
 	}
 
+	// Add the tax query to the query args.
+	if ( isset( $request['tax_query'] ) ) {
+		$args['tax_query'] = $request['tax_query']; // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query
+	}
+
 	if ( ! empty( $request['exclude'] ) && ! empty( $request['include'] ) ) {
 		/*
 		 * Use only `post__in` if both `include` and `exclude` are populated.
@@ -678,6 +719,7 @@ function get_pull_content_list( $request ) {
 		 */
 		$args['post__in'] = array_diff( $request['include'], $request['exclude'] );
 	} elseif ( ! empty( $request['exclude'] ) ) {
+		// phpcs:ignore WordPressVIPMinimum.Performance.WPQueryParams.PostNotIn_post__not_in
 		$args['post__not_in'] = $request['exclude'];
 	} elseif ( ! empty( $request['include'] ) ) {
 		$args['post__in'] = $request['include'];
@@ -712,12 +754,10 @@ function get_pull_content_list( $request ) {
 	 *
 	 * Enables adding extra arguments or setting defaults for a post collection request.
 	 *
-	 * @hook dt_get_pull_content_rest_query_args
+	 * @param array           $args    Array of arguments for WP_Query.
+	 * @param WP_REST_Request $request The REST API request.
 	 *
-	 * @param {array}           $args    Array of arguments for WP_Query.
-	 * @param {WP_REST_Request} $request The REST API request.
-	 *
-	 * @return {array} The array of arguments for WP_Query.
+	 * @return array The array of arguments for WP_Query.
 	 */
 	$args = apply_filters( 'dt_get_pull_content_rest_query_args', $args, $request );
 
@@ -834,7 +874,7 @@ function register_push_errors_field() {
 			$post_type,
 			'push-errors',
 			array(
-				'get_callback' => function( $params ) {
+				'get_callback' => function ( $params ) {
 					$media_errors = isset( $params['id'] ) ? get_transient( 'dt_media_errors_' . $params['id'] ) : '';
 
 					if ( ! empty( $media_errors ) ) {

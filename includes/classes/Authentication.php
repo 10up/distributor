@@ -7,7 +7,7 @@
 
 namespace Distributor;
 
-use \Distributor\ExternalConnection as ExternalConnection;
+use Distributor\ExternalConnection;
 
 /**
  * Authentication types extend this base abstract class. Authentication types
@@ -56,13 +56,12 @@ abstract class Authentication {
 		 * Format request args for a GET request so auth occurs.
 		 *
 		 * @since 0.8
-		 * @hook dt_auth_format_get_args
 		 *
-		 * @param  {array}  $args    Array of request arguments.
-		 * @param  {array}  $context Optional array of information about the request.
-		 * @param  {object} $this    The authentication class.
+		 * @param array  $args    Array of request arguments.
+		 * @param array  $context Optional array of information about the request.
+		 * @param object $this    The authentication class.
 		 *
-		 * @return {array} Array of request arguments.
+		 * @return array Array of request arguments.
 		 */
 		return apply_filters( 'dt_auth_format_get_args', $args, $context, $this );
 	}
@@ -85,13 +84,12 @@ abstract class Authentication {
 		 * Format request args for a POST request so auth occurs
 		 *
 		 * @since 0.8
-		 * @hook dt_auth_format_post_args
 		 *
-		 * @param  {array}  $args    Array of request arguments.
-		 * @param  {array}  $context Optional array of information about the request.
-		 * @param  {object} $this    The authentication class.
+		 * @param array  $args    Array of request arguments.
+		 * @param array  $context Optional array of information about the request.
+		 * @param object $this    The authentication class.
 		 *
-		 * @return {array} Array of request arguments.
+		 * @return array Array of request arguments.
 		 */
 		return apply_filters( 'dt_auth_format_post_args', $args, $context, $this );
 	}
@@ -130,7 +128,7 @@ abstract class Authentication {
 		self::$error_message = $error_message;
 		add_action(
 			'auth_admin_notices',
-			function() {
+			function () {
 				?>
 		<div class="notice notice-error is-dismissible">
 			<p>

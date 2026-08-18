@@ -7,7 +7,7 @@
 
 namespace Distributor\Authentications;
 
-use \Distributor\Authentication as Authentication;
+use Distributor\Authentication;
 
 /**
  * Enables WordPress.com Oauth2 authentication.
@@ -90,8 +90,6 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 
 		/**
 		 * Display any authorization or token errors.
-		 *
-		 * @hook dt_oauth_admin_notices
 		 */
 		do_action( 'dt_oauth_admin_notices' );
 
@@ -214,7 +212,6 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 			}
 		}
 		return false;
-
 	}
 
 	/**
@@ -465,7 +462,7 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 			// Allow wp_safe_redirect to redirect to the .com authorization endpoint.
 			add_filter(
 				'allowed_redirect_hosts',
-				function( $content ) {
+				function ( $content ) {
 					$content[] = 'public-api.wordpress.com';
 					return $content;
 				}
@@ -480,7 +477,6 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 			self::log_authentication_error( ' fetch_access_token() Failed -- ' . $ex->getMessage() );
 			return false;
 		}
-
 	}
 
 	/**
@@ -525,7 +521,7 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 		if ( is_wp_error( $response ) ) {
 
 			self::log_authentication_error( 'Failed to validate token giving error ' . $response->get_error_message() );
-			$count ++;
+			++$count;
 			if ( $count <= 3 ) {
 				self::is_valid_token( $count );
 			}

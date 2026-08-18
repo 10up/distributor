@@ -18,7 +18,7 @@ use Distributor\Utils;
 function setup() {
 	add_action(
 		'plugins_loaded',
-		function() {
+		function () {
 			add_action( 'init', __NAMESPACE__ . '\setup_cpt' );
 			add_filter( 'enter_title_here', __NAMESPACE__ . '\filter_enter_title_here', 10, 2 );
 			add_filter( 'post_updated_messages', __NAMESPACE__ . '\filter_post_updated_messages' );
@@ -176,7 +176,7 @@ function setup_list_table() {
 			foreach ( (array) $post_ids as $post_id ) {
 				wp_delete_post( $post_id );
 
-				$deleted++;
+				++$deleted;
 			}
 			$sendback = add_query_arg( 'deleted', $deleted, $sendback );
 
@@ -516,7 +516,7 @@ function meta_box_external_connection_details( $post ) {
 		$selected  = $external_connection_class::$slug === $external_connection_type ||
 			( '' === $external_connection_type && 1 === $index );
 		$is_hidden = ! $selected;
-		$index++;
+		++$index;
 		?>
 		<div class="auth-credentials <?php echo esc_attr( $auth_handler_class_again::$slug ); ?> <?php echo esc_attr( $external_connection_class::$slug ); ?>">
 			<?php $auth_handler_class_again::credentials_form( $auth ); ?>
@@ -653,11 +653,10 @@ function add_menu_item() {
 		 * Filter Distributor capabilities allowed to view external connections.
 		 *
 		 * @since 1.0.0
-		 * @hook dt_capabilities
 		 *
-		 * @param {string} 'manage_options' The capability allowed to view external connections.
+		 * @param string 'manage_options' The capability allowed to view external connections.
 		 *
-		 * @return {string} The capability allowed to view external connections.
+		 * @return string The capability allowed to view external connections.
 		 */
 		apply_filters( 'dt_capabilities', 'manage_options' ),
 		'distributor',
@@ -684,11 +683,10 @@ function add_submenu_item() {
 		 * Filter Distributor capabilities allowed to manage external connections.
 		 *
 		 * @since 1.0.0
-		 * @hook dt_external_capabilities
 		 *
-		 * @param {string} 'manage_options' The capability allowed to manage external connections.
+		 * @param string 'manage_options' The capability allowed to manage external connections.
 		 *
-		 * @return {string} The capability allowed to manage external connections.
+		 * @return string The capability allowed to manage external connections.
 		 */
 		apply_filters( 'dt_external_capabilities', 'manage_options' ),
 		'distributor'

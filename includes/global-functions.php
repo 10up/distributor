@@ -250,7 +250,7 @@ function distributor_get_registered_data() {
  * @param int $source_post_id The source post ID.
  * @return array The extra data of the media to be distributed to the target site.
  */
-function distributor_media_pre_distribute_callback( $media_id, $source_post_id ) {
+function distributor_media_pre_distribute_callback( $media_id, $source_post_id ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed -- back compat
 	if ( ! $media_id ) {
 		return array();
 	}
@@ -283,7 +283,7 @@ function distributor_media_pre_distribute_callback( $media_id, $source_post_id )
  * @param array $post_data        The post data.
  * @return int The ID of the distributed media.
  */
-function distributor_media_post_distribute_callback( $media_extra_data, $source_media_id, $post_data ) {
+function distributor_media_post_distribute_callback( $media_extra_data, $source_media_id, $post_data ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed -- back compat
 	if ( ! isset( $media_extra_data['url'] ) ) {
 		return $source_media_id;
 	}
@@ -338,7 +338,7 @@ function distributor_media_post_distribute_callback( $media_extra_data, $source_
  * @param int $source_post_id The source post ID.
  * @return array The data of the post to be distributed to the target site.
  */
-function distributor_post_pre_distribute_callback( $post_id, $source_post_id ) {
+function distributor_post_pre_distribute_callback( $post_id, $source_post_id ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed -- back compat
 	if ( ! $post_id ) {
 		return array();
 	}
@@ -468,7 +468,7 @@ function distributor_post_post_distribute_callback( $post_extra_data, $source_po
 		// For external connections and push direction, it is already handled via push from source site we don't have to handle it here.
 		if ( 'internal' === $connection_type || ( 'pull' === $connection_direction && 'external' === $connection_type ) ) {
 			// Disable the process_extra_data filter to prevent infinite loop.
-			$prevent_processing = function() {
+			$prevent_processing = function () {
 				return false;
 			};
 			add_filter( 'dt_process_extra_data', $prevent_processing, 9999 );
@@ -534,7 +534,7 @@ function distributor_post_post_distribute_callback( $post_extra_data, $source_po
  * @param int $source_post_id The source post ID.
  * @return array|WP_Term The data of the term to be distributed to the target site.
  */
-function distributor_term_pre_distribute_callback( $term_id, $source_post_id ) {
+function distributor_term_pre_distribute_callback( $term_id, $source_post_id ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed -- back compat
 	if ( ! $term_id ) {
 		return array();
 	}
@@ -544,7 +544,6 @@ function distributor_term_pre_distribute_callback( $term_id, $source_post_id ) {
 	 * If set to true, the term will be distributed with its parents.
 	 *
 	 * @since 2.2.0
-	 * @hook dt_registered_data_distribute_term_parent
 	 *
 	 * @param bool $with_parents Whether to distribute term with parents. Default false.
 	 *
@@ -570,7 +569,7 @@ function distributor_term_pre_distribute_callback( $term_id, $source_post_id ) {
  * @param array $post_data       The post data.
  * @return int The ID of the distributed term.
  */
-function distributor_term_post_distribute_callback( $term_extra_data, $source_term_id, $post_data ) {
+function distributor_term_post_distribute_callback( $term_extra_data, $source_term_id, $post_data ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed -- back compat
 	if ( ! $term_extra_data ) {
 		return $source_term_id;
 	}

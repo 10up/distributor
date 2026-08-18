@@ -18,7 +18,7 @@ use Distributor\Utils;
 function setup() {
 	add_action(
 		'plugins_loaded',
-		function() {
+		function () {
 			add_action( 'edit_form_top', __NAMESPACE__ . '\syndicated_message', 9, 1 );
 			add_action( 'admin_enqueue_scripts', __NAMESPACE__ . '\enqueue_post_scripts' );
 			add_action( 'admin_enqueue_scripts', __NAMESPACE__ . '\enqueue_edit_scripts' );
@@ -83,19 +83,17 @@ function output_distributor_column( $column_name, $post_id ) {
 
 		if ( ( ( empty( $original_blog_id ) && empty( $original_source_id ) ) || $original_deleted ) && ! $connection_map ) {
 			echo '';
-		} else {
-			if ( $connection_map ) {
+		} elseif ( $connection_map ) {
 				// When a post is pushed from current site or pulled by other sites.
 				echo '<span title="' . esc_attr__( 'Pushed', 'distributor' ) . '" class="dashicons dashicons-admin-page"></span>';
+		} else {
+			$unlinked = (bool) get_post_meta( $post_id, 'dt_unlinked', true );
+			$post_url = get_post_meta( $post_id, 'dt_original_post_url', true );
+
+			if ( $unlinked ) {
+				echo '<a target="_blank" href="' . esc_url( $post_url ) . '"><span title="' . esc_attr__( 'Unlinked', 'distributor' ) . '" class="dashicons dashicons-editor-unlink"></span></span></a>';
 			} else {
-				$unlinked = (bool) get_post_meta( $post_id, 'dt_unlinked', true );
-				$post_url = get_post_meta( $post_id, 'dt_original_post_url', true );
-	
-				if ( $unlinked ) {
-					echo '<a target="_blank" href="' . esc_url( $post_url ) . '"><span title="' . esc_attr__( 'Unlinked', 'distributor' ) . '" class="dashicons dashicons-editor-unlink"></span></span></a>';
-				} else {
-					echo '<a target="_blank" href="' . esc_url( $post_url ) . '"><span title="' . esc_attr__( 'Linked', 'distributor' ) . '" class="dashicons dashicons-admin-links"></span></a>';
-				}               
+				echo '<a target="_blank" href="' . esc_url( $post_url ) . '"><span title="' . esc_attr__( 'Linked', 'distributor' ) . '" class="dashicons dashicons-admin-links"></span></a>';
 			}
 		}
 	}
@@ -307,12 +305,11 @@ function unlink() {
 		 * Filters whether the post can be unlinked.
 		 *
 		 * @since 1.0
-		 * @hook dt_allow_post_unlink
 		 *
-		 * @param {bool} true       Whether the post is allowed to be unlinked. Default true.
-		 * @param {int}  $post_id   The ID of the post attempting to be unlinked.
+		 * @param bool true       Whether the post is allowed to be unlinked. Default true.
+		 * @param int  $post_id   The ID of the post attempting to be unlinked.
 		 *
-		 * @return {bool} Whether the post is allowed to be unlinked.
+		 * @return bool Whether the post is allowed to be unlinked.
 		 */
 		! apply_filters( 'dt_allow_post_unlink', true, $post_id ) ) {
 		return;
@@ -327,9 +324,8 @@ function unlink() {
 	 * Fires when a post is unlinked.
 	 *
 	 * @since 1.0
-	 * @hook dt_unlink_post
 	 *
-	 * @param {int} $post_id ID of the post being unlinked.
+	 * @param int $post_id ID of the post being unlinked.
 	 */
 	do_action( 'dt_unlink_post', $post_id );
 
@@ -404,9 +400,8 @@ function link() {
 	 * Fires when a post is linked.
 	 *
 	 * @since 1.0
-	 * @hook dt_link_post
 	 *
-	 * @param {int} $post_id ID of the post being linked.
+	 * @param int $post_id ID of the post being linked.
 	 */
 	do_action( 'dt_link_post', $post_id );
 
@@ -493,7 +488,7 @@ function syndicated_message( $post ) {
 							);
 						// phpcs:ignore Squiz.PHP.EmbeddedPhp.ContentAfterEnd, avoids layout issues.
 						?></a></span>
-					<span><a href="<?php echo esc_url( $original_post_url ); ?>">
+					<span><a class="action-link" href="<?php echo esc_url( $original_post_url ); ?>" target="_blank">
 						<?php
 							printf(
 								/* translators: 1) Distributor post type singular name. */
@@ -575,7 +570,7 @@ function enqueue_post_scripts( $hook ) {
 		if ( file_exists( $asset_file ) ) {
 			$asset_data = require $asset_file;
 		}
-		wp_enqueue_style( 'dt-gutenberg-syndicated-post', plugins_url( '/dist/css/gutenberg-syndicated-post.min.css', __DIR__ ), array(), $asset_data['version'] );
+		wp_enqueue_style( 'dt-gutenberg-syndicated-post', plugins_url( '/dist/css/gutenberg-syndicated-post.min.css', __DIR__ ), array( 'dashicons' ), $asset_data['version'] );
 	} else {
 		$asset_file = DT_PLUGIN_PATH . '/dist/js/admin-syndicated-post-css.min.asset.php';
 		// Fallback asset data.
@@ -586,7 +581,7 @@ function enqueue_post_scripts( $hook ) {
 		if ( file_exists( $asset_file ) ) {
 			$asset_data = require $asset_file;
 		}
-		wp_enqueue_style( 'dt-admin-syndicated-post', plugins_url( '/dist/css/admin-syndicated-post.min.css', __DIR__ ), array(), $asset_data['version'] );
+		wp_enqueue_style( 'dt-admin-syndicated-post', plugins_url( '/dist/css/admin-syndicated-post.min.css', __DIR__ ), array( 'dashicons' ), $asset_data['version'] );
 	}
 
 	$unlinked = (bool) get_post_meta( $post->ID, 'dt_unlinked', true );

@@ -66,12 +66,10 @@ function setup_list_table() {
 			 * Modify the maximum number of external connection post types are
 			 * queried with requesting the post type.
 			 *
-			 * @hook dt_external_connections_per_page
-			 *
 			 * @since 2.2.0
 			 *
-			 * @param {int} $max_connections The maximum number of external connections to load.
-			 * @return {int} The maximum number of external connections to load.
+			 * @param int $max_connections The maximum number of external connections to load.
+			 * @return int The maximum number of external connections to load.
 			 */
 			'posts_per_page' => apply_filters( 'dt_external_connections_per_page', 200 ), // @codingStandardsIgnoreLine This high pagination limit is purposeful
 		)
@@ -161,11 +159,10 @@ function action_admin_menu() {
 		 * Filter Distributor capabilities allowed to pull content.
 		 *
 		 * @since 1.0.0
-		 * @hook dt_pull_capabilities
 		 *
-		 * @param {string} 'manage_options' The capability allowed to pull content.
+		 * @param string 'manage_options' The capability allowed to pull content.
 		 *
-		 * @return {string} The capability allowed to pull content.
+		 * @return string The capability allowed to pull content.
 		 */
 		apply_filters( 'dt_pull_capabilities', 'manage_options' ),
 		'pull',
@@ -526,6 +523,30 @@ function dashboard() {
 					} else {
 						$connection_now->pull_post_type = ! empty( $post_type['slug'] ) ? $post_type['slug'] : 'all';
 						break;
+					}
+				}
+
+				// Get the supported taxonomies for the post types.
+				$supported_taxonomies = [];
+				foreach ( $connection_now->pull_post_types as $post_type ) {
+					$supported_taxonomies[ $post_type['slug'] ] = $post_type['taxonomies'];
+				}
+
+				// Get the available taxonomy terms.
+				$connection_now->pull_taxonomy_term = [];
+				$connection_now->pull_taxonomy_terms = \Distributor\Utils\available_pull_taxonomy_terms( $connection_now, $connection_type, $supported_taxonomies );
+				if ( ! empty( $connection_now->pull_taxonomy_terms ) ) {
+
+					foreach ( $connection_now->pull_taxonomy_terms as $taxonomy => $taxonomy_data ) {
+
+						$term_slugs = wp_list_pluck( $taxonomy_data['items'], 'slug' );
+
+						// Set the taxonomy term to pull.
+						if ( isset( $_GET["pull_{$taxonomy}"] ) && in_array( $_GET["pull_{$taxonomy}"], $term_slugs, true ) ) {
+							$connection_now->pull_taxonomy_term[ $taxonomy ] = $_GET["pull_{$taxonomy}"];
+						} else {
+							$connection_now->pull_taxonomy_term[ $taxonomy ] = 'all';
+						}
 					}
 				}
 				?>

@@ -7,7 +7,7 @@
 
 namespace Distributor;
 
-use \Distributor\Connection as Connection;
+use Distributor\Connection;
 
 /**
  * External connections extend this base abstract class. External connections are used to push and pull content.
@@ -97,11 +97,10 @@ abstract class ExternalConnection extends Connection {
 		 * Action fired when a sync is being logged.
 		 *
 		 * @since 1.0
-		 * @hook dt_log_sync
 		 *
-		 * @param {array} $item_id_mappings Item ID mappings.
-		 * @param {array} $sync_log The sync log
-		 * @param {object} $this The current connection class.
+		 * @param array  $item_id_mappings Item ID mappings.
+		 * @param array  $sync_log         The sync log
+		 * @param object $this             The current connection class.
 		 */
 		do_action( 'dt_log_sync', $item_id_mappings, $sync_log, $this );
 	}

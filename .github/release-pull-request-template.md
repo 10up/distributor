@@ -1,5 +1,5 @@
 - [x] Branch: Starting from `develop`, create a release branch named `release/X.Y.Z` for your changes.
-- [ ] Version bump: Bump the version number in `distributor.php`, `package-lock.json`, `package.json`, `readme.txt` and `tests/php/bootstrap.php` if it does not already reflect the version being released.  In `distributor.php` update both the plugin "Version:" property and the plugin `DT_VERSION` constant.
+- [ ] Version bump: Run `bin/version-bump.sh [major|minor|patch]`
 - [ ] Changelog: Add/update the changelog in `CHANGELOG.md`.
 - [ ] Props: Update `CREDITS.md` file with any new contributors, confirm maintainers are accurate.
 - [ ] Readme updates: Make any other readme changes as necessary.  `README.md` is geared toward GitHub and `readme.txt` contains WordPress.org-specific content.  The two are slightly different.

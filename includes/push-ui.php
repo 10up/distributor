@@ -18,7 +18,7 @@ use Distributor\Utils;
 function setup() {
 	add_action(
 		'plugins_loaded',
-		function() {
+		function () {
 			add_action( 'admin_enqueue_scripts', __NAMESPACE__ . '\enqueue_scripts' );
 			add_action( 'wp_enqueue_scripts', __NAMESPACE__ . '\enqueue_scripts' );
 			add_filter( 'amp_dev_mode_element_xpaths', __NAMESPACE__ . '\add_element_xpaths' );
@@ -48,12 +48,11 @@ function syndicatable() {
 	/**
 	 * Filter Distributor capabilities allowed to syndicate content.
 	 *
-	 * @hook dt_syndicatable_capabilities
 	 * @tutorial snippets
 	 *
-	 * @param {string} edit_posts The capability allowed to syndicate content.
+	 * @param string edit_posts The capability allowed to syndicate content.
 	 *
-	 * @return {string} The capability allowed to syndicate content.
+	 * @return string The capability allowed to syndicate content.
 	 */
 	if ( ! is_user_logged_in() || ! current_user_can( apply_filters( 'dt_syndicatable_capabilities', 'edit_posts' ) ) ) {
 		return false;
@@ -66,11 +65,9 @@ function syndicatable() {
 	 *
 	 * Helpful for sites that want to push custom post type content to another site.
 	 *
-	 * @hook dt_available_push_post_types
+	 * @param array Post types that are distributable.
 	 *
-	 * @param {array} Post types that are distributable.
-	 *
-	 * @return {array} Post types available for push.
+	 * @return array Post types available for push.
 	 */
 	$distributable_post_types = apply_filters( 'dt_available_push_post_types', $distributable_post_types );
 
@@ -81,10 +78,8 @@ function syndicatable() {
 		if ( 'post.php' !== $pagenow && 'post-new.php' !== $pagenow ) {
 			return false;
 		}
-	} else {
-		if ( ! is_singular( $distributable_post_types ) ) {
+	} elseif ( ! is_singular( $distributable_post_types ) ) {
 			return false;
-		}
 	}
 
 	// If we're using the classic editor, we need to make sure the post has a distributable status.
@@ -164,12 +159,10 @@ function get_connections() {
 			 * Modify the maximum number of external connection post types are
 			 * queried with requesting the post type.
 			 *
-			 * @hook dt_external_connections_per_page
-			 *
 			 * @since 2.2.0
 			 *
-			 * @param {int} $max_connections The maximum number of external connections to load.
-			 * @return {int} The maximum number of external connections to load.
+			 * @param int $max_connections The maximum number of external connections to load.
+			 * @return int The maximum number of external connections to load.
 			 */
 			'posts_per_page' => apply_filters( 'dt_external_connections_per_page', 200 ), // @codingStandardsIgnoreLine This high pagination limit is purposeful
 			'no_found_rows'  => true,
@@ -209,11 +202,10 @@ function get_connections() {
 		 * Filter Distributor capabilities allowed to push content.
 		 *
 		 * @since 1.0.0
-		 * @hook dt_push_capabilities
 		 *
-		 * @param {string} 'manage_options' The capability allowed to push content.
+		 * @param string 'manage_options' The capability allowed to push content.
 		 *
-		 * @return {string} The capability allowed to push content.
+		 * @return string The capability allowed to push content.
 		 */
 		if ( ! current_user_can( apply_filters( 'dt_push_capabilities', 'manage_options' ) ) ) {
 			$current_user_roles = (array) wp_get_current_user()->roles;
@@ -416,7 +408,7 @@ function ajax_push() {
  * @param  string $hook WP hook.
  * @since  0.8
  */
-function enqueue_scripts( $hook ) {
+function enqueue_scripts( $hook ) { //phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.Found
 	if ( ! syndicatable() ) {
 		return;
 	}
@@ -438,11 +430,10 @@ function enqueue_scripts( $hook ) {
 		 * See {@link https://vip.wordpress.com/documentation/handling-frontend-file-uploads/#handling-ajax-requests}
 		 *
 		 * @since 1.0.0
-		 * @hook dt_ajax_requires_with_credentials
 		 *
-		 * @param {bool} false Whether front end ajax requests should use xhrFields credentials:true.
+		 * @param bool false Whether front end ajax requests should use xhrFields credentials:true.
 		 *
-		 * @return {bool} Whether front end ajax requests should use xhrFields credentials:true.
+		 * @return bool Whether front end ajax requests should use xhrFields credentials:true.
 		 */
 		'usexhr'               => apply_filters( 'dt_ajax_requires_with_credentials', false ),
 	);

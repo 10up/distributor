@@ -20,16 +20,15 @@ use Distributor\Utils;
 function setup() {
 	add_action(
 		'admin_init',
-		function() {
+		function () {
 			/**
 			 * Filter whether the debug info is enabled. Enabled by default, return false to disable.
 			 *
 			 * @since 2.0.0
-			 * @hook dt_debug_info_enabled
 			 *
-			 * @param {bool} true Whether the debug info should be enabled.
+			 * @param bool true Whether the debug info should be enabled.
 			 *
-			 * @return {bool} Whether the debug info should be enabled.
+			 * @return bool Whether the debug info should be enabled.
 			 */
 			if ( ! apply_filters( 'dt_debug_info_enabled', true ) ) {
 				return;
@@ -213,12 +212,10 @@ function get_formatted_external_connections() {
 			 * Modify the maximum number of external connection post types are
 			 * queried with requesting the post type.
 			 *
-			 * @hook dt_external_connections_per_page
-			 *
 			 * @since 2.2.0
 			 *
-			 * @param {int} $max_connections The maximum number of external connections to load.
-			 * @return {int} The maximum number of external connections to load.
+			 * @param int $max_connections The maximum number of external connections to load.
+			 * @return int The maximum number of external connections to load.
 			 */
 			'posts_per_page' => apply_filters( 'dt_external_connections_per_page', 200 ), // @codingStandardsIgnoreLine This high pagination limit is purposeful
 		)
@@ -314,7 +311,7 @@ function get_external_connection_status( $external_connection_status ) {
  */
 function format_connection_data( $data ) {
 	$formatted = array_map(
-		function( $key, $value ) {
+		function ( $key, $value ) {
 			return sprintf( '- %1$s: %2$s', $key, $value );
 		},
 		array_keys( $data ),
