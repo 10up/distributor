@@ -5,6 +5,8 @@ All notable changes to this project will be documented in this file, per [the Ke
 ## [Unreleased] - TBD
 
 ## [2.3.0] - TBD
+**Note that this release bumps the WordPress minimum supported version from 6.6 to 6.8.**
+
 ### Added
 - Provide way to delete all Distributor data on plugin deletion, utilizing the `DT_REMOVE_ALL_DATA` constant. (props [@dinhtungdu](https://github.com/dinhtungdu), [@faisal-alvi](https://github.com/faisal-alvi), [@peterwilsoncc](https://github.com/peterwilsoncc), [@ravinderk](https://github.com/ravinderk), [@qasumitbagthariya](https://github.com/qasumitbagthariya), [@jeffpaul](https://github.com/jeffpaul), [@dkotter](https://github.com/dkotter) via [#540](https://github.com/10up/distributor/pull/540))
 - Taxonomy filter for remote content pulls—allows filtering by category, tag, or custom taxonomy (props [@sanketio](https://github.com/sanketio), [@jeffpaul](https://github.com/jeffpaul), [@peterwilsoncc](https://github.com/peterwilsoncc), [@dkotter](https://github.com/dkotter) via [#1327](https://github.com/10up/distributor/pull/1327))
