@@ -38,6 +38,9 @@ Please report security bugs found in the source code of the undefined plugin thr
 
 == Upgrade Notice ==
 
+= 2.3.0 =
+**Distributor now requires WordPress 6.8 or later.**
+
 = 2.2.0 =
 **Distributor now requires WordPress 6.6 or later.**
 
