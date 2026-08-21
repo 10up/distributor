@@ -699,5 +699,5 @@ function enqueue_edit_scripts( $hook ) {
 		$asset_data = require $asset_file;
 	}
 
-	wp_enqueue_style( 'dt-admin-syndicated-post', plugins_url( '/dist/css/admin-edit-table.min.css', __DIR__ ), array(), $asset_data['version'] );
+	wp_enqueue_style( 'dt-admin-edit-table', plugins_url( '/dist/css/admin-edit-table.min.css', __DIR__ ), array(), $asset_data['version'] );
 }
