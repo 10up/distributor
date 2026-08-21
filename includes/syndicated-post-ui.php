@@ -689,7 +689,7 @@ function enqueue_edit_scripts( $hook ) {
 		return;
 	}
 
-	$asset_file = DT_PLUGIN_PATH . '/dist/js/gadmin-edit-table-css.min.asset.php';
+	$asset_file = DT_PLUGIN_PATH . '/dist/js/admin-edit-table-css.min.asset.php';
 	// Fallback asset data.
 	$asset_data = array(
 		'version'      => DT_VERSION,
