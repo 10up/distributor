@@ -60,7 +60,7 @@ function setup_columns() {
  */
 function add_distributor_column( $columns ) {
 	unset( $columns['date'] );
-	$columns['distributor'] = '<img src="' . esc_url( plugins_url( 'assets/img/icon.svg', __DIR__ ) ) . '" alt="' . esc_attr__( 'Posts distributed from another site.', 'distributor' ) . '" title="' . esc_attr__( 'Posts distributed from another site.', 'distributor' ) . '"> <span class="dt-column-header">Distributor</span>';
+	$columns['distributor'] = '<img src="' . esc_url( plugins_url( 'assets/img/icon.svg', __DIR__ ) ) . '" alt="' . esc_attr__( 'Posts distributed from another site.', 'distributor' ) . '" title="' . esc_attr__( 'Posts distributed from another site.', 'distributor' ) . '"> <span class="dt-column-header screen-reader-text">Distributor</span>';
 
 	$columns['date'] = esc_html__( 'Date', 'distributor' );
 
@@ -689,7 +689,7 @@ function enqueue_edit_scripts( $hook ) {
 		return;
 	}
 
-	$asset_file = DT_PLUGIN_PATH . '/dist/js/gadmin-edit-table-css.min.asset.php';
+	$asset_file = DT_PLUGIN_PATH . '/dist/js/admin-edit-table-css.min.asset.php';
 	// Fallback asset data.
 	$asset_data = array(
 		'version'      => DT_VERSION,
@@ -699,5 +699,5 @@ function enqueue_edit_scripts( $hook ) {
 		$asset_data = require $asset_file;
 	}
 
-	wp_enqueue_style( 'dt-admin-syndicated-post', plugins_url( '/dist/css/admin-edit-table.min.css', __DIR__ ), array(), $asset_data['version'] );
+	wp_enqueue_style( 'dt-admin-edit-table', plugins_url( '/dist/css/admin-edit-table.min.css', __DIR__ ), array(), $asset_data['version'] );
 }
