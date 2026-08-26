@@ -7,13 +7,13 @@ All notable changes to this project will be documented in this file, per [the Ke
 ## [2.3.1] - 2026-08-26
 ### Fixed
 - Rename list table styles to avoid naming collision and resolve interaction with Distributor's Edit Remove Meta plugin (props [@peterwilsoncc](https://github.com/peterwilsoncc), [@dkotter](https://github.com/dkotter) via [#1393](https://github.com/10up/distributor/pull/1393))
-- Ensure we only remove the `content_save_pre` filter when updating a post during a subscription request and we enable right after (props [@Banh-Bao-080899](https://github.com/Banh-Bao-080899), [@dkotter](https://github.com/dkotter), [@peterwilsoncc](https://github.com/peterwilsoncc) via [GHSA-73rr-9g9m-2fcm](https://github.com/10up/distributor/security/advisories/GHSA-73rr-9g9m-2fcm))
 - When receiving a subscription request, ensure we validate all data before using it to avoid PHP errors (props [@dkotter](https://github.com/dkotter), [@peterwilsoncc](https://github.com/peterwilsoncc) via [GHSA-73rr-9g9m-2fcm](https://github.com/10up/distributor/security/advisories/GHSA-73rr-9g9m-2fcm))
 - In subscription requests, ensure we properly limit taxonomy updates to those shown in the REST API (props [@dkotter](https://github.com/dkotter), [@peterwilsoncc](https://github.com/peterwilsoncc) via [GHSA-73rr-9g9m-2fcm](https://github.com/10up/distributor/security/advisories/GHSA-73rr-9g9m-2fcm))
 
 ### Security
 - Ensure we verify the subscription signature before we allow requests to the `/receive` endpoint (props [@Banh-Bao-080899](https://github.com/Banh-Bao-080899), [@dkotter](https://github.com/dkotter), [@peterwilsoncc](https://github.com/peterwilsoncc) via [GHSA-73rr-9g9m-2fcm](https://github.com/10up/distributor/security/advisories/GHSA-73rr-9g9m-2fcm))
 - Require the capability `edit_post` when making a request to the subscription `/create` endpoint. Note this may be a breaking change if you allow lower-privileged users the ability to make Distributor requests (props [@Banh-Bao-080899](https://github.com/Banh-Bao-080899), [@dkotter](https://github.com/dkotter), [@peterwilsoncc](https://github.com/peterwilsoncc) via [GHSA-73rr-9g9m-2fcm](https://github.com/10up/distributor/security/advisories/GHSA-73rr-9g9m-2fcm))
+- Ensure we only remove the `content_save_pre` filter when updating a post during a subscription request and we enable right after (props [@Banh-Bao-080899](https://github.com/Banh-Bao-080899), [@dkotter](https://github.com/dkotter), [@peterwilsoncc](https://github.com/peterwilsoncc) via [GHSA-73rr-9g9m-2fcm](https://github.com/10up/distributor/security/advisories/GHSA-73rr-9g9m-2fcm))
 
 ### Deprecated
 - Public method `dt_verify_signature_authentication` deprecated in favor of `verify_subscription_signature` (props [@dkotter](https://github.com/dkotter), [@peterwilsoncc](https://github.com/peterwilsoncc) via [GHSA-73rr-9g9m-2fcm](https://github.com/10up/distributor/security/advisories/GHSA-73rr-9g9m-2fcm))
