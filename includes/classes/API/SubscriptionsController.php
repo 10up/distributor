@@ -34,7 +34,6 @@ class SubscriptionsController extends \WP_REST_Controller {
 		$this->rest_base = ! empty( $obj->rest_base ) ? $obj->rest_base : $obj->name;
 
 		$this->meta = new \WP_REST_Post_Meta_Fields( $this->post_type );
-		add_filter( 'rest_authentication_errors', array( $this, 'dt_verify_signature_authentication' ) );
 	}
 
 	/**
@@ -130,52 +129,49 @@ class SubscriptionsController extends \WP_REST_Controller {
 	/**
 	 * Authenticate the request via the signature if available.
 	 *
+	 * @deprecated 2.3.1 Subscription signatures are verified in the endpoint
+	 *                   permission callbacks instead.
+	 *
 	 * @param  WP_Error|null|bool $status The authentication status.
 	 *
-	 * @return WP_Error|null|bool The filtered authentication status.
+	 * @return WP_Error|null|bool The unmodified authentication status.
 	 */
 	public function dt_verify_signature_authentication( $status ) {
+		_deprecated_function( __METHOD__, '2.3.1', 'Distributor\\API\\SubscriptionsController::verify_subscription_signature()' );
 
-		// Is the request authentication already handled?
-		if ( null !== $status ) {
-			return $status;
+		return $status;
+	}
+
+	/**
+	 * Verify the subscription signature sent with a request against the
+	 * signature stored on the post being updated.
+	 *
+	 * @param  WP_REST_Request $request Full details about the request.
+	 * @since  2.3.1
+	 * @return true|\WP_Error True if the signature is valid, \WP_Error object otherwise.
+	 */
+	protected function verify_subscription_signature( $request ) {
+		$post_id = (int) $request['post_id'];
+
+		if ( empty( $post_id ) ) {
+			return new \WP_Error( 'rest_post_invalid_post_id', esc_html__( 'Invalid post id.', 'distributor' ), array( 'status' => 400 ) );
 		}
 
-		if ( ! empty( $GLOBALS['wp']->query_vars['rest_route'] ) ) {
-			$path = $GLOBALS['wp']->query_vars['rest_route'];
-		} else {
-			// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotValidated -- see wp_fix_server_vars().
-			$path = esc_url_raw( wp_unslash( $_SERVER['REQUEST_URI'] ) );
-		}
+		$signature = $request['signature'];
 
-		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotValidated
-		$request = new \WP_REST_Request( strtoupper( sanitize_key( wp_unslash( $_SERVER['REQUEST_METHOD'] ) ) ), $path );
-		$request->set_body_params( wp_unslash( $_POST ) ); // phpcs:ignore
-
-		// If this is not a subscription request, return the original value.
-		if ( '/dt_subscription/receive' !== $request->get_route() && '/dt_subscription/delete' !== $request->get_route() ) {
-			return $status;
-		}
-
-		// If the signature is unset or empty, throw an error.
-		if ( ( ! isset( $request['signature'] ) ) || empty( $request['signature'] ) ) {
+		// Should already be verified as a string but checking again just in case.
+		if ( ! is_string( $signature ) || '' === trim( $signature ) ) {
 			return new \WP_Error( 'rest_post_invalid_signature', esc_html__( 'Signature invalid or missing.', 'distributor' ), array( 'status' => 403 ) );
 		}
 
-		// If the post id is missing, throw an error.
-		if ( empty( $request['post_id'] ) ) {
-			return new \WP_Error( 'rest_post_invalid_post_id', esc_html__( 'Invalid post id.', 'distributor' ), array( 'status' => 403 ) );
-		} else {
+		$stored_signature = get_post_meta( $post_id, 'dt_subscription_signature', true );
 
-			$signature = get_post_meta( $request['post_id'], 'dt_subscription_signature', true );
-
-			if ( $request['signature'] === $signature ) {
-				return true;
-			}
+		// An empty stored signature cannot match, as the value checked above is never empty.
+		if ( ! is_string( $stored_signature ) || ! hash_equals( $stored_signature, $signature ) ) {
+			return new \WP_Error( 'rest_post_invalid_signature', esc_html__( 'Signature invalid or missing.', 'distributor' ), array( 'status' => 403 ) );
 		}
 
-		// No check was performed, return the original value.
-		return $status;
+		return true;
 	}
 
 	/**
@@ -186,7 +182,7 @@ class SubscriptionsController extends \WP_REST_Controller {
 	 * @return true|\WP_Error True if the request has receive access, \WP_Error object otherwise.
 	 */
 	public function receive_item_permissions_check( $request ) {
-		return true;
+		return $this->verify_subscription_signature( $request );
 	}
 
 	/**
@@ -219,7 +215,7 @@ class SubscriptionsController extends \WP_REST_Controller {
 
 			return $response;
 		} else {
-			if ( empty( $request['post_data'] ) ) {
+			if ( empty( $request['post_data'] ) || ! is_array( $request['post_data'] ) ) {
 				return new \WP_Error( 'rest_post_no_data', esc_html__( 'No post data for update.', 'distributor' ), array( 'status' => 400 ) );
 			}
 
@@ -237,14 +233,31 @@ class SubscriptionsController extends \WP_REST_Controller {
 				$request['post_data']    = $registered_data_handler->process_registered_data( $request['post_data'], true );
 			}
 
-			// When both sides of a subscription connection support Gutenberg, update with the raw content.
-			$content = $request['post_data']['content'];
-			if ( \Distributor\Utils\is_using_gutenberg( $post ) && isset( $request['post_data']['distributor_raw_content'] ) ) {
-				if ( \Distributor\Utils\dt_use_block_editor_for_post_type( $post->post_type ) ) {
-					$content = $request['post_data']['distributor_raw_content'];
+			$post_data = $request['post_data'];
 
-					// Remove filters that may alter content updates.
-					remove_all_filters( 'content_save_pre' );
+			// Normalise the incoming fields up front.
+			$title   = isset( $post_data['title'] ) && is_string( $post_data['title'] ) ? $post_data['title'] : '';
+			$slug    = isset( $post_data['slug'] ) && is_string( $post_data['slug'] ) ? $post_data['slug'] : '';
+			$excerpt = isset( $post_data['excerpt'] ) && is_string( $post_data['excerpt'] ) ? $post_data['excerpt'] : '';
+			$meta    = isset( $post_data['distributor_meta'] ) && is_array( $post_data['distributor_meta'] ) ? $post_data['distributor_meta'] : [];
+			$terms   = isset( $post_data['distributor_terms'] ) && is_array( $post_data['distributor_terms'] ) ? $post_data['distributor_terms'] : [];
+			$media   = isset( $post_data['distributor_media'] ) && is_array( $post_data['distributor_media'] ) ? $post_data['distributor_media'] : [];
+
+			// Limit taxonomy updates to those shown in the REST API.
+			$rest_taxonomies = array_fill_keys( get_taxonomies( [ 'show_in_rest' => true ] ), true );
+			$terms           = array_intersect_key( $terms, $rest_taxonomies );
+
+			// When both sides of a subscription connection support Gutenberg, update with the raw content.
+			$content                 = isset( $post_data['content'] ) && is_string( $post_data['content'] ) ? $post_data['content'] : '';
+			$suspend_content_filters = false;
+
+			if ( \Distributor\Utils\is_using_gutenberg( $post ) && isset( $post_data['distributor_raw_content'] ) && is_string( $post_data['distributor_raw_content'] ) ) {
+				if ( \Distributor\Utils\dt_use_block_editor_for_post_type( $post->post_type ) ) {
+					$content = $post_data['distributor_raw_content'];
+
+					// Raw block content is stored verbatim. The filters that would alter
+					// it are suspended around the update itself, further down.
+					$suspend_content_filters = true;
 				}
 			}
 
@@ -253,20 +266,15 @@ class SubscriptionsController extends \WP_REST_Controller {
 			 * apply the update
 			 */
 			$update = [
-				'post_title'   => sanitize_text_field( $request['post_data']['title'] ),
-				'post_name'    => sanitize_text_field( $request['post_data']['slug'] ),
+				'post_title'   => sanitize_text_field( $title ),
+				'post_name'    => sanitize_text_field( $slug ),
 				'post_content' => wp_kses_post( $content ),
-				'post_excerpt' => wp_kses_post( $request['post_data']['excerpt'] ),
+				'post_excerpt' => wp_kses_post( $excerpt ),
 				// Todo: how do we properly sanitize this?
-				'meta'         => ( isset( $request['post_data']['distributor_meta'] ) ) ? $request['post_data']['distributor_meta'] : [],
-				'terms'        => ( isset( $request['post_data']['distributor_terms'] ) ) ? $request['post_data']['distributor_terms'] : [],
-				'media'        => ( isset( $request['post_data']['distributor_media'] ) ) ? $request['post_data']['distributor_media'] : [],
+				'meta'         => $meta,
+				'terms'        => $terms,
+				'media'        => $media,
 			];
-
-			// Limit taxonomy updates to those shown in the REST API.
-			$rest_taxonomies = get_taxonomies( [ 'show_in_rest' => true ] );
-			$rest_taxonomies = array_fill_keys( $rest_taxonomies, true );
-			$update['terms'] = array_intersect_key( $update['terms'], $rest_taxonomies );
 
 			update_post_meta( (int) $request['post_id'], 'dt_subscription_update', $update );
 
@@ -279,31 +287,50 @@ class SubscriptionsController extends \WP_REST_Controller {
 				return $response;
 			}
 
-			wp_update_post(
-				wp_slash(
-					[
-						'ID'           => $request['post_id'],
-						'post_title'   => $request['post_data']['title'],
-						'post_content' => $content,
-						'post_excerpt' => $request['post_data']['excerpt'],
-						'post_name'    => $request['post_data']['slug'],
-					]
-				)
-			);
+			/*
+			 * Suspend the `content_save_pre` filters for the duration of the update so
+			 * raw block content is stored verbatim.
+			 */
+			$suspended_content_filters = null;
+
+			if ( $suspend_content_filters && isset( $GLOBALS['wp_filter']['content_save_pre'] ) ) {
+				$suspended_content_filters = $GLOBALS['wp_filter']['content_save_pre'];
+
+				unset( $GLOBALS['wp_filter']['content_save_pre'] );
+			}
+
+			try {
+				wp_update_post(
+					wp_slash(
+						[
+							'ID'           => $request['post_id'],
+							'post_title'   => $title,
+							'post_content' => $content,
+							'post_excerpt' => $excerpt,
+							'post_name'    => $slug,
+						]
+					)
+				);
+			} finally {
+				// Restored even if a save hook throws, so kses cannot stay disabled.
+				if ( null !== $suspended_content_filters ) {
+					$GLOBALS['wp_filter']['content_save_pre'] = $suspended_content_filters;
+				}
+			}
 
 			/**
 			 * We check if each of these exist since the API removes empty arrays from requests
 			 */
-			if ( ! empty( $request['post_data']['distributor_meta'] ) ) {
-				\Distributor\Utils\set_meta( $request['post_id'], $request['post_data']['distributor_meta'] );
+			if ( ! empty( $meta ) ) {
+				\Distributor\Utils\set_meta( $request['post_id'], $meta );
 			}
 
-			if ( ! empty( $request['post_data']['distributor_terms'] ) ) {
-				\Distributor\Utils\set_taxonomy_terms( $request['post_id'], $request['post_data']['distributor_terms'] );
+			if ( ! empty( $terms ) ) {
+				\Distributor\Utils\set_taxonomy_terms( $request['post_id'], $terms );
 			}
 
-			if ( ! empty( $request['post_data']['distributor_media'] ) ) {
-				\Distributor\Utils\set_media( $request['post_id'], $request['post_data']['distributor_media'] );
+			if ( ! empty( $media ) ) {
+				\Distributor\Utils\set_media( $request['post_id'], $media );
 			} else {
 				// Remove any previously set featured image.
 				delete_post_meta( (int) $request['post_id'], '_thumbnail_id' );
@@ -355,6 +382,22 @@ class SubscriptionsController extends \WP_REST_Controller {
 			return new \WP_Error( 'rest_cannot_create', esc_html__( 'Sorry, you are not allowed to create subscriptions.', 'distributor' ), array( 'status' => rest_authorization_required_code() ) );
 		}
 
+		$post_id = (int) $request['post_id'];
+		$post    = empty( $post_id ) ? null : get_post( $post_id );
+
+		if ( empty( $post ) ) {
+			return new \WP_Error( 'rest_post_invalid_id', esc_html__( 'Invalid post ID.', 'distributor' ), array( 'status' => 404 ) );
+		}
+
+		/*
+		 * We already check `create_posts` above but a subscription sends the full content,
+		 * meta, terms and media on every update, so we want the caller to be able to edit the
+		 * specific post being subscribed to, not merely to hold a generic editing capability.
+		 */
+		if ( ! current_user_can( 'edit_post', $post_id ) ) {
+			return new \WP_Error( 'rest_cannot_create', esc_html__( 'Sorry, you are not allowed to create subscriptions for this post.', 'distributor' ), array( 'status' => rest_authorization_required_code() ) );
+		}
+
 		return true;
 	}
 
@@ -374,7 +417,14 @@ class SubscriptionsController extends \WP_REST_Controller {
 			return new \WP_Error( 'rest_subscription_post_missing', esc_html__( 'Subscription post does not exist.', 'distributor' ), array( 'status' => 400 ) );
 		}
 
-		$post_id = \Distributor\Subscriptions\create_subscription( $request['post_id'], $request['remote_post_id'], $request['target_url'], $request['signature'] );
+		$target_url  = is_string( $request['target_url'] ) ? $request['target_url'] : '';
+		$target_host = wp_parse_url( $target_url, PHP_URL_HOST );
+
+		if ( empty( $target_host ) || ! in_array( wp_parse_url( $target_url, PHP_URL_SCHEME ), array( 'http', 'https' ), true ) ) {
+			return new \WP_Error( 'rest_subscription_invalid_target_url', esc_html__( 'Invalid target URL.', 'distributor' ), array( 'status' => 400 ) );
+		}
+
+		$post_id = \Distributor\Subscriptions\create_subscription( $request['post_id'], $request['remote_post_id'], $target_url, $request['signature'] );
 
 		/**
 		 * We need to make sure this post shows up as "distributed"
@@ -420,16 +470,22 @@ class SubscriptionsController extends \WP_REST_Controller {
 	 * @return true|\WP_Error True if the request has access to delete the item, \WP_Error object otherwise.
 	 */
 	public function delete_item_permissions_check( $request ) {
-		$post = get_post( $request['post_id'] );
-
-		if ( empty( $post ) ) {
-			return new \WP_Error( 'rest_post_invalid_id', esc_html__( 'Invalid post ID.', 'distributor' ), array( 'status' => 404 ) );
+		// Should already be verified as a string but checking again just in case.
+		if ( ! is_string( $request['signature'] ) || '' === trim( $request['signature'] ) ) {
+			return new \WP_Error( 'rest_post_invalid_signature', esc_html__( 'Signature invalid or missing.', 'distributor' ), array( 'status' => 403 ) );
 		}
 
 		$subscriptions = get_post_meta( $request['post_id'], 'dt_subscriptions', true );
 
-		if ( empty( $subscriptions[ md5( $request['signature'] ) ] ) ) {
-			return false;
+		if ( ! is_array( $subscriptions ) || empty( $subscriptions[ md5( $request['signature'] ) ] ) ) {
+			return new \WP_Error( 'rest_post_invalid_signature', esc_html__( 'Signature invalid or missing.', 'distributor' ), array( 'status' => 403 ) );
+		}
+
+		// Only reachable with a valid signature, so the post ID can safely be confirmed.
+		$post = get_post( $request['post_id'] );
+
+		if ( empty( $post ) ) {
+			return new \WP_Error( 'rest_post_invalid_id', esc_html__( 'Invalid post ID.', 'distributor' ), array( 'status' => 404 ) );
 		}
 
 		return true;
