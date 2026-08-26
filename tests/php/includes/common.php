@@ -11,9 +11,18 @@
  */
 #[AllowDynamicProperties]
 class WP_Error {
-	public function __construct( $code = '', $message = '' ) {
+	public function __construct( $code = '', $message = '', $data = array() ) {
 		$this->code    = $code;
 		$this->message = $message;
+		$this->data    = $data;
+	}
+
+	public function get_error_code() {
+		return $this->code;
+	}
+
+	public function get_error_data() {
+		return $this->data;
 	}
 }
 
@@ -388,4 +397,117 @@ class TestInternalConnection extends \Distributor\Connection {
 	public function get_post_type_taxonomies( $post_type ) { }
 
 	public function get_taxonomy_terms() { }
+}
+
+/**
+ * Thin stand-in for wp_parse_url(), which core implements over parse_url().
+ */
+if ( ! function_exists( 'wp_parse_url' ) ) {
+	function wp_parse_url( $url, $component = -1 ) {
+		return parse_url( $url, $component );
+	}
+}
+
+/**
+ * Hollowed out WP_REST_Controller class for mocking
+ */
+#[AllowDynamicProperties]
+class WP_REST_Controller {
+	protected $namespace;
+
+	protected $rest_base;
+}
+
+/**
+ * Hollowed out WP_REST_Post_Meta_Fields class for mocking
+ */
+#[AllowDynamicProperties]
+class WP_REST_Post_Meta_Fields {
+	public function __construct( $post_type = '' ) {
+		$this->post_type = $post_type;
+	}
+}
+
+/**
+ * Hollowed out WP_REST_Request class for mocking.
+ *
+ * Only the array access used by the controllers is modelled. As in core, reading
+ * an absent parameter yields null rather than emitting a notice.
+ */
+#[AllowDynamicProperties]
+class WP_REST_Request implements ArrayAccess {
+	protected $method;
+
+	protected $route;
+
+	protected $params = array();
+
+	public function __construct( $method = '', $route = '', $attributes = array() ) {
+		$this->method = $method;
+		$this->route  = $route;
+	}
+
+	public function get_route() {
+		return $this->route;
+	}
+
+	public function get_method() {
+		return $this->method;
+	}
+
+	public function set_body_params( $params ) {
+		$this->params = array_merge( $this->params, (array) $params );
+	}
+
+	public function set_param( $key, $value ) {
+		$this->params[ $key ] = $value;
+	}
+
+	#[\ReturnTypeWillChange]
+	public function offsetExists( $offset ) {
+		return isset( $this->params[ $offset ] );
+	}
+
+	#[\ReturnTypeWillChange]
+	public function offsetGet( $offset ) {
+		return isset( $this->params[ $offset ] ) ? $this->params[ $offset ] : null;
+	}
+
+	#[\ReturnTypeWillChange]
+	public function offsetSet( $offset, $value ) {
+		$this->params[ $offset ] = $value;
+	}
+
+	#[\ReturnTypeWillChange]
+	public function offsetUnset( $offset ) {
+		unset( $this->params[ $offset ] );
+	}
+}
+
+/**
+ * Hollowed out WP_REST_Response class for mocking
+ */
+#[AllowDynamicProperties]
+class WP_REST_Response {
+	protected $data;
+
+	protected $status;
+
+	public function __construct( $data = null, $status = 200, $headers = array() ) {
+		$this->data    = $data;
+		$this->status  = $status;
+		$this->headers = $headers;
+	}
+
+	public function set_data( $data ) {
+		$this->data = $data;
+	}
+
+	public function get_data() {
+		return $this->data;
+	}
+
+	public function get_status() {
+		return $this->status;
+	}
 }
