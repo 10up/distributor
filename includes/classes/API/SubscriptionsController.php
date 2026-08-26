@@ -129,7 +129,7 @@ class SubscriptionsController extends \WP_REST_Controller {
 	/**
 	 * Authenticate the request via the signature if available.
 	 *
-	 * @deprecated x.x.x Subscription signatures are verified in the endpoint
+	 * @deprecated 2.3.1 Subscription signatures are verified in the endpoint
 	 *                   permission callbacks instead.
 	 *
 	 * @param  WP_Error|null|bool $status The authentication status.
@@ -137,7 +137,7 @@ class SubscriptionsController extends \WP_REST_Controller {
 	 * @return WP_Error|null|bool The unmodified authentication status.
 	 */
 	public function dt_verify_signature_authentication( $status ) {
-		_deprecated_function( __METHOD__, 'x.x.x', 'Distributor\\API\\SubscriptionsController::verify_subscription_signature()' );
+		_deprecated_function( __METHOD__, '2.3.1', 'Distributor\\API\\SubscriptionsController::verify_subscription_signature()' );
 
 		return $status;
 	}
@@ -147,7 +147,7 @@ class SubscriptionsController extends \WP_REST_Controller {
 	 * signature stored on the post being updated.
 	 *
 	 * @param  WP_REST_Request $request Full details about the request.
-	 * @since  x.x.x
+	 * @since  2.3.1
 	 * @return true|\WP_Error True if the signature is valid, \WP_Error object otherwise.
 	 */
 	protected function verify_subscription_signature( $request ) {
