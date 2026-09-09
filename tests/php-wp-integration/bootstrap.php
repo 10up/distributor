@@ -19,7 +19,7 @@ if ( false !== $_distributor_phpunit_polyfills_path ) {
 }
 
 if ( ! file_exists( "{$_distributor_wp_tests_directory}/includes/functions.php" ) ) {
-	echo "Could not find {$_distributor_wp_tests_directory}/includes/functions.php, have you run bin/install-wp-tests.sh ?" . PHP_EOL; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+	echo "Could not find {$_distributor_wp_tests_directory}/includes/functions.php, have you run tests/bin/install-wp-tests.sh ?" . PHP_EOL; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 	exit( 1 );
 }
 
