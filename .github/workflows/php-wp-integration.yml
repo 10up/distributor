@@ -34,7 +34,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        wp: [ '6.8', '6.9', '7.0', '7.1' ]
+        wp: [ '6.8', '6.9', '7.0', 'latest', 'trunk' ]
         php: [ '7.4', '8.0', '8.1' ]
         os: [ ubuntu-latest ]
 
