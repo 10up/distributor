@@ -103,13 +103,32 @@ install_test_suite() {
 		local ioption='-i'
 	fi
 
+	# GitHub's wordpress-develop mirror tags x.x.0 releases as "x.x.0", whereas
+	# SVN's tag for that same release is just "x.x" (see WP_TESTS_TAG above).
+	local WP_DEVELOP_REF=${WP_TESTS_TAG#tags/}
+	WP_DEVELOP_REF=${WP_DEVELOP_REF#branches/}
+	if [[ $WP_TESTS_TAG == tags/* && $WP_DEVELOP_REF =~ ^[0-9]+\.[0-9]+$ ]]; then
+		WP_DEVELOP_REF="$WP_DEVELOP_REF.0"
+	fi
+
 	# set up testing suite if it doesn't yet exist
 	if [ ! -d $WP_TESTS_DIR ]; then
 		# set up testing suite
 		mkdir -p $WP_TESTS_DIR
 		rm -rf $WP_TESTS_DIR/{includes,data}
-		svn export --quiet --ignore-externals https://develop.svn.wordpress.org/${WP_TESTS_TAG}/tests/phpunit/includes/ $WP_TESTS_DIR/includes
-		svn export --quiet --ignore-externals https://develop.svn.wordpress.org/${WP_TESTS_TAG}/tests/phpunit/data/ $WP_TESTS_DIR/data
+
+		local WP_DEVELOP_DIR=$TMPDIR/wordpress-develop
+		rm -rf $WP_DEVELOP_DIR
+		# shallow clone + partial blob filter + sparse-checkout: only fetch the
+		# single ref's commit/tree objects, then only the blobs for the two
+		# directories we actually need, instead of the whole wordpress-develop repo
+		git clone --quiet --no-checkout --depth=1 --filter=blob:none --branch="$WP_DEVELOP_REF" --single-branch https://github.com/WordPress/wordpress-develop.git $WP_DEVELOP_DIR
+		git -C $WP_DEVELOP_DIR sparse-checkout set --cone tests/phpunit/includes tests/phpunit/data
+		git -C $WP_DEVELOP_DIR checkout --quiet "$WP_DEVELOP_REF"
+
+		mv $WP_DEVELOP_DIR/tests/phpunit/includes $WP_TESTS_DIR/includes
+		mv $WP_DEVELOP_DIR/tests/phpunit/data $WP_TESTS_DIR/data
+		rm -rf $WP_DEVELOP_DIR
 	fi
 
 	if [ ! -f wp-tests-config.php ]; then
