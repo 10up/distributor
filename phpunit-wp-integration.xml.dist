@@ -1,0 +1,11 @@
+<phpunit
+	bootstrap="./tests/php-wp-integration/bootstrap.php"
+	backupGlobals="false"
+	colors="true"
+	>
+	<testsuites>
+		<testsuite name='distributor-wp-integration-tests'>
+			<directory suffix="Test.php">./tests/php/</directory>
+		</testsuite>
+	</testsuites>
+</phpunit>
