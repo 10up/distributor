@@ -24,7 +24,7 @@ class Test_Sample extends WP_UnitTestCase {
 	 * Ensure first post is titled Hello World
 	 */
 	public function test_get_post() {
-		$post_id = $this->factory()->posts->create();
+		$post_id = $this->factory()->post->create();
 
 		$this->assertInstanceOf( '\WP_Post', get_post( $post_id ) );
 	}
