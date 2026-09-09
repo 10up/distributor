@@ -35,6 +35,10 @@ class Test_Utils extends WP_UnitTestCase {
 	 */
 	public static function wpSetUpBeforeClass( WP_UnitTest_Factory $factory ) {
 		self::$post_id = $factory->post->create();
+
+		// Clear default post meta.
+		delete_post_meta( self::$post_id, '_pingme' );
+		delete_post_meta( self::$post_id, '_encloseme' );
 	}
 
 	/**
