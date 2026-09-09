@@ -1,0 +1,66 @@
+name: WordPress Integration Tests
+
+env:
+  COMPOSER_VERSION: "2"
+  COMPOSER_CACHE: "${{ github.workspace }}/.composer-cache"
+
+on:
+  schedule:
+    - cron:  '0 0 * * *'
+  push:
+    branches:
+      - develop
+      - trunk
+  pull_request:
+    branches:
+      - develop
+
+jobs:
+
+  phpunit:
+    name: WP ${{ matrix.wp }} / PHP ${{ matrix.php }} on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    env:
+      DB_DATABASE: wordpress_test
+      DB_USER: root
+      DB_PASSWORD: root
+    strategy:
+      fail-fast: false
+      matrix:
+        wp: [ '6.8', '6.9', '7.0', '7.1' ]
+        php: [ '7.4', '8.0', '8.1' ]
+        os: [ ubuntu-latest ]
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+    - name: Set standard 10up cache directories
+      run: |
+        composer config -g cache-dir "${{ env.COMPOSER_CACHE }}"
+
+    - name: Prepare composer cache
+      uses: actions/cache@d4323d4df104b026a6aa633fdb11d772146be0bf # v4.2.2
+      with:
+        path: ${{ env.COMPOSER_CACHE }}
+        key: composer-${{ env.COMPOSER_VERSION }}-${{ hashFiles('**/composer.lock') }}
+        restore-keys: |
+          composer-${{ env.COMPOSER_VERSION }}-
+
+    - name: Set PHP version
+      uses: shivammathur/setup-php@9e72090525849c5e82e596468b86eb55e9cc5401 # v2.32.0
+      with:
+        php-version: ${{ matrix.php }}
+        coverage: none
+        tools: phpunit-polyfills, composer:v2
+
+    - name: Install dependencies
+      run: composer update -W
+
+    - name: Install WordPress
+      run: |
+        sudo /etc/init.d/mysql start
+        bash tests/bin/install-wp-tests.sh wordpress_test root root 127.0.0.1 ${{ matrix.wp }}
+
+    - name: PHPUnit
+      run: './vendor/bin/phpunit -c phpunit-wp-integration.xml.dist'
