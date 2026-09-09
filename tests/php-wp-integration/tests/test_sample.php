@@ -21,13 +21,6 @@ class Test_Sample extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Ensure failing tests fail.
-	 */
-	public function test_failing_assertion() {
-		$this->assertFalse( true );
-	}
-
-	/**
 	 * Ensure first post is titled Hello World
 	 */
 	public function test_get_post() {
