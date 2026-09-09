@@ -74,3 +74,6 @@ jobs:
 
     - name: PHPUnit
       run: './vendor/bin/phpunit -c phpunit-wp-integration.xml.dist'
+      env:
+        WP_TESTS_DIR: ${{ runner.temp }}/wordpress-tests-lib
+        WP_CORE_DIR: ${{ runner.temp }}/wordpress
