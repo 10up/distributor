@@ -64,7 +64,7 @@ install_wp() {
 	if [[ $WP_VERSION == 'nightly' || $WP_VERSION == 'trunk' ]]; then
 		mkdir -p $TMPDIR/wordpress-trunk
 		rm -rf $TMPDIR/wordpress-trunk/*
-		git clone https://github.com/wordpress/wordpress $TMPDIR/wordpress-trunk/wordpress
+		git clone --depth=1 --single-branch https://github.com/wordpress/wordpress $TMPDIR/wordpress-trunk/wordpress
 		mv $TMPDIR/wordpress-trunk/wordpress/* $WP_CORE_DIR
 	else
 		if [ $WP_VERSION == 'latest' ]; then
