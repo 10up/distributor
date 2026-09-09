@@ -77,3 +77,4 @@ jobs:
       env:
         WP_TESTS_DIR: ${{ runner.temp }}/wordpress-tests-lib
         WP_CORE_DIR: ${{ runner.temp }}/wordpress
+        WP_VERSION: $${{ matrix.wp }}

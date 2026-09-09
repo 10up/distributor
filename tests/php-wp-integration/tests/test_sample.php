@@ -17,6 +17,8 @@ class Test_Sample extends WP_UnitTestCase {
 	 * Ensure passing tests pass.
 	 */
 	public function test_passing_assertion() {
+		global $wp_version;
+		var_dump( getenv('WP_VERSION'), $wp_version );
 		$this->assertTrue( true );
 	}
 
