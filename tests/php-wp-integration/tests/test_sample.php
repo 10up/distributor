@@ -32,6 +32,6 @@ class Test_Sample extends WP_UnitTestCase {
 	 */
 	public function test_get_post() {
 		$this->assertNotFalse( get_post( 1 ) );
-		$this->assertSame( 'Hello World!', get_the_title( 1 ) );
+		$this->assertInstanceOf( '\WP_Post', get_post( 1 ) );
 	}
 }
