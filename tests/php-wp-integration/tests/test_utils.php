@@ -52,27 +52,27 @@ class Test_Utils extends WP_UnitTestCase {
 		$mock_action = new \MockAction();
 		add_action( 'dt_after_set_meta', array( $mock_action, 'action' ), 10, 3 );
 
-		set_meta( $post_id, array( 'key' => array( 'value' ) ) );
+		set_meta( $post_id, array( 'dt_meta' => array( 'dt_meta_value' ) ) );
 
-		$this->assertSame( array( 'value' ), get_post_meta( $post_id, 'key', false ) );
+		$this->assertSame( array( 'dt_meta_value' ), get_post_meta( $post_id, 'dt_meta', false ), 'Post meta with the key "dt_meta" is expected to have the value "[ dt_meta_value ]".' );
 
-		set_meta( $post_id, array( 'key' => array( array( 'value' ) ) ) );
+		set_meta( $post_id, array( 'dt_meta' => array( array( 'dt_meta_value' ) ) ) );
 
-		$this->assertSame( array( array( 'value' ) ), get_post_meta( $post_id, 'key', false ) );
+		$this->assertSame( array( array( 'dt_meta_value' ) ), get_post_meta( $post_id, 'dt_meta', false ), 'Post meta with the key "dt_meta" is expected to have the value "[ [ dt_meta_value ] ]".' );
 
 		$this->assertSame( 2, $mock_action->get_call_count() );
 
 		$call_args = $mock_action->get_args();
 
 		// First call: no pre-existing meta.
-		$this->assertSame( array( 'key' => array( 'value' ) ), $call_args[0][0] );
-		$this->assertSame( array(), $call_args[0][1] );
-		$this->assertSame( $post_id, $call_args[0][2] );
+		$this->assertSame( array( 'dt_meta' => array( 'dt_meta_value' ) ), $call_args[0][0], 'First firing of dt_after_set_meta should set a string.' );
+		$this->assertSame( array(), $call_args[0][1], 'First firing of dt_after_set_meta should show no existing meta.' );
+		$this->assertSame( $post_id, $call_args[0][2], "First firing of dt_after_set_meta should show post ID: {$post_id}." );
 
 		// Second call: meta from the first call is now "existing".
-		$this->assertSame( array( 'key' => array( array( 'value' ) ) ), $call_args[1][0] );
-		$this->assertSame( array( 'key' => array( 'value' ) ), $call_args[1][1] );
-		$this->assertSame( $post_id, $call_args[1][2] );
+		$this->assertSame( array( 'dt_meta' => array( array( 'dt_meta_value' ) ) ), $call_args[1][0], 'Second firing of dt_after_set_meta should set an array.' );
+		$this->assertSame( array( 'dt_meta' => array( 'dt_meta_value' ) ), $call_args[1][1], 'Second firing of dt_after_set_meta should show existing meta.' );
+		$this->assertSame( $post_id, $call_args[1][2], "Second firing of dt_after_set_meta should show post ID: {$post_id}." );
 	}
 
 	/**
@@ -89,26 +89,26 @@ class Test_Utils extends WP_UnitTestCase {
 		set_meta(
 			$post_id,
 			array(
-				'key'  => array( 'value' ),
-				'key2' => array( 'value2' ),
+				'dt_meta' => array( 'dt_meta_value' ),
+				'key2'    => array( 'value2' ),
 			)
 		);
 
-		$this->assertSame( array( 'value' ), get_post_meta( $post_id, 'key', false ) );
-		$this->assertSame( array( 'value2' ), get_post_meta( $post_id, 'key2', false ) );
+		$this->assertSame( array( 'dt_meta_value' ), get_post_meta( $post_id, 'dt_meta', false ), 'Post meta with the key "dt_meta" is expected to have the value "[ dt_meta_value ]".' );
+		$this->assertSame( array( 'value2' ), get_post_meta( $post_id, 'key2', false ), 'Post meta with the key "key2" is expected to have the value "[ value2 ]".' );
 
 		set_meta(
 			$post_id,
 			array(
-				'key'  => array( 'value', 'value2' ),
-				'key2' => array( 'value3' ),
+				'dt_meta' => array( 'dt_meta_value', 'value2' ),
+				'key2'    => array( 'value3' ),
 			)
 		);
 
-		$this->assertSame( array( 'value', 'value2' ), get_post_meta( $post_id, 'key', false ) );
-		$this->assertSame( array( 'value3' ), get_post_meta( $post_id, 'key2', false ) );
+		$this->assertSame( array( 'dt_meta_value', 'value2' ), get_post_meta( $post_id, 'dt_meta', false ), 'Updated post meta with the key "dt_meta" is expected to have the value "[ dt_meta_value, value2 ]".' );
+		$this->assertSame( array( 'value3' ), get_post_meta( $post_id, 'key2', false ), 'Updated meta with the key "key2" is expected to have the value "[ value3 ]".' );
 
-		$this->assertSame( 2, $mock_action->get_call_count() );
+		$this->assertSame( 2, $mock_action->get_call_count(), 'The filter dt_after_set_meta is expected to be called twice.' );
 	}
 
 	/**
@@ -119,21 +119,10 @@ class Test_Utils extends WP_UnitTestCase {
 	public function test_set_meta_serialize() {
 		$post_id = self::$post_id;
 
-		set_meta(
-			$post_id,
-			array(
-				'key'  => array( 'value' ),
-				'key2' => array( array( 0 => 'test' ) ),
-			)
-		);
-
-		$this->assertSame( array( 'value' ), get_post_meta( $post_id, 'key', false ) );
-		$this->assertSame( array( array( 0 => 'test' ) ), get_post_meta( $post_id, 'key2', false ) );
-
 		// Meta can arrive as an already-serialized string, e.g. from a remote site over REST.
 		set_meta( $post_id, array( 'key3' => array( 'a:1:{i:0;s:4:"test";}' ) ) );
 
-		$this->assertSame( array( array( 0 => 'test' ) ), get_post_meta( $post_id, 'key3', false ) );
+		$this->assertSame( array( array( 0 => 'test' ) ), get_post_meta( $post_id, 'key3', false ), 'Serialized post meta is expected to be unserialized.' );
 	}
 
 	/**
@@ -165,7 +154,7 @@ class Test_Utils extends WP_UnitTestCase {
 			)
 		);
 
-		$this->assertSame( array( $term->term_id ), wp_get_post_terms( $post_id, 'category', array( 'fields' => 'ids' ) ) );
+		$this->assertSame( array( $term->term_id ), wp_get_post_terms( $post_id, 'category', array( 'fields' => 'ids' ) ), "Post {$post_id} is expected to be in category {$term->term_id}." );
 
 		// No duplicate term should have been created for the existing slug.
 		$terms_with_slug = get_terms(
@@ -175,9 +164,9 @@ class Test_Utils extends WP_UnitTestCase {
 				'hide_empty' => false,
 			)
 		);
-		$this->assertCount( 1, $terms_with_slug );
+		$this->assertCount( 1, $terms_with_slug, 'Existing terms should not be recreated.' );
 
-		$this->assertSame( 0, get_term( $term->term_id, 'category' )->parent );
+		$this->assertSame( 0, get_term( $term->term_id, 'category' )->parent, 'Term should not have a parent.' );
 	}
 
 	/**
@@ -212,12 +201,12 @@ class Test_Utils extends WP_UnitTestCase {
 
 		$term = get_term_by( 'slug', $slug, $taxonomy );
 
-		$this->assertInstanceOf( 'WP_Term', $term );
-		$this->assertSame( $name, $term->name );
-		$this->assertSame( $description, $term->description );
-		$this->assertSame( 0, $term->parent );
+		$this->assertInstanceOf( 'WP_Term', $term, 'Term should be created by `set_taxonomy_terms()`.' );
+		$this->assertSame( $name, $term->name, 'Term name should match value used when setting.' );
+		$this->assertSame( $description, $term->description, 'Term description should match value used when setting.' );
+		$this->assertSame( 0, $term->parent, 'Term should not have a parent.' );
 
-		$this->assertSame( array( $term->term_id ), wp_get_post_terms( $post_id, $taxonomy, array( 'fields' => 'ids' ) ) );
+		$this->assertSame( array( $term->term_id ), wp_get_post_terms( $post_id, $taxonomy, array( 'fields' => 'ids' ) ), 'Term should be assigned to post.' );
 	}
 
 	/**
@@ -229,7 +218,7 @@ class Test_Utils extends WP_UnitTestCase {
 		$post_id  = self::$post_id;
 		$taxonomy = 'a_taxonomy_that_does_not_exist';
 
-		$this->assertFalse( taxonomy_exists( $taxonomy ) );
+		$this->assertFalse( taxonomy_exists( $taxonomy ), 'Test taxonomy should not exist.' );
 
 		set_taxonomy_terms(
 			$post_id,
@@ -245,8 +234,27 @@ class Test_Utils extends WP_UnitTestCase {
 			)
 		);
 
+		$term_count = get_terms(
+			array(
+				'object_ids' => $post_id,
+				'hide_empty' => false,
+				'fields'     => 'count',
+			)
+		);
+
 		// Nothing should have been created for the unregistered taxonomy.
-		$this->assertFalse( get_term_by( 'slug', 'slug', 'category' ) );
+		$this->assertSame( '1', $term_count, 'The post should only have one term (the default category).' );
+
+		$term_count = get_terms(
+			array(
+				'object_ids' => $post_id,
+				'hide_empty' => false,
+				'fields'     => 'count',
+				'taxonomy'   => $taxonomy,
+			)
+		);
+
+		$this->assertWPError( $term_count, 'Calling get_terms with non-existent taxonomy should return a WP_Error.' );
 	}
 
 	/**
@@ -271,14 +279,36 @@ class Test_Utils extends WP_UnitTestCase {
 
 		$formatted_media = format_media_post( get_post( $media_id ), $parent_id );
 
-		$this->assertFalse( $formatted_media['featured'] );
-		$this->assertSame( $media_id, $formatted_media['id'] );
-		$this->assertSame( 'title', $formatted_media['title'] );
-		$this->assertSame( 'content', $formatted_media['description']['raw'] );
-		$this->assertSame( 'excerpt', $formatted_media['caption']['raw'] );
-		$this->assertSame( 'alt', $formatted_media['alt_text'] );
-		$this->assertSame( 'image', $formatted_media['media_type'] );
-		$this->assertSame( 'image/png', $formatted_media['mime_type'] );
+		$expected = array(
+			'id'            => $media_id,
+			'post'          => $parent_id,
+			'title'         => 'title',
+			'featured'      => false,
+			'description'   =>
+			array(
+				'raw'      => 'content',
+				'rendered' => "<p>content</p>\n",
+			),
+			'caption'       =>
+			array(
+				'raw' => 'excerpt',
+			),
+			'alt_text'      => 'alt',
+			'media_type'    => 'image',
+			'mime_type'     => 'image/png',
+			'media_details' => false,
+			'source_url'    => 'http://example.org/wp-content/uploads/test-image.jpg',
+			'source_file'   => '/tmp/wordpress/wp-content/uploads/test-image.jpg',
+			'meta'          =>
+			array(
+				'_wp_attachment_image_alt' =>
+				array(
+					0 => 'alt',
+				),
+			),
+		);
+
+		$this->assertSameSetsWithIndex( $expected, $formatted_media );
 	}
 
 	/**
@@ -301,7 +331,31 @@ class Test_Utils extends WP_UnitTestCase {
 
 		$formatted_media = format_media_post( get_post( $media_id ), $parent_id );
 
-		$this->assertTrue( $formatted_media['featured'] );
+		$expected = array(
+			'id'            => $media_id,
+			'post'          => $parent_id,
+			'title'         => 'title',
+			'featured'      => true,
+			'description'   =>
+			array(
+				'raw'      => '',
+				'rendered' => '',
+			),
+			'caption'       =>
+			array(
+				'raw' => '',
+			),
+			'alt_text'      => '',
+			'media_type'    => 'image',
+			'mime_type'     => 'image/png',
+			'media_details' => false,
+			'source_url'    => 'http://example.org/wp-content/uploads/test-image.jpg',
+			'source_file'   => '/tmp/wordpress/wp-content/uploads/test-image.jpg',
+			'meta'          =>
+			array(),
+		);
+
+		$this->assertSameSetsWithIndex( $expected, $formatted_media );
 	}
 
 	/**
@@ -318,12 +372,12 @@ class Test_Utils extends WP_UnitTestCase {
 		);
 
 		update_post_meta( $media_id, '_wp_attachment_metadata', array( 'width' => 100 ) );
-		update_post_meta( $media_id, 'custom_meta', 'value' );
+		update_post_meta( $media_id, 'custom_meta', 'dt_meta_value' );
 
 		$formatted_media = format_media_post( get_post( $media_id ), $parent_id );
 
-		$this->assertArrayNotHasKey( '_wp_attachment_metadata', $formatted_media['meta'] );
-		$this->assertArrayHasKey( 'custom_meta', $formatted_media['meta'] );
+		$this->assertArrayNotHasKey( '_wp_attachment_metadata', $formatted_media['meta'], 'Meta data should not include meta key "_wp_attachment_metadata".' );
+		$this->assertArrayHasKey( 'custom_meta', $formatted_media['meta'], 'Meta data should include meta key "custom_meta".' );
 	}
 
 	/**
@@ -354,13 +408,13 @@ class Test_Utils extends WP_UnitTestCase {
 
 		set_media( $post_id, array( $media_item ), array( 'use_filesystem' => false ) );
 
-		$this->assertSame( $existing_media_id, (int) get_post_thumbnail_id( $post_id ) );
+		$this->assertSame( $existing_media_id, (int) get_post_thumbnail_id( $post_id ), 'Media item should not be duplicated.' );
 
 		$updated_media = get_post( $existing_media_id );
-		$this->assertSame( 'New Title', $updated_media->post_title );
-		$this->assertSame( 'New content', $updated_media->post_content );
-		$this->assertSame( 'New caption', $updated_media->post_excerpt );
-		$this->assertSame( '999', get_post_meta( $existing_media_id, 'dt_original_media_id', true ) );
+		$this->assertSame( 'New Title', $updated_media->post_title, 'Media title should use updated value.' );
+		$this->assertSame( 'New content', $updated_media->post_content, 'Media content should use updated value.' );
+		$this->assertSame( 'New caption', $updated_media->post_excerpt, 'Media excerpt should use updated value.' );
+		$this->assertSame( '999', get_post_meta( $existing_media_id, 'dt_original_media_id', true ), 'Original post ID should be recorded correctly.' );
 	}
 
 	/**
