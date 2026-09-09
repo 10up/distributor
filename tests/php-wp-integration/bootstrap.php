@@ -30,7 +30,7 @@ require_once "{$_distributor_wp_tests_directory}/includes/functions.php";
  * Manually load the plugin being tested.
  */
 function _distributor_tests_load_plugin() {
-	require dirname( __DIR__, 3 ) . '/distributor.php';
+	require dirname( __DIR__, 2 ) . '/distributor.php';
 }
 
 tests_add_filter( 'muplugins_loaded', '_distributor_tests_load_plugin' );
