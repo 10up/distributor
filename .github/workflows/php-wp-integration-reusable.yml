@@ -1,5 +1,9 @@
 name: Reusable WordPress Integration Tests
 
+env:
+  COMPOSER_VERSION: "2"
+  COMPOSER_CACHE: "${{ github.workspace }}/.composer-cache"
+
 on:
   workflow_call:
     inputs:
