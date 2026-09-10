@@ -102,4 +102,15 @@ class test_NetworkSiteConnections extends WP_UnitTestCase {
 		$this->assertSame( $source_permalink, get_post_meta( $pulled_post_id, 'dt_original_post_url', true ), 'Original post permalink should be stored in post meta.' );
 		$this->assertGreaterThanOrEqual( $now, (int) get_post_meta( $pulled_post_id, 'dt_syndicate_time', true ), 'Syndication time should be stored in post meta.' );
 	}
+
+	/**
+	 * Verifies that when passed no id the request can still return items
+	 */
+	public function test_remote_get_empty_id() {
+		// Result will include the sample Hello World! post.
+		$result = self::$connection_obj->remote_get();
+
+		$this->assertSame( 1, $result['total_items'], '::remote_get() should return results with empty arguments.' );
+		$this->assertCount( 1, $result['items'], '::remote_get() should return one item.' );
+	}
 }
