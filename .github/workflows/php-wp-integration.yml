@@ -1,0 +1,86 @@
+name: WordPress Integration Tests
+
+env:
+  COMPOSER_VERSION: "2"
+  COMPOSER_CACHE: "${{ github.workspace }}/.composer-cache"
+
+on:
+  schedule:
+    - cron:  '0 0 * * *'
+  push:
+    branches:
+      - develop
+      - trunk
+  pull_request:
+    branches:
+      - develop
+
+# Cancels all previous workflow runs for pull requests that have not completed.
+concurrency:
+  # The concurrency group contains the workflow name and the branch name for pull requests
+  # or the commit hash for any other events.
+  group: ${{ github.workflow }}-${{ github.event_name == 'pull_request' && github.head_ref || github.sha }}
+  cancel-in-progress: true
+
+jobs:
+  build-matrix:
+    name: Build WP/PHP Matrix
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+    steps:
+      - id: set-matrix
+        name: Generate matrix JSON
+        shell: bash
+        run: |
+          declare -A wp_php
+          wp_php["trunk"]="7.4 8.0 8.1 8.2 8.3 8.4 8.5"
+          wp_php["7.1"]="7.4 8.0 8.1 8.2 8.3 8.4 8.5"
+          wp_php["7.0"]="7.4 8.0 8.1 8.2 8.3 8.4 8.5"
+          wp_php["6.9"]="7.4 8.0 8.1 8.2 8.3 8.4 8.5"
+          wp_php["6.8"]="7.4 8.0 8.1 8.2 8.3 8.4"
+
+          matrix='{"include":[]}'
+          mapfile -t wp_versions < <(
+            {
+              printf '%s\n' "${!wp_php[@]}" | grep -x 'trunk' || true
+              printf '%s\n' "${!wp_php[@]}" | grep -vx 'trunk' | sort -rV
+            }
+          )
+
+          for wp_version in "${wp_versions[@]}"; do
+            for php_version in ${wp_php[$wp_version]}; do
+              matrix=$(jq \
+                --arg wp "$wp_version" \
+                --arg php "$php_version" \
+                '.include += [{"wp-version": $wp, "php-version": $php}]' \
+                <<< "$matrix")
+            done
+          done
+
+          echo "matrix=$(jq -c . <<< "$matrix")" >> "$GITHUB_OUTPUT"
+
+  phpunit:
+    needs: build-matrix
+    name: WP ${{ matrix.wp-version }} / PHP ${{ matrix.php-version }}
+    strategy:
+      matrix: ${{ fromJSON(needs.build-matrix.outputs.matrix) }}
+      fail-fast: false
+    uses: ./.github/workflows/php-wp-integration-reusable.yml
+    with:
+      wp-version: ${{ matrix.wp-version }}
+      php-version: ${{ matrix.php-version }}
+
+  required-status-checks:
+    # This should be configured as the required status check in branch protection rules
+    #
+    # Using a summary job allows for easier management of the PHP Unit matrix as the
+    # required status check will not need to be updated when matrix items change.
+    name: WP Integration Required Status Checks
+    runs-on: 'ubuntu-24.04'
+    needs: [ 'build-matrix', 'phpunit' ]
+    if: ${{ always() }}
+    steps:
+      - name: Detect any failing status checks
+        run: |
+          [[ "${{ join(needs.*.result, ' ') }}" =~ ^(success ?)+$ ]] || exit 1
