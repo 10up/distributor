@@ -22,5 +22,6 @@ class Test_DebugInfo extends WP_UnitTestCase {
 		$this->assertArrayHasKey( 'fields', $info['distributor'], 'Distributor info should include fields' );
 		$this->assertEquals( 'Distributor', $info['distributor']['label'], 'Distributor label should be Distributor.' );
 		$this->assertEquals( 6, count( $info['distributor']['fields'] ), 'Debug info should include six fields.' );
+		$this->assertSame( DT_VERSION, wp_list_filter( $info['distributor']['fields'], array( 'label' => 'Version' ) )[0]['value'], 'Reported version should match constant' );
 	}
 }
