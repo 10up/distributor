@@ -29,12 +29,20 @@ class Test_Utils extends WP_UnitTestCase {
 	public static $post_id = 0;
 
 	/**
+	 * Uploads directory.
+	 *
+	 * @var string
+	 */
+	public static $upload_dir = '';
+
+	/**
 	 * Set up shared fixtures.
 	 *
 	 * @param WP_UnitTest_Factory $factory Test suite factory.
 	 */
 	public static function wpSetUpBeforeClass( WP_UnitTest_Factory $factory ) {
-		self::$post_id = $factory->post->create();
+		self::$post_id    = $factory->post->create();
+		self::$upload_dir = untrailingslashit( wp_upload_dir()['path'] );
 
 		// Clear default post meta.
 		delete_post_meta( self::$post_id, '_pingme' );
@@ -298,7 +306,7 @@ class Test_Utils extends WP_UnitTestCase {
 			'mime_type'     => 'image/png',
 			'media_details' => false,
 			'source_url'    => 'http://example.org/wp-content/uploads/test-image.jpg',
-			'source_file'   => '/tmp/wordpress/wp-content/uploads/test-image.jpg',
+			'source_file'   => self::$upload_dir . '/test-image.jpg',
 			'meta'          =>
 			array(
 				'_wp_attachment_image_alt' =>
@@ -350,7 +358,7 @@ class Test_Utils extends WP_UnitTestCase {
 			'mime_type'     => 'image/png',
 			'media_details' => false,
 			'source_url'    => 'http://example.org/wp-content/uploads/test-image.jpg',
-			'source_file'   => '/tmp/wordpress/wp-content/uploads/test-image.jpg',
+			'source_file'   => self::$upload_dir . 'test-image.jpg',
 			'meta'          =>
 			array(),
 		);
