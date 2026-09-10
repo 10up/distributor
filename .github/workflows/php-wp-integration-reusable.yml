@@ -1,4 +1,4 @@
-name: WordPress Integration Tests
+name: Reusable WordPress Integration Tests
 
 env:
   COMPOSER_VERSION: "2"
