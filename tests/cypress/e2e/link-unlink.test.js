@@ -29,7 +29,7 @@ describe( 'Linking and unlinking tests', () => {
 						'This post is linked to the origin post.'
 					);
 				cy.get(
-					'.components-notice__content .components-notice__action:eq(0)'
+					'.components-notice .components-notice__actions .components-notice__action:eq(0)'
 				)
 					.should( 'contain.text', 'Unlink from the origin post' )
 					.should( 'have.attr', 'href' )
@@ -61,7 +61,7 @@ describe( 'Linking and unlinking tests', () => {
 
 				// Unlink the post.
 				cy.get(
-					'.components-notice__content .components-notice__action:eq(0)'
+					'.components-notice .components-notice__actions .components-notice__action:eq(0)'
 				)
 					.should( 'contain.text', 'Unlink from the origin post' )
 					.click();
