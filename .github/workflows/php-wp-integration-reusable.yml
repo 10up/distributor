@@ -1,26 +1,16 @@
 name: Reusable WordPress Integration Tests
 
-env:
-  COMPOSER_VERSION: "2"
-  COMPOSER_CACHE: "${{ github.workspace }}/.composer-cache"
-
 on:
-  schedule:
-    - cron:  '0 0 * * *'
-  push:
-    branches:
-      - develop
-      - trunk
-  pull_request:
-    branches:
-      - develop
-
-# Cancels all previous workflow runs for pull requests that have not completed.
-concurrency:
-  # The concurrency group contains the workflow name and the branch name for pull requests
-  # or the commit hash for any other events.
-  group: ${{ github.workflow }}-${{ github.event_name == 'pull_request' && github.head_ref || github.sha }}
-  cancel-in-progress: true
+  workflow_call:
+    inputs:
+      wp-version:
+        description: WordPress version to test
+        required: true
+        type: string
+      php-version:
+        description: PHP version to test
+        required: true
+        type: string
 
 jobs:
 
