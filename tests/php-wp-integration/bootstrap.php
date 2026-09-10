@@ -34,7 +34,7 @@ function _distributor_tests_load_plugin() {
 }
 
 tests_add_filter( 'muplugins_loaded', '_distributor_tests_load_plugin' );
-tests_add_filter( 'pre_option_uploads_use_yearmonth_folders', '__return_false' );
+tests_add_filter( 'pre_option_uploads_use_yearmonth_folders', '__return_zero' ); // false does not preflight option.
 
 // Start up the WP testing environment.
 require "{$_distributor_wp_tests_directory}/includes/bootstrap.php";
