@@ -14,6 +14,9 @@ use WP_UnitTestCase;
  * Integration tests for includes/debug-info.php
  */
 class Test_DebugInfo extends WP_UnitTestCase {
+	/**
+	 * Ensure default debug info is populated.
+	 */
 	public function test_add_debug_info() {
 		$info = DebugInfo\add_debug_info( [] );
 
