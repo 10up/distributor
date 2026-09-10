@@ -358,7 +358,7 @@ class Test_Utils extends WP_UnitTestCase {
 			'mime_type'     => 'image/png',
 			'media_details' => false,
 			'source_url'    => 'http://example.org/wp-content/uploads/test-image.jpg',
-			'source_file'   => self::$upload_dir . 'test-image.jpg',
+			'source_file'   => self::$upload_dir . '/test-image.jpg',
 			'meta'          =>
 			array(),
 		);
