@@ -17,21 +17,13 @@ on:
         type: string
 
 jobs:
-
   phpunit:
-    name: WP ${{ matrix.wp }} / PHP ${{ matrix.php }} on ${{ matrix.os }}
-    runs-on: ${{ matrix.os }}
+    name: WP ${{ inputs.wp-version }} / PHP ${{ inputs.php-version }}
+    runs-on: ubuntu-latest
     env:
       DB_DATABASE: wordpress_test
       DB_USER: root
       DB_PASSWORD: root
-    strategy:
-      fail-fast: false
-      matrix:
-        wp: [ '6.8', '6.9', '7.0', 'latest', 'trunk' ]
-        php: [ '7.4', '8.0', '8.1', '8.2', '8.3', '8.4', '8.5' ]
-        os: [ ubuntu-latest ]
-
     steps:
     - name: Checkout
       uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
@@ -51,7 +43,7 @@ jobs:
     - name: Set PHP version
       uses: shivammathur/setup-php@9e72090525849c5e82e596468b86eb55e9cc5401 # v2.32.0
       with:
-        php-version: ${{ matrix.php }}
+        php-version: ${{ inputs.php-version }}
         coverage: none
         tools: phpunit-polyfills, composer:v2
 
@@ -61,7 +53,7 @@ jobs:
     - name: Install WordPress
       run: |
         sudo /etc/init.d/mysql start
-        bash tests/bin/install-wp-tests.sh wordpress_test root root 127.0.0.1 ${{ matrix.wp }}
+        bash tests/bin/install-wp-tests.sh wordpress_test root root 127.0.0.1 ${{ inputs.wp-version }}
 
     - name: PHPUnit
       run: './vendor/bin/phpunit -c phpunit-wp-integration.xml.dist'
