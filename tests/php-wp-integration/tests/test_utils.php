@@ -31,7 +31,7 @@ class Test_Utils extends WP_UnitTestCase {
 	/**
 	 * Set up shared fixtures.
 	 *
-	 * @param WP_UnitTest_Factory $factory
+	 * @param WP_UnitTest_Factory $factory Test suite factory.
 	 */
 	public static function wpSetUpBeforeClass( WP_UnitTest_Factory $factory ) {
 		self::$post_id = $factory->post->create();
@@ -428,7 +428,7 @@ class Test_Utils extends WP_UnitTestCase {
 
 		$existing_media_id = $this->factory()->attachment->create_object(
 			'test-image.jpg',
-			0,
+			$post_id,
 			array( 'post_mime_type' => 'image/jpeg' )
 		);
 		update_post_meta( $existing_media_id, 'dt_original_media_id', 55 );
@@ -438,7 +438,7 @@ class Test_Utils extends WP_UnitTestCase {
 			'id'          => 55,
 			'source_url'  => 'http://example.com/mediaitem.jpg',
 			'source_file' => '',
-			'featured'    => false,
+			'featured'    => true,
 			'title'       => 'Existing media',
 			'description' => array( 'raw' => '' ),
 			'caption'     => array( 'raw' => '' ),
@@ -446,21 +446,20 @@ class Test_Utils extends WP_UnitTestCase {
 
 		set_media( $post_id, array( $media_item ), array( 'use_filesystem' => false ) );
 
-		// The pre-existing attachment should be reused (and updated), not attached to this
-		// post - `set_media()` never touches `post_parent` for media matched this way -
-		// and no new attachment should have been created via `process_media()`.
+		// The pre-existing attachment should be reused (and updated).
 		$this->assertSame(
 			array( $existing_media_id ),
 			get_posts(
 				array(
 					'post_type'   => 'attachment',
-					'numberposts' => -1,
+					'numberposts' => 200,
 					'fields'      => 'ids',
 				)
 			)
 		);
+
 		$this->assertSame( 'Existing media', get_post( $existing_media_id )->post_title );
-		$this->assertSame( 0, (int) get_post_thumbnail_id( $post_id ) );
+		$this->assertSame( $existing_media_id, (int) get_post_thumbnail_id( $post_id ) );
 	}
 
 	/**
@@ -515,13 +514,13 @@ class Test_Utils extends WP_UnitTestCase {
 		remove_filter( 'pre_http_request', $intercept_download, 10 );
 
 		$attached = get_attached_media( 'image', $post_id );
-		$this->assertCount( 1, $attached );
+		$this->assertCount( 1, $attached, 'One media item should be attached.' );
 
 		$new_media = current( $attached );
-		$this->assertSame( 'Downloaded media', $new_media->post_title );
-		$this->assertSame( $new_media->ID, (int) get_post_thumbnail_id( $post_id ) );
-		$this->assertSame( $source_url, get_post_meta( $new_media->ID, 'dt_original_media_url', true ) );
-		$this->assertSame( '123', get_post_meta( $new_media->ID, 'dt_original_media_id', true ) );
+		$this->assertSame( 'Downloaded media', $new_media->post_title, 'Downloaded media should have the original (source) title.' );
+		$this->assertSame( $new_media->ID, (int) get_post_thumbnail_id( $post_id ), 'Post should use imported media ID for thumbnail.' );
+		$this->assertSame( $source_url, get_post_meta( $new_media->ID, 'dt_original_media_url', true ), 'Post meta should record original source URL.' );
+		$this->assertSame( '123', get_post_meta( $new_media->ID, 'dt_original_media_id', true ), 'Post meta should record original source ID.' );
 	}
 
 	/**
@@ -546,6 +545,6 @@ class Test_Utils extends WP_UnitTestCase {
 			'post_excerpt' => 'Test Excerpt',
 		);
 
-		$this->assertSame( $expected, post_args_allow_list( $post_args ) );
+		$this->assertSame( $expected, post_args_allow_list( $post_args ), 'Allow list for post args should only included expected values.' );
 	}
 }
