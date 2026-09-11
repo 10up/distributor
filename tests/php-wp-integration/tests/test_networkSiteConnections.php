@@ -114,4 +114,41 @@ class test_NetworkSiteConnections extends WP_UnitTestCase {
 		$this->assertCount( 1, $result['items'], '::remote_get() should return one item.' );
 		$this->assertInstanceOf( 'WP_Post', $result['items'][0], 'items[0] should be a WP_Post object.' );
 	}
+
+	/**
+	 * Verifies that the remote_get method returns an array containing source post data.
+	 *
+	 * @dataProvider data_remote_get
+	 *
+	 * @param string $compare  The post data item to compare.
+	 * @param mixed  $expected The expected result data if it differs from the source post. Optional, default null.
+	 */
+	public function test_remote_get( $compare, $expected = null ) {
+		$source_post_id = self::$post_id;
+		$source_post    = get_post( $source_post_id, ARRAY_A );
+		if ( null === $expected ) {
+			$expected = $source_post[ $compare ];
+		}
+
+		switch_to_blog( self::$blog_id );
+		$connection_obj = new NetworkSiteConnection( get_site( 1 ) );
+		$result         = $connection_obj->remote_get( array( 'id' => $source_post_id ) );
+
+		$this->assertSame( $expected, $result[ $compare ], "Remote get is returning unexpected `{$compare}`." );
+	}
+
+	/**
+	 * Data provider for test_remote_get.
+	 *
+	 * @return array[] Data provider.
+	 */
+	public function data_remote_get() {
+		return array(
+			'title'   => array( 'post_title' ),
+			'content' => array( 'post_content', "<p>Test suite post content</p>\n" ),
+			'excerpt' => array( 'post_excerpt' ),
+			'slug'    => array( 'post_name' ),
+			'type'    => array( 'post_type' ),
+		);
+	}
 }
