@@ -112,5 +112,6 @@ class test_NetworkSiteConnections extends WP_UnitTestCase {
 
 		$this->assertSame( 1, $result['total_items'], '::remote_get() should return results with empty arguments.' );
 		$this->assertCount( 1, $result['items'], '::remote_get() should return one item.' );
+		$this->assertInstanceOf( 'WP_Post', $result['items'][0], 'items[0] should be a WP_Post object.' );
 	}
 }
