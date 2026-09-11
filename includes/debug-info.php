@@ -78,7 +78,7 @@ function enqueue_scripts( $hook ) {
  */
 function add_debug_info( $info ) {
 
-	$plugin_data = get_plugin_data( WP_PLUGIN_DIR . '/' . DT_PLUGIN_FILE );
+	$plugin_data = get_plugin_data( dirname( __DIR__ ) . '/distributor.php' );
 	$text_domain = $plugin_data['TextDomain'];
 	$defaults    = [
 		'email'                  => '',
