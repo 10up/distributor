@@ -14,7 +14,7 @@ use Distributor\InternalConnections\NetworkSiteConnection;
 /**
  * Integration tests for Network Site Connections.
  */
-class test_NetworkSiteConnections extends WP_UnitTestCase {
+class Test_NetworkSiteConnections extends WP_UnitTestCase {
 	/**
 	 * Shared sub-site ID for the tests.
 	 *
