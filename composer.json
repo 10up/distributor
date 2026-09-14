@@ -25,7 +25,8 @@
     "phpunit/phpunit": "^8.5",
     "yoast/phpunit-polyfills": "^1.0",
     "automattic/vipwpcs": "^3.0",
-    "10up/phpcs-composer": "dev-trunk"
+    "10up/phpcs-composer": "dev-trunk",
+    "yoast/wp-test-utils": "^1.2"
   },
   "scripts": {
     "lint": "@php phpcs . --runtime-set testVersion 7.4-",
