@@ -4,6 +4,22 @@ All notable changes to this project will be documented in this file, per [the Ke
 
 ## [Unreleased] - TBD
 
+## [2.3.2] - 2026-09-DD
+### Developer
+- Introduce WP PHP Unit test suite (props [@peterwilsoncc](https://github.com/peterwilsoncc), [@dkotter](https://github.com/dkotter) via [#1396](https://github.com/10up/distributor/pull/1396)).
+- Update link-unlink E2E tests following changes to the notice component (props [@peterwilsoncc](https://github.com/peterwilsoncc), [@jeffpaul](https://github.com/jeffpaul), [@dkotter](https://github.com/dkotter) via [#1391](https://github.com/10up/distributor/pull/1391)).
+- Update node version used in repo to v22 (props [@peterwilsoncc](https://github.com/peterwilsoncc), [@dkotter](https://github.com/dkotter) via [#1398](https://github.com/10up/distributor/pull/1398)).
+- Bump `@10up/cypress-wp-utils` from 0.6.0 to 0.7.2 (props [@peterwilsoncc](https://github.com/peterwilsoncc), [@dkotter](https://github.com/dkotter) via [#1398](https://github.com/10up/distributor/pull/1398)).
+- Bump `fast-uri` from 3.1.0 to 3.1.7 (props [@dependabot](https://github.com/apps/dependabot), [@peterwilsoncc](https://github.com/peterwilsoncc) via [#1399](https://github.com/10up/distributor/pull/1399)).
+- Bump `form-data` from 4.0.5 to 4.0.6 (props [@dependabot](https://github.com/apps/dependabot), [@peterwilsoncc](https://github.com/peterwilsoncc) via [#1399](https://github.com/10up/distributor/pull/1399)).
+- Bump `lodash` from 4.17.23 to 4.18.1 (props [@dependabot](https://github.com/apps/dependabot), [@peterwilsoncc](https://github.com/peterwilsoncc) via [#1399](https://github.com/10up/distributor/pull/1399)).
+- Bump `simple-git` from 3.33.0 to 3.36.0 (props [@dependabot](https://github.com/apps/dependabot), [@peterwilsoncc](https://github.com/peterwilsoncc) via [#1399](https://github.com/10up/distributor/pull/1399)).
+- Bump `systeminformation` from 5.31.1 to 5.33.10 (props [@dependabot](https://github.com/apps/dependabot), [@peterwilsoncc](https://github.com/peterwilsoncc) via [#1399](https://github.com/10up/distributor/pull/1399)).
+- Bump `tmp` from 0.2.5 to 0.2.7 (props [@dependabot](https://github.com/apps/dependabot), [@peterwilsoncc](https://github.com/peterwilsoncc) via [#1399](https://github.com/10up/distributor/pull/1399)).
+- Bump `@WordPress/env` from 10.38.0 to 11.15.0 (props [@peterwilsoncc](https://github.com/peterwilsoncc), [@dkotter](https://github.com/dkotter) via [#1398](https://github.com/10up/distributor/pull/1398)).
+- Bump `@wordpress/scripts` from 31.3.0 to 35.0.0 (props [@peterwilsoncc](https://github.com/peterwilsoncc), [@dkotter](https://github.com/dkotter) via [#1398](https://github.com/10up/distributor/pull/1398)).
+
+
 ## [2.3.1] - 2026-08-26
 ### Fixed
 - Rename list table styles to avoid naming collision and resolve interaction with Distributor's Edit Remove Meta plugin (props [@peterwilsoncc](https://github.com/peterwilsoncc), [@dkotter](https://github.com/dkotter) via [#1393](https://github.com/10up/distributor/pull/1393))
@@ -691,6 +707,7 @@ This adds a post type selector when viewing the Pull Content list for both exter
 - Initial closed release.
 
 [Unreleased]: https://github.com/10up/distributor/compare/trunk...develop
+[2.3.2]: https://github.com/10up/distributor/compare/2.3.1...2.3.2
 [2.3.1]: https://github.com/10up/distributor/compare/2.3.0...2.3.1
 [2.3.0]: https://github.com/10up/distributor/compare/2.2.0...2.3.0
 [2.2.0]: https://github.com/10up/distributor/compare/2.1.0...2.2.0
