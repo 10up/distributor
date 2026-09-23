@@ -1,22 +1,24 @@
 <?php
 /**
- * Tests for the RegisteredDataHandler class.
+ * RegisteredDataHandler Integration Tests
  *
  * @package distributor
  */
 
-namespace Distributor;
+namespace Distributor\IntegrationTests;
 
-use WP_Mock\Tools\TestCase;
-use WP_Mock\Functions;
-use stdClass;
+use WP_UnitTestCase;
+use Distributor\RegisteredDataHandler;
+use Distributor\ExternalConnection;
 
 /**
- * Class RegisteredDataHandlerTest
+ * Integration tests for Distributor\RegisteredDataHandler.
  *
- * @group RegisteredDataHandler
+ * @group registered-data-handler
+ * @group registered-data
  */
-class RegisteredDataHandlerTest extends TestCase {
+class Test_RegisteredDataHandler extends WP_UnitTestCase {
+
 
 	/**
 	 * Tear down after each test.
@@ -24,6 +26,9 @@ class RegisteredDataHandlerTest extends TestCase {
 	public function tearDown(): void {
 		parent::tearDown();
 		$GLOBALS['distributor_registered_data'] = array();
+		remove_all_filters( 'dt_process_extra_data' );
+		remove_all_filters( 'dt_after_registered_block_data_processed' );
+		remove_all_filters( 'dt_after_registered_shortcode_data_processed' );
 	}
 
 	/**
@@ -79,30 +84,11 @@ class RegisteredDataHandlerTest extends TestCase {
 	}
 
 	/**
-	 * Test prepare_registered_data_term returns 0 when get_term fails or returns WP_Error.
+	 * Test prepare_registered_data_term returns 0 when get_term fails or term does not exist.
 	 */
 	public function test_prepare_registered_data_term_invalid(): void {
 		$handler = new RegisteredDataHandler();
-
-		\WP_Mock::userFunction(
-			'get_term',
-			array(
-				'args'   => array( 999 ),
-				'return' => null,
-			)
-		);
-
-		$this->assertSame( 0, $handler->prepare_registered_data_term( 999 ) );
-
-		\WP_Mock::userFunction(
-			'get_term',
-			array(
-				'args'   => array( 998 ),
-				'return' => new \WP_Error( 'invalid_term', 'Invalid term' ),
-			)
-		);
-
-		$this->assertSame( 0, $handler->prepare_registered_data_term( 998 ) );
+		$this->assertSame( 0, $handler->prepare_registered_data_term( 9999999 ) );
 	}
 
 	/**
@@ -111,26 +97,19 @@ class RegisteredDataHandlerTest extends TestCase {
 	public function test_prepare_registered_data_term_flat(): void {
 		$handler = new RegisteredDataHandler();
 
-		$term              = new stdClass();
-		$term->term_id     = 42;
-		$term->name        = 'Tech News';
-		$term->slug        = 'tech-news';
-		$term->description = 'All tech articles';
-		$term->taxonomy    = 'post_tag';
-		$term->parent      = 0;
-
-		\WP_Mock::userFunction(
-			'get_term',
+		$term_id = $this->factory()->term->create(
 			array(
-				'args'   => array( 42 ),
-				'return' => $term,
+				'taxonomy'    => 'post_tag',
+				'name'        => 'Tech News',
+				'slug'        => 'tech-news',
+				'description' => 'All tech articles',
 			)
 		);
 
-		$result = $handler->prepare_registered_data_term( 42, false );
+		$result = $handler->prepare_registered_data_term( $term_id, false );
 
 		$expected = array(
-			'term_id'     => 42,
+			'term_id'     => $term_id,
 			'name'        => 'Tech News',
 			'slug'        => 'tech-news',
 			'description' => 'All tech articles',
@@ -145,52 +124,30 @@ class RegisteredDataHandlerTest extends TestCase {
 	public function test_prepare_registered_data_term_hierarchical_with_parent(): void {
 		$handler = new RegisteredDataHandler();
 
-		$child_term              = new stdClass();
-		$child_term->term_id     = 10;
-		$child_term->name        = 'WordPress Core';
-		$child_term->slug        = 'wordpress-core';
-		$child_term->description = 'Core news';
-		$child_term->taxonomy    = 'category';
-		$child_term->parent      = 5;
-
-		$parent_term              = new stdClass();
-		$parent_term->term_id     = 5;
-		$parent_term->name        = 'Development';
-		$parent_term->slug        = 'development';
-		$parent_term->description = 'Dev category';
-		$parent_term->taxonomy    = 'category';
-		$parent_term->parent      = 0;
-
-		\WP_Mock::userFunction(
-			'get_term',
+		$parent_id = $this->factory()->category->create(
 			array(
-				'args'   => array( 10 ),
-				'return' => $child_term,
+				'name'        => 'Development',
+				'slug'        => 'development',
+				'description' => 'Dev category',
 			)
 		);
 
-		\WP_Mock::userFunction(
-			'get_term',
+		$child_id = $this->factory()->category->create(
 			array(
-				'args'   => array( 5 ),
-				'return' => $parent_term,
+				'name'        => 'WordPress Core',
+				'slug'        => 'wordpress-core',
+				'description' => 'Core news',
+				'parent'      => $parent_id,
 			)
 		);
 
-		\WP_Mock::userFunction(
-			'is_taxonomy_hierarchical',
-			array(
-				'args'   => array( 'category' ),
-				'return' => true,
-			)
-		);
+		$result = $handler->prepare_registered_data_term( $child_id, true );
 
-		$result = $handler->prepare_registered_data_term( 10, true );
-
-		$this->assertSame( 10, $result['term_id'] );
+		$this->assertSame( $child_id, $result['term_id'] );
 		$this->assertIsArray( $result['parent'] );
-		$this->assertSame( 5, $result['parent']['term_id'] );
+		$this->assertSame( $parent_id, $result['parent']['term_id'] );
 		$this->assertSame( 'development', $result['parent']['slug'] );
+		$this->assertSame( 'Development', $result['parent']['name'] );
 	}
 
 	/**
@@ -207,35 +164,22 @@ class RegisteredDataHandlerTest extends TestCase {
 	public function test_process_registered_data_term_existing_term(): void {
 		$handler = new RegisteredDataHandler();
 
-		$term          = new stdClass();
-		$term->term_id = 77;
-		$term->parent  = 0;
-
-		\WP_Mock::userFunction(
-			'is_taxonomy_hierarchical',
+		$term_id = $this->factory()->category->create(
 			array(
-				'args'   => array( 'category' ),
-				'return' => false,
-			)
-		);
-
-		\WP_Mock::userFunction(
-			'get_term_by',
-			array(
-				'args'   => array( 'slug', 'my-term', 'category' ),
-				'return' => $term,
+				'name' => 'Existing Category',
+				'slug' => 'existing-category',
 			)
 		);
 
 		$term_data = array(
-			'slug'        => 'my-term',
+			'slug'        => 'existing-category',
 			'taxonomy'    => 'category',
-			'name'        => 'My Term',
-			'description' => 'Test',
+			'name'        => 'Existing Category',
+			'description' => 'Category Description',
 		);
 
 		$result = $handler->process_registered_data_term( $term_data );
-		$this->assertSame( 77, $result );
+		$this->assertSame( $term_id, $result );
 	}
 
 	/**
@@ -244,44 +188,18 @@ class RegisteredDataHandlerTest extends TestCase {
 	public function test_process_registered_data_term_existing_with_hierarchy_update(): void {
 		$handler = new RegisteredDataHandler();
 
-		$parent_term          = new stdClass();
-		$parent_term->term_id = 15;
-		$parent_term->parent  = 0;
-
-		$child_term          = new stdClass();
-		$child_term->term_id = 77;
-		$child_term->parent  = 0;
-
-		\WP_Mock::userFunction(
-			'is_taxonomy_hierarchical',
+		$parent_term_id = $this->factory()->category->create(
 			array(
-				'args'   => array( 'category' ),
-				'return' => true,
+				'name' => 'Parent Category',
+				'slug' => 'parent-category',
 			)
 		);
 
-		\WP_Mock::userFunction(
-			'get_term_by',
+		$child_term_id = $this->factory()->category->create(
 			array(
-				'args'   => array( 'slug', 'parent-category', 'category' ),
-				'return' => $parent_term,
-			)
-		);
-
-		\WP_Mock::userFunction(
-			'get_term_by',
-			array(
-				'args'   => array( 'slug', 'child-category', 'category' ),
-				'return' => $child_term,
-			)
-		);
-
-		\WP_Mock::userFunction(
-			'wp_update_term',
-			array(
-				'times'  => 1,
-				'args'   => array( 77, 'category', array( 'parent' => 15 ) ),
-				'return' => array( 'term_id' => 77 ),
+				'name'   => 'Child Category',
+				'slug'   => 'child-category',
+				'parent' => 0,
 			)
 		);
 
@@ -291,7 +209,7 @@ class RegisteredDataHandlerTest extends TestCase {
 			'name'        => 'Child Category',
 			'description' => 'Test',
 			'parent'      => array(
-				'term_id'     => 15,
+				'term_id'     => $parent_term_id,
 				'slug'        => 'parent-category',
 				'taxonomy'    => 'category',
 				'name'        => 'Parent Category',
@@ -300,7 +218,10 @@ class RegisteredDataHandlerTest extends TestCase {
 		);
 
 		$result = $handler->process_registered_data_term( $term_data, true, true );
-		$this->assertSame( 77, $result );
+		$this->assertSame( $child_term_id, $result );
+
+		$updated_child = get_term( $child_term_id, 'category' );
+		$this->assertSame( $parent_term_id, $updated_child->parent );
 	}
 
 	/**
@@ -309,47 +230,20 @@ class RegisteredDataHandlerTest extends TestCase {
 	public function test_process_registered_data_term_inserts_new_term(): void {
 		$handler = new RegisteredDataHandler();
 
-		\WP_Mock::userFunction(
-			'is_taxonomy_hierarchical',
-			array(
-				'args'   => array( 'post_tag' ),
-				'return' => false,
-			)
-		);
-
-		\WP_Mock::userFunction(
-			'get_term_by',
-			array(
-				'args'   => array( 'slug', 'new-tag', 'post_tag' ),
-				'return' => false,
-			)
-		);
-
-		\WP_Mock::userFunction(
-			'wp_insert_term',
-			array(
-				'times'  => 1,
-				'args'   => array(
-					'New Tag',
-					'post_tag',
-					array(
-						'slug'        => 'new-tag',
-						'description' => 'Tag desc',
-					),
-				),
-				'return' => array( 'term_id' => 101 ),
-			)
-		);
-
 		$term_data = array(
-			'slug'        => 'new-tag',
+			'slug'        => 'brand-new-distributor-tag',
 			'taxonomy'    => 'post_tag',
-			'name'        => 'New Tag',
-			'description' => 'Tag desc',
+			'name'        => 'Brand New Distributor Tag',
+			'description' => 'Tag description',
 		);
 
 		$result = $handler->process_registered_data_term( $term_data );
-		$this->assertSame( 101, $result );
+		$this->assertGreaterThan( 0, $result );
+
+		$created_term = get_term_by( 'slug', 'brand-new-distributor-tag', 'post_tag' );
+		$this->assertNotEmpty( $created_term );
+		$this->assertSame( $result, $created_term->term_id );
+		$this->assertSame( 'Brand New Distributor Tag', $created_term->name );
 	}
 
 	/**
@@ -358,32 +252,12 @@ class RegisteredDataHandlerTest extends TestCase {
 	public function test_process_registered_data_term_insert_failure(): void {
 		$handler = new RegisteredDataHandler();
 
-		\WP_Mock::userFunction(
-			'is_taxonomy_hierarchical',
-			array(
-				'return' => false,
-			)
-		);
-
-		\WP_Mock::userFunction(
-			'get_term_by',
-			array(
-				'return' => false,
-			)
-		);
-
-		\WP_Mock::userFunction(
-			'wp_insert_term',
-			array(
-				'return' => new \WP_Error( 'db_insert_error', 'Cannot insert term' ),
-			)
-		);
-
+		// Passing an invalid taxonomy causes wp_insert_term to return WP_Error.
 		$term_data = array(
-			'slug'        => 'bad-tag',
-			'taxonomy'    => 'post_tag',
-			'name'        => 'Bad Tag',
-			'description' => 'Failed tag',
+			'slug'        => 'bad-term',
+			'taxonomy'    => 'non_existent_taxonomy_xyz',
+			'name'        => 'Bad Term',
+			'description' => 'Failed term',
 		);
 
 		$result = $handler->process_registered_data_term( $term_data );
@@ -405,7 +279,7 @@ class RegisteredDataHandlerTest extends TestCase {
 
 		// Missing meta key.
 		$reg_data_no_key = array(
-			'post_distribute_cb' => function() {
+			'post_distribute_cb' => function () {
 				return 'new_val';
 			},
 			'attributes'         => array(),
@@ -424,7 +298,7 @@ class RegisteredDataHandlerTest extends TestCase {
 
 		$reg_data = array(
 			'attributes'         => array( 'meta_key' => 'target_meta' ),
-			'post_distribute_cb' => function( $extra_data, $orig_data, $current_post_data, $conn_data ) {
+			'post_distribute_cb' => function ( $extra_data, $orig_data, $current_post_data, $conn_data ) {
 				return $orig_data . '_updated_' . $conn_data['origin'];
 			},
 		);
@@ -443,7 +317,7 @@ class RegisteredDataHandlerTest extends TestCase {
 
 		$reg_data = array(
 			'attributes'         => array( 'meta_key' => 'wrapped_meta' ),
-			'post_distribute_cb' => function( $extra_data, $orig_data ) {
+			'post_distribute_cb' => function ( $extra_data, $orig_data ) {
 				return strtoupper( $orig_data );
 			},
 		);
@@ -465,7 +339,7 @@ class RegisteredDataHandlerTest extends TestCase {
 
 		$reg_data = array(
 			'attributes'         => array( 'meta_key' => array( 'key_one', 'key_two' ) ),
-			'post_distribute_cb' => function( $extra_data, $orig_data ) {
+			'post_distribute_cb' => function ( $extra_data, $orig_data ) {
 				return array(
 					'key_one' => $orig_data['key_one'] . '-1',
 					'key_two' => $orig_data['key_two'] . '-2',
@@ -519,7 +393,7 @@ class RegisteredDataHandlerTest extends TestCase {
 				'block_name'      => 'core/custom',
 				'block_attribute' => 'item_id',
 			),
-			'post_distribute_cb' => function( $extra, $source, $post, $conn ) {
+			'post_distribute_cb' => function () {
 				return 20;
 			},
 		);
@@ -553,10 +427,10 @@ class RegisteredDataHandlerTest extends TestCase {
 				'block_name'      => 'core/multi-attr',
 				'block_attribute' => array( 'first', 'second' ),
 			),
-			'post_distribute_cb' => function( $extra, $source ) {
+			'post_distribute_cb' => function () {
 				return array(
-					'first'                     => 'new_first',
-					'second'                    => 'new_second',
+					'first'                      => 'new_first',
+					'second'                     => 'new_second',
 					'inner_content_replacements' => array(
 						array(
 							'search'  => 'old_first',
@@ -580,7 +454,15 @@ class RegisteredDataHandlerTest extends TestCase {
 	 */
 	public function test_process_blocks_data_recursive_media_type(): void {
 		$handler = new RegisteredDataHandler();
-		$blocks  = array(
+
+		$attachment_id = $this->factory()->post->create(
+			array(
+				'post_type' => 'attachment',
+				'guid'      => 'https://target.com/new-img.jpg',
+			)
+		);
+
+		$blocks = array(
 			array(
 				'blockName'    => 'core/image',
 				'attrs'        => array( 'id' => 100 ),
@@ -602,31 +484,23 @@ class RegisteredDataHandlerTest extends TestCase {
 				'block_name'      => 'core/image',
 				'block_attribute' => 'id',
 			),
-			'post_distribute_cb' => function() {
-				return 200;
+			'post_distribute_cb' => function () use ( $attachment_id ) {
+				return $attachment_id;
 			},
-		);
-
-		\WP_Mock::userFunction(
-			'wp_get_attachment_url',
-			array(
-				'args'   => array( 200 ),
-				'return' => 'https://target.com/img.jpg',
-			)
 		);
 
 		$result = $handler->process_blocks_data_recursive( $blocks, $reg_data, $extra_data, array(), 0 );
 
 		$this->assertTrue( $result['modified'] );
-		$this->assertSame( 200, $result['blocks'][0]['attrs']['id'] );
-		$this->assertStringContainsString( 'https://target.com/img.jpg', $result['blocks'][0]['innerHTML'] );
-		$this->assertStringContainsString( 'wp-image-200', $result['blocks'][0]['innerHTML'] );
+		$this->assertSame( $attachment_id, $result['blocks'][0]['attrs']['id'] );
+		$this->assertStringContainsString( 'https://target.com/new-img.jpg', $result['blocks'][0]['innerHTML'] );
+		$this->assertStringContainsString( 'wp-image-' . $attachment_id, $result['blocks'][0]['innerHTML'] );
 	}
 
 	/**
-	 * Test process_blocks_data_recursive handles recursive traversal of innerBlocks.
+	 * Test process_blocks_data_recursive processes nested innerBlocks.
 	 */
-	public function test_process_blocks_data_recursive_nested_inner_blocks(): void {
+	public function test_process_blocks_data_recursive_nested_blocks(): void {
 		$handler = new RegisteredDataHandler();
 		$blocks  = array(
 			array(
@@ -635,7 +509,7 @@ class RegisteredDataHandlerTest extends TestCase {
 				'innerBlocks' => array(
 					array(
 						'blockName' => 'core/inner-target',
-						'attrs'     => array( 'id' => 5 ),
+						'attrs'     => array( 'id' => 25 ),
 					),
 				),
 			),
@@ -646,7 +520,7 @@ class RegisteredDataHandlerTest extends TestCase {
 				'block_name'      => 'core/inner-target',
 				'block_attribute' => 'id',
 			),
-			'post_distribute_cb' => function() {
+			'post_distribute_cb' => function () {
 				return 50;
 			},
 		);
@@ -671,14 +545,6 @@ class RegisteredDataHandlerTest extends TestCase {
 			),
 		);
 
-		\WP_Mock::userFunction(
-			'has_block',
-			array(
-				'args'   => array( 'core/missing-block', $post_content ),
-				'return' => false,
-			)
-		);
-
 		$result = $handler->process_registered_block_data( $post_content, $reg_data, array(), array() );
 		$this->assertSame( $post_content, $result );
 	}
@@ -688,56 +554,20 @@ class RegisteredDataHandlerTest extends TestCase {
 	 */
 	public function test_process_registered_block_data_success(): void {
 		$handler      = new RegisteredDataHandler();
-		$post_content = '<!-- wp:core/widget {"id":1} /-->';
+		$post_content = '<!-- wp:paragraph {"fontSize":"small"} --><p>Sample</p><!-- /wp:paragraph -->';
 
 		$reg_data = array(
 			'attributes'         => array(
-				'block_name'      => 'core/widget',
-				'block_attribute' => 'id',
+				'block_name'      => 'core/paragraph',
+				'block_attribute' => 'fontSize',
 			),
-			'post_distribute_cb' => function() {
-				return 2;
+			'post_distribute_cb' => function () {
+				return 'large';
 			},
 		);
 
-		\WP_Mock::userFunction(
-			'has_block',
-			array(
-				'args'   => array( 'core/widget', $post_content ),
-				'return' => true,
-			)
-		);
-
-		\WP_Mock::userFunction(
-			'parse_blocks',
-			array(
-				'args'   => array( $post_content ),
-				'return' => array(
-					array(
-						'blockName' => 'core/widget',
-						'attrs'     => array( 'id' => 1 ),
-					),
-				),
-			)
-		);
-
-		\WP_Mock::userFunction(
-			'serialize_blocks',
-			array(
-				'args'   => array(
-					array(
-						array(
-							'blockName' => 'core/widget',
-							'attrs'     => array( 'id' => 2 ),
-						),
-					),
-				),
-				'return' => '<!-- wp:core/widget {"id":2} /-->',
-			)
-		);
-
 		$result = $handler->process_registered_block_data( $post_content, $reg_data, array(), array() );
-		$this->assertSame( '<!-- wp:core/widget {"id":2} /-->', $result );
+		$this->assertStringContainsString( '"fontSize":"large"', $result );
 	}
 
 	/**
@@ -754,14 +584,6 @@ class RegisteredDataHandlerTest extends TestCase {
 			),
 		);
 
-		\WP_Mock::userFunction(
-			'has_shortcode',
-			array(
-				'args'   => array( $post_content, 'my_sc' ),
-				'return' => false,
-			)
-		);
-
 		$result = $handler->process_registered_shortcode_data( $post_content, $reg_data, array(), array() );
 		$this->assertSame( $post_content, $result );
 	}
@@ -770,60 +592,54 @@ class RegisteredDataHandlerTest extends TestCase {
 	 * Test process_registered_shortcode_data replaces single shortcode attribute.
 	 */
 	public function test_process_registered_shortcode_data_single_attribute(): void {
-		$handler      = new RegisteredDataHandler();
-		$post_content = 'Here is [my_gallery id="10"] and more text';
+		$handler = new RegisteredDataHandler();
+
+		add_shortcode(
+			'test_gallery_tag',
+			function () {
+				return '';
+			}
+		);
+
+		$post_content = 'Here is [test_gallery_tag id="10"] and more text';
 
 		$reg_data = array(
 			'attributes'         => array(
-				'shortcode'           => 'my_gallery',
+				'shortcode'           => 'test_gallery_tag',
 				'shortcode_attribute' => 'id',
 			),
-			'post_distribute_cb' => function( $extra, $source ) {
+			'post_distribute_cb' => function () {
 				return 99;
 			},
 		);
 
-		\WP_Mock::userFunction(
-			'has_shortcode',
-			array(
-				'args'   => array( $post_content, 'my_gallery' ),
-				'return' => true,
-			)
-		);
-
-		\WP_Mock::userFunction(
-			'get_shortcode_regex',
-			array(
-				'args'   => array( array( 'my_gallery' ) ),
-				'return' => '\\[(\\[?)(my_gallery)( [^\\]]+)?\\]',
-			)
-		);
-
-		\WP_Mock::userFunction(
-			'shortcode_parse_atts',
-			array(
-				'args'   => array( ' id="10"' ),
-				'return' => array( 'id' => '10' ),
-			)
-		);
-
 		$result = $handler->process_registered_shortcode_data( $post_content, $reg_data, array(), array() );
-		$this->assertStringContainsString( '[my_gallery id="99"]', $result );
+		$this->assertStringContainsString( '[test_gallery_tag id="99"]', $result );
+
+		remove_shortcode( 'test_gallery_tag' );
 	}
 
 	/**
 	 * Test process_registered_shortcode_data replaces multiple shortcode attributes.
 	 */
 	public function test_process_registered_shortcode_data_array_attribute(): void {
-		$handler      = new RegisteredDataHandler();
-		$post_content = 'Testing [item_card id="5" category="tech"]';
+		$handler = new RegisteredDataHandler();
+
+		add_shortcode(
+			'test_card_tag',
+			function () {
+				return '';
+			}
+		);
+
+		$post_content = 'Testing [test_card_tag id="5" category="tech"]';
 
 		$reg_data = array(
 			'attributes'         => array(
-				'shortcode'           => 'item_card',
+				'shortcode'           => 'test_card_tag',
 				'shortcode_attribute' => array( 'id', 'category' ),
 			),
-			'post_distribute_cb' => function( $extra, $source ) {
+			'post_distribute_cb' => function () {
 				return array(
 					'id'       => '50',
 					'category' => 'science',
@@ -831,36 +647,11 @@ class RegisteredDataHandlerTest extends TestCase {
 			},
 		);
 
-		\WP_Mock::userFunction(
-			'has_shortcode',
-			array(
-				'args'   => array( $post_content, 'item_card' ),
-				'return' => true,
-			)
-		);
-
-		\WP_Mock::userFunction(
-			'get_shortcode_regex',
-			array(
-				'args'   => array( array( 'item_card' ) ),
-				'return' => '\\[(\\[?)(item_card)( [^\\]]+)?\\]',
-			)
-		);
-
-		\WP_Mock::userFunction(
-			'shortcode_parse_atts',
-			array(
-				'args'   => array( ' id="5" category="tech"' ),
-				'return' => array(
-					'id'       => '5',
-					'category' => 'tech',
-				),
-			)
-		);
-
 		$result = $handler->process_registered_shortcode_data( $post_content, $reg_data, array(), array() );
 		$this->assertStringContainsString( 'id="50"', $result );
 		$this->assertStringContainsString( 'category="science"', $result );
+
+		remove_shortcode( 'test_card_tag' );
 	}
 
 	/**
@@ -870,9 +661,7 @@ class RegisteredDataHandlerTest extends TestCase {
 		$handler   = new RegisteredDataHandler();
 		$post_data = array( 'post_title' => 'Original' );
 
-		\WP_Mock::onFilter( 'dt_process_extra_data' )
-			->with( true, $post_data )
-			->reply( false );
+		add_filter( 'dt_process_extra_data', '__return_false' );
 
 		$result = $handler->process_registered_data( $post_data );
 		$this->assertSame( $post_data, $result );
@@ -901,7 +690,7 @@ class RegisteredDataHandlerTest extends TestCase {
 			'test_meta' => array(
 				'location'           => 'post_meta',
 				'attributes'         => array( 'meta_key' => 'custom_field' ),
-				'post_distribute_cb' => function( $extra, $orig ) {
+				'post_distribute_cb' => function ( $extra, $orig ) {
 					return 'processed_' . $orig;
 				},
 			),
@@ -923,9 +712,59 @@ class RegisteredDataHandlerTest extends TestCase {
 	public function test_pre_process_registered_data_post_empty_extra_data(): void {
 		$handler    = new RegisteredDataHandler();
 		$post_data  = array( 'post_title' => 'Sample Post' );
-		$connection = $this->getMockBuilder( '\Distributor\ExternalConnection' )->disableOriginalConstructor()->getMock();
+		$connection = $this->createMock( ExternalConnection::class );
 
 		$result = $handler->pre_process_registered_data_post( $post_data, $connection );
 		$this->assertSame( $post_data, $result );
+	}
+
+	/**
+	 * Test pre_process_registered_data_post pushes post to external connection.
+	 */
+	public function test_pre_process_registered_data_post_pushes_external(): void {
+		$handler = new RegisteredDataHandler();
+
+		$source_post_id = $this->factory()->post->create(
+			array(
+				'post_title' => 'Source Post',
+			)
+		);
+
+		$connection     = $this->createMock( ExternalConnection::class );
+		$connection->id = 12;
+		$connection->expects( $this->once() )
+			->method( 'push' )
+			->with( $source_post_id, array( 'post_status' => 'publish' ) )
+			->willReturn( array( 'id' => 999 ) );
+
+		$connection->expects( $this->once() )
+			->method( 'log_sync' )
+			->with( array( 999 => $source_post_id ) );
+
+		$GLOBALS['distributor_registered_data'] = array(
+			'featured_post' => array(
+				'type' => 'post',
+			),
+		);
+
+		$post_data = array(
+			'post_title'             => 'Parent Post',
+			'post_status'            => 'publish',
+			'distributor_extra_data' => array(
+				'featured_post' => array(
+					array(
+						'source_post_id' => $source_post_id,
+					),
+				),
+			),
+		);
+
+		$result = $handler->pre_process_registered_data_post( $post_data, $connection );
+
+		$this->assertSame( 999, $result['distributor_extra_data']['featured_post'][0]['remote_post_id'] );
+
+		$connection_map = get_post_meta( $source_post_id, 'dt_connection_map', true );
+		$this->assertNotEmpty( $connection_map );
+		$this->assertSame( 999, $connection_map['external'][12]['post_id'] );
 	}
 }
