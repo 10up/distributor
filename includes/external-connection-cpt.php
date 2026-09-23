@@ -104,12 +104,17 @@ function ajax_begin_authorization() {
 		exit;
 	}
 
-	if ( ! current_user_can( 'edit_posts' ) ) {
+	if ( empty( $_POST['title'] ) || empty( intval( wp_unslash( $_POST['id'] ) ) ) ) {
 		wp_send_json_error();
 		exit;
 	}
 
-	if ( empty( $_POST['title'] ) || empty( $_POST['id'] ) ) {
+	$post_id = intval( wp_unslash( $_POST['id'] ) );
+
+	if (
+		! current_user_can( 'edit_post', $post_id )
+		|| get_post_type( $post_id ) !== 'dt_ext_connection'
+	) {
 		wp_send_json_error();
 		exit;
 	}
@@ -117,7 +122,7 @@ function ajax_begin_authorization() {
 	// Create the external connection, and return the post ID.
 	$post = wp_update_post(
 		array(
-			'ID'          => sanitize_key( wp_unslash( $_POST['id'] ) ),
+			'ID'          => $post_id,
 			'post_title'  => sanitize_text_field( wp_unslash( $_POST['title'] ) ),
 			'post_type'   => 'dt_ext_connection',
 			'post_status' => 'publish',
@@ -234,7 +239,36 @@ function ajax_verify_external_connection() {
 		exit;
 	}
 
-	if ( empty( $_POST['url'] ) || empty( $_POST['type'] ) || empty( $_POST['endpointId'] ) ) {
+	if ( empty( $_POST['url'] ) || empty( $_POST['type'] ) || empty( intval( wp_unslash( $_POST['endpointId'] ) ) ) ) {
+		wp_send_json_error();
+		exit;
+	}
+
+	$post_id = intval( wp_unslash( $_POST['endpointId'] ) );
+	_prime_post_caches( array( $post_id ), false, true );
+
+	// Check current user can read the post.
+	if ( ! current_user_can( 'read_post', $post_id ) ) {
+		wp_send_json_error();
+		exit;
+	}
+
+	if ( 'dt_ext_connection' !== get_post_type( $post_id ) ) {
+		wp_send_json_error();
+	}
+
+	/*
+	 * Compare passed URL to registered URL.
+	 *
+	 * If the URLs differ, then treat the call as an attempt to edit the post
+	 * and verify the users permission to do so before calling the verification
+	 * routine.
+	 */
+	$currently_registered_url = get_post_meta( $post_id, 'dt_external_connection_url', true );
+	if (
+		sanitize_url( wp_unslash( $_POST['url'] ) ) !== $currently_registered_url
+		&& ! current_user_can( 'edit_post', $post_id )
+	) {
 		wp_send_json_error();
 		exit;
 	}
@@ -244,7 +278,7 @@ function ajax_verify_external_connection() {
 		$auth = array_map( 'sanitize_text_field', (array) wp_unslash( $_POST['auth'] ) );
 	}
 
-	$current_auth = get_post_meta( intval( $_POST['endpointId'] ), 'dt_external_connection_auth', true );
+	$current_auth = get_post_meta( $post_id, 'dt_external_connection_auth', true );
 
 	if ( ! empty( $current_auth ) ) {
 		$auth = array_merge( $auth, (array) $current_auth );
@@ -295,6 +329,7 @@ function admin_enqueue_scripts( $hook ) {
 				'home_url'      => esc_url( home_url() ),
 				'admin_url'     => admin_url(),
 				'wizard_return' => $wizard_return,
+				'connection_id' => get_the_ID(),
 			)
 		);
 
@@ -385,7 +420,7 @@ function save_post( $post_id ) {
 		delete_post_meta( $post_id, 'dt_external_connections' );
 		delete_post_meta( $post_id, 'dt_external_connection_check_time' );
 	} else {
-		update_post_meta( $post_id, 'dt_external_connection_url', sanitize_text_field( $_POST['dt_external_connection_url'] ) );
+		update_post_meta( $post_id, 'dt_external_connection_url', wp_slash( sanitize_url( wp_unslash( $_POST['dt_external_connection_url'] ) ) ) );
 
 		// Create an instance of the connection to test connections
 		$external_connection_class = \Distributor\Connections::factory()->get_registered()[ sanitize_key( $_POST['dt_external_connection_type'] ) ];
@@ -675,20 +710,12 @@ function add_menu_item() {
 function add_submenu_item() {
 	global $submenu;
 	unset( $submenu['distributor'][0] );
+	$post_type_obj = get_post_type_object( 'dt_ext_connection' );
 	add_submenu_page(
 		'distributor',
 		esc_html__( 'External Connections', 'distributor' ),
 		esc_html__( 'External Connections', 'distributor' ),
-		/**
-		 * Filter Distributor capabilities allowed to manage external connections.
-		 *
-		 * @since 1.0.0
-		 *
-		 * @param string 'manage_options' The capability allowed to manage external connections.
-		 *
-		 * @return string The capability allowed to manage external connections.
-		 */
-		apply_filters( 'dt_external_capabilities', 'manage_options' ),
+		$post_type_obj->cap->edit_posts,
 		'distributor'
 	);
 }
@@ -725,7 +752,43 @@ function setup_cpt() {
 		'show_in_menu'         => false,
 		'query_var'            => false,
 		'rewrite'              => false,
-		'capability_type'      => 'post',
+		'capabilities'         => array(
+			/**
+			 * Filter Distributor capabilities allowed to manage external connections.
+			 *
+			 * @since 1.0.0
+			 * @since x.x.x $post_capability argument introduced.
+			 *
+			 * @param string 'manage_options' The capability allowed to manage external connections.
+			 * @param string $post_capability The post type capability the external connection capabilities applies to.
+			 *
+			 * @return string The capability allowed to manage external connections.
+			 */
+			'edit_posts'             => apply_filters( 'dt_external_capabilities', 'manage_options', 'edit_posts' ),
+			/** This filter is documented in includes/external-connection-cpt.php */
+			'edit_others_posts'      => apply_filters( 'dt_external_capabilities', 'manage_options', 'edit_others_posts' ),
+			/** This filter is documented in includes/external-connection-cpt.php */
+			'delete_posts'           => apply_filters( 'dt_external_capabilities', 'manage_options', 'delete_posts' ),
+			/** This filter is documented in includes/external-connection-cpt.php */
+			'publish_posts'          => apply_filters( 'dt_external_capabilities', 'manage_options', 'publish_posts' ),
+			/** This filter is documented in includes/external-connection-cpt.php */
+			'read_private_posts'     => apply_filters( 'dt_external_capabilities', 'manage_options', 'read_private_posts' ),
+			/** This filter is documented in includes/external-connection-cpt.php */
+			'create_posts'           => apply_filters( 'dt_external_capabilities', 'manage_options', 'create_posts' ),
+			/** This filter is documented in includes/external-connection-cpt.php */
+			'delete_private_posts'   => apply_filters( 'dt_external_capabilities', 'manage_options', 'delete_private_posts' ),
+			/** This filter is documented in includes/external-connection-cpt.php */
+			'delete_published_posts' => apply_filters( 'dt_external_capabilities', 'manage_options', 'delete_published_posts' ),
+			/** This filter is documented in includes/external-connection-cpt.php */
+			'delete_others_posts'    => apply_filters( 'dt_external_capabilities', 'manage_options', 'delete_others_posts' ),
+			/** This filter is documented in includes/external-connection-cpt.php */
+			'edit_private_posts'     => apply_filters( 'dt_external_capabilities', 'manage_options', 'edit_private_posts' ),
+			/** This filter is documented in includes/external-connection-cpt.php */
+			'edit_published_posts'   => apply_filters( 'dt_external_capabilities', 'manage_options', 'edit_published_posts' ),
+			/** This filter is documented in includes/external-connection-cpt.php */
+			'read'                   => apply_filters( 'dt_external_capabilities', 'manage_options', 'read' ),
+		),
+		'map_meta_cap'         => true,
 		'hierarchical'         => false,
 		'supports'             => array( 'title' ),
 		'register_meta_box_cb' => __NAMESPACE__ . '\add_meta_boxes',
@@ -806,7 +869,20 @@ function get_remote_distributor_info() {
 	if (
 		! check_ajax_referer( 'dt-verify-ext-conn', 'nonce', false )
 		|| empty( $_POST['url'] )
+		|| empty( intval( wp_unslash( $_POST['connection_id'] ) ) )
 	) {
+		wp_send_json_error();
+		exit;
+	}
+
+	$post_id = intval( wp_unslash( $_POST['connection_id'] ) );
+
+	if ( ! current_user_can( 'edit_post', $post_id ) ) {
+		wp_send_json_error();
+		exit;
+	}
+
+	if ( get_post_type( $post_id ) !== 'dt_ext_connection' ) {
 		wp_send_json_error();
 		exit;
 	}

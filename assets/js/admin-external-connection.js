@@ -117,6 +117,7 @@ jQuery( authorizeConnectionButton ).on( 'click', ( event ) => {
 				nonce: dt.nonce,
 				action: 'dt_get_remote_info',
 				url: siteURL,
+				connection_id: dt.connection_id,
 			},
 		} )
 		.done( ( response ) => {
@@ -258,6 +259,46 @@ jQuery( manualSetupButton ).on( 'click', ( event ) => {
 	jQuery( '.external-connection-wizard' ).hide();
 	jQuery( '.external-connection-setup, .hide-until-authed' ).show();
 } );
+
+/**
+ * Display a warning when the URL changes.
+ *
+ * Shows a warning to the user when editing a connection that
+ * modifying the URL will send the existing credentials to the
+ * new URL and prompts them for confirmation.
+ *
+ * This is to prevent the leakage of existing connections to a
+ * new site.
+ */
+function manuallyCheckConnections() {
+	endpointResult.setAttribute( 'data-endpoint-state', 'warning' );
+	endpointResult.innerText = `${
+		__(
+			'Changing this URL will send your existing credentials to the updated site.',
+			'distributor'
+		) + ' '
+	}`;
+
+	const suggestion = document.createElement( 'button' );
+	suggestion.classList.add( 'suggest' );
+	suggestion.classList.add( 'button-link' );
+	suggestion.setAttribute( 'type', 'button' );
+	suggestion.innerText = `${ __(
+		'Proceed with checking credentials against this new URL?',
+		'distributor'
+	) }`;
+	suggestion.dataset.manuallyCheckingNewConnectionUrl = '1';
+
+	endpointResult.appendChild( suggestion );
+
+	speak(
+		`${ __(
+			'Changing this URL will send your existing credentials to the updated site. Proceed with checking credentials against this new URL?',
+			'distributor'
+		) } `,
+		'polite'
+	);
+}
 
 /**
  * Check the external connection.
@@ -418,7 +459,16 @@ setTimeout( () => {
 }, 300 );
 
 jQuery( externalConnectionMetaBox ).on( 'click', '.suggest', ( event ) => {
+	if (
+		event.currentTarget.dataset.manuallyCheckingNewConnectionUrl === '1'
+	) {
+		event.currentTarget.dataset.manuallyCheckingNewConnectionUrl = '0';
+		checkConnections();
+		return;
+	}
+
 	externalConnectionUrlField.value = event.currentTarget.innerText;
+	externalConnectionUrlField.dataset.confirmedAutoCorrectToRestApi = '1';
 	jQuery( externalConnectionUrlField ).trigger( 'input' );
 } );
 
@@ -429,6 +479,9 @@ jQuery( externalConnectionUrlField ).on( 'focus click', ( event ) => {
 jQuery( externalConnectionUrlField ).on(
 	'keyup input',
 	_.debounce( () => {
+		const confirmedAutoCorrectToRestApi =
+			externalConnectionUrlField.dataset.confirmedAutoCorrectToRestApi;
+		externalConnectionUrlField.dataset.confirmedAutoCorrectToRestApi = '0';
 		if (
 			externalConnectionUrlField.value.replace( /\/$/, '' ) ===
 			externalConnectionUrlField
@@ -442,6 +495,17 @@ jQuery( externalConnectionUrlField ).on(
 			'initial-url',
 			externalConnectionUrlField.value
 		);
+
+		if (
+			externalConnectionUrlField.value.replace( /\/$/, '' ) !==
+				externalConnectionUrlField.defaultValue.replace( /\/$/, '' ) &&
+			confirmedAutoCorrectToRestApi !== '1' &&
+			passwordField.disabled
+		) {
+			manuallyCheckConnections();
+			return;
+		}
+
 		checkConnections();
 	}, 250 )
 );
@@ -504,6 +568,15 @@ jQuery( changePassword ).on( 'click', ( event ) => {
 		passwordField.disabled = true;
 		passwordField.value = 'sdfdsfsdfdsfdsfsd'; // filler password
 		event.currentTarget.innerText = __( 'Change', 'distributor' );
+	}
+
+	if (
+		externalConnectionUrlField.value.replace( /\/$/, '' ) !==
+			externalConnectionUrlField.defaultValue.replace( /\/$/, '' ) &&
+		passwordField.disabled
+	) {
+		manuallyCheckConnections();
+		return;
 	}
 
 	checkConnections();
