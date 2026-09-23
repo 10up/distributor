@@ -2,14 +2,14 @@
 # This file is distributed under the GPLv2 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: Distributor 2.3.1\n"
+"Project-Id-Version: Distributor 2.3.2\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/distributor\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-08-26T14:56:19+00:00\n"
+"POT-Creation-Date: 2026-09-23T15:33:58+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: distributor\n"
@@ -76,47 +76,47 @@ msgid "Distributor requires PHP version %s or later. Please upgrade PHP or disab
 msgstr ""
 
 #: includes/classes/API/SubscriptionsController.php:57
-#: release/includes/classes/API/SubscriptionsController.php:58
+#: release/includes/classes/API/SubscriptionsController.php:57
 msgid "Post that is being subscribed to."
 msgstr ""
 
 #: includes/classes/API/SubscriptionsController.php:62
-#: release/includes/classes/API/SubscriptionsController.php:63
+#: release/includes/classes/API/SubscriptionsController.php:62
 msgid "Post on remote site that maps to subscription post."
 msgstr ""
 
 #: includes/classes/API/SubscriptionsController.php:67
-#: release/includes/classes/API/SubscriptionsController.php:68
+#: release/includes/classes/API/SubscriptionsController.php:67
 msgid "WordPress URL to notify."
 msgstr ""
 
 #: includes/classes/API/SubscriptionsController.php:72
-#: release/includes/classes/API/SubscriptionsController.php:73
+#: release/includes/classes/API/SubscriptionsController.php:72
 msgid "Subscription signature for post."
 msgstr ""
 
 #: includes/classes/API/SubscriptionsController.php:91
-#: release/includes/classes/API/SubscriptionsController.php:92
+#: release/includes/classes/API/SubscriptionsController.php:91
 msgid "Post to be updated."
 msgstr ""
 
 #: includes/classes/API/SubscriptionsController.php:96
-#: release/includes/classes/API/SubscriptionsController.php:97
+#: release/includes/classes/API/SubscriptionsController.php:96
 msgid "Signature for given signature"
 msgstr ""
 
 #: includes/classes/API/SubscriptionsController.php:115
-#: release/includes/classes/API/SubscriptionsController.php:116
+#: release/includes/classes/API/SubscriptionsController.php:115
 msgid "Post with subscription."
 msgstr ""
 
 #: includes/classes/API/SubscriptionsController.php:120
-#: release/includes/classes/API/SubscriptionsController.php:121
+#: release/includes/classes/API/SubscriptionsController.php:120
 msgid "Signature for given subscription"
 msgstr ""
 
 #: includes/classes/API/SubscriptionsController.php:157
-#: release/includes/classes/API/SubscriptionsController.php:167
+#: release/includes/classes/API/SubscriptionsController.php:157
 msgid "Invalid post id."
 msgstr ""
 
@@ -124,48 +124,54 @@ msgstr ""
 #: includes/classes/API/SubscriptionsController.php:171
 #: includes/classes/API/SubscriptionsController.php:475
 #: includes/classes/API/SubscriptionsController.php:481
-#: release/includes/classes/API/SubscriptionsController.php:162
+#: release/includes/classes/API/SubscriptionsController.php:164
+#: release/includes/classes/API/SubscriptionsController.php:171
+#: release/includes/classes/API/SubscriptionsController.php:475
+#: release/includes/classes/API/SubscriptionsController.php:481
 msgid "Signature invalid or missing."
 msgstr ""
 
 #: includes/classes/API/SubscriptionsController.php:206
-#: release/includes/classes/API/SubscriptionsController.php:210
+#: release/includes/classes/API/SubscriptionsController.php:206
 msgid "Post not distributed."
 msgstr ""
 
 #: includes/classes/API/SubscriptionsController.php:219
-#: release/includes/classes/API/SubscriptionsController.php:223
+#: release/includes/classes/API/SubscriptionsController.php:219
 msgid "No post data for update."
 msgstr ""
 
 #: includes/classes/API/SubscriptionsController.php:382
-#: release/includes/classes/API/SubscriptionsController.php:355
+#: release/includes/classes/API/SubscriptionsController.php:382
 msgid "Sorry, you are not allowed to create subscriptions."
 msgstr ""
 
 #: includes/classes/API/SubscriptionsController.php:389
 #: includes/classes/API/SubscriptionsController.php:488
 #: includes/classes/API/SubscriptionsController.php:505
-#: release/includes/classes/API/SubscriptionsController.php:426
-#: release/includes/classes/API/SubscriptionsController.php:449
+#: release/includes/classes/API/SubscriptionsController.php:389
+#: release/includes/classes/API/SubscriptionsController.php:488
+#: release/includes/classes/API/SubscriptionsController.php:505
 msgid "Invalid post ID."
 msgstr ""
 
 #: includes/classes/API/SubscriptionsController.php:398
+#: release/includes/classes/API/SubscriptionsController.php:398
 msgid "Sorry, you are not allowed to create subscriptions for this post."
 msgstr ""
 
 #: includes/classes/API/SubscriptionsController.php:413
-#: release/includes/classes/API/SubscriptionsController.php:370
+#: release/includes/classes/API/SubscriptionsController.php:413
 msgid "Cannot create existing subscription."
 msgstr ""
 
 #: includes/classes/API/SubscriptionsController.php:417
-#: release/includes/classes/API/SubscriptionsController.php:374
+#: release/includes/classes/API/SubscriptionsController.php:417
 msgid "Subscription post does not exist."
 msgstr ""
 
 #: includes/classes/API/SubscriptionsController.php:424
+#: release/includes/classes/API/SubscriptionsController.php:424
 msgid "Invalid target URL."
 msgstr ""
 
@@ -644,6 +650,18 @@ msgstr ""
 #: includes/classes/PullListTable.php:728
 #: release/includes/classes/PullListTable.php:728
 msgid "Reset Filters"
+msgstr ""
+
+#: dist/js/admin-external-connection.min.js:1
+msgid "Changing this URL will send your existing credentials to the updated site."
+msgstr ""
+
+#: dist/js/admin-external-connection.min.js:1
+msgid "Proceed with checking credentials against this new URL?"
+msgstr ""
+
+#: dist/js/admin-external-connection.min.js:1
+msgid "Changing this URL will send your existing credentials to the updated site. Proceed with checking credentials against this new URL?"
 msgstr ""
 
 #: dist/js/admin-external-connection.min.js:1

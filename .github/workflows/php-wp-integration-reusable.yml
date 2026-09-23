@@ -1,0 +1,62 @@
+name: Reusable WordPress Integration Tests
+
+env:
+  COMPOSER_VERSION: "2"
+  COMPOSER_CACHE: "${{ github.workspace }}/.composer-cache"
+
+on:
+  workflow_call:
+    inputs:
+      wp-version:
+        description: WordPress version to test
+        required: true
+        type: string
+      php-version:
+        description: PHP version to test
+        required: true
+        type: string
+
+jobs:
+  phpunit:
+    name: WP ${{ inputs.wp-version }} / PHP ${{ inputs.php-version }}
+    runs-on: ubuntu-latest
+    env:
+      DB_DATABASE: wordpress_test
+      DB_USER: root
+      DB_PASSWORD: root
+    steps:
+    - name: Checkout
+      uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+    - name: Set standard 10up cache directories
+      run: |
+        composer config -g cache-dir "${{ env.COMPOSER_CACHE }}"
+
+    - name: Prepare composer cache
+      uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+      with:
+        path: ${{ env.COMPOSER_CACHE }}
+        key: composer-${{ env.COMPOSER_VERSION }}-${{ hashFiles('**/composer.lock') }}
+        restore-keys: |
+          composer-${{ env.COMPOSER_VERSION }}-
+
+    - name: Set PHP version
+      uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # v2.37.2
+      with:
+        php-version: ${{ inputs.php-version }}
+        coverage: none
+        tools: phpunit-polyfills, composer:v2
+
+    - name: Install dependencies
+      run: composer update -W
+
+    - name: Install WordPress
+      run: |
+        sudo /etc/init.d/mysql start
+        bash tests/bin/install-wp-tests.sh wordpress_test root root 127.0.0.1 ${{ inputs.wp-version }}
+
+    - name: PHPUnit
+      run: './vendor/bin/phpunit -c phpunit-wp-integration.xml.dist'
+      env:
+        WP_TESTS_DIR: ${{ runner.temp }}/wordpress-tests-lib
+        WP_CORE_DIR: ${{ runner.temp }}/wordpress

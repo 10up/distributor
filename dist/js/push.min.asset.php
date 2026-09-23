@@ -1,1 +1,1 @@
-<?php return array('dependencies' => array('jquery', 'underscore', 'wp-i18n', 'wp-polyfill'), 'version' => 'ac321b5f7234041e78dc');
+<?php return array('dependencies' => array('jquery', 'underscore', 'wp-i18n', 'wp-polyfill'), 'version' => '71e278fdbc10cbc7d9e1');
