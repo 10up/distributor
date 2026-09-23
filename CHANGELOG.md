@@ -24,7 +24,6 @@ All notable changes to this project will be documented in this file, per [the Ke
 - Bump `@WordPress/env` from 10.38.0 to 11.15.0 (props [@peterwilsoncc](https://github.com/peterwilsoncc), [@dkotter](https://github.com/dkotter) via [#1398](https://github.com/10up/distributor/pull/1398)).
 - Bump `@wordpress/scripts` from 31.3.0 to 35.0.0 (props [@peterwilsoncc](https://github.com/peterwilsoncc), [@dkotter](https://github.com/dkotter) via [#1398](https://github.com/10up/distributor/pull/1398)).
 
-
 ## [2.3.1] - 2026-08-26
 ### Fixed
 - Rename list table styles to avoid naming collision and resolve interaction with Distributor's Edit Remove Meta plugin (props [@peterwilsoncc](https://github.com/peterwilsoncc), [@dkotter](https://github.com/dkotter) via [#1393](https://github.com/10up/distributor/pull/1393))
