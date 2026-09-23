@@ -190,10 +190,7 @@ function set_meta( $post_id, $meta ) {
 				$prev_value = maybe_unserialize( $existing_meta[ $meta_key ][ $meta_placement ] );
 			}
 
-			if ( ! is_array( $meta_value ) ) {
-				$meta_value = maybe_unserialize( $meta_value );
-			}
-
+			// $meta_value is already unserialized by prepare_meta() on the sending site; don't do it again here.
 			if ( $has_prev_value ) {
 				update_post_meta( $post_id, wp_slash( $meta_key ), wp_slash( $meta_value ), $prev_value );
 			} else {

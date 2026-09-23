@@ -110,7 +110,8 @@
 }
 
 .endpoint-result[data-endpoint-state="error"]::before,
-.endpoint-result[data-endpoint-state="valid"]::before {
+.endpoint-result[data-endpoint-state="valid"]::before,
+.endpoint-result[data-endpoint-state="warning"]::before {
 	content: " ";
 	display: inline-block;
 	border-radius: 50%;
@@ -126,6 +127,11 @@
 
 .endpoint-result[data-endpoint-state="valid"]::before {
 	background-color: #62ff00;
+}
+
+.endpoint-result[data-endpoint-state="warning"]::before {
+	background-color: rgb(100% 86.36% 38.24%); /* Close enough for browsers that don't support LCH. */
+	background-color: lch(89.114% 107.424 87.694);
 }
 
 .endpoint-result .dashicons-yes {
