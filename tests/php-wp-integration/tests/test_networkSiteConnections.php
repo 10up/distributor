@@ -151,4 +151,66 @@ class Test_NetworkSiteConnections extends WP_UnitTestCase {
 			'type'    => array( 'post_type' ),
 		);
 	}
+
+	/**
+	 * Test meta data is pushed correctly.
+	 *
+	 * @dataProvider data_meta_data
+	 *
+	 * @param mixed  $meta_value The meta value to test.
+	 * @param string $type_assertion The assertion method to use for testing type. Default assertIsString.
+	 */
+	public function test_meta_data_push( $meta_value, $type_assertion = 'assertIsString' ) {
+		$post_id = self::$post_id;
+		add_post_meta( $post_id, 'test_meta', $meta_value );
+		$push_result = self::$connection_obj->push( $post_id );
+		$this->assertIsArray( $push_result, 'NetworkSiteConnection::push() should return an array' );
+
+		switch_to_blog( self::$blog_id );
+		$pushed_post_id = $push_result['id'];
+
+		$pushed_meta = get_post_meta( $pushed_post_id, 'test_meta', true );
+		$this->$type_assertion( $pushed_meta, 'Pushed meta is of unexpected type.' );
+		$this->assertSame( $meta_value, $pushed_meta, 'Pushed meta is of unexpected value.' );
+	}
+
+	/**
+	 * Test meta data is pulled correctly.
+	 *
+	 * @dataProvider data_meta_data
+	 *
+	 * @param mixed  $meta_value The meta value to test.
+	 * @param string $type_assertion The assertion method to use for testing type. Default assertIsString.
+	 */
+	public function test_meta_data_pull( $meta_value, $type_assertion = 'assertIsString' ) {
+		$post_id = self::$post_id;
+		add_post_meta( $post_id, 'test_meta', $meta_value );
+		switch_to_blog( self::$blog_id );
+		$connection_obj = new NetworkSiteConnection( get_site( 1 ) );
+
+		$pull_result = $connection_obj->pull( array( array( 'remote_post_id' => $post_id ) ) );
+		$this->assertIsArray( $pull_result, 'NetworkSiteConnection::pull() should return an array' );
+
+		$pulled_post_id = $pull_result[0];
+
+		$pushed_meta = get_post_meta( $pulled_post_id, 'test_meta', true );
+		$this->$type_assertion( $pushed_meta, 'Pushed meta is of unexpected type.' );
+		$this->assertSame( $meta_value, $pushed_meta, 'Pushed meta is of unexpected value.' );
+	}
+
+	/**
+	 * Data provider for
+	 *  - test_meta_data_push
+	 *  - test_meta_data_pull
+	 *
+	 * @return array[] Data provider.
+	 */
+	public function data_meta_data() {
+		return array(
+			'string'                        => array( 'string' ),
+			'array'                         => array( array( 'pens' => 'pencils' ), 'assertIsArray' ),
+			'serialized-data-shaped-string' => array( 'a:1:{s:1:"a";i:1;}' ),
+			'serialized-data-shaped-array'  => array( array( array( 'a:1:{s:1:"a";i:1;}' ) ), 'assertIsArray' ),
+		);
+	}
 }

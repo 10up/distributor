@@ -199,7 +199,12 @@ class UtilsTest extends TestCase {
 	}
 
 	/**
-	 * Test set meta with serialized value
+	 * Test set_meta() does not unserialize incoming values a second time.
+	 *
+	 * Incoming meta has already been unserialized once by prepare_meta() on the
+	 * sending site, so a value that happens to look like a serialized array
+	 * (e.g. a string deliberately protected from being mistaken for serialized
+	 * data) must be stored as-is rather than unserialized again.
 	 *
 	 * @since  1.0
 	 * @group Utils
@@ -225,7 +230,7 @@ class UtilsTest extends TestCase {
 		\WP_Mock::userFunction(
 			'update_post_meta', [
 				'times'  => 1,
-				'args'   => [ 1, 'key2', [ 0 => 'test' ], [ 0 => 'test' ] ],
+				'args'   => [ 1, 'key2', 'a:1:{i:0;s:4:"test";}', [ 0 => 'test' ] ],
 				'return' => [],
 			]
 		);
