@@ -120,17 +120,24 @@ class Test_Utils extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test set meta with a serialized value
+	 * Test set_meta() does not unserialize incoming values a second time.
+	 *
+	 * Incoming meta has already been unserialized once by prepare_meta() on the
+	 * sending site, so a value that happens to look like a serialized array
+	 * must be stored as-is rather than unserialized again.
 	 *
 	 * @group Utils
 	 */
 	public function test_set_meta_serialize() {
 		$post_id = self::$post_id;
 
-		// Meta can arrive as an already-serialized string, e.g. from a remote site over REST.
 		set_meta( $post_id, array( 'key3' => array( 'a:1:{i:0;s:4:"test";}' ) ) );
 
-		$this->assertSame( array( array( 0 => 'test' ) ), get_post_meta( $post_id, 'key3', false ), 'Serialized post meta is expected to be unserialized.' );
+		$this->assertSame(
+			array( 'a:1:{i:0;s:4:"test";}' ),
+			get_post_meta( $post_id, 'key3', false ),
+			'A serialized-looking string should be stored as-is.'
+		);
 	}
 
 	/**

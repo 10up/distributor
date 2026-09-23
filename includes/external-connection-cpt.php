@@ -757,7 +757,7 @@ function setup_cpt() {
 			 * Filter Distributor capabilities allowed to manage external connections.
 			 *
 			 * @since 1.0.0
-			 * @since x.x.x $post_capability argument introduced.
+			 * @since 2.3.2 $post_capability argument introduced.
 			 *
 			 * @param string 'manage_options' The capability allowed to manage external connections.
 			 * @param string $post_capability The post type capability the external connection capabilities applies to.
