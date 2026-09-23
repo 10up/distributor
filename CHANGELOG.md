@@ -4,7 +4,12 @@ All notable changes to this project will be documented in this file, per [the Ke
 
 ## [Unreleased] - TBD
 
-## [2.3.2] - 2026-09-DD
+## [2.3.2] - 2026-09-23
+### Security
+- Resolve GHSA-pxgv-j98h-3xhw (props [@lichoin](https://github.com/lichoin), [@peterwilsoncc](https://github.com/peterwilsoncc), [@dkotter](https://github.com/dkotter) via [GHSA-pxgv-j98h-3xhw](https://github.com/10up/distributor/security/advisories/GHSA-pxgv-j98h-3xhw)).
+- Resolve GHSA-26j8-r2m4-768c (props [@lichoin](https://github.com/lichoin), [@peterwilsoncc](https://github.com/peterwilsoncc), [@dkotter](https://github.com/dkotter) via [GHSA-26j8-r2m4-768c](https://github.com/10up/distributor/security/advisories/GHSA-26j8-r2m4-768c)).
+- Resolve GHSA-wm53-9j85-ph6h (props [@lichoin](https://github.com/lichoin), [@peterwilsoncc](https://github.com/peterwilsoncc), [@dkotter](https://github.com/dkotter) via [GHSA-wm53-9j85-ph6h](https://github.com/10up/distributor/security/advisories/GHSA-wm53-9j85-ph6h)).
+
 ### Developer
 - Introduce WP PHP Unit test suite (props [@peterwilsoncc](https://github.com/peterwilsoncc), [@dkotter](https://github.com/dkotter) via [#1396](https://github.com/10up/distributor/pull/1396)).
 - Update link-unlink E2E tests following changes to the notice component (props [@peterwilsoncc](https://github.com/peterwilsoncc), [@jeffpaul](https://github.com/jeffpaul), [@dkotter](https://github.com/dkotter) via [#1391](https://github.com/10up/distributor/pull/1391)).
