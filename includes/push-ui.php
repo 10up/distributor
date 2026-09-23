@@ -255,8 +255,13 @@ function ajax_push() {
 		exit;
 	}
 
-	if ( empty( $_POST['postId'] ) ) {
+	if ( empty( $_POST['postId'] ) || ! is_numeric( $_POST['postId'] ) ) {
 		wp_send_json_error( new \WP_Error( 'no-post-id', __( 'No post ID provided.', 'distributor' ) ) );
+		exit;
+	}
+
+	if ( ! current_user_can( 'edit_post', intval( $_POST['postId'] ) ) ) {
+		wp_send_json_error( new \WP_Error( 'insufficient-permissions', __( 'You do not have permission to push this post.', 'distributor' ) ) );
 		exit;
 	}
 
@@ -352,6 +357,36 @@ function ajax_push() {
 
 			if ( ! empty( $_POST['postStatus'] ) ) {
 				$push_args['post_status'] = sanitize_key( wp_unslash( $_POST['postStatus'] ) );
+			}
+
+			if ( get_current_blog_id() == $connection['id'] ) {
+				// Unable to push to current blog.
+				continue;
+			}
+
+			if ( ! is_super_admin() ) {
+				$post_type = get_post_type( intval( $_POST['postId'] ) );
+				// For users other than super admins, check permissions on destination site.
+				switch_to_blog( $connection['id'] );
+
+				$post_type_object = get_post_type_object( $post_type );
+
+				if ( ! empty( $push_args['remote_post_id'] ) ) {
+					if ( ! current_user_can( 'edit_post', $push_args['remote_post_id'] ) ) {
+						restore_current_blog();
+						continue;
+					}
+				} elseif ( 'draft' === $push_args['post_status'] ) {
+					if ( ! current_user_can( $post_type_object->cap->create_posts ) ) {
+						restore_current_blog();
+						continue;
+					}
+				} elseif ( ! current_user_can( $post_type_object->cap->publish_posts ) ) {
+					restore_current_blog();
+					continue;
+				}
+
+				restore_current_blog();
 			}
 
 			$remote_post = $internal_connection->push( intval( $_POST['postId'] ), $push_args );
