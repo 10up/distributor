@@ -19,10 +19,19 @@ import '@10up/cypress-wp-utils';
 import './commands';
 
 Cypress.on( 'uncaught:exception', ( err ) => {
-	if (
+	// WordPress 7.0+ opts wp-admin into cross-document view transitions.
+	// Chrome rejects the transition promise when a navigation skips it or the
+	// destination has not opted in. Cypress surfaces that rejection as an
+	// uncaught exception. It is not an application error.
+	const message = err?.message ?? '';
+	const isSkippedViewTransition =
 		err?.name === 'AbortError' &&
-		err?.message?.includes( 'Transition was skipped' )
-	) {
+		message.includes( 'Transition was skipped' );
+	const isDisabledViewTransition =
+		err?.name === 'InvalidStateError' &&
+		message.includes( 'ViewTransition opt-in disabled' );
+
+	if ( isSkippedViewTransition || isDisabledViewTransition ) {
 		return false;
 	}
 } );
