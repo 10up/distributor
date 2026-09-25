@@ -13,8 +13,11 @@
  * @package distributor-tests
  */
 
-add_filter( 'dt_pull_post_args', function( $post_array ) {
-	$post_array[ 'post_status' ] = 'publish';
+add_filter(
+	'dt_pull_post_args',
+	function ( $post_array ) {
+		$post_array['post_status'] = 'publish';
 
-	return $post_array;
-} );
+		return $post_array;
+	}
+);
