@@ -288,6 +288,10 @@ function send_notifications( $post ) {
 			}
 		}
 
+		if ( Utils\can_distribute_post_status() ) {
+			$post_body['post_data']['status'] = $post->post_status;
+		}
+
 		/**
 		 * Filter the timeout used when calling `\Distributor\Subscriptions\send_notifications`
 		 *
