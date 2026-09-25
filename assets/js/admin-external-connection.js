@@ -239,7 +239,7 @@ jQuery( authorizeConnectionButton ).on( 'click', ( event ) => {
 					dt.home_url
 				),
 				success_url: encodeURI( successURL ) /*eslint camelcase: 0*/,
-				reject_url: encodeURI( failureURL ) /*eslint camelcase: 0*/,
+				reject_url: encodeURI( failureURL ),
 			} );
 			document.location = authURL;
 		} );
