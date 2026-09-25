@@ -1,8 +1,8 @@
 {
   "containers": [
     {
-      "prettyName": "PHP 5.6",
-      "image": "php:5.6",
+      "prettyName": "PHP 7.4",
+      "image": "php:7.4",
       "beforeScripts": [
         "php -r \"copy('https://getcomposer.org/installer', 'composer-setup.php');\"",
         "php composer-setup.php --install-dir=/usr/local/bin --filename=composer",
@@ -14,8 +14,8 @@
       "testCommand": "phpunit"
     },
     {
-      "prettyName": "PHP 7.0",
-      "image": "php:7.0",
+      "prettyName": "PHP 8.1",
+      "image": "php:8.1",
       "beforeScripts": [
         "php -r \"copy('https://getcomposer.org/installer', 'composer-setup.php');\"",
         "php composer-setup.php --install-dir=/usr/local/bin --filename=composer",

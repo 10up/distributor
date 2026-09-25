@@ -1,0 +1,557 @@
+/**
+ * CSS files with the .module.css suffix will be treated as CSS modules
+ * and scoped locally.
+ */
+
+.heroBanner {
+  padding: 6rem 0;
+  text-align: center;
+  position: relative;
+}
+
+.headerContent {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.wpPluginLabel {
+  color: var(--ifm-color-primary);
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 1rem;
+}
+
+.heroTitle {
+  font-size: 4rem;
+  font-weight: 800;
+  margin-bottom: 0.5rem;
+  line-height: 1.1;
+}
+
+.heroSubtitle {
+  font-size: 4rem;
+  font-weight: 800;
+  color: var(--ifm-color-primary);
+  margin-bottom: 1rem;
+  line-height: 1.1;
+}
+
+.heroDescription {
+  font-size: 1.25rem;
+  line-height: 1.6;
+  margin-bottom: 2rem;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+
+}
+
+[data-theme='light'] .heroDescription {
+  color: #666;
+}
+
+[data-theme='dark'] .heroDescription {
+  color: #ccc;
+}
+
+
+.buttons {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin-bottom: 3rem;
+}
+
+.buttons a {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  transform: translateY(0);
+}
+
+/* Primary button animation */
+.buttons a:global(.button--primary) {
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.buttons a:global(.button--primary):hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.buttons a:global(.button--primary):active {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Secondary button animation */
+.buttons a:global(.button--secondary) {
+  background: linear-gradient(120deg, transparent 0%, transparent 50%, var(--ifm-color-primary) 50%);
+  background-size: 250% 100%;
+  transition: all 0.3s ease;
+}
+
+.buttons a:global(.button--secondary):hover {
+  background-position: -100% 0;
+}
+
+/* Outline button animation */
+.buttons a:global(.button--outline),
+.featureActions a:global(.button--outline) {
+  border: 2px solid var(--ifm-color-primary);
+  transition: all 0.3s ease;
+}
+
+.buttons a:global(.button--outline):hover,
+.featureActions a:global(.button--outline):hover {
+  background: var(--ifm-color-primary);
+  transform: translateY(-2px);
+}
+
+.buttons a:global(.button--outline):active,
+.featureActions a:global(.button--outline):active {
+  transform: translateY(0);
+}
+
+/* Add ripple effect to all buttons */
+.buttons a::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 5px;
+  height: 5px;
+  background: rgba(255, 255, 255, 0.5);
+  opacity: 0;
+  border-radius: 100%;
+  transform: scale(1, 1) translate(-50%);
+  transform-origin: 50% 50%;
+}
+
+.buttons a:focus:not(:active)::after {
+  animation: ripple 1s ease-out;
+}
+
+@keyframes ripple {
+  0% {
+    transform: scale(0, 0);
+    opacity: 0.5;
+  }
+  20% {
+    transform: scale(25, 25);
+    opacity: 0.3;
+  }
+  100% {
+    opacity: 0;
+    transform: scale(40, 40);
+  }
+}
+
+.featureSection,
+.platformSection,
+.getStartedSection {
+  padding: 3rem 0;
+}
+
+[data-theme='dark'] .featureSection {
+  background: var(--ifm-color-bg-secondary);
+}
+
+[data-theme='light'] .featureSection {
+  background: #f8f9fa;
+}
+
+.sectionTitle {
+  font-size: 2.5rem;
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+[data-theme='light'] .sectionTitle {
+  color: #000;
+}
+
+[data-theme='dark'] .sectionTitle {
+  color: #fff;
+}
+
+.sectionDescription {
+  text-align: center;
+  max-width: 700px;
+  margin: 0 auto 1rem;
+  font-size: 1.1rem;
+  line-height: 1.6;
+}
+
+
+[data-theme='light'] .sectionDescription {
+	color: #666;
+}
+
+[data-theme='dark'] .sectionDescription {
+	color: #ccc;
+}
+
+.featureGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+  margin-top: 3rem;
+}
+
+.featureCard {
+  background: var(--ifm-color-gray-800);
+  border-radius: 8px;
+  padding: 2rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  position: relative;
+  top: 0;
+}
+
+[data-theme='light'] .featureCard {
+  background: #fff;
+}
+
+.featureCard:hover {
+  top: -5px;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+}
+
+.featureCard:hover h3 {
+  color: var(--ifm-color-primary);
+}
+
+.featureCard .featureActions {
+  opacity: 0.8;
+  transform: translateY(10px);
+  transition: all 0.3s ease;
+}
+
+.featureCard:hover .featureActions {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.featureCard h3 {
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+[data-theme='light'] .featureCard h3 {
+  color: #000;
+}
+
+[data-theme='dark'] .featureCard h3 {
+  color: #fff;
+}
+
+.featureCard p {
+  margin-bottom: 1.5rem;
+  line-height: 1.6;
+}
+
+[data-theme='light'] .featureCard p {
+  color: #666;
+}
+
+[data-theme='dark'] .featureCard p {
+  color: #ccc;
+}
+
+.featureTags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.tag {
+  background: #f0f0f0;
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.875rem;
+  color: #666;
+  transition: all 0.2s ease;
+  cursor: default;
+  user-select: none;
+}
+
+[data-theme='dark'] .tag {
+  background: #2a2a2a;
+  color: #ccc;
+}
+
+.tag:hover {
+  background: var(--ifm-color-primary);
+  color: white;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.tag:active {
+  transform: translateY(0);
+  box-shadow: none;
+}
+
+.featureActions {
+  display: flex;
+  gap: 1rem;
+}
+
+.platformGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 2rem;
+  margin-top: 3rem;
+}
+
+.platformCard {
+  background: #fff;
+  border-radius: 8px;
+  padding: 2rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  transform: scale(1);
+  cursor: pointer;
+}
+
+[data-theme='dark'] .platformCard {
+  background: var(--ifm-color-gray-800);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.platformCard:hover {
+  transform: scale(1.02);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+}
+
+.platformCard:hover h3 {
+  color: var(--ifm-color-primary);
+}
+
+.platformCard .featureList {
+  transition: all 0.3s ease;
+}
+
+.platformCard:hover .featureList {
+  color: #333;
+}
+
+.platformCard .capabilityTags {
+  transition: all 0.3s ease;
+  transform: translateY(0);
+}
+
+.platformCard:hover .capabilityTags {
+  transform: translateY(-5px);
+}
+
+.platformCard h3 {
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+  color: #000;
+}
+
+[data-theme='dark'] .platformCard h3 {
+  color: #fff;
+}
+
+.featureList {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 1.5rem;
+}
+
+.featureList li {
+  margin-bottom: 0.5rem;
+  color: #666;
+}
+
+[data-theme='dark'] .featureList li {
+  color: #ccc;
+}
+
+.capabilityTags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.platformAction {
+  text-align: center;
+  margin-top: 3rem;
+}
+
+.getStartedSection {
+  background: #fff;
+  text-align: center;
+}
+
+[data-theme='dark'] .getStartedSection {
+  background: var(--ifm-color-gray-900);
+}
+
+.getStartedActions {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+/* Contribution Section */
+.contributionSection {
+  padding: 4rem 0;
+  background: #fff;
+}
+
+[data-theme='dark'] .contributionSection {
+  background: var(--ifm-color-gray-900);
+}
+
+.contributionGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+  margin-top: 3rem;
+}
+
+.contributionCard {
+  background: #f8f9fa;
+  border-radius: 12px;
+  padding: 2rem;
+  text-align: center;
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
+}
+
+[data-theme='dark'] .contributionCard {
+  background: var(--ifm-color-gray-800);
+}
+
+.contributionCard:hover {
+  transform: translateY(-5px);
+  border-color: var(--ifm-color-primary);
+  box-shadow: 0 8px 20px rgba(255, 149, 0, 0.1);
+}
+
+.contributionCard h3 {
+  color: #000;
+  margin-bottom: 1rem;
+  font-size: 1.3rem;
+}
+
+[data-theme='dark'] .contributionCard h3 {
+  color: #fff;
+}
+
+.contributionCard p {
+  color: #666;
+  margin-bottom: 2rem;
+  line-height: 1.6;
+}
+
+[data-theme='dark'] .contributionCard p {
+  color: #ccc;
+}
+
+.guidelinesSection {
+  margin-top: 4rem;
+  padding-top: 3rem;
+  border-top: 1px solid #e2e8f0;
+}
+
+[data-theme='dark'] .guidelinesSection {
+  border-top: 1px solid #444;
+}
+
+.guidelinesTitle {
+  text-align: center;
+  color: #000;
+  margin-bottom: 2rem;
+  font-size: 1.8rem;
+}
+
+[data-theme='dark'] .guidelinesTitle {
+  color: #fff;
+}
+
+.guidelinesGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+}
+
+.guidelineItem {
+  text-align: center;
+  padding: 1.5rem;
+}
+
+.guidelineItem h4 {
+  color: #000;
+  margin-bottom: 1rem;
+  font-size: 1.2rem;
+}
+
+[data-theme='dark'] .guidelineItem h4 {
+  color: #fff;
+}
+
+.guidelineItem p {
+  color: #666;
+  line-height: 1.6;
+  margin: 0;
+}
+
+[data-theme='dark'] .guidelineItem p {
+  color: #ccc;
+}
+
+@media screen and (max-width: 996px) {
+  .heroBanner {
+    padding: 3rem 1rem;
+  }
+
+  .heroTitle,
+  .heroSubtitle {
+    font-size: 2.5rem;
+  }
+
+  .buttons,
+  .getStartedActions {
+    flex-direction: column;
+  }
+
+  .buttons a,
+  .getStartedActions a {
+    width: 100%;
+  }
+
+  .featureGrid,
+  .platformGrid,
+  .hooksGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .statsContainer {
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .stepCard {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .stepNumber {
+    margin-right: 0;
+    margin-bottom: 1rem;
+    align-self: center;
+  }
+
+  .contributionGrid {
+    grid-template-columns: 1fr;
+  }
+}

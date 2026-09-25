@@ -1,15 +1,18 @@
 <?php
+
+use Yoast\PHPUnitPolyfills\TestCases\TestCase as BaseTestCase;
+
 /**
  * We will extend this test case to make WP_Mock set up easier
  */
-class TestCase extends \PHPUnit\Framework\TestCase {
+class TestCase extends BaseTestCase {
 
 	/**
 	 * Set up with WP_Mock
 	 *
 	 * @since  0.8
 	 */
-	public function setUp() {
+	public function set_up() {
 		\WP_Mock::setUp();
 		$this->setup_common();
 
@@ -22,7 +25,7 @@ class TestCase extends \PHPUnit\Framework\TestCase {
 	 *
 	 * @since  0.8
 	 */
-	public function tearDown() {
+	public function tear_down() {
 		\WP_Mock::tearDown();
 	}
 

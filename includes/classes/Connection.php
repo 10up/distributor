@@ -43,11 +43,19 @@ abstract class Connection {
 	/**
 	 * Log a sync
 	 *
-	 * @param array $item_id_mappings Mapping to store; key = origin post ID, value = new post ID.
-	 * @param int   $id Blog or Connection ID. Optional.
+	 * @param array   $item_id_mappings Mapping to store; key = origin post ID, value = new post ID.
+	 * @param int     $id Blog or Connection ID. Optional.
+	 * @param boolean $overwrite Whether to overwrite the sync log. Optional.
 	 * @since 0.8
 	 */
-	abstract public function log_sync( array $item_id_mappings, $id );
+	abstract public function log_sync( array $item_id_mappings, $id, $overwrite );
+
+	/**
+	 * Get the sync log
+	 *
+	 * @param int $id Blog or Connection ID. Optional.
+	 */
+	abstract public function get_sync_log( $id );
 
 	/**
 	 * Get available post types from a connection
@@ -56,6 +64,22 @@ abstract class Connection {
 	 * @return array|\WP_Error
 	 */
 	abstract public function get_post_types();
+
+	/**
+	 * Get available post type taxonomies from a connection
+	 *
+	 * @param string $post_type Post type.
+	 *
+	 * @return array
+	 */
+	abstract public function get_post_type_taxonomies( $post_type );
+
+	/**
+	 * Get available taxonomy terms from a connection
+	 *
+	 * @return array
+	 */
+	abstract public function get_taxonomy_terms();
 
 	/**
 	 * This method is called on every page load. It's helpful for canonicalization

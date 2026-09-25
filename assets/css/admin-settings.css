@@ -11,16 +11,17 @@
 }
 
 .distributor-help-link:not(:hover) span {
-	color: #9EA3A8;
+	color: #9ea3a8;
 }
 
 @media (min-width: 600px) {
+
 	.distributor-help-link {
 		display: block;
 	}
 }
 
-.license-wrap.valid:after {
+.license-wrap.valid::after {
 	content: "\f147";
 	font-family: dashicons;
 	display: inline-block;
@@ -31,7 +32,7 @@
 	color: #49da49;
 }
 
-.license-wrap.invalid:after {
+.license-wrap.invalid::after {
 	content: "\f335";
 	font-family: dashicons;
 	display: inline-block;
@@ -39,7 +40,7 @@
 	vertical-align: middle;
 	top: -2px;
 	position: relative;
-	color: #ff0000;
+	color: #f00;
 }
 
 .registered + .license-wrap,

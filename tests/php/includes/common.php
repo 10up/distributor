@@ -9,10 +9,20 @@
  *
  * @since  0.8
  */
+#[AllowDynamicProperties]
 class WP_Error {
-	public function __construct( $code = '', $message = '' ) {
+	public function __construct( $code = '', $message = '', $data = array() ) {
 		$this->code    = $code;
 		$this->message = $message;
+		$this->data    = $data;
+	}
+
+	public function get_error_code() {
+		return $this->code;
+	}
+
+	public function get_error_data() {
+		return $this->data;
 	}
 }
 
@@ -101,6 +111,7 @@ function is_serialized( $data, $strict = true ) {
  *
  * @since  0.8
  */
+#[AllowDynamicProperties]
 class WP_Query {
 	public function __construct( $args = array() ) {
 
@@ -157,49 +168,70 @@ function remote_get_setup() {
 
 	\WP_Mock::userFunction( 'get_option' );
 
-	$post_type = 'post';
-	$links     = [
-		'_links' => [
-			'wp:items' => [
-				[ 'href' => 'http://url.com' ],
+	$rest_response = [
+		[
+			'post_title'                     => 'My post title',
+			'post_name'                      => 'my-post-title',
+			'post_type'                      => 'post',
+			'post_content'                   => '',
+			'post_excerpt'                   => '',
+			'post_status'                    => 'publish',
+			'terms'                          => [],
+			'meta'                           => [],
+			'media'                          => [],
+			'post_author'                    => 1,
+			'meta_input'                     => [
+				'dt_original_post_id'  => 123,
+				'dt_original_post_url' => 'http://example.com/2023/04/11/my-post-title/',
 			],
+			'ID'                             => 123,
+			'post_date'                      => '2023-04-11 05:40:43',
+			'post_date_gmt'                  => '2023-04-11 05:40:43',
+			'post_modified'                  => '2023-04-11 05:40:43',
+			'post_modified_gmt'              => '2023-04-11 05:40:43',
+			'post_password'                  => '',
+			'guid'                           => 'http://example.com/?p=123',
+			'comment_status'                 => 'open',
+			'ping_status'                    => 'open',
+			'link'                           => 'http://example.com/2023/04/11/my-post-title/',
+			'distributor_original_site_name' => 'My site name',
+			'distributor_original_site_url'  => 'http://example.com/',
 		],
 	];
 
+	$post_response = $rest_response[0];
+	$post_response['original_site_name'] = $post_response['distributor_original_site_name'];
+	$post_response['original_site_url']  = $post_response['distributor_original_site_url'];
+	unset( $post_response['distributor_original_site_name'] );
+	unset( $post_response['distributor_original_site_url'] );
+
 	\WP_Mock::userFunction(
-		'wp_remote_get', [
-			'return' => json_encode(
-				[
-					$post_type => $links,
-				]
-			),
+		'wp_remote_post', [
+			'return' => new stdClass(),
+		]
+	);
+
+	\WP_Mock::userFunction(
+		'wp_remote_request', [
+			'return' => new stdClass(),
 		]
 	);
 
 	\WP_Mock::userFunction(
 		'wp_remote_retrieve_body', [
-			'return' => json_encode(
-				[
-					'id'                => 123,
-					'title'             => [ 'rendered' => 'My post title' ],
-					'content'           => [ 'rendered' => '', 'raw' => '' ],
-					'excerpt'           => [ 'rendered' => '' ],
-					'date'              => '',
-					'date_gmt'          => '',
-					'guid'              => [ 'rendered' => '' ],
-					'modified'          => '',
-					'modified_gmt'      => '',
-					'type'              => '',
-					'link'              => '',
-					'distributor_meta'  => [],
-					'distributor_terms' => [],
-					'distributor_media' => [],
-					$post_type          => $links,
-					'comment_status'    => 'open',
-					'ping_status'       => 'open',
-					'password'          => '',
-				]
-			),
+			'return' => json_encode( $rest_response ),
+		]
+	);
+
+	\WP_Mock::userFunction(
+		'wp_remote_retrieve_response_code', [
+			'return' => 200,
+		]
+	);
+
+	\WP_Mock::userFunction(
+		'wp_list_filter', [
+			'return' => [ new WP_Post( (object) $post_response ) ],
 		]
 	);
 }
@@ -209,6 +241,7 @@ function remote_get_setup() {
  *
  * @since  1.0
  */
+#[AllowDynamicProperties]
 class WP_Post {
 	public function __construct( $post ) {
 		if ( ! empty( $post ) ) {
@@ -218,6 +251,31 @@ class WP_Post {
 				$this->$key = $value;
 			}
 		}
+	}
+}
+
+/**
+ * Mock WP_HTML_Tag_Processor
+ */
+#[AllowDynamicProperties]
+class WP_HTML_Tag_Processor {
+	protected $html;
+
+	/**
+	 * Constructor.
+	 *
+	 * @param string $html HTML to process.
+	 */
+	public function __construct( $html ) {
+		$this->html = $html;
+	}
+
+	public function next_tag() {
+		return false;
+	}
+
+	public function get_attribute() {
+		return null;
 	}
 }
 
@@ -249,6 +307,47 @@ function get_allowed_mime_types() {
 }
 
 /**
+ * Mock wp_json_encode() function.
+ *
+ * @since 2.0.0
+ *
+ * @param mixed $data Data to encode.
+ * @param int   $options Optional. Options to be passed to json_encode(). Default 0.
+ * @param int   $depth Optional. Maximum depth to walk through $data.
+ * @return string|false The JSON encoded string, or false if it cannot be encoded.
+ */
+function wp_json_encode( $data, $options = 0, $depth = 512 ) {
+	return json_encode( $data, $options, $depth );
+}
+
+/**
+ * Mock wp_parse_args() function.
+ *
+ * @since 2.0.0
+ *
+ * @param array $settings Array of arguments.
+ * @param array $defaults Array of default arguments.
+ * @return array Array of parsed arguments.
+ */
+function wp_parse_args( $settings, $defaults ) {
+	return array_merge( $defaults, $settings );
+}
+
+/**
+ * Mock absint() function.
+ *
+ * Copied from WordPress core.
+ *
+ * @since 2.0.0
+ *
+ * @param mixed $maybeint Data you wish to have converted to a non-negative integer.
+ * @return int A non-negative integer.
+ */
+function absint( $maybeint ) {
+	return abs( (int) $maybeint );
+}
+
+/**
  * Stub for remove_filter to avoid failure in test_remote_get()
  *
  * @return void
@@ -258,6 +357,7 @@ function remove_filter() { }
 /**
  * Classes for testing connections
  */
+#[AllowDynamicProperties]
 class TestExternalConnection extends \Distributor\ExternalConnection {
 	static $slug               = 'test-external-connection';
 	static $auth_handler_class = '\Distributor\Authentications\WordPressBasicAuth';
@@ -272,8 +372,13 @@ class TestExternalConnection extends \Distributor\ExternalConnection {
 	public function remote_get( $args ) { }
 
 	public function get_post_types() { }
+
+	public function get_post_type_taxonomies( $post_type ) { }
+
+	public function get_taxonomy_terms() { }
 }
 
+#[AllowDynamicProperties]
 class TestInternalConnection extends \Distributor\Connection {
 	static $slug = 'test-internal-connection';
 
@@ -283,7 +388,126 @@ class TestInternalConnection extends \Distributor\Connection {
 
 	public function remote_get( $args ) { }
 
-	public function log_sync( array $item_id_mappings, $id ) { }
+	public function log_sync( array $item_id_mappings, $id, $overwrite ) {}
+
+	public function get_sync_log( $id ) {}
 
 	public function get_post_types() { }
+
+	public function get_post_type_taxonomies( $post_type ) { }
+
+	public function get_taxonomy_terms() { }
+}
+
+/**
+ * Thin stand-in for wp_parse_url(), which core implements over parse_url().
+ */
+if ( ! function_exists( 'wp_parse_url' ) ) {
+	function wp_parse_url( $url, $component = -1 ) {
+		return parse_url( $url, $component );
+	}
+}
+
+/**
+ * Hollowed out WP_REST_Controller class for mocking
+ */
+#[AllowDynamicProperties]
+class WP_REST_Controller {
+	protected $namespace;
+
+	protected $rest_base;
+}
+
+/**
+ * Hollowed out WP_REST_Post_Meta_Fields class for mocking
+ */
+#[AllowDynamicProperties]
+class WP_REST_Post_Meta_Fields {
+	public function __construct( $post_type = '' ) {
+		$this->post_type = $post_type;
+	}
+}
+
+/**
+ * Hollowed out WP_REST_Request class for mocking.
+ *
+ * Only the array access used by the controllers is modelled. As in core, reading
+ * an absent parameter yields null rather than emitting a notice.
+ */
+#[AllowDynamicProperties]
+class WP_REST_Request implements ArrayAccess {
+	protected $method;
+
+	protected $route;
+
+	protected $params = array();
+
+	public function __construct( $method = '', $route = '', $attributes = array() ) {
+		$this->method = $method;
+		$this->route  = $route;
+	}
+
+	public function get_route() {
+		return $this->route;
+	}
+
+	public function get_method() {
+		return $this->method;
+	}
+
+	public function set_body_params( $params ) {
+		$this->params = array_merge( $this->params, (array) $params );
+	}
+
+	public function set_param( $key, $value ) {
+		$this->params[ $key ] = $value;
+	}
+
+	#[\ReturnTypeWillChange]
+	public function offsetExists( $offset ) {
+		return isset( $this->params[ $offset ] );
+	}
+
+	#[\ReturnTypeWillChange]
+	public function offsetGet( $offset ) {
+		return isset( $this->params[ $offset ] ) ? $this->params[ $offset ] : null;
+	}
+
+	#[\ReturnTypeWillChange]
+	public function offsetSet( $offset, $value ) {
+		$this->params[ $offset ] = $value;
+	}
+
+	#[\ReturnTypeWillChange]
+	public function offsetUnset( $offset ) {
+		unset( $this->params[ $offset ] );
+	}
+}
+
+/**
+ * Hollowed out WP_REST_Response class for mocking
+ */
+#[AllowDynamicProperties]
+class WP_REST_Response {
+	protected $data;
+
+	protected $status;
+
+	public function __construct( $data = null, $status = 200, $headers = array() ) {
+		$this->data    = $data;
+		$this->status  = $status;
+		$this->headers = $headers;
+	}
+
+	public function set_data( $data ) {
+		$this->data = $data;
+	}
+
+	public function get_data() {
+		return $this->data;
+	}
+
+	public function get_status() {
+		return $this->status;
+	}
 }

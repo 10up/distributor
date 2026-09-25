@@ -6,5 +6,16 @@ vendor/*
 !vendor/georgestephanis
 release/*
 dist/*
-screenshots/
 lang/
+docs-built
+.phpunit.result.cache
+/.wp-env.override.json
+
+tests/cypress/videos
+tests/cypress/screenshots
+tests/cypress/reports
+tests/cypress/downloads
+
+distributor.zip
+/wp-hooks-docs/docs/hooks
+/wp-hooks-docs/docs/01.get-started/05.CHANGELOG.md

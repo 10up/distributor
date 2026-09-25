@@ -1,0 +1,30 @@
+name: "WordPress version checker"
+on:
+  push:
+    branches:
+      - develop
+      - trunk
+  pull_request:
+    branches:
+      - develop
+  schedule:
+    - cron: '0 0 * * 1'
+
+permissions:
+  issues: write
+
+# Cancels all previous workflow runs for pull requests that have not completed.
+concurrency:
+  # The concurrency group contains the workflow name and the branch name for pull requests
+  # or the commit hash for any other events.
+  group: ${{ github.workflow }}-${{ github.event_name == 'pull_request' && github.head_ref || github.sha }}
+  cancel-in-progress: true
+
+jobs:
+  wordpress-version-checker:
+    runs-on: ubuntu-latest
+    steps:
+      - name: WordPress version checker
+        uses: skaut/wordpress-version-checker@9d247334f5b30202cb9c1f4aee74c52f37399f69 # v2.2.3
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}

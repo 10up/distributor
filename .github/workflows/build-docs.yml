@@ -1,4 +1,4 @@
-name: Build Hook Docs
+name: Build Developer Docs
 
 on:
  push:
@@ -9,11 +9,21 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v1
-    - name: Use Node.js 10
-      uses: actions/setup-node@v1
+    - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+    - name: Setup proper PHP version
+      uses: shivammathur/setup-php@9e72090525849c5e82e596468b86eb55e9cc5401 # v2.32.0
       with:
-        node-version: '10.x'
+        php-version: 8.3
+
+    - name: Use desired version of NodeJS
+      uses: actions/setup-node@cdca7365b2dadb8aad0a33bc7601856ffabcc48e # v4.3.0
+      with:
+          node-version: 20
+
+    - name: Check versions
+      run: npm -v; node -v; php -v
+
     - name: npm install, and build docs
       run: |
         npm install
@@ -21,8 +31,9 @@ jobs:
         npm run build:docs
       env:
         CI: true
+
     - name: Deploy to GH Pages
-      uses: maxheld83/ghpages@v0.2.1
-      env:
-        BUILD_DIR: 'docs/'
-        GH_PAT: ${{ secrets.GH_PAT }}
+      uses: peaceiris/actions-gh-pages@4f9cc6602d3f66b9c108549d475ec49e8ef4d45e # v4.0.0
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: './docs-built/build'

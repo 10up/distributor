@@ -7,6 +7,8 @@
 
 namespace Distributor;
 
+use function Distributor\Utils\generate_taxonomy_links;
+
 /**
  * List table class for pull screen
  */
@@ -53,18 +55,36 @@ class PullListTable extends \WP_List_Table {
 	 * @return array
 	 */
 	public function get_columns() {
+
+		global $connection_now;
+
 		$columns = [
-			'cb'   => '<input type="checkbox" />',
-			'name' => esc_html__( 'Name', 'distributor' ),
-			'date' => esc_html__( 'Date', 'distributor' ),
+			'cb'        => '<input type="checkbox" />',
+			'name'      => esc_html__( 'Name', 'distributor' ),
+			'post_type' => esc_html__( 'Post Type', 'distributor' ),
 		];
 
-		// Remove checkbox column on the Pulled view
-		if ( isset( $_GET['status'] ) && 'pulled' === $_GET['status'] ) { // @codingStandardsIgnoreLine Nonce not needed.
-			unset( $columns['cb'] );
+		// Dynamically add the taxonomies to the columns, only if the post type supports the taxonomy.
+		if ( ! empty( $connection_now->pull_taxonomy_terms ) ) {
+
+			foreach ( $connection_now->pull_taxonomy_terms as $taxonomy => $taxonomy_data ) {
+
+				if ( ! empty( $taxonomy_data['post_types'] ) && in_array( $connection_now->pull_post_type, $taxonomy_data['post_types'], true ) ) {
+					$columns[ $taxonomy ] = $taxonomy_data['label'];
+				}
+			}
 		}
 
-		return $columns;
+		$columns['date'] = esc_html__( 'Date', 'distributor' );
+
+		/**
+		 * Filters the columns displayed in the pull list table.
+		 *
+		 * @param array $columns An associative array of column headings.
+		 *
+		 * @return array An associative array of column headings.
+		 */
+		return apply_filters( 'dt_pull_list_table_columns', $columns );
 	}
 
 	/**
@@ -77,7 +97,8 @@ class PullListTable extends \WP_List_Table {
 
 		$current_status = ( empty( $_GET['status'] ) ) ? 'new' : sanitize_key( $_GET['status'] ); // @codingStandardsIgnoreLine No nonce needed.
 
-		$request_uri = $_SERVER['REQUEST_URI'];
+		//phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotValidated -- see `wp_fix_server_vars()`.
+		$request_uri = esc_url_raw( wp_unslash( $_SERVER['REQUEST_URI'] ) );
 
 		$url         = add_query_arg(
 			array(
@@ -196,7 +217,7 @@ class PullListTable extends \WP_List_Table {
 					}
 
 					/* translators: %s: time of pull */
-					echo sprintf( esc_html__( 'Pulled %s', 'distributor' ), esc_html( $h_time ) );
+					printf( esc_html__( 'Pulled %s', 'distributor' ), esc_html( $h_time ) );
 				}
 			}
 		} else {
@@ -242,27 +263,49 @@ class PullListTable extends \WP_List_Table {
 	}
 
 	/**
-	 * Output standard table columns (not name)
+	 * Output standard table columns.
 	 *
 	 * @param  array|\WP_Post $item Item to output.
 	 * @param  string         $column_name Column name.
 	 *
-	 * @return string Url, post title, or empty string.
+	 * @return string.
 	 * @since  0.8
 	 */
 	public function column_default( $item, $column_name ) {
-		switch ( $column_name ) {
-			case 'name':
-				return $item['post_title'];
-			case 'url':
-				$url = get_post_meta( $item->ID, 'dt_external_connection_url', true );
 
-				if ( empty( $url ) ) {
-					$url = esc_html__( 'None', 'distributor' );
+		global $connection_now;
+
+		if ( 'post_type' === $column_name ) {
+			$post_type = get_post_type_object( $item->post_type );
+
+			if ( $post_type && isset( $post_type->labels->singular_name ) ) {
+				return $post_type->labels->singular_name;
+			}
+		}
+
+		// If the post type supports the taxonomy, output the taxonomy links.
+		if ( ! empty( $connection_now->pull_taxonomy_terms ) ) {
+
+			foreach ( $connection_now->pull_taxonomy_terms as $taxonomy => $taxonomy_data ) {
+
+				// If the post type does not support the taxonomy, skip it.
+				if ( empty( $taxonomy_data['post_types'] ) || ! in_array( $connection_now->pull_post_type, $taxonomy_data['post_types'], true ) ) {
+					continue;
 				}
 
-				return $url;
+				if ( $column_name === $taxonomy ) {
+					return wp_kses_post( generate_taxonomy_links( $taxonomy, $item, $item->terms[ $taxonomy ] ) );
+				}
+			}
 		}
+
+		/**
+		 * Fires for each column in the pull list table.
+		 *
+		 * @param string  $column_name The name of the column to display.
+		 * @param WP_Post $item        The post/item to output in the column.
+		 */
+		do_action( 'dt_pull_list_table_custom_column', $column_name, $item );
 
 		return '';
 	}
@@ -309,15 +352,43 @@ class PullListTable extends \WP_List_Table {
 				$actions = [];
 				$disable = true;
 			} else {
+				/**
+				 * Filter the default value of the 'Pull as draft' option in the pull ui
+				 *
+				 * @param bool   $as_draft   Whether the 'Pull as draft' option should be checked.
+				 * @param object $connection The connection being used to pull from.
+				 *
+				 * @return bool Whether the 'Pull as draft' option should be checked.
+				 */
+				$as_draft = apply_filters( 'dt_pull_as_draft', true, $connection_now );
+
+				$draft = 'draft';
+				if ( ! $as_draft ) {
+					$draft = '';
+				}
+
 				$actions = [
-					'pull' => sprintf( '<a href="%s">%s</a>', esc_url( wp_nonce_url( admin_url( 'admin.php?page=pull&action=syndicate&_wp_http_referer=' . rawurlencode( $_SERVER['REQUEST_URI'] ) . '&post=' . $item->ID . '&connection_type=' . $connection_type . '&connection_id=' . $connection_id . '&pull_post_type=' . $item->post_type ), 'bulk-distributor_page_pull' ) ), esc_html__( 'Pull', 'distributor' ) ),
+					//phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotValidated -- see `wp_fix_server_vars()`.
+					'pull' => sprintf( '<a href="%s">%s</a>', esc_url( wp_nonce_url( admin_url( 'admin.php?page=pull&action=syndicate&_wp_http_referer=' . rawurlencode( esc_url_raw( wp_unslash( $_SERVER['REQUEST_URI'] ) ) ) . '&post=' . $item->ID . '&connection_type=' . $connection_type . '&connection_id=' . $connection_id . '&pull_post_type=' . $item->post_type . '&dt_as_draft=' . $draft ), 'bulk-distributor_page_pull' ) ), $draft ? esc_html__( 'Pull as draft', 'distributor' ) : esc_html__( 'Pull', 'distributor' ) ),
 					'view' => '<a href="' . esc_url( $item->link ) . '">' . esc_html__( 'View', 'distributor' ) . '</a>',
-					'skip' => sprintf( '<a href="%s">%s</a>', esc_url( wp_nonce_url( admin_url( 'admin.php?page=pull&action=skip&_wp_http_referer=' . rawurlencode( $_SERVER['REQUEST_URI'] ) . '&post=' . $item->ID . '&connection_type=' . $connection_type . '&connection_id=' . $connection_id ), 'dt_skip' ) ), esc_html__( 'Skip', 'distributor' ) ),
+					//phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotValidated -- see `wp_fix_server_vars()`.
+					'skip' => sprintf( '<a href="%s">%s</a>', esc_url( wp_nonce_url( admin_url( 'admin.php?page=pull&action=skip&_wp_http_referer=' . rawurlencode( esc_url_raw( wp_unslash( $_SERVER['REQUEST_URI'] ) ) ) . '&post=' . $item->ID . '&connection_type=' . $connection_type . '&connection_id=' . $connection_id ), 'dt_skip' ) ), esc_html__( 'Skip', 'distributor' ) ),
 				];
 			}
 		} elseif ( 'skipped' === $_GET['status'] ) { // @codingStandardsIgnoreLine Nonce not needed.
+			// Filter documented above.
+			$as_draft = apply_filters( 'dt_pull_as_draft', true, $connection_now );
+			$draft    = 'draft';
+			if ( ! $as_draft ) {
+				$draft = '';
+			}
+
 			$actions = [
-				'view' => '<a href="' . esc_url( $item->link ) . '">' . esc_html__( 'View', 'distributor' ) . '</a>',
+				//phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotValidated -- see `wp_fix_server_vars()`.
+				'pull'   => sprintf( '<a href="%s">%s</a>', esc_url( wp_nonce_url( admin_url( 'admin.php?page=pull&action=syndicate&_wp_http_referer=' . rawurlencode( esc_url_raw( wp_unslash( $_SERVER['REQUEST_URI'] ) ) ) . '&post=' . $item->ID . '&connection_type=' . $connection_type . '&connection_id=' . $connection_id . '&pull_post_type=' . $item->post_type . '&dt_as_draft=' . $draft ), 'bulk-distributor_page_pull' ) ), $draft ? esc_html__( 'Pull as draft', 'distributor' ) : esc_html__( 'Pull', 'distributor' ) ),
+				//phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotValidated -- see `wp_fix_server_vars()`.
+				'unskip' => sprintf( '<a href="%s">%s</a>', esc_url( wp_nonce_url( admin_url( 'admin.php?page=pull&action=unskip&_wp_http_referer=' . rawurlencode( esc_url_raw( wp_unslash( $_SERVER['REQUEST_URI'] ) ) ) . '&post=' . $item->ID . '&connection_type=' . $connection_type . '&connection_id=' . $connection_id ), 'dt_unskip' ) ), esc_html__( 'Unskip', 'distributor' ) ),
+				'view'   => '<a href="' . esc_url( $item->link ) . '">' . esc_html__( 'View', 'distributor' ) . '</a>',
 			];
 		} elseif ( 'pulled' === $_GET['status'] ) { // @codingStandardsIgnoreLine Nonce not needed
 
@@ -326,9 +397,12 @@ class PullListTable extends \WP_List_Table {
 
 			if ( ! empty( $new_post ) ) {
 				$actions = [
-					'edit' => '<a href="' . esc_url( get_edit_post_link( $new_post_id ) ) . '">' . esc_html__( 'Edit', 'distributor' ) . '</a>',
 					'view' => '<a href="' . esc_url( get_permalink( $new_post_id ) ) . '">' . esc_html__( 'View', 'distributor' ) . '</a>',
 				];
+
+				if ( current_user_can( 'edit_post', $new_post_id ) ) {
+					$actions['edit'] = '<a href="' . esc_url( get_edit_post_link( $new_post_id ) ) . '">' . esc_html__( 'Edit', 'distributor' ) . '</a>';
+				}
 			}
 		}
 
@@ -351,6 +425,27 @@ class PullListTable extends \WP_List_Table {
 	}
 
 	/**
+	 * Generates content for a single row of the table.
+	 *
+	 * @param \WP_Post $item The current post object.
+	 */
+	public function single_row( $item ) {
+		/**
+		 * Filters the class used on the table row on the pull list table.
+		 *
+		 * @param string  $class The class name.
+		 * @param WP_Post $item  The current post object.
+		 *
+		 * @return string The class name.
+		 */
+		$class = sanitize_html_class( apply_filters( 'dt_pull_list_table_tr_class', 'dt-table-row', $item ) );
+
+		printf( '<tr class="%s">', esc_attr( $class ) );
+		$this->single_row_columns( $item );
+		echo '</tr>';
+	}
+
+	/**
 	 * Remotely get items for display in table
 	 *
 	 * @since  0.8
@@ -358,7 +453,7 @@ class PullListTable extends \WP_List_Table {
 	public function prepare_items() {
 		global $connection_now;
 
-		if ( empty( $connection_now ) ) {
+		if ( empty( $connection_now ) || empty( $connection_now->pull_post_type ) ) {
 			return;
 		}
 
@@ -373,20 +468,42 @@ class PullListTable extends \WP_List_Table {
 		/** Process bulk action */
 		$this->process_bulk_action();
 
-		$per_page = $this->get_items_per_page( 'pull_posts_per_page', get_option( 'posts_per_page' ) );
-
+		$per_page     = $this->get_items_per_page( 'pull_posts_per_page', get_option( 'posts_per_page' ) );
 		$current_page = $this->get_pagenum();
+
+		// Support 'View all' filtering for internal connections.
+		if ( empty( $connection_now->pull_post_type ) || 'all' === $connection_now->pull_post_type ) {
+			$post_type = wp_list_pluck( $connection_now->pull_post_types, 'slug' );
+		} else {
+			$post_type = $connection_now->pull_post_type;
+		}
 
 		$remote_get_args = [
 			'posts_per_page' => $per_page,
 			'paged'          => $current_page,
-			'post_type'      => $connection_now->pull_post_type ? $connection_now->pull_post_type : 'post',
-			'orderby'        => 'ID', // this is because of include/exclude truncation
-			'order'          => 'DESC', // default but specifying to be safe
+			'post_type'      => $post_type,
+			'dt_pull_list'   => true, // custom argument used to only run code on this screen
 		];
 
 		if ( ! empty( $_GET['s'] ) ) { // @codingStandardsIgnoreLine Nonce isn't required.
 			$remote_get_args['s'] = rawurlencode( $_GET['s'] ); // @codingStandardsIgnoreLine Nonce isn't required.
+		}
+
+		// Add taxonomy filters to the remote get arguments.
+		if ( ! empty( $connection_now->pull_taxonomy_terms ) ) {
+
+			foreach ( $connection_now->pull_taxonomy_terms as $taxonomy => $taxonomy_data ) {
+
+				if ( 'all' === $connection_now->pull_taxonomy_term[ $taxonomy ] ) {
+					continue;
+				}
+
+				$remote_get_args['tax_query'][] = array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query
+					'taxonomy' => $taxonomy,
+					'field'    => 'slug',
+					'terms'    => $connection_now->pull_taxonomy_term[ $taxonomy ],
+				);
+			}
 		}
 
 		if ( is_a( $connection_now, '\Distributor\ExternalConnection' ) ) {
@@ -418,16 +535,14 @@ class PullListTable extends \WP_List_Table {
 		}
 
 		if ( empty( $_GET['status'] ) || 'new' === $_GET['status'] ) { // @codingStandardsIgnoreLine Nonce not required.
-			// Sort from highest ID (newest) to low so the slice only affects later pagination.
-			rsort( $skipped, SORT_NUMERIC );
-			rsort( $syndicated, SORT_NUMERIC );
+			$post_ids = array_merge( $skipped, $syndicated );
 
-			// This is somewhat arbitrarily set to 200 and should probably be made filterable eventually.
-			// IDs can get rather large and 400 easily exceeds typical header size limits.
-			$post_ids = array_slice( array_merge( $skipped, $syndicated ), 0, 200, true );
+			if ( ! empty( $post_ids ) ) {
+				// phpcs:ignore WordPressVIPMinimum.Performance.WPQueryParams.PostNotIn_post__not_in
+				$remote_get_args['post__not_in'] = $post_ids;
+			}
 
-			$remote_get_args['post__not_in'] = $post_ids;
-
+			// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- meta_key is indexed.
 			$remote_get_args['meta_query'] = [
 				[
 					'key'     => 'dt_syndicate_time',
@@ -456,18 +571,23 @@ class PullListTable extends \WP_List_Table {
 			$remote_get_args['paged']    = 1;
 		}
 
+		if ( ! is_array( $remote_get_args['post_type'] ) ) {
+			$remote_get_args['post_type'] = [ $remote_get_args['post_type'] ];
+		}
+
+		$total_items   = 0;
+		$response_data = array();
+
+		// Setup remote connection from the connection object.
 		$remote_get = $connection_now->remote_get( $remote_get_args );
 
+		// Check and throw error if there is one.
 		if ( is_wp_error( $remote_get ) ) {
-			$this->pull_error = true;
-
-			return;
+			$this->pull_error = $remote_get->get_error_messages();
 		}
 
-		// Get total items retrieved from the remote request if not already set.
-		if ( false === $total_items ) {
-			$total_items = $remote_get['total_items'];
-		}
+		$total_items   = $remote_get['total_items'];
+		$response_data = array_merge( $response_data, array_values( $remote_get['items'] ) );
 
 		$this->set_pagination_args(
 			[
@@ -476,7 +596,7 @@ class PullListTable extends \WP_List_Table {
 			]
 		);
 
-		foreach ( $remote_get['items'] as $item ) {
+		foreach ( $response_data as $item ) {
 			$this->items[] = $item;
 		}
 	}
@@ -488,7 +608,7 @@ class PullListTable extends \WP_List_Table {
 	 * @param \WP_Post $post The current WP_Post object.
 	 */
 	public function column_cb( $post ) {
-		if ( isset( $this->sync_log[ $post->ID ] ) ) {
+		if ( isset( $this->sync_log[ $post->ID ] ) && false !== $this->sync_log[ $post->ID ] ) {
 			return;
 		}
 		?>
@@ -510,12 +630,15 @@ class PullListTable extends \WP_List_Table {
 	public function get_bulk_actions() {
 		if ( empty( $_GET['status'] ) || 'new' === $_GET['status'] ) { // @codingStandardsIgnoreLine Nonce not required.
 			$actions = [
+				'-1'             => esc_html__( 'Bulk Actions', 'distributor' ),
 				'bulk-syndicate' => esc_html__( 'Pull', 'distributor' ),
 				'bulk-skip'      => esc_html__( 'Skip', 'distributor' ),
 			];
 		} elseif ( 'skipped' === $_GET['status'] ) { // @codingStandardsIgnoreLine Nonce not required.
 			$actions = [
+				'-1'             => esc_html__( 'Bulk Actions', 'distributor' ),
 				'bulk-syndicate' => esc_html__( 'Pull', 'distributor' ),
+				'bulk-unskip'    => esc_html__( 'Unskip', 'distributor' ),
 			];
 		} else {
 			$actions = [];
@@ -530,21 +653,94 @@ class PullListTable extends \WP_List_Table {
 	 * @param string $which Whether above or below the table.
 	 */
 	public function extra_tablenav( $which ) {
+		/*
+		 * This is to avoid the filter being displayed twice with the same HTML id.
+		 */
+		if ( 'bottom' === $which ) {
+			return;
+		}
+
 		global $connection_now;
 
-		if ( $connection_now && $connection_now->pull_post_types && $connection_now->pull_post_type ) :
+		if ( is_a( $connection_now, '\Distributor\InternalConnections\NetworkSiteConnection' ) ) {
+			$connection_type = 'internal';
+		} else {
+			$connection_type = 'external';
+		}
+
+		// Check if there are any filters applied.
+		$has_filters = false;
+		if ( ! empty( $connection_now->pull_taxonomy_term ) && is_array( $connection_now->pull_taxonomy_term ) ) {
+			foreach ( $connection_now->pull_taxonomy_term as $selected_term ) {
+				if ( 'all' !== $selected_term ) {
+					$has_filters = true;
+					break;
+				}
+			}
+		}
+
+		if ( $connection_now && $connection_now->pull_post_types ) :
 			?>
 
-			<div class="alignleft actions">
+			<div class="alignleft actions dt-pull-post-type">
 				<label for="pull_post_type" class="screen-reader-text">Content to Pull</label>
 				<select id="pull_post_type" name="pull_post_type">
+					<option <?php selected( $connection_now->pull_post_type, 'all' ); ?> value="all">
+						<?php esc_html_e( 'View all', 'distributor' ); ?>
+					</option>
 					<?php foreach ( $connection_now->pull_post_types as $post_type ) : ?>
-						<option <?php selected( $connection_now->pull_post_type, $post_type['slug'] ); ?> value="<?php echo esc_attr( $post_type['slug'] ); ?>">
+						<option <?php selected( $connection_now->pull_post_type, $post_type['slug'] ); ?> value="<?php echo esc_attr( $post_type['slug'] ); ?>" data-taxonomies="<?php echo esc_attr( wp_json_encode( array_keys( $post_type['taxonomies'] ) ) ); ?>">
 							<?php echo esc_html( $post_type['name'] ); ?>
 						</option>
 					<?php endforeach; ?>
 				</select>
+				<?php if ( ! empty( $connection_now->pull_taxonomy_terms ) ) : ?>
+					<?php foreach ( $connection_now->pull_taxonomy_terms as $taxonomy => $taxonomy_data ) : ?>
+						<?php
+						$toggle_class = 'show';
+						if ( empty( $taxonomy_data['post_types'] ) || ! in_array( $connection_now->pull_post_type, $taxonomy_data['post_types'], true ) ) {
+							$toggle_class = 'hide';
+						}
+						?>
+						<select id="pull_<?php echo esc_attr( $taxonomy ); ?>" name="pull_<?php echo esc_attr( $taxonomy ); ?>" class="pull-taxonomy <?php echo esc_attr( $toggle_class ); ?>">
+							<option <?php selected( $connection_now->pull_taxonomy_term[ $taxonomy ], 'all' ); ?> value="all">
+								<?php
+								printf(
+									/* translators: %s: taxonomy label */
+									esc_html__( 'All %s', 'distributor' ),
+									esc_html( $taxonomy_data['label'] )
+								);
+								?>
+							</option>
+							<?php foreach ( $taxonomy_data['items'] as $term ) : ?>
+								<option <?php selected( $connection_now->pull_taxonomy_term[ $taxonomy ], $term['slug'] ); ?> value="<?php echo esc_attr( $term['slug'] ); ?>">
+									<?php echo esc_html( $term['name'] ); ?>
+								</option>
+							<?php endforeach; ?>
+						</select>
+					<?php endforeach; ?>
+				<?php endif; ?>
 				<input type="submit" name="filter_action" id="pull_post_type_submit" class="button" value="<?php esc_attr_e( 'Filter', 'distributor' ); ?>">
+
+				<?php
+				if ( $has_filters ) :
+					?>
+					<input type="submit" name="reset_filters" id="pull_post_type_reset"  class="button dt-reset-filters-button" value="<?php esc_attr_e( 'Reset Filters', 'distributor' ); ?>">
+					<?php
+				endif;
+				?>
+
+				<?php
+				// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- nonce is not required.
+				if ( empty( $_GET['status'] ) || 'pulled' !== $_GET['status'] ) :
+					// Filter documented above.
+					$as_draft = apply_filters( 'dt_pull_as_draft', true, $connection_now );
+					?>
+
+					<label class="dt-as-draft" for="dt-as-draft-<?php echo esc_attr( $which ); ?>">
+						<input type="checkbox" id="dt-as-draft-<?php echo esc_attr( $which ); ?>" name="dt_as_draft" value="draft" <?php checked( $as_draft ); ?>> <?php esc_html_e( 'Pull as draft', 'distributor' ); ?>
+					</label>
+				<?php endif; ?>
 			</div>
 
 			<?php
@@ -554,7 +750,6 @@ class PullListTable extends \WP_List_Table {
 		 * Action fired when extra table nav is generated.
 		 *
 		 * @since 1.0
-		 * @hook dt_pull_filters
 		 */
 		do_action( 'dt_pull_filters' );
 	}

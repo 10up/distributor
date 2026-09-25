@@ -7,7 +7,7 @@
 
 namespace Distributor\Authentications;
 
-use \Distributor\Authentication as Authentication;
+use Distributor\Authentication;
 
 /**
  * Enables WordPress.com Oauth2 authentication.
@@ -28,7 +28,7 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 	public static $requires_credentials = true;
 
 	/**
-	 * Auth hanlder pretty label
+	 * Auth handler pretty label
 	 *
 	 * @var string
 	 */
@@ -90,8 +90,6 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 
 		/**
 		 * Display any authorization or token errors.
-		 *
-		 * @hook dt_oauth_admin_notices
 		 */
 		do_action( 'dt_oauth_admin_notices' );
 
@@ -107,10 +105,27 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 		) {
 			?>
 			<div class="card">
-				<p><?php esc_html_e( 'To connect, first ', 'distributor' ); ?>
-				<a href="https://developer.wordpress.com/apps/"><?php esc_html_e( 'create an application with the WordPress.com applications manager', 'distributor' ); ?></a>.</p>
-				<p><?php esc_html_e( 'Use the following redirect URL when creating your application: ', 'distributor' ); ?><br />
-				<strong><?php echo esc_url( admin_url( 'post.php' ) ); ?></strong></p>
+				<p>
+					<?php
+						echo wp_kses_post(
+							sprintf(
+								/* translators: %1$s URL of wordpress.com applications manager. */
+								__( 'To connect, first <a href="%1$s">create an application with the WordPress.com applications manager</a>.', 'distributor' ),
+								esc_url( 'https://developer.wordpress.com/apps/' )
+							)
+						);
+					?>
+				</p>
+
+				<p>
+					<?php
+					printf(
+						/* translators: %1$s Redirect URL for WordPress.com application displayed as bold text. */
+						esc_html__( 'Use the following redirect URL when creating your application: %1$s', 'distributor' ),
+						'<strong>' . esc_url( admin_url( 'post.php' ) ) . '</strong>'
+					);
+					?>
+				</p>
 				<?php
 
 				/**
@@ -119,7 +134,7 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 				 */
 				?>
 				<p class='oauth-begin-authentication-wrapper<?php echo ( ! $adding_new_connection ? ' hidden' : '' ); ?>'>
-				<button name="save" type="button" class="button button-primary button-large" id="begin-authorization"><?php esc_attr_e( 'Start Setup', 'distributor' ); ?></button>
+				<button name="save" type="button" class="button button-primary button-large" id="begin-authorization"><?php esc_html_e( 'Start Setup', 'distributor' ); ?></button>
 			</p>
 			</div>
 			<?php
@@ -197,7 +212,6 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 			}
 		}
 		return false;
-
 	}
 
 	/**
@@ -448,7 +462,7 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 			// Allow wp_safe_redirect to redirect to the .com authorization endpoint.
 			add_filter(
 				'allowed_redirect_hosts',
-				function( $content ) {
+				function ( $content ) {
 					$content[] = 'public-api.wordpress.com';
 					return $content;
 				}
@@ -463,7 +477,6 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 			self::log_authentication_error( ' fetch_access_token() Failed -- ' . $ex->getMessage() );
 			return false;
 		}
-
 	}
 
 	/**
@@ -508,7 +521,7 @@ class WordPressDotcomOauth2Authentication extends Authentication {
 		if ( is_wp_error( $response ) ) {
 
 			self::log_authentication_error( 'Failed to validate token giving error ' . $response->get_error_message() );
-			$count ++;
+			++$count;
 			if ( $count <= 3 ) {
 				self::is_valid_token( $count );
 			}

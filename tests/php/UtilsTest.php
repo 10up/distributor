@@ -7,6 +7,23 @@ use WP_Mock\Tools\TestCase;
 class UtilsTest extends TestCase {
 
 	/**
+	 * Set up with WP_Mock
+	 *
+	 * Set up common mocks required for multiple tests.
+	 *
+	 * @since 2.0.0
+	 */
+	public function setUp(): void {
+		parent::setUp();
+
+
+		// Return voids.
+		\WP_Mock::userFunction( '_prime_post_caches' );
+		\WP_Mock::userFunction( 'update_object_term_cache' );
+		\WP_Mock::userFunction( 'update_postmeta_cache' );
+	}
+
+	/**
 	 * Test set meta with string value and array value
 	 *
 	 * @since  1.0
@@ -43,6 +60,22 @@ class UtilsTest extends TestCase {
 				'times'  => 1,
 				'args'   => [ 1, 'key', [ 'value' ], 'value' ],
 				'return' => [],
+			]
+		);
+
+		\WP_Mock::userFunction(
+			'wp_slash', [
+				'times'      => 4,
+				'return_arg' => 0,
+			]
+		);
+
+		\WP_Mock::userFunction(
+			'apply_filters_deprecated',
+			[
+				'return' => function( $name, $args ) {
+					return $args[0];
+				},
 			]
 		);
 
@@ -129,6 +162,22 @@ class UtilsTest extends TestCase {
 			]
 		);
 
+		\WP_Mock::userFunction(
+			'wp_slash', [
+				'times'      => 10,
+				'return_arg' => 0,
+			]
+		);
+
+		\WP_Mock::userFunction(
+			'apply_filters_deprecated',
+			[
+				'return' => function( $name, $args ) {
+					return $args[0];
+				},
+			]
+		);
+
 		Utils\set_meta(
 			1, [
 				'key'  => [ 'value' ],
@@ -150,7 +199,12 @@ class UtilsTest extends TestCase {
 	}
 
 	/**
-	 * Test set meta with serialized value
+	 * Test set_meta() does not unserialize incoming values a second time.
+	 *
+	 * Incoming meta has already been unserialized once by prepare_meta() on the
+	 * sending site, so a value that happens to look like a serialized array
+	 * (e.g. a string deliberately protected from being mistaken for serialized
+	 * data) must be stored as-is rather than unserialized again.
 	 *
 	 * @since  1.0
 	 * @group Utils
@@ -176,8 +230,24 @@ class UtilsTest extends TestCase {
 		\WP_Mock::userFunction(
 			'update_post_meta', [
 				'times'  => 1,
-				'args'   => [ 1, 'key2', [ 0 => 'test' ], [ 0 => 'test' ] ],
+				'args'   => [ 1, 'key2', 'a:1:{i:0;s:4:"test";}', [ 0 => 'test' ] ],
 				'return' => [],
+			]
+		);
+
+		\WP_Mock::userFunction(
+			'wp_slash', [
+				'times'      => 4,
+				'return_arg' => 0,
+			]
+		);
+
+		\WP_Mock::userFunction(
+			'apply_filters_deprecated',
+			[
+				'return' => function( $name, $args ) {
+					return $args[0];
+				},
 			]
 		);
 
@@ -242,7 +312,7 @@ class UtilsTest extends TestCase {
 					$term_id,
 					$taxonomy,
 					[
-						'parent' => 0,
+						'parent' => '',
 					]
 				],
 				'return' => [ 'term_id' => $term_id ],
@@ -332,7 +402,7 @@ class UtilsTest extends TestCase {
 					$term_id,
 					$taxonomy,
 					[
-						'parent' => 0,
+						'parent' => '',
 					]
 				],
 				'return' => [ 'term_id' => $term_id ],
@@ -496,7 +566,16 @@ class UtilsTest extends TestCase {
 			]
 		);
 
-		$formatted_media = Utils\format_media_post( $media_post );
+		\WP_Mock::userFunction(
+			'apply_filters_deprecated',
+			[
+				'return' => function( $name, $args ) {
+					return $args[0];
+				},
+			]
+		);
+
+		$formatted_media = Utils\format_media_post( $media_post, $media_post->post_parent );
 
 		$this->assertFalse( $formatted_media['featured'] );
 
@@ -584,9 +663,115 @@ class UtilsTest extends TestCase {
 			]
 		);
 
-		$formatted_media = Utils\format_media_post( $media_post );
+		\WP_Mock::userFunction(
+			'apply_filters_deprecated',
+			[
+				'return' => function( $name, $args ) {
+					return $args[0];
+				},
+			]
+		);
+
+		$formatted_media = Utils\format_media_post( $media_post, $media_post->post_parent );
 
 		$this->assertTrue( $formatted_media['featured'] );
+
+		return $formatted_media;
+	}
+
+	/**
+	 * Test format media with no `_wp_attachment_metadata`
+	 *
+	 * @group Utils
+	 * @runInSeparateProcess
+	 */
+	public function test_format_media_no_attachment_meta() {
+		$media_post                 = new \stdClass();
+		$media_post->ID             = 1;
+		$media_post->post_parent    = 10;
+		$media_post->post_title     = 'title';
+		$media_post->post_content   = 'content';
+		$media_post->post_excerpt   = 'excerpt';
+		$media_post->post_mime_type = 'image/png';
+
+		\WP_Mock::userFunction(
+			'get_post_thumbnail_id', [
+				'times'  => 1,
+				'args'   => [ $media_post->post_parent ],
+				'return' => 0,
+			]
+		);
+
+		\WP_Mock::userFunction(
+			'get_post_meta', [
+				'times'  => 1,
+				'args'   => [ $media_post->ID, '_wp_attachment_image_alt', true ],
+				'return' => 'alt',
+			]
+		);
+
+		\WP_Mock::userFunction(
+			'wp_attachment_is_image', [
+				'times'  => 1,
+				'args'   => [ $media_post->ID ],
+				'return' => true,
+			]
+		);
+
+		\WP_Mock::userFunction(
+			'wp_get_attachment_metadata', [
+				'times'  => 1,
+				'args'   => [ $media_post->ID ],
+				'return' => [ 'test' => 1 ],
+			]
+		);
+
+		\WP_Mock::userFunction(
+			'wp_get_attachment_url', [
+				'times'  => 1,
+				'args'   => [ $media_post->ID ],
+				'return' => 'http://mediaitem.com',
+			]
+		);
+
+		\WP_Mock::userFunction(
+			'get_attached_file', [
+				'times'  => 1,
+				'args'   => [ $media_post->ID ],
+				'return' => '/var/www/html/wp-content/uploads/mediaitem.jpg',
+			]
+		);
+
+		\WP_Mock::userFunction(
+			'get_post_meta', [
+				'times'  => 1,
+				'args'   => [ $media_post->ID ],
+				'return' => [
+					'meta1'                   => [ true ],
+					'meta2'                   => [ false ],
+					'_wp_attachment_metadata' => [ true ],
+				],
+			]
+		);
+
+		\WP_Mock::userFunction(
+			'remove_filter', [
+				'times' => 1,
+			]
+		);
+
+		\WP_Mock::userFunction(
+			'apply_filters_deprecated',
+			[
+				'return' => function( $name, $args ) {
+					return $args[0];
+				},
+			]
+		);
+
+		$formatted_media = Utils\format_media_post( $media_post, $media_post->post_parent );
+
+		$this->assertFalse( array_key_exists( '_wp_attachment_metadata', $formatted_media['meta'] ) );
 
 		return $formatted_media;
 	}
@@ -597,12 +782,15 @@ class UtilsTest extends TestCase {
 	 * @since 1.0
 	 * @group Utils
 	 * @runInSeparateProcess
+	 * @dataProvider data_set_media
+	 *
+	 * @param int    $new_image_id      ID of the new image.
+	 * @param string $source_url        Source URL of the media item.
+	 * @param int    $existing_media_id Existing media ID to test for existing media.
 	 */
-	public function test_set_media() {
+	public function test_set_media( $new_image_id, $source_url, $existing_media_id ) {
 		$post_id    = 1;
 		$media_item = $this->test_format_media_featured();
-
-		$new_image_id = 5;
 
 		$attached_media_post                 = new \stdClass();
 		$attached_media_post->ID             = 3;
@@ -647,17 +835,10 @@ class UtilsTest extends TestCase {
 		);
 
 		\WP_Mock::userFunction(
-			'wp_delete_attachment', [
-				'times' => 1,
-				'args'  => [ $attached_media_post->ID, true ],
-			]
-		);
-
-		\WP_Mock::userFunction(
 			'get_post_meta', [
 				'times'  => 1,
 				'args'   => [ $attached_media_post->ID, 'dt_original_media_url', true ],
-				'return' => 'http://mediaitem.com',
+				'return' => $source_url,
 			]
 		);
 
@@ -671,7 +852,6 @@ class UtilsTest extends TestCase {
 
 		\WP_Mock::userFunction(
 			'Distributor\Utils\process_media', [
-				'times'  => 1,
 				'args'   => [ $media_item['source_url'], $post_id,
 					[
 						'source_file'    => $media_item['source_file'],
@@ -679,6 +859,13 @@ class UtilsTest extends TestCase {
 					]
 				],
 				'return' => $new_image_id,
+			]
+		);
+
+		\WP_Mock::userFunction(
+			'Distributor\Utils\get_attachment_id_by_original_data', [
+				'args'   => [ $media_item['id'], $media_item['source_url'] ],
+				'return' => $existing_media_id,
 			]
 		);
 
@@ -739,7 +926,38 @@ class UtilsTest extends TestCase {
 			]
 		);
 
+		\WP_Mock::userFunction(
+			'wp_slash', [
+				'times'      => 4,
+				'return_arg' => 0,
+			]
+		);
+
+		\WP_Mock::userFunction(
+			'apply_filters_deprecated',
+			[
+				'return' => function( $name, $args ) {
+					return $args[0];
+				},
+			]
+		);
+
 		Utils\set_media( $post_id, [ $media_item ], [ 'use_filesystem' => false ] );
+	}
+
+	/**
+	 * Data provider for test_set_media
+	 *
+	 * @group Utils
+	 *
+	 * @return array[] Data provider.
+	 */
+	public function data_set_media() {
+		return [
+			[ 5, 'http://mediaitem.com/mediaitem.jpg', 0 ],
+			[ 3, 'http://mediaitem.com', 0 ],
+			[ 3, 'http://mediaitem.com/mediaitem.jpg', 3 ],
+		];
 	}
 
 	/**
@@ -750,4 +968,29 @@ class UtilsTest extends TestCase {
 	 * Todo finish process_media
 	 */
 
+	 /**
+	  * Test post_args_allow_list
+	  *
+	  * @since 1.7.0
+	  */
+	function test_post_args_allow_list() {
+		$post_args = [
+			'post_title'   => 'Test Title',
+			'post_type'    => 'post',
+			'post_content' => 'Test Content',
+			'post_excerpt' => 'Test Excerpt',
+			'link'         => 'https://github.com/10up/distributor/issues/879',
+			'dt_source'    => 'https://github.com/10up/distributor/pull/895',
+		];
+
+		$expected = [
+			'post_title'   => 'Test Title',
+			'post_type'    => 'post',
+			'post_content' => 'Test Content',
+			'post_excerpt' => 'Test Excerpt',
+		];
+
+		$actual = Utils\post_args_allow_list( $post_args );
+		$this->assertSame( $expected, $actual );
+	}
 }

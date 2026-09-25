@@ -10,6 +10,7 @@ namespace Distributor\DebugInfo;
 use Distributor\Connections;
 use Distributor\ExternalConnection;
 use Distributor\InternalConnections\NetworkSiteConnection;
+use Distributor\Utils;
 
 /**
  * Setup actions and filters
@@ -19,7 +20,16 @@ use Distributor\InternalConnections\NetworkSiteConnection;
 function setup() {
 	add_action(
 		'admin_init',
-		function() {
+		function () {
+			/**
+			 * Filter whether the debug info is enabled. Enabled by default, return false to disable.
+			 *
+			 * @since 2.0.0
+			 *
+			 * @param bool true Whether the debug info should be enabled.
+			 *
+			 * @return bool Whether the debug info should be enabled.
+			 */
 			if ( ! apply_filters( 'dt_debug_info_enabled', true ) ) {
 				return;
 			}
@@ -40,7 +50,18 @@ function enqueue_scripts( $hook ) {
 	if ( 'site-health.php' !== $hook ) {
 		return;
 	}
-	wp_enqueue_style( 'dt-site-health', plugins_url( '/dist/css/admin-site-health.min.css', __DIR__ ), [], DT_VERSION );
+	$asset_file = DT_PLUGIN_PATH . '/dist/js/admin-site-health-css.min.asset.php';
+	// Fallback asset data.
+	$asset_data = array(
+		'version'      => DT_VERSION,
+		'dependencies' => array(),
+	);
+	if ( file_exists( $asset_file ) ) {
+		$asset_data = require $asset_file;
+	}
+
+	// Dependencies only apply to JavaScript, not CSS files.
+	wp_enqueue_style( 'dt-site-health', plugins_url( '/dist/css/admin-site-health.min.css', __DIR__ ), array(), $asset_data['version'] );
 }
 
 /**
@@ -57,7 +78,7 @@ function enqueue_scripts( $hook ) {
  */
 function add_debug_info( $info ) {
 
-	$plugin_data = get_plugin_data( WP_PLUGIN_DIR . '/' . DT_PLUGIN_FILE );
+	$plugin_data = get_plugin_data( dirname( __DIR__ ) . '/distributor.php' );
 	$text_domain = $plugin_data['TextDomain'];
 	$defaults    = [
 		'email'                  => '',
@@ -102,11 +123,11 @@ function add_debug_info( $info ) {
 			],
 			[
 				'label' => __( 'Internal Connections', 'distributor' ),
-				'value' => get_formatted_internal_connnections(),
+				'value' => get_formatted_internal_connections(),
 			],
 			[
 				'label' => __( 'External Connections', 'distributor' ),
-				'value' => get_formatted_external_connnections(),
+				'value' => get_formatted_external_connections(),
 			],
 		]
 	);
@@ -122,9 +143,19 @@ function add_debug_info( $info ) {
 /**
  * Get and format internal connections.
  *
- * @return array
+ * @deprecated 2.0.4 Use get_formatted_internal_connections
  */
 function get_formatted_internal_connnections() {
+	_deprecated_function( __FUNCTION__, '2.0.4', __NAMESPACE__ . '\\get_formatted_internal_connections' );
+	return get_formatted_internal_connections();
+}
+
+/**
+ * Get and format internal connections.
+ *
+ * @return array
+ */
+function get_formatted_internal_connections() {
 	if ( empty( Connections::factory()->get_registered()['networkblog'] ) ) {
 		return __( 'N/A', 'distributor' );
 	}
@@ -154,9 +185,19 @@ function get_formatted_internal_connnections() {
 /**
  * Get and format external connections.
  *
- * @return array
+ * @deprecated 2.0.4 Use get_formatted_external_connections
  */
 function get_formatted_external_connnections() {
+	_deprecated_function( __FUNCTION__, '2.0.4', __NAMESPACE__ . '\\get_formatted_external_connections' );
+	return get_formatted_external_connections();
+}
+
+/**
+ * Get and format external connections.
+ *
+ * @return array
+ */
+function get_formatted_external_connections() {
 
 	$output = [];
 
@@ -165,7 +206,18 @@ function get_formatted_external_connnections() {
 			'post_type'      => 'dt_ext_connection',
 			'fields'         => 'ids',
 			'no_found_rows'  => true,
-			'posts_per_page' => 100,
+			/**
+			 * Filter the maximum number of external connections to load.
+			 *
+			 * Modify the maximum number of external connection post types are
+			 * queried with requesting the post type.
+			 *
+			 * @since 2.2.0
+			 *
+			 * @param int $max_connections The maximum number of external connections to load.
+			 * @return int The maximum number of external connections to load.
+			 */
+			'posts_per_page' => apply_filters( 'dt_external_connections_per_page', 200 ), // @codingStandardsIgnoreLine This high pagination limit is purposeful
 		)
 	);
 
@@ -218,13 +270,9 @@ function get_formatted_external_connnections() {
 function get_external_connection_version( $url ) {
 	$route = trailingslashit( $url ) . 'wp/v2/dt_meta';
 
-	if ( function_exists( 'vip_safe_wp_remote_get' ) && \Distributor\Utils\is_vip_com() ) {
-		$response = vip_safe_wp_remote_get( $route, false, 3, 3, 10 );
-	} else {
-		$response = wp_remote_get( $route, [ 'timeout' => 5 ] );
-	}
-
-	$body = json_decode( wp_remote_retrieve_body( $response ), true );
+	// phpcs:ignore WordPressVIPMinimum.Performance.RemoteRequestTimeout.timeout_timeout
+	$response = Utils\remote_http_request( $route, [ 'timeout' => 5 ] );
+	$body     = json_decode( wp_remote_retrieve_body( $response ), true );
 
 	if ( empty( $body['version'] ) ) {
 		return __( 'N/A', 'distributor' );
@@ -249,7 +297,7 @@ function get_external_connection_status( $external_connection_status ) {
 		}
 
 		if ( empty( $external_connection_status['can_post'] ) ) {
-			$status = __( 'warning', 'distributor' );
+			$status = __( 'error', 'distributor' );
 		}
 	}
 
@@ -263,7 +311,7 @@ function get_external_connection_status( $external_connection_status ) {
  */
 function format_connection_data( $data ) {
 	$formatted = array_map(
-		function( $key, $value ) {
+		function ( $key, $value ) {
 			return sprintf( '- %1$s: %2$s', $key, $value );
 		},
 		array_keys( $data ),

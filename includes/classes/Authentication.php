@@ -7,7 +7,7 @@
 
 namespace Distributor;
 
-use \Distributor\ExternalConnection as ExternalConnection;
+use Distributor\ExternalConnection;
 
 /**
  * Authentication types extend this base abstract class. Authentication types
@@ -47,17 +47,21 @@ abstract class Authentication {
 	 * @return array
 	 */
 	public function format_get_args( $args = array(), $context = array() ) {
+		if ( ! isset( $args['headers'] ) ) {
+			$args['headers'] = array();
+		}
+		$args['headers']['X-Distributor-Version'] = DT_VERSION;
+
 		/**
 		 * Format request args for a GET request so auth occurs.
 		 *
 		 * @since 0.8
-		 * @hook dt_auth_format_get_args
 		 *
-		 * @param  {array}  $args    Array of request arguments.
-		 * @param  {array}  $context Optional array of information about the request.
-		 * @param  {object} $this    The authentication class.
+		 * @param array  $args    Array of request arguments.
+		 * @param array  $context Optional array of information about the request.
+		 * @param object $this    The authentication class.
 		 *
-		 * @return {array} Array of request arguments.
+		 * @return array Array of request arguments.
 		 */
 		return apply_filters( 'dt_auth_format_get_args', $args, $context, $this );
 	}
@@ -71,17 +75,21 @@ abstract class Authentication {
 	 * @return array
 	 */
 	public function format_post_args( $args, $context = array() ) {
+		if ( ! isset( $args['headers'] ) ) {
+			$args['headers'] = array();
+		}
+		$args['headers']['X-Distributor-Version'] = DT_VERSION;
+
 		/**
 		 * Format request args for a POST request so auth occurs
 		 *
 		 * @since 0.8
-		 * @hook dt_auth_format_post_args
 		 *
-		 * @param  {array}  $args    Array of request arguments.
-		 * @param  {array}  $context Optional array of information about the request.
-		 * @param  {object} $this    The authentication class.
+		 * @param array  $args    Array of request arguments.
+		 * @param array  $context Optional array of information about the request.
+		 * @param object $this    The authentication class.
 		 *
-		 * @return {array} Array of request arguments.
+		 * @return array Array of request arguments.
 		 */
 		return apply_filters( 'dt_auth_format_post_args', $args, $context, $this );
 	}
@@ -102,7 +110,7 @@ abstract class Authentication {
 	 * Store pre-sanizited auth credentials in DB
 	 *
 	 * @param int   $external_connection_id External connection ID.
-	 * @param array $args Array of creds to store. Should be pre-sanitized.
+	 * @param array $args Array of credentials to store. Should be pre-sanitized.
 	 * @since 0.8
 	 */
 	public static function store_credentials( $external_connection_id, $args ) {
@@ -120,7 +128,7 @@ abstract class Authentication {
 		self::$error_message = $error_message;
 		add_action(
 			'auth_admin_notices',
-			function() {
+			function () {
 				?>
 		<div class="notice notice-error is-dismissible">
 			<p>

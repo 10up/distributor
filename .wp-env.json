@@ -1,0 +1,17 @@
+{
+  "core": null,
+  "plugins": [
+    ".",
+    "./tests/Basic-Auth-master",
+    "./tests/e2e-test-plugin",
+    "https://downloads.wordpress.org/plugin/classic-editor.zip"
+  ],
+  "env": {
+    "tests": {
+      "port": 80,
+      "mappings": {
+        "wp-cli.yml": "./tests/bin/wp-cli.yml"
+      }
+    }
+  }
+}

@@ -7,7 +7,7 @@
 
 namespace Distributor\Authentications;
 
-use \Distributor\Authentication as Authentication;
+use Distributor\Authentication;
 
 /**
  * This auth type is simple username/password WP style
@@ -33,6 +33,62 @@ class WordPressBasicAuth extends Authentication {
 	 * @var string
 	 */
 	public static $label = 'Username/Password';
+
+	/**
+	 * Site URL
+	 *
+	 * @var string
+	 */
+	public $site_url;
+
+	/**
+	 * Username
+	 *
+	 * @var string
+	 */
+	public $username;
+
+	/**
+	 * Password
+	 *
+	 * @var string
+	 */
+	public $password;
+
+	/**
+	 * API Key
+	 *
+	 * @var string
+	 */
+	public $client_id;
+
+	/**
+	 * API Secret
+	 *
+	 * @var string
+	 */
+	public $client_secret;
+
+	/**
+	 * Redirect URI
+	 *
+	 * @var string
+	 */
+	public $redirect_uri;
+
+	/**
+	 * Access Token
+	 *
+	 * @var string
+	 */
+	public $base64_encoded;
+
+	/**
+	 * Created Post ID
+	 *
+	 * @var string
+	 */
+	public $dt_created_post_id;
 
 	/**
 	 * Setup class
@@ -100,7 +156,8 @@ class WordPressBasicAuth extends Authentication {
 			<span class="description"><?php esc_html_e( 'A username from the external WordPress site to connect with. For full functionality, this needs to be a user with an administrator role.', 'distributor' ); ?></span>
 
 			<p>
-				<label for="dt_username"><?php esc_html_e( 'Password', 'distributor' ); ?> <?php
+				<label for="dt_username"><?php esc_html_e( 'Password', 'distributor' ); ?>
+				<?php
 				if ( ! empty( $args['base64_encoded'] ) ) :
 					?>
 					<a class="change-password" href="#"><?php esc_html_e( '(Change)', 'distributor' ); ?></a><?php endif; ?></label><br>
@@ -113,10 +170,15 @@ class WordPressBasicAuth extends Authentication {
 
 				<span class="description">
 					<?php
-					$plugin_link = 'https://wordpress.org/plugins/application-passwords/';
+					$plugin_link = 'https://make.wordpress.org/core/2020/11/05/application-passwords-integration-guide/';
 
-					/* translators: %s: Application Passwords plugin URL */
-					printf( wp_kses_post( __( '<strong>Important:</strong> We strongly recommend using the <a href="%s">Application Passwords</a> plugin on the site you are connecting to in order to create a unique password for this connection. This helps limit the use of your primary password and will allow you to revoke access in the future if needed.', 'distributor' ) ), esc_url( $plugin_link ) );
+					printf(
+						wp_kses_post(
+							/* translators: %s: Application Passwords documentation URL */
+							__( '<strong>Important:</strong> We strongly recommend using the <a href="%s">Application Passwords</a> feature on the site you are connecting to in order to create a unique password for this connection. This helps limit the use of your primary password and will allow you to revoke access in the future if needed.', 'distributor' )
+						),
+						esc_url( $plugin_link )
+					);
 					?>
 			</p>
 		</div>
@@ -150,13 +212,12 @@ class WordPressBasicAuth extends Authentication {
 		 * Filter the authorization credentials prepared before saving.
 		 *
 		 * @since 1.0
-		 * @hook dt_auth_prepare_credentials
 		 *
-		 * @param {array}  $auth The credentials to be saved.
-		 * @param {array}  $args The arguments originally passed to `prepare_credentials`.
-		 * @param {string} $slug The authorization handler type slug.
+		 * @param array  $auth The credentials to be saved.
+		 * @param array  $args The arguments originally passed to `prepare_credentials`.
+		 * @param string $slug The authorization handler type slug.
 		 *
-		 * @return {array} The authorization credentials to be saved.
+		 * @return array The authorization credentials to be saved.
 		 */
 		return apply_filters( 'dt_auth_prepare_credentials', $auth, $args, self::$slug );
 	}

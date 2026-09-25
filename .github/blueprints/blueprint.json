@@ -1,0 +1,31 @@
+{
+  "$schema": "https://playground.wordpress.net/blueprint-schema.json",
+  "phpExtensionBundles": [
+    "kitchen-sink"
+  ],
+  "features": {
+    "networking": true
+  },
+  "landingPage": "/wp-admin/admin.php?page=pull",
+  "steps": [
+    {
+      "step": "installPlugin",
+      "pluginData": {
+        "resource": "git:directory",
+        "url": "https://github.com/10up/distributor",
+        "ref": "stable"
+      }
+    },
+    {
+      "step": "enableMultisite"
+    },
+    {
+      "step": "wp-cli",
+      "command": "wp plugin activate https-github.com-10up-distributor-stable --network"
+    },
+    {
+      "step": "wp-cli",
+      "command": "wp site create --slug=test"
+    }
+  ]
+}
