@@ -62,7 +62,7 @@ describe( 'Admin can add a new external connection', () => {
 		cy.get( '.page-title-action' ).contains( 'Add New' ).click();
 
 		const name = randomName();
-		cy.get( '#title' ).click().type( name );
+		cy.get( '#title' ).type( name );
 
 		cy.get( '.manual-setup-button' ).click();
 		cy.get( '#create-connection' ).click();
@@ -80,7 +80,7 @@ describe( 'Admin can add a new external connection', () => {
 		cy.get( '.page-title-action' ).contains( 'Add New' ).click();
 
 		const name = randomName();
-		cy.get( '#title' ).click().type( name );
+		cy.get( '#title' ).type( name );
 
 		cy.get( '.manual-setup-button' ).click();
 		cy.get( '#dt_username' ).type( 'invalid_username' );
