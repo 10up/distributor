@@ -67,6 +67,7 @@ module.exports = [
 			'jest/prefer-to-have-length': 'off',
 			'jest/valid-expect': 'off',
 			'jest/expect-expect': 'off',
+			'vitest/expect-expect': 'off',
 		},
 	},
 ];
