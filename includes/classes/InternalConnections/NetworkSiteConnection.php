@@ -95,6 +95,23 @@ class NetworkSiteConnection extends Connection {
 		}
 		$post_id = $post->ID;
 
+		/**
+		 * Allow bypassing of post distribution.
+		 *
+		 * @hook dt_should_push_network_post
+		 *
+		 * @param bool                  true  If Distributor should push the post.
+		 * @param \WP_Post              $post The post object.
+		 * @param array                 $args The arguments passed into wp_insert_post().
+		 * @param NetworkSiteConnection $this The Distributor connection being pushed to.
+		 *
+		 * @return bool If Distributor should push the post.
+		 */
+		$should_push = apply_filters( 'dt_should_push_network_post', true, $post, $args, $this );
+		if ( ! $should_push ) {
+			return new \WP_Error( 'post-not-allowed-to-push', esc_html__( 'Post is configured to not be pushed via dt_should_push_network_post filter.', 'distributor' ) );
+		}
+
 		$args = wp_parse_args(
 			$args,
 			array(
