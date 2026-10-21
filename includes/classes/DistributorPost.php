@@ -1096,7 +1096,9 @@ class DistributorPost {
 	 *     @type int    $remote_post_id Post ID on remote site. If not provided,
 	 *                                  a new post will be created.
 	 *     @type string $post_status    The post status to use on the remote site.
-	 *                                  Ignored when updating posts.
+	 *                                  Ignored when updating posts unless the
+	 *                                  `dt_distribute_post_status` filter is enabled,
+	 *                                  in which case the origin status is used.
 	 * }
 	 *
 	 * @return array {
@@ -1145,8 +1147,10 @@ class DistributorPost {
 		if ( ! empty( $args['remote_post_id'] ) ) {
 			// Updating an existing post.
 			$insert['ID'] = (int) $args['remote_post_id'];
-			// Never update the post status when updating a post.
-			unset( $insert['post_status'] );
+			// Only update the post status when post status distribution is enabled.
+			if ( ! Utils\can_distribute_post_status() ) {
+				unset( $insert['post_status'] );
+			}
 		} elseif ( ! empty( $args['post_status'] ) ) {
 			$insert['post_status'] = $args['post_status'];
 		}
