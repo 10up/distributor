@@ -6,6 +6,20 @@
  */
 
 /**
+ * Determine if a post came from a distribution.
+ *
+ * Checks if the specified post (or current post in the loop) originated
+ * from a distribution (Push or Pull).
+ *
+ * @param int|\WP_Post|null $post Optional. Post ID or post object. Default null.
+ * @since 2.4.0
+ * @return bool True if the post came from a distribution, false otherwise.
+ */
+function distributor_is_distributed( $post = null ) {
+	return \Distributor\Utils\is_distributed_post( $post );
+}
+
+/**
  * Determine if post is unlinked
  *
  * @param  int $post_id Post ID.

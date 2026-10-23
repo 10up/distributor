@@ -1858,17 +1858,18 @@ function remote_http_request( $url, $args = array(), $fallback = '', $threshold 
  *
  * @since 2.0.0
  *
- * @param int|\WP_Post $post The post object or ID been checked.
+ * @param int|\WP_Post|null $post Optional. The post object or ID being checked. Default null.
  * @return bool True if the post is distributed, false otherwise.
  */
-function is_distributed_post( $post ) {
+function is_distributed_post( $post = null ) {
 	$post = get_post( $post );
 	if ( ! $post ) {
 		return false;
 	}
-	$post_id          = $post->ID;
-	$original_post_id = get_post_meta( $post_id, 'dt_original_post_id', true );
-	return ! empty( $original_post_id );
+	$post_id            = $post->ID;
+	$original_post_id   = get_post_meta( $post_id, 'dt_original_post_id', true );
+	$original_source_id = get_post_meta( $post_id, 'dt_original_source_id', true );
+	return ! empty( $original_post_id ) || ! empty( $original_source_id );
 }
 
 /**
