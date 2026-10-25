@@ -3,6 +3,8 @@
 All notable changes to this project will be documented in this file, per [the Keep a Changelog standard](http://keepachangelog.com/).
 
 ## [Unreleased] - TBD
+### Added
+- Added: New filters and action running on the _receiving_ Distributor instance to allow changes to the post for pushes from upstream, pulls from the receiving site, and on subscription updates and relinks. They run on both network and external connections. Filters `dt_receive_post_args`, `dt_receive_post_meta`, `dt_receive_post_terms` and `dt_receive_post_media`; the `dt_receive_post` action.
 
 ## [2.3.2] - 2026-09-23
 ### Security

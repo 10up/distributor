@@ -750,4 +750,291 @@ class SubscriptionsControllerTest extends TestCase {
 		$this->assertInstanceOf( \WP_REST_Response::class, $result );
 		$this->assertSame( 404, $result->get_status() );
 	}
+
+	/*
+	 * ---------------------------------------------------------------------
+	 * dt_receive_post_* hooks in receive_item()
+	 * ---------------------------------------------------------------------
+	 */
+
+	/**
+	 * Mock the functions receive_item() calls for a linked, distributed post.
+	 *
+	 * Post 10 is the subscribed post. Its original is post 5.
+	 *
+	 * @param int|null $updated_post_id Value returned by wp_update_post(), or null
+	 *                                  to leave wp_update_post() for the test to mock.
+	 */
+	protected function mock_receive_item_dependencies( $updated_post_id = 10 ) {
+		\WP_Mock::userFunction(
+			'get_post',
+			[
+				'return' => new \WP_Post(
+					(object) [
+						'ID'        => 10,
+						'post_type' => 'post',
+					]
+				),
+			]
+		);
+		\WP_Mock::userFunction(
+			'get_post_meta',
+			[
+				'args'   => [ 10, 'dt_original_post_id', true ],
+				'return' => 5,
+			]
+		);
+		\WP_Mock::userFunction(
+			'get_post_meta',
+			[
+				'args'   => [ 10, 'dt_unlinked', true ],
+				'return' => false,
+			]
+		);
+		\WP_Mock::userFunction( 'distributor_get_registered_data', [ 'return' => [] ] );
+		\WP_Mock::userFunction( 'Distributor\Utils\is_using_gutenberg', [ 'return' => false ] );
+		\WP_Mock::userFunction( 'sanitize_text_field', [ 'return_arg' => 0 ] );
+		\WP_Mock::userFunction( 'wp_kses_post', [ 'return_arg' => 0 ] );
+		\WP_Mock::userFunction( 'wp_slash', [ 'return_arg' => 0 ] );
+		\WP_Mock::userFunction( 'update_post_meta' );
+		\WP_Mock::userFunction(
+			'get_taxonomies',
+			[
+				'return' => [ 'category' => 'category' ],
+			]
+		);
+
+		if ( null !== $updated_post_id ) {
+			\WP_Mock::userFunction( 'wp_update_post', [ 'return' => $updated_post_id ] );
+		}
+	}
+
+	/**
+	 * The context every receive hook gets for a subscription update of post 10.
+	 *
+	 * @return array
+	 */
+	protected function get_subscription_receive_context() {
+		return [
+			'source'           => 'subscription',
+			'connection_type'  => 'external',
+			'is_update'        => true,
+			'post_id'          => 10,
+			'original_post_id' => 5,
+			'connection'       => null,
+		];
+	}
+
+	/**
+	 * Request data for a subscription update carrying meta, terms and media.
+	 *
+	 * @return array
+	 */
+	protected function get_full_update_request_params() {
+		return [
+			'post_id'   => 10,
+			'post_data' => [
+				'title'             => 'New title',
+				'slug'              => 'new-slug',
+				'excerpt'           => 'New excerpt',
+				'content'           => 'New content',
+				'distributor_meta'  => [ 'origin_key' => [ 'origin value' ] ],
+				'distributor_terms' => [ 'category' => [ 'news' ] ],
+				'distributor_media' => [ [ 'source_url' => 'https://example.com/a.jpg' ] ],
+			],
+		];
+	}
+
+	/**
+	 * dt_receive_post_args can change the update, but not the post it applies to.
+	 *
+	 * @since x.x.x
+	 * @group Subscriptions
+	 */
+	public function test_receive_item_filters_post_args() {
+		$controller = $this->get_controller();
+		$this->mock_receive_item_dependencies( null );
+
+		\WP_Mock::userFunction( 'delete_post_meta' );
+
+		\WP_Mock::onFilter( 'dt_receive_post_args' )
+			->with(
+				[
+					'ID'           => 10,
+					'post_title'   => 'New title',
+					'post_content' => 'New content',
+					'post_excerpt' => 'New excerpt',
+					'post_name'    => 'new-slug',
+				],
+				$this->get_subscription_receive_context()
+			)
+			->reply(
+				[
+					'ID'               => 99,
+					'post_title'       => 'Filtered title',
+					'post_content'     => 'New content',
+					'not_a_post_field' => 'dropped',
+				]
+			);
+
+		\WP_Mock::userFunction(
+			'wp_update_post',
+			[
+				'times'  => 1,
+				'args'   => [
+					[
+						'ID'           => 10,
+						'post_title'   => 'Filtered title',
+						'post_content' => 'New content',
+					],
+				],
+				'return' => 10,
+			]
+		);
+
+		$result = $controller->receive_item(
+			$this->get_request(
+				[
+					'post_id'   => 10,
+					'post_data' => [
+						'title'   => 'New title',
+						'slug'    => 'new-slug',
+						'excerpt' => 'New excerpt',
+						'content' => 'New content',
+					],
+				]
+			)
+		);
+
+		$this->assertSame( [ 'updated' => true ], $result->get_data() );
+	}
+
+	/**
+	 * The meta, terms and media filters can change the data that is saved.
+	 *
+	 * @since x.x.x
+	 * @group Subscriptions
+	 */
+	public function test_receive_item_filters_meta_terms_and_media() {
+		$controller = $this->get_controller();
+		$this->mock_receive_item_dependencies();
+		$context = $this->get_subscription_receive_context();
+
+		\WP_Mock::onFilter( 'dt_receive_post_meta' )
+			->with( [ 'origin_key' => [ 'origin value' ] ], $context )
+			->reply( [ 'local_key' => [ 'local value' ] ] );
+		\WP_Mock::onFilter( 'dt_receive_post_terms' )
+			->with( [ 'category' => [ 'news' ] ], $context )
+			->reply( [ 'category' => [ 'local-news' ] ] );
+		\WP_Mock::onFilter( 'dt_receive_post_media' )
+			->with( [ [ 'source_url' => 'https://example.com/a.jpg' ] ], $context )
+			->reply( [] );
+
+		\WP_Mock::userFunction(
+			'Distributor\Utils\set_meta',
+			[
+				'times' => 1,
+				'args'  => [ 10, [ 'local_key' => [ 'local value' ] ] ],
+			]
+		);
+		\WP_Mock::userFunction(
+			'Distributor\Utils\set_taxonomy_terms',
+			[
+				'times' => 1,
+				'args'  => [ 10, [ 'category' => [ 'local-news' ] ] ],
+			]
+		);
+		\WP_Mock::userFunction(
+			'Distributor\Utils\set_media',
+			[
+				'times' => 1,
+				'args'  => [ 10, [] ],
+			]
+		);
+
+		$result = $controller->receive_item( $this->get_request( $this->get_full_update_request_params() ) );
+
+		$this->assertSame( [ 'updated' => true ], $result->get_data() );
+	}
+
+	/**
+	 * Returning false from the meta, terms and media filters skips each step.
+	 *
+	 * Skipping media must not remove the featured image either.
+	 *
+	 * @since x.x.x
+	 * @group Subscriptions
+	 */
+	public function test_receive_item_skips_data_when_filters_return_false() {
+		$controller = $this->get_controller();
+		$this->mock_receive_item_dependencies();
+		$context = $this->get_subscription_receive_context();
+
+		\WP_Mock::onFilter( 'dt_receive_post_meta' )
+			->with( [ 'origin_key' => [ 'origin value' ] ], $context )
+			->reply( false );
+		\WP_Mock::onFilter( 'dt_receive_post_terms' )
+			->with( [ 'category' => [ 'news' ] ], $context )
+			->reply( false );
+		\WP_Mock::onFilter( 'dt_receive_post_media' )
+			->with( [ [ 'source_url' => 'https://example.com/a.jpg' ] ], $context )
+			->reply( false );
+
+		\WP_Mock::userFunction( 'Distributor\Utils\set_meta', [ 'times' => 0 ] );
+		\WP_Mock::userFunction( 'Distributor\Utils\set_taxonomy_terms', [ 'times' => 0 ] );
+		\WP_Mock::userFunction( 'Distributor\Utils\set_media', [ 'times' => 0 ] );
+		\WP_Mock::userFunction( 'delete_post_meta', [ 'times' => 0 ] );
+
+		$result = $controller->receive_item( $this->get_request( $this->get_full_update_request_params() ) );
+
+		$this->assertSame( [ 'updated' => true ], $result->get_data() );
+	}
+
+	/**
+	 * dt_receive_post fires with the subscription context after an update.
+	 *
+	 * @since x.x.x
+	 * @group Subscriptions
+	 */
+	public function test_receive_item_fires_receive_post_action() {
+		$controller = $this->get_controller();
+		$this->mock_receive_item_dependencies();
+
+		\WP_Mock::userFunction( 'Distributor\Utils\set_meta' );
+		\WP_Mock::userFunction( 'Distributor\Utils\set_taxonomy_terms' );
+		\WP_Mock::userFunction( 'Distributor\Utils\set_media' );
+
+		\WP_Mock::expectAction( 'dt_receive_post', 10, $this->get_subscription_receive_context() );
+
+		$controller->receive_item( $this->get_request( $this->get_full_update_request_params() ) );
+
+		$this->assertConditionsMet();
+	}
+
+	/**
+	 * dt_receive_post does not fire when the post update fails.
+	 *
+	 * @since x.x.x
+	 * @group Subscriptions
+	 */
+	public function test_receive_item_skips_receive_post_action_when_update_fails() {
+		$controller = $this->get_controller();
+		$this->mock_receive_item_dependencies( 0 );
+
+		\WP_Mock::userFunction( 'Distributor\Utils\set_meta' );
+		\WP_Mock::userFunction( 'Distributor\Utils\set_taxonomy_terms' );
+		\WP_Mock::userFunction( 'Distributor\Utils\set_media' );
+
+		\WP_Mock::onAction( 'dt_receive_post' )
+			->with( 10, $this->get_subscription_receive_context() )
+			->perform(
+				function () {
+					$this->fail( 'dt_receive_post fired after a failed update.' );
+				}
+			);
+
+		$result = $controller->receive_item( $this->get_request( $this->get_full_update_request_params() ) );
+
+		$this->assertSame( [ 'updated' => true ], $result->get_data() );
+	}
 }

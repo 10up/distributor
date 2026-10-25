@@ -373,25 +373,64 @@ function link() {
 		$update = get_post_meta( $post_id, 'dt_subscription_update', true );
 
 		if ( ! empty( $update ) ) {
-			wp_update_post(
+			$receive_context = Utils\get_receive_context(
+				array(
+					'source'           => 'relink',
+					'connection_type'  => 'external',
+					'is_update'        => true,
+					'post_id'          => $post_id,
+					'original_post_id' => (int) get_post_meta( $post_id, 'dt_original_post_id', true ),
+				)
+			);
+
+			// Filter documented in includes/classes/InternalConnections/NetworkSiteConnection.php
+			$post_args = apply_filters(
+				'dt_receive_post_args',
 				array(
 					'ID'           => $post_id,
 					'post_title'   => $update['post_title'],
 					'post_content' => $update['post_content'],
 					'post_excerpt' => $update['post_excerpt'],
-				)
+				),
+				$receive_context
 			);
 
+			// Relinking only ever applies to the post being linked.
+			$post_args       = Utils\post_args_allow_list( $post_args );
+			$post_args['ID'] = $post_id;
+
+			$updated_post_id = wp_update_post( $post_args );
+
 			if ( null !== $update['meta'] ) {
-				\Distributor\Utils\set_meta( $post_id, $update['meta'] );
+				// Filter documented in includes/classes/InternalConnections/NetworkSiteConnection.php
+				$meta = apply_filters( 'dt_receive_post_meta', $update['meta'], $receive_context );
+
+				if ( is_array( $meta ) ) {
+					\Distributor\Utils\set_meta( $post_id, $meta );
+				}
 			}
 
 			if ( null !== $update['terms'] ) {
-				\Distributor\Utils\set_taxonomy_terms( $post_id, $update['terms'] );
+				// Filter documented in includes/classes/InternalConnections/NetworkSiteConnection.php
+				$terms = apply_filters( 'dt_receive_post_terms', $update['terms'], $receive_context );
+
+				if ( is_array( $terms ) ) {
+					\Distributor\Utils\set_taxonomy_terms( $post_id, $terms );
+				}
 			}
 
 			if ( null !== $update['media'] ) {
-				\Distributor\Utils\set_media( $post_id, $update['media'] );
+				// Filter documented in includes/classes/InternalConnections/NetworkSiteConnection.php
+				$media = apply_filters( 'dt_receive_post_media', $update['media'], $receive_context );
+
+				if ( is_array( $media ) ) {
+					\Distributor\Utils\set_media( $post_id, $media );
+				}
+			}
+
+			if ( ! empty( $updated_post_id ) && ! is_wp_error( $updated_post_id ) ) {
+				// Action documented in includes/classes/InternalConnections/NetworkSiteConnection.php
+				do_action( 'dt_receive_post', $post_id, $receive_context );
 			}
 		}
 	}
