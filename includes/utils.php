@@ -1250,6 +1250,29 @@ function format_media_post( $media_post, $post_id = 0 ) {
 }
 
 /**
+ * Get the image file extensions allowed for upload on the current site.
+ *
+ * By default, supports all image formats that are
+ * supported by the distributing site's WordPress version.
+ *
+ * @since  x.x.x
+ * @return array List of image file extensions.
+ */
+function get_allowed_image_extensions() {
+	$extensions = array();
+
+	foreach ( get_allowed_mime_types() as $extension_group => $mime_type ) {
+		if ( 0 !== strpos( $mime_type, 'image/' ) ) {
+			continue;
+		}
+
+		$extensions = array_merge( $extensions, explode( '|', $extension_group ) );
+	}
+
+	return array_values( array_unique( $extensions ) );
+}
+
+/**
  * Simple function for sideloading media and returning the media id
  *
  * @param  string $url URL of media.
@@ -1293,7 +1316,7 @@ function process_media( $url, $post_id, $args = [] ) {
 	 *
 	 * @return array Media extensions to be processed.
 	 */
-	$allowed_extensions = apply_filters( 'dt_allowed_media_extensions', array( 'jpg', 'jpeg', 'jpe', 'gif', 'png' ), $url, $post_id );
+	$allowed_extensions = apply_filters( 'dt_allowed_media_extensions', get_allowed_image_extensions(), $url, $post_id );
 	preg_match( '/[^\?]+\.(' . implode( '|', $allowed_extensions ) . ')\b/i', $url, $matches );
 	if ( ! $matches ) {
 		$media_name = null;
