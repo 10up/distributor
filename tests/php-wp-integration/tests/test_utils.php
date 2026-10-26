@@ -11,7 +11,9 @@ use WP_UnitTestCase;
 use WP_UnitTest_Factory;
 
 use function Distributor\Utils\format_media_post;
+use function Distributor\Utils\get_allowed_image_extensions;
 use function Distributor\Utils\post_args_allow_list;
+use function Distributor\Utils\process_media;
 use function Distributor\Utils\set_media;
 use function Distributor\Utils\set_meta;
 use function Distributor\Utils\set_taxonomy_terms;
@@ -536,6 +538,96 @@ class Test_Utils extends WP_UnitTestCase {
 		$this->assertSame( $new_media->ID, (int) get_post_thumbnail_id( $post_id ), 'Post should use imported media ID for thumbnail.' );
 		$this->assertSame( $source_url, get_post_meta( $new_media->ID, 'dt_original_media_url', true ), 'Post meta should record original source URL.' );
 		$this->assertSame( '123', get_post_meta( $new_media->ID, 'dt_original_media_id', true ), 'Post meta should record original source ID.' );
+	}
+
+	/**
+	 * Test get_allowed_image_extensions includes modern image formats.
+	 *
+	 * @group Utils
+	 */
+	public function test_get_allowed_image_extensions_includes_modern_formats() {
+		$extensions = get_allowed_image_extensions();
+
+		foreach ( array( 'jpg', 'jpeg', 'jpe', 'gif', 'png', 'webp', 'avif', 'heic', 'heif' ) as $extension ) {
+			$this->assertContains( $extension, $extensions, "The {$extension} extension should be allowed." );
+		}
+
+		foreach ( array( 'mp4', 'pdf', 'txt' ) as $extension ) {
+			$this->assertNotContains( $extension, $extensions, "The {$extension} extension should not be allowed." );
+		}
+	}
+
+	/**
+	 * Test get_allowed_image_extensions respects the site's allowed upload types.
+	 *
+	 * @group Utils
+	 */
+	public function test_get_allowed_image_extensions_respects_upload_mimes() {
+		$remove_webp = function ( $mimes ) {
+			unset( $mimes['webp'] );
+			return $mimes;
+		};
+
+		add_filter( 'upload_mimes', $remove_webp ); // phpcs:ignore WordPressVIPMinimum.Hooks.RestrictedHooks.upload_mimes -- removes a type, adds none.
+		$extensions = get_allowed_image_extensions();
+		remove_filter( 'upload_mimes', $remove_webp );
+
+		$this->assertNotContains( 'webp', $extensions, 'The webp extension should not be allowed when uploads of it are disabled.' );
+		$this->assertContains( 'png', $extensions, 'Other image extensions should still be allowed.' );
+	}
+
+	/**
+	 * Test process_media downloads a WebP image.
+	 *
+	 * @group Utils
+	 */
+	public function test_process_media_downloads_webp() {
+		if ( ! function_exists( 'imagewebp' ) || ! wp_image_editor_supports( array( 'mime_type' => 'image/webp' ) ) ) {
+			$this->markTestSkipped( 'WebP is not supported on this server.' );
+		}
+
+		$source_url = 'http://example.com/new-mediaitem.webp';
+		$test_image = wp_tempnam( 'new-mediaitem.webp' );
+		$image      = imagecreatetruecolor( 10, 10 );
+		imagewebp( $image, $test_image );
+
+		$intercept_download = function ( $preempt, $parsed_args, $url ) use ( $source_url, $test_image ) {
+			if ( $url !== $source_url ) {
+				return $preempt;
+			}
+
+			if ( ! empty( $parsed_args['filename'] ) ) {
+				copy( $test_image, $parsed_args['filename'] );
+			}
+
+			return array(
+				'headers'  => array(),
+				'body'     => '',
+				'response' => array(
+					'code'    => 200,
+					'message' => 'OK',
+				),
+				'cookies'  => array(),
+				'filename' => $parsed_args['filename'] ?? null,
+			);
+		};
+
+		add_filter( 'pre_http_request', $intercept_download, 10, 3 );
+		$media_id = process_media( $source_url, self::$post_id );
+		remove_filter( 'pre_http_request', $intercept_download, 10 );
+		wp_delete_file( $test_image );
+
+		$this->assertIsInt( $media_id, 'WebP media should be processed.' );
+		$this->assertSame( 'image/webp', get_post_mime_type( $media_id ), 'Processed media should keep the WebP mime type.' );
+	}
+
+	/**
+	 * Test process_media skips files that are not images.
+	 *
+	 * @group Utils
+	 */
+	public function test_process_media_skips_non_image_extension() {
+		$this->assertFalse( process_media( 'http://example.com/document.pdf', self::$post_id ), 'Non-image media should not be processed.' );
 	}
 
 	/**
