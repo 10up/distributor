@@ -287,11 +287,39 @@ class SubscriptionsController extends \WP_REST_Controller {
 				return $response;
 			}
 
+			$receive_context = \Distributor\Utils\get_receive_context(
+				array(
+					'source'           => 'subscription',
+					'connection_type'  => 'external',
+					'is_update'        => true,
+					'post_id'          => (int) $request['post_id'],
+					'original_post_id' => (int) $original_post_id,
+				)
+			);
+
+			// Filter documented in includes/classes/InternalConnections/NetworkSiteConnection.php
+			$post_args = apply_filters(
+				'dt_receive_post_args',
+				[
+					'ID'           => $request['post_id'],
+					'post_title'   => $title,
+					'post_content' => $content,
+					'post_excerpt' => $excerpt,
+					'post_name'    => $slug,
+				],
+				$receive_context
+			);
+
+			// Subscription updates only ever apply to the subscribed post.
+			$post_args       = \Distributor\Utils\post_args_allow_list( $post_args );
+			$post_args['ID'] = $request['post_id'];
+
 			/*
 			 * Suspend the `content_save_pre` filters for the duration of the update so
 			 * raw block content is stored verbatim.
 			 */
 			$suspended_content_filters = null;
+			$updated_post_id           = 0;
 
 			if ( $suspend_content_filters && isset( $GLOBALS['wp_filter']['content_save_pre'] ) ) {
 				$suspended_content_filters = $GLOBALS['wp_filter']['content_save_pre'];
@@ -300,17 +328,7 @@ class SubscriptionsController extends \WP_REST_Controller {
 			}
 
 			try {
-				wp_update_post(
-					wp_slash(
-						[
-							'ID'           => $request['post_id'],
-							'post_title'   => $title,
-							'post_content' => $content,
-							'post_excerpt' => $excerpt,
-							'post_name'    => $slug,
-						]
-					)
-				);
+				$updated_post_id = wp_update_post( wp_slash( $post_args ) );
 			} finally {
 				// Restored even if a save hook throws, so kses cannot stay disabled.
 				if ( null !== $suspended_content_filters ) {
@@ -322,15 +340,30 @@ class SubscriptionsController extends \WP_REST_Controller {
 			 * We check if each of these exist since the API removes empty arrays from requests
 			 */
 			if ( ! empty( $meta ) ) {
-				\Distributor\Utils\set_meta( $request['post_id'], $meta );
+				// Filter documented in includes/classes/InternalConnections/NetworkSiteConnection.php
+				$meta = apply_filters( 'dt_receive_post_meta', $meta, $receive_context );
+
+				if ( is_array( $meta ) ) {
+					\Distributor\Utils\set_meta( $request['post_id'], $meta );
+				}
 			}
 
 			if ( ! empty( $terms ) ) {
-				\Distributor\Utils\set_taxonomy_terms( $request['post_id'], $terms );
+				// Filter documented in includes/classes/InternalConnections/NetworkSiteConnection.php
+				$terms = apply_filters( 'dt_receive_post_terms', $terms, $receive_context );
+
+				if ( is_array( $terms ) ) {
+					\Distributor\Utils\set_taxonomy_terms( $request['post_id'], $terms );
+				}
 			}
 
 			if ( ! empty( $media ) ) {
-				\Distributor\Utils\set_media( $request['post_id'], $media );
+				// Filter documented in includes/classes/InternalConnections/NetworkSiteConnection.php
+				$media = apply_filters( 'dt_receive_post_media', $media, $receive_context );
+
+				if ( is_array( $media ) ) {
+					\Distributor\Utils\set_media( $request['post_id'], $media );
+				}
 			} else {
 				// Remove any previously set featured image.
 				delete_post_meta( (int) $request['post_id'], '_thumbnail_id' );
@@ -339,12 +372,19 @@ class SubscriptionsController extends \WP_REST_Controller {
 			/**
 			 * Action fired after receiving a subscription update from Distributor
 			 *
+			 * Runs only for subscription updates. Use `dt_receive_post` to act on posts received by any route.
+			 *
 			 * @since 1.3.8
 			 *
 			 * @param WP_Post         $post    Updated post object.
 			 * @param WP_REST_Request $request Request object.
 			 */
 			do_action( 'dt_process_subscription_attributes', $post, $request );
+
+			if ( ! empty( $updated_post_id ) && ! is_wp_error( $updated_post_id ) ) {
+				// Action documented in includes/classes/InternalConnections/NetworkSiteConnection.php
+				do_action( 'dt_receive_post', (int) $request['post_id'], $receive_context );
+			}
 
 			$response = new \WP_REST_Response();
 			$response->set_data( array( 'updated' => true ) );

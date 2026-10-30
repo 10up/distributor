@@ -83,7 +83,39 @@ function filter_distributor_content( $prepared_post, $request ) {
 	) {
 			$prepared_post->post_content = $request['distributor_raw_content'];
 	}
+
+	if ( ! empty( $request['distributor_original_source_id'] ) ) {
+		$post_id         = (int) ( $prepared_post->ID ?? 0 );
+		$receive_context = get_push_receive_context( $request, $post_id, ! empty( $post_id ) );
+
+		// Filter documented in includes/classes/InternalConnections/NetworkSiteConnection.php
+		$prepared_post = (object) apply_filters( 'dt_receive_post_args', (array) $prepared_post, $receive_context );
+	}
+
 	return $prepared_post;
+}
+
+/**
+ * Build the receive context for a post pushed through the REST API.
+ *
+ * @since x.x.x
+ *
+ * @param \WP_REST_Request $request   Request object.
+ * @param int              $post_id   The receiving site's post ID, `0` before a new post is inserted.
+ * @param bool             $is_update True when updating an existing post, false when creating one.
+ *
+ * @return array Context for the `dt_receive_post_*` hooks.
+ */
+function get_push_receive_context( $request, $post_id, $is_update ) {
+	return Utils\get_receive_context(
+		array(
+			'source'           => 'push',
+			'connection_type'  => 'external',
+			'is_update'        => (bool) $is_update,
+			'post_id'          => $post_id,
+			'original_post_id' => (int) $request['distributor_remote_post_id'],
+		)
+	);
 }
 
 /**
@@ -132,16 +164,34 @@ function process_distributor_attributes( $post, $request, $update ) {
 
 	update_post_meta( $post->ID, 'dt_original_source_id', (int) $request['distributor_original_source_id'] );
 
+	// The REST API passes `$update` as true when creating a post.
+	$receive_context = get_push_receive_context( $request, $post->ID, ! $update );
+
 	if ( isset( $request['distributor_meta'] ) ) {
-		\Distributor\Utils\set_meta( $post->ID, $request['distributor_meta'] );
+		// Filter documented in includes/classes/InternalConnections/NetworkSiteConnection.php
+		$meta = apply_filters( 'dt_receive_post_meta', $request['distributor_meta'], $receive_context );
+
+		if ( is_array( $meta ) ) {
+			\Distributor\Utils\set_meta( $post->ID, $meta );
+		}
 	}
 
 	if ( isset( $request['distributor_terms'] ) ) {
-		\Distributor\Utils\set_taxonomy_terms( $post->ID, $request['distributor_terms'] );
+		// Filter documented in includes/classes/InternalConnections/NetworkSiteConnection.php
+		$terms = apply_filters( 'dt_receive_post_terms', $request['distributor_terms'], $receive_context );
+
+		if ( is_array( $terms ) ) {
+			\Distributor\Utils\set_taxonomy_terms( $post->ID, $terms );
+		}
 	}
 
 	if ( isset( $request['distributor_media'] ) ) {
-		\Distributor\Utils\set_media( $post->ID, $request['distributor_media'] );
+		// Filter documented in includes/classes/InternalConnections/NetworkSiteConnection.php
+		$media = apply_filters( 'dt_receive_post_media', $request['distributor_media'], $receive_context );
+
+		if ( is_array( $media ) ) {
+			\Distributor\Utils\set_media( $post->ID, $media );
+		}
 	} else {
 		// Remove any previously set featured image.
 		delete_post_meta( $post->ID, '_thumbnail_id' );
@@ -150,6 +200,8 @@ function process_distributor_attributes( $post, $request, $update ) {
 	/**
 	 * Fires after an API push is handled by Distributor.
 	 *
+	 * Runs only for external pushes. Use `dt_receive_post` to act on posts received by any route.
+	 *
 	 * @since 1.0
 	 *
 	 * @param WP_Post         $post    Inserted or updated post object.
@@ -157,6 +209,9 @@ function process_distributor_attributes( $post, $request, $update ) {
 	 * @param bool            $update  True when creating a post, false when updating.
 	 */
 	do_action( 'dt_process_distributor_attributes', $post, $request, $update );
+
+	// Action documented in includes/classes/InternalConnections/NetworkSiteConnection.php
+	do_action( 'dt_receive_post', $post->ID, $receive_context );
 }
 
 /**

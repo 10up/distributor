@@ -280,3 +280,15 @@ function distributor_image_post_distribute_cb( $extra_data, $source_data, $post_
 
 	return $image_id;
 }
+
+/**
+ * Record the route of the last received post, so tests can check the
+ * dt_receive_post action ran.
+ *
+ * @param int   $post_id The receiving site's post ID.
+ * @param array $context Context of the received post.
+ */
+function distributor_e2e_record_receive_source( $post_id, $context ) {
+	update_post_meta( $post_id, 'dt_e2e_receive_source', $context['source'] );
+}
+add_action( 'dt_receive_post', 'distributor_e2e_record_receive_source', 10, 2 );

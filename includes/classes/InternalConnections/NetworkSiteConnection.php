@@ -138,9 +138,37 @@ class NetworkSiteConnection extends Connection {
 
 		$post_meta = $dt_post_args['meta'] ?? [];
 
+		$receive_context = Utils\get_receive_context(
+			array(
+				'source'           => 'push',
+				'connection_type'  => 'internal',
+				'is_update'        => $update,
+				'post_id'          => $update ? (int) $args['remote_post_id'] : 0,
+				'original_post_id' => $post_id,
+				'connection'       => $this,
+			)
+		);
+
 		add_filter( 'wp_insert_post_data', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'maybe_set_modified_date' ), 10, 2 );
 		// Filter documented in includes/classes/ExternalConnections/WordPressExternalConnection.php
-		$new_post_args = Utils\post_args_allow_list( apply_filters( 'dt_push_post_args', $dt_post_args, $post, $args, $this ) );
+		$new_post_args = apply_filters( 'dt_push_post_args', $dt_post_args, $post, $args, $this );
+
+		/**
+		 * Filter the post arguments before a received post is inserted or updated.
+		 *
+		 * Runs on the receiving site for every route a post takes: network and external
+		 * pushes, pulls, subscription updates and relinks. For network connections the
+		 * origin site's request runs this filter after `switch_to_blog()`, so callbacks
+		 * must be loaded network wide (network activated or in mu-plugins).
+		 *
+		 * @since x.x.x
+		 *
+		 * @param array $post_args The post arguments for wp_insert_post() or wp_update_post().
+		 * @param array $context   Context of the received post, see {@link \Distributor\Utils\get_receive_context()}.
+		 *
+		 * @return array The post arguments.
+		 */
+		$new_post_args = Utils\post_args_allow_list( apply_filters( 'dt_receive_post_args', $new_post_args, $receive_context ) );
 		if ( $update ) {
 			$new_post_id = wp_update_post( wp_slash( $new_post_args ), true );
 		} else {
@@ -187,6 +215,8 @@ class NetworkSiteConnection extends Connection {
 
 		$output['id'] = $new_post_id;
 
+		$receive_context['post_id'] = (int) $new_post_id;
+
 		update_post_meta( $new_post_id, 'dt_original_blog_id', absint( $original_blog_id ) );
 		update_post_meta( $new_post_id, 'dt_syndicate_time', absint( time() ) );
 
@@ -203,7 +233,25 @@ class NetworkSiteConnection extends Connection {
 		 * @return bool If Distributor should push the post media.
 		 */
 		if ( apply_filters( 'dt_push_post_media', true, $new_post_id, $post_media, $post_id, $args, $this ) ) {
-			Utils\set_media( $new_post_id, $post_media, [ 'use_filesystem' => true ] );
+			/**
+			 * Filter the media of a received post before it is downloaded and attached.
+			 *
+			 * Runs on the receiving site before Distributor sideloads each media item. Remove
+			 * items to skip their download, or return a non-array value to skip media
+			 * processing entirely.
+			 *
+			 * @since x.x.x
+			 *
+			 * @param array|false $media   Media items, formatted by {@link \Distributor\Utils\prepare_media()}.
+			 * @param array       $context Context of the received post, see {@link \Distributor\Utils\get_receive_context()}.
+			 *
+			 * @return array|false Media items to set, or false to skip media processing.
+			 */
+			$post_media = apply_filters( 'dt_receive_post_media', $post_media, $receive_context );
+
+			if ( is_array( $post_media ) ) {
+				Utils\set_media( $new_post_id, $post_media, [ 'use_filesystem' => true ] );
+			}
 		}
 
 		$media_errors = get_transient( 'dt_media_errors_' . $new_post_id );
@@ -226,7 +274,21 @@ class NetworkSiteConnection extends Connection {
 		 * @return bool If Distributor should push the post terms.
 		 */
 		if ( apply_filters( 'dt_push_post_terms', true, $new_post_id, $post_terms, $post_id, $args, $this ) ) {
-			Utils\set_taxonomy_terms( $new_post_id, $post_terms );
+			/**
+			 * Filter the terms of a received post before they are set.
+			 *
+			 * @since x.x.x
+			 *
+			 * @param array|false $terms   Terms keyed by taxonomy, formatted by {@link \Distributor\Utils\prepare_taxonomy_terms()}.
+			 * @param array       $context Context of the received post, see {@link \Distributor\Utils\get_receive_context()}.
+			 *
+			 * @return array|false Terms to set, or false to skip term processing.
+			 */
+			$post_terms = apply_filters( 'dt_receive_post_terms', $post_terms, $receive_context );
+
+			if ( is_array( $post_terms ) ) {
+				Utils\set_taxonomy_terms( $new_post_id, $post_terms );
+			}
 		}
 
 		/**
@@ -242,8 +304,37 @@ class NetworkSiteConnection extends Connection {
 		 * @return bool If Distributor should push the post meta.
 		 */
 		if ( apply_filters( 'dt_push_post_meta', true, $new_post_id, $post_meta, $post_id, $args, $this ) ) {
-			$post_meta = $this->exclude_additional_meta_data( $post_meta );
-			Utils\set_meta( $new_post_id, $post_meta );
+			/**
+			 * Filter the meta of a received post before it is set.
+			 *
+			 * @since x.x.x
+			 *
+			 * @param array|false $meta    Meta keyed by meta key, formatted by {@link \Distributor\Utils\prepare_meta()}.
+			 * @param array       $context Context of the received post, see {@link \Distributor\Utils\get_receive_context()}.
+			 *
+			 * @return array|false Meta to set, or false to skip meta processing.
+			 */
+			$post_meta = apply_filters( 'dt_receive_post_meta', $post_meta, $receive_context );
+
+			if ( is_array( $post_meta ) ) {
+				$post_meta = $this->exclude_additional_meta_data( $post_meta );
+				Utils\set_meta( $new_post_id, $post_meta );
+			}
+		}
+
+		if ( ! empty( $new_post_id ) ) {
+			/**
+			 * Fires after a received post and its meta, terms and media are saved.
+			 *
+			 * Runs on the receiving site for every route a post takes: network and external
+			 * pushes, pulls, subscription updates and relinks.
+			 *
+			 * @since x.x.x
+			 *
+			 * @param int   $post_id The receiving site's post ID.
+			 * @param array $context Context of the received post, see {@link \Distributor\Utils\get_receive_context()}.
+			 */
+			do_action( 'dt_receive_post', $new_post_id, $receive_context );
 		}
 
 		/** This filter is documented in includes/classes/InternalConnections/NetworkSiteConnection.php */
@@ -322,10 +413,24 @@ class NetworkSiteConnection extends Connection {
 			// Update post meta data against the registered data.
 			$post['meta'] = $post_array['meta'] ?? [];
 
+			$receive_context = Utils\get_receive_context(
+				array(
+					'source'           => 'pull',
+					'connection_type'  => 'internal',
+					'is_update'        => $update,
+					'post_id'          => $update ? (int) $item_array['post_id'] : 0,
+					'original_post_id' => (int) $item_array['remote_post_id'],
+					'connection'       => $this,
+				)
+			);
+
 			add_filter( 'wp_insert_post_data', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'maybe_set_modified_date' ), 10, 2 );
 
 			// Filter documented in includes/classes/ExternalConnections/WordPressExternalConnection.php
-			$new_post_args = Utils\post_args_allow_list( apply_filters( 'dt_pull_post_args', $post_array, $item_array['remote_post_id'], $post, $this ) );
+			$new_post_args = apply_filters( 'dt_pull_post_args', $post_array, $item_array['remote_post_id'], $post, $this );
+
+			// Filter documented in includes/classes/InternalConnections/NetworkSiteConnection.php
+			$new_post_args = Utils\post_args_allow_list( apply_filters( 'dt_receive_post_args', $new_post_args, $receive_context ) );
 			if ( $update ) {
 				$new_post_id = wp_update_post( wp_slash( $new_post_args ) );
 			} else {
@@ -334,6 +439,8 @@ class NetworkSiteConnection extends Connection {
 			remove_filter( 'wp_insert_post_data', array( '\Distributor\InternalConnections\NetworkSiteConnection', 'maybe_set_modified_date' ), 10, 2 );
 
 			if ( ! is_wp_error( $new_post_id ) ) {
+				$receive_context['post_id'] = (int) $new_post_id;
+
 				update_post_meta( $new_post_id, 'dt_original_blog_id', absint( $this->site->blog_id ) );
 				update_post_meta( $new_post_id, 'dt_syndicate_time', absint( time() ) );
 				update_post_meta( $new_post_id, 'dt_original_post_id', absint( $new_post_args['meta_input']['dt_original_post_id'] ) );
@@ -352,7 +459,12 @@ class NetworkSiteConnection extends Connection {
 				 * @return bool If Distributor should set the post media.
 				 */
 				if ( apply_filters( 'dt_pull_post_media', true, $new_post_id, $post['media'], $item_array['remote_post_id'], $post_array, $this ) ) {
-					\Distributor\Utils\set_media( $new_post_id, $post['media'], [ 'use_filesystem' => true ] );
+					// Filter documented in includes/classes/InternalConnections/NetworkSiteConnection.php
+					$post_media = apply_filters( 'dt_receive_post_media', $post['media'], $receive_context );
+
+					if ( is_array( $post_media ) ) {
+						\Distributor\Utils\set_media( $new_post_id, $post_media, [ 'use_filesystem' => true ] );
+					}
 				}
 
 				/**
@@ -368,7 +480,12 @@ class NetworkSiteConnection extends Connection {
 				 * @return bool If Distributor should set the post terms.
 				 */
 				if ( apply_filters( 'dt_pull_post_terms', true, $new_post_id, $post['terms'], $item_array['remote_post_id'], $post_array, $this ) ) {
-					\Distributor\Utils\set_taxonomy_terms( $new_post_id, $post['terms'] );
+					// Filter documented in includes/classes/InternalConnections/NetworkSiteConnection.php
+					$post_terms = apply_filters( 'dt_receive_post_terms', $post['terms'], $receive_context );
+
+					if ( is_array( $post_terms ) ) {
+						\Distributor\Utils\set_taxonomy_terms( $new_post_id, $post_terms );
+					}
 				}
 
 				/**
@@ -384,8 +501,18 @@ class NetworkSiteConnection extends Connection {
 				 * @return bool If Distributor should set the post meta.
 				 */
 				if ( apply_filters( 'dt_pull_post_meta', true, $new_post_id, $post['meta'], $item_array['remote_post_id'], $post_array, $this ) ) {
-					$post_meta = $this->exclude_additional_meta_data( $post['meta'] );
-					\Distributor\Utils\set_meta( $new_post_id, $post_meta );
+					// Filter documented in includes/classes/InternalConnections/NetworkSiteConnection.php
+					$post_meta = apply_filters( 'dt_receive_post_meta', $post['meta'], $receive_context );
+
+					if ( is_array( $post_meta ) ) {
+						$post_meta = $this->exclude_additional_meta_data( $post_meta );
+						\Distributor\Utils\set_meta( $new_post_id, $post_meta );
+					}
+				}
+
+				if ( ! empty( $new_post_id ) ) {
+					// Action documented in includes/classes/InternalConnections/NetworkSiteConnection.php
+					do_action( 'dt_receive_post', $new_post_id, $receive_context );
 				}
 			}
 
@@ -430,6 +557,8 @@ class NetworkSiteConnection extends Connection {
 			/**
 			 * Action triggered when a post is pulled via distributor.
 			 * Fires after a post is pulled via Distributor and after `restore_current_blog()`.
+			 *
+			 * Runs only for pulls. Use `dt_receive_post` to act on posts received by any route.
 			 *
 			 * @since 1.0
 			 *
