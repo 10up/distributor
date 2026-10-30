@@ -416,6 +416,10 @@ function handle_network_settings() {
 		return;
 	}
 
+	if ( ! current_user_can( 'manage_network_options' ) ) {
+		return;
+	}
+
 	if ( ! check_admin_referer( 'dt-settings-options' ) ) {
 		die( esc_html__( 'Security error!', 'distributor' ) );
 	}
