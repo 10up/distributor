@@ -1950,6 +1950,56 @@ class DistributorPostTest extends TestCase {
 	}
 
 	/**
+	 * Test that updating a distributed post only includes the post status when enabled.
+	 *
+	 * @dataProvider data_to_insert_update_post_status
+	 * @covers ::to_insert()
+	 * @runInSeparateProcess
+	 *
+	 * @param bool $distribute_status Whether post status distribution is enabled.
+	 */
+	public function test_to_insert_update_post_status( $distribute_status ) {
+		$this->setup_post_mock( array( 'post_status' => 'draft' ) );
+		$this->setup_post_meta_mock( array() );
+
+		\WP_Mock::userFunction( 'get_the_title', array( 'return' => 'Test Post' ) );
+		\WP_Mock::userFunction( 'get_bloginfo', array( 'return' => 'UTF-8' ) );
+		\WP_Mock::userFunction( 'get_permalink', array( 'return' => 'http://example.org/?p=1' ) );
+		\WP_Mock::userFunction( 'has_blocks', array( 'return' => false ) );
+		\WP_Mock::userFunction( 'get_attached_media', array( 'return' => array() ) );
+		\WP_Mock::userFunction( 'get_post_thumbnail_id', array( 'return' => false ) );
+		\WP_Mock::userFunction( 'get_taxonomies', array( 'return' => array() ) );
+		\WP_Mock::userFunction( 'wp_get_object_terms', array( 'return' => array() ) );
+
+		\WP_Mock::onFilter( 'dt_distribute_post_status' )
+			->with( false )
+			->reply( $distribute_status );
+
+		$dt_post   = new DistributorPost( 1 );
+		$to_insert = $dt_post->to_insert( array( 'remote_post_id' => 2 ) );
+
+		$this->assertSame( 2, $to_insert['ID'] );
+
+		if ( $distribute_status ) {
+			$this->assertSame( 'draft', $to_insert['post_status'], 'Origin post status should be distributed.' );
+		} else {
+			$this->assertArrayNotHasKey( 'post_status', $to_insert, 'Post status should not be updated.' );
+		}
+	}
+
+	/**
+	 * Data provider for test_to_insert_update_post_status.
+	 *
+	 * @return array[]
+	 */
+	public function data_to_insert_update_post_status() {
+		return array(
+			'status distribution disabled' => array( false ),
+			'status distribution enabled'  => array( true ),
+		);
+	}
+
+	/**
 	 * Test methods for formatting the post data with blocks.
 	 *
 	 * @covers ::post_data()

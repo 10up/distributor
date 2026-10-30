@@ -287,6 +287,19 @@ class SubscriptionsController extends \WP_REST_Controller {
 				return $response;
 			}
 
+			$post_update = [
+				'ID'           => $request['post_id'],
+				'post_title'   => $title,
+				'post_content' => $content,
+				'post_excerpt' => $excerpt,
+				'post_name'    => $slug,
+			];
+
+			// Only present when the origin site has enabled post status distribution.
+			if ( isset( $post_data['status'] ) && is_string( $post_data['status'] ) && get_post_status_object( $post_data['status'] ) ) {
+				$post_update['post_status'] = $post_data['status'];
+			}
+
 			/*
 			 * Suspend the `content_save_pre` filters for the duration of the update so
 			 * raw block content is stored verbatim.
@@ -300,17 +313,7 @@ class SubscriptionsController extends \WP_REST_Controller {
 			}
 
 			try {
-				wp_update_post(
-					wp_slash(
-						[
-							'ID'           => $request['post_id'],
-							'post_title'   => $title,
-							'post_content' => $content,
-							'post_excerpt' => $excerpt,
-							'post_name'    => $slug,
-						]
-					)
-				);
+				wp_update_post( wp_slash( $post_update ) );
 			} finally {
 				// Restored even if a save hook throws, so kses cannot stay disabled.
 				if ( null !== $suspended_content_filters ) {
