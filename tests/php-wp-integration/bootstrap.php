@@ -42,3 +42,4 @@ require "{$_distributor_wp_tests_directory}/includes/bootstrap.php";
 // Test helpers depending on the plugin's classes.
 require __DIR__ . '/includes/class-test-external-connection.php';
 require __DIR__ . '/includes/class-test-internal-connection.php';
+require __DIR__ . '/includes/trait-rest-bridge.php';
