@@ -3,6 +3,8 @@
 All notable changes to this project will be documented in this file, per [the Keep a Changelog standard](http://keepachangelog.com/).
 
 ## [Unreleased] - TBD
+### Fixed
+- Updates default list of allowed image types from the short list `'jpg', 'jpeg', 'jpe', 'gif', 'png'` to all image types supported by the distributing site's WordPress install.
 
 ## [2.3.2] - 2026-09-23
 ### Security
