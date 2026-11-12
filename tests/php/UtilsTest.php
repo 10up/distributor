@@ -993,4 +993,51 @@ class UtilsTest extends TestCase {
 		$actual = Utils\post_args_allow_list( $post_args );
 		$this->assertSame( $expected, $actual );
 	}
+
+	/**
+	 * Test get_receive_context fills every key with a default.
+	 *
+	 * @since x.x.x
+	 * @group Utils
+	 */
+	public function test_get_receive_context_defaults() {
+		$expected = [
+			'source'           => '',
+			'connection_type'  => '',
+			'is_update'        => false,
+			'post_id'          => 0,
+			'original_post_id' => 0,
+			'connection'       => null,
+		];
+
+		$this->assertSame( $expected, Utils\get_receive_context( [] ) );
+	}
+
+	/**
+	 * Test get_receive_context keeps the values passed in.
+	 *
+	 * @since x.x.x
+	 * @group Utils
+	 */
+	public function test_get_receive_context_overrides() {
+		$connection = new \TestInternalConnection();
+
+		$actual = Utils\get_receive_context(
+			[
+				'source'           => 'pull',
+				'connection_type'  => 'internal',
+				'is_update'        => true,
+				'post_id'          => 12,
+				'original_post_id' => 34,
+				'connection'       => $connection,
+			]
+		);
+
+		$this->assertSame( 'pull', $actual['source'] );
+		$this->assertSame( 'internal', $actual['connection_type'] );
+		$this->assertTrue( $actual['is_update'] );
+		$this->assertSame( 12, $actual['post_id'] );
+		$this->assertSame( 34, $actual['original_post_id'] );
+		$this->assertSame( $connection, $actual['connection'] );
+	}
 }

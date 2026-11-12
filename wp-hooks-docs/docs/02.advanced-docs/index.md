@@ -20,6 +20,7 @@ Welcome to the Distributor Advanced Documentation. This section provides in-dept
 - **[Post Meta Documentation](./04.post-meta.md)** - Technical reference for post meta fields used by Distributor to track content relationships
 - **[Code Snippets](./05.snippets.md)** - Ready-to-use code examples for common Distributor customizations and extensions
 - **[Stored ID Handling](./07.stored-id-handling.md)** - Advanced guide for handling ID references in distributed content (ACF fields, Elementor, Gravity Forms, etc.)
+- **[Receiving Distributed Posts](./09.receiving-posts.md)** - The `dt_receive_post_*` hooks, which run on the receiving site for every push, pull and update route
 
 ## Automation Features
 

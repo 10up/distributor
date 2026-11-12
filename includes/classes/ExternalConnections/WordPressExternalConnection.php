@@ -421,6 +421,8 @@ class WordPressExternalConnection extends ExternalConnection {
 			/**
 			 * Filter the arguments passed into wp_insert_post during a pull.
 			 *
+			 * Runs only for pulls. Use `dt_receive_post_args` to filter posts received by any route.
+			 *
 			 * @since 1.0
 			 *
 			 * @param  array              $post_array      The post data to be inserted.
@@ -430,12 +432,28 @@ class WordPressExternalConnection extends ExternalConnection {
 			 *
 			 * @return array The post data to be inserted.
 			 */
-			$new_post_args = Utils\post_args_allow_list( apply_filters( 'dt_pull_post_args', $post_array, $item_array['remote_post_id'], $post, $this ) );
+			$new_post_args = apply_filters( 'dt_pull_post_args', $post_array, $item_array['remote_post_id'], $post, $this );
+
+			$receive_context = Utils\get_receive_context(
+				array(
+					'source'           => 'pull',
+					'connection_type'  => 'external',
+					'is_update'        => $update,
+					'post_id'          => $update ? (int) $item_array['post_id'] : 0,
+					'original_post_id' => (int) $item_array['remote_post_id'],
+					'connection'       => $this,
+				)
+			);
+
+			// Filter documented in includes/classes/InternalConnections/NetworkSiteConnection.php.
+			$new_post_args = Utils\post_args_allow_list( apply_filters( 'dt_receive_post_args', $new_post_args, $receive_context ) );
 			if ( $update ) {
 				$new_post = wp_update_post( wp_slash( $new_post_args ) );
 			} else {
 				$new_post = wp_insert_post( wp_slash( $new_post_args ) );
 			}
+
+			$receive_context['post_id'] = is_wp_error( $new_post ) ? 0 : (int) $new_post;
 
 			update_post_meta( $new_post, 'dt_original_post_id', (int) $item_array['remote_post_id'] );
 			update_post_meta( $new_post, 'dt_original_source_id', (int) $this->id );
@@ -457,14 +475,24 @@ class WordPressExternalConnection extends ExternalConnection {
 			if ( isset( $post_array['meta'] ) && is_array( $post_array['meta'] ) ) {
 				// Filter documented in includes/classes/InternalConnections/NetworkSiteConnection.php.
 				if ( apply_filters( 'dt_pull_post_meta', true, $new_post, $post_array['meta'], $item_array['remote_post_id'], $post_array, $this ) ) {
-					\Distributor\Utils\set_meta( $new_post, $post_array['meta'] );
+					// Filter documented in includes/classes/InternalConnections/NetworkSiteConnection.php.
+					$post_meta = apply_filters( 'dt_receive_post_meta', $post_array['meta'], $receive_context );
+
+					if ( is_array( $post_meta ) ) {
+						\Distributor\Utils\set_meta( $new_post, $post_meta );
+					}
 				}
 			}
 
 			if ( ! empty( $post_array['terms'] ) ) {
 				// Filter documented in includes/classes/InternalConnections/NetworkSiteConnection.php.
 				if ( apply_filters( 'dt_pull_post_terms', true, $new_post, $post_array['terms'], $item_array['remote_post_id'], $post_array, $this ) ) {
-					\Distributor\Utils\set_taxonomy_terms( $new_post, $post_array['terms'] );
+					// Filter documented in includes/classes/InternalConnections/NetworkSiteConnection.php.
+					$post_terms = apply_filters( 'dt_receive_post_terms', $post_array['terms'], $receive_context );
+
+					if ( is_array( $post_terms ) ) {
+						\Distributor\Utils\set_taxonomy_terms( $new_post, $post_terms );
+					}
 				}
 			}
 
@@ -472,8 +500,18 @@ class WordPressExternalConnection extends ExternalConnection {
 
 				// Filter documented in includes/classes/InternalConnections/NetworkSiteConnection.php.
 				if ( apply_filters( 'dt_pull_post_media', true, $new_post, $post_array['media'], $item_array['remote_post_id'], $post_array, $this ) ) {
-					\Distributor\Utils\set_media( $new_post, $post_array['media'] );
+					// Filter documented in includes/classes/InternalConnections/NetworkSiteConnection.php.
+					$post_media = apply_filters( 'dt_receive_post_media', $post_array['media'], $receive_context );
+
+					if ( is_array( $post_media ) ) {
+						\Distributor\Utils\set_media( $new_post, $post_media );
+					}
 				}
+			}
+
+			if ( ! empty( $new_post ) && ! is_wp_error( $new_post ) ) {
+				// Action documented in includes/classes/InternalConnections/NetworkSiteConnection.php.
+				do_action( 'dt_receive_post', $new_post, $receive_context );
 			}
 
 			// Action documented in includes/classes/InternalConnections/NetworkSiteConnection.php.

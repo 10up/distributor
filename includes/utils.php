@@ -1820,6 +1820,40 @@ function post_args_allow_list( $post_args ) {
 }
 
 /**
+ * Build the context passed to the `dt_receive_post_*` hooks.
+ *
+ * The receive hooks run on the site receiving a distributed post, whichever
+ * route the post took to get there.
+ *
+ * @since x.x.x
+ *
+ * @param array $context {
+ *     Context of the post being received.
+ *
+ *     @type string          $source           How the post arrived: `push`, `pull`, `subscription` or `relink`.
+ *     @type string          $connection_type  Connection type: `internal` (network site) or `external`.
+ *     @type bool            $is_update        True when updating an existing post, false when creating one.
+ *     @type int             $post_id          The receiving site's post ID. `0` before a new post is inserted.
+ *     @type int             $original_post_id The post ID on the origin site.
+ *     @type Connection|null $connection       The connection object, when the receiving site has one.
+ * }
+ * @return array Context with all keys set.
+ */
+function get_receive_context( $context ) {
+	return wp_parse_args(
+		$context,
+		array(
+			'source'           => '',
+			'connection_type'  => '',
+			'is_update'        => false,
+			'post_id'          => 0,
+			'original_post_id' => 0,
+			'connection'       => null,
+		)
+	);
+}
+
+/**
  * Make a remote HTTP request.
  *
  * Wrapper function for wp_remote_request() and vip_safe_wp_remote_request(). The order

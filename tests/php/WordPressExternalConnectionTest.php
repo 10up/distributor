@@ -470,4 +470,133 @@ class WordPressExternalConnectionTest extends TestCase {
 
 		$this->assertTrue( empty( $this->connection->check_connections()['errors']['no_distributor'] ) );
 	}
+
+	/**
+	 * Mock the functions pull() calls for a single remote post.
+	 *
+	 * The remote post is post 123, from remote_get_setup().
+	 */
+	protected function setup_pull_mocks() {
+		$this->setup_post_meta_mock( array() );
+
+		\WP_Mock::userFunction( 'untrailingslashit' );
+		\WP_Mock::userFunction( 'sanitize_text_field' );
+
+		remote_get_setup();
+
+		\WP_Mock::passthruFunction( 'wp_slash' );
+		\WP_Mock::passthruFunction( 'update_post_meta' );
+		\WP_Mock::userFunction( 'get_current_user_id' );
+		\WP_Mock::userFunction( 'delete_post_meta' );
+
+		\WP_Mock::userFunction(
+			'wp_remote_retrieve_headers', [
+				'return' => [
+					'X-Distributor' => 'yes',
+				],
+			]
+		);
+	}
+
+	/**
+	 * The context the receive hooks get for a pull from this connection.
+	 *
+	 * @param bool $is_update True when the pull updates an existing post.
+	 * @param int  $post_id   The receiving site's post ID.
+	 * @return array
+	 */
+	protected function get_pull_receive_context( $is_update, $post_id ) {
+		return [
+			'source'           => 'pull',
+			'connection_type'  => 'external',
+			'is_update'        => $is_update,
+			'post_id'          => $post_id,
+			'original_post_id' => 123,
+			'connection'       => $this->connection,
+		];
+	}
+
+	/**
+	 * A new pull runs dt_receive_post_meta and dt_receive_post with the pull context.
+	 *
+	 * @since x.x.x
+	 * @group WordPressExternalConnection
+	 * @runInSeparateProcess
+	 */
+	public function test_pull_applies_receive_hooks() {
+		$this->setup_pull_mocks();
+
+		\WP_Mock::userFunction(
+			'wp_insert_post', [
+				'return' => 2,
+			]
+		);
+
+		$context = $this->get_pull_receive_context( false, 2 );
+
+		\WP_Mock::onFilter( 'dt_receive_post_meta' )
+			->with( [], $context )
+			->reply( [ 'local_key' => [ 'local value' ] ] );
+
+		\WP_Mock::userFunction(
+			'Distributor\Utils\set_meta',
+			[
+				'times' => 1,
+				'args'  => [ 2, [ 'local_key' => [ 'local value' ] ] ],
+			]
+		);
+
+		\WP_Mock::expectAction( 'dt_receive_post', 2, $context );
+
+		$pull_actual = $this->connection->pull(
+			[
+				[
+					'remote_post_id' => 123,
+					'post_type'      => 'post',
+				],
+			]
+		);
+
+		$this->assertSame( [ 2 ], $pull_actual );
+		$this->assertConditionsMet();
+	}
+
+	/**
+	 * Pulling into an existing post marks the context as an update.
+	 *
+	 * @since x.x.x
+	 * @group WordPressExternalConnection
+	 * @runInSeparateProcess
+	 */
+	public function test_pull_update_receive_context() {
+		$this->setup_pull_mocks();
+
+		\WP_Mock::userFunction(
+			'wp_update_post', [
+				'return' => 7,
+			]
+		);
+
+		$context = $this->get_pull_receive_context( true, 7 );
+
+		\WP_Mock::onFilter( 'dt_receive_post_meta' )
+			->with( [], $context )
+			->reply( false );
+
+		\WP_Mock::userFunction( 'Distributor\Utils\set_meta', [ 'times' => 0 ] );
+
+		\WP_Mock::expectAction( 'dt_receive_post', 7, $context );
+
+		$this->connection->pull(
+			[
+				[
+					'remote_post_id' => 123,
+					'post_id'        => 7,
+					'post_type'      => 'post',
+				],
+			]
+		);
+
+		$this->assertConditionsMet();
+	}
 }
