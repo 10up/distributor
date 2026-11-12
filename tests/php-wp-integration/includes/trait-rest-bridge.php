@@ -34,11 +34,19 @@ use WpOrg\Requests\Utility\CaseInsensitiveDictionary;
  */
 trait REST_Bridge {
 	/**
+	 * Requests made via the bridge, each with the method and URL.
+	 *
+	 * @var array[]
+	 */
+	protected $bridged_requests = array();
+
+	/**
 	 * Start bridging HTTP requests to network sites.
 	 *
 	 * The filter is removed automatically when the test's hooks are reset.
 	 */
 	protected function start_rest_bridge() {
+		$this->bridged_requests = array();
 		add_filter( 'pre_http_request', array( $this, 'bridge_http_request' ), 10, 3 );
 	}
 
@@ -93,6 +101,11 @@ trait REST_Bridge {
 		if ( false !== $preempt ) {
 			return $preempt;
 		}
+
+		$this->bridged_requests[] = array(
+			'method' => strtoupper( $args['method'] ?? 'GET' ),
+			'url'    => $url,
+		);
 
 		$target = $this->parse_bridged_url( $url );
 
