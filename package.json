@@ -62,6 +62,7 @@
 		"env:destroy": "wp-env destroy",
 		"to-multisite": "wp-env run tests-cli wp core multisite-convert --title='Distributor Multisite'",
 		"copy-htaccess": "wp-env run tests-cli cp wp-content/plugins/distributor/tests/cypress/.htaccess .htaccess",
+		"test:php": "wp-env run tests-cli --env-cwd=wp-content/plugins/distributor env WORDPRESS_TABLE_PREFIX=wptests_ vendor/bin/phpunit",
 		"postenv:start": "./tests/bin/initialize.sh"
 	},
 	"files": [
