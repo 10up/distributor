@@ -2517,4 +2517,1562 @@ class DistributorPostTest extends TestCase {
 
 		$this->assertSame( $author_link_expected, $author_link_actual );
 	}
+
+	/**
+	 * Test the get_media() method with WebP images in blocks.
+	 *
+	 * @covers ::get_media
+	 * @covers ::parse_media_blocks
+	 * @covers ::parse_blocks_for_attachment_id
+	 * @runInSeparateProcess
+	 */
+	public function test_get_media_with_webp_blocks() {
+		$post_content = '<!-- wp:image {"id":31,"sizeSlug":"large","linkDestination":"none"} -->
+		<figure class="wp-block-image size-large"><img src="//xu-distributor.local/wp-content/uploads/2022/12/webp-image.webp" alt="" class="wp-image-31"/></figure>
+		<!-- /wp:image -->
+		<!-- wp:image {"id":32,"sizeSlug":"medium","linkDestination":"none"} -->
+		<figure class="wp-block-image size-medium"><img src="//xu-distributor.local/wp-content/uploads/2022/12/another-webp-image.webp" alt="" class="wp-image-32"/></figure>
+		<!-- /wp:image -->
+		';
+
+		$this->setup_post_meta_mock( array() );
+
+		\WP_Mock::userFunction(
+			'get_post',
+			array(
+				'return_in_order' => array(
+					(object) array(
+						'ID'           => 1,
+						'post_title'   => 'Block post with WebP media',
+						'post_content' => $post_content,
+						'post_excerpt' => '',
+						'guid'         => 'http://example.org/?p=1',
+						'post_name'    => 'test-post',
+					),
+					(object) array(
+						'ID'             => 31,
+						'post_title'     => 'webp-image',
+						'post_content'   => '',
+						'post_excerpt'   => '',
+						'guid'           => 'http://example.org/?p=31',
+						'post_name'      => 'webp-image',
+						'post_parent'    => 0,
+						'post_mime_type' => 'image/webp',
+					),
+					(object) array(
+						'ID'             => 32,
+						'post_title'     => 'another-webp-image',
+						'post_content'   => '',
+						'post_excerpt'   => '',
+						'guid'           => 'http://example.org/?p=32',
+						'post_name'      => 'another-webp-image',
+						'post_parent'    => 0,
+						'post_mime_type' => 'image/webp',
+					),
+				),
+			)
+		);
+
+		\WP_Mock::userFunction(
+			'wp_attachment_is_image',
+			array(
+				'return_in_order' => array(
+					true,
+					true,
+				),
+			)
+		);
+
+		\WP_Mock::userFunction(
+			'wp_get_attachment_metadata',
+			array(
+				'return_in_order' => array(
+					array(
+						'file'     => '2022/12/webp-image.webp',
+						'width'    => 1920,
+						'height'   => 1080,
+						'filesize' => 245760,
+						'sizes'    => array(
+							'thumbnail'    => array(
+								'file'      => 'webp-image-150x150.webp',
+								'width'     => 150,
+								'height'    => 150,
+								'mime-type' => 'image/webp',
+							),
+							'medium'       => array(
+								'file'      => 'webp-image-300x169.webp',
+								'width'     => 300,
+								'height'    => 169,
+								'mime-type' => 'image/webp',
+							),
+							'medium_large' => array(
+								'file'      => 'webp-image-768x432.webp',
+								'width'     => 768,
+								'height'    => 432,
+								'mime-type' => 'image/webp',
+							),
+							'large'        => array(
+								'file'      => 'webp-image-1024x576.webp',
+								'width'     => 1024,
+								'height'    => 576,
+								'mime-type' => 'image/webp',
+							),
+						),
+					),
+					array(
+						'file'     => '2022/12/another-webp-image.webp',
+						'width'    => 800,
+						'height'   => 600,
+						'filesize' => 153600,
+						'sizes'    => array(
+							'thumbnail'    => array(
+								'file'      => 'another-webp-image-150x150.webp',
+								'width'     => 150,
+								'height'    => 150,
+								'mime-type' => 'image/webp',
+							),
+							'medium'       => array(
+								'file'      => 'another-webp-image-300x225.webp',
+								'width'     => 300,
+								'height'    => 225,
+								'mime-type' => 'image/webp',
+							),
+							'medium_large' => array(
+								'file'      => 'another-webp-image-768x576.webp',
+								'width'     => 768,
+								'height'    => 576,
+								'mime-type' => 'image/webp',
+							),
+							'large'        => array(
+								'file'      => 'another-webp-image-800x600.webp',
+								'width'     => 800,
+								'height'    => 600,
+								'mime-type' => 'image/webp',
+							),
+						),
+					),
+				),
+			)
+		);
+
+		\WP_Mock::userFunction(
+			'wp_get_attachment_url',
+			array(
+				'return_in_order' => array(
+					'http://xu-distributor.local/wp-content/uploads/2022/12/webp-image.webp',
+					'http://xu-distributor.local/wp-content/uploads/2022/12/another-webp-image.webp',
+				),
+			)
+		);
+
+		\WP_Mock::userFunction(
+			'get_attached_file',
+			array(
+				'return_in_order' => array(
+					'/var/www/html/wp-content/uploads/2022/12/webp-image.webp',
+					'/var/www/html/wp-content/uploads/2022/12/another-webp-image.webp',
+				),
+			)
+		);
+
+		\WP_Mock::userFunction(
+			'has_blocks',
+			array(
+				'return' => true,
+			)
+		);
+
+		\WP_Mock::userFunction(
+			'get_permalink',
+			array(
+				'return_in_order' => array(
+					'http://xu-distributor.local/?p=2',
+					'http://xu-distributor.local/?p=31',
+					'http://xu-distributor.local/?p=32',
+				),
+			),
+		);
+
+		\WP_Mock::userFunction(
+			'get_post_thumbnail_id',
+			array(
+				'return' => false,
+			)
+		);
+
+		\WP_Mock::userFunction(
+			'wp_cache_get',
+			array(
+				'return' => false
+			)
+		);
+
+		\WP_Mock::userFunction(
+			'wp_cache_set',
+			array(
+				'return' => false
+			)
+		);
+
+		$blocks = array(
+			array(
+				'blockName'    => 'core/image',
+				'attrs'        => array(
+					'id'              => 31,
+					'sizeSlug'        => 'large',
+					'linkDestination' => 'none',
+				),
+				'innerBlocks'  => array(),
+				'innerHTML'    => '<figure class="wp-block-image size-large"><img src="//xu-distributor.local/wp-content/uploads/2022/12/webp-image.webp" alt="" class="wp-image-31"/></figure>',
+				'innerContent' => array(
+					'<figure class="wp-block-image size-large"><img src="//xu-distributor.local/wp-content/uploads/2022/12/webp-image.webp" alt="" class="wp-image-31"/></figure>',
+				),
+			),
+			array(
+				'blockName'    => 'core/image',
+				'attrs'        => array(
+					'id'              => 32,
+					'sizeSlug'        => 'medium',
+					'linkDestination' => 'none',
+				),
+				'innerBlocks'  => array(),
+				'innerHTML'    => '<figure class="wp-block-image size-medium"><img src="//xu-distributor.local/wp-content/uploads/2022/12/another-webp-image.webp" alt="" class="wp-image-32"/></figure>',
+				'innerContent' => array(
+					'<figure class="wp-block-image size-medium"><img src="//xu-distributor.local/wp-content/uploads/2022/12/another-webp-image.webp" alt="" class="wp-image-32"/></figure>',
+				),
+			),
+		);
+
+		\WP_Mock::userFunction(
+			'parse_blocks',
+			array(
+				'return' => $blocks,
+			)
+		);
+
+		$dt_post = new DistributorPost( 1 );
+		$post_media_actual = $dt_post->get_media();
+
+		$post_media_expected = array(
+			array(
+				'id'            => 31,
+				'title'         => 'webp-image',
+				'featured'      => false,
+				'description'   => array(
+					'raw'      => '',
+					'rendered' => '',
+				),
+				'caption' => array(
+					'raw' => '',
+				),
+				'alt_text'      => '',
+				'media_type'    => 'image',
+				'mime_type'     => 'image/webp',
+				'post'          => 0,
+				'source_url'    => 'http://xu-distributor.local/wp-content/uploads/2022/12/webp-image.webp',
+				'source_file'   => '/var/www/html/wp-content/uploads/2022/12/webp-image.webp',
+				'meta'          => array(),
+				'media_details' => array(
+					'width'    => 1920,
+					'height'   => 1080,
+					'file'     => '2022/12/webp-image.webp',
+					'filesize' => 245760,
+					'sizes'    => array(
+						'thumbnail' => array(
+							'file'      => 'webp-image-150x150.webp',
+							'width'     => 150,
+							'height'    => 150,
+							'mime-type' => 'image/webp',
+						),
+						'medium' => array(
+							'file'      => 'webp-image-300x169.webp',
+							'width'     => 300,
+							'height'    => 169,
+							'mime-type' => 'image/webp',
+						),
+						'medium_large' => array(
+							'file'      => 'webp-image-768x432.webp',
+							'width'     => 768,
+							'height'    => 432,
+							'mime-type' => 'image/webp',
+						),
+						'large' => array(
+							'file'      => 'webp-image-1024x576.webp',
+							'width'     => 1024,
+							'height'    => 576,
+							'mime-type' => 'image/webp',
+						),
+					),
+				),
+			),
+			array(
+				'id'            => 32,
+				'title'         => 'another-webp-image',
+				'featured'      => false,
+				'description'   => array(
+					'raw'      => '',
+					'rendered' => '',
+				),
+				'caption' => array(
+					'raw' => '',
+				),
+				'alt_text'      => '',
+				'media_type'    => 'image',
+				'mime_type'     => 'image/webp',
+				'post'          => 0,
+				'source_url'    => 'http://xu-distributor.local/wp-content/uploads/2022/12/another-webp-image.webp',
+				'source_file'   => '/var/www/html/wp-content/uploads/2022/12/another-webp-image.webp',
+				'meta'          => array(),
+				'media_details' => array(
+					'width'    => 800,
+					'height'   => 600,
+					'file'     => '2022/12/another-webp-image.webp',
+					'filesize' => 153600,
+					'sizes'    => array(
+						'thumbnail' => array(
+							'file'      => 'another-webp-image-150x150.webp',
+							'width'     => 150,
+							'height'    => 150,
+							'mime-type' => 'image/webp',
+						),
+						'medium' => array(
+							'file'      => 'another-webp-image-300x225.webp',
+							'width'     => 300,
+							'height'    => 225,
+							'mime-type' => 'image/webp',
+						),
+						'medium_large' => array(
+							'file'      => 'another-webp-image-768x576.webp',
+							'width'     => 768,
+							'height'    => 576,
+							'mime-type' => 'image/webp',
+						),
+						'large' => array(
+							'file'      => 'another-webp-image-800x600.webp',
+							'width'     => 800,
+							'height'    => 600,
+							'mime-type' => 'image/webp',
+						),
+					),
+				),
+			),
+		);
+
+		$this->assertEquals( $post_media_expected, $post_media_actual );
+	}
+
+	/**
+	 * Test the get_media() method with WebP images as attachments.
+	 *
+	 * This tests the legacy fork of the method which is still used by posts
+	 * authored in the classic editor.
+	 *
+	 * @covers ::get_media()
+	 * @runInSeparateProcess
+	 */
+	public function test_get_media_with_webp_attachments() {
+		$this->setup_post_meta_mock( array() );
+
+		\WP_Mock::userFunction(
+			'get_post',
+			array(
+				'return_in_order' => array(
+					(object) array(
+						'ID'           => 1,
+						'post_title'   => 'Classic editor post with WebP media',
+						'post_content' => 'No content, just child posts.',
+						'post_excerpt' => '',
+						'guid'         => 'http://example.org/?p=1',
+						'post_name'    => 'test-post',
+					),
+				),
+			)
+		);
+
+		\WP_Mock::userFunction(
+			'get_permalink',
+			array(
+				'return_in_order' => array(
+					'http://xu-distributor.local/?p=2',
+					'http://xu-distributor.local/?p=31',
+					'http://xu-distributor.local/?p=32',
+				),
+			),
+		);
+
+		\WP_Mock::userFunction(
+			'has_blocks',
+			array(
+				'return' => false,
+			)
+		);
+
+		\WP_Mock::userFunction(
+			'get_attached_media',
+			array(
+				'return' => array(
+					(object) array(
+						'ID'             => 31,
+						'post_title'     => 'webp-image',
+						'post_content'   => '',
+						'post_excerpt'   => '',
+						'guid'           => 'http://example.org/?p=31',
+						'post_name'      => 'webp-image',
+						'post_parent'    => 1,
+						'post_mime_type' => 'image/webp',
+					),
+					(object) array(
+						'ID'             => 32,
+						'post_title'     => 'another-webp-image',
+						'post_content'   => '',
+						'post_excerpt'   => '',
+						'guid'           => 'http://example.org/?p=32',
+						'post_name'      => 'another-webp-image',
+						'post_parent'    => 1,
+						'post_mime_type' => 'image/webp',
+					),
+				),
+			)
+		);
+
+		\WP_Mock::userFunction(
+			'get_post_thumbnail_id',
+			array(
+				'return' => false,
+			)
+		);
+
+		\WP_Mock::userFunction(
+			'wp_attachment_is_image',
+			array(
+				'return_in_order' => array(
+					true,
+					true,
+				),
+			)
+		);
+
+		\WP_Mock::userFunction(
+			'wp_get_attachment_metadata',
+			array(
+				'return_in_order' => array(
+					array(
+						'file'     => '2022/12/webp-image.webp',
+						'width'    => 1920,
+						'height'   => 1080,
+						'filesize' => 245760,
+						'sizes'    => array(
+							'thumbnail'    => array(
+								'file'      => 'webp-image-150x150.webp',
+								'width'     => 150,
+								'height'    => 150,
+								'mime-type' => 'image/webp',
+							),
+							'medium'       => array(
+								'file'      => 'webp-image-300x169.webp',
+								'width'     => 300,
+								'height'    => 169,
+								'mime-type' => 'image/webp',
+							),
+							'medium_large' => array(
+								'file'      => 'webp-image-768x432.webp',
+								'width'     => 768,
+								'height'    => 432,
+								'mime-type' => 'image/webp',
+							),
+							'large'        => array(
+								'file'      => 'webp-image-1024x576.webp',
+								'width'     => 1024,
+								'height'    => 576,
+								'mime-type' => 'image/webp',
+							),
+						),
+					),
+					array(
+						'file'     => '2022/12/another-webp-image.webp',
+						'width'    => 800,
+						'height'   => 600,
+						'filesize' => 153600,
+						'sizes'    => array(
+							'thumbnail'    => array(
+								'file'      => 'another-webp-image-150x150.webp',
+								'width'     => 150,
+								'height'    => 150,
+								'mime-type' => 'image/webp',
+							),
+							'medium'       => array(
+								'file'      => 'another-webp-image-300x225.webp',
+								'width'     => 300,
+								'height'    => 225,
+								'mime-type' => 'image/webp',
+							),
+							'medium_large' => array(
+								'file'      => 'another-webp-image-768x576.webp',
+								'width'     => 768,
+								'height'    => 576,
+								'mime-type' => 'image/webp',
+							),
+							'large'        => array(
+								'file'      => 'another-webp-image-800x600.webp',
+								'width'     => 800,
+								'height'    => 600,
+								'mime-type' => 'image/webp',
+							),
+						),
+					),
+				),
+			)
+		);
+
+		\WP_Mock::userFunction(
+			'wp_get_attachment_url',
+			array(
+				'return_in_order' => array(
+					'http://xu-distributor.local/wp-content/uploads/2022/12/webp-image.webp',
+					'http://xu-distributor.local/wp-content/uploads/2022/12/another-webp-image.webp',
+				),
+			)
+		);
+
+		\WP_Mock::userFunction(
+			'get_attached_file',
+			array(
+				'return_in_order' => array(
+					'/var/www/html/wp-content/uploads/2022/12/webp-image.webp',
+					'/var/www/html/wp-content/uploads/2022/12/another-webp-image.webp',
+				),
+			)
+		);
+
+		$dt_post = new DistributorPost( 1 );
+		$post_media_actual = $dt_post->get_media();
+
+		$post_media_expected = array(
+			array(
+				'id'            => 31,
+				'title'         => 'webp-image',
+				'featured'      => false,
+				'description'   => array(
+					'raw'      => '',
+					'rendered' => '',
+				),
+				'caption' => array(
+					'raw' => '',
+				),
+				'alt_text'      => '',
+				'media_type'    => 'image',
+				'mime_type'     => 'image/webp',
+				'post'          => 1,
+				'source_url'    => 'http://xu-distributor.local/wp-content/uploads/2022/12/webp-image.webp',
+				'source_file'   => '/var/www/html/wp-content/uploads/2022/12/webp-image.webp',
+				'meta'          => array(),
+				'media_details' => array(
+					'width'    => 1920,
+					'height'   => 1080,
+					'file'     => '2022/12/webp-image.webp',
+					'filesize' => 245760,
+					'sizes'    => array(
+						'thumbnail' => array(
+							'file'      => 'webp-image-150x150.webp',
+							'width'     => 150,
+							'height'    => 150,
+							'mime-type' => 'image/webp',
+						),
+						'medium' => array(
+							'file'      => 'webp-image-300x169.webp',
+							'width'     => 300,
+							'height'    => 169,
+							'mime-type' => 'image/webp',
+						),
+						'medium_large' => array(
+							'file'      => 'webp-image-768x432.webp',
+							'width'     => 768,
+							'height'    => 432,
+							'mime-type' => 'image/webp',
+						),
+						'large' => array(
+							'file'      => 'webp-image-1024x576.webp',
+							'width'     => 1024,
+							'height'    => 576,
+							'mime-type' => 'image/webp',
+						),
+					),
+				),
+			),
+			array(
+				'id'            => 32,
+				'title'         => 'another-webp-image',
+				'featured'      => false,
+				'description'   => array(
+					'raw'      => '',
+					'rendered' => '',
+				),
+				'caption' => array(
+					'raw' => '',
+				),
+				'alt_text'      => '',
+				'media_type'    => 'image',
+				'mime_type'     => 'image/webp',
+				'post'          => 1,
+				'source_url'    => 'http://xu-distributor.local/wp-content/uploads/2022/12/another-webp-image.webp',
+				'source_file'   => '/var/www/html/wp-content/uploads/2022/12/another-webp-image.webp',
+				'meta'          => array(),
+				'media_details' => array(
+					'width'    => 800,
+					'height'   => 600,
+					'file'     => '2022/12/another-webp-image.webp',
+					'filesize' => 153600,
+					'sizes'    => array(
+						'thumbnail' => array(
+							'file'      => 'another-webp-image-150x150.webp',
+							'width'     => 150,
+							'height'    => 150,
+							'mime-type' => 'image/webp',
+						),
+						'medium' => array(
+							'file'      => 'another-webp-image-300x225.webp',
+							'width'     => 300,
+							'height'    => 225,
+							'mime-type' => 'image/webp',
+						),
+						'medium_large' => array(
+							'file'      => 'another-webp-image-768x576.webp',
+							'width'     => 768,
+							'height'    => 576,
+							'mime-type' => 'image/webp',
+						),
+						'large' => array(
+							'file'      => 'another-webp-image-800x600.webp',
+							'width'     => 800,
+							'height'    => 600,
+							'mime-type' => 'image/webp',
+						),
+					),
+				),
+			),
+		);
+
+		$this->assertEquals( $post_media_expected, $post_media_actual );
+	}
+
+	/**
+	 * Test the get_post_thumbnail_url() method with WebP featured image.
+	 *
+	 * @covers ::get_post_thumbnail_url
+	 * @runInSeparateProcess
+	 */
+	public function test_get_post_thumbnail_url_with_webp() {
+		$this->setup_post_mock();
+		$this->setup_post_meta_mock( array() );
+
+		\WP_Mock::userFunction(
+			'get_permalink',
+			array(
+				'return' => 'http://example.org/?p=1',
+			)
+		);
+
+		\WP_Mock::userFunction(
+			'get_post_thumbnail_id',
+			array(
+				'return' => 31,
+			)
+		);
+
+		\WP_Mock::userFunction(
+			'get_the_post_thumbnail_url',
+			array(
+				'return' => 'http://example.org/wp-content/uploads/2018/01/featured-webp-image.webp',
+			)
+		);
+
+		$dt_post = new DistributorPost( 1 );
+
+		$this->assertSame( 'http://example.org/wp-content/uploads/2018/01/featured-webp-image.webp', $dt_post->get_post_thumbnail_url() );
+	}
+
+	/**
+	 * Test the get_the_post_thumbnail() method with WebP featured image.
+	 *
+	 * @covers ::get_the_post_thumbnail
+	 * @runInSeparateProcess
+	 */
+	public function test_get_the_post_thumbnail_with_webp() {
+		$this->setup_post_mock();
+		$this->setup_post_meta_mock( array() );
+		$thumbnail = '<img width="1920" height="1080" src="//ms-distributor.local/wp-content/uploads/sites/3/2022/12/webp-featured-image.webp" class="attachment-post-thumbnail size-post-thumbnail wp-post-image" alt="" />';
+
+		\WP_Mock::userFunction(
+			'get_permalink',
+			array(
+				'return' => 'http://example.org/?p=1',
+			)
+		);
+
+		\WP_Mock::userFunction(
+			'get_the_post_thumbnail',
+			array(
+				'return' => $thumbnail,
+			)
+		);
+
+		$dt_post = new DistributorPost( 1 );
+
+		$this->assertSame( $thumbnail, $dt_post->get_the_post_thumbnail() );
+	}
+
+	/**
+	 * Test the get_post_thumbnail_id() method with WebP featured image.
+	 *
+	 * @covers ::get_post_thumbnail_id
+	 * @runInSeparateProcess
+	 */
+	public function test_get_post_thumbnail_id_with_webp() {
+		$this->setup_post_mock();
+		$this->setup_post_meta_mock( array() );
+
+		\WP_Mock::userFunction(
+			'get_permalink',
+			array(
+				'return' => 'http://example.org/?p=1',
+			)
+		);
+
+		\WP_Mock::userFunction(
+			'get_post_thumbnail_id',
+			array(
+				'return' => 31,
+			)
+		);
+
+		$dt_post = new DistributorPost( 1 );
+
+		$this->assertSame( 31, $dt_post->get_post_thumbnail_id() );
+	}
+
+	/**
+	 * Test WebP image processing in the get_media() method with featured image.
+	 *
+	 * @covers ::get_media
+	 * @runInSeparateProcess
+	 */
+	public function test_get_media_with_webp_featured_image() {
+		$this->setup_post_meta_mock( array() );
+
+		\WP_Mock::userFunction(
+			'get_post',
+			array(
+				'return_in_order' => array(
+					(object) array(
+						'ID'           => 1,
+						'post_title'   => 'Post with WebP featured image',
+						'post_content' => 'No content, just featured image.',
+						'post_excerpt' => '',
+						'guid'         => 'http://example.org/?p=1',
+						'post_name'    => 'test-post',
+					),
+					(object) array(
+						'ID'             => 31,
+						'post_title'     => 'webp-featured-image',
+						'post_content'   => '',
+						'post_excerpt'   => '',
+						'guid'           => 'http://example.org/?p=31',
+						'post_name'      => 'webp-featured-image',
+						'post_parent'    => 0,
+						'post_mime_type' => 'image/webp',
+					),
+				),
+			)
+		);
+
+		\WP_Mock::userFunction(
+			'get_permalink',
+			array(
+				'return_in_order' => array(
+					'http://xu-distributor.local/?p=2',
+					'http://xu-distributor.local/?p=31',
+				),
+			),
+		);
+
+		\WP_Mock::userFunction(
+			'has_blocks',
+			array(
+				'return' => false,
+			)
+		);
+
+		\WP_Mock::userFunction(
+			'get_attached_media',
+			array(
+				'return' => array(),
+			)
+		);
+
+		\WP_Mock::userFunction(
+			'get_post_thumbnail_id',
+			array(
+				'return' => 31,
+			)
+		);
+
+		\WP_Mock::userFunction(
+			'wp_attachment_is_image',
+			array(
+				'return_in_order' => array(
+					true,
+				),
+			)
+		);
+
+		\WP_Mock::userFunction(
+			'wp_get_attachment_metadata',
+			array(
+				'return_in_order' => array(
+					array(
+						'file'     => '2022/12/webp-featured-image.webp',
+						'width'    => 1920,
+						'height'   => 1080,
+						'filesize' => 245760,
+						'sizes'    => array(
+							'thumbnail'    => array(
+								'file'      => 'webp-featured-image-150x150.webp',
+								'width'     => 150,
+								'height'    => 150,
+								'mime-type' => 'image/webp',
+							),
+							'medium'       => array(
+								'file'      => 'webp-featured-image-300x169.webp',
+								'width'     => 300,
+								'height'    => 169,
+								'mime-type' => 'image/webp',
+							),
+							'medium_large' => array(
+								'file'      => 'webp-featured-image-768x432.webp',
+								'width'     => 768,
+								'height'    => 432,
+								'mime-type' => 'image/webp',
+							),
+							'large'        => array(
+								'file'      => 'webp-featured-image-1024x576.webp',
+								'width'     => 1024,
+								'height'    => 576,
+								'mime-type' => 'image/webp',
+							),
+						),
+					),
+				),
+			)
+		);
+
+		\WP_Mock::userFunction(
+			'wp_get_attachment_url',
+			array(
+				'return_in_order' => array(
+					'http://xu-distributor.local/wp-content/uploads/2022/12/webp-featured-image.webp',
+				),
+			)
+		);
+
+		\WP_Mock::userFunction(
+			'get_attached_file',
+			array(
+				'return_in_order' => array(
+					'/var/www/html/wp-content/uploads/2022/12/webp-featured-image.webp',
+				),
+			)
+		);
+
+		$dt_post = new DistributorPost( 1 );
+		$post_media_actual = $dt_post->get_media();
+
+		$post_media_expected = array(
+			array(
+				'id'            => 31,
+				'title'         => 'webp-featured-image',
+				'featured'      => true,
+				'description'   => array(
+					'raw'      => '',
+					'rendered' => '',
+				),
+				'caption' => array(
+					'raw' => '',
+				),
+				'alt_text'      => '',
+				'media_type'    => 'image',
+				'mime_type'     => 'image/webp',
+				'post'          => 0,
+				'source_url'    => 'http://xu-distributor.local/wp-content/uploads/2022/12/webp-featured-image.webp',
+				'source_file'   => '/var/www/html/wp-content/uploads/2022/12/webp-featured-image.webp',
+				'meta'          => array(),
+				'media_details' => array(
+					'width'    => 1920,
+					'height'   => 1080,
+					'file'     => '2022/12/webp-featured-image.webp',
+					'filesize' => 245760,
+					'sizes'    => array(
+						'thumbnail' => array(
+							'file'      => 'webp-featured-image-150x150.webp',
+							'width'     => 150,
+							'height'    => 150,
+							'mime-type' => 'image/webp',
+						),
+						'medium' => array(
+							'file'      => 'webp-featured-image-300x169.webp',
+							'width'     => 300,
+							'height'    => 169,
+							'mime-type' => 'image/webp',
+						),
+						'medium_large' => array(
+							'file'      => 'webp-featured-image-768x432.webp',
+							'width'     => 768,
+							'height'    => 432,
+							'mime-type' => 'image/webp',
+						),
+						'large' => array(
+							'file'      => 'webp-featured-image-1024x576.webp',
+							'width'     => 1024,
+							'height'    => 576,
+							'mime-type' => 'image/webp',
+						),
+					),
+				),
+			),
+		);
+
+		$this->assertEquals( $post_media_expected, $post_media_actual );
+	}
+
+	/**
+	 * Test WebP image processing in mixed content with both WebP and JPEG images.
+	 *
+	 * @covers ::get_media
+	 * @covers ::parse_media_blocks
+	 * @covers ::parse_blocks_for_attachment_id
+	 * @runInSeparateProcess
+	 */
+	public function test_get_media_with_mixed_webp_and_jpeg_images() {
+		$post_content = '<!-- wp:image {"id":31,"sizeSlug":"large","linkDestination":"none"} -->
+		<figure class="wp-block-image size-large"><img src="//xu-distributor.local/wp-content/uploads/2022/12/webp-image.webp" alt="" class="wp-image-31"/></figure>
+		<!-- /wp:image -->
+		<!-- wp:image {"id":11,"sizeSlug":"medium","linkDestination":"none"} -->
+		<figure class="wp-block-image size-medium"><img src="//xu-distributor.local/wp-content/uploads/2022/12/jpeg-image.jpg" alt="" class="wp-image-11"/></figure>
+		<!-- /wp:image -->
+		';
+
+		$this->setup_post_meta_mock( array() );
+
+		\WP_Mock::userFunction(
+			'get_post',
+			array(
+				'return_in_order' => array(
+					(object) array(
+						'ID'           => 1,
+						'post_title'   => 'Mixed WebP and JPEG post',
+						'post_content' => $post_content,
+						'post_excerpt' => '',
+						'guid'         => 'http://example.org/?p=1',
+						'post_name'    => 'test-post',
+					),
+					(object) array(
+						'ID'             => 31,
+						'post_title'     => 'webp-image',
+						'post_content'   => '',
+						'post_excerpt'   => '',
+						'guid'           => 'http://example.org/?p=31',
+						'post_name'      => 'webp-image',
+						'post_parent'    => 0,
+						'post_mime_type' => 'image/webp',
+					),
+					(object) array(
+						'ID'             => 11,
+						'post_title'     => 'jpeg-image',
+						'post_content'   => '',
+						'post_excerpt'   => '',
+						'guid'           => 'http://example.org/?p=11',
+						'post_name'      => 'jpeg-image',
+						'post_parent'    => 0,
+						'post_mime_type' => 'image/jpeg',
+					),
+				),
+			)
+		);
+
+		\WP_Mock::userFunction(
+			'wp_attachment_is_image',
+			array(
+				'return_in_order' => array(
+					true,
+					true,
+				),
+			)
+		);
+
+		\WP_Mock::userFunction(
+			'wp_get_attachment_metadata',
+			array(
+				'return_in_order' => array(
+					array(
+						'file'     => '2022/12/webp-image.webp',
+						'width'    => 1920,
+						'height'   => 1080,
+						'filesize' => 245760,
+						'sizes'    => array(
+							'thumbnail'    => array(
+								'file'      => 'webp-image-150x150.webp',
+								'width'     => 150,
+								'height'    => 150,
+								'mime-type' => 'image/webp',
+							),
+							'medium'       => array(
+								'file'      => 'webp-image-300x169.webp',
+								'width'     => 300,
+								'height'    => 169,
+								'mime-type' => 'image/webp',
+							),
+							'large'        => array(
+								'file'      => 'webp-image-1024x576.webp',
+								'width'     => 1024,
+								'height'    => 576,
+								'mime-type' => 'image/webp',
+							),
+						),
+					),
+					array(
+						'file'     => '2022/12/jpeg-image.jpg',
+						'width'    => 800,
+						'height'   => 600,
+						'filesize' => 153600,
+						'sizes'    => array(
+							'thumbnail'    => array(
+								'file'      => 'jpeg-image-150x150.jpg',
+								'width'     => 150,
+								'height'    => 150,
+								'mime-type' => 'image/jpeg',
+							),
+							'medium'       => array(
+								'file'      => 'jpeg-image-300x225.jpg',
+								'width'     => 300,
+								'height'    => 225,
+								'mime-type' => 'image/jpeg',
+							),
+							'large'        => array(
+								'file'      => 'jpeg-image-800x600.jpg',
+								'width'     => 800,
+								'height'    => 600,
+								'mime-type' => 'image/jpeg',
+							),
+						),
+					),
+				),
+			)
+		);
+
+		\WP_Mock::userFunction(
+			'wp_get_attachment_url',
+			array(
+				'return_in_order' => array(
+					'http://xu-distributor.local/wp-content/uploads/2022/12/webp-image.webp',
+					'http://xu-distributor.local/wp-content/uploads/2022/12/jpeg-image.jpg',
+				),
+			)
+		);
+
+		\WP_Mock::userFunction(
+			'get_attached_file',
+			array(
+				'return_in_order' => array(
+					'/var/www/html/wp-content/uploads/2022/12/webp-image.webp',
+					'/var/www/html/wp-content/uploads/2022/12/jpeg-image.jpg',
+				),
+			)
+		);
+
+		\WP_Mock::userFunction(
+			'has_blocks',
+			array(
+				'return' => true,
+			)
+		);
+
+		\WP_Mock::userFunction(
+			'get_permalink',
+			array(
+				'return_in_order' => array(
+					'http://xu-distributor.local/?p=2',
+					'http://xu-distributor.local/?p=31',
+					'http://xu-distributor.local/?p=11',
+				),
+			),
+		);
+
+		\WP_Mock::userFunction(
+			'get_post_thumbnail_id',
+			array(
+				'return' => false,
+			)
+		);
+
+		\WP_Mock::userFunction(
+			'wp_cache_get',
+			array(
+				'return' => false
+			)
+		);
+
+		\WP_Mock::userFunction(
+			'wp_cache_set',
+			array(
+				'return' => false
+			)
+		);
+
+		$blocks = array(
+			array(
+				'blockName'    => 'core/image',
+				'attrs'        => array(
+					'id'              => 31,
+					'sizeSlug'        => 'large',
+					'linkDestination' => 'none',
+				),
+				'innerBlocks'  => array(),
+				'innerHTML'    => '<figure class="wp-block-image size-large"><img src="//xu-distributor.local/wp-content/uploads/2022/12/webp-image.webp" alt="" class="wp-image-31"/></figure>',
+				'innerContent' => array(
+					'<figure class="wp-block-image size-large"><img src="//xu-distributor.local/wp-content/uploads/2022/12/webp-image.webp" alt="" class="wp-image-31"/></figure>',
+				),
+			),
+			array(
+				'blockName'    => 'core/image',
+				'attrs'        => array(
+					'id'              => 11,
+					'sizeSlug'        => 'medium',
+					'linkDestination' => 'none',
+				),
+				'innerBlocks'  => array(),
+				'innerHTML'    => '<figure class="wp-block-image size-medium"><img src="//xu-distributor.local/wp-content/uploads/2022/12/jpeg-image.jpg" alt="" class="wp-image-11"/></figure>',
+				'innerContent' => array(
+					'<figure class="wp-block-image size-medium"><img src="//xu-distributor.local/wp-content/uploads/2022/12/jpeg-image.jpg" alt="" class="wp-image-11"/></figure>',
+				),
+			),
+		);
+
+		\WP_Mock::userFunction(
+			'parse_blocks',
+			array(
+				'return' => $blocks,
+			)
+		);
+
+		$dt_post = new DistributorPost( 1 );
+		$post_media_actual = $dt_post->get_media();
+
+		$post_media_expected = array(
+			array(
+				'id'            => 31,
+				'title'         => 'webp-image',
+				'featured'      => false,
+				'description'   => array(
+					'raw'      => '',
+					'rendered' => '',
+				),
+				'caption' => array(
+					'raw' => '',
+				),
+				'alt_text'      => '',
+				'media_type'    => 'image',
+				'mime_type'     => 'image/webp',
+				'post'          => 0,
+				'source_url'    => 'http://xu-distributor.local/wp-content/uploads/2022/12/webp-image.webp',
+				'source_file'   => '/var/www/html/wp-content/uploads/2022/12/webp-image.webp',
+				'meta'          => array(),
+				'media_details' => array(
+					'width'    => 1920,
+					'height'   => 1080,
+					'file'     => '2022/12/webp-image.webp',
+					'filesize' => 245760,
+					'sizes'    => array(
+						'thumbnail' => array(
+							'file'      => 'webp-image-150x150.webp',
+							'width'     => 150,
+							'height'    => 150,
+							'mime-type' => 'image/webp',
+						),
+						'medium' => array(
+							'file'      => 'webp-image-300x169.webp',
+							'width'     => 300,
+							'height'    => 169,
+							'mime-type' => 'image/webp',
+						),
+						'large' => array(
+							'file'      => 'webp-image-1024x576.webp',
+							'width'     => 1024,
+							'height'    => 576,
+							'mime-type' => 'image/webp',
+						),
+					),
+				),
+			),
+			array(
+				'id'            => 11,
+				'title'         => 'jpeg-image',
+				'featured'      => false,
+				'description'   => array(
+					'raw'      => '',
+					'rendered' => '',
+				),
+				'caption' => array(
+					'raw' => '',
+				),
+				'alt_text'      => '',
+				'media_type'    => 'image',
+				'mime_type'     => 'image/jpeg',
+				'post'          => 0,
+				'source_url'    => 'http://xu-distributor.local/wp-content/uploads/2022/12/jpeg-image.jpg',
+				'source_file'   => '/var/www/html/wp-content/uploads/2022/12/jpeg-image.jpg',
+				'meta'          => array(),
+				'media_details' => array(
+					'width'    => 800,
+					'height'   => 600,
+					'file'     => '2022/12/jpeg-image.jpg',
+					'filesize' => 153600,
+					'sizes'    => array(
+						'thumbnail' => array(
+							'file'      => 'jpeg-image-150x150.jpg',
+							'width'     => 150,
+							'height'    => 150,
+							'mime-type' => 'image/jpeg',
+						),
+						'medium' => array(
+							'file'      => 'jpeg-image-300x225.jpg',
+							'width'     => 300,
+							'height'    => 225,
+							'mime-type' => 'image/jpeg',
+						),
+						'large' => array(
+							'file'      => 'jpeg-image-800x600.jpg',
+							'width'     => 800,
+							'height'    => 600,
+							'mime-type' => 'image/jpeg',
+						),
+					),
+				),
+			),
+		);
+
+		$this->assertEquals( $post_media_expected, $post_media_actual );
+	}
+
+	/**
+	 * Test WebP image processing with different image sizes and formats.
+	 *
+	 * @covers ::get_media
+	 * @covers ::parse_media_blocks
+	 * @covers ::parse_blocks_for_attachment_id
+	 * @runInSeparateProcess
+	 */
+	public function test_get_media_with_webp_different_sizes() {
+		$post_content = '<!-- wp:image {"id":31,"sizeSlug":"thumbnail","linkDestination":"none"} -->
+		<figure class="wp-block-image size-thumbnail"><img src="//xu-distributor.local/wp-content/uploads/2022/12/webp-thumbnail.webp" alt="" class="wp-image-31"/></figure>
+		<!-- /wp:image -->
+		<!-- wp:image {"id":32,"sizeSlug":"large","linkDestination":"none"} -->
+		<figure class="wp-block-image size-large"><img src="//xu-distributor.local/wp-content/uploads/2022/12/webp-large.webp" alt="" class="wp-image-32"/></figure>
+		<!-- /wp:image -->
+		';
+
+		$this->setup_post_meta_mock( array() );
+
+		\WP_Mock::userFunction(
+			'get_post',
+			array(
+				'return_in_order' => array(
+					(object) array(
+						'ID'           => 1,
+						'post_title'   => 'WebP different sizes post',
+						'post_content' => $post_content,
+						'post_excerpt' => '',
+						'guid'         => 'http://example.org/?p=1',
+						'post_name'    => 'test-post',
+					),
+					(object) array(
+						'ID'             => 31,
+						'post_title'     => 'webp-thumbnail',
+						'post_content'   => '',
+						'post_excerpt'   => '',
+						'guid'           => 'http://example.org/?p=31',
+						'post_name'      => 'webp-thumbnail',
+						'post_parent'    => 0,
+						'post_mime_type' => 'image/webp',
+					),
+					(object) array(
+						'ID'             => 32,
+						'post_title'     => 'webp-large',
+						'post_content'   => '',
+						'post_excerpt'   => '',
+						'guid'           => 'http://example.org/?p=32',
+						'post_name'      => 'webp-large',
+						'post_parent'    => 0,
+						'post_mime_type' => 'image/webp',
+					),
+				),
+			)
+		);
+
+		\WP_Mock::userFunction(
+			'wp_attachment_is_image',
+			array(
+				'return_in_order' => array(
+					true,
+					true,
+				),
+			)
+		);
+
+		\WP_Mock::userFunction(
+			'wp_get_attachment_metadata',
+			array(
+				'return_in_order' => array(
+					array(
+						'file'     => '2022/12/webp-thumbnail.webp',
+						'width'    => 150,
+						'height'   => 150,
+						'filesize' => 15360,
+						'sizes'    => array(
+							'thumbnail' => array(
+								'file'      => 'webp-thumbnail-150x150.webp',
+								'width'     => 150,
+								'height'    => 150,
+								'mime-type' => 'image/webp',
+							),
+						),
+					),
+					array(
+						'file'     => '2022/12/webp-large.webp',
+						'width'    => 1920,
+						'height'   => 1080,
+						'filesize' => 245760,
+						'sizes'    => array(
+							'thumbnail'    => array(
+								'file'      => 'webp-large-150x150.webp',
+								'width'     => 150,
+								'height'    => 150,
+								'mime-type' => 'image/webp',
+							),
+							'medium'       => array(
+								'file'      => 'webp-large-300x169.webp',
+								'width'     => 300,
+								'height'    => 169,
+								'mime-type' => 'image/webp',
+							),
+							'medium_large' => array(
+								'file'      => 'webp-large-768x432.webp',
+								'width'     => 768,
+								'height'    => 432,
+								'mime-type' => 'image/webp',
+							),
+							'large'        => array(
+								'file'      => 'webp-large-1024x576.webp',
+								'width'     => 1024,
+								'height'    => 576,
+								'mime-type' => 'image/webp',
+							),
+						),
+					),
+				),
+			)
+		);
+
+		\WP_Mock::userFunction(
+			'wp_get_attachment_url',
+			array(
+				'return_in_order' => array(
+					'http://xu-distributor.local/wp-content/uploads/2022/12/webp-thumbnail.webp',
+					'http://xu-distributor.local/wp-content/uploads/2022/12/webp-large.webp',
+				),
+			)
+		);
+
+		\WP_Mock::userFunction(
+			'get_attached_file',
+			array(
+				'return_in_order' => array(
+					'/var/www/html/wp-content/uploads/2022/12/webp-thumbnail.webp',
+					'/var/www/html/wp-content/uploads/2022/12/webp-large.webp',
+				),
+			)
+		);
+
+		\WP_Mock::userFunction(
+			'has_blocks',
+			array(
+				'return' => true,
+			)
+		);
+
+		\WP_Mock::userFunction(
+			'get_permalink',
+			array(
+				'return_in_order' => array(
+					'http://xu-distributor.local/?p=2',
+					'http://xu-distributor.local/?p=31',
+					'http://xu-distributor.local/?p=32',
+				),
+			),
+		);
+
+		\WP_Mock::userFunction(
+			'get_post_thumbnail_id',
+			array(
+				'return' => false,
+			)
+		);
+
+		\WP_Mock::userFunction(
+			'wp_cache_get',
+			array(
+				'return' => false
+			)
+		);
+
+		\WP_Mock::userFunction(
+			'wp_cache_set',
+			array(
+				'return' => false
+			)
+		);
+
+		$blocks = array(
+			array(
+				'blockName'    => 'core/image',
+				'attrs'        => array(
+					'id'              => 31,
+					'sizeSlug'        => 'thumbnail',
+					'linkDestination' => 'none',
+				),
+				'innerBlocks'  => array(),
+				'innerHTML'    => '<figure class="wp-block-image size-thumbnail"><img src="//xu-distributor.local/wp-content/uploads/2022/12/webp-thumbnail.webp" alt="" class="wp-image-31"/></figure>',
+				'innerContent' => array(
+					'<figure class="wp-block-image size-thumbnail"><img src="//xu-distributor.local/wp-content/uploads/2022/12/webp-thumbnail.webp" alt="" class="wp-image-31"/></figure>',
+				),
+			),
+			array(
+				'blockName'    => 'core/image',
+				'attrs'        => array(
+					'id'              => 32,
+					'sizeSlug'        => 'large',
+					'linkDestination' => 'none',
+				),
+				'innerBlocks'  => array(),
+				'innerHTML'    => '<figure class="wp-block-image size-large"><img src="//xu-distributor.local/wp-content/uploads/2022/12/webp-large.webp" alt="" class="wp-image-32"/></figure>',
+				'innerContent' => array(
+					'<figure class="wp-block-image size-large"><img src="//xu-distributor.local/wp-content/uploads/2022/12/webp-large.webp" alt="" class="wp-image-32"/></figure>',
+				),
+			),
+		);
+
+		\WP_Mock::userFunction(
+			'parse_blocks',
+			array(
+				'return' => $blocks,
+			)
+		);
+
+		$dt_post = new DistributorPost( 1 );
+		$post_media_actual = $dt_post->get_media();
+
+		$post_media_expected = array(
+			array(
+				'id'            => 31,
+				'title'         => 'webp-thumbnail',
+				'featured'      => false,
+				'description'   => array(
+					'raw'      => '',
+					'rendered' => '',
+				),
+				'caption' => array(
+					'raw' => '',
+				),
+				'alt_text'      => '',
+				'media_type'    => 'image',
+				'mime_type'     => 'image/webp',
+				'post'          => 0,
+				'source_url'    => 'http://xu-distributor.local/wp-content/uploads/2022/12/webp-thumbnail.webp',
+				'source_file'   => '/var/www/html/wp-content/uploads/2022/12/webp-thumbnail.webp',
+				'meta'          => array(),
+				'media_details' => array(
+					'width'    => 150,
+					'height'   => 150,
+					'file'     => '2022/12/webp-thumbnail.webp',
+					'filesize' => 15360,
+					'sizes'    => array(
+						'thumbnail' => array(
+							'file'      => 'webp-thumbnail-150x150.webp',
+							'width'     => 150,
+							'height'    => 150,
+							'mime-type' => 'image/webp',
+						),
+					),
+				),
+			),
+			array(
+				'id'            => 32,
+				'title'         => 'webp-large',
+				'featured'      => false,
+				'description'   => array(
+					'raw'      => '',
+					'rendered' => '',
+				),
+				'caption' => array(
+					'raw' => '',
+				),
+				'alt_text'      => '',
+				'media_type'    => 'image',
+				'mime_type'     => 'image/webp',
+				'post'          => 0,
+				'source_url'    => 'http://xu-distributor.local/wp-content/uploads/2022/12/webp-large.webp',
+				'source_file'   => '/var/www/html/wp-content/uploads/2022/12/webp-large.webp',
+				'meta'          => array(),
+				'media_details' => array(
+					'width'    => 1920,
+					'height'   => 1080,
+					'file'     => '2022/12/webp-large.webp',
+					'filesize' => 245760,
+					'sizes'    => array(
+						'thumbnail' => array(
+							'file'      => 'webp-large-150x150.webp',
+							'width'     => 150,
+							'height'    => 150,
+							'mime-type' => 'image/webp',
+						),
+						'medium' => array(
+							'file'      => 'webp-large-300x169.webp',
+							'width'     => 300,
+							'height'    => 169,
+							'mime-type' => 'image/webp',
+						),
+						'medium_large' => array(
+							'file'      => 'webp-large-768x432.webp',
+							'width'     => 768,
+							'height'    => 432,
+							'mime-type' => 'image/webp',
+						),
+						'large' => array(
+							'file'      => 'webp-large-1024x576.webp',
+							'width'     => 1024,
+							'height'    => 576,
+							'mime-type' => 'image/webp',
+						),
+					),
+				),
+			),
+		);
+
+		$this->assertEquals( $post_media_expected, $post_media_actual );
+	}
+
+	/**
+	 * TODO:
+	 * - Test when receiver does not support webp
+	 * - Test for AVIF images
+	 * - Test for HEIC images
+	 */
 }
