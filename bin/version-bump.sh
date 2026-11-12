@@ -95,9 +95,6 @@ perl -0pi -e "s/^(\s*\* Version:\s+).*
 perl -0pi -e "s/^(define\( 'DT_VERSION', ')([^']+)('\s*\);)
 /\${1}$new_version\${3}\n/m" distributor.php
 
-perl -0pi -e "s/^(define\( 'DT_VERSION', ')([^']+)('\s*\);)
-/\${1}$new_version\${3}\n/m" tests/php/bootstrap.php
-
 perl -0pi -e "s/^(## \[Unreleased\].*\n\n)/\${1}## [$new_version] - TBD\n\n/m" CHANGELOG.md
 
 perl -0pi -e "s#^(\[Unreleased\]: .*\n)#\${1}[$new_version]: https://github.com/10up/distributor/compare/$current_version...$new_version\n#m" CHANGELOG.md

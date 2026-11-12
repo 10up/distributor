@@ -38,7 +38,6 @@
 	<exclude-pattern>/tests/bin/*</exclude-pattern>
 	<exclude-pattern>/tests/cypress/*</exclude-pattern>
 	<exclude-pattern>/tests/e2e-test-plugin/*</exclude-pattern>
-	<exclude-pattern>/tests/php/*</exclude-pattern>
 	<exclude-pattern>/node_modules/*</exclude-pattern>
 	<exclude-pattern>/bin/*</exclude-pattern>
 
