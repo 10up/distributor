@@ -912,7 +912,18 @@ function prepare_taxonomy_terms( $post_id, $args = array() ) {
 	$taxonomies = apply_filters( 'dt_syncable_taxonomies', $taxonomies, $post );
 
 	foreach ( $taxonomies as $taxonomy ) {
-		$taxonomy_terms[ $taxonomy ] = wp_get_object_terms( $post_id, $taxonomy );
+		$terms = wp_get_object_terms( $post_id, $taxonomy );
+
+		// The parents of a term are usually not assigned to the post, so send them along to rebuild the hierarchy.
+		if ( ! is_wp_error( $terms ) ) {
+			foreach ( $terms as $term ) {
+				if ( ! empty( $term->parent ) ) {
+					$term->dt_ancestors = prepare_term_ancestors( $term, $taxonomy );
+				}
+			}
+		}
+
+		$taxonomy_terms[ $taxonomy ] = $terms;
 	}
 
 	/**
@@ -932,6 +943,37 @@ function prepare_taxonomy_terms( $post_id, $args = array() ) {
 	$taxonomy_terms = apply_filters( 'dt_prepared_taxonomy_terms', $taxonomy_terms, $post_id );
 
 	return $taxonomy_terms;
+}
+
+/**
+ * Get the ancestors of a term in the format used for distribution.
+ *
+ * @since x.x.x
+ *
+ * @param WP_Term $term     Term object.
+ * @param string  $taxonomy Taxonomy name.
+ * @return array[] Ancestor terms, nearest parent first. Each has term_id, slug, name, description and parent.
+ */
+function prepare_term_ancestors( $term, $taxonomy ) {
+	$ancestors = [];
+
+	foreach ( get_ancestors( $term->term_id, $taxonomy, 'taxonomy' ) as $ancestor_id ) {
+		$ancestor = get_term( $ancestor_id, $taxonomy );
+
+		if ( ! $ancestor instanceof \WP_Term ) {
+			continue;
+		}
+
+		$ancestors[] = [
+			'term_id'     => $ancestor->term_id,
+			'slug'        => $ancestor->slug,
+			'name'        => $ancestor->name,
+			'description' => $ancestor->description,
+			'parent'      => $ancestor->parent,
+		];
+	}
+
+	return $ancestors;
 }
 
 /**
@@ -1031,7 +1073,56 @@ function set_taxonomy_terms( $post_id, $taxonomy_terms ) {
 		$update_term_hierarchy = apply_filters( 'dt_update_term_hierarchy', true, $taxonomy );
 
 		if ( ! empty( $update_term_hierarchy ) ) {
+			$hierarchy_terms = $terms;
+
+			// Ancestors are only used to rebuild the hierarchy, they are not assigned to the post.
+			// Existing ancestors keep their place, only the ones created here get a parent.
 			foreach ( $terms as $term_array ) {
+				$term_array = (array) $term_array;
+
+				if ( empty( $term_array['dt_ancestors'] ) || ! is_array( $term_array['dt_ancestors'] ) ) {
+					continue;
+				}
+
+				foreach ( $term_array['dt_ancestors'] as $ancestor ) {
+					$ancestor = (array) $ancestor;
+
+					if ( empty( $ancestor['term_id'] ) || empty( $ancestor['slug'] ) || isset( $term_id_mapping[ $ancestor['term_id'] ] ) ) {
+						continue;
+					}
+
+					$ancestor_term = get_term_by( 'slug', $ancestor['slug'], $taxonomy );
+
+					/** This filter is documented in includes/utils.php */
+					$create_missing_terms = apply_filters( 'dt_create_missing_terms', true, $taxonomy, $ancestor, $ancestor_term );
+
+					if ( empty( $ancestor_term ) ) {
+						if ( false === $create_missing_terms ) {
+							continue;
+						}
+
+						$ancestor_term = wp_insert_term(
+							$ancestor['name'] ?? '',
+							$taxonomy,
+							[
+								'slug'        => $ancestor['slug'],
+								'description' => $ancestor['description'] ?? '',
+							]
+						);
+
+						if ( is_wp_error( $ancestor_term ) ) {
+							continue;
+						}
+
+						$term_id_mapping[ $ancestor['term_id'] ] = $ancestor_term['term_id'];
+						$hierarchy_terms[]                       = $ancestor;
+					} else {
+						$term_id_mapping[ $ancestor['term_id'] ] = $ancestor_term->term_id;
+					}
+				}
+			}
+
+			foreach ( $hierarchy_terms as $term_array ) {
 				if ( ! is_array( $term_array ) ) {
 					$term_array = (array) $term_array;
 				}

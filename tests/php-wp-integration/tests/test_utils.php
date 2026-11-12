@@ -12,6 +12,7 @@ use WP_UnitTest_Factory;
 
 use function Distributor\Utils\format_media_post;
 use function Distributor\Utils\post_args_allow_list;
+use function Distributor\Utils\prepare_taxonomy_terms;
 use function Distributor\Utils\set_media;
 use function Distributor\Utils\set_meta;
 use function Distributor\Utils\set_taxonomy_terms;
@@ -270,6 +271,288 @@ class Test_Utils extends WP_UnitTestCase {
 		);
 
 		$this->assertWPError( $term_count, 'Calling get_terms with non-existent taxonomy should return a WP_Error.' );
+	}
+
+	/**
+	 * Test that prepared hierarchical terms carry their ancestors, nearest parent first.
+	 *
+	 * @group Utils
+	 */
+	public function test_prepare_taxonomy_terms_includes_ancestors() {
+		$grandparent = $this->factory()->term->create_and_get(
+			array(
+				'taxonomy' => 'category',
+				'slug'     => 'grandparent',
+			)
+		);
+		$parent      = $this->factory()->term->create_and_get(
+			array(
+				'taxonomy' => 'category',
+				'slug'     => 'parent',
+				'parent'   => $grandparent->term_id,
+			)
+		);
+		$child       = $this->factory()->term->create_and_get(
+			array(
+				'taxonomy' => 'category',
+				'slug'     => 'child',
+				'parent'   => $parent->term_id,
+			)
+		);
+		$tag         = $this->factory()->term->create_and_get(
+			array(
+				'taxonomy' => 'post_tag',
+				'slug'     => 'a-tag',
+			)
+		);
+		$post_id     = $this->factory()->post->create();
+
+		wp_set_object_terms( $post_id, array( $child->term_id ), 'category' );
+		wp_set_object_terms( $post_id, array( $tag->term_id ), 'post_tag' );
+
+		$prepared = prepare_taxonomy_terms( $post_id );
+
+		$this->assertCount( 1, $prepared['category'], 'Only the assigned category should be prepared.' );
+		$this->assertSame(
+			array( 'parent', 'grandparent' ),
+			wp_list_pluck( $prepared['category'][0]->dt_ancestors, 'slug' ),
+			'The ancestors should be listed nearest parent first.'
+		);
+		$this->assertSame( $grandparent->term_id, $prepared['category'][0]->dt_ancestors[0]['parent'], 'Each ancestor should include its own parent.' );
+		$this->assertFalse( isset( $prepared['post_tag'][0]->dt_ancestors ), 'Terms in non-hierarchical taxonomies should not get ancestors.' );
+	}
+
+	/**
+	 * Test that a child term gets its parent when only the child is assigned to the post.
+	 *
+	 * @group Utils
+	 */
+	public function test_set_taxonomy_terms_sets_parent_from_ancestors() {
+		$parent  = $this->factory()->term->create_and_get(
+			array(
+				'taxonomy' => 'category',
+				'slug'     => 'existing-parent',
+			)
+		);
+		$post_id = $this->factory()->post->create();
+
+		set_taxonomy_terms(
+			$post_id,
+			array(
+				'category' => array(
+					array(
+						'slug'         => 'new-child',
+						'name'         => 'New Child',
+						'description'  => '',
+						// The remote site's term IDs.
+						'term_id'      => 502,
+						'parent'       => 501,
+						'dt_ancestors' => array(
+							array(
+								'term_id'     => 501,
+								'slug'        => 'existing-parent',
+								'name'        => 'Existing Parent',
+								'description' => '',
+								'parent'      => 0,
+							),
+						),
+					),
+				),
+			)
+		);
+
+		$child = get_term_by( 'slug', 'new-child', 'category' );
+
+		$this->assertSame( $parent->term_id, $child->parent, 'The child should be placed under the existing parent.' );
+		$this->assertSame( array( $child->term_id ), wp_get_post_terms( $post_id, 'category', array( 'fields' => 'ids' ) ), 'Only the child should be assigned to the post.' );
+	}
+
+	/**
+	 * Test that an ancestor that already exists keeps its own place in the hierarchy.
+	 *
+	 * @group Utils
+	 */
+	public function test_set_taxonomy_terms_keeps_existing_ancestors_in_place() {
+		$local_top = $this->factory()->term->create_and_get(
+			array(
+				'taxonomy' => 'category',
+				'slug'     => 'local-top',
+			)
+		);
+		$parent    = $this->factory()->term->create_and_get(
+			array(
+				'taxonomy' => 'category',
+				'slug'     => 'placed-parent',
+				'parent'   => $local_top->term_id,
+			)
+		);
+		$post_id   = $this->factory()->post->create();
+
+		set_taxonomy_terms(
+			$post_id,
+			array(
+				'category' => array(
+					array(
+						'slug'         => 'placed-child',
+						'name'         => 'Placed Child',
+						'description'  => '',
+						'term_id'      => 32,
+						'parent'       => 31,
+						'dt_ancestors' => array(
+							array(
+								'term_id'     => 31,
+								'slug'        => 'placed-parent',
+								'name'        => 'Placed Parent',
+								'description' => '',
+								// A top-level term on the remote site.
+								'parent'      => 0,
+							),
+						),
+					),
+				),
+			)
+		);
+
+		$child = get_term_by( 'slug', 'placed-child', 'category' );
+
+		$this->assertSame( $parent->term_id, $child->parent, 'The child should be placed under the existing parent.' );
+		$this->assertSame( $local_top->term_id, get_term( $parent->term_id, 'category' )->parent, 'The existing parent should keep its own parent.' );
+	}
+
+	/**
+	 * Test that missing ancestors are created with their own hierarchy.
+	 *
+	 * @group Utils
+	 */
+	public function test_set_taxonomy_terms_creates_missing_ancestors() {
+		$post_id = $this->factory()->post->create();
+
+		set_taxonomy_terms(
+			$post_id,
+			array(
+				'category' => array(
+					array(
+						'slug'         => 'remote-child',
+						'name'         => 'Remote Child',
+						'description'  => '',
+						'term_id'      => 12,
+						'parent'       => 11,
+						'dt_ancestors' => array(
+							array(
+								'term_id'     => 11,
+								'slug'        => 'remote-parent',
+								'name'        => 'Remote Parent',
+								'description' => 'Parent description.',
+								'parent'      => 10,
+							),
+							array(
+								'term_id'     => 10,
+								'slug'        => 'remote-grandparent',
+								'name'        => 'Remote Grandparent',
+								'description' => '',
+								'parent'      => 0,
+							),
+						),
+					),
+				),
+			)
+		);
+
+		$grandparent = get_term_by( 'slug', 'remote-grandparent', 'category' );
+		$parent      = get_term_by( 'slug', 'remote-parent', 'category' );
+		$child       = get_term_by( 'slug', 'remote-child', 'category' );
+
+		$this->assertInstanceOf( 'WP_Term', $grandparent, 'The grandparent should be created.' );
+		$this->assertInstanceOf( 'WP_Term', $parent, 'The parent should be created.' );
+		$this->assertSame( 'Parent description.', $parent->description, 'The parent should keep its description.' );
+		$this->assertSame( 0, $grandparent->parent, 'The grandparent should be a top-level term.' );
+		$this->assertSame( $grandparent->term_id, $parent->parent, 'The parent should be placed under the grandparent.' );
+		$this->assertSame( $parent->term_id, $child->parent, 'The child should be placed under the parent.' );
+		$this->assertSame( array( $child->term_id ), wp_get_post_terms( $post_id, 'category', array( 'fields' => 'ids' ) ), 'Only the child should be assigned to the post.' );
+	}
+
+	/**
+	 * Test that ancestors are not created when missing terms should not be created.
+	 *
+	 * @group Utils
+	 */
+	public function test_set_taxonomy_terms_does_not_create_ancestors_when_disabled() {
+		$post_id = $this->factory()->post->create();
+		$child   = $this->factory()->term->create_and_get(
+			array(
+				'taxonomy' => 'category',
+				'slug'     => 'local-child',
+			)
+		);
+
+		add_filter( 'dt_create_missing_terms', '__return_false' );
+
+		set_taxonomy_terms(
+			$post_id,
+			array(
+				'category' => array(
+					array(
+						'slug'         => 'local-child',
+						'name'         => 'Local Child',
+						'term_id'      => 22,
+						'parent'       => 21,
+						'dt_ancestors' => array(
+							array(
+								'term_id'     => 21,
+								'slug'        => 'unwanted-parent',
+								'name'        => 'Unwanted Parent',
+								'description' => '',
+								'parent'      => 0,
+							),
+						),
+					),
+				),
+			)
+		);
+
+		$this->assertFalse( get_term_by( 'slug', 'unwanted-parent', 'category' ), 'The ancestor should not be created.' );
+		$this->assertSame( 0, get_term( $child->term_id, 'category' )->parent, 'The child should stay a top-level term.' );
+	}
+
+	/**
+	 * Test the round trip through the REST API format: prepared terms encoded as JSON.
+	 *
+	 * @group Utils
+	 */
+	public function test_taxonomy_terms_hierarchy_survives_json_round_trip() {
+		$parent      = $this->factory()->term->create_and_get(
+			array(
+				'taxonomy' => 'category',
+				'slug'     => 'json-parent',
+				'name'     => 'JSON Parent',
+			)
+		);
+		$child       = $this->factory()->term->create_and_get(
+			array(
+				'taxonomy' => 'category',
+				'slug'     => 'json-child',
+				'name'     => 'JSON Child',
+				'parent'   => $parent->term_id,
+			)
+		);
+		$origin_post = $this->factory()->post->create();
+
+		wp_set_object_terms( $origin_post, array( $child->term_id ), 'category' );
+		$payload = json_decode( wp_json_encode( prepare_taxonomy_terms( $origin_post ) ), true );
+
+		// Remove both terms, as if the receiving site never had them.
+		wp_delete_term( $child->term_id, 'category' );
+		wp_delete_term( $parent->term_id, 'category' );
+
+		$post_id = $this->factory()->post->create();
+		set_taxonomy_terms( $post_id, array( 'category' => $payload['category'] ) );
+
+		$new_parent = get_term_by( 'slug', 'json-parent', 'category' );
+		$new_child  = get_term_by( 'slug', 'json-child', 'category' );
+
+		$this->assertInstanceOf( 'WP_Term', $new_parent, 'The parent should be recreated.' );
+		$this->assertSame( $new_parent->term_id, $new_child->parent, 'The child should be placed under the recreated parent.' );
+		$this->assertSame( array( $new_child->term_id ), wp_get_post_terms( $post_id, 'category', array( 'fields' => 'ids' ) ), 'Only the child should be assigned to the post.' );
 	}
 
 	/**
