@@ -57,6 +57,16 @@ class Test_NetworkSiteConnections extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Tear down shared fixtures.
+	 *
+	 * Sites are not removed by the test suite's data cleanup, so delete the
+	 * sub-site to avoid its tables leaking into later test runs.
+	 */
+	public static function wpTearDownAfterClass() {
+		wp_delete_site( self::$blog_id );
+	}
+
+	/**
 	 * Test set up.
 	 */
 	public function set_up() {

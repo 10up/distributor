@@ -21,7 +21,6 @@
     }
   },
   "require-dev": {
-    "10up/wp_mock": "~0.4",
     "phpunit/phpunit": "^8.5",
     "yoast/phpunit-polyfills": "^1.0",
     "automattic/vipwpcs": "^3.0",
@@ -31,7 +30,10 @@
   "scripts": {
     "lint": "@php phpcs . --runtime-set testVersion 7.4-",
     "lint-fix": "phpcbf .",
-    "test": "@php phpunit"
+    "test": "@php -r \"fwrite(STDERR, 'The PHPUnit tests run in wp-env.' . PHP_EOL . 'Start the environment: npm run env:start' . PHP_EOL . 'Run the tests: npm run test:php' . PHP_EOL); exit(1);\""
+  },
+  "scripts-descriptions": {
+    "test": "PHPUnit runs in wp-env: use `npm run test:php`."
   },
   "minimum-stability": "dev",
   "prefer-stable": true,

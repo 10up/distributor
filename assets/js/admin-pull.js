@@ -164,7 +164,7 @@ if ( chooseConnection && choosePostType && form ) {
 
 				for ( let i = 0; i < pullLinks.length; ++i ) {
 					pullLinks[ i ].href = addQueryArgs( pullLinks[ i ].href, {
-						dt_as_draft: '' /*eslint camelcase: 0*/,
+						dt_as_draft: '',
 					} );
 					pullLinks[ i ].text = __( 'Pull', 'distributor' );
 				}

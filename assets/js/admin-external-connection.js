@@ -239,7 +239,7 @@ jQuery( authorizeConnectionButton ).on( 'click', ( event ) => {
 					dt.home_url
 				),
 				success_url: encodeURI( successURL ) /*eslint camelcase: 0*/,
-				reject_url: encodeURI( failureURL ) /*eslint camelcase: 0*/,
+				reject_url: encodeURI( failureURL ),
 			} );
 			document.location = authURL;
 		} );
@@ -600,7 +600,7 @@ jQuery( rolesAllowed ).on( 'click', '.dt-role-checkbox', ( event ) => {
 				'Be careful assigning less trusted roles push privileges as they will inherit the capabilities of the user on the remote site.',
 				'distributor'
 			)
-		); // eslint-disable-line no-alert
+		);
 	}
 } );
 
@@ -768,7 +768,7 @@ if ( beginAuthorize ) {
 /**
  * Check if an element is hidden or not.
  *
- * @param {*} el Element to check.
+ * @param {HTMLElement} el Element to check.
  */
 function isHidden( el ) {
 	return null === el.offsetParent;

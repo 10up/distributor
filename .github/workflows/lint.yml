@@ -49,9 +49,11 @@ jobs:
 
     - name: Generate linting report
       run: npm run lint:js -- --output-file eslint-report.json --format json
-      continue-on-error: true
+      # Fork PRs get a read-only token and can't create the annotation check run, so fail here instead.
+      continue-on-error: ${{ ! github.event.pull_request.head.repo.fork }}
 
     - name: Annotate code linting results
+      if: ${{ ! github.event.pull_request.head.repo.fork }}
       uses: ataylorme/eslint-annotate-action@5f4dc2e3af8d3c21b727edb597e5503510b1dc9c # v2.2.0
       with:
         repo-token: '${{ secrets.GITHUB_TOKEN }}'

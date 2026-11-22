@@ -292,7 +292,6 @@ Cypress.Commands.add( 'createTweetOEmbedPost', ( tweetUrl ) => {
 			cy.insertBlock( 'core/embed/twitter', 'Twitter' ).then( ( id ) => {
 				cy.getBlockEditor()
 					.find( `#${ id } input[type="url"]` )
-					.click()
 					.type( tweetUrl );
 				cy.getBlockEditor()
 					.find( `#${ id } button[type="submit"]` )

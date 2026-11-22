@@ -46,8 +46,8 @@ module.exports = defineConfig( {
 /**
  * Set WP URL as baseUrl in Cypress config.
  *
- * @param {Function} on     function that used to register listeners on various events.
- * @param {Object}   config Cypress Config object.
+ * @param {Cypress.PluginEvents} on     function that used to register listeners on various events.
+ * @param {Object}               config Cypress Config object.
  * @return {Object} Updated Cypress Config object.
  */
 const setBaseUrl = async ( on, config ) => {

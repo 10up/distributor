@@ -419,6 +419,9 @@ class Test_Utils extends WP_UnitTestCase {
 			'title'       => 'New Title',
 			'description' => array( 'raw' => 'New content' ),
 			'caption'     => array( 'raw' => 'New caption' ),
+			'meta'        => array(
+				'dt_test_media_meta' => array( 'media meta value' ),
+			),
 		);
 
 		set_media( $post_id, array( $media_item ), array( 'use_filesystem' => false ) );
@@ -430,6 +433,7 @@ class Test_Utils extends WP_UnitTestCase {
 		$this->assertSame( 'New content', $updated_media->post_content, 'Media content should use updated value.' );
 		$this->assertSame( 'New caption', $updated_media->post_excerpt, 'Media excerpt should use updated value.' );
 		$this->assertSame( '999', get_post_meta( $existing_media_id, 'dt_original_media_id', true ), 'Original post ID should be recorded correctly.' );
+		$this->assertSame( 'media meta value', get_post_meta( $existing_media_id, 'dt_test_media_meta', true ), 'Media item meta should be transferred to the attachment.' );
 	}
 
 	/**
