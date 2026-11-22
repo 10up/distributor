@@ -676,6 +676,41 @@ class Test_DistributorPost extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Test that updating a distributed post only includes the post status when enabled.
+	 *
+	 * @dataProvider data_to_insert_update_post_status
+	 * @covers ::to_insert
+	 *
+	 * @param bool $distribute_status Whether post status distribution is enabled.
+	 */
+	public function test_to_insert_update_post_status( $distribute_status ) {
+		add_filter( 'dt_distribute_post_status', $distribute_status ? '__return_true' : '__return_false' );
+
+		$dt_post   = new DistributorPost( $this->create_post( 'source', array( 'post_status' => 'draft' ) ) );
+		$to_insert = $dt_post->to_insert( array( 'remote_post_id' => 2 ) );
+
+		$this->assertSame( 2, $to_insert['ID'] );
+
+		if ( $distribute_status ) {
+			$this->assertSame( 'draft', $to_insert['post_status'], 'Origin post status should be distributed.' );
+		} else {
+			$this->assertArrayNotHasKey( 'post_status', $to_insert, 'Post status should not be updated.' );
+		}
+	}
+
+	/**
+	 * Data provider for test_to_insert_update_post_status.
+	 *
+	 * @return array[]
+	 */
+	public function data_to_insert_update_post_status() {
+		return array(
+			'status distribution disabled' => array( false ),
+			'status distribution enabled'  => array( true ),
+		);
+	}
+
+	/**
 	 * Test get_canonical_url() method for a distributed post.
 	 */
 	public function test_get_canonical_url() {
